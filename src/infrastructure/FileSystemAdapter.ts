@@ -5,7 +5,7 @@
  */
 
 import * as fs from 'fs';
-import { Filesystem } from '../domain/Filesystem';
+import type { Filesystem } from '../domain/Filesystem';
 
 export class FileSystemAdapter implements Filesystem {
   readFile(path: string): string {

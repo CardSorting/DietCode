@@ -5,7 +5,7 @@
 
 import type { LLMProvider } from '../domain/LLMProvider';
 import type { TerminalInterface } from '../domain/TerminalInterface';
-import type { SessionState, Message, ToolResult as ToolResultState } from '../domain/SessionState';
+import type { SessionState, Message } from '../domain/SessionState';
 import { createInitialState } from '../domain/SessionState';
 import type { ToolManager } from './ToolManager';
 import type { CommandProcessor } from './CommandProcessor';
@@ -14,10 +14,13 @@ import type { SessionRepository } from '../domain/SessionRepository';
 import type { DecisionRepository } from '../domain/DecisionRepository';
 import type { ProjectContext } from '../domain/ProjectContext';
 import { SovereignDb } from '../infrastructure/database/SovereignDb';
+import type { AgentRegistry } from './AgentRegistry';
+import type { Agent } from '../domain/Agent';
 
 export class Orchestrator {
   private state: SessionState;
   private currentSessionId: string | null = null;
+  private agent: Agent;
 
   constructor(
     private provider: LLMProvider,
@@ -26,9 +29,15 @@ export class Orchestrator {
     private commandProcessor: CommandProcessor,
     private repository: SessionRepository,
     private decisions: DecisionRepository,
+    private agentRegistry: AgentRegistry,
     private project: ProjectContext
   ) {
-    this.state = createInitialState('You are DietCode, a minimalist coding assistant.');
+    const defaultAgent = this.agentRegistry.getAgent(this.agentRegistry.defaultAgentId);
+    if (!defaultAgent) {
+      throw new Error(`Default agent ${this.agentRegistry.defaultAgentId} not found`);
+    }
+    this.agent = defaultAgent;
+    this.state = createInitialState(this.agent.systemPrompt);
   }
 
   async run(userInput: string) {
@@ -45,13 +54,17 @@ export class Orchestrator {
       if (!this.currentSessionId) {
         this.currentSessionId = await this.repository.createSession(
           'user-default',
-          'agent-dietcode',
+          this.agent.id,
           userInput.slice(0, 50) + '...'
         );
       }
 
       const sessionId = this.currentSessionId!;
-      const userMessage: Message = { role: 'user', content: userInput };
+      const userMessage: Message = { 
+        role: 'user', 
+        content: userInput,
+        timestamp: new Date().toISOString()
+      };
       this.state.messages.push(userMessage);
       await this.repository.appendMessage(sessionId, userMessage);
 
@@ -59,9 +72,10 @@ export class Orchestrator {
         let response;
         try {
           response = await this.provider.createMessage(
+            this.agent,
             this.state.messages,
             this.toolManager.getAllTools(),
-            { taskId: sessionId, agentId: 'agent-dietcode' }
+            { taskId: sessionId }
           );
         } catch (error: any) {
           this.ui.logError(`LLM failure: ${error.message}`);
@@ -69,7 +83,11 @@ export class Orchestrator {
           break;
         }
 
-        const assistantMessage: Message = { role: 'assistant', content: response.content };
+        const assistantMessage: Message = { 
+          role: 'assistant', 
+          content: response.content,
+          timestamp: new Date().toISOString()
+        };
         this.state.messages.push(assistantMessage);
         await this.repository.appendMessage(sessionId, assistantMessage);
 
@@ -82,7 +100,7 @@ export class Orchestrator {
           const rationale = response.content.find((c: any) => c.type === 'text')?.text || 'Automatic tool selection';
           await this.decisions.recordDecision(
             sessionId,
-            'agent-dietcode',
+            this.agent.id,
             this.project.repoPath,
             JSON.stringify(toolCalls.map(tc => tc.name)),
             rationale
@@ -113,26 +131,23 @@ export class Orchestrator {
           break;
         }
 
-        const results: ToolResultState[] = [];
+        const results: any[] = [];
         for (const call of toolCalls) {
           this.ui.logToolUse(call.name, call.input);
           const result = await this.toolManager.executeTool(call.name, call.input);
           
           results.push({
+            type: 'tool_result',
             tool_use_id: call.id,
             content: result.content,
-            isError: result.isError,
+            is_error: result.isError,
           });
         }
 
         const toolResultMessage: Message = {
           role: 'user',
-          content: results.map(r => ({
-            type: 'tool_result',
-            tool_use_id: r.tool_use_id,
-            content: r.content,
-            is_error: r.isError
-          })) as any
+          content: results,
+          timestamp: new Date().toISOString()
         };
 
         this.state.messages.push(toolResultMessage);

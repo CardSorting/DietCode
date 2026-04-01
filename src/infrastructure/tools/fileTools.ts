@@ -4,8 +4,8 @@
  * Uses the Domain Filesystem interface for operations.
  */
 
-import { ToolDefinition, ToolResult } from '../../domain/ToolDefinition';
-import { Filesystem } from '../../domain/Filesystem';
+import type { ToolDefinition, ToolResult } from '../../domain/ToolDefinition';
+import type { Filesystem } from '../../domain/Filesystem';
 
 export const createReadFileTool = (fs: Filesystem): ToolDefinition<{ path: string }> => ({
   name: 'read_file',

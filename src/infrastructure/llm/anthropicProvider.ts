@@ -8,6 +8,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import type { LLMProvider, LLMResponse } from '../../domain/LLMProvider';
 import type { Message } from '../../domain/SessionState';
 import type { ToolDefinition } from '../../domain/ToolDefinition';
+import type { Agent } from '../../domain/Agent';
 import { SovereignDb } from '../database/SovereignDb';
 
 export class AnthropicProvider implements LLMProvider {
@@ -18,14 +19,17 @@ export class AnthropicProvider implements LLMProvider {
   }
 
   async createMessage(
+    agent: Agent,
     messages: Message[],
     tools: ToolDefinition[],
-    metadata?: { taskId?: string; agentId?: string }
+    metadata?: { taskId?: string }
   ): Promise<LLMResponse> {
     const startTime = Date.now();
     const response = await this.client.beta.messages.create({
-      model: 'claude-3-7-sonnet-20250219',
-      max_tokens: 4096,
+      model: agent.model || 'claude-3-7-sonnet-20250219',
+      system: agent.systemPrompt,
+      max_tokens: agent.def.maxTokens || 4096,
+      temperature: agent.def.temperature,
       messages: messages.map(m => ({
         role: m.role as 'user' | 'assistant',
         content: m.content as any
@@ -41,16 +45,20 @@ export class AnthropicProvider implements LLMProvider {
     const completionTime = Date.now();
     
     // Log telemetry to BroccoliDB asynchronously
-    this.logTelemetry(response, metadata, completionTime - startTime).catch(err => {
+    this.logTelemetry(response, agent.id, completionTime - startTime, metadata?.taskId).catch(err => {
       console.error('[TELEMETRY] Failed to log:', err);
     });
 
     return {
-      content: response.content
+      content: response.content,
+      usage: {
+        input_tokens: response.usage.input_tokens,
+        output_tokens: response.usage.output_tokens,
+      },
     };
   }
 
-  private async logTelemetry(response: any, metadata: any, duration: number) {
+  private async logTelemetry(response: any, agentId: string, duration: number, taskId?: string) {
     try {
       const db = await SovereignDb.db();
       const usage = response.usage;
@@ -69,8 +77,8 @@ export class AnthropicProvider implements LLMProvider {
         .values({
           id: globalThis.crypto.randomUUID(),
           repoPath: process.cwd(),
-          agentId: metadata?.agentId ?? 'dietcode-default',
-          taskId: metadata?.taskId ?? null,
+          agentId: agentId,
+          taskId: taskId ?? null,
           promptTokens,
           completionTokens,
           totalTokens,

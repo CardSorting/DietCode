@@ -154,6 +154,7 @@ export class SqliteSessionRepository implements SessionRepository {
     }
 
     return {
+      conversationId: sessionId,
       messages,
       systemPrompt: 'You are DietCode, a minimalist coding assistant.',
       metadata: { sessionId },

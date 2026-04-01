@@ -4,7 +4,7 @@
  * Parses user input to identify and execute internal commands.
  */
 
-import { CommandDefinition } from '../domain/CommandDefinition';
+import type { CommandDefinition } from '../domain/CommandDefinition';
 
 export class CommandProcessor {
   private commands: Map<string, CommandDefinition> = new Map();
@@ -20,6 +20,7 @@ export class CommandProcessor {
 
   async process(input: string): Promise<boolean> {
     const [commandName, ...args] = input.slice(1).split(' ');
+    if (!commandName) return false;
     const command = this.commands.get(commandName);
 
     if (command) {

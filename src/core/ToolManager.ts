@@ -4,7 +4,7 @@
  * Coordinates between Domain definitions and Infrastructure implementations.
  */
 
-import { ToolDefinition, ToolResult } from '../domain/ToolDefinition';
+import type { ToolDefinition, ToolResult } from '../domain/ToolDefinition';
 
 export class ToolManager {
   private tools: Map<string, ToolDefinition> = new Map();

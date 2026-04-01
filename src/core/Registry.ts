@@ -42,4 +42,5 @@ export const SERVICES = {
   REPOSITORY: 'SessionRepository',
   DECISIONS_REPOSITORY: 'DecisionRepository',
   QUEUE: 'SqliteQueue',
+  AGENT_REGISTRY: 'AgentRegistry',
 };

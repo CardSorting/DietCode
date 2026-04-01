@@ -12,6 +12,7 @@ import { Registry, SERVICES } from './src/core/Registry';
 import { SovereignDb } from './src/infrastructure/database/SovereignDb';
 import { SqliteSessionRepository } from './src/infrastructure/database/SqliteSessionRepository';
 import { SqliteDecisionRepository } from './src/infrastructure/database/SqliteDecisionRepository';
+import { AgentRegistry } from './src/core/AgentRegistry';
 import { QueueWorker } from './src/infrastructure/queue/QueueWorker';
 import type { ProjectContext } from './src/domain/ProjectContext';
 
@@ -45,6 +46,18 @@ async function main() {
   const provider = new AnthropicProvider(apiKey);
 
   const registry = Registry.getInstance();
+  const agentRegistry = new AgentRegistry();
+
+  // Register default agent
+  agentRegistry.register({
+    id: 'agent-dietcode',
+    title: 'DietCode Assistant',
+    description: 'A minimalist, architecturally pure AI coding assistant.',
+    systemPrompt: 'You are DietCode, a minimalist coding assistant. You follow the JoyZoning architecture.',
+    model: 'claude-3-7-sonnet-20250219',
+    maxTokens: 4096,
+  });
+
   registry.register(SERVICES.FS, fs);
   registry.register(SERVICES.LLM, provider);
   registry.register(SERVICES.UI, ui);
@@ -52,6 +65,7 @@ async function main() {
   registry.register(SERVICES.REPOSITORY, repository);
   registry.register(SERVICES.DECISIONS_REPOSITORY, decisions);
   registry.register(SERVICES.QUEUE, await SovereignDb.getQueue());
+  registry.register(SERVICES.AGENT_REGISTRY, agentRegistry);
 
   const toolManager = new ToolManager();
   toolManager.registerTool(createReadFileTool(fs));
@@ -81,6 +95,7 @@ async function main() {
     commandProcessor, 
     repository,
     decisions,
+    agentRegistry,
     projectContext
   );
 

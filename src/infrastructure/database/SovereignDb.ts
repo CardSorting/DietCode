@@ -56,6 +56,13 @@ export class SovereignDb {
   /**
    * Gets the high-performance buffered pool.
    */
+  static async getPool(): Promise<BufferedDbPool> {
+    if (!this.isInitialized) {
+      await this.init();
+    }
+    return this.pool!;
+  }
+
   /**
    * Gets the Sovereign Queue instance.
    */

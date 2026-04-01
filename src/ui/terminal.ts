@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import * as readline from 'readline';
-import { TerminalInterface } from '../domain/TerminalInterface';
+import type { TerminalInterface } from '../domain/TerminalInterface';
 
 export class TerminalUI implements TerminalInterface {
   private rl: readline.Interface;
