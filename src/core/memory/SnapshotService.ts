@@ -4,8 +4,8 @@
  */
 
 import * as crypto from 'node:crypto';
-import type { Snapshot, SnapshotRepository } from '../domain/memory/Snapshot';
-import type { Filesystem } from '../domain/system/Filesystem';
+import type { Snapshot, SnapshotRepository } from '../../domain/memory/Snapshot';
+import type { Filesystem } from '../../domain/system/Filesystem';
 
 export class SnapshotService {
   constructor(

@@ -5,9 +5,9 @@
 
 import { FileSystemAdapter } from './src/infrastructure/FileSystemAdapter';
 import { IntegrityAdapter } from './src/infrastructure/IntegrityAdapter';
-import { IntegrityService } from './src/core/IntegrityService';
-import { Ignorer } from './src/core/Ignorer';
-import { ContextPruner } from './src/core/ContextPruner';
+import { IntegrityService } from './src/core/integrity/IntegrityService';
+import { Ignorer } from './src/core/context/Ignorer';
+import { ContextPruner } from './src/core/context/ContextPruner';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -42,7 +42,7 @@ async function verify() {
   fs.writeFileSync(violationFile, 'import * as fs from "fs";\nexport const x = 1;');
   
   const report = await integrityService.check(root);
-  const violationFound = report.violations.some(v => v.file.includes('Violation.ts'));
+  const violationFound = report.violations.some((v: any) => v.file.includes('Violation.ts'));
   
   console.log(`[PASS] Integrity Score: ${report.score}/100`);
   console.log(`[PASS] Violation detected in domain: ${violationFound}`);

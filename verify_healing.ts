@@ -4,10 +4,10 @@
  */
 
 import { SovereignDb } from './src/infrastructure/database/SovereignDb';
-import { SelfHealingService } from './src/core/SelfHealingService';
+import { SelfHealingService } from './src/core/integrity/SelfHealingService';
 import { ViolationType } from './src/domain/memory/Integrity';
 import { QueueWorker } from './src/infrastructure/queue/QueueWorker';
-import { AgentRegistry } from './src/core/AgentRegistry';
+import { AgentRegistry } from './src/core/capabilities/AgentRegistry';
 
 // Mock LLM Provider for generating a proposal
 class MockHealerProvider {

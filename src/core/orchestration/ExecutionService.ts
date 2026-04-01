@@ -4,8 +4,8 @@
  */
 
 import { EventBus } from './EventBus';
-import { SnapshotService } from './SnapshotService';
-import { EventType } from '../domain/Event';
+import { SnapshotService } from '../memory/SnapshotService';
+import { EventType } from '../../domain/Event';
 
 export class ExecutionService {
   constructor(
@@ -27,22 +27,22 @@ export class ExecutionService {
     // 1. Snapshot (Safety)
     if (filePath) {
       await this.snapshotService.capture(filePath);
-      this.eventBus.publish(EventType.SNAPSHOT_CREATED, { filePath }, correlationId);
+      this.eventBus.publish(EventType.SNAPSHOT_CREATED, { filePath }, { correlationId });
     }
 
     // 2. Start Event
-    this.eventBus.publish(EventType.TOOL_CALL_START, { toolName, args }, correlationId);
+    this.eventBus.publish(EventType.TOOL_CALL_START, { toolName, args }, { correlationId });
 
     try {
       // 3. Execution
       const result = await executor(args);
 
       // 4. Success Event
-      this.eventBus.publish(EventType.TOOL_CALL_SUCCESS, { toolName, result }, correlationId);
+      this.eventBus.publish(EventType.TOOL_CALL_SUCCESS, { toolName, result }, { correlationId });
       return result;
     } catch (error: any) {
       // 5. Failure Event
-      this.eventBus.publish(EventType.TOOL_CALL_FAILURE, { toolName, error: error.message }, correlationId);
+      this.eventBus.publish(EventType.TOOL_CALL_FAILURE, { toolName, error: error.message }, { correlationId });
       throw error;
     }
   }

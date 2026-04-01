@@ -1,9 +1,9 @@
 import * as path from 'path';
-import type { Skill } from '../domain/agent/Skill';
-import type { ProjectContext } from '../domain/context/ProjectContext';
-import type { Filesystem } from '../domain/system/Filesystem';
-import { EventBus } from './EventBus';
-import { EventType } from '../domain/Event';
+import type { Skill } from '../../domain/agent/Skill';
+import type { ProjectContext } from '../../domain/context/ProjectContext';
+import type { Filesystem } from '../../domain/system/Filesystem';
+import { EventBus } from '../orchestration/EventBus';
+import { EventType } from '../../domain/Event';
 
 export class SkillLoader {
   private eventBus: EventBus = EventBus.getInstance();

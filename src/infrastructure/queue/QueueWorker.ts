@@ -6,10 +6,10 @@
 
 import { SovereignDb } from '../database/SovereignDb';
 import type { DecisionRepository } from '../../domain/memory/DecisionRepository';
-import type { MemoryService } from '../../core/MemoryService';
-import type { SelfHealingService } from '../../core/SelfHealingService';
+import type { MemoryService } from '../../core/memory/MemoryService';
+import type { SelfHealingService } from '../../core/integrity/SelfHealingService';
 import type { LLMProvider } from '../../domain/LLMProvider';
-import type { AgentRegistry } from '../../core/AgentRegistry';
+import type { AgentRegistry } from '../../core/capabilities/AgentRegistry';
 
 export class QueueWorker {
   private isProcessing = false;

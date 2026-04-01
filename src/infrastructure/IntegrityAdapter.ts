@@ -4,10 +4,10 @@
  */
 
 import * as path from 'path';
-import type { IntegrityScanner } from '../core/IntegrityService';
-import type { IntegrityReport, IntegrityViolation } from '../domain/Integrity';
-import { ViolationType } from '../domain/Integrity';
-import type { Filesystem } from '../domain/Filesystem';
+import type { IntegrityScanner } from '../core/integrity/IntegrityService';
+import type { IntegrityReport, IntegrityViolation } from '../domain/memory/Integrity';
+import { ViolationType } from '../domain/memory/Integrity';
+import type { Filesystem } from '../domain/system/Filesystem';
 
 export class IntegrityAdapter implements IntegrityScanner {
   constructor(private filesystem: Filesystem) {}

@@ -4,9 +4,9 @@
  * Decouples service lookup from business logic.
  */
 
-import type { LLMProvider } from '../domain/LLMProvider';
-import type { TerminalInterface } from '../domain/system/TerminalInterface';
-import type { Filesystem } from '../domain/system/Filesystem';
+import type { LLMProvider } from '../../domain/LLMProvider';
+import type { TerminalInterface } from '../../domain/system/TerminalInterface';
+import type { Filesystem } from '../../domain/system/Filesystem';
 
 export class Registry {
   private static instance: Registry;

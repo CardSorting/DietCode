@@ -4,7 +4,7 @@
  */
 
 import { EventEmitter } from 'events';
-import type { SystemEvent, EventType } from '../domain/Event';
+import type { SystemEvent, EventType } from '../../domain/Event';
 
 export class EventBus {
   private static instance: EventBus;
@@ -50,5 +50,11 @@ export class EventBus {
    */
   off(type: EventType | '*', listener: (event: SystemEvent) => void): void {
     this.emitter.off(type, listener);
+  }
+  /**
+   * Alias for emit for backward compatibility.
+   */
+  publish(type: EventType, data: Record<string, any> = {}, metadata: SystemEvent['metadata'] = {}): void {
+    this.emit(type, data, metadata);
   }
 }

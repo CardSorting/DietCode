@@ -4,7 +4,7 @@
  * "Prunes" or "folds" large attachments to keep the most relevant information.
  */
 
-import type { Attachment } from '../domain/context/Attachment';
+import type { Attachment } from '../../domain/context/Attachment';
 
 export class ContextPruner {
   private readonly MAX_FILE_LINES = 150;

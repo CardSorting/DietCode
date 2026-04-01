@@ -3,7 +3,7 @@
  * Principle: Orchestration — coordinates fuzzy path resolution.
  */
 
-import { FuzzySearchRepository } from '../infrastructure/FuzzySearchRepository';
+import { FuzzySearchRepository } from '../../infrastructure/FuzzySearchRepository';
 
 export class SearchService {
   constructor(private repository: FuzzySearchRepository) {}

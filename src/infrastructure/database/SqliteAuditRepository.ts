@@ -5,7 +5,7 @@
 
 import { SovereignDb } from './SovereignDb';
 import type { Reasoning } from '../../domain/memory/Reasoning';
-import { EventBus } from '../../core/EventBus';
+import { EventBus } from '../../core/orchestration/EventBus';
 import type { SystemEvent } from '../../domain/Event';
 
 export interface AuditRecord {

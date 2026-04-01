@@ -3,9 +3,9 @@
  * Principle: Cognitive Continuity — manages the distillation and recall of knowledge.
  */
 
-import { KnowledgeType, type KnowledgeItem, type KnowledgeRepository } from '../domain/memory/Knowledge';
-import type { LLMProvider } from '../domain/LLMProvider';
-import type { AgentRegistry } from './AgentRegistry';
+import { KnowledgeType, type KnowledgeItem, type KnowledgeRepository } from '../../domain/memory/Knowledge';
+import type { LLMProvider } from '../../domain/LLMProvider';
+import type { AgentRegistry } from '../capabilities/AgentRegistry';
 
 export class MemoryService {
   constructor(

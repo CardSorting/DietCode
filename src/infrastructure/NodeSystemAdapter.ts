@@ -6,9 +6,9 @@
 import * as os from 'os';
 import * as path from 'path';
 import { execSync } from 'child_process';
-import type { SystemAdapter } from '../domain/SystemAdapter';
-import type { SystemInfo, RepoContext } from '../domain/SystemContext';
-import type { Filesystem } from '../domain/Filesystem';
+import type { SystemAdapter } from '../domain/system/SystemAdapter';
+import type { SystemInfo, RepoContext } from '../domain/context/SystemContext';
+import type { Filesystem } from '../domain/system/Filesystem';
 
 export class NodeSystemAdapter implements SystemAdapter {
   constructor(private filesystem: Filesystem) {}

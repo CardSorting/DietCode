@@ -4,9 +4,9 @@
  * Coordinates between Domain definitions and Infrastructure implementations.
  */
 
-import type { ToolDefinition, ToolResult } from '../domain/agent/ToolDefinition';
-import { EventBus } from './EventBus';
-import { EventType } from '../domain/Event';
+import type { ToolDefinition, ToolResult } from '../../domain/agent/ToolDefinition';
+import { EventBus } from '../orchestration/EventBus';
+import { EventType } from '../../domain/Event';
 
 export class ToolManager {
   private tools: Map<string, ToolDefinition> = new Map();

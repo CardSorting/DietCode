@@ -3,7 +3,7 @@
  * Principle: Implementation of visual communication (Terminal).
  */
 
-import type { Display } from '../domain/Display';
+import type { Display } from '../domain/system/Display';
 
 export class TerminalDisplay implements Display {
   private colors = {

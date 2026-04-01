@@ -3,9 +3,9 @@
  * Principle: Orchestration — coordinates the validation lifecycle.
  */
 
-import type { ValidationRepository, ValidationResult } from '../domain/Validation';
-import { EventBus } from './EventBus';
-import { EventType } from '../domain/Event';
+import type { ValidationRepository, ValidationResult } from '../../domain/Validation';
+import { EventBus } from '../orchestration/EventBus';
+import { EventType } from '../../domain/Event';
 
 export class ValidationService {
   constructor(

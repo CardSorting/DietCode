@@ -3,29 +3,29 @@
  * Principle: Application orchestration — coordinates domain logic with infrastructure.
  */
 
-import type { LLMProvider } from '../domain/LLMProvider';
-import type { TerminalInterface } from '../domain/system/TerminalInterface';
-import type { SessionState, Message, MessageBlock } from '../domain/context/SessionState';
-import { createInitialState } from '../domain/context/SessionState';
-import type { ToolManager } from './ToolManager';
-import type { CommandProcessor } from './CommandProcessor';
-import { DomainError } from '../domain/Errors';
-import type { SessionRepository } from '../domain/context/SessionRepository';
-import type { DecisionRepository } from '../domain/memory/DecisionRepository';
-import type { ProjectContext } from '../domain/context/ProjectContext';
-import { SovereignDb } from '../infrastructure/database/SovereignDb';
-import type { Reasoning } from '../domain/memory/Reasoning';
-import type { SqliteAuditRepository } from '../infrastructure/database/SqliteAuditRepository';
-import type { AgentRegistry } from './AgentRegistry';
-import type { Agent } from '../domain/agent/Agent';
-import type { ContextService } from './ContextService';
-import { AttachmentResolver } from './AttachmentResolver';
+import type { LLMProvider } from '../../domain/LLMProvider';
+import type { TerminalInterface } from '../../domain/system/TerminalInterface';
+import type { SessionState, Message, MessageBlock } from '../../domain/context/SessionState';
+import { createInitialState } from '../../domain/context/SessionState';
+import type { ToolManager } from '../capabilities/ToolManager';
+import type { CommandProcessor } from '../capabilities/CommandProcessor';
+import { DomainError } from '../../domain/Errors';
+import type { SessionRepository } from '../../domain/context/SessionRepository';
+import type { DecisionRepository } from '../../domain/memory/DecisionRepository';
+import type { ProjectContext } from '../../domain/context/ProjectContext';
+import { SovereignDb } from '../../infrastructure/database/SovereignDb';
+import type { Reasoning } from '../../domain/memory/Reasoning';
+import type { SqliteAuditRepository } from '../../infrastructure/database/SqliteAuditRepository';
+import type { AgentRegistry } from '../capabilities/AgentRegistry';
+import type { Agent } from '../../domain/agent/Agent';
+import type { ContextService } from '../context/ContextService';
+import { AttachmentResolver } from '../context/AttachmentResolver';
 import { EventBus } from './EventBus';
-import { EventType } from '../domain/Event';
-import type { ContextPruner } from './ContextPruner';
-import type { Ignorer } from './Ignorer';
+import { EventType } from '../../domain/Event';
+import type { ContextPruner } from '../context/ContextPruner';
+import type { Ignorer } from '../context/Ignorer';
 import type { HandoverService } from './HandoverService';
-import type { MemoryService } from './MemoryService';
+import type { MemoryService } from '../memory/MemoryService';
 
 export class Orchestrator {
   private state: SessionState;

@@ -4,7 +4,7 @@
  * Parses user input to identify and execute internal commands.
  */
 
-import type { CommandDefinition } from '../domain/agent/CommandDefinition';
+import type { CommandDefinition } from '../../domain/agent/CommandDefinition';
 
 export class CommandProcessor {
   private commands: Map<string, CommandDefinition> = new Map();

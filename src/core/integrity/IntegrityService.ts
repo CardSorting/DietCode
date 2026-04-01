@@ -3,9 +3,9 @@
  * Principle: Architectural Guard — monitors and enforces layer boundaries.
  */
 
-import { EventBus } from './EventBus';
-import { EventType } from '../domain/Event';
-import type { IntegrityViolation, IntegrityReport, ViolationType } from '../domain/memory/Integrity';
+import { EventBus } from '../orchestration/EventBus';
+import { EventType } from '../../domain/Event';
+import type { IntegrityViolation, IntegrityReport, ViolationType } from '../../domain/memory/Integrity';
 
 export interface IntegrityScanner {
   scan(projectRoot: string): Promise<IntegrityReport>;

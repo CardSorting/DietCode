@@ -1,14 +1,16 @@
 /**
- * [VERIFICATION]
- * Tests Sovereign Swarm features: Dynamic Registration and Handover logic.
+ * [LAYER: INFRASTRUCTURE]
+ * Principle: Adapters and integrations — connects the outside world to domain contracts.
+ * Violations: None
  */
 
-import { AgentRegistry } from './src/core/AgentRegistry';
-import { HandoverService } from './src/core/HandoverService';
-import { Orchestrator } from './src/core/orchestrator';
-import { EventBus } from './src/core/EventBus';
+import { AgentRegistry } from './src/core/capabilities/AgentRegistry';
+import { HandoverService } from './src/core/orchestration/HandoverService';
+import { Orchestrator } from './src/core/orchestration/orchestrator';
+import { EventBus } from './src/core/orchestration/EventBus';
 import { EventType } from './src/domain/Event';
 import { FileSystemAdapter } from './src/infrastructure/FileSystemAdapter';
+import type { SessionRepository } from './src/domain/context/SessionRepository';
 
 // Mock Provider for testing handover detection
 class MockProvider {
@@ -25,7 +27,16 @@ async function verify() {
 
   const fs = new FileSystemAdapter();
   const agentRegistry = new AgentRegistry();
-  const handoverService = new HandoverService(agentRegistry);
+  const mockSessionRepo: SessionRepository = {
+    ensureProject: async () => {},
+    createSession: async () => 'test-session',
+    updateSessionAgent: async () => {},
+    appendMessage: async () => {},
+    updateSessionStatus: async () => {},
+    getSession: async () => null,
+    getSessions: async () => []
+  } as any;
+  const handoverService = new HandoverService(agentRegistry, mockSessionRepo);
   const eventBus = EventBus.getInstance();
 
   // 1. Test Registration

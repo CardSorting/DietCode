@@ -7,7 +7,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { execSync } from 'child_process';
-import type { Filesystem, GitStatus } from '../domain/Filesystem';
+import type { Filesystem, GitStatus } from '../domain/system/Filesystem';
 
 export class FileSystemAdapter implements Filesystem {
   readFile(path: string): string {

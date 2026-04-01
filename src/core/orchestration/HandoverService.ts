@@ -1,8 +1,8 @@
 import { EventBus } from './EventBus';
-import { EventType } from '../domain/Event';
-import type { AgentRegistry } from './AgentRegistry';
-import type { AgentId } from '../domain/agent/Agent';
-import type { SessionRepository } from '../domain/context/SessionRepository';
+import { EventType } from '../../domain/Event';
+import type { AgentRegistry } from '../capabilities/AgentRegistry';
+import type { AgentId } from '../../domain/agent/Agent';
+import type { SessionRepository } from '../../domain/context/SessionRepository';
 
 export class HandoverService {
   private eventBus: EventBus = EventBus.getInstance();

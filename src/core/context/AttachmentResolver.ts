@@ -1,10 +1,10 @@
 import * as path from 'path';
-import { AttachmentParser } from '../domain/context/Attachment';
-import type { Attachment } from '../domain/context/Attachment';
-import type { ProjectContext } from '../domain/context/ProjectContext';
-import type { Filesystem } from '../domain/system/Filesystem';
-import { EventBus } from './EventBus';
-import { EventType } from '../domain/Event';
+import { AttachmentParser } from '../../domain/context/Attachment';
+import type { Attachment } from '../../domain/context/Attachment';
+import type { ProjectContext } from '../../domain/context/ProjectContext';
+import type { Filesystem } from '../../domain/system/Filesystem';
+import { EventBus } from '../orchestration/EventBus';
+import { EventType } from '../../domain/Event';
 
 export class AttachmentResolver {
   constructor(

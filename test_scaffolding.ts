@@ -1,17 +1,24 @@
-import { AttachmentResolver } from './src/core/AttachmentResolver';
-import { ContextService } from './src/core/ContextService';
-import { PromptService } from './src/core/PromptService';
+/**
+ * [LAYER: INFRASTRUCTURE]
+ * Principle: Adapters and integrations — connects the outside world to domain contracts.
+ * Violations: None
+ */
+
+import { AttachmentResolver } from './src/core/context/AttachmentResolver';
+import { ContextService } from './src/core/context/ContextService';
+import { PromptService } from './src/core/capabilities/PromptService';
 import { FileSystemAdapter } from './src/infrastructure/FileSystemAdapter';
 import { TerminalDisplay } from './src/infrastructure/TerminalDisplay';
-import { EventBus } from './src/core/EventBus';
-import { ExecutionService } from './src/core/ExecutionService';
-import { SnapshotService } from './src/core/SnapshotService';
+import { EventBus } from './src/core/orchestration/EventBus';
+import { ExecutionService } from './src/core/orchestration/ExecutionService';
+import { SnapshotService } from './src/core/memory/SnapshotService';
 import { TypeScriptValidator } from './src/infrastructure/TypeScriptValidator';
-import { ValidationService } from './src/core/ValidationService';
+import { ValidationService } from './src/core/integrity/ValidationService';
 import { FuzzySearchRepository } from './src/infrastructure/FuzzySearchRepository';
-import { SearchService } from './src/core/SearchService';
-import { SkillLoader } from './src/core/SkillLoader';
+import { SearchService } from './src/core/memory/SearchService';
+import { SkillLoader } from './src/core/capabilities/SkillLoader';
 import { EventType } from './src/domain/Event';
+import type { SystemEvent } from './src/domain/Event';
 import type { ProjectContext } from './src/domain/context/ProjectContext';
 import type { Snapshot, SnapshotRepository } from './src/domain/memory/Snapshot';
 import * as fs from 'fs';
@@ -29,7 +36,7 @@ class MockSnapshotRepo implements SnapshotRepository {
 async function test() {
   const fileSystem = new FileSystemAdapter();
   const display = new TerminalDisplay();
-  const eventBus = new EventBus();
+  const eventBus = EventBus.getInstance();
   
   const snapshotService = new SnapshotService(new MockSnapshotRepo(), fileSystem);
   const executionService = new ExecutionService(eventBus, snapshotService);
@@ -45,12 +52,15 @@ async function test() {
   };
 
   // Wire up Error Events
-  eventBus.subscribe(EventType.ERROR, (e) => {
-    display.status(`${e.payload.message}`, 'error');
-    if (e.payload.errors) {
-       e.payload.errors.forEach((err: any) => {
-         display.status(`  Line ${err.line}: ${err.message}`, 'warn');
-       });
+  eventBus.on(EventType.ERROR, (e: SystemEvent) => {
+    // Note: The payload properties (message, errors) are accessed based on the provided error report, 
+    // though SystemEvent definition only shows 'data'. Assuming 'data' contains these.
+    const data = e.data as any;
+    display.status(`${data.message}`, 'error');
+    if (data.errors) {
+      data.errors.forEach((err: any) => {
+        display.status(`  Line ${err.line}: ${err.message}`, 'warn');
+      });
     }
   });
 

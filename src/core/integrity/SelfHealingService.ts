@@ -3,12 +3,12 @@
  * Principle: Autonomous Recovery — manages the loop between integrity detection and refactoring.
  */
 
-import { EventBus } from './EventBus';
-import { EventType } from '../domain/Event';
-import type { IntegrityReport, IntegrityViolation } from '../domain/memory/Integrity';
-import { HealingStatus, type HealingProposal, type HealingTask } from '../domain/healing/Healing';
-import { SovereignDb } from '../infrastructure/database/SovereignDb';
-import type { HealingRepository } from '../domain/healing/HealingRepository';
+import { EventBus } from '../orchestration/EventBus';
+import { EventType } from '../../domain/Event';
+import type { IntegrityReport, IntegrityViolation } from '../../domain/memory/Integrity';
+import { HealingStatus, type HealingProposal, type HealingTask } from '../../domain/healing/Healing';
+import { SovereignDb } from '../../infrastructure/database/SovereignDb';
+import type { HealingRepository } from '../../domain/healing/HealingRepository';
 
 export class SelfHealingService {
   private eventBus: EventBus = EventBus.getInstance();

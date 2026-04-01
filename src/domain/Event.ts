@@ -15,6 +15,12 @@ export enum EventType {
   ERROR_OCCURRED = 'error_occurred',
   SYSTEM_INFO_GATHERED = 'system_info_gathered',
   SKILL_LOADED = 'skill_loaded',
+  SNAPSHOT_CREATED = 'snapshot_created',
+  TOOL_CALL_START = 'tool_call_start',
+  TOOL_CALL_SUCCESS = 'tool_call_success',
+  TOOL_CALL_FAILURE = 'tool_call_failure',
+  ATTACHMENT_RESOLVED = 'attachment_resolved',
+  ERROR = 'error',
 }
 
 export interface SystemEvent {
@@ -26,5 +32,6 @@ export interface SystemEvent {
     sessionId?: string;
     agentId?: string;
     durationMs?: number;
+    correlationId?: string;
   };
 }

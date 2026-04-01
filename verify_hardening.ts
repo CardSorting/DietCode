@@ -5,8 +5,8 @@
 
 import { FileSystemAdapter } from './src/infrastructure/FileSystemAdapter';
 import { NodeSystemAdapter } from './src/infrastructure/NodeSystemAdapter';
-import { DiscoveryService } from './src/core/DiscoveryService';
-import { EventBus } from './src/core/EventBus';
+import { DiscoveryService } from './src/core/context/DiscoveryService';
+import { EventBus } from './src/core/orchestration/EventBus';
 import { EventType } from './src/domain/Event';
 
 async function verify() {
@@ -19,7 +19,7 @@ async function verify() {
 
   // 1. Test EventBus Subscriptions
   let eventReceived = false;
-  eventBus.on(EventType.SYSTEM_INFO_GATHERED, (event) => {
+  eventBus.on(EventType.SYSTEM_INFO_GATHERED, (event: any) => {
     console.log(`[PASS] Received event: ${event.type}`);
     console.log(`[PASS] Payload platform: ${event.data.platform}`);
     eventReceived = true;

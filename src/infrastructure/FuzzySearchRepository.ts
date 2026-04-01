@@ -3,7 +3,7 @@
  * Principle: Implementation of robust path discovery (Fuzzy Search).
  */
 
-import type { Filesystem } from '../domain/Filesystem';
+import type { Filesystem } from '../domain/system/Filesystem';
 
 export interface SearchResult {
   path: string;
