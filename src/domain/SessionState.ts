@@ -4,16 +4,25 @@
  * No external imports or I/O.
  */
 
+import type { Reasoning } from './Reasoning';
+
 export type Role = 'user' | 'assistant' | 'system';
+
+export type MessageBlock = 
+  | { type: 'text'; text: string }
+  | { type: 'image'; image: string; mimeType: string }
+  | { type: 'tool_use'; id: string; name: string; input: any }
+  | { type: 'tool_result'; tool_use_id: string; content: string; is_error?: boolean }
+  | { type: 'attachment'; attachmentId: string; label: string };
 
 export interface Message {
   role: Role;
-  content: string | any[];
+  content: string | MessageBlock[];
   metrics?: {
     tokens?: number;
     latency_ms?: number;
   };
-  reasoning?: string;
+  reasoning?: Reasoning;
   timestamp: string;
 }
 

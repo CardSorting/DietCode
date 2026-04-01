@@ -4,6 +4,7 @@
  * No external API dependencies.
  */
 
+import type { Reasoning } from './Reasoning';
 import type { Message } from './SessionState';
 import type { ToolDefinition } from './ToolDefinition';
 import type { Agent } from './Agent';
@@ -14,6 +15,7 @@ export interface LLMResponse {
     input_tokens: number;
     output_tokens: number;
   };
+  reasoning?: Reasoning;
 }
 
 export interface LLMProvider {

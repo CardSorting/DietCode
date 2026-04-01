@@ -32,7 +32,26 @@ export class AnthropicProvider implements LLMProvider {
       temperature: agent.def.temperature,
       messages: messages.map(m => ({
         role: m.role as 'user' | 'assistant',
-        content: m.content as any
+        content: typeof m.content === 'string' ? m.content : m.content.map(block => {
+          if (block.type === 'text') return { type: 'text', text: block.text };
+          if (block.type === 'image') return { 
+            type: 'image', 
+            source: { type: 'base64', media_type: block.mimeType as any, data: block.image } 
+          };
+          if (block.type === 'tool_use') return { 
+            type: 'tool_use', 
+            id: block.id, 
+            name: block.name, 
+            input: block.input 
+          };
+          if (block.type === 'tool_result') return { 
+            type: 'tool_result', 
+            tool_use_id: block.tool_use_id, 
+            content: block.content,
+            is_error: block.is_error
+          };
+          return { type: 'text', text: `[Unsupported block: ${block.type}]` };
+        }) as any
       })),
       tools: tools.map(t => ({
         name: t.name,
@@ -49,12 +68,22 @@ export class AnthropicProvider implements LLMProvider {
       console.error('[TELEMETRY] Failed to log:', err);
     });
 
+    const reasoning = response.content
+      .filter((c: any) => c.type === 'thinking')
+      .map((c: any) => ({
+        text: c.thinking,
+        type: 'text',
+      }));
+
+    const content = response.content.filter((c: any) => c.type !== 'thinking');
+
     return {
-      content: response.content,
+      content: content as any,
       usage: {
         input_tokens: response.usage.input_tokens,
         output_tokens: response.usage.output_tokens,
       },
+      reasoning: reasoning.length > 0 ? reasoning : undefined,
     };
   }
 

@@ -14,6 +14,11 @@ import { SqliteSessionRepository } from './src/infrastructure/database/SqliteSes
 import { SqliteDecisionRepository } from './src/infrastructure/database/SqliteDecisionRepository';
 import { AgentRegistry } from './src/core/AgentRegistry';
 import { QueueWorker } from './src/infrastructure/queue/QueueWorker';
+import { DiscoveryService } from './src/core/DiscoveryService';
+import { ContextService } from './src/core/ContextService';
+import { AttachmentResolver } from './src/core/AttachmentResolver';
+import { SkillLoader } from './src/core/SkillLoader';
+import { SqliteAuditRepository } from './src/infrastructure/database/SqliteAuditRepository';
 import type { ProjectContext } from './src/domain/ProjectContext';
 
 async function main() {
@@ -29,18 +34,24 @@ async function main() {
   await SovereignDb.init();
   const repository = new SqliteSessionRepository();
   const decisions = new SqliteDecisionRepository();
+  const audit = new SqliteAuditRepository();
 
   // Background Worker: Sovereign Queue
   const worker = new QueueWorker(decisions);
   await worker.start();
 
   // Project Context Discovery (Deep Integration)
-  const projectContext: ProjectContext = {
-    workspaceId: 'workspace-dietcode-prod',
-    repoId: 'dietcode-v1',
-    repoPath: '/Users/bozoegg/Downloads/DietCode',
-    defaultBranch: 'main',
-  };
+  const discovery = new DiscoveryService();
+  const projectContext = await discovery.discover(process.cwd());
+
+  // Performance & Context Services
+  const contextService = new ContextService();
+  const attachmentResolver = new AttachmentResolver();
+  const skillLoader = new SkillLoader();
+
+  // Load custom skills
+  const skills = await skillLoader.load(projectContext);
+  console.log(`[CORE] Loaded ${skills.length} skills from .dietcode/skills/`);
 
   const fs = new FileSystemAdapter();
   const provider = new AnthropicProvider(apiKey);
@@ -95,7 +106,10 @@ async function main() {
     commandProcessor, 
     repository,
     decisions,
+    audit,
     agentRegistry,
+    contextService,
+    attachmentResolver,
     projectContext
   );
 
