@@ -2,6 +2,7 @@
  * [LAYER: INFRASTRUCTURE]
  * Principle: Concrete implementation of the LLM provider using Anthropic SDK.
  * Implements the Domain LLMProvider interface.
+ * Uses structured logging for production-grade observability.
  */
 
 import Anthropic from '@anthropic-ai/sdk';
@@ -10,11 +11,12 @@ import type { Message } from '../../domain/context/SessionState';
 import type { ToolDefinition } from '../../domain/agent/ToolDefinition';
 import type { Agent } from '../../domain/agent/Agent';
 import { SovereignDb } from '../database/SovereignDb';
+import type { LogService } from '../../domain/logging/LogService';
 
 export class AnthropicProvider implements LLMProvider {
   private client: Anthropic;
 
-  constructor(apiKey: string) {
+  constructor(apiKey: string, private logService: LogService) {
     this.client = new Anthropic({ apiKey });
   }
 
@@ -65,7 +67,11 @@ export class AnthropicProvider implements LLMProvider {
     
     // Log telemetry to BroccoliDB asynchronously
     this.logTelemetry(response, agent.id, completionTime - startTime, metadata?.taskId).catch(err => {
-      console.error('[TELEMETRY] Failed to log:', err);
+      this.logService.error(
+        '[TELEMETRY] Failed to log telemetry data',
+        { error: (err as Error).message, agentId: agent.id },
+        { component: 'AnthropicProvider' }
+      );
     });
 
     const reasoning = response.content

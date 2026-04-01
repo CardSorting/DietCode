@@ -1,6 +1,7 @@
 /**
  * [LAYER: INFRASTRUCTURE]
  * Concrete implementation of SystemAdapter using Node.js APIs and shell commands.
+ * Uses structured logging for production-grade observability.
  */
 
 import * as os from 'os';
@@ -9,9 +10,10 @@ import { execSync } from 'child_process';
 import type { SystemAdapter } from '../domain/system/SystemAdapter';
 import type { SystemInfo, RepoContext } from '../domain/context/SystemContext';
 import type { Filesystem } from '../domain/system/Filesystem';
+import type { LogService } from '../domain/logging/LogService';
 
 export class NodeSystemAdapter implements SystemAdapter {
-  constructor(private filesystem: Filesystem) {}
+  constructor(private filesystem: Filesystem, private logService: LogService) {}
 
   async getSystemInfo(): Promise<SystemInfo> {
     return {
@@ -42,7 +44,7 @@ export class NodeSystemAdapter implements SystemAdapter {
         git = { branch, dirty, lastCommitHash: hash };
       }
     } catch (e) {
-      console.warn('[INFRA] Failed to gather git context', e);
+      logError('Failed to gather git context', e);
     }
 
     let dependencies: Record<string, string> = {};
@@ -52,7 +54,7 @@ export class NodeSystemAdapter implements SystemAdapter {
         const pkg = JSON.parse(this.filesystem.readFile(pkgPath));
         dependencies = { ...pkg.dependencies, ...pkg.devDependencies };
       } catch (e) {
-        console.warn('[INFRA] Failed to parse package.json', e);
+        logError('Failed to parse package.json', e);
       }
     }
 
@@ -61,5 +63,13 @@ export class NodeSystemAdapter implements SystemAdapter {
       dependencies,
       projectRoot,
     };
+  }
+
+  private logError(err: Error | any): void {
+    this.logService.error(
+      'Filesystem operation failed',
+      { message: err.message, path: err.path },
+      { component: 'NodeSystemAdapter' }
+    );
   }
 }

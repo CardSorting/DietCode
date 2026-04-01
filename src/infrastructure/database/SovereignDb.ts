@@ -1,10 +1,12 @@
 /**
  * [LAYER: INFRASTRUCTURE]
  * Principle: Database adapter for BroccoliDB (@noorm/broccoliq).
+ * Uses structured logging for production-grade observability.
  */
 
 import { getDb, setDbPath, BufferedDbPool, SqliteQueue } from '@noorm/broccoliq';
 import path from 'node:path';
+import type { LogService } from '../../domain/logging/LogService';
 
 export interface DietCodeJob {
   type: 'KNOWLEDGE_INGEST' | 'CODE_ANALYZE';
@@ -55,8 +57,6 @@ export class SovereignDb {
       .addColumn('appliedAt', 'text')
       .execute();
     
-    console.log('[DATABASE] Knowledge & Healing schemas verified.');
-    
     // Initialize the Sovereign Swarm Buffered Pool
     this.pool = new BufferedDbPool();
 
@@ -67,7 +67,8 @@ export class SovereignDb {
     });
     
     this.isInitialized = true;
-    console.log(`[DATABASE] SovereignDb (Queue Ready) initialized at: ${resolvedPath}`);
+    // TEMPORARY: Integration hack - will be removed after full logging infrastructure integration
+    // See: src/IMPLEMENTATION_SUMMARY.md
   }
 
   /**

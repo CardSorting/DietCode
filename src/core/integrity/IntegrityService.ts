@@ -1,11 +1,13 @@
 /**
  * [LAYER: CORE]
  * Principle: Architectural Guard — monitors and enforces layer boundaries.
+ * Uses structured logging for production-grade observability.
  */
 
 import { EventBus } from '../orchestration/EventBus';
 import { EventType } from '../../domain/Event';
 import type { IntegrityViolation, IntegrityReport, ViolationType } from '../../domain/memory/Integrity';
+import type { LogService } from '../../domain/logging/LogService';
 
 export interface IntegrityScanner {
   scan(projectRoot: string): Promise<IntegrityReport>;
@@ -14,7 +16,7 @@ export interface IntegrityScanner {
 export class IntegrityService {
   private eventBus: EventBus = EventBus.getInstance();
 
-  constructor(private scanner: IntegrityScanner) {}
+  constructor(private scanner: IntegrityScanner, private logService: LogService) {}
 
   /**
    * Performs an architectural integrity scan across the codebase.
@@ -23,7 +25,11 @@ export class IntegrityService {
     const report = await this.scanner.scan(projectRoot);
     
     if (report.violations.length > 0) {
-      console.warn(`[INTEGRITY] Found ${report.violations.length} architectural violations.`);
+      this.logService.warn(
+        `Found ${report.violations.length} architectural violations`,
+        { violationCount: report.violations.length },
+        { component: 'IntegrityService' }
+      );
       for (const violation of report.violations) {
         this.eventBus.emit(EventType.ERROR_OCCURRED, { 
           source: 'IntegrityService',

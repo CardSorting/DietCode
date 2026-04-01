@@ -1,16 +1,19 @@
 /**
  * [LAYER: CORE]
  * Principle: Swarm Governance — verifies the integrity of cross-agent handovers and memory ingestions.
+ * Uses structured logging for production-grade observability.
  */
 
 import { EventBus } from './EventBus';
 import { EventType } from '../../domain/Event';
 import type { SessionRepository } from '../../domain/context/SessionRepository';
+import type { LogService } from '../../domain/logging/LogService';
 
 export class SwarmAuditor {
   constructor(
     private eventBus: EventBus,
-    private repository: SessionRepository
+    private repository: SessionRepository,
+    private logService: LogService
   ) {}
 
   /**
@@ -25,35 +28,34 @@ export class SwarmAuditor {
       await this.verifyKnowledgeIngestion(data);
     });
 
-    console.log('[AUDITOR] SwarmAuditor is active and monitoring Triple Down events.');
+    this.logService.info('SwarmAuditor active and monitoring Triple Down events', {}, { component: 'SwarmAuditor' });
   }
 
   private async verifyHandover(data: any) {
     const { sessionId, toAgentId, reason } = data;
-    console.log(`[AUDITOR] Verifying handover in session ${sessionId} to ${toAgentId}...`);
+    this.logService.info(`Verifying handover in session ${sessionId} to ${toAgentId}`, { sessionId, toAgentId }, { component: 'SwarmAuditor' });
     
     // In a real app, we would query the repository after a short delay
     // to ensure the 'updateSessionAgent' call actually succeeded.
     const session = await this.repository.getSession(sessionId);
     if (session && session.agentId === toAgentId) {
-       console.log(`[AUDITOR] Handover VERIFIED for session ${sessionId}.`);
+      this.logService.info(`Handover VERIFIED for session ${sessionId}`, { sessionId, toAgentId }, { component: 'SwarmAuditor' });
     } else {
-       console.warn(`[AUDITOR] Handover MISMATCH detected for session ${sessionId}!`);
-       this.eventBus.emit(EventType.ERROR_OCCURRED, {
-         source: 'SwarmAuditor',
-         message: `Handover verification failed for session ${sessionId}. Expected agent: ${toAgentId}`,
-         data
-       });
+      this.logService.warn(`Handover MISMATCH detected for session ${sessionId}!`, { sessionId, toAgentId, expectedAgent: session?.agentId }, { component: 'SwarmAuditor' });
+      this.eventBus.emit(EventType.ERROR_OCCURRED, {
+        source: 'SwarmAuditor',
+        message: `Handover verification failed for session ${sessionId}. Expected agent: ${toAgentId}`,
+        data
+      });
     }
   }
 
   private async verifyKnowledgeIngestion(data: any) {
-    console.log(`[AUDITOR] Verifying knowledge ingestion: ${data.type}`);
+    this.logService.debug(`Verifying knowledge ingestion: ${data.type || 'unknown'}`, { type: data.type }, { component: 'SwarmAuditor' });
     
     // Triple Down: Real verification of memory distillation
     if (data.type === 'task_outcome' && data.content) {
-       // We monitor if the MemoryService distill call actually resulted in a repository save
-       console.log(`[AUDITOR] Knowledge record for task outcome is being tracked.`);
+      this.logService.debug(`Knowledge record for task outcome is being tracked`, { taskId: data.taskId || 'unknown' }, { component: 'SwarmAuditor' });
     }
   }
 }

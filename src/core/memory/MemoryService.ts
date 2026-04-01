@@ -1,17 +1,20 @@
 /**
  * [LAYER: CORE]
  * Principle: Cognitive Continuity — manages the distillation and recall of knowledge.
+ * Uses structured logging for production-grade observability.
  */
 
 import { KnowledgeType, type KnowledgeItem, type KnowledgeRepository } from '../../domain/memory/Knowledge';
 import type { LLMProvider } from '../../domain/LLMProvider';
 import type { AgentRegistry } from '../capabilities/AgentRegistry';
+import type { LogService } from '../../domain/logging/LogService';
 
 export class MemoryService {
   constructor(
     private repository: KnowledgeRepository,
     private llmProvider: LLMProvider,
-    private agentRegistry: AgentRegistry
+    private agentRegistry: AgentRegistry,
+    private logService: LogService
   ) {}
 
   /**
@@ -26,11 +29,20 @@ export class MemoryService {
    * This is intended to run as a background job.
    */
   async distill(taskId: string, outcome: string): Promise<void> {
-    console.log(`[MEMORY] Distilling outcome for task: ${taskId}`);
+    this.logService.debug(
+      `Starting distillation for task ${taskId}`,
+      { approximateLength: outcome.length },
+      { component: 'MemoryService', sessionId: taskId.substring(0, 8) }
+    );
     
     const distillationAgent = this.agentRegistry.getAgent('agent-distiller');
     if (!distillationAgent) {
-       throw new Error(`[MEMORY] Specialist agent 'agent-distiller' not found.`);
+      this.logService.error(
+        `Specialist agent 'agent-distiller' not found for task ${taskId}`,
+        { taskId },
+        { component: 'MemoryService' }
+      );
+      throw new Error(`[MEMORY] Specialist agent 'agent-distiller' not found.`);
     }
 
     const response = await this.llmProvider.createMessage(
@@ -52,6 +64,11 @@ export class MemoryService {
     };
 
     await this.repository.save(item);
+    this.logService.debug(
+      `Successfully saved distilled knowledge for task ${taskId}`,
+      { knowledgeKey: item.key },
+      { component: 'MemoryService', sessionId: taskId.substring(0, 8) }
+    );
   }
 
   /**

@@ -2,6 +2,7 @@
  * [LAYER: INFRASTRUCTURE]
  * Principle: Background worker for DietCode using SqliteQueue.
  * Offloads heavy or non-blocking work from the main interactive loop.
+ * Uses structured logging for production-grade observability.
  */
 
 import { SovereignDb } from '../database/SovereignDb';
@@ -10,6 +11,7 @@ import type { MemoryService } from '../../core/memory/MemoryService';
 import type { SelfHealingService } from '../../core/integrity/SelfHealingService';
 import type { LLMProvider } from '../../domain/LLMProvider';
 import type { AgentRegistry } from '../../core/capabilities/AgentRegistry';
+import type { LogService } from '../../domain/logging/LogService';
 
 export class QueueWorker {
   private isProcessing = false;
@@ -19,7 +21,8 @@ export class QueueWorker {
     private memory: MemoryService,
     private healing: SelfHealingService,
     private agentRegistry: AgentRegistry,
-    private provider: LLMProvider
+    private provider: LLMProvider,
+    private logService: LogService
   ) {}
 
   /**
@@ -29,14 +32,18 @@ export class QueueWorker {
     if (this.isProcessing) return;
     const queue = await SovereignDb.getQueue();
     
-    console.log('[WORKER] Sovereign Queue Worker started.');
+    this.logService.info('Sovereign Queue Worker started', {}, { component: 'QueueWorker' });
     
     // Process jobs with concurrency of 5
     // Each job is polled from the 'queue_jobs' table in BroccoliDB
     queue.process(async (job) => {
       const payload = typeof job.payload === 'string' ? JSON.parse(job.payload) : job.payload;
       
-      console.log(`[WORKER] Executing: ${payload.type} [${job.id}]`);
+      this.logService.info(
+        `Executing job`,
+        { type: payload.type, jobId: job.id },
+        { component: 'QueueWorker' }
+      );
       
       switch (payload.type) {
         case 'KNOWLEDGE_INGEST':
@@ -49,7 +56,7 @@ export class QueueWorker {
           await this.handleCodeAnalyze(payload);
           break;
         default:
-          console.warn(`[WORKER] Unknown job type: ${payload.type}`);
+          this.logService.warn(`Unknown job type: ${payload.type}`, { type: payload.type }, { component: 'QueueWorker' });
       }
     }, { concurrency: 5 });
 
@@ -61,11 +68,15 @@ export class QueueWorker {
     const agent = this.agentRegistry.getAgent('agent-architect') || this.agentRegistry.getAgent(this.agentRegistry.defaultAgentId);
     
     if (!agent) {
-        console.error(`[WORKER] No agent available for analysis.`);
-        return;
+      this.logService.error(`No agent available for analysis`, { repoPath, taskId }, { component: 'QueueWorker' });
+      return;
     }
 
-    console.log(`[WORKER] Specialist ${agent.title} is performing a deep audit of ${repoPath}...`);
+    this.logService.info(
+      `Specialist performing deep audit`,
+      { specialist: agent.title, repoPath },
+      { component: 'QueueWorker' }
+    );
 
     const prompt = `[DEEP AUDIT TASK]
 Repository: ${repoPath}
@@ -89,7 +100,7 @@ Provide a structured report.`;
     const report = response.content.find((c: any) => c.type === 'text')?.text || 'No issues found';
     
     await this.memory.distill(taskId, `Deep Audit Report for ${repoPath}:\n${report}`);
-    console.log(`[WORKER] Deep audit completed and distilled into memory.`);
+    this.logService.info('Deep audit completed and distilled into memory', { repoPath, taskId }, { component: 'QueueWorker' });
   }
 
   private async handleKnowledgeIngest(jobId: string, data: any) {
@@ -98,10 +109,10 @@ Provide a structured report.`;
     
     // Triple Down: Memory Distillation
     if (type === 'task_outcome') {
-        await this.memory.distill(jobId, content);
+      await this.memory.distill(jobId, content);
     }
 
-    console.log(`[WORKER] Successfully ingested knowledge from queue.`);
+    this.logService.info('Successfully ingested knowledge from queue', { type, userId }, { component: 'QueueWorker' });
   }
 
   private async handleCodeHeal(payload: any) {
@@ -109,11 +120,19 @@ Provide a structured report.`;
     const agent = this.agentRegistry.getAgent(specialistId);
     
     if (!agent) {
-        console.error(`[WORKER] Specialist ${specialistId} not found for healing.`);
-        return;
+      this.logService.error(
+        `Specialist not found for healing`,
+        { specialistId, violationFile: violation.file },
+        { component: 'QueueWorker' }
+      );
+      return;
     }
 
-    console.log(`[WORKER] Specialist ${agent.title} is healing ${violation.file}...`);
+    this.logService.info(
+      `Specialist healing file`,
+      { specialist: agent.title, file: violation.file },
+      { component: 'QueueWorker' }
+    );
 
     // Triple Down: Autonomous Reasoning for Refactoring
     const prompt = `[SELF-HEALING TASK]

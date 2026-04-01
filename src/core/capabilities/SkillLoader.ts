@@ -4,16 +4,18 @@ import type { ProjectContext } from '../../domain/context/ProjectContext';
 import type { Filesystem } from '../../domain/system/Filesystem';
 import { EventBus } from '../orchestration/EventBus';
 import { EventType } from '../../domain/Event';
+import type { LogService } from '../../domain/logging/LogService';
 
 /**
  * [LAYER: CORE]
  * Principle: Application orchestration — coordinates domain logic with infrastructure.
+ * Uses structured logging for production-grade observability.
  */
 
 export class SkillLoader {
   private eventBus: EventBus = EventBus.getInstance();
 
-  constructor(private filesystem: Filesystem) { }
+  constructor(private filesystem: Filesystem, private logService: LogService) { }
 
   /**
    * Loads all skills from the project's skill directory.
@@ -39,8 +41,12 @@ export class SkillLoader {
 
           // Validation: Ensure minimum required fields
           if (!prompt || prompt.length < 5) {
-             console.warn(`[CORE] Skipping skill ${skillName}: Prompt too short or missing.`);
-             continue;
+            this.logService.warn(
+              `Skipping skill: Prompt too short or missing`,
+              { skillName, promptLength: prompt.length },
+              { component: 'SkillLoader' }
+            );
+            continue;
           }
 
           const skill: Skill = {
@@ -54,7 +60,11 @@ export class SkillLoader {
           skills.push(skill);
           this.eventBus.emit(EventType.SKILL_LOADED, { name: skill.name, path: fullPath });
         } catch (e) {
-          console.error(`[CORE] Failed to load skill ${skillName}:`, e);
+          this.logService.error(
+            `Failed to load skill`,
+            { skillName, error: (e as Error).message },
+            { component: 'SkillLoader' }
+          );
         }
       }
     }
