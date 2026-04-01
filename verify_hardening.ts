@@ -8,14 +8,19 @@ import { NodeSystemAdapter } from './src/infrastructure/NodeSystemAdapter';
 import { DiscoveryService } from './src/core/context/DiscoveryService';
 import { EventBus } from './src/core/orchestration/EventBus';
 import { EventType } from './src/domain/Event';
+import { LogLevel } from './src/domain/logging/LogLevel';
+import { ConsoleLoggerAdapter } from './src/infrastructure/ConsoleLoggerAdapter';
 
 async function verify() {
   console.log('--- DIETCODE HARDENING VERIFICATION ---');
   
+  // Create logger for EventBus
+  const logger = new ConsoleLoggerAdapter(LogLevel.debug);
+  
   const fs = new FileSystemAdapter();
   const systemAdapter = new NodeSystemAdapter(fs);
-  const discovery = new DiscoveryService(fs, systemAdapter);
-  const eventBus = EventBus.getInstance();
+  const discovery = new DiscoveryService(fs, systemAdapter, logger);
+  const eventBus = EventBus.getInstance(logger);
 
   // 1. Test EventBus Subscriptions
   let eventReceived = false;

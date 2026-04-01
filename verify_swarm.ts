@@ -11,6 +11,8 @@ import { EventBus } from './src/core/orchestration/EventBus';
 import { EventType } from './src/domain/Event';
 import { FileSystemAdapter } from './src/infrastructure/FileSystemAdapter';
 import type { SessionRepository } from './src/domain/context/SessionRepository';
+import { ConsoleLoggerAdapter } from './src/infrastructure/ConsoleLoggerAdapter';
+import { LogLevel } from './src/domain/logging/LogLevel';
 
 // Mock Provider for testing handover detection
 class MockProvider {
@@ -37,7 +39,8 @@ async function verify() {
     getSessions: async () => []
   } as any;
   const handoverService = new HandoverService(agentRegistry, mockSessionRepo);
-  const eventBus = EventBus.getInstance();
+  const logger = new ConsoleLoggerAdapter(LogLevel.debug);
+  const eventBus = EventBus.getInstance(logger);
 
   // 1. Test Registration
   console.log('\n[1] Testing Dynamic Registration...');
