@@ -7,7 +7,7 @@ import { EventBus } from './EventBus';
 import { SnapshotService } from '../memory/SnapshotService';
 import { EventType } from '../../domain/Event';
 import { SafetyGuard } from '../capabilities/SafetyGuard';
-import { RollbackManager } from '../../infrastructure/validation/RollbackManager';
+import type { RollbackProtocol } from '../../domain/validation/RollbackProtocol';
 import type { SafetyAwareToolContext, SafetyAwareToolOptions } from '../../domain/capabilities/SafetyAwareToolExecution';
 import type { ToolManager } from '../capabilities/ToolManager';
 import { ToolRouter } from '../../domain/capabilities/ToolRouter';
@@ -47,7 +47,7 @@ export type UnifiedToolExecutionResult = {
  */
 export class ExecutionService {
   private safetyGuard?: SafetyGuard;
-  private rollbackManager?: RollbackManager;
+  private rollbackManager?: RollbackProtocol;
   private toolManager?: ToolManager;
   private toolRouter?: ToolRouter;
   private eventBus: EventBus;
@@ -78,13 +78,13 @@ export class ExecutionService {
    * Pattern: Gatekeeper Pattern - all tool executions pass through SafetyGuard
    * 
    * @param riskEvaluator Risk evaluation engine from Domain
-   * @param rollbackManager Backup/rollback manager from Infrastructure
+   * @param rollbackManager Backup/rollback manager (implements RollbackProtocol)
    * @param toolManager Tool manager for tool execution
    * @param toolRouter Optional tool routing for smart tool selection
    */
   enableUnifiedSafetyIntegration(
     riskEvaluator: RiskEvaluator,
-    rollbackManager: RollbackManager,
+    rollbackManager: RollbackProtocol,
     toolManager: ToolManager,
     toolRouter?: ToolRouter
   ): void {

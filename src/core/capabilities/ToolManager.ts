@@ -1,6 +1,9 @@
 /**
  * [LAYER: CORE]
- * Principle: Manages the registration and execution of tools.
+ * Principle: Orchestration, task coordination, prompt assembly
+ * Violations: None
+ * 
+ * Manages the registration and execution of tools.
  * Coordinates between Domain definitions and Infrastructure implementations.
  */
 
@@ -9,9 +12,9 @@ import { EventBus } from '../orchestration/EventBus';
 import { EventType } from '../../domain/Event';
 import { ToolRouter } from '../../domain/capabilities/ToolRouter';
 import type { SafetyAwareToolContext, SafetyAwareToolOptions } from '../../domain/capabilities/SafetyAwareToolExecution';
+import type { RollbackProtocol } from '../../domain/validation/RollbackProtocol';
 import { SafetyGuard } from './SafetyGuard';
 import { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
-import { RollbackManager } from '../../infrastructure/validation/RollbackManager';
 
 /**
  * ToolManager orchestrates tool registration and execution
@@ -23,7 +26,7 @@ export class ToolManager {
   private toolRouter?: ToolRouter;
   private safetyGuard?: SafetyGuard;
   private riskEvaluator?: RiskEvaluator;
-  private rollbackManager?: RollbackManager;
+  private rollbackManager?: RollbackProtocol;
 
   /**
    * Register a tool with the ToolManager
@@ -87,20 +90,23 @@ export class ToolManager {
    * 
    * @param safetyGuard Optional SafetyGuard instance (RiskEvaluator injected via closure)
    * @param toolRouter Optional tool router for smart routing
+   * @param rollbackProtocol Optional RollbackProtocol (Domain contract) for rollback capabilities
    */
   configureSafety(
     safetyGuard?: SafetyGuard,
-    toolRouter?: ToolRouter
+    toolRouter?: ToolRouter,
+    rollbackProtocol?: RollbackProtocol
   ): void {
     this.safetyGuard = safetyGuard;
     this.toolRouter = toolRouter;
+    this.rollbackManager = rollbackProtocol;
 
     if (toolRouter) {
       console.log('🔧 Tool router configured');
     }
 
     if (safetyGuard && this.riskEvaluator && this.rollbackManager) {
-      console.log('🛡️  Safety integration complete (RiskEvaluator + RollbackManager)');
+      console.log('🛡️  Safety integration complete (RiskEvaluator + RollbackProtocol)');
     }
   }
 
@@ -303,7 +309,7 @@ export class ToolManager {
       safetyGuard: this.safetyGuard !== undefined,
       toolRouter: this.toolRouter !== undefined,
       riskEvaluator: this.riskEvaluator !== undefined,
-      rollbackManager: this.rollbackManager !== undefined,
+      rollbackProtocol: this.rollbackManager !== undefined,
       isFullyConfigured: this.safetyGuard !== undefined
     };
   }

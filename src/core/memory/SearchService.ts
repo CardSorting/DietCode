@@ -1,12 +1,15 @@
 /**
  * [LAYER: CORE]
- * Principle: Orchestration — coordinates fuzzy path resolution.
+ * Principle: Orchestration, task coordination, prompt assembly
+ * Violations: None
+ * 
+ * Coordinates fuzzy path resolution operations.
  */
 
-import { FuzzySearchRepository } from '../../infrastructure/FuzzySearchRepository';
+import type { SearchRepository } from '../../domain/memory/SearchProvider';
 
 export class SearchService {
-  constructor(private repository: FuzzySearchRepository) {}
+  constructor(private repository: SearchRepository) {}
 
   /**
    * Resolves a potentially imprecise file path to the closest existing file.

@@ -31,6 +31,18 @@ export interface RiskEvaluator {
 }
 
 /**
+ * Approval requirements definition
+ * Pure Domain types - no implementation details here
+ */
+export interface ApprovalRequirements {
+  requiresConfirmation: boolean;
+  requiresRollback: boolean;
+  requiresBackup: boolean;
+  restrictions: string[];
+  recommendedSafeguards: string[];
+}
+
+/**
  * Action criteria for risk evaluation
  */
 export interface ActionCriteria {

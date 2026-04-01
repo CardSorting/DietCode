@@ -4,19 +4,8 @@
  * Violations: None
  */
 
-import { RiskEvaluator, ActionCriteria } from '../../src/domain/validation/RiskEvaluator';
+import { RiskEvaluator, ActionCriteria, ApprovalRequirements } from '../../src/domain/validation/RiskEvaluator';
 import { RiskLevel } from '../../src/domain/validation/RiskLevel';
-
-/**
- * Approval requirements for failing to meet safety criteria
- */
-export interface ApprovalRequirements {
-  requiresConfirmation: boolean;
-  requiresRollback: boolean;
-  requiresBackup: boolean;
-  restrictions: string[];
-  recommendedSafeguards: string[];
-}
 
 /**
  * Infrastructure implementation of RiskEvaluator

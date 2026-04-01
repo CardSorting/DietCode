@@ -32,11 +32,12 @@ export const PATTERN_REGISTRY: Map<string, PatternMapping> = new Map([
         adapterName: 'SafetyEvaluator',
         implementsInterface: 'RiskEvaluator',
         usesDependencies: ['types: ReversibilityCheck', 'types: SystemImpactAnalyzer'],
-        behavior: 'Evaluate reversibility and system impact, determine risk tier'
+        behavior: 'Evaluate reversibility and system impact, determine risk tier (I/O-heavy analysis)',
+        implementationStatus: '✅ IMPLEMENTED'
       },
       coreElement: {
         serviceName: 'SafetyGuard',
-        orchestrates: ['ApprovalService', 'RollbackManager'],
+        orchestrates: ['ApprovalService (pending)', 'RollbackManager'],
         composition: 'Execute with confirmation if MEDIUM/HIGH, execute safe if SAFE'
       }
     }
@@ -60,14 +61,15 @@ export const PATTERN_REGISTRY: Map<string, PatternMapping> = new Map([
         returns: 'Record<OperationType, ToolName>'
       },
       infrastructureElement: {
-        adapterName: 'ToolRouter',
+        adapterName: 'ToolRouterAdapter',
         implementsInterface: 'ToolRouter',
         usesDependencies: ['types: UserIntention', 'types: ToolDefinition'],
-        behavior: 'Route user intention to appropriate tool, enforce solo-use constraint'
+        behavior: 'Route user intention to appropriate tool, enforce solo-use constraint (IMPLEMENTED)',
+        implementationStatus: '✅ IMPLEMENTED'
       },
       coreElement: {
-        serviceName: 'ToolSelectionPolicy',
-        orchestrates: ['ParallelExecutor', 'ToolVisibility'],
+        serviceName: 'ToolManager',
+        orchestrates: ['ToolSelectionPolicy (pending)', 'ParallelExecutor (pending)'],
         composition: 'Dispatch priority-based tool selection, parallelize independent calls'
       }
     }
@@ -94,11 +96,12 @@ export const PATTERN_REGISTRY: Map<string, PatternMapping> = new Map([
         adapterName: 'ContextCompressor',
         implementsInterface: 'ContextCompressionStrategy',
         usesDependencies: ['types: SessionContext', 'types: TemplateRenderer'],
-        behavior: 'Apply 9-section template to session context, extract key sections'
+        behavior: 'Apply 9-section template to session context, extract key sections',
+        implementationStatus: '📋 DEFINED (NOT IMPLEMENTED)'
       },
       coreElement: {
         serviceName: 'ContextSaveService',
-        orchestrates: ['ContextService', 'CompressTrigger'],
+        orchestrates: ['ContextService (exists)', 'CompressTrigger (pending)'],
         composition: 'Auto-trigger compression at 70% context usage threshold'
       }
     }
@@ -125,11 +128,12 @@ export const PATTERN_REGISTRY: Map<string, PatternMapping> = new Map([
         adapterName: 'VerificationAgentProtocol',
         implementsInterface: 'VerificationAgent',
         usesDependencies: ['types: TestCase', 'types: Assertion', 'types: CounterexampleGenerator'],
-        behavior: 'Generate counterexamples, verify assertions, emit verdict'
+        behavior: 'Generate counterexamples, verify assertions, emit verdict',
+        implementationStatus: '📋 DEFINED (NOT IMPLEMENTED)'
       },
       coreElement: {
         serviceName: 'AgentRouter',
-        orchestrates: ['VerificationProtocol', 'ArchitectAgentProtocol'],
+        orchestrates: ['VerificationProtocol (pending)', 'ArchitectAgentProtocol'],
         composition: 'Delegate verification task to VerificationAgent, route architect tasks separately'
       }
     }
