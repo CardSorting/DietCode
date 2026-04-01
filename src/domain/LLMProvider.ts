@@ -4,8 +4,8 @@
  * No external API dependencies.
  */
 
-import { Message } from './SessionState';
-import { ToolDefinition } from './ToolDefinition';
+import type { Message } from './SessionState';
+import type { ToolDefinition } from './ToolDefinition';
 
 export interface LLMResponse {
   content: any[];
@@ -14,6 +14,7 @@ export interface LLMResponse {
 export interface LLMProvider {
   createMessage(
     messages: Message[],
-    tools: ToolDefinition[]
+    tools: ToolDefinition[],
+    metadata?: { taskId?: string; agentId?: string }
   ): Promise<LLMResponse>;
 }

@@ -4,9 +4,9 @@
  * Decouples service lookup from business logic.
  */
 
-import { LLMProvider } from '../domain/LLMProvider';
-import { TerminalInterface } from '../domain/TerminalInterface';
-import { Filesystem } from '../domain/Filesystem';
+import type { LLMProvider } from '../domain/LLMProvider';
+import type { TerminalInterface } from '../domain/TerminalInterface';
+import type { Filesystem } from '../domain/Filesystem';
 
 export class Registry {
   private static instance: Registry;
@@ -38,4 +38,8 @@ export const SERVICES = {
   LLM: 'LLMProvider',
   UI: 'TerminalInterface',
   FS: 'Filesystem',
+  DATABASE: 'SovereignDb',
+  REPOSITORY: 'SessionRepository',
+  DECISIONS_REPOSITORY: 'DecisionRepository',
+  QUEUE: 'SqliteQueue',
 };

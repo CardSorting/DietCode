@@ -9,6 +9,11 @@ import { createMkdirTool } from './src/infrastructure/tools/mkdir';
 import { FileSystemAdapter } from './src/infrastructure/FileSystemAdapter';
 
 import { Registry, SERVICES } from './src/core/Registry';
+import { SovereignDb } from './src/infrastructure/database/SovereignDb';
+import { SqliteSessionRepository } from './src/infrastructure/database/SqliteSessionRepository';
+import { SqliteDecisionRepository } from './src/infrastructure/database/SqliteDecisionRepository';
+import { QueueWorker } from './src/infrastructure/queue/QueueWorker';
+import type { ProjectContext } from './src/domain/ProjectContext';
 
 async function main() {
   const ui = new TerminalUI();
@@ -19,6 +24,23 @@ async function main() {
     process.exit(1);
   }
 
+  // Initialize Database infrastructure
+  await SovereignDb.init();
+  const repository = new SqliteSessionRepository();
+  const decisions = new SqliteDecisionRepository();
+
+  // Background Worker: Sovereign Queue
+  const worker = new QueueWorker(decisions);
+  await worker.start();
+
+  // Project Context Discovery (Deep Integration)
+  const projectContext: ProjectContext = {
+    workspaceId: 'workspace-dietcode-prod',
+    repoId: 'dietcode-v1',
+    repoPath: '/Users/bozoegg/Downloads/DietCode',
+    defaultBranch: 'main',
+  };
+
   const fs = new FileSystemAdapter();
   const provider = new AnthropicProvider(apiKey);
 
@@ -26,6 +48,10 @@ async function main() {
   registry.register(SERVICES.FS, fs);
   registry.register(SERVICES.LLM, provider);
   registry.register(SERVICES.UI, ui);
+  registry.register(SERVICES.DATABASE, SovereignDb);
+  registry.register(SERVICES.REPOSITORY, repository);
+  registry.register(SERVICES.DECISIONS_REPOSITORY, decisions);
+  registry.register(SERVICES.QUEUE, await SovereignDb.getQueue());
 
   const toolManager = new ToolManager();
   toolManager.registerTool(createReadFileTool(fs));
@@ -48,7 +74,15 @@ async function main() {
     execute: () => ui.clear(),
   });
 
-  const orchestrator = new Orchestrator(provider, ui, toolManager, commandProcessor);
+  const orchestrator = new Orchestrator(
+    provider, 
+    ui, 
+    toolManager, 
+    commandProcessor, 
+    repository,
+    decisions,
+    projectContext
+  );
 
   const initialInput = process.argv.slice(2).join(' ');
   if (initialInput) {
