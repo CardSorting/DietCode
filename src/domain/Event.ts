@@ -24,6 +24,21 @@ export enum EventType {
   TOOL_CALL_FAILURE = 'tool_call_failure',
   ATTACHMENT_RESOLVED = 'attachment_resolved',
   ERROR = 'error',
+  
+  // Prompt System Events
+  PROMPT_REGISTERED = 'prompt_registered',
+  PROMPT_RECEIVED = 'prompt_received',
+  PROMPT_ASSEMBLED = 'prompt_assembled',
+  PROMPT_LOAD_ERROR = 'prompt_load_error',
+  PROMPT_CONFLICT_RESOLVED = 'prompt_conflict_resolved',
+  PROMPT_WARNING = 'prompt_warning',
+  PROMPT_RETRY_ADVICE = 'prompt_retry_advice',
+  PROMPT_OVERRIDE_SAFETY = 'prompt_override_safety',
+  PROMPT_RIPPLE_EFFECT = 'prompt_ripple_effect',
+  PROMPT_SUGGESTION_PATTERNS = 'prompt_suggestion_patterns',
+  CONTEXT_LOADED = 'context_loaded',
+  IMPLEMENTATION_STARTED = 'implementation_started',
+  IMPLEMENTATION_COMPLETED = 'implementation_completed',
 }
 
 export interface SystemEvent {
