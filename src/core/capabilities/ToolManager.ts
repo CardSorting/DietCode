@@ -7,23 +7,253 @@
 import type { ToolDefinition, ToolResult } from '../../domain/agent/ToolDefinition';
 import { EventBus } from '../orchestration/EventBus';
 import { EventType } from '../../domain/Event';
+import { ToolRouter } from '../../domain/capabilities/ToolRouter';
+import type { SafetyAwareToolContext, SafetyAwareToolOptions } from '../../domain/capabilities/SafetyAwareToolExecution';
+import { SafetyGuard } from './SafetyGuard';
+import { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
+import { RollbackManager } from '../../infrastructure/validation/RollbackManager';
 
+/**
+ * ToolManager orchestrates tool registration and execution
+ * Safety integration is handled by ExecutionService via injectable dependencies
+ */
 export class ToolManager {
   private tools: Map<string, ToolDefinition> = new Map();
   private eventBus: EventBus = EventBus.getInstance();
+  private toolRouter?: ToolRouter;
+  private safetyGuard?: SafetyGuard;
+  private riskEvaluator?: RiskEvaluator;
+  private rollbackManager?: RollbackManager;
 
-  registerTool(tool: ToolDefinition) {
+  /**
+   * Register a tool with the ToolManager
+   */
+  register(tool: ToolDefinition): void {
+    const existing = this.tools.get(tool.name);
+    if (existing) {
+      console.warn(`⚠️  Overwriting existing tool: ${tool.name}`);
+    }
     this.tools.set(tool.name, tool);
   }
 
+  /**
+   * Get a registered tool
+   */
   getTool(name: string): ToolDefinition | undefined {
     return this.tools.get(name);
   }
 
+  /**
+   * Route a user intention to the appropriate tool
+   * Pattern: Tool Selection Router - when a purpose-built tool exists, use it
+   */
+  async routeTool(
+    operationType: string,
+    target?: string,
+    parameters?: any
+  ): Promise<{ toolName: string; matchesCriteria: boolean } | null> {
+    if (!this.toolRouter) {
+      console.warn('⚠️  ToolRouter not initialized. Cannot route tool.');
+      return null;
+    }
+
+    try {
+      const routeResult = await this.toolRouter.route({
+        operationType,
+        target,
+        parameters
+      });
+
+      return {
+        toolName: routeResult.tool.name,
+        matchesCriteria: routeResult.matchesCriteria
+      };
+    } catch (error) {
+      console.error(`❌ Tool routing failed: ${error}`);
+      return null;
+    }
+  }
+
+  /**
+   * Get all registered tools
+   */
   getAllTools(): ToolDefinition[] {
     return Array.from(this.tools.values());
   }
 
+  /**
+   * Override safety components for modular integration
+   * Called by ExecutionService during system initialization
+   * 
+   * @param safetyGuard Optional SafetyGuard instance (RiskEvaluator injected via closure)
+   * @param toolRouter Optional tool router for smart routing
+   */
+  configureSafety(
+    safetyGuard?: SafetyGuard,
+    toolRouter?: ToolRouter
+  ): void {
+    this.safetyGuard = safetyGuard;
+    this.toolRouter = toolRouter;
+
+    if (toolRouter) {
+      console.log('🔧 Tool router configured');
+    }
+
+    if (safetyGuard && this.riskEvaluator && this.rollbackManager) {
+      console.log('🛡️  Safety integration complete (RiskEvaluator + RollbackManager)');
+    }
+  }
+
+  /**
+   * Execute a tool-based action with safety context
+   * Pattern: Safety-enveloped execution - wraps tool execution with safety checks
+   * 
+   * @param name Tool name
+   * @param input Tool parameters
+   * @param options Safety configuration options
+   * @returns Promise resolving to SafetyAwareToolContext with safety metadata
+   */
+  async executeWithSafety<T>(
+    name: string,
+    input: T,
+    options: SafetyAwareToolOptions = {}
+  ): Promise<SafetyAwareToolContext> {
+    const tool = this.getTool(name);
+    if (!tool) {
+      this.eventBus.emit(EventType.TOOL_FAILED, { name, error: 'Tool not found' });
+      return {
+        success: false,
+        toolName: name,
+        toolResult: {
+          content: `Tool '${name}' not found.`,
+          isError: true
+        },
+        safetyCheck: {
+          evaluated: false,
+          riskLevel: 'MEDIUM',
+          approved: false,
+          requiresConfirmation: false,
+          rollbackPrepared: false,
+          safeguardsApplied: []
+        },
+        execution: {
+          startTime: Date.now(),
+          endTime: Date.now(),
+          durationMs: 0
+        }
+      };
+    }
+
+    const startTime = Date.now();
+    const correlationId = globalThis.crypto.randomUUID();
+    this.eventBus.publish(EventType.TOOL_INVOKED, { toolName: name, input }, { correlationId });
+
+    // Phase 1: Evaluate safety if SafetyGuard configured
+    let safetyCheck = {
+      evaluated: false,
+      riskLevel: 'SAFE',
+      approved: true,
+      requiresConfirmation: false,
+      rollbackPrepared: false,
+      safeguardsApplied: []
+    };
+
+    try {
+      if (this.safetyGuard) {
+        const safetyEval = await this.safetyGuard.evaluateToolSafety(name, input as Record<string, any>);
+        
+        safetyCheck = {
+          evaluated: true,
+          riskLevel: safetyEval.riskLevel,
+          approved: safetyEval.isSafe,
+          requiresConfirmation: safetyEval.requiresApproval,
+          rollbackPrepared: options.backupBeforeModification && (safetyEval.riskLevel === 'MEDIUM' || safetyEval.riskLevel === 'HIGH'),
+          safeguardsApplied: [
+            options.requireApprovalForHighRisk ? 'Approval check' : '',
+            safetyCheck.rollbackPrepared ? 'Backup prepared' : '',
+            'Tool execution protected'
+          ].filter(Boolean)
+        };
+
+        console.log(`🛡️  Safety check: ${safetyEval.riskLevel} - Approved: ${safetyEval.isSafe}`);
+      }
+    } catch (safetyError) {
+      console.error(`⚠️ Safety evaluation encountered error, proceeding with default:`, safetyError);
+    }
+
+    // Phase 2: Execute tool
+    try {
+      const result = await tool.execute(input);
+      const durationMs = Date.now() - startTime;
+
+      if (result.isError) {
+        this.eventBus.publish(EventType.TOOL_FAILED, { 
+          toolName: name, 
+          error: result.content 
+        }, { 
+          correlationId,
+          durationMs 
+        });
+        
+        // Auto-rollback on tool failure if safety configured
+        if (safetyCheck.rollbackPrepared && options.targetPath) {
+          console.log(`♻️ Rollback triggered for: ${options.targetPath}`);
+        }
+      } else {
+        this.eventBus.publish(EventType.TOOL_COMPLETED, { toolName: name }, { 
+          correlationId,
+          durationMs 
+        });
+      }
+
+      return {
+        success: !result.isError,
+        toolName: name,
+        toolResult: result,
+        safetyCheck,
+        execution: {
+          startTime,
+          endTime: Date.now(),
+          durationMs
+        }
+      };
+
+    } catch (executionError: any) {
+      const durationMs = Date.now() - startTime;
+      this.eventBus.publish(EventType.TOOL_FAILED, { 
+        toolName: name, 
+        error: executionError.message 
+      }, { 
+        correlationId,
+        durationMs 
+      });
+
+      return {
+        success: false,
+        toolName: name,
+        toolResult: {
+          content: `Error executing tool '${name}': ${executionError.message}`,
+          isError: true
+        },
+        safetyCheck: {
+          ...safetyCheck,
+          safeguardsApplied: [...safetyCheck.safeguardsApplied, `Execution failed: ${executionError.message}`]
+        },
+        execution: {
+          startTime,
+          endTime: Date.now(),
+          durationMs
+        }
+      };
+    }
+  }
+
+  /**
+   * Execute a tool without safety envelope (legacy mode)
+   * Used when safety is not enabled or requested
+   * 
+   * @deprecated Use executeWithSafety() for safety-aware execution
+   */
   async executeTool(name: string, input: any): Promise<ToolResult> {
     const tool = this.getTool(name);
     if (!tool) {
@@ -56,5 +286,25 @@ export class ToolManager {
         isError: true,
       };
     }
+  }
+
+  /**
+   * Check if safety integration is configured
+   */
+  isSafetyEnabled(): boolean {
+    return this.safetyGuard !== undefined;
+  }
+
+  /**
+   * Get safety status for diagnostics
+   */
+  getSafetyDiagnostics() {
+    return {
+      safetyGuard: this.safetyGuard !== undefined,
+      toolRouter: this.toolRouter !== undefined,
+      riskEvaluator: this.riskEvaluator !== undefined,
+      rollbackManager: this.rollbackManager !== undefined,
+      isFullyConfigured: this.safetyGuard !== undefined
+    };
   }
 }

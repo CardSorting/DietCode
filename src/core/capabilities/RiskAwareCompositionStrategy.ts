@@ -1,0 +1,278 @@
+/**
+ * [LAYER: CORE]
+ * Principle: Implements risk-aware prompt composition strategy
+ */
+
+import type { PromptDefinition } from '../../src/domain/prompts/PromptCategory';
+import type { TemplateContext } from '../../src/domain/prompts/PromptTemplateEngine';
+import { RiskTier, RiskProfile, SafeguardFactory } from '../../src/domain/prompts/PromptRiskProfile';
+import type { PatternAwareStrategy } from '../../src/domain/prompts/PromptCompositionStrategy';
+
+/**
+ * Strategy that wraps prompts with risk assessment and safety instructions based on dangerLevel
+ */
+export class RiskAwareCompositionStrategy implements PatternAwareStrategy {
+  readonly name = 'risk-awared-composition';
+  
+  private patternTemplate: string;
+
+  constructor() {
+    this.patternTemplate = this.getRiskAssessmentPattern();
+  }
+
+  canApply(prompt: PromptDefinition, context: Partial<TemplateContext>): boolean {
+    // Apply to prompts with explicit danger level or high-risk categories
+    return !!(prompt.dangerLevel || this.isHighRiskCategory(prompt.category));
+  }
+
+  async apply(
+    prompt: PromptDefinition, 
+    context: Partial<TemplateContext>
+  ): Promise<{ prompt: string; notes: string[] }> {
+    const notes: string[] = [];
+
+    // Assess risk level
+    const riskProfile = this.assessRisk(prompt, context);
+    
+    // Select appropriate safeguards
+    const safeguards = SafeguardFactory.getSafeguardsForTier(riskProfile.tier);
+    const escalationStage = SafeguardFactory.getEscalationStage(riskProfile.tier);
+
+    notes.push(`Risk tier: ${riskProfile.tier}`);
+    notes.push(`Safeguards: ${safeguards.map(s => s.type).join(', ')}`);
+
+    // Wrap prompt with risk assessment instructions
+    const wrappedPrompt = this.wrapPromptWithRiskAssessment(
+      prompt.content, 
+      riskProfile,
+      safeguards,
+      escalationStage,
+      context
+    );
+
+    return { prompt: wrappedPrompt, notes };
+  }
+
+  /**
+   * Assess risk based on prompt metadata and context
+   */
+  private assessRisk(
+    prompt: PromptDefinition,
+    context: Partial<TemplateContext>
+  ): RiskProfile {
+    const dangerLevel = prompt.dangerLevel || 'low';
+    
+    // Map danger levels to risk tiers
+    const tierMap: Record<string, RiskTier> = {
+      'critical': RiskTier.HIGH,
+      'high': RiskTier.HIGH,
+      'medium': RiskTier.MEDIUM,
+      'low': RiskTier.LOW
+    };
+
+    const tier = tierMap[dangerLevel] || RiskTier.MEDIUM;
+    
+    // Build assumptions list
+    const assumptions = this.buildAssumptions(prompt, context);
+
+    return {
+      promptId: prompt.id,
+      tier,
+      safeguarding: SafeguardFactory.getSafeguardsForTier(tier),
+      factors: this.identifyRiskFactors(prompt, context),
+      assumptions,
+      escalationStage: SafeguardFactory.getEscalationStage(tier),
+      recommended_tools: this.getRecommendedTools(tier)
+    };
+  }
+
+  /**
+   * Generate assumptions from prompt context
+   */
+  private buildAssumptions(
+    prompt: PromptDefinition,
+    context: Partial<TemplateContext>
+  ): string[] {
+    const assumptions: string[] = [];
+
+    if (!context.project?.name) {
+      assumptions.push('Project name not available');
+    }
+
+    if (!context.sessionId) {
+      assumptions.push('Session ID not available');
+    }
+
+    if (prompt.category === 'SYSTEM_CORE' || prompt.category === 'PRODUCTION_CONFIG') {
+      assumptions.push('Production system at risk if error occurs');
+    }
+
+    if (!context.project?.technologies || context.project.technologies.length === 0) {
+      assumptions.push('Technology stack not detected');
+    }
+
+    return assumptions;
+  }
+
+  /**
+   * Identify risk factors based on prompt properties
+   */
+  private identifyRiskFactors(
+    prompt: PromptDefinition,
+    context: Partial<TemplateContext>
+  ): Array<{ factor: string; value: string; severity: 'low' | 'medium' | 'high' }> {
+    const factors: Array<{ factor: string; value: string; severity: 'low' | 'medium' | 'high' }> = [];
+
+    // Build derived risk factors
+    if (prompt.dangerLevel !== 'low') {
+      factors.push({
+        factor: 'sensitivity',
+        value: prompt.dangerLevel,
+        severity: prompt.dangerLevel === 'critical' ? 'high' : 'medium'
+      });
+    }
+
+    if (context.project?.technologies) {
+      factors.push({
+        factor: 'scope',
+        value: `${context.project.technologies.length} technologies`,
+        severity: 'medium'
+      });
+    }
+
+    if (prompt.category === 'INFRASTRUCTURE' || prompt.category === 'DOCKER') {
+      factors.push({
+        factor: 'system_impact',
+        value: 'system-level changes',
+        severity: 'high'
+      });
+    }
+
+    if (prompt.content.includes('DELETE') || prompt.content.includes('DROP')) {
+      factors.push({
+        factor: 'reversibility',
+        value: 'destructive operations',
+        severity: 'high'
+      });
+    }
+
+    return factors;
+  }
+
+  /**
+   * Get recommended tools based on risk tier
+   */
+  private getRecommendedTools(tier: RiskTier): string[] | undefined {
+    switch (tier) {
+      case RiskTier.LOW:
+        return [];
+      case RiskTier.MEDIUM:
+        return ['pre-commit-hooks', 'semantic-release', 'docker-compose'];
+      case RiskTier.HIGH:
+        return ['backups', 'sandbox-environments', 'rollback-plans', 'communication'];
+      default:
+        return [];
+    }
+  }
+
+  /**
+   * Get the risk assessment pattern template from claude-code-prompts
+   */
+  private getRiskAssessmentPattern(): string {
+    return `---
+# Risk Assessment for This Prompt
+
+RISK EVALUATION
+---
+Risk Level: {{risk.tier}}
+Confidence: {{confidence}}
+
+RISK FACTORS
+---
+{% for factor in risk.factors %}
+- {{factor.factor}}: {{factor.value}} (severity: {{factor.severity}})
+{% endfor %}
+
+SAFEGUARDS REQUIRED
+---
+{% for safeguard in risk.safeguarding %}
+- [{{safeguard.required ? 'X' : ' '}}] {{safeguard.description}} (type: {{safeguard.type}})
+{% endfor %}
+
+ASSUMPTIONS
+---
+{% for assumption in risk.assumptions %}
+- {{assumption}}
+{% endfor %}
+
+ASSUMED TOOLS / COMMANDS
+---
+{% if risk.recommended_tools %}}
+{% for tool in risk.recommended_tools %}
+- {{tool}}
+{% endfor %}
+{% else %}
+None recommended
+{% endif %}
+
+VERIFICATION REQUIREMENTS
+---
+{{risk.assumptions.length > 2 ? 'Required: Run comprehensive tests, backup operations, and rollback preparation.' : 'Required: Run basic checks and documentation.'}}
+
+OUTPUT REQUIREMENTS
+---
+1. Document risk tier and rationale
+2. List all safeguards applied
+3. Report verification results
+4. Note any deviations from assumptions`;
+  }
+
+  /**
+   * Wrap the prompt content with the risk assessment pattern
+   */
+  private wrapPromptWithRiskAssessment(
+    promptContent: string,
+    riskProfile: RiskProfile,
+    safeguards: any[],
+    escalationStage: string,
+    context: Partial<TemplateContext>
+  ): string {
+    // Template context for this specific wrapping
+    const wrapperContext = {
+      risk: {
+        tier: riskProfile.tier,
+        confidence: 0.85, // Default confidence, could be dynamic
+        factors: riskProfile.factors,
+        safeguarding: safeguards,
+        assumptions: riskProfile.assumptions,
+        recommended_tools: riskProfile.recommended_tools
+      },
+      escalation_stage: escalationStage
+    };
+
+    // Merge original prompt with assessment
+    return `# Risk Assessment Precondition
+
+${this.patternTemplate}
+
+---
+
+${promptContent}`;
+  }
+
+  /**
+   * Determine if a category is high-risk by default
+   */
+  private isHighRiskCategory(category: string): boolean {
+    const HIGH_RISK_CATEGORIES = [
+      'INFRASTRUCTURE',
+      'DOCKER',
+      'PRODUCTION_CONFIG',
+      'SECURITY',
+      'DEPLOYMENT',
+      'DANGER_ZONE'
+    ];
+
+    return HIGH_RISK_CATEGORIES.includes(category);
+  }
+}

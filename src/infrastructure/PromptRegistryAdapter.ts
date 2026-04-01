@@ -12,6 +12,9 @@ import { EventType } from '../domain/Event';
 import type { ValidationService } from '../domain/system/ValidationProvider';
 import type { Filesystem } from '../domain/system/Filesystem';
 import type { MemoryService } from '../core/memory/MemoryService';
+import type { ContextService } from '../core/context/ContextService';
+import type { ContextProviderEngine } from '../core/capabilities/ContextProviderEngine';
+import { RiskAwareCompositionStrategy } from '../core/capabilities/RiskAwareCompositionStrategy';
 import { PromptLoader } from './PromptLoader';
 import { TemplateEngine, TemplateContext } from '../domain/prompts/PromptTemplateEngine';
 
@@ -19,12 +22,15 @@ export class PromptRegistryAdapter {
   private currentIndex: PromptIndex;
   private activeContext: Record<string, any> = {};
   private conflictLogger: ConflictLogger;
+  private contextProvider: ContextProviderEngine;
+  private riskStrategy: RiskAwareCompositionStrategy;
 
   constructor(
     private filesystem: Filesystem,
     private eventBus: EventBus,
     private validationService: ValidationService,
     private memoryService: MemoryService,
+    private contextService: ContextService,
     private promptLoader: PromptLoader,
     private listSources: ListPromptsSourcesFunction,
     private loadSource: LoadPromptSourceFunction
@@ -36,6 +42,16 @@ export class PromptRegistryAdapter {
       collections: [],
       auditTrail: []
     };
+    
+    // Initialize context provider engine
+    this.contextProvider = new ContextProviderEngine(memoryService, contextService);
+    
+    // Initialize risk-aware composition strategy
+    this.riskStrategy = new RiskAwareCompositionStrategy();
+    
+    // Register risk strategy with context provider
+    this.contextProvider.registerStrategy(this.riskStrategy);
+    
     this.conflictLogger = new ConflictLogger(this.eventBus);
   }
 
@@ -339,11 +355,12 @@ export class PromptRegistryAdapter {
   }
 
   /**
-   * Renders a prompt with runtime context using TemplateEngine
+   * Renders a prompt with enhanced risk-aware context and composition
+   * This is the primary entry point for prompt rendering in the enhanced system
    */
   async renderPrompt(
     promptId: string,
-    context: TemplateContext
+    sessionContext: TemplateContext
   ): Promise<{ rendered: string; template: PromptDefinition | null; metadata: any }> {
     const prompt = this.findPromptById(promptId);
     
@@ -351,17 +368,32 @@ export class PromptRegistryAdapter {
       return { rendered: '', template: null, metadata: { error: 'Prompt not found' } };
     }
 
+    const startTime = Date.now();
+
+    // Step 1: Prepare enhanced context using ContextProviderEngine
+    const enhancedContext = await this.contextProvider.prepareContext(prompt, sessionContext);
+    
+    // Step 2: Apply risk-aware composition strategy if applicable
+    const riskNotes: string[] = [];
+    if (this.riskStrategy.canApply(prompt, enhancedContext)) {
+      const compositionResult = await this.riskStrategy.apply(prompt, enhancedContext);
+      enhancedContext.prompt = compositionResult.prompt;
+      riskNotes.push(...compositionResult.notes);
+    }
+
+    // Step 3: Compile and render the final prompt
     const engine = new TemplateEngine();
     const options: TemplateRenderOptions = {
       trace: false,
       strict: true,
       defaultValues: {
-        sessionId: context.sessionId,
-        timestamp: context.timestamp
+        sessionId: enhancedContext.sessionId,
+        timestamp: enhancedContext.timestamp
       }
     };
 
-    const rendered = engine.render(prompt.content, context, options);
+    const rendered = engine.render(enhancedContext.prompt, enhancedContext, options);
+    const renderTimeMs = Date.now() - startTime;
 
     return {
       rendered,
@@ -369,19 +401,59 @@ export class PromptRegistryAdapter {
       metadata: {
         promptId,
         category: prompt.category,
-        variableCount: this.countVariables(prompt.content),
+        variableCount: this.countVariables(enhancedContext.prompt),
         templateSizeKb: Math.round(rendered.length / 1024),
-        renderTimeMs: 0 // Would measure in real implementation
+        renderTimeMs,
+        enabledStrategies: ['context-provider', 'risk-aware-composition'],
+        strategyNotes: riskNotes,
+        memoryItemsLoaded: enhancedContext.memory?.items.length || 0
       }
     };
   }
 
   /**
-   * Counts template variables in a prompt
+   * Generates a risk profile for a specific prompt execution
+   * This allows external systems to assess whether to proceed with risky operations
    */
-  private countVariables(template: string): number {
-    const matches = template.match(/\{\{.*?\}\}/g) || [];
-    return matches.length;
+  async assessPromptRisk(promptId: string): Promise<{
+    profile: any;
+    recommendations: string[];
+  }> {
+    const prompt = this.findPromptById(promptId);
+    
+    if (!prompt) {
+      return {
+        profile: null,
+        recommendations: ['Prompt not found, cannot assess risk']
+      };
+    }
+
+    const context = await this.contextProvider.prepareContext(prompt, {});
+    const riskProfile = this.riskStrategy['assessRisk'](prompt, context);
+
+    const recommendations = riskProfile.tier === RiskTier.HIGH 
+      ? [
+          'Request explicit user approval before proceeding',
+          'Prepare backup strategy',
+          'Run tests in isolation environment',
+          'Document rollback procedure'
+        ]
+      : riskProfile.tier === RiskTier.MEDIUM
+      ? [
+          'Test thoroughly before merging',
+          'Prepare rollback script',
+          'Communicate expected impact'
+        ]
+      : [
+          'Standard testing applies',
+          'Document any unexpected behavior',
+          'Monitor commit history'
+        ];
+
+    return {
+      profile: riskProfile,
+      recommendations
+    };
   }
 
   /**
