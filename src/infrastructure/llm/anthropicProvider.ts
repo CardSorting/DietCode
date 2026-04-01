@@ -6,9 +6,9 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import type { LLMProvider, LLMResponse } from '../../domain/LLMProvider';
-import type { Message } from '../../domain/SessionState';
-import type { ToolDefinition } from '../../domain/ToolDefinition';
-import type { Agent } from '../../domain/Agent';
+import type { Message } from '../../domain/context/SessionState';
+import type { ToolDefinition } from '../../domain/agent/ToolDefinition';
+import type { Agent } from '../../domain/agent/Agent';
 import { SovereignDb } from '../database/SovereignDb';
 
 export class AnthropicProvider implements LLMProvider {

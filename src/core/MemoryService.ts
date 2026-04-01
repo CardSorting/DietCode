@@ -3,7 +3,7 @@
  * Principle: Cognitive Continuity — manages the distillation and recall of knowledge.
  */
 
-import { KnowledgeType, type KnowledgeItem, type KnowledgeRepository } from '../domain/Knowledge';
+import { KnowledgeType, type KnowledgeItem, type KnowledgeRepository } from '../domain/memory/Knowledge';
 import type { LLMProvider } from '../domain/LLMProvider';
 import type { AgentRegistry } from './AgentRegistry';
 

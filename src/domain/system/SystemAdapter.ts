@@ -3,7 +3,7 @@
  * Interface for gathering system and environment information.
  */
 
-import type { SystemInfo, RepoContext } from './SystemContext';
+import type { SystemInfo, RepoContext } from '../context/SystemContext';
 
 export interface SystemAdapter {
   getSystemInfo(): Promise<SystemInfo>;

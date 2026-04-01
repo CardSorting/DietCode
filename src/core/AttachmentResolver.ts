@@ -1,8 +1,8 @@
 import * as path from 'path';
-import { AttachmentParser } from '../domain/Attachment';
-import type { Attachment } from '../domain/Attachment';
-import type { ProjectContext } from '../domain/ProjectContext';
-import type { Filesystem } from '../domain/Filesystem';
+import { AttachmentParser } from '../domain/context/Attachment';
+import type { Attachment } from '../domain/context/Attachment';
+import type { ProjectContext } from '../domain/context/ProjectContext';
+import type { Filesystem } from '../domain/system/Filesystem';
 import { EventBus } from './EventBus';
 import { EventType } from '../domain/Event';
 

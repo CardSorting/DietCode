@@ -4,10 +4,10 @@
  * No external API dependencies.
  */
 
-import type { Reasoning } from './Reasoning';
-import type { Message } from './SessionState';
-import type { ToolDefinition } from './ToolDefinition';
-import type { Agent } from './Agent';
+import type { Reasoning } from './memory/Reasoning';
+import type { Message } from './context/SessionState';
+import type { ToolDefinition } from './agent/ToolDefinition';
+import type { Agent } from './agent/Agent';
 
 export interface LLMResponse {
   content: any[];

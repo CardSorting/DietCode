@@ -4,7 +4,7 @@
  */
 
 import { SovereignDb } from './SovereignDb';
-import type { DecisionRepository } from '../../domain/DecisionRepository';
+import type { DecisionRepository } from '../../domain/memory/DecisionRepository';
 
 export class SqliteDecisionRepository implements DecisionRepository {
   async recordDecision(

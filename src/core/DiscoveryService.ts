@@ -1,7 +1,7 @@
 import * as path from 'path';
-import type { ProjectContext } from '../domain/ProjectContext';
-import type { Filesystem } from '../domain/Filesystem';
-import type { SystemAdapter } from '../domain/SystemAdapter';
+import type { ProjectContext } from '../domain/context/ProjectContext';
+import type { Filesystem } from '../domain/system/Filesystem';
+import type { SystemAdapter } from '../domain/system/SystemAdapter';
 import { EventBus } from './EventBus';
 import { EventType } from '../domain/Event';
 

@@ -3,7 +3,7 @@
  * Standardized self-healing and refactoring proposal types.
  */
 
-import type { IntegrityViolation } from './Integrity';
+import type { IntegrityViolation } from '../memory/Integrity';
 
 export enum HealingStatus {
   PENDING = 'pending',

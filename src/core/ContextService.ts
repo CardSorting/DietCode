@@ -1,7 +1,7 @@
 import * as path from 'path';
-import type { SystemContext, ExtensionStat } from '../domain/SystemContext';
-import type { ProjectContext } from '../domain/ProjectContext';
-import type { Filesystem } from '../domain/Filesystem';
+import type { SystemContext, ExtensionStat } from '../domain/context/SystemContext';
+import type { ProjectContext } from '../domain/context/ProjectContext';
+import type { Filesystem } from '../domain/system/Filesystem';
 
 export class ContextService {
   constructor(private filesystem: Filesystem) {}

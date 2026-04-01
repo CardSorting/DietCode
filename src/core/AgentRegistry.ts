@@ -3,7 +3,7 @@
  * Principle: Orchestration — manages agent definitions and metadata.
  */
 
-import { Agent, type AgentId, type AgentDefinition } from '../domain/Agent';
+import { Agent, type AgentId, type AgentDefinition } from '../domain/agent/Agent';
 
 export class AgentRegistry {
   private agents: Map<AgentId, Agent> = new Map();

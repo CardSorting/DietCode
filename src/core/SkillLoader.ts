@@ -1,7 +1,7 @@
 import * as path from 'path';
-import type { Skill } from '../domain/Skill';
-import type { ProjectContext } from '../domain/ProjectContext';
-import type { Filesystem } from '../domain/Filesystem';
+import type { Skill } from '../domain/agent/Skill';
+import type { ProjectContext } from '../domain/context/ProjectContext';
+import type { Filesystem } from '../domain/system/Filesystem';
 import { EventBus } from './EventBus';
 import { EventType } from '../domain/Event';
 

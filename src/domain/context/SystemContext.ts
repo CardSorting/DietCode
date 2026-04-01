@@ -32,3 +32,20 @@ export interface DetailedProjectContext {
   system: SystemInfo;
   repo: RepoContext;
 }
+
+export interface ExtensionStat {
+  extension: string;
+  count: number;
+  percentage: string;
+}
+
+export interface SystemContext {
+  cwd: string;
+  filesSummary: {
+    stats: ExtensionStat[];
+    totalFiles: number;
+  };
+  activeBranch?: string;
+  availableSkills: string[];
+  toolsEnabled: boolean;
+}

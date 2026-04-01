@@ -4,7 +4,7 @@
  * Handles .gitignore and .dietcodeignore patterns.
  */
 
-import type { Filesystem } from '../domain/Filesystem';
+import type { Filesystem } from '../domain/system/Filesystem';
 
 export class Ignorer {
   private patterns: string[] = [];

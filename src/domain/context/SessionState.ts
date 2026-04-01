@@ -4,7 +4,7 @@
  * No external imports or I/O.
  */
 
-import type { Reasoning } from './Reasoning';
+import type { Reasoning } from '../memory/Reasoning';
 
 export type Role = 'user' | 'assistant' | 'system';
 

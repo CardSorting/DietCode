@@ -4,7 +4,7 @@
  */
 
 import { SovereignDb } from './SovereignDb';
-import type { Snapshot, SnapshotRepository } from '../../domain/Snapshot';
+import type { Snapshot, SnapshotRepository } from '../../domain/memory/Snapshot';
 
 export class SqliteSnapshotRepository implements SnapshotRepository {
   async saveSnapshot(snapshot: Snapshot): Promise<void> {

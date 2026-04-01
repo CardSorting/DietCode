@@ -5,7 +5,7 @@
 
 import { SovereignDb } from './src/infrastructure/database/SovereignDb';
 import { SelfHealingService } from './src/core/SelfHealingService';
-import { ViolationType } from './src/domain/Integrity';
+import { ViolationType } from './src/domain/memory/Integrity';
 import { QueueWorker } from './src/infrastructure/queue/QueueWorker';
 import { AgentRegistry } from './src/core/AgentRegistry';
 

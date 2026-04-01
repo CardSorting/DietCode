@@ -4,9 +4,9 @@
  */
 
 import { SovereignDb } from './SovereignDb';
-import type { SessionRepository } from '../../domain/SessionRepository';
-import type { Message, SessionState } from '../../domain/SessionState';
-import type { ProjectContext } from '../../domain/ProjectContext';
+import type { SessionRepository } from '../../domain/context/SessionRepository';
+import type { Message, SessionState } from '../../domain/context/SessionState';
+import type { ProjectContext } from '../../domain/context/ProjectContext';
 
 export class SqliteSessionRepository implements SessionRepository {
   /**

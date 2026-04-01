@@ -1,6 +1,6 @@
 import { SovereignDb } from './SovereignDb';
-import type { HealingRepository } from '../../domain/HealingRepository';
-import { HealingStatus, type HealingProposal } from '../../domain/Healing';
+import type { HealingRepository } from '../../domain/healing/HealingRepository';
+import { HealingStatus, type HealingProposal } from '../../domain/healing/Healing';
 
 /**
  * [LAYER: INFRASTRUCTURE]

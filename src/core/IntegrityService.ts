@@ -5,7 +5,7 @@
 
 import { EventBus } from './EventBus';
 import { EventType } from '../domain/Event';
-import type { IntegrityViolation, IntegrityReport, ViolationType } from '../domain/Integrity';
+import type { IntegrityViolation, IntegrityReport, ViolationType } from '../domain/memory/Integrity';
 
 export interface IntegrityScanner {
   scan(projectRoot: string): Promise<IntegrityReport>;

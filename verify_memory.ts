@@ -6,7 +6,7 @@
 import { SovereignDb } from './src/infrastructure/database/SovereignDb';
 import { SqliteKnowledgeRepository } from './src/infrastructure/database/SqliteKnowledgeRepository';
 import { MemoryService } from './src/core/MemoryService';
-import { KnowledgeType } from './src/domain/Knowledge';
+import { KnowledgeType } from './src/domain/memory/Knowledge';
 import { QueueWorker } from './src/infrastructure/queue/QueueWorker';
 
 async function verify() {

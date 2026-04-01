@@ -12,8 +12,8 @@ import { FuzzySearchRepository } from './src/infrastructure/FuzzySearchRepositor
 import { SearchService } from './src/core/SearchService';
 import { SkillLoader } from './src/core/SkillLoader';
 import { EventType } from './src/domain/Event';
-import type { ProjectContext } from './src/domain/ProjectContext';
-import type { Snapshot, SnapshotRepository } from './src/domain/Snapshot';
+import type { ProjectContext } from './src/domain/context/ProjectContext';
+import type { Snapshot, SnapshotRepository } from './src/domain/memory/Snapshot';
 import * as fs from 'fs';
 import * as path from 'path';
 

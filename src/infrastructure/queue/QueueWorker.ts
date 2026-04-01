@@ -5,7 +5,7 @@
  */
 
 import { SovereignDb } from '../database/SovereignDb';
-import type { DecisionRepository } from '../../domain/DecisionRepository';
+import type { DecisionRepository } from '../../domain/memory/DecisionRepository';
 import type { MemoryService } from '../../core/MemoryService';
 import type { SelfHealingService } from '../../core/SelfHealingService';
 import type { LLMProvider } from '../../domain/LLMProvider';

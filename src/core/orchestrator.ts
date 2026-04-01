@@ -4,20 +4,20 @@
  */
 
 import type { LLMProvider } from '../domain/LLMProvider';
-import type { TerminalInterface } from '../domain/TerminalInterface';
-import type { SessionState, Message, MessageBlock } from '../domain/SessionState';
-import { createInitialState } from '../domain/SessionState';
+import type { TerminalInterface } from '../domain/system/TerminalInterface';
+import type { SessionState, Message, MessageBlock } from '../domain/context/SessionState';
+import { createInitialState } from '../domain/context/SessionState';
 import type { ToolManager } from './ToolManager';
 import type { CommandProcessor } from './CommandProcessor';
 import { DomainError } from '../domain/Errors';
-import type { SessionRepository } from '../domain/SessionRepository';
-import type { DecisionRepository } from '../domain/DecisionRepository';
-import type { ProjectContext } from '../domain/ProjectContext';
+import type { SessionRepository } from '../domain/context/SessionRepository';
+import type { DecisionRepository } from '../domain/memory/DecisionRepository';
+import type { ProjectContext } from '../domain/context/ProjectContext';
 import { SovereignDb } from '../infrastructure/database/SovereignDb';
-import type { Reasoning } from '../domain/Reasoning';
+import type { Reasoning } from '../domain/memory/Reasoning';
 import type { SqliteAuditRepository } from '../infrastructure/database/SqliteAuditRepository';
 import type { AgentRegistry } from './AgentRegistry';
-import type { Agent } from '../domain/Agent';
+import type { Agent } from '../domain/agent/Agent';
 import type { ContextService } from './ContextService';
 import { AttachmentResolver } from './AttachmentResolver';
 import { EventBus } from './EventBus';

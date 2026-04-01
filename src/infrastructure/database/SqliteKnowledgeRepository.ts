@@ -4,7 +4,7 @@
  */
 
 import { SovereignDb } from './SovereignDb';
-import type { KnowledgeItem, KnowledgeRepository } from '../../domain/Knowledge';
+import type { KnowledgeItem, KnowledgeRepository } from '../../domain/memory/Knowledge';
 
 export class SqliteKnowledgeRepository implements KnowledgeRepository {
   async save(item: KnowledgeItem): Promise<void> {

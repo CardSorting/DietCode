@@ -5,10 +5,10 @@
 
 import { EventBus } from './EventBus';
 import { EventType } from '../domain/Event';
-import type { IntegrityReport, IntegrityViolation } from '../domain/Integrity';
-import { HealingStatus, type HealingProposal, type HealingTask } from '../domain/Healing';
+import type { IntegrityReport, IntegrityViolation } from '../domain/memory/Integrity';
+import { HealingStatus, type HealingProposal, type HealingTask } from '../domain/healing/Healing';
 import { SovereignDb } from '../infrastructure/database/SovereignDb';
-import type { HealingRepository } from '../domain/HealingRepository';
+import type { HealingRepository } from '../domain/healing/HealingRepository';
 
 export class SelfHealingService {
   private eventBus: EventBus = EventBus.getInstance();

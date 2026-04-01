@@ -4,7 +4,7 @@
  * Coordinates between Domain definitions and Infrastructure implementations.
  */
 
-import type { ToolDefinition, ToolResult } from '../domain/ToolDefinition';
+import type { ToolDefinition, ToolResult } from '../domain/agent/ToolDefinition';
 import { EventBus } from './EventBus';
 import { EventType } from '../domain/Event';
 

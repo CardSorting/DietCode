@@ -3,9 +3,9 @@
  * Principle: Orchestration — assembles pure domain context into LLM prompts.
  */
 
-import type { SystemContext } from '../domain/SystemContext';
-import type { Skill } from '../domain/Skill';
-import type { Attachment } from '../domain/Attachment';
+import type { SystemContext } from '../domain/context/SystemContext';
+import type { Skill } from '../domain/agent/Skill';
+import type { Attachment } from '../domain/context/Attachment';
 
 export class PromptService {
   /**

@@ -30,7 +30,7 @@ import { IntegrityAdapter } from './src/infrastructure/IntegrityAdapter';
 import { HandoverService } from './src/core/HandoverService';
 import { MemoryService } from './src/core/MemoryService';
 import { SelfHealingService } from './src/core/SelfHealingService';
-import type { ProjectContext } from './src/domain/ProjectContext';
+import type { ProjectContext } from './src/domain/context/ProjectContext';
 
 async function main() {
   const ui = new TerminalUI();

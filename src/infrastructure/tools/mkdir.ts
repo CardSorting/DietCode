@@ -4,8 +4,8 @@
  * Uses the Domain Filesystem interface.
  */
 
-import type { ToolDefinition, ToolResult } from '../../domain/ToolDefinition';
-import type { Filesystem } from '../../domain/Filesystem';
+import type { ToolDefinition, ToolResult } from '../../domain/agent/ToolDefinition';
+import type { Filesystem } from '../../domain/system/Filesystem';
 
 export const createMkdirTool = (fs: Filesystem): ToolDefinition<{ path: string }> => ({
   name: 'mkdir',

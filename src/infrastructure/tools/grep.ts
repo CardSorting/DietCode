@@ -8,7 +8,7 @@
 import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
-import type { ToolDefinition, ToolResult } from '../../domain/ToolDefinition';
+import type { ToolDefinition, ToolResult } from '../../domain/agent/ToolDefinition';
 
 export const grepTool: ToolDefinition<{ pattern: string; targetPath?: string }> = {
   name: 'grep',
