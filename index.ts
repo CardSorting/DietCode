@@ -28,6 +28,7 @@ import { IntegrityService } from './src/core/IntegrityService';
 import { IntegrityAdapter } from './src/infrastructure/IntegrityAdapter';
 import { HandoverService } from './src/core/HandoverService';
 import { MemoryService } from './src/core/MemoryService';
+import { SelfHealingService } from './src/core/SelfHealingService';
 import type { ProjectContext } from './src/domain/ProjectContext';
 
 async function main() {
@@ -60,9 +61,10 @@ async function main() {
   const agentRegistry = new AgentRegistry();
   const memoryService = new MemoryService(knowledge, provider, agentRegistry);
   const handoverService = new HandoverService(agentRegistry);
+  const selfHealingService = new SelfHealingService();
 
   // Background Worker: Sovereign Queue
-  const worker = new QueueWorker(decisions, memoryService);
+  const worker = new QueueWorker(decisions, memoryService, selfHealingService, agentRegistry, provider);
   await worker.start();
 
   // Project Context Discovery (Deep Integration)
@@ -81,6 +83,12 @@ async function main() {
   const integrityService = new IntegrityService(integrityAdapter);
   const integrityReport = await integrityService.check(projectContext.repository.path);
   console.log(`[INTEGRITY] Core Health: ${integrityReport.score}/100`);
+
+  // Triple Down: Autonomous Self-Healing Assessment
+  if (integrityReport.violations.length > 0) {
+      const tasks = await selfHealingService.triage(integrityReport);
+      console.log(`[HEALING] Sovereign Swarm enqueued ${tasks} self-healing tasks.`);
+  }
 
   // Load custom skills
   const skills = await skillLoader.load(projectContext);
