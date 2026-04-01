@@ -4,6 +4,7 @@
  */
 
 import { PromptDefinition, PromptCategory } from '../domain/prompts/PromptCategory';
+import { TemplateEngine, TemplateContext, TemplateRenderOptions } from '../domain/prompts/PromptTemplateEngine';
 import type { Filesystem } from '../domain/system/Filesystem';
 import * as fs from 'fs';
 import * as path from 'path';

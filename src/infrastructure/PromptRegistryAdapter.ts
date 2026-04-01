@@ -13,6 +13,7 @@ import type { ValidationService } from '../domain/system/ValidationProvider';
 import type { Filesystem } from '../domain/system/Filesystem';
 import type { MemoryService } from '../core/memory/MemoryService';
 import { PromptLoader } from './PromptLoader';
+import { TemplateEngine, TemplateContext } from '../domain/prompts/PromptTemplateEngine';
 
 export class PromptRegistryAdapter {
   private currentIndex: PromptIndex;
@@ -338,14 +339,49 @@ export class PromptRegistryAdapter {
   }
 
   /**
-   * Finds a specific prompt definition by ID.
+   * Renders a prompt with runtime context using TemplateEngine
    */
-  findPromptById(promptId: string): PromptDefinition | undefined {
-    for (const collection of this.currentIndex.collections) {
-      const prompt = collection.promptDefinitions.find(p => p.id === promptId);
-      if (prompt) return prompt;
+  async renderPrompt(
+    promptId: string,
+    context: TemplateContext
+  ): Promise<{ rendered: string; template: PromptDefinition | null; metadata: any }> {
+    const prompt = this.findPromptById(promptId);
+    
+    if (!prompt) {
+      return { rendered: '', template: null, metadata: { error: 'Prompt not found' } };
     }
-    return undefined;
+
+    const engine = new TemplateEngine();
+    const options: TemplateRenderOptions = {
+      trace: false,
+      strict: true,
+      defaultValues: {
+        sessionId: context.sessionId,
+        timestamp: context.timestamp
+      }
+    };
+
+    const rendered = engine.render(prompt.content, context, options);
+
+    return {
+      rendered,
+      template: prompt,
+      metadata: {
+        promptId,
+        category: prompt.category,
+        variableCount: this.countVariables(prompt.content),
+        templateSizeKb: Math.round(rendered.length / 1024),
+        renderTimeMs: 0 // Would measure in real implementation
+      }
+    };
+  }
+
+  /**
+   * Counts template variables in a prompt
+   */
+  private countVariables(template: string): number {
+    const matches = template.match(/\{\{.*?\}\}/g) || [];
+    return matches.length;
   }
 
   /**
