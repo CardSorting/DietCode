@@ -1,7 +1,4 @@
-/**
- * [LAYER: DOMAIN]
- * Principle: Pure model for project and repository context.
- */
+import type { DetailedProjectContext } from './SystemContext';
 
 export interface Workspace {
   id: string;
@@ -28,4 +25,5 @@ export interface Repository {
 export interface ProjectContext {
   workspace: Workspace;
   repository: Repository;
+  detailedContext?: DetailedProjectContext;
 }

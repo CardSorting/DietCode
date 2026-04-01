@@ -6,11 +6,15 @@
 
 import { SovereignDb } from '../database/SovereignDb';
 import type { DecisionRepository } from '../../domain/DecisionRepository';
+import type { MemoryService } from '../../core/MemoryService';
 
 export class QueueWorker {
   private isProcessing = false;
 
-  constructor(private decisions: DecisionRepository) {}
+  constructor(
+    private decisions: DecisionRepository,
+    private memory: MemoryService
+  ) {}
 
   /**
    * Starts the background processing loop.
@@ -30,7 +34,7 @@ export class QueueWorker {
       
       switch (payload.type) {
         case 'KNOWLEDGE_INGEST':
-          await this.handleKnowledgeIngest(payload.data);
+          await this.handleKnowledgeIngest(job.id, payload.data);
           break;
         case 'CODE_ANALYZE':
           // Simulated heavy analysis task
@@ -44,9 +48,15 @@ export class QueueWorker {
     this.isProcessing = true;
   }
 
-  private async handleKnowledgeIngest(data: any) {
+  private async handleKnowledgeIngest(jobId: string, data: any) {
     const { userId, type, content, metadata } = data;
     await this.decisions.ingestKnowledge(userId, type, content, metadata);
+    
+    // Triple Down: Memory Distillation
+    if (type === 'task_outcome') {
+        await this.memory.distill(jobId, content);
+    }
+
     console.log(`[WORKER] Successfully ingested knowledge from queue.`);
   }
 }

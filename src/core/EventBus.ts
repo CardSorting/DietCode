@@ -1,34 +1,54 @@
 /**
  * [LAYER: CORE]
- * Principle: Orchestration — coordinates system-wide communication (Events).
+ * Central EventBus for system-wide lifecycle tracking and observability.
  */
 
-import type { AgentEvent, EventSubscriber } from '../domain/Event';
-import { EventType } from '../domain/Event';
+import { EventEmitter } from 'events';
+import type { SystemEvent, EventType } from '../domain/Event';
 
 export class EventBus {
-  private subscribers: Map<EventType, EventSubscriber[]> = new Map();
+  private static instance: EventBus;
+  private emitter: EventEmitter = new EventEmitter();
 
-  /**
-   * Subscribes to events of a specific type.
-   */
-  subscribe(type: EventType, subscriber: EventSubscriber): void {
-    const existing = this.subscribers.get(type) || [];
-    this.subscribers.set(type, [...existing, subscriber]);
+  private constructor() {
+    this.emitter.setMaxListeners(100);
+  }
+
+  static getInstance(): EventBus {
+    if (!EventBus.instance) {
+      EventBus.instance = new EventBus();
+    }
+    return EventBus.instance;
   }
 
   /**
-   * Publishes an event to all interested subscribers.
+   * Dispatches an event to all listeners.
    */
-  publish<T>(type: EventType, payload: T, correlationId?: string): void {
-    const event: AgentEvent<T> = {
+  emit(type: EventType, data: Record<string, any> = {}, metadata: SystemEvent['metadata'] = {}): void {
+    const event: SystemEvent = {
+      id: crypto.randomUUID(),
       type,
-      payload,
-      timestamp: Date.now(),
-      correlationId,
+      timestamp: new Date().toISOString(),
+      data,
+      metadata,
     };
+    
+    console.log(`[EVENT: ${type}] ${JSON.stringify(data)}`);
+    this.emitter.emit(type, event);
+    this.emitter.emit('*', event);
+  }
 
-    const targets = this.subscribers.get(type) || [];
-    targets.forEach(s => s(event));
+  /**
+   * Subscribes to a specific event type.
+   */
+  on(type: EventType | '*', listener: (event: SystemEvent) => void): void {
+    this.emitter.on(type, listener);
+  }
+
+  /**
+   * Simple off method for cleanup.
+   */
+  off(type: EventType | '*', listener: (event: SystemEvent) => void): void {
+    this.emitter.off(type, listener);
   }
 }

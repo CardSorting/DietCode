@@ -1,23 +1,34 @@
 /**
  * [LAYER: DOMAIN]
- * Principle: Pure model representing the workspace environment.
+ * Standardized types for environmental and system context discovery.
  */
 
-export interface ExtensionStat {
-  extension: string;
-  count: number;
-  percentage: string;
+export interface SystemInfo {
+  os: {
+    platform: string;
+    release: string;
+    arch: string;
+    cpus: number;
+    uptime: number;
+  };
+  runtime: {
+    nodeVersion: string;
+    shell?: string;
+    cwd: string;
+  };
 }
 
-export interface Extension {
-  stats: ExtensionStat[];
-  totalFiles: number;
+export interface RepoContext {
+  git?: {
+    branch?: string;
+    dirty?: boolean;
+    lastCommitHash?: string;
+  };
+  dependencies: Record<string, string>;
+  projectRoot: string;
 }
 
-export interface SystemContext {
-  cwd: string;
-  filesSummary: Extension;
-  activeBranch?: string;
-  availableSkills: string[];
-  toolsEnabled: boolean;
+export interface DetailedProjectContext {
+  system: SystemInfo;
+  repo: RepoContext;
 }

@@ -27,8 +27,22 @@ export class SovereignDb {
     const resolvedPath = dbPath || path.resolve(process.cwd(), 'sovereign.db');
     setDbPath(resolvedPath);
 
-    // This will trigger schema initialization if it doesn't exist
-    await getDb('main');
+    // Initialize Schema
+    const db = await getDb('main');
+    await db.schema
+      .createTable('knowledge_base')
+      .ifNotExists()
+      .addColumn('id', 'text', (col) => col.primaryKey())
+      .addColumn('knowledge_key', 'text', (col) => col.notNull())
+      .addColumn('knowledge_value', 'text', (col) => col.notNull())
+      .addColumn('type', 'text', (col) => col.notNull())
+      .addColumn('confidence', 'float8', (col) => col.notNull())
+      .addColumn('tags', 'text', (col) => col.notNull())
+      .addColumn('metadata', 'text')
+      .addColumn('createdAt', 'text', (col) => col.notNull())
+      .execute();
+    
+    console.log('[DATABASE] Knowledge schema verified.');
     
     // Initialize the Sovereign Swarm Buffered Pool
     this.pool = new BufferedDbPool();

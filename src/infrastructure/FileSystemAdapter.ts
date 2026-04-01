@@ -41,7 +41,7 @@ export class FileSystemAdapter implements Filesystem {
     };
   }
 
-  walk(root: string): string[] {
+  walk(root: string, ignorer?: { isIgnored(path: string): boolean }): string[] {
     const files: string[] = [];
     const internalWalk = (dir: string) => {
       const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -49,8 +49,11 @@ export class FileSystemAdapter implements Filesystem {
         const fullPath = path.join(dir, entry.name);
         const relativePath = path.relative(root, fullPath);
         
+        if (ignorer?.isIgnored(relativePath)) continue;
+
         if (entry.isDirectory()) {
-          if (['node_modules', '.git', 'dist', 'build', '.gemini'].includes(entry.name)) continue;
+          // Hardcoded safety defaults
+          if (['node_modules', '.git', '.gemini'].includes(entry.name)) continue;
           internalWalk(fullPath);
         } else {
           files.push(relativePath);
@@ -59,6 +62,20 @@ export class FileSystemAdapter implements Filesystem {
     };
     internalWalk(root);
     return files;
+  }
+
+  match(pattern: string, filePath: string): boolean {
+    // Simple glob-to-regex conversion for minimalism
+    // This handles basic patterns like node_modules, *.log, src/**/*.ts
+    const regexStr = pattern
+      .replace(/\./g, '\\.')
+      .replace(/\*\*/g, '(.+)')
+      .replace(/\*/g, '([^/]+)')
+      .replace(/\?/g, '(.)');
+    
+    // Add start/end anchors and allow matching components in paths
+    const regex = new RegExp(`(^|/)${regexStr}(/|$)`);
+    return regex.test(filePath);
   }
 
   readdir(dirPath: string): Array<{ name: string; isDirectory: boolean }> {

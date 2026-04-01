@@ -1,9 +1,17 @@
 import * as path from 'path';
 import type { ProjectContext } from '../domain/ProjectContext';
 import type { Filesystem } from '../domain/Filesystem';
+import type { SystemAdapter } from '../domain/SystemAdapter';
+import { EventBus } from './EventBus';
+import { EventType } from '../domain/Event';
 
 export class DiscoveryService {
-  constructor(private filesystem: Filesystem) {}
+  private eventBus: EventBus = EventBus.getInstance();
+
+  constructor(
+    private filesystem: Filesystem,
+    private systemAdapter: SystemAdapter
+  ) {}
 
   /**
    * Discovers the project context starting from a given directory.
@@ -12,6 +20,14 @@ export class DiscoveryService {
     const root = this.findRepoRoot(startDir);
     const name = path.basename(root);
     
+    const systemInfo = await this.systemAdapter.getSystemInfo();
+    const repoContext = await this.systemAdapter.getRepoContext(root);
+
+    this.eventBus.emit(EventType.SYSTEM_INFO_GATHERED, { 
+      platform: systemInfo.os.platform,
+      branch: repoContext.git?.branch 
+    });
+
     return {
       workspace: {
         id: `workspace-${name}`,
@@ -24,6 +40,11 @@ export class DiscoveryService {
         name: name,
         path: root,
         defaultBranch: 'main',
+        activeBranch: repoContext.git?.branch,
+      },
+      detailedContext: {
+        system: systemInfo,
+        repo: repoContext,
       }
     };
   }

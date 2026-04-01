@@ -2,8 +2,12 @@ import * as path from 'path';
 import type { Skill } from '../domain/Skill';
 import type { ProjectContext } from '../domain/ProjectContext';
 import type { Filesystem } from '../domain/Filesystem';
+import { EventBus } from './EventBus';
+import { EventType } from '../domain/Event';
 
 export class SkillLoader {
+  private eventBus: EventBus = EventBus.getInstance();
+
   constructor(private filesystem: Filesystem) { }
 
   /**
@@ -23,17 +27,30 @@ export class SkillLoader {
       if (entry.name.endsWith('.md')) {
         const fullPath = path.join(skillsDir, entry.name);
         const skillName = path.parse(entry.name).name;
-        const content = this.filesystem.readFile(fullPath);
+        
+        try {
+          const content = this.filesystem.readFile(fullPath);
+          const { metadata, prompt } = this.parseMarkdown(content);
 
-        const { metadata, prompt } = this.parseMarkdown(content);
+          // Validation: Ensure minimum required fields
+          if (!prompt || prompt.length < 5) {
+             console.warn(`[CORE] Skipping skill ${skillName}: Prompt too short or missing.`);
+             continue;
+          }
 
-        skills.push({
-          name: (metadata && metadata.name) || skillName,
-          description: (metadata && metadata.description) || `Custom skill: ${skillName}`,
-          prompt: prompt,
-          metadata: metadata,
-          path: fullPath
-        });
+          const skill: Skill = {
+            name: (metadata && metadata.name) || skillName,
+            description: (metadata && metadata.description) || `Custom skill: ${skillName}`,
+            prompt: prompt,
+            metadata: metadata,
+            path: fullPath
+          };
+
+          skills.push(skill);
+          this.eventBus.emit(EventType.SKILL_LOADED, { name: skill.name, path: fullPath });
+        } catch (e) {
+          console.error(`[CORE] Failed to load skill ${skillName}:`, e);
+        }
       }
     }
 
@@ -45,6 +62,8 @@ export class SkillLoader {
    */
   private parseMarkdown(content: string): { metadata: Record<string, any>, prompt: string } {
     const lines = content.split('\n').map(l => l.trimEnd());
+    if (lines.length === 0) return { metadata: {}, prompt: '' };
+    
     const firstLine = lines[0];
     if (!firstLine || firstLine.trim() !== '---') return { metadata: {}, prompt: content };
 
@@ -62,16 +81,18 @@ export class SkillLoader {
       }
       
       const parts = line.split(':');
-      const key = parts[0];
-      const vals = parts.slice(1);
+      if (parts.length < 2) continue;
       
-      if (key && vals.length > 0) {
-        let val = vals.join(':').trim();
+      const key = parts[0];
+      const val = parts.slice(1).join(':').trim();
+      
+      if (key) {
+        let cleanVal = val;
         // Strip surrounding quotes if present
-        if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
-          val = val.slice(1, -1);
+        if ((cleanVal.startsWith('"') && cleanVal.endsWith('"')) || (cleanVal.startsWith("'") && cleanVal.endsWith("'"))) {
+          cleanVal = cleanVal.slice(1, -1);
         }
-        metadata[key.trim()] = val;
+        metadata[key.trim()] = cleanVal;
       }
     }
 

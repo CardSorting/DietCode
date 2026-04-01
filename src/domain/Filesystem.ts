@@ -22,4 +22,5 @@ export interface Filesystem {
   getGitStatus(root: string): GitStatus;
   getGitDiff(root: string): string;
   getBranch(root: string): string;
+  match(pattern: string, path: string): boolean;
 }
