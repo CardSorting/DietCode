@@ -7,6 +7,7 @@ export interface Skill {
   name: string;
   description: string;
   prompt: string;
+  metadata?: Record<string, any>;
   resources?: string[];
   path?: string;
 }
