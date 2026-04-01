@@ -12,6 +12,7 @@ import { Registry, SERVICES } from './src/core/Registry';
 import { SovereignDb } from './src/infrastructure/database/SovereignDb';
 import { SqliteSessionRepository } from './src/infrastructure/database/SqliteSessionRepository';
 import { SqliteDecisionRepository } from './src/infrastructure/database/SqliteDecisionRepository';
+import { SqliteHealingRepository } from './src/infrastructure/database/SqliteHealingRepository';
 import { AgentRegistry } from './src/core/AgentRegistry';
 import { QueueWorker } from './src/infrastructure/queue/QueueWorker';
 import { DiscoveryService } from './src/core/DiscoveryService';
@@ -50,6 +51,7 @@ async function main() {
   const decisions = new SqliteDecisionRepository();
   const audit = new SqliteAuditRepository();
   const knowledge = new SqliteKnowledgeRepository();
+  const healingRepo = new SqliteHealingRepository();
   
   // Connect Observability Partitions
   audit.initialize(); // Starts listening to EventBus
@@ -60,8 +62,8 @@ async function main() {
   // Triple Down: Sovereign Memory & Swarm Handover
   const agentRegistry = new AgentRegistry();
   const memoryService = new MemoryService(knowledge, provider, agentRegistry);
-  const handoverService = new HandoverService(agentRegistry);
-  const selfHealingService = new SelfHealingService();
+  const handoverService = new HandoverService(agentRegistry, repository);
+  const selfHealingService = new SelfHealingService(healingRepo);
 
   // Background Worker: Sovereign Queue
   const worker = new QueueWorker(decisions, memoryService, selfHealingService, agentRegistry, provider);

@@ -8,11 +8,12 @@ import { EventType } from '../domain/Event';
 import type { IntegrityReport, IntegrityViolation } from '../domain/Integrity';
 import { HealingStatus, type HealingProposal, type HealingTask } from '../domain/Healing';
 import { SovereignDb } from '../infrastructure/database/SovereignDb';
+import type { HealingRepository } from '../domain/HealingRepository';
 
 export class SelfHealingService {
   private eventBus: EventBus = EventBus.getInstance();
 
-  constructor() {}
+  constructor(private repository: HealingRepository) {}
 
   /**
    * Triages an integrity report and enqueues healing tasks for critical violations.
@@ -61,9 +62,9 @@ export class SelfHealingService {
    * Records a healing proposal (usually called by the QueueWorker after LLM generation).
    */
   async recordProposal(proposal: HealingProposal): Promise<void> {
-    // In a full implementation, we would store this in a dedicated HealingRepository.
-    // For now, we log to EventBus and store in session audit logs.
-    console.log(`[HEALING] New proposal generated for violation: ${proposal.violationId}`);
+    await this.repository.saveProposal(proposal);
+    
+    console.log(`[HEALING] New proposal generated and persisted for violation: ${proposal.violationId}`);
     
     this.eventBus.emit(EventType.ERROR_OCCURRED, {
        source: 'SelfHealingService',

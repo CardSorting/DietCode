@@ -14,12 +14,18 @@ async function verify() {
 
   await SovereignDb.init();
   const repository = new SqliteKnowledgeRepository();
-  const memory = new MemoryService(repository, {} as any, {} as any);
+  const mockLLM = {
+    createMessage: async () => ({
+      content: [{ type: 'text', text: 'Distilled Learning: Successfully implemented Sovereign Memory.' }],
+      usage: { input_tokens: 10, output_tokens: 10 }
+    })
+  };
+  const memory = new MemoryService(repository, mockLLM as any, {} as any);
   
   // 1. Test Direct Save & Recall
   console.log('\n[1] Testing Save & Recall...');
   const testItem = {
-    id: 'test-knowledge-1',
+    id: `test-knowledge-${globalThis.crypto.randomUUID()}`,
     key: 'test_pattern',
     value: 'Always use JoyZoning for modularity.',
     type: KnowledgeType.PATTERN,

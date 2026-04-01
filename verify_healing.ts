@@ -23,7 +23,14 @@ async function verify() {
   console.log('--- DIETCODE HEALING VERIFICATION ---');
 
   await SovereignDb.init();
-  const healing = new SelfHealingService();
+  const mockRepo = {
+    saveProposal: async () => {},
+    getProposalById: async () => null,
+    getProposalsForViolation: async () => [],
+    updateProposalStatus: async () => {},
+    listRecentProposals: async () => [],
+  };
+  const healing = new SelfHealingService(mockRepo as any);
   const agentRegistry = new AgentRegistry();
   agentRegistry.register({ id: 'agent-architect', title: 'Architect' });
 

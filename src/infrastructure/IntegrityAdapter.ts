@@ -56,6 +56,36 @@ export class IntegrityAdapter implements IntegrityScanner {
              'error'
            ));
         }
+
+        // Rule 4: Domain Purity (no external library imports except essentials)
+        if (content.match(/import.*from.*['"](?!(\.|@dietcode\/|node:)).*['"]/)) {
+           violations.push(this.createViolation(
+             ViolationType.DOMAIN_PURITY,
+             relPath,
+             'Domain layer should not depend on external libraries.',
+             'warn'
+           ));
+        }
+      }
+
+      // Rule 5: Naming Conventions
+      const fileName = path.basename(file);
+      if (relPath.includes('/core/') && fileName.match(/[A-Z].*\.ts$/) && !fileName.match(/(Service|Manager|Processor|Loader|Resolver|Bus|Registry|Pruner|Ignorer|Adapter)\.ts$/)) {
+          violations.push(this.createViolation(
+            ViolationType.NAMING_CONVENTION,
+            relPath,
+            'Core components should follow naming conventions (e.g., Service, Manager).',
+            'warn'
+          ));
+      }
+      
+      if (relPath.includes('/infrastructure/database/') && fileName.match(/Sqlite.*\.ts$/) && !fileName.match(/Repository\.ts$/) && !fileName.match(/Db\.ts$/)) {
+          violations.push(this.createViolation(
+            ViolationType.NAMING_CONVENTION,
+            relPath,
+            'Database infrastructure should follow Repository naming convention.',
+            'warn'
+          ));
       }
     }
 

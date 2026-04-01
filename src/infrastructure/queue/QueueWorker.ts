@@ -46,8 +46,7 @@ export class QueueWorker {
           await this.handleCodeHeal(payload);
           break;
         case 'CODE_ANALYZE':
-          // Simulated heavy analysis task
-          await new Promise(resolve => setTimeout(resolve, 3000));
+          await this.handleCodeAnalyze(payload);
           break;
         default:
           console.warn(`[WORKER] Unknown job type: ${payload.type}`);
@@ -55,6 +54,42 @@ export class QueueWorker {
     }, { concurrency: 5 });
 
     this.isProcessing = true;
+  }
+
+  private async handleCodeAnalyze(payload: any) {
+    const { repoPath, taskId } = payload.data;
+    const agent = this.agentRegistry.getAgent('agent-architect') || this.agentRegistry.getAgent(this.agentRegistry.defaultAgentId);
+    
+    if (!agent) {
+        console.error(`[WORKER] No agent available for analysis.`);
+        return;
+    }
+
+    console.log(`[WORKER] Specialist ${agent.title} is performing a deep audit of ${repoPath}...`);
+
+    const prompt = `[DEEP AUDIT TASK]
+Repository: ${repoPath}
+Session ID: ${taskId}
+
+Please perform a deep architectural audit of the current codebase. 
+Focus on:
+1. Layer boundary violations.
+2. Circular dependencies.
+3. Resource leaks or unclosed connections.
+4. Security vulnerabilities in infrastructure.
+
+Provide a structured report.`;
+
+    const response = await this.provider.createMessage(
+      agent,
+      [{ role: 'user', content: [{ type: 'text', text: prompt }], timestamp: new Date().toISOString() }],
+      []
+    );
+
+    const report = response.content.find((c: any) => c.type === 'text')?.text || 'No issues found';
+    
+    await this.memory.distill(taskId, `Deep Audit Report for ${repoPath}:\n${report}`);
+    console.log(`[WORKER] Deep audit completed and distilled into memory.`);
   }
 
   private async handleKnowledgeIngest(jobId: string, data: any) {

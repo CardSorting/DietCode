@@ -3,6 +3,7 @@
  * Principle: Orchestration — coordinates domain snapshots with infrastructure.
  */
 
+import * as crypto from 'node:crypto';
 import type { Snapshot, SnapshotRepository } from '../domain/Snapshot';
 import type { Filesystem } from '../domain/Filesystem';
 
@@ -60,7 +61,6 @@ export class SnapshotService {
   }
 
   private generateHash(content: string): string {
-    // Simple mock hash for now, DietCode is minimalist
-    return content.length.toString() + (content.slice(0, 100));
+    return crypto.createHash('sha256').update(content).digest('hex');
   }
 }

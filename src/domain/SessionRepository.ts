@@ -31,4 +31,10 @@ export interface SessionRepository {
    * Updates the status of a session.
    */
   updateSessionStatus(sessionId: string, status: string, result?: any): Promise<void>;
+
+  /**
+   * Triple Down: Swarm Handover.
+   * Updates the active agent for a session.
+   */
+  updateSessionAgent(sessionId: string, agentId: string): Promise<void>;
 }

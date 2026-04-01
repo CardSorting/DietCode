@@ -1,18 +1,16 @@
-/**
- * [LAYER: CORE]
- * Principle: Swarm Coordination — manages transitions between specialized agents.
- * Allows one agent to hand over a session to another.
- */
-
 import { EventBus } from './EventBus';
 import { EventType } from '../domain/Event';
 import type { AgentRegistry } from './AgentRegistry';
 import type { AgentId } from '../domain/Agent';
+import type { SessionRepository } from '../domain/SessionRepository';
 
 export class HandoverService {
   private eventBus: EventBus = EventBus.getInstance();
 
-  constructor(private agentRegistry: AgentRegistry) {}
+  constructor(
+    private agentRegistry: AgentRegistry,
+    private repository: SessionRepository
+  ) {}
 
   /**
    * Orchestrates the handover from one agent to another.
@@ -30,7 +28,14 @@ export class HandoverService {
 
     console.log(`[SWARM] Handover from ${fromAgentId} to ${toAgentId} requested.`);
     
-    // In a real swarm, this would trigger a state migration and a new LLM call 
-    // with the target agent's system prompt.
+    // Triple Down: Real State Migration
+    await this.repository.updateSessionAgent(sessionId, toAgentId);
+    
+    this.eventBus.emit(EventType.SESSION_STARTED, { 
+      sessionId, 
+      agentId: toAgentId,
+      handoverFrom: fromAgentId,
+      reason 
+    });
   }
 }

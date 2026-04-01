@@ -28,14 +28,25 @@ export class MemoryService {
   async distill(taskId: string, outcome: string): Promise<void> {
     console.log(`[MEMORY] Distilling outcome for task: ${taskId}`);
     
-    // In a real implementation, we would use the LLM to summarize/extract:
-    // const learning = await this.llmProvider.summarize(outcome);
+    const distillationAgent: any = {
+      id: 'agent-distiller',
+      title: 'Memory Distiller',
+      systemPrompt: 'You are a knowledge distillation engine. Extract key learnings, architectural patterns, or reusable facts from task outcomes. Format the response as a clear, concise knowledge item value.',
+      def: { maxTokens: 1024 }
+    };
+
+    const response = await this.llmProvider.createMessage(
+      distillationAgent,
+      [{ role: 'user', content: [{ type: 'text', text: `Task Outcome to Distill:\n${outcome}` }], timestamp: new Date().toISOString() }],
+      []
+    );
+
+    const distilledValue = response.content.find((c: any) => c.type === 'text')?.text || outcome;
     
-    // For now, we perform a minimalist extraction:
     const item: KnowledgeItem = {
       id: crypto.randomUUID(),
       key: `learning:${taskId.slice(0, 8)}`,
-      value: outcome,
+      value: distilledValue,
       type: KnowledgeType.LEARNING,
       confidence: 0.9,
       tags: ['task_outcome', taskId],

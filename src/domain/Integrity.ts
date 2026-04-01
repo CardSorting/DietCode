@@ -8,6 +8,8 @@ export enum ViolationType {
   CROSS_LAYER_IMPORT = 'cross_layer_import',
   UNAUTHORIZED_IO = 'unauthorized_io',
   SENSITIVE_LEAK = 'sensitive_leak',
+  NAMING_CONVENTION = 'naming_convention',
+  DOMAIN_PURITY = 'domain_purity',
 }
 
 export interface IntegrityViolation {

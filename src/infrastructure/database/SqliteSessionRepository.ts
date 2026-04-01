@@ -176,4 +176,21 @@ export class SqliteSessionRepository implements SessionRepository {
       where: { column: 'id', value: sessionId } as any,
     });
   }
+
+  async updateSessionAgent(sessionId: string, agentId: string): Promise<void> {
+    const pool = await SovereignDb.getPool();
+    const now = Date.now();
+
+    await pool.push({
+      type: 'update',
+      table: 'tasks',
+      values: { 
+        agentId, 
+        updatedAt: now 
+      } as any,
+      where: { column: 'id', value: sessionId } as any,
+    });
+    
+    await pool.flush();
+  }
 }

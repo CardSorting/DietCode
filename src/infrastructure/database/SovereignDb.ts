@@ -41,8 +41,21 @@ export class SovereignDb {
       .addColumn('metadata', 'text')
       .addColumn('createdAt', 'text', (col) => col.notNull())
       .execute();
+
+    await db.schema
+      .createTable('healing_proposals')
+      .ifNotExists()
+      .addColumn('id', 'text', (col) => col.primaryKey())
+      .addColumn('violationId', 'text', (col) => col.notNull())
+      .addColumn('violation', 'text', (col) => col.notNull()) // JSON string
+      .addColumn('rationale', 'text', (col) => col.notNull())
+      .addColumn('proposedCode', 'text', (col) => col.notNull())
+      .addColumn('status', 'text', (col) => col.notNull())
+      .addColumn('createdAt', 'text', (col) => col.notNull())
+      .addColumn('appliedAt', 'text')
+      .execute();
     
-    console.log('[DATABASE] Knowledge schema verified.');
+    console.log('[DATABASE] Knowledge & Healing schemas verified.');
     
     // Initialize the Sovereign Swarm Buffered Pool
     this.pool = new BufferedDbPool();
