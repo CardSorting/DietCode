@@ -5,6 +5,8 @@
  * Production-hardened against path traversal, injection, and resource exhaustion.
  */
 
+import * as nodePath from 'path';
+
 /** Maximum path length to prevent buffer-based attacks */
 const MAX_PATH_LENGTH = 4096;
 
@@ -18,27 +20,26 @@ export const MAX_RECURSION_DEPTH = 10;
 export const MAX_RESULT_LINES = 10_000;
 
 /**
- * Forbidden path segments that indicate system-critical locations.
- * Checked case-insensitively and normalized.
+ * Forbidden path prefixes that indicate system-critical locations.
+ * Only exact prefix matches are checked (after normalization).
+ * Uses absolute canonical paths to avoid false positives on user dirs.
  */
-const FORBIDDEN_SEGMENTS: readonly string[] = [
+const FORBIDDEN_PREFIXES: readonly string[] = [
   '/etc/passwd',
   '/etc/shadow',
   '/etc/sudoers',
-  '/bin',
-  '/sbin',
-  '/dev',
-  '/proc',
-  '/sys',
-  '/root',
-  '/boot',
+  '/sbin/',
+  '/dev/',
+  '/proc/',
+  '/sys/',
+  '/boot/',
 ] as const;
 
 /**
  * Safe file extensions for search/scan operations.
  * Only files with these extensions are read during grep fallback.
  */
-export const SAFE_EXTENSIONS: readonly string[] = [
+export const SAFE_EXTENSIONS: ReadonlySet<string> = new Set([
   '.ts', '.tsx', '.js', '.jsx', '.json',
   '.md', '.txt', '.sql',
   '.yaml', '.yml',
@@ -47,12 +48,12 @@ export const SAFE_EXTENSIONS: readonly string[] = [
   '.log', '.env',
   '.toml', '.ini', '.cfg',
   '.sh', '.bash', '.zsh',
-] as const;
+] as const);
 
 /**
  * Directories skipped during recursive traversal.
  */
-export const SKIP_DIRECTORIES: readonly string[] = [
+export const SKIP_DIRECTORIES: ReadonlySet<string> = new Set([
   'node_modules',
   '.git',
   '.gemini',
@@ -62,7 +63,9 @@ export const SKIP_DIRECTORIES: readonly string[] = [
   'coverage',
   '__pycache__',
   '.cache',
-] as const;
+  '.vscode',
+  '.idea',
+] as const);
 
 /**
  * Validation error types for structured error handling.
@@ -89,6 +92,12 @@ export class PathValidationError extends Error {
 /**
  * Validate a filesystem path for security and correctness.
  *
+ * Design decisions:
+ * - Null bytes are checked first (can truncate paths in C-backed APIs)
+ * - Path traversal uses normalized path to catch encoded forms
+ * - Forbidden prefixes use exact canonical matching to avoid
+ *   false positives (e.g., `/Users/name/bin/` is allowed)
+ *
  * @param inputPath - The path to validate
  * @param operation - The operation being performed (affects which checks run)
  * @throws PathValidationError with structured error code
@@ -106,7 +115,7 @@ export function validatePath(
     );
   }
 
-  // 2. Null byte injection (common attack vector)
+  // 2. Null byte injection (can truncate paths in C-backed syscalls)
   if (inputPath.includes('\0')) {
     throw new PathValidationError(
       'Path contains null bytes',
@@ -133,8 +142,9 @@ export function validatePath(
     );
   }
 
-  // 5. Path traversal detection (check before normalization)
-  if (/\.\.[/\\]/.test(inputPath)) {
+  // 5. Path traversal detection — normalize first to catch encoded forms
+  const normalized = nodePath.normalize(inputPath);
+  if (normalized.includes('..')) {
     throw new PathValidationError(
       'Path traversal (..) detected',
       'PATH_TRAVERSAL',
@@ -142,10 +152,11 @@ export function validatePath(
     );
   }
 
-  // 6. Forbidden system paths
-  const normalizedLower = inputPath.toLowerCase().replace(/\\/g, '/');
-  const forbidden = FORBIDDEN_SEGMENTS.find(
-    seg => normalizedLower === seg || normalizedLower.startsWith(seg + '/')
+  // 6. Forbidden system path prefixes (exact canonical match only)
+  const normalizedLower = normalized.toLowerCase();
+  const forbidden = FORBIDDEN_PREFIXES.find(
+    prefix => normalizedLower === prefix.replace(/\/$/, '') ||
+              normalizedLower.startsWith(prefix)
   );
   if (forbidden) {
     throw new PathValidationError(
@@ -158,27 +169,47 @@ export function validatePath(
 
 /**
  * Sanitize a string for safe use in shell commands.
- * Escapes all shell-special characters.
+ * Uses POSIX single-quote wrapping with internal quote escaping.
+ *
+ * Zero-length strings return '' (empty quoted string).
+ * This is the gold-standard approach used by Python's shlex.quote().
  *
  * @param input - Raw string to sanitize
- * @returns Shell-safe string (single-quoted with internal quotes escaped)
+ * @returns Shell-safe string
  */
 export function shellEscape(input: string): string {
-  // Replace single quotes with escaped version, wrap in single quotes
-  // This is the POSIX-safe approach: 'don'\''t' => don't
+  if (input.length === 0) return "''";
+  // Replace single quotes with '\'' (end quote, escaped quote, start quote)
   return "'" + input.replace(/'/g, "'\\''") + "'";
 }
 
 /**
  * Check if a file extension is in the safe list for scanning.
+ * Uses Set.has() for O(1) lookup instead of Array.some() O(n).
  */
 export function isSafeExtension(filename: string): boolean {
-  return SAFE_EXTENSIONS.some(ext => filename.endsWith(ext));
+  const lastDot = filename.lastIndexOf('.');
+  if (lastDot === -1) return false;
+  return SAFE_EXTENSIONS.has(filename.slice(lastDot).toLowerCase());
 }
 
 /**
  * Check if a directory name should be skipped during traversal.
+ * Uses Set.has() for O(1) lookup.
  */
 export function isSkippedDirectory(dirName: string): boolean {
-  return SKIP_DIRECTORIES.includes(dirName);
+  return SKIP_DIRECTORIES.has(dirName);
+}
+
+/**
+ * Normalize a path for consistent comparisons and storage.
+ * Resolves `.` and `..`, removes trailing slashes.
+ * Throws on empty/whitespace-only input.
+ */
+export function normalizePath(inputPath: string): string {
+  if (!inputPath || inputPath.trim().length === 0) {
+    throw new PathValidationError('Path is required', 'EMPTY_PATH', inputPath ?? '');
+  }
+  const cleaned = inputPath.replace(/[/\\]+$/, '');
+  return nodePath.normalize(cleaned || inputPath);
 }

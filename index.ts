@@ -5,7 +5,7 @@ import { ConsoleLoggerAdapter } from './src/infrastructure/ConsoleLoggerAdapter'
 import { NodeTerminalAdapter } from './src/infrastructure/NodeTerminalAdapter';
 import { ToolManager } from './src/core/capabilities/ToolManager';
 import { CommandProcessor } from './src/core/capabilities/CommandProcessor';
-import { createReadFileTool, createWriteFileTool } from './src/infrastructure/tools/fileTools';
+import { createReadFileTool, createWriteFileTool, createReadRangeTool, createListFilesTool } from './src/infrastructure/tools/fileTools';
 import { createGrepTool } from './src/infrastructure/tools/grep';
 import { createMkdirTool } from './src/infrastructure/tools/mkdir';
 import { FileSystemAdapter } from './src/infrastructure/FileSystemAdapter';
@@ -72,7 +72,7 @@ async function main() {
   const agentRegistry = new AgentRegistry();
   const memoryService = new MemoryService(knowledge, provider, agentRegistry, logger);
   const handoverService = new HandoverService(agentRegistry, repository, logger);
-  const selfHealingService = new SelfHealingService(healingRepo as any);
+  const selfHealingService = new SelfHealingService(healingRepo as any, logger);
 
   // Background Worker: Sovereign Queue
   const worker = new QueueWorker(decisions, memoryService, selfHealingService, agentRegistry, provider, logger);
@@ -90,7 +90,7 @@ async function main() {
   const skillLoader = new SkillLoader(fs, logger);
 
   // Triple Down: Architectural Integrity Guard
-  const integrityAdapter = new IntegrityAdapter(fs, logger);
+  const integrityAdapter = new IntegrityAdapter(fs);
   const integrityService = new IntegrityService(integrityAdapter, logger);
   const integrityReport = await integrityService.check(projectContext.repository.path);
   console.log(`[INTEGRITY] Core Health: ${integrityReport.score}/100`);
@@ -157,6 +157,8 @@ Follow the JoyZoning architecture for all operations.`,
   const toolManager = new ToolManager();
   toolManager.register(createReadFileTool(fs));
   toolManager.register(createWriteFileTool(fs));
+  toolManager.register(createReadRangeTool(fs));
+  toolManager.register(createListFilesTool(fs));
   toolManager.register(createGrepTool(fs));
   toolManager.register(createMkdirTool(fs));
 

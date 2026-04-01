@@ -6,7 +6,8 @@
 import * as path from 'path';
 import type { IntegrityScanner } from '../core/integrity/IntegrityService';
 import type { IntegrityReport, IntegrityViolation } from '../domain/memory/Integrity';
-import { ViolationType, IntegrityPolicy } from '../domain/memory/Integrity';
+import { ViolationType } from '../domain/memory/Integrity';
+import { IntegrityPolicy } from '../domain/memory/IntegrityPolicy';
 import type { Filesystem } from '../domain/system/Filesystem';
 
 export class IntegrityAdapter implements IntegrityScanner {

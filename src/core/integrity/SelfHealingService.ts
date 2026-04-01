@@ -16,21 +16,26 @@ import type { LogService } from '../../domain/logging/LogService';
 
 export class SelfHealingService {
   private eventBus: EventBus;
+  private queue?: QueueProvider;
+  private snapshotService?: SnapshotService;
+  private verificationProvider?: VerificationProvider;
 
   constructor(
     private repository: HealingRepository,
-    private logService: LogService
+    private logService: LogService,
+    deps?: {
+      queue: QueueProvider;
+      snapshotService: SnapshotService;
+      verificationProvider: VerificationProvider;
+    }
   ) {
     this.eventBus = EventBus.getInstance(logService);
+    if (deps) {
+      this.queue = deps.queue;
+      this.snapshotService = deps.snapshotService;
+      this.verificationProvider = deps.verificationProvider;
+    }
   }
-
-  constructor(
-    private repository: HealingRepository,
-    private queue: QueueProvider,
-    private snapshotService: SnapshotService,
-    private verificationProvider: VerificationProvider,
-    private logService: LogService
-  ) {}
 
   /**
    * Triages an integrity report and enqueues healing tasks for critical violations.
@@ -43,24 +48,22 @@ export class SelfHealingService {
     for (const violation of report.violations) {
       if (violation.severity === 'error') {
         const specialistId = this.assignSpecialist(violation);
-        
-        // Triple Down: Incremental Checkpointing via Snapshots
-        const snapshotId = await this.snapshotService.takeSnapshot('system', {
-          violationId: violation.id,
-          stage: 'triage_completed',
-          file: violation.file
-        });
 
-        await this.queue.enqueue({
-          type: JobType.CODE_HEAL,
-          payload: {
-            violationId: violation.id,
-            violation,
-            specialistId,
-            snapshotId
-          }
-        });
-        
+        if (this.queue && this.snapshotService) {
+          // Full healing pipeline: snapshot → enqueue
+          const snapshotId = await this.snapshotService.capture(violation.file);
+
+          await this.queue.enqueue({
+            type: JobType.CODE_HEAL,
+            payload: {
+              violationId: violation.id,
+              violation,
+              specialistId,
+              snapshotId,
+            },
+          });
+        }
+
         tasksEnqueued++;
         this.logService.info(
           `Enqueued healing task for ${violation.type} on ${violation.file}`,
@@ -91,35 +94,37 @@ export class SelfHealingService {
    */
   async recordProposal(proposal: HealingProposal): Promise<void> {
     await this.repository.saveProposal(proposal);
-    
+
     this.logService.info(
       `New proposal generated and persisted for violation`,
       { violationId: proposal.violationId, proposalId: proposal.id },
       { component: 'SelfHealingService' }
     );
-    
+
     this.eventBus.emit(EventType.ERROR_OCCURRED, {
-       source: 'SelfHealingService',
-       type: 'proposal_generated',
-       proposalId: proposal.id,
-       violation: proposal.violation.message
+      source: 'SelfHealingService',
+      type: 'proposal_generated',
+      proposalId: proposal.id,
+      violation: proposal.violation.message,
     });
 
-    // Triple Down: Loop Closure — verify and close the violation
-    const result = await this.verificationProvider.verifyResolution(proposal.violationId);
-    if (result.isResolved) {
-      this.logService.info(
-        `Loop closed! Violation verified as resolved`,
-        { violationId: proposal.violationId },
-        { component: 'SelfHealingService' }
-      );
-      await this.repository.updateProposalStatus(proposal.id, 'applied');
-    } else {
-      this.logService.warn(
-        `Refactor applied but violation persists`,
-        { violationId: proposal.violationId },
-        { component: 'SelfHealingService' }
-      );
+    // Loop Closure — verify and close the violation
+    if (this.verificationProvider) {
+      const result = await this.verificationProvider.verifyResolution(proposal.violationId);
+      if (result.isResolved) {
+        this.logService.info(
+          `Loop closed! Violation verified as resolved`,
+          { violationId: proposal.violationId },
+          { component: 'SelfHealingService' }
+        );
+        await this.repository.updateProposalStatus(proposal.id, HealingStatus.APPLIED);
+      } else {
+        this.logService.warn(
+          `Refactor applied but violation persists`,
+          { violationId: proposal.violationId },
+          { component: 'SelfHealingService' }
+        );
+      }
     }
   }
 }

@@ -3,19 +3,20 @@
  * Principle: Implementation of the mkdir tool.
  * Uses the Domain Filesystem interface — never raw Node.js `fs`.
  * Production hardened with:
- *   - Domain contract alignment (exists/stat, not existsSync/statSync)
+ *   - Domain contract alignment (exists/stat)
  *   - Centralized path validation via PathValidator
- *   - No variable shadowing of `path` module
- *   - Idempotent directory creation
- *   - Separate validate() for composability
+ *   - Standalone validate (no broken `this` binding)
+ *   - Idempotent creation + file conflict detection
  */
 
 import type { ToolDefinition, ToolResult } from '../../domain/agent/ToolDefinition';
 import type { Filesystem } from '../../domain/system/Filesystem';
-import { validatePath } from './PathValidator';
+import { validatePath, normalizePath } from './PathValidator';
 
 /** Maximum directory tree depth for mkdir operations */
 const MAX_MKDIR_DEPTH = 15;
+
+// ─── Helpers ─────────────────────────────────────────────────────────
 
 /**
  * Check if a path already exists as a directory via Domain contract.
@@ -23,8 +24,7 @@ const MAX_MKDIR_DEPTH = 15;
 function isExistingDirectory(fs: Filesystem, dirPath: string): boolean {
   try {
     if (!fs.exists(dirPath)) return false;
-    const stat = fs.stat(dirPath);
-    return stat.isDirectory;
+    return fs.stat(dirPath).isDirectory;
   } catch {
     return false;
   }
@@ -36,76 +36,80 @@ function isExistingDirectory(fs: Filesystem, dirPath: string): boolean {
 function isExistingFile(fs: Filesystem, dirPath: string): boolean {
   try {
     if (!fs.exists(dirPath)) return false;
-    const stat = fs.stat(dirPath);
-    return stat.isFile;
+    return fs.stat(dirPath).isFile;
   } catch {
     return false;
   }
 }
 
+// ─── Validation ──────────────────────────────────────────────────────
+
+function validateMkdirInput(input: { path: string }): void {
+  validatePath(input.path, 'mkdir');
+
+  const cleanPath = normalizePath(input.path);
+
+  // Check depth (count path segments)
+  const segments = cleanPath.split('/').filter(Boolean);
+  if (segments.length > MAX_MKDIR_DEPTH) {
+    throw new Error(
+      `Directory path depth (${segments.length}) exceeds maximum of ${MAX_MKDIR_DEPTH} levels`
+    );
+  }
+}
+
+// ─── Tool Factory ────────────────────────────────────────────────────
+
 /**
  * Create a mkdir tool bound to a Filesystem instance.
  */
-export const createMkdirTool = (fs: Filesystem): ToolDefinition<{ path: string }> => ({
-  name: 'mkdir',
-  description: 'Create a new directory at the specified path. Creates parent directories recursively.',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      path: {
-        type: 'string',
-        description: 'Path of the directory to create.',
+export function createMkdirTool(fs: Filesystem): ToolDefinition<{ path: string }> {
+  return {
+    name: 'mkdir',
+    description: 'Create a new directory at the specified path. Creates parent directories recursively.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        path: {
+          type: 'string',
+          description: 'Path of the directory to create.',
+        },
       },
+      required: ['path'],
     },
-    required: ['path'],
-  },
 
-  validate({ path: dirPath }) {
-    validatePath(dirPath, 'mkdir');
+    validate: validateMkdirInput,
 
-    // Strip trailing slashes for consistent handling
-    const cleanPath = dirPath.replace(/[/\\]+$/, '');
+    async execute(input): Promise<ToolResult> {
+      try {
+        validateMkdirInput(input);
 
-    // Check depth (count forward slashes after normalization)
-    const segments = cleanPath.split('/').filter(Boolean);
-    if (segments.length > MAX_MKDIR_DEPTH) {
-      throw new Error(
-        `Directory path depth (${segments.length}) exceeds maximum of ${MAX_MKDIR_DEPTH} levels`
-      );
-    }
-  },
+        const cleanPath = normalizePath(input.path);
 
-  async execute({ path: dirPath }): Promise<ToolResult> {
-    try {
-      // Validate input
-      this.validate!({ path: dirPath });
+        // Check if already exists as directory (idempotent)
+        if (isExistingDirectory(fs, cleanPath)) {
+          return {
+            content: `Directory already exists: ${cleanPath}`,
+            isError: false,
+          };
+        }
 
-      // Strip trailing slashes
-      const cleanPath = dirPath.replace(/[/\\]+$/, '') || dirPath;
+        // Check if a file exists at this path (conflict)
+        if (isExistingFile(fs, cleanPath)) {
+          return {
+            content: `Cannot create directory: a file already exists at ${cleanPath}`,
+            isError: true,
+          };
+        }
 
-      // Check if already exists as directory (idempotent)
-      if (isExistingDirectory(fs, cleanPath)) {
-        return {
-          content: `Directory already exists: ${cleanPath}`,
-          isError: false,
-        };
+        // Create directory via Domain contract (recursive)
+        fs.mkdir(cleanPath);
+
+        return { content: `Successfully created directory: ${cleanPath}` };
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        return { content: `Error creating directory: ${message}`, isError: true };
       }
-
-      // Check if a file exists at this path (conflict)
-      if (isExistingFile(fs, cleanPath)) {
-        return {
-          content: `Cannot create directory: a file already exists at ${cleanPath}`,
-          isError: true,
-        };
-      }
-
-      // Create directory via Domain contract (recursive)
-      fs.mkdir(cleanPath);
-
-      return { content: `Successfully created directory: ${cleanPath}` };
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      return { content: `Error creating directory: ${message}`, isError: true };
-    }
-  },
-});
+    },
+  };
+}

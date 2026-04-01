@@ -5,9 +5,11 @@
  *   - Shell injection prevention via shellEscape()
  *   - Domain Filesystem injection (no raw Node.js `fs`)
  *   - Centralized path validation via PathValidator
- *   - Safe regex compilation with timeout protection
- *   - Proper symlink detection via lstat-equivalent guarding
+ *   - Safe regex compilation with backtracking protection
  *   - Bounded results and recursion depth
+ *   - Standalone validate (no broken `this` binding)
+ *   - Pipe-safe shell execution (handles SIGPIPE from `head`)
+ *   - Compiled regex reuse (validated once, used in execute)
  */
 
 import { execSync } from 'child_process';
@@ -23,14 +25,24 @@ import {
   MAX_RESULT_LINES,
 } from './PathValidator';
 
+// ─── Regex Safety ────────────────────────────────────────────────────
+
+/** Maximum length for a regex pattern to prevent abuse */
+const MAX_PATTERN_LENGTH = 1000;
+
 /**
- * Safely compile a regex pattern with catastrophic backtracking protection.
- * Returns null if the pattern is invalid.
+ * Patterns known to cause catastrophic backtracking.
+ * Rejects nested quantifiers like (a+)+, (a*)*b, (.+.+)+
+ */
+const DANGEROUS_REGEX = /(\([^)]*[+*][^)]*\))[+*]|(\.\*){4,}/;
+
+/**
+ * Safely compile a regex pattern.
+ * Returns null if the pattern is invalid or potentially dangerous.
  */
 function safeCompileRegex(pattern: string): RegExp | null {
   try {
-    // Basic heuristic: reject patterns with nested quantifiers (catastrophic backtracking)
-    if (/(\.\*){3,}|(\+\+)|(\*\*)/.test(pattern)) {
+    if (DANGEROUS_REGEX.test(pattern)) {
       return null;
     }
     return new RegExp(pattern);
@@ -41,7 +53,7 @@ function safeCompileRegex(pattern: string): RegExp | null {
 
 /**
  * Test a single line against a regex safely.
- * Catches any runtime regex errors (e.g., stack overflow).
+ * Catches runtime regex errors (stack overflow on pathological input).
  */
 function matchLine(line: string, regex: RegExp): boolean {
   try {
@@ -51,193 +63,272 @@ function matchLine(line: string, regex: RegExp): boolean {
   }
 }
 
+// ─── Validation ──────────────────────────────────────────────────────
+
+/**
+ * Validate grep input. Returns the compiled regex to avoid double-compilation.
+ * The pattern is validated exactly once and the result is reused in execute().
+ */
+function validateAndCompilePattern(pattern: string): RegExp {
+  if (!pattern || pattern.trim().length === 0) {
+    throw new Error('Search pattern is required');
+  }
+
+  if (pattern.length > MAX_PATTERN_LENGTH) {
+    throw new Error(`Pattern exceeds maximum length of ${MAX_PATTERN_LENGTH} characters`);
+  }
+
+  const regex = safeCompileRegex(pattern);
+  if (!regex) {
+    throw new Error(`Invalid or potentially dangerous regex pattern: ${pattern.slice(0, 100)}`);
+  }
+
+  return regex;
+}
+
+/**
+ * Standalone validate function for the tool definition's `validate` property.
+ * Throws on invalid input — does NOT return the regex (that's for internal use).
+ */
+function validateGrepInput(input: { pattern: string; targetPath?: string }): void {
+  validateAndCompilePattern(input.pattern);
+}
+
+// ─── Shell Execution Helpers ─────────────────────────────────────────
+
+/** Timeout for shell-based grep commands (30 seconds) */
+const SHELL_TIMEOUT_MS = 30_000;
+
+/** Maximum output buffer for shell commands (10MB) */
+const SHELL_MAX_BUFFER = 10 * 1024 * 1024;
+
+/**
+ * Execute a shell command for grep, handling pipe-related exit codes.
+ *
+ * When piping through `head -n N`, the upstream command (rg/grep) gets
+ * SIGPIPE when head closes the pipe after N lines. execSync throws on
+ * non-zero exit codes. We need to distinguish:
+ *   - exit 0: matches found
+ *   - exit 1: no matches (rg/grep convention)
+ *   - exit 141 (128+13): SIGPIPE — still has valid output from head
+ *   - other: real error
+ */
+function execShellGrep(command: string): string | null {
+  try {
+    const output = execSync(command, {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+      timeout: SHELL_TIMEOUT_MS,
+      maxBuffer: SHELL_MAX_BUFFER,
+    });
+    return output.trim() || null;
+  } catch (error: unknown) {
+    // execSync throws for non-zero exits. Check if we still got output.
+    if (error && typeof error === 'object' && 'stdout' in error) {
+      const stdout = (error as { stdout?: string }).stdout;
+      if (typeof stdout === 'string' && stdout.trim().length > 0) {
+        // SIGPIPE or exit-1-with-partial-output: return what we got
+        return stdout.trim();
+      }
+    }
+    return null;
+  }
+}
+
+/**
+ * Try ripgrep (fastest, most reliable).
+ */
+function tryRipgrep(safePattern: string, safePath: string): string | null {
+  return execShellGrep(
+    `rg -n --max-filesize 10M ${safePattern} ${safePath} | head -n ${MAX_RESULT_LINES}`
+  );
+}
+
+/**
+ * Try system grep as fallback.
+ */
+function trySystemGrep(safePattern: string, safePath: string): string | null {
+  return execShellGrep(
+    `grep -rn ${safePattern} ${safePath} | head -n ${MAX_RESULT_LINES}`
+  );
+}
+
+// ─── Filesystem Fallback Walk ────────────────────────────────────────
+
+/**
+ * Pure-TypeScript grep fallback using injected Filesystem.
+ * Handles both single-file and directory search.
+ */
+function filesystemGrep(
+  fs: Filesystem,
+  targetPath: string,
+  regex: RegExp
+): { results: string[]; durationMs: number } {
+  const results: string[] = [];
+  const startTime = Date.now();
+
+  if (!fs.exists(targetPath)) {
+    return { results, durationMs: Date.now() - startTime };
+  }
+
+  const stat = fs.stat(targetPath);
+
+  if (stat.isFile) {
+    searchFile(fs, targetPath, regex, results);
+  } else if (stat.isDirectory) {
+    walkDirectory(fs, targetPath, regex, results, 0);
+  }
+
+  return { results, durationMs: Date.now() - startTime };
+}
+
+/**
+ * Search a single file for regex matches.
+ */
+function searchFile(
+  fs: Filesystem,
+  filePath: string,
+  regex: RegExp,
+  results: string[]
+): void {
+  try {
+    const content = fs.readFile(filePath);
+    if (content.length > MAX_FILE_SIZE_BYTES) return;
+
+    const lines = content.split('\n');
+    for (let i = 0; i < lines.length && results.length < MAX_RESULT_LINES; i++) {
+      const line = lines[i] ?? '';
+      if (matchLine(line, regex)) {
+        results.push(`${filePath}:${i + 1}:${line}`);
+      }
+    }
+  } catch {
+    // Skip unreadable files
+  }
+}
+
+/**
+ * Recursively walk a directory and search files.
+ */
+function walkDirectory(
+  fs: Filesystem,
+  dir: string,
+  regex: RegExp,
+  results: string[],
+  depth: number
+): void {
+  if (depth > MAX_RECURSION_DEPTH) return;
+  if (results.length >= MAX_RESULT_LINES) return;
+
+  try {
+    const entries = fs.readdir(dir);
+
+    for (const entry of entries) {
+      if (results.length >= MAX_RESULT_LINES) break;
+
+      const fullPath = dir.endsWith('/')
+        ? `${dir}${entry.name}`
+        : `${dir}/${entry.name}`;
+
+      if (entry.isDirectory) {
+        if (!isSkippedDirectory(entry.name)) {
+          walkDirectory(fs, fullPath, regex, results, depth + 1);
+        }
+      } else {
+        if (isSafeExtension(entry.name)) {
+          searchFile(fs, fullPath, regex, results);
+        }
+      }
+    }
+  } catch {
+    // Skip inaccessible directories
+  }
+}
+
+// ─── Tool Factory ────────────────────────────────────────────────────
+
 /**
  * Create a grep tool bound to a Filesystem instance.
  *
  * Strategy: Try ripgrep → grep → Node.js fallback (in that order).
  * The Node.js fallback uses the injected Filesystem for testability.
  */
-export const createGrepTool = (fs: Filesystem): ToolDefinition<{
+export function createGrepTool(fs: Filesystem): ToolDefinition<{
   pattern: string;
   targetPath?: string;
-}> => ({
-  name: 'grep',
-  description: 'Search for a regex pattern in file contents. Uses ripgrep if available, falls back to built-in search.',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      pattern: {
-        type: 'string',
-        description: 'Regular expression pattern to search for.',
+}> {
+  return {
+    name: 'grep',
+    description: 'Search for a regex pattern in file contents. Uses ripgrep if available, falls back to built-in search.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        pattern: {
+          type: 'string',
+          description: 'Regular expression pattern to search for.',
+        },
+        targetPath: {
+          type: 'string',
+          description: 'Directory or file to search in. Defaults to current directory.',
+        },
       },
-      targetPath: {
-        type: 'string',
-        description: 'Directory or file to search in. Defaults to current directory.',
-      },
+      required: ['pattern'],
     },
-    required: ['pattern'],
-  },
 
-  validate({ pattern }) {
-    if (!pattern || pattern.trim().length === 0) {
-      throw new Error('Search pattern is required');
-    }
+    validate: validateGrepInput,
 
-    if (pattern.length > 1000) {
-      throw new Error('Pattern exceeds maximum length of 1000 characters');
-    }
+    async execute(input): Promise<ToolResult> {
+      const targetPath = input.targetPath ?? '.';
 
-    // Verify the pattern compiles
-    const regex = safeCompileRegex(pattern);
-    if (!regex) {
-      throw new Error(`Invalid or potentially dangerous regex pattern: ${pattern.slice(0, 100)}`);
-    }
-  },
-
-  async execute({ pattern, targetPath = '.' }): Promise<ToolResult> {
-    try {
-      // Validate inputs
-      this.validate!({ pattern, targetPath });
-      validatePath(targetPath, 'search');
-
-      // Sanitize for shell usage — prevents injection attacks
-      const safePattern = shellEscape(pattern);
-      const safePath = shellEscape(targetPath);
-
-      // 1. Try ripgrep (fastest, most reliable)
       try {
-        const output = execSync(
-          `rg -n --max-count 100 --max-filesize 10M ${safePattern} ${safePath}`,
-          {
-            encoding: 'utf8',
-            stdio: ['ignore', 'pipe', 'ignore'],
-            timeout: 30_000, // 30s timeout
-            maxBuffer: 10 * 1024 * 1024,
-          }
-        );
-        const lines = output.trim().split('\n');
-        if (lines.length > MAX_RESULT_LINES) {
+        // Validate + compile pattern once (no double compilation)
+        const regex = validateAndCompilePattern(input.pattern);
+        validatePath(targetPath, 'search');
+
+        // Sanitize for shell usage — prevents injection attacks
+        const safePattern = shellEscape(input.pattern);
+        const safePath = shellEscape(targetPath);
+
+        // 1. Try ripgrep (fastest, most reliable)
+        const rgResult = tryRipgrep(safePattern, safePath);
+        if (rgResult) {
+          const lineCount = rgResult.split('\n').length;
           return {
-            content: `Found ${lines.length} matches (truncated to ${MAX_RESULT_LINES}):\n${lines.slice(0, MAX_RESULT_LINES).join('\n')}`,
+            content: lineCount >= MAX_RESULT_LINES
+              ? `Found ${lineCount}+ matches (truncated to ${MAX_RESULT_LINES}):\n${rgResult}`
+              : rgResult,
           };
         }
-        return { content: output.trim() };
-      } catch {
-        // ripgrep not found or no matches — fall through
-      }
 
-      // 2. Try system grep
-      try {
-        const output = execSync(
-          `grep -rn --include='*.ts' --include='*.js' --include='*.json' --include='*.md' -m ${MAX_RESULT_LINES} ${safePattern} ${safePath}`,
-          {
-            encoding: 'utf8',
-            stdio: ['ignore', 'pipe', 'ignore'],
-            timeout: 30_000,
-            maxBuffer: 10 * 1024 * 1024,
-          }
-        );
-        return { content: output.trim() };
-      } catch {
-        // grep not found or no matches — fall through
-      }
-
-      // 3. Pure-TypeScript fallback using injected Filesystem
-      const regex = safeCompileRegex(pattern);
-      if (!regex) {
-        return {
-          content: `Invalid regex pattern: ${pattern.slice(0, 100)}`,
-          isError: true,
-        };
-      }
-
-      const results: string[] = [];
-      const startTime = Date.now();
-
-      const walk = (dir: string, depth: number): void => {
-        // Enforce depth limit
-        if (depth > MAX_RECURSION_DEPTH) return;
-
-        // Enforce result limit
-        if (results.length >= MAX_RESULT_LINES) return;
-
-        try {
-          // Use Domain Filesystem contract
-          if (!fs.exists(dir)) return;
-
-          const stat = fs.stat(dir);
-          if (!stat.isDirectory) return;
-
-          const entries = fs.readdir(dir);
-
-          for (const entry of entries) {
-            if (results.length >= MAX_RESULT_LINES) break;
-
-            const fullPath = dir.endsWith('/')
-              ? `${dir}${entry.name}`
-              : `${dir}/${entry.name}`;
-
-            if (entry.isDirectory) {
-              // Skip well-known non-content directories
-              if (!isSkippedDirectory(entry.name)) {
-                walk(fullPath, depth + 1);
-              }
-            } else {
-              // Skip files without safe extensions
-              if (!isSafeExtension(entry.name)) continue;
-
-              try {
-                // Check file size via Domain contract
-                const fileStat = fs.stat(fullPath);
-                if (!fileStat.isFile) continue;
-
-                // Read content via Domain contract
-                const content = fs.readFile(fullPath);
-
-                // Skip oversized files after read (defense in depth)
-                if (content.length > MAX_FILE_SIZE_BYTES) continue;
-
-                const lines = content.split('\n');
-
-                for (let i = 0; i < lines.length && results.length < MAX_RESULT_LINES; i++) {
-                  const line = lines[i] ?? '';
-                  if (matchLine(line, regex)) {
-                    results.push(`${fullPath}:${i + 1}:${line}`);
-                  }
-                }
-              } catch {
-                // Skip unreadable files (permission denied, etc.)
-                continue;
-              }
-            }
-          }
-        } catch {
-          // Skip inaccessible directories
-          return;
+        // 2. Try system grep
+        const grepResult = trySystemGrep(safePattern, safePath);
+        if (grepResult) {
+          return { content: grepResult };
         }
-      };
 
-      walk(targetPath, 0);
-      const durationMs = Date.now() - startTime;
+        // 3. Pure-TypeScript fallback using injected Filesystem
+        // Reuse the regex compiled during validation
+        const { results, durationMs } = filesystemGrep(fs, targetPath, regex);
 
-      if (results.length === 0) {
-        return { content: `No matches found for '${pattern}' (searched in ${(durationMs / 1000).toFixed(2)}s)` };
+        if (results.length === 0) {
+          return {
+            content: `No matches found for '${input.pattern}' (searched in ${(durationMs / 1000).toFixed(2)}s)`,
+          };
+        }
+
+        return {
+          content: `Found ${results.length} match${results.length === 1 ? '' : 'es'} (${(durationMs / 1000).toFixed(2)}s):\n${results.join('\n')}`,
+        };
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        return { content: `Error running grep: ${message}`, isError: true };
       }
-
-      return {
-        content: `Found ${results.length} match${results.length === 1 ? '' : 'es'} (${(durationMs / 1000).toFixed(2)}s):\n${results.join('\n')}`,
-      };
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      return { content: `Error running grep: ${message}`, isError: true };
-    }
-  },
-});
+    },
+  };
+}
 
 /**
  * Legacy export for backward compatibility.
- * New code should use createGrepTool(fs) for proper DI.
- *
  * @deprecated Use createGrepTool(fs) instead
  */
 export { createGrepTool as grepToolFactory };

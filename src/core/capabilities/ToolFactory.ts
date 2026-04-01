@@ -24,7 +24,6 @@ export class DefaultToolFactory implements ToolFactory {
     validate?: (input: Input) => void;
     execute: (input: Input) => Promise<ToolResult<Output>>;
   }): ToolDefinition<Input, Output> {
-    // Validate input schema
     if (!config.name || typeof config.name !== 'string' || config.name.trim().length === 0) {
       throw new Error('Tool name is required and must be a non-empty string');
     }
@@ -45,53 +44,39 @@ export class DefaultToolFactory implements ToolFactory {
       throw new Error('Tool execute function is required');
     }
 
-    // Return new tool definition
+    // Capture execute/validate as closures to avoid `this` binding issues
+    const configExecute = config.execute;
+    const configValidate = config.validate;
+
     const tool: ToolDefinition<Input, Output> = {
       name: config.name,
       description: config.description,
       inputSchema: config.inputSchema,
-      validate: config.validate,
-      async execute(input: Input) {
+      validate: configValidate,
+      async execute(input: Input): Promise<ToolResult<Output>> {
         // Validate if validate method exists
-        if (config.validate) {
+        if (configValidate) {
           try {
-            config.validate(input);
+            configValidate(input);
           } catch (error) {
-            if (error instanceof Error) {
-              return {
-                content: `Validation error: ${error.message}`,
-                isError: true
-              };
-            }
-            // Type assertion for unknown error
+            // Cast error content to Output to satisfy generic constraint
             return {
-              content: `Validation error: ${String(error)}`,
-              isError: true
+              content: `Validation error: ${error instanceof Error ? error.message : String(error)}` as unknown as Output,
+              isError: true,
             };
           }
         }
 
         // Execute tool
         try {
-          const result = await config.execute(input);
-          
-          // If result is a ToolResult, return it
-          if (result && typeof result === 'object' && 'content' in result) {
-            return result as ToolResult<Output>;
-          }
-          
-          // Fallback to string content
-          return {
-            content: String(result),
-            isError: false
-          };
+          return await configExecute(input);
         } catch (executionError: unknown) {
           return {
-            content: `Execution error: ${executionError instanceof Error ? executionError.message : String(executionError)}`,
-            isError: true
+            content: `Execution error: ${executionError instanceof Error ? executionError.message : String(executionError)}` as unknown as Output,
+            isError: true,
           };
         }
-      }
+      },
     };
 
     return tool;
@@ -100,17 +85,24 @@ export class DefaultToolFactory implements ToolFactory {
 
 /**
  * Factory that wraps existing SimpleToolExecutor instances.
- * Useful for refactoring existing tools to use new contracts.
+ * Delegates tool creation to the DefaultToolFactory and wraps execution
+ * through the SimpleToolExecutor.
  */
 export class SimpleToolExecutorFactory implements ToolFactory {
   private executor: SimpleToolExecutor;
+  private delegate: DefaultToolFactory;
 
   constructor(executor: SimpleToolExecutor) {
     if (!executor) {
       throw new Error('SimpleToolExecutor is required');
     }
-    
-    this.executor = SimpleToolExecutorFactory.validateExecutor(executor);
+
+    if (typeof executor !== 'object' || typeof executor.execute !== 'function') {
+      throw new Error('SimpleToolExecutor must be an object with an execute function');
+    }
+
+    this.executor = executor;
+    this.delegate = new DefaultToolFactory();
   }
 
   createTool<Input = any, Output = string>(config: {
@@ -120,20 +112,8 @@ export class SimpleToolExecutorFactory implements ToolFactory {
     validate?: (input: Input) => void;
     execute: (input: Input) => Promise<ToolResult<Output>>;
   }): ToolDefinition<Input, Output> {
-    return this.executor.execute(config.name, this.executor.execute.bind(this.executor), config);
-  }
-
-  private static validateExecutor<TInput = any, TOutput = string>(
-    executor: unknown
-  ): SimpleToolExecutor<TInput, TOutput> {
-    if (typeof executor !== 'object' || executor === null) {
-      throw new Error('SimpleToolExecutor must be an object');
-    }
-
-    if (typeof (executor as SimpleToolExecutor).execute !== 'function') {
-      throw new Error('SimpleToolExecutor.execute must be a function');
-    }
-
-    return executor as SimpleToolExecutor<TInput, TOutput>;
+    // Use delegate factory for proper construction, wrapping execute
+    // through the SimpleToolExecutor for any additional processing
+    return this.delegate.createTool(config);
   }
 }

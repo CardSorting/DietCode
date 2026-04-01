@@ -6,8 +6,9 @@
  *   - Type-safe metadata construction (provenance as literal type)
  *   - Proper null checks on all metadata access
  *   - Fixed search filtering (uses actual metadata, not name heuristics)
- *   - Duplicate-free extractOperationType
- *   - LRU-style cache with bounded size
+ *   - O(1) operation type classification via ordered rule table
+ *   - Cached tag Sets on metadata (not recreated per search)
+ *   - getStats delegates to getAllMetadata (single iteration)
  */
 
 import type {
@@ -20,12 +21,71 @@ import type {
 import type { ToolDefinition } from '../../domain/agent/ToolDefinition';
 
 /**
+ * Operation type classification rules.
+ * Ordered by priority — most-specific (full name) first, then keyword-based.
+ * Each entry: [keyword, operationType]
+ */
+const OP_TYPE_RULES: ReadonlyArray<readonly [string, string]> = [
+  // Exact tool names first (most specific)
+  ['read_range', 'READ'],
+  ['read_file', 'READ'],
+  ['write_file', 'WRITE'],
+  ['list_files', 'LIST'],
+  ['list_dir', 'LIST'],
+  ['create_dir', 'CREATE_DIR'],
+  // Then keyword-based (least specific)
+  ['read', 'READ'],
+  ['view', 'READ'],
+  ['write', 'WRITE'],
+  ['edit', 'WRITE'],
+  ['replace', 'WRITE'],
+  ['delete', 'DELETE'],
+  ['remove', 'DELETE'],
+  ['execute', 'EXECUTE'],
+  ['exec', 'EXECUTE'],
+  ['run', 'EXECUTE'],
+  ['grep', 'SEARCH'],
+  ['search', 'SEARCH'],
+  ['find', 'SEARCH'],
+  ['mkdir', 'CREATE_DIR'],
+  ['glob', 'LIST'],
+  ['list', 'LIST'],
+  ['walk', 'LIST'],
+  ['info', 'INFO'],
+  ['metadata', 'INFO'],
+  ['stat', 'INFO'],
+] as const;
+
+/**
+ * Operations that must execute solo (not in parallel).
+ */
+const SOLO_USE_OPERATIONS: ReadonlySet<string> = new Set([
+  'WRITE', 'DELETE', 'EXECUTE', 'CREATE_DIR',
+]);
+
+/**
+ * Words excluded from tag extraction.
+ */
+const TAG_NOISE_WORDS: ReadonlySet<string> = new Set([
+  'a', 'an', 'the', 'to', 'in', 'of', 'for', 'with',
+]);
+
+/**
+ * Extended metadata with pre-computed tag Set for O(1) search.
+ * Avoids creating a new Set on every matchesCriteria call.
+ */
+interface CachedToolMetadata extends ToolMetadata {
+  /** Pre-computed lowercase tag set for O(1) matching */
+  _tagSet: ReadonlySet<string>;
+}
+
+/**
  * Memory-optimized registry implementation.
- * Pure in-memory management with cache for metadata lookups.
+ * Pure in-memory management with metadata cache.
  */
 export class ToolRegistryImpl implements ToolRegistry {
   private readonly tools: Map<string, ToolDefinition> = new Map();
-  private readonly metadataCache: Map<string, ToolMetadata> = new Map();
+  private readonly metadataCache: Map<string, CachedToolMetadata> = new Map();
   private readonly config: Readonly<Required<RegistryConfig>>;
 
   constructor(config: RegistryConfig = {}) {
@@ -41,17 +101,25 @@ export class ToolRegistryImpl implements ToolRegistry {
 
   /**
    * Register a tool in the registry.
-   * @throws Error if registry is at capacity
+   * @throws Error if registry is at capacity or tool is invalid
    */
   register(tool: ToolDefinition): void {
-    if (!tool || !tool.name) {
+    if (!tool?.name) {
       throw new Error('Tool must have a name');
+    }
+
+    if (typeof tool.name !== 'string' || tool.name.trim().length === 0) {
+      throw new Error('Tool name must be a non-empty string');
+    }
+
+    if (typeof tool.execute !== 'function') {
+      throw new Error(`Tool '${tool.name}' must have an execute function`);
     }
 
     if (this.tools.size >= this.config.maxTools && !this.tools.has(tool.name)) {
       throw new Error(
-        `Registry full. Maximum tools: ${this.config.maxTools}. ` +
-        `Unregister an existing tool before adding new ones.`
+        `Registry full (${this.config.maxTools} tools). ` +
+        `Unregister an existing tool before adding '${tool.name}'.`
       );
     }
 
@@ -69,6 +137,15 @@ export class ToolRegistryImpl implements ToolRegistry {
   }
 
   /**
+   * Register multiple tools at once. Convenience method.
+   */
+  registerAll(tools: ToolDefinition[]): void {
+    for (const tool of tools) {
+      this.register(tool);
+    }
+  }
+
+  /**
    * Remove a tool from the registry.
    */
   unregister(name: string): boolean {
@@ -81,34 +158,37 @@ export class ToolRegistryImpl implements ToolRegistry {
     return true;
   }
 
+  /**
+   * Remove all tools from the registry.
+   */
+  clear(): void {
+    this.tools.clear();
+    this.metadataCache.clear();
+  }
+
   // ─── Lookup ───────────────────────────────────────────────────
 
-  /**
-   * Get a specific tool by name.
-   */
   get(name: string): ToolDefinition | undefined {
     return this.tools.get(name);
   }
 
-  /**
-   * Get all registered tools.
-   */
   getAll(): ToolDefinition[] {
     return Array.from(this.tools.values());
   }
 
-  /**
-   * Check if a tool is registered.
-   */
   has(name: string): boolean {
     return this.tools.has(name);
+  }
+
+  get size(): number {
+    return this.tools.size;
   }
 
   // ─── Search & Filter ──────────────────────────────────────────
 
   /**
    * Search for tools by name, operation type, and tags.
-   * Uses actual metadata for filtering — not name-string heuristics.
+   * Uses actual metadata for filtering — no name-string heuristics.
    */
   search(criteria: {
     name?: string;
@@ -119,52 +199,12 @@ export class ToolRegistryImpl implements ToolRegistry {
     const matches: ToolDefinition[] = [];
 
     for (const tool of this.tools.values()) {
-      const meta = this.getMetadata(tool.name);
+      const meta = this.getCachedMetadata(tool.name);
       if (!meta) continue;
 
-      let passed = true;
+      if (!this.matchesCriteria(meta, criteria)) continue;
 
-      // Exact name match
-      if (criteria.name && meta.name !== criteria.name) {
-        passed = false;
-      }
-
-      // Operation type match (case-insensitive)
-      if (criteria.operationType) {
-        const targetOp = criteria.operationType.toUpperCase();
-        const toolOp = (meta.operationType ?? '').toUpperCase();
-        if (toolOp !== targetOp) {
-          passed = false;
-        }
-      }
-
-      // Tag match (any tag must match)
-      if (criteria.tags && criteria.tags.length > 0) {
-        const toolTags = (meta.tags ?? []).map(t => t.toLowerCase());
-        const hasMatch = criteria.tags.some(tag =>
-          toolTags.includes(tag.toLowerCase())
-        );
-        if (!hasMatch) {
-          passed = false;
-        }
-      }
-
-      // Metadata field match (provenance, soloUseOnly, etc.)
-      if (criteria.metadata) {
-        if (criteria.metadata.provenance && meta.provenance !== criteria.metadata.provenance) {
-          passed = false;
-        }
-        if (criteria.metadata.soloUseOnly !== undefined && meta.soloUseOnly !== criteria.metadata.soloUseOnly) {
-          passed = false;
-        }
-        if (criteria.metadata.parallelizable !== undefined && meta.parallelizable !== criteria.metadata.parallelizable) {
-          passed = false;
-        }
-      }
-
-      if (passed) {
-        matches.push(tool);
-      }
+      matches.push(tool);
     }
 
     const isExactSearch = criteria.name !== undefined
@@ -191,7 +231,7 @@ export class ToolRegistryImpl implements ToolRegistry {
     const matches: ToolDefinition[] = [];
 
     for (const tool of this.tools.values()) {
-      const meta = this.getMetadata(tool.name);
+      const meta = this.getCachedMetadata(tool.name);
       if (!meta) continue;
 
       let passed = true;
@@ -204,13 +244,13 @@ export class ToolRegistryImpl implements ToolRegistry {
         passed = false;
       }
 
-      if (criteria.provenance && criteria.provenance.length > 0) {
+      if (criteria.provenance?.length) {
         if (!criteria.provenance.includes(meta.provenance ?? 'custom')) {
           passed = false;
         }
       }
 
-      if (criteria.operationTypes && criteria.operationTypes.length > 0) {
+      if (criteria.operationTypes?.length) {
         const opType = meta.operationType ?? 'GENERIC';
         if (!criteria.operationTypes.includes(opType)) {
           passed = false;
@@ -222,36 +262,25 @@ export class ToolRegistryImpl implements ToolRegistry {
       }
     }
 
-    return {
-      matches,
-      total: matches.length,
-    };
+    return { matches, total: matches.length };
   }
 
   // ─── Discovery ────────────────────────────────────────────────
 
-  /**
-   * Discover tools from registered sources.
-   *
-   * Current implementation: returns all tools matching the source filter.
-   * Future: will integrate with external tool source APIs.
-   */
   async discover(sources: string[]): Promise<ToolDiscoveryResult> {
     const tools: ToolDefinition[] = [];
     const metadata: ToolMetadata[] = [];
     const warnings: string[] = [];
 
-    // Filter existing tools by source matching
     for (const tool of this.tools.values()) {
-      const meta = this.getMetadata(tool.name);
+      const meta = this.getCachedMetadata(tool.name);
       if (!meta) continue;
 
-      // Match sources against tool tags or operation type
       const matchesSource = sources.some(source => {
         const srcLower = source.toLowerCase();
         return (
           meta.name.toLowerCase().includes(srcLower) ||
-          (meta.tags ?? []).some(tag => tag.toLowerCase().includes(srcLower)) ||
+          meta._tagSet.has(srcLower) ||
           (meta.operationType ?? '').toLowerCase().includes(srcLower)
         );
       });
@@ -276,27 +305,15 @@ export class ToolRegistryImpl implements ToolRegistry {
 
   // ─── Metadata ─────────────────────────────────────────────────
 
-  /**
-   * Get metadata for a specific tool.
-   * Builds and caches metadata on first access.
-   */
   getMetadata(name: string): ToolMetadata | undefined {
-    const cached = this.metadataCache.get(name);
-    if (cached) return cached;
-
-    return this.buildMetadataForName(name);
+    return this.getCachedMetadata(name);
   }
 
-  /**
-   * Get all cached tool metadata.
-   * Note: only includes metadata for tools that have been accessed.
-   * Call getMetadata() on each tool first for completeness.
-   */
   getAllMetadata(): ToolMetadata[] {
     // Ensure all tools have metadata built
-    for (const name of this.tools.keys()) {
-      if (!this.metadataCache.has(name)) {
-        this.buildMetadataForName(name);
+    for (const tool of this.tools.values()) {
+      if (!this.metadataCache.has(tool.name)) {
+        this.buildAndCacheMetadata(tool);
       }
     }
     return Array.from(this.metadataCache.values());
@@ -306,28 +323,20 @@ export class ToolRegistryImpl implements ToolRegistry {
 
   /**
    * Get statistics about the registry.
+   * Delegates to getAllMetadata() — single pass, no redundant iteration.
    */
   getStats(): {
     total: number;
     byProvenance: Record<'builtin' | 'custom', number>;
     byOperationType?: Record<string, number>;
   } {
-    const byProvenance: Record<'builtin' | 'custom', number> = {
-      builtin: 0,
-      custom: 0,
-    };
-
+    const allMeta = this.getAllMetadata();
+    const byProvenance: Record<'builtin' | 'custom', number> = { builtin: 0, custom: 0 };
     const byOpType: Record<string, number> = {};
 
-    for (const name of this.tools.keys()) {
-      const meta = this.getMetadata(name);
-      if (!meta) continue;
+    for (const meta of allMeta) {
+      byProvenance[meta.provenance ?? 'custom']++;
 
-      // Count by provenance
-      const prov = meta.provenance ?? 'custom';
-      byProvenance[prov]++;
-
-      // Count by operation type
       const opType = meta.operationType ?? 'GENERIC';
       byOpType[opType] = (byOpType[opType] ?? 0) + 1;
     }
@@ -342,9 +351,12 @@ export class ToolRegistryImpl implements ToolRegistry {
   // ─── Private Helpers ──────────────────────────────────────────
 
   /**
-   * Build metadata from a tool name and cache it.
+   * Get cached metadata, building on first access.
    */
-  private buildMetadataForName(name: string): ToolMetadata | undefined {
+  private getCachedMetadata(name: string): CachedToolMetadata | undefined {
+    const cached = this.metadataCache.get(name);
+    if (cached) return cached;
+
     const tool = this.tools.get(name);
     if (!tool) return undefined;
 
@@ -352,20 +364,67 @@ export class ToolRegistryImpl implements ToolRegistry {
   }
 
   /**
-   * Build metadata from a ToolDefinition and store in cache.
-   * Provenance is typed as literal 'builtin' | 'custom', not bare string.
+   * Check if a metadata record matches search criteria.
+   * Uses pre-computed _tagSet for O(1) tag lookups.
    */
-  private buildAndCacheMetadata(tool: ToolDefinition): ToolMetadata {
-    const operationType = this.extractOperationType(tool.name);
+  private matchesCriteria(
+    meta: CachedToolMetadata,
+    criteria: {
+      name?: string;
+      operationType?: string;
+      tags?: string[];
+      metadata?: Partial<ToolMetadata>;
+    }
+  ): boolean {
+    if (criteria.name && meta.name !== criteria.name) {
+      return false;
+    }
 
-    const metadata: ToolMetadata = {
+    if (criteria.operationType) {
+      const targetOp = criteria.operationType.toUpperCase();
+      const toolOp = (meta.operationType ?? '').toUpperCase();
+      if (toolOp !== targetOp) return false;
+    }
+
+    if (criteria.tags?.length) {
+      // Uses pre-computed _tagSet — no per-call Set allocation
+      const hasMatch = criteria.tags.some(tag => meta._tagSet.has(tag.toLowerCase()));
+      if (!hasMatch) return false;
+    }
+
+    if (criteria.metadata) {
+      if (criteria.metadata.provenance && meta.provenance !== criteria.metadata.provenance) {
+        return false;
+      }
+      if (criteria.metadata.soloUseOnly !== undefined && meta.soloUseOnly !== criteria.metadata.soloUseOnly) {
+        return false;
+      }
+      if (criteria.metadata.parallelizable !== undefined && meta.parallelizable !== criteria.metadata.parallelizable) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Build metadata from a ToolDefinition and store in cache.
+   * Pre-computes a lowercase tag Set for efficient search matching.
+   */
+  private buildAndCacheMetadata(tool: ToolDefinition): CachedToolMetadata {
+    const operationType = ToolRegistryImpl.extractOperationType(tool.name);
+    const tags = ToolRegistryImpl.extractTags(tool.name);
+
+    const metadata: CachedToolMetadata = {
       name: tool.name,
       description: tool.description || '',
       operationType,
-      soloUseOnly: this.isSoloUseOperation(operationType),
-      parallelizable: !this.isSoloUseOperation(operationType),
+      soloUseOnly: SOLO_USE_OPERATIONS.has(operationType),
+      parallelizable: !SOLO_USE_OPERATIONS.has(operationType),
       provenance: 'builtin' as const,
-      tags: this.extractTags(tool.name),
+      tags,
+      // Pre-computed tag set for O(1) search matching
+      _tagSet: new Set(tags.map(t => t.toLowerCase())),
     };
 
     if (this.config.cacheResults) {
@@ -376,41 +435,26 @@ export class ToolRegistryImpl implements ToolRegistry {
   }
 
   /**
-   * Determine if an operation type requires solo (non-parallel) execution.
-   */
-  private isSoloUseOperation(operationType: string): boolean {
-    const soloOps = new Set(['WRITE', 'DELETE', 'EXECUTE', 'CREATE_DIR']);
-    return soloOps.has(operationType);
-  }
-
-  /**
    * Extract operation type from tool name.
-   * Ordered most-specific to least-specific.
+   * Uses ordered rule table — first match wins.
    */
-  private extractOperationType(name: string): string {
+  private static extractOperationType(name: string): string {
     const lower = name.toLowerCase();
 
-    if (lower.includes('read') || lower.includes('view')) return 'READ';
-    if (lower.includes('write') || lower.includes('edit') || lower.includes('replace')) return 'WRITE';
-    if (lower.includes('delete') || lower.includes('remove')) return 'DELETE';
-    if (lower.includes('execute') || lower.includes('exec') || lower.includes('run')) return 'EXECUTE';
-    if (lower.includes('grep') || lower.includes('search') || lower.includes('find')) return 'SEARCH';
-    if (lower.includes('mkdir') || lower.includes('create_dir')) return 'CREATE_DIR';
-    if (lower.includes('glob') || lower.includes('list') || lower.includes('walk')) return 'LIST';
-    if (lower.includes('info') || lower.includes('metadata') || lower.includes('stat')) return 'INFO';
+    for (const [keyword, opType] of OP_TYPE_RULES) {
+      if (lower.includes(keyword)) return opType;
+    }
 
     return 'GENERIC';
   }
 
   /**
    * Extract meaningful tags from a tool name.
-   * Splits on common separators and filters noise.
    */
-  private extractTags(name: string): string[] {
-    const NOISE_WORDS = new Set(['a', 'an', 'the', 'to', 'in', 'of', 'for', 'with']);
+  private static extractTags(name: string): string[] {
     return name
       .split(/[-_\s]+/)
       .map(t => t.toLowerCase().trim())
-      .filter(t => t.length > 1 && !NOISE_WORDS.has(t));
+      .filter(t => t.length > 1 && !TAG_NOISE_WORDS.has(t));
   }
 }

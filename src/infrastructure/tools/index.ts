@@ -7,9 +7,18 @@
 // Registry
 export { ToolRegistryImpl } from './ToolRegistry';
 
-// Tool Factories
-export { createReadFileTool, createWriteFileTool } from './fileTools';
+// Tool Factories — File Operations
+export {
+  createReadFileTool,
+  createWriteFileTool,
+  createReadRangeTool,
+  createListFilesTool,
+} from './fileTools';
+
+// Tool Factories — Search
 export { createGrepTool, grepToolFactory } from './grep';
+
+// Tool Factories — Directory
 export { createMkdirTool } from './mkdir';
 
 // Path Validation (shared utility)
@@ -18,6 +27,7 @@ export {
   shellEscape,
   isSafeExtension,
   isSkippedDirectory,
+  normalizePath,
   PathValidationError,
   MAX_FILE_SIZE_BYTES,
   MAX_RECURSION_DEPTH,
