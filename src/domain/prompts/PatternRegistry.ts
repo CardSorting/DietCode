@@ -93,11 +93,11 @@ export const PATTERN_REGISTRY: Map<string, PatternMapping> = new Map([
         returns: 'CompressedContext'
       },
       infrastructureElement: {
-        adapterName: 'ContextCompressor',
+        adapterName: 'ContextCompressorAdapter',
         implementsInterface: 'ContextCompressionStrategy',
-        usesDependencies: ['types: SessionContext', 'types: TemplateRenderer'],
-        behavior: 'Apply 9-section template to session context, extract key sections',
-        implementationStatus: '📋 DEFINED (NOT IMPLEMENTED)'
+        usesDependencies: ['types: SessionContext', 'Domain: ContextTypes', 'Domain: ContextCompressionFactory'],
+        behavior: 'Apply 9-section compression algorithm, extract 7 key sections, calculate compression ratio',
+        implementationStatus: '✅ IMPLEMENTED'
       },
       coreElement: {
         serviceName: 'ContextSaveService',
@@ -125,11 +125,11 @@ export const PATTERN_REGISTRY: Map<string, PatternMapping> = new Map([
         returns: 'VerificationVerdict'
       },
       infrastructureElement: {
-        adapterName: 'VerificationAgentProtocol',
+        adapterName: 'VerificationAgentAdapter',
         implementsInterface: 'VerificationAgent',
-        usesDependencies: ['types: TestCase', 'types: Assertion', 'types: CounterexampleGenerator'],
-        behavior: 'Generate counterexamples, verify assertions, emit verdict',
-        implementationStatus: '📋 DEFINED (NOT IMPLEMENTED)'
+        usesDependencies: ['types: TestCase', 'types: Assertion', 'types: CounterexampleGenerator', 'Domain: VerificationTypes'],
+        behavior: 'Execute assertion checks, generate counterexamples, emit comprehensive verdict',
+        implementationStatus: '✅ IMPLEMENTED'
       },
       coreElement: {
         serviceName: 'AgentRouter',
