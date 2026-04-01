@@ -3,10 +3,10 @@
  * Principle: Implements risk-aware prompt composition strategy
  */
 
-import type { PromptDefinition } from '../../src/domain/prompts/PromptCategory';
-import type { TemplateContext } from '../../src/domain/prompts/PromptTemplateEngine';
-import { RiskTier, RiskProfile, SafeguardFactory } from '../../src/domain/prompts/PromptRiskProfile';
-import type { PatternAwareStrategy } from '../../src/domain/prompts/PromptCompositionStrategy';
+import type { PromptDefinition } from '../../domain/prompts/PromptCategory';
+import type { TemplateContext } from '../../domain/prompts/PromptTemplateEngine';
+import { RiskTier, RiskProfile, SafeguardFactory } from '../../domain/prompts/PromptRiskProfile';
+import type { PatternAwareStrategy } from '../../domain/prompts/PromptCompositionStrategy';
 
 /**
  * Strategy that wraps prompts with risk assessment and safety instructions based on dangerLevel

@@ -79,7 +79,7 @@ async function main() {
   await worker.start();
 
   // Project Context Discovery (Deep Integration)
-  const discovery = new DiscoveryService(fs, systemAdapter);
+  const discovery = new DiscoveryService(fs, systemAdapter, logger);
   const projectContext = await discovery.discover(process.cwd());
 
   // Performance & Context Services

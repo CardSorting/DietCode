@@ -5,11 +5,11 @@
 
 import type { MemoryService } from '../memory/MemoryService';
 import type { ContextService } from '../context/ContextService';
-import type { KnowledgeItem } from '../../src/domain/memory/Knowledge';
-import { PromptDefinition } from '../../src/domain/prompts/PromptCategory';
-import type { TemplateContext } from '../../src/domain/prompts/PromptTemplateEngine';
-import { TemplateEngine } from '../../src/domain/prompts/PromptTemplateEngine';
-import type { ContextAwareStrategy } from '../../src/domain/prompts/PromptCompositionStrategy';
+import type { KnowledgeItem } from '../../domain/memory/Knowledge';
+import { PromptDefinition } from '../../domain/prompts/PromptCategory';
+import type { TemplateContext } from '../../domain/prompts/PromptTemplateEngine';
+import { TemplateEngine } from '../../domain/prompts/PromptTemplateEngine';
+import type { ContextAwareStrategy } from '../../domain/prompts/PromptCompositionStrategy';
 
 /**
  * Context slice type definitions for different categories

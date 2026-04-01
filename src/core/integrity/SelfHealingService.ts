@@ -15,7 +15,14 @@ import type { VerificationProvider } from '../../domain/healing/VerificationProv
 import type { LogService } from '../../domain/logging/LogService';
 
 export class SelfHealingService {
-  private eventBus: EventBus = EventBus.getInstance();
+  private eventBus: EventBus;
+
+  constructor(
+    private repository: HealingRepository,
+    private logService: LogService
+  ) {
+    this.eventBus = EventBus.getInstance(logService);
+  }
 
   constructor(
     private repository: HealingRepository,

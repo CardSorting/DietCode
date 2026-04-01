@@ -1,6 +1,7 @@
 import * as path from 'path';
 import type { ProjectContext } from '../../domain/context/ProjectContext';
 import type { Filesystem } from '../../domain/system/Filesystem';
+import type { LogService } from '../../domain/logging/LogService';
 import type { SystemAdapter } from '../../domain/system/SystemAdapter';
 import { EventBus } from '../orchestration/EventBus';
 import { EventType } from '../../domain/Event';
@@ -11,12 +12,15 @@ import { EventType } from '../../domain/Event';
  */
 
 export class DiscoveryService {
-  private eventBus: EventBus = EventBus.getInstance();
+  private eventBus: EventBus;
 
   constructor(
     private filesystem: Filesystem,
-    private systemAdapter: SystemAdapter
-  ) {}
+    private systemAdapter: SystemAdapter,
+    logService: LogService
+  ) {
+    this.eventBus = EventBus.getInstance(logService);
+  }
 
   /**
    * Discovers the project context starting from a given directory.

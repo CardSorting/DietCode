@@ -4,8 +4,8 @@
  * Violations: None
  */
 
-import { RiskEvaluator } from '../../src/domain/validation/RiskEvaluator';
-import { ApprovalRequirements, RiskLevel } from '../../src/domain/validation/RiskLevel';
+import { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
+import { ApprovalRequirements, RiskLevel } from '../../domain/validation/RiskLevel';
 
 /**
  * Approval decision for an action
