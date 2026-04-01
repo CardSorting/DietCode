@@ -28,12 +28,10 @@ export class MemoryService {
   async distill(taskId: string, outcome: string): Promise<void> {
     console.log(`[MEMORY] Distilling outcome for task: ${taskId}`);
     
-    const distillationAgent: any = {
-      id: 'agent-distiller',
-      title: 'Memory Distiller',
-      systemPrompt: 'You are a knowledge distillation engine. Extract key learnings, architectural patterns, or reusable facts from task outcomes. Format the response as a clear, concise knowledge item value.',
-      def: { maxTokens: 1024 }
-    };
+    const distillationAgent = this.agentRegistry.getAgent('agent-distiller');
+    if (!distillationAgent) {
+       throw new Error(`[MEMORY] Specialist agent 'agent-distiller' not found.`);
+    }
 
     const response = await this.llmProvider.createMessage(
       distillationAgent,

@@ -18,7 +18,9 @@ export class NodeTerminalAdapter implements TerminalInterface {
   }
 
   logClaude(text: string) {
-    console.log(chalk.green('\nClaude:'), text);
+    // Hardened rendering: handle potential empty strings and multi-line breaks
+    const cleanText = text.trim() ? text : '(No response)';
+    console.log(chalk.green('\nClaude:'), cleanText);
   }
 
   logToolUse(name: string, input: any) {

@@ -5,34 +5,14 @@
 
 import { SovereignDb } from './SovereignDb';
 import type { Reasoning } from '../../domain/memory/Reasoning';
-import { EventBus } from '../../core/orchestration/EventBus';
 import type { SystemEvent } from '../../domain/Event';
+import type { AuditProvider, AuditRecord } from '../../domain/system/AuditProvider';
 
-export interface AuditRecord {
-  id: string;
-  sessionId: string;
-  agentId: string;
-  action: string;
-  reasoning: Reasoning;
-  metadata: any;
-  timestamp: number;
-}
-
-export class SqliteAuditRepository {
-  /**
-   * Initializes the repository by subscribing to the EventBus.
-   */
-  initialize(): void {
-    const eventBus = EventBus.getInstance();
-    eventBus.on('*', (event) => {
-      this.recordEvent(event).catch(err => console.error('[INFRA] Failed to persist event', err));
-    });
-  }
-
+export class SqliteAuditRepository implements AuditProvider {
   /**
    * Records a high-fidelity audit entry of an agent action.
    */
-  async recordAction(record: Omit<AuditRecord, 'id' | 'timestamp'>): Promise<void> {
+  async recordAction(record: AuditRecord): Promise<void> {
     const pool = await SovereignDb.getPool();
     const id = globalThis.crypto.randomUUID();
     const timestamp = Date.now();

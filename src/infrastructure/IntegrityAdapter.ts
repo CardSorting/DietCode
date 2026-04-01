@@ -6,10 +6,12 @@
 import * as path from 'path';
 import type { IntegrityScanner } from '../core/integrity/IntegrityService';
 import type { IntegrityReport, IntegrityViolation } from '../domain/memory/Integrity';
-import { ViolationType } from '../domain/memory/Integrity';
+import { ViolationType, IntegrityPolicy } from '../domain/memory/Integrity';
 import type { Filesystem } from '../domain/system/Filesystem';
 
 export class IntegrityAdapter implements IntegrityScanner {
+  private policy: IntegrityPolicy = new IntegrityPolicy();
+
   constructor(private filesystem: Filesystem) {}
 
   async scan(projectRoot: string): Promise<IntegrityReport> {
@@ -22,49 +24,16 @@ export class IntegrityAdapter implements IntegrityScanner {
       const content = this.filesystem.readFile(fullPath);
       const relPath = path.relative(projectRoot, fullPath);
 
-      // Rule 1: No I/O imports in Domain
-      if (relPath.startsWith('src/domain')) {
-        if (content.match(/import.*from.*['"](fs|node:fs|path|node:path|http|https)['"]/)) {
+      // Consume Domain-level IntegrityPolicy
+      const rules = this.policy.getRulesForPath(relPath);
+      for (const rule of rules) {
+        if (content.match(rule.pattern)) {
           violations.push(this.createViolation(
-            ViolationType.UNAUTHORIZED_IO,
+            rule.type,
             relPath,
-            'I/O imports (fs, path, http) are forbidden in the Domain layer.',
-            'error'
+            rule.message,
+            rule.severity
           ));
-        }
-      }
-
-      // Rule 2: No Infrastructure imports in UI
-      if (relPath.startsWith('src/ui')) {
-        if (content.match(/import.*from.*['"](.*infrastructure.*)['"]/)) {
-           violations.push(this.createViolation(
-             ViolationType.CROSS_LAYER_IMPORT,
-             relPath,
-             'UI layer cannot import Infrastructure directly. Use Core or Domain.',
-             'error'
-           ));
-        }
-      }
-      
-      // Rule 3: No cross-layer imports in Domain
-      if (relPath.startsWith('src/domain')) {
-        if (content.match(/import.*from.*['"](.*(core|infrastructure|ui).*)['"]/)) {
-           violations.push(this.createViolation(
-             ViolationType.CROSS_LAYER_IMPORT,
-             relPath,
-             'Domain layer cannot depend on Core, Infrastructure, or UI layers.',
-             'error'
-           ));
-        }
-
-        // Rule 4: Domain Purity (no external library imports except essentials)
-        if (content.match(/import.*from.*['"](?!(\.|@dietcode\/|node:)).*['"]/)) {
-           violations.push(this.createViolation(
-             ViolationType.DOMAIN_PURITY,
-             relPath,
-             'Domain layer should not depend on external libraries.',
-             'warn'
-           ));
         }
       }
 

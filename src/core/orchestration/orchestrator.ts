@@ -14,6 +14,7 @@ import type { SessionRepository } from '../../domain/context/SessionRepository';
 import type { DecisionRepository } from '../../domain/memory/DecisionRepository';
 import type { ProjectContext } from '../../domain/context/ProjectContext';
 import type { Reasoning } from '../../domain/memory/Reasoning';
+import type { AuditProvider } from '../../domain/system/AuditProvider';
 import type { AgentRegistry } from '../capabilities/AgentRegistry';
 import type { Agent } from '../../domain/agent/Agent';
 import type { ContextService } from '../context/ContextService';
@@ -38,7 +39,7 @@ export class Orchestrator {
     private commandProcessor: CommandProcessor,
     private repository: SessionRepository,
     private decisions: DecisionRepository,
-    private audit: SqliteAuditRepository,
+    private audit: AuditProvider,
     private agentRegistry: AgentRegistry,
     private contextService: ContextService,
     private attachmentResolver: AttachmentResolver,

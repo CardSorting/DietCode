@@ -1,52 +1,37 @@
 /**
  * [LAYER: INFRASTRUCTURE]
- * Principle: Implementation of robust path discovery (Fuzzy Search).
+ * Principle: Implementation of Domain SearchProvider using fuzzy matching.
  */
 
-import type { Filesystem } from '../domain/system/Filesystem';
+import type { SearchProvider } from '../../domain/memory/SearchProvider';
+import type { KnowledgeItem } from '../../domain/memory/Knowledge';
 
-export interface SearchResult {
-  path: string;
-  score: number;
-}
-
-export class FuzzySearchRepository {
-  constructor(private filesystem: Filesystem) {}
-
+export class FuzzySearchRepository implements SearchProvider {
   /**
-   * Finds the closest matching file path in the workspace for a given query.
+   * Implements a production-hardened fuzzy search for knowledge recall.
    */
-  async findClosest(query: string, root: string): Promise<SearchResult | null> {
-    const allFiles = await this.filesystem.walk(root);
-    let bestMatch: SearchResult | null = null;
-
-    for (const relativePath of allFiles) {
-      const score = this.calculateScore(query, relativePath);
-      if (!bestMatch || score > bestMatch.score) {
-        bestMatch = { path: relativePath, score };
-      }
-    }
-
-    // Threshold for a "good" match
-    return (bestMatch && bestMatch.score > 0.6) ? bestMatch : null;
-  }
-
-  private calculateScore(query: string, target: string): number {
-    const q = query.toLowerCase();
-    const t = target.toLowerCase();
-
-    if (q === t) return 1.0;
-    if (t.includes(q)) return 0.9;
-
-    // Simple overlapping character count score
-    let matches = 0;
-    const qParts = q.split(/[\/\.]/);
-    const tParts = t.split(/[\/\.]/);
+  async search(query: string, items: KnowledgeItem[], limit: number): Promise<KnowledgeItem[]> {
+    const searchTerms = query.toLowerCase().split(/\s+/);
     
-    for (const part of qParts) {
-      if (tParts.includes(part)) matches++;
-    }
+    const scored = items.map(item => {
+      let score = 0;
+      const content = `${item.key} ${item.value} ${item.tags.join(' ')}`.toLowerCase();
+      
+      for (const term of searchTerms) {
+        if (content.includes(term)) {
+          score += 1;
+          // Bonus for exact key match
+          if (item.key.toLowerCase().includes(term)) score += 2;
+        }
+      }
+      
+      return { item, score };
+    });
 
-    return matches / Math.max(qParts.length, tParts.length);
+    return scored
+      .filter(s => s.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit)
+      .map(s => s.item);
   }
 }
