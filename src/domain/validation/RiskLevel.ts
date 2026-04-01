@@ -48,3 +48,15 @@ export interface ApprovalRule {
   requiresRollback: boolean;
   restrictions: string[];
 }
+
+/**
+ * Approval requirements definition
+ * Used by RiskEvaluator for determining what approvals are needed for actions
+ */
+export interface ApprovalRequirements {
+  requiresConfirmation: boolean;
+  requiresRollback: boolean;
+  requiresBackup: boolean;
+  restrictions: string[];
+  recommendedSafeguards: string[];
+}

@@ -5,7 +5,7 @@
 
 import type { PromptDefinition } from '../../domain/prompts/PromptCategory';
 import type { TemplateContext } from '../../domain/prompts/PromptTemplateEngine';
-import { RiskTier, RiskProfile, SafeguardFactory } from '../../domain/prompts/PromptRiskProfile';
+import { RiskTier, type RiskProfile, SafeguardFactory, type RiskFactor } from '../../domain/prompts/PromptRiskProfile';
 import type { PatternAwareStrategy } from '../../domain/prompts/PromptCompositionStrategy';
 
 /**
@@ -103,7 +103,7 @@ export class RiskAwareCompositionStrategy implements PatternAwareStrategy {
       assumptions.push('Session ID not available');
     }
 
-    if (prompt.category === 'SYSTEM_CORE' || prompt.category === 'PRODUCTION_CONFIG') {
+    if (prompt.category === PromptCategory.SYSTEM_CORE || prompt.category === PromptCategory.SECURITY_PATTERNS) {
       assumptions.push('Production system at risk if error occurs');
     }
 
@@ -120,8 +120,8 @@ export class RiskAwareCompositionStrategy implements PatternAwareStrategy {
   private identifyRiskFactors(
     prompt: PromptDefinition,
     context: Partial<TemplateContext>
-  ): Array<{ factor: string; value: string; severity: 'low' | 'medium' | 'high' }> {
-    const factors: Array<{ factor: string; value: string; severity: 'low' | 'medium' | 'high' }> = [];
+  ): RiskFactor[] {
+    const factors: RiskFactor[] = [];
 
     // Build derived risk factors
     if (prompt.dangerLevel !== 'low') {
@@ -140,7 +140,7 @@ export class RiskAwareCompositionStrategy implements PatternAwareStrategy {
       });
     }
 
-    if (prompt.category === 'INFRASTRUCTURE' || prompt.category === 'DOCKER') {
+    if (prompt.category === PromptCategory.TOOL_PROTOCOLS || prompt.category === PromptCategory.SECURITY_PATTERNS) {
       factors.push({
         factor: 'system_impact',
         value: 'system-level changes',
@@ -265,14 +265,13 @@ ${promptContent}`;
    */
   private isHighRiskCategory(category: string): boolean {
     const HIGH_RISK_CATEGORIES = [
-      'INFRASTRUCTURE',
-      'DOCKER',
-      'PRODUCTION_CONFIG',
-      'SECURITY',
-      'DEPLOYMENT',
-      'DANGER_ZONE'
+      PromptCategory.TOOL_PROTOCOLS,
+      PromptCategory.SECURITY_PATTERNS,
+      PromptCategory.AGENT_ORCHESTRATION,
+      PromptCategory.VERIFICATION_CHECKPOINTS,
+      PromptCategory.UTILITY_OPERATIONS
     ];
 
-    return HIGH_RISK_CATEGORIES.includes(category);
+    return HIGH_RISK_CATEGORIES.includes(category as PromptCategory);
   }
 }

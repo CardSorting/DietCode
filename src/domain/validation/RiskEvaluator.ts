@@ -9,8 +9,8 @@
  *   - None
  */
 
-import { RiskLevel, ActionCriteria } from './RiskLevel';
-import { ApprovalRequirements } from './ApprovalRequirements';
+import type { RiskLevel, ApprovalRequirements } from './RiskLevel';
+import type { ActionCriteria } from './RiskLevel';
 
 /**
  * Interface contract for evaluating risk levels of system actions

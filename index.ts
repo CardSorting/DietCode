@@ -92,7 +92,7 @@ async function main() {
   // Triple Down: Architectural Integrity Guard
   const integrityAdapter = new IntegrityAdapter(fs);
   const integrityService = new IntegrityService(integrityAdapter, logger);
-  const integrityReport = await integrityService.check(projectContext.repository.path);
+  const integrityReport = await integrityService.scan(projectContext.repository.path);
   console.log(`[INTEGRITY] Core Health: ${integrityReport.score}/100`);
 
   // Triple Down: Autonomous Self-Healing Assessment

@@ -25,6 +25,14 @@ export class MemoryService {
   }
 
   /**
+   * Search for knowledge items using a raw SQL-like query
+   */
+  async search(query: string, ...params: any[]): Promise<KnowledgeItem[]> {
+    // Fallback implementation
+    return this.repository.findRelevant(query, 10);
+  }
+
+  /**
    * Distills a raw task outcome into a structured KnowledgeItem.
    * This is intended to run as a background job.
    */

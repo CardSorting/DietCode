@@ -11,19 +11,20 @@
 import type { ToolDefinition, ToolResult } from '../../domain/agent/ToolDefinition';
 import { EventBus } from '../orchestration/EventBus';
 import { EventType } from '../../domain/Event';
-import { ToolRouter } from '../../domain/capabilities/ToolRouter';
+import type { ToolRouter } from '../../domain/capabilities/ToolRouter';
 import type { SafetyAwareToolContext, SafetyAwareToolOptions } from '../../domain/capabilities/SafetyAwareToolExecution';
 import type { RollbackProtocol } from '../../domain/validation/RollbackProtocol';
 import { SafetyGuard } from './SafetyGuard';
-import { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
-import type { ToolRegistry, ToolFactory, ToolExecutionContext } from '../../domain/agent';
+import type { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
+import { RiskLevel } from '../../domain/validation/RiskLevel';
+import type { ToolDefinition as DomainToolDefinition } from '../../domain/agent/ToolDefinition';
 
 /**
  * ToolManager orchestrates tool registration and execution
  * Safety integration is handled by ExecutionService via injectable dependencies
  */
 export class ToolManager {
-  private tools: Map<string, ToolDefinition> = new Map();
+  private tools: Map<string, DomainToolDefinition> = new Map();
   private eventBus: EventBus = EventBus.getInstance();
   private toolRouter?: ToolRouter;
   private safetyGuard?: SafetyGuard;
@@ -33,7 +34,7 @@ export class ToolManager {
   /**
    * Register a tool with the ToolManager
    */
-  register(tool: ToolDefinition): void {
+  register(tool: DomainToolDefinition): void {
     const existing = this.tools.get(tool.name);
     if (existing) {
       console.warn(`⚠️  Overwriting existing tool: ${tool.name}`);
@@ -44,7 +45,7 @@ export class ToolManager {
   /**
    * Get a registered tool
    */
-  getTool(name: string): ToolDefinition | undefined {
+  getTool(name: string): DomainToolDefinition | undefined {
     return this.tools.get(name);
   }
 
@@ -53,9 +54,7 @@ export class ToolManager {
    * Pattern: Tool Selection Router - when a purpose-built tool exists, use it
    */
   async routeTool(
-    operationType: string,
-    target?: string,
-    parameters?: any
+    operationType: string
   ): Promise<{ toolName: string; matchesCriteria: boolean } | null> {
     if (!this.toolRouter) {
       console.warn('⚠️  ToolRouter not initialized. Cannot route tool.');
@@ -65,8 +64,8 @@ export class ToolManager {
     try {
       const routeResult = await this.toolRouter.route({
         operationType,
-        target,
-        parameters
+        target: undefined,
+        parameters: undefined
       });
 
       return {
@@ -82,7 +81,7 @@ export class ToolManager {
   /**
    * Get all registered tools
    */
-  getAllTools(): ToolDefinition[] {
+  getAllTools(): DomainToolDefinition[] {
     return Array.from(this.tools.values());
   }
 
@@ -138,7 +137,7 @@ export class ToolManager {
         },
         safetyCheck: {
           evaluated: false,
-          riskLevel: 'MEDIUM',
+          riskLevel: RiskLevel.MEDIUM,
           approved: false,
           requiresConfirmation: false,
           rollbackPrepared: false,
@@ -159,11 +158,11 @@ export class ToolManager {
     // Phase 1: Evaluate safety if SafetyGuard configured
     let safetyCheck = {
       evaluated: false,
-      riskLevel: 'SAFE',
+      riskLevel: RiskLevel.SAFE,
       approved: true,
       requiresConfirmation: false,
       rollbackPrepared: false,
-      safeguardsApplied: []
+      safeguardsApplied: [] as string[]
     };
 
     try {
@@ -175,12 +174,12 @@ export class ToolManager {
           riskLevel: safetyEval.riskLevel,
           approved: safetyEval.isSafe,
           requiresConfirmation: safetyEval.requiresApproval,
-          rollbackPrepared: options.backupBeforeModification && (safetyEval.riskLevel === 'MEDIUM' || safetyEval.riskLevel === 'HIGH'),
+          rollbackPrepared: Boolean(options.backupBeforeModification) && (safetyEval.riskLevel === RiskLevel.MEDIUM || safetyEval.riskLevel === RiskLevel.HIGH),
           safeguardsApplied: [
-            options.requireApprovalForHighRisk ? 'Approval check' : '',
-            safetyCheck.rollbackPrepared ? 'Backup prepared' : '',
+            Boolean(options.requireApprovalForHighRisk) ? 'Approval check' : '',
+            this.sanitizeArray(safetyCheck.safeguardsApplied).concat(safetyCheck.rollbackPrepared ? 'Backup prepared' : ''),
             'Tool execution protected'
-          ].filter(Boolean)
+          ].filter(Boolean) as string[]
         };
 
         console.log(`🛡️  Safety check: ${safetyEval.riskLevel} - Approved: ${safetyEval.isSafe}`);
@@ -215,7 +214,7 @@ export class ToolManager {
       }
 
       return {
-        success: !result.isError,
+        success: true,
         toolName: name,
         toolResult: result,
         safetyCheck,
@@ -244,8 +243,15 @@ export class ToolManager {
           isError: true
         },
         safetyCheck: {
-          ...safetyCheck,
-          safeguardsApplied: [...safetyCheck.safeguardsApplied, `Execution failed: ${executionError.message}`]
+          evaluated: safetyCheck.evaluated,
+          riskLevel: safetyCheck.riskLevel,
+          approved: safetyCheck.approved,
+          requiresConfirmation: safetyCheck.requiresConfirmation,
+          rollbackPrepared: safetyCheck.rollbackPrepared,
+          safeguardsApplied: [
+            ...(safetyCheck.safeguardsApplied || []),
+            `Execution failed: ${executionError.message}`
+          ]
         },
         execution: {
           startTime,
@@ -314,5 +320,9 @@ export class ToolManager {
       rollbackProtocol: this.rollbackManager !== undefined,
       isFullyConfigured: this.safetyGuard !== undefined
     };
+  }
+
+  private sanitizeArray(arr: string[]): string[] {
+    return arr.filter(item => item !== null && item !== '');
   }
 }

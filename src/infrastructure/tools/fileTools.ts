@@ -278,11 +278,16 @@ export function createListFilesTool(fs: Filesystem): ToolDefinition<{
         }
 
         if (input.recursive) {
-          const files = fs.walk(input.path);
-          const truncated = files.length > MAX_RESULT_LINES;
-          const listing = files.slice(0, MAX_RESULT_LINES);
+          // Consume async generator and collect file paths
+          const fileRecords: { path: string }[] = [];
+          for await (const entry of fs.walk(input.path)) {
+            fileRecords.push({ path: entry.path });
+          }
+          
+          const truncated = fileRecords.length > MAX_RESULT_LINES;
+          const listing = fileRecords.slice(0, MAX_RESULT_LINES).map(e => `📄 ${e.path}`);
 
-          let output = `${input.path}/ (${files.length} files${truncated ? ', truncated' : ''}):\n`;
+          let output = `${input.path}/ (${fileRecords.length} files${truncated ? ', truncated' : ''}):\n`;
           output += listing.join('\n');
 
           return { content: output };

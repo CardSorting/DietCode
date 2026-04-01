@@ -9,7 +9,7 @@
  *   - [CONSOLIDATE] May benefit from RollbackProtocol integration
  */
 
-import { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
+import type { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
 import { RiskLevel } from '../../domain/validation/RiskLevel';
 import type { SafetyAwareToolContext, SafetyAwareToolOptions } from '../../domain/capabilities/SafetyAwareToolExecution';
 

@@ -8,12 +8,9 @@ import { EventBus } from '../orchestration/EventBus';
 import { EventType } from '../../domain/Event';
 import type { IntegrityViolation, IntegrityReport, ViolationType } from '../../domain/memory/Integrity';
 import type { LogService } from '../../domain/logging/LogService';
+import type { DomainIntegrityScanner } from '../../domain/integrity/IntegrityScanner';
 
-export interface IntegrityScanner {
-  scan(projectRoot: string): Promise<IntegrityReport>;
-}
-
-export class IntegrityService {
+export class IntegrityService implements DomainIntegrityScanner {
   private eventBus: EventBus = EventBus.getInstance();
 
   constructor(private scanner: IntegrityScanner, private logService: LogService) {}
@@ -21,7 +18,7 @@ export class IntegrityService {
   /**
    * Performs an architectural integrity scan across the codebase.
    */
-  async check(projectRoot: string): Promise<IntegrityReport> {
+  async scan(projectRoot: string): Promise<IntegrityReport> {
     const report = await this.scanner.scan(projectRoot);
     
     if (report.violations.length > 0) {

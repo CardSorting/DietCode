@@ -6,7 +6,7 @@
  */
 
 import { LogLevel } from './LogLevel';
-import { LogEntry, LogMetadata } from './LogEntry';
+import type { LogEntry, LogMetadata } from './LogEntry';
 
 export interface LogService {
   /**

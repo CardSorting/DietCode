@@ -6,7 +6,7 @@
 import type { MemoryService } from '../memory/MemoryService';
 import type { ContextService } from '../context/ContextService';
 import type { KnowledgeItem } from '../../domain/memory/Knowledge';
-import { PromptDefinition } from '../../domain/prompts/PromptCategory';
+import type { PromptDefinition } from '../../domain/prompts/PromptCategory';
 import type { TemplateContext } from '../../domain/prompts/PromptTemplateEngine';
 import { TemplateEngine } from '../../domain/prompts/PromptTemplateEngine';
 import type { ContextAwareStrategy } from '../../domain/prompts/PromptCompositionStrategy';
@@ -154,7 +154,7 @@ export class ContextProviderEngine {
       );
 
       const techStack = stackItems.flatMap(item => 
-        item.metadata?.technologies || item.content || []
+        item.metadata?.technologies || item.value || []
       );
 
       return {
@@ -195,21 +195,18 @@ export class ContextProviderEngine {
    */
   private async loadUserPreferences(sessionId: string): Promise<Record<string, unknown>> {
     try {
-      // Try to load from user session state
+      // Get session context
       const session = await this.contextService.getSessionBySessionId(sessionId);
-      if (session?.state?.userPreferences) {
-        return session.state.userPreferences;
+      
+      if (session?.repository?.workspace?.name) {
+        return {
+          name: session.repository.workspace.name,
+          projectId: session.repository.id
+        };
       }
 
-      // Fall back to memory search
-      const prefItems = await this.memoryService.search(
-        'SELECT * FROM knowledge WHERE category = $1 AND key = $2',
-        ['user_preferences', 'preferences']
-      );
-
-      return prefItems.length > 0 
-        ? (prefItems[0].metadata as Record<string, unknown>) || {}
-        : {};
+      // Fall back to empty preferences
+      return {};
     } catch (error) {
       console.warn('Failed to load user preferences:', error);
       return {};

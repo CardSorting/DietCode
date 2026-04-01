@@ -11,3 +11,24 @@ export interface SearchProvider {
    */
   search(query: string, items: KnowledgeItem[], limit: number): Promise<KnowledgeItem[]>;
 }
+
+/**
+ * Repository interface for search operations with persistence.
+ * Infrastructure implementations (e.g., SqliteSearchRepository) implement this.
+ */
+export interface SearchRepository extends SearchProvider {
+  /**
+   * Index knowledge items for efficient searching.
+   */
+  index(items: KnowledgeItem[]): Promise<void>;
+  
+  /**
+   * Remove items from the search index.
+   */
+  remove(items: KnowledgeItem[]): Promise<void>;
+  
+  /**
+   * Load index - used during initialization.
+   */
+  loadIndex(): Promise<KnowledgeItem[]>;
+}

@@ -4,7 +4,7 @@
  */
 
 import type { VerificationProvider, VerificationResult } from '../../domain/healing/VerificationProvider';
-import type { IntegrityScanner } from '../../core/integrity/IntegrityService';
+import type { DomainIntegrityScanner } from '../../domain/integrity/IntegrityScanner';
 import type { HealingRepository } from '../../domain/healing/HealingRepository';
 
 export class IntegrityVerificationProvider implements VerificationProvider {

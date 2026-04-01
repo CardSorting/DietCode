@@ -19,6 +19,7 @@ export interface PromptDefinition {
   name: string;
   description: string;
   content: string;
+  dangerLevel?: 'low' | 'medium' | 'high';
   metadata?: Record<string, any>;
   path?: string;
 }

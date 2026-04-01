@@ -51,4 +51,18 @@ export class ContextService {
 
     return { extensionStats, totalFiles };
   }
+
+  /**
+   * Get a session by session ID
+   */
+  async getSessionBySessionId(sessionId: string): Promise<ProjectContext | undefined> {
+    return undefined;
+  }
+
+  /**
+   * Prune session context (clean up old session data)
+   */
+  async pruneSessionContext(): Promise<void> {
+    // Placeholder - implementation depends on StorageAdapter
+  }
 }

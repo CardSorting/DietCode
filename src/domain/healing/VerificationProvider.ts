@@ -15,3 +15,19 @@ export interface VerificationProvider {
    */
   verifyResolution(violationId: string): Promise<VerificationResult>;
 }
+
+/**
+ * Healer definition - notifies providers when healing is needed.
+ * Used for orchestrating healing workflows.
+ */
+export interface Healer {
+  /**
+   * Get all healing tasks for violations.
+   */
+  getHealingTasks(violations: VerificationResult[]): Promise<string[]>;
+  
+  /**
+   * Execute healing for a specific violation.
+   */
+  performHealing(taskId: string): Promise<boolean>;
+}

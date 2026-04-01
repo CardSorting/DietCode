@@ -4,7 +4,7 @@
  * Violations: None
  */
 
-import { RiskLevel } from './RiskLevel';
+import { RiskLevel } from '../validation/RiskLevel';
 
 /**
  * Context for tool execution that includes safety information

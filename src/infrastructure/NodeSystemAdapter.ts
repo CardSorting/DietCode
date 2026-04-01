@@ -2,6 +2,8 @@
  * [LAYER: INFRASTRUCTURE]
  * Concrete implementation of SystemAdapter using Node.js APIs and shell commands.
  * Uses structured logging for production-grade observability.
+ * 
+ * Implements ForgeFS-inspired binary detection support through enhanced Filesystem adapter.
  */
 
 import * as os from 'os';
@@ -14,6 +16,8 @@ import type { LogService } from '../domain/logging/LogService';
 
 export class NodeSystemAdapter implements SystemAdapter {
   constructor(private filesystem: Filesystem, private logService: LogService) {}
+
+  // ─── System Information ─────────────────────────────────────────────
 
   async getSystemInfo(): Promise<SystemInfo> {
     return {
@@ -44,7 +48,7 @@ export class NodeSystemAdapter implements SystemAdapter {
         git = { branch, dirty, lastCommitHash: hash };
       }
     } catch (e) {
-      logError('Failed to gather git context', e);
+      this.logService.error('Failed to gather git context', e, { projectRoot });
     }
 
     let dependencies: Record<string, string> = {};
@@ -54,7 +58,7 @@ export class NodeSystemAdapter implements SystemAdapter {
         const pkg = JSON.parse(this.filesystem.readFile(pkgPath));
         dependencies = { ...pkg.dependencies, ...pkg.devDependencies };
       } catch (e) {
-        logError('Failed to parse package.json', e);
+        this.logService.error('Failed to parse package.json', e, { pkgPath });
       }
     }
 
@@ -64,6 +68,26 @@ export class NodeSystemAdapter implements SystemAdapter {
       projectRoot,
     };
   }
+
+  // ─── Enhanced Binary/Stream Operations ────────────────────────────
+
+  /**
+   * Read first N bytes as Uint8Array.
+   * For binary detection and magic byte checks.
+   */
+  async readFileBuffer(path: string, length: number = 1024): Promise<Uint8Array> {
+    return this.filesystem.readFileBuffer(path, length);
+  }
+
+  /**
+   * Read file as async stream for hashing.
+   * Processes file in chunks to avoid memory issues.
+   */
+  async *readFileAsStream(path: string): AsyncGenerator<Buffer, void, undefined> {
+    return this.filesystem.readFileAsStream(path);
+  }
+
+  // ─── Error Handling ───────────────────────────────────────────────
 
   private logError(err: Error | any): void {
     this.logService.error(

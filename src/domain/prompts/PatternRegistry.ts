@@ -9,7 +9,7 @@
  *   - [CONSOLIDATE] PatternRegistry accuracy tracking for Prework protocol
  */
 
-import { PatternMapping, StringMapping } from './SplitStrategy';
+import type { PatternMapping, StringMapping } from './SplitStrategy';
 
 /**
  * Registry of all pattern mappings extracted from claude-code-prompts

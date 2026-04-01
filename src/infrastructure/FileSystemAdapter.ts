@@ -14,6 +14,22 @@ export class FileSystemAdapter implements Filesystem {
     return fs.readFileSync(path, 'utf8');
   }
 
+  readFileBuffer(path: string): Promise<Uint8Array> {
+    return Promise.resolve(fs.readFileSync(path));
+  }
+
+  readFileAsStream(path: string): AsyncGenerator<Buffer, void, undefined> {
+    const stream = fs.createReadStream(path);
+    let buffer = Buffer.alloc(0);
+
+    return (async function* () {
+      for await (const chunk of stream) {
+        buffer = Buffer.concat([buffer, chunk]);
+        yield chunk;
+      }
+    })();
+  }
+
   readRange(filePath: string, startLine: number, endLine: number): string {
     const content = fs.readFileSync(filePath, 'utf8');
     const lines = content.split('\n');
