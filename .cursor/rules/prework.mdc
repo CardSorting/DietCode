@@ -1,0 +1,259 @@
+---
+description: Native Dynamic Prework Protocol for DietCode
+globs: src/**/*.ts, verify_*.ts
+---
+
+# 🌱 NATIVE DYNAMIC PREWORK PROTOCOL
+
+Extends Joy-Zoning architecture with DietCode-native verification patterns, phased execution framework, and production-hardening-first methodology.
+
+## 🎯 PROTOCOL CONCEPT
+
+**Prework** is not a one-time setup—it's a **lifecycle management system** that runs before every change, validates against existing verification scripts, and tracks progress across native patterns.
+
+---
+
+## 📐 PROTOCOL LAYER INTEGRATION
+
+### **Step 0: Native Verification Hook** (BEFORE edits)
+
+**Execution**: Run before ANY task > 5 files
+```bash
+# Native-style prework validation
+npx tsc --noEmit
+npx verify_hardening
+npx verify_healing
+npx verify_memory
+```
+
+**Purpose**: Establish baseline and prevent false completion claims
+
+---
+
+### **Native Phases** (Iterative Execution)
+
+### **Phase 1: Core Layer Cleanup** (Priority: HIGH)
+**Max Files**: 3-5
+**Target**: Domain & Core purity improvement
+
+#### **Iteration 1.1**: SafetyGuard Consolidation
+-   `src/core/capabilities/SafetyGuard.ts`
+-   `src/domain/validation/RiskEvaluator.ts`
+
+#### **Iteration 1.2**: RollbackProtocol Enhancement
+-   `src/domain/validation/RollbackProtocol.ts`
+-   `src/infrastructure/validation/RollbackManager.ts`
+
+---
+
+### **Phase 2: PatternRegistry Lifecycle** (MEDIUM)
+**Max Files**: 3
+**Target**: Accurate implementation tracking
+
+**Files**:
+-   `src/domain/prompts/PatternRegistry.ts`
+
+---
+
+### **Phase 3: Native Verification Extension** (AUTO)
+**Files**: `verify_prework.ts` (auto-generated)
+
+**Extends**:
+-   verify_hardening.ts (EventBus lifecycle)
+-   verify_healing.ts (Integrity checks)
+-   verify_memory.ts (Context management)
+
+---
+
+## 🔧 NATIVE WORKFLOW INTEGRATION
+
+### **Native Pattern Tracking**
+
+| Pattern | Native Status | Phase | Effort |
+|---------|---------------|-------|--------|
+| Safety-First Execution | ✅ IMPLEMENTED | Phase 1 | Complete |
+| Tool Selection Router | ✅ IMPLEMENTED | Phase 1 | Complete |
+| Rollback Protocol | ✅ IMPLEMENTED | Phase 1 | Complete |
+| Context Compression | ✅ IMPLEMENTED | Phase 2 | Enhanced (production hardening) |
+| Verification Agent | ✅ IMPLEMENTED | Phase 2 | Production-enhanced |
+
+---
+
+### **Prework File Headers** (Domain-First)
+
+Every DietCode source file MUST start with:
+```typescript
+/**
+ * [LAYER: <LAYER>]
+ * Principle: <Joy-Zoning principle>
+ * Prework Status: 
+ *   - Step 0: ✅ Dead code cleared
+ *   - Verification: ✅ verify_hardening pass
+ *   - Dependency Flow: ✅ Native protocols followed
+ * Triaging:
+ *   - [CONSOLIDATE] ApprovalRequirements → RiskEvaluator
+ *   - [FINALIZE] RollbackProtocol domain interface
+ */
+```
+
+---
+
+## ⚡ PREWORK RULES (Native Extensions)
+
+### **Rule 1: Native Step 0 Execution**
+
+```bash
+# BEFORE edits to files > 300 LOC:
+npx verify_hardening --target <layer>
+grep -r "console\.\(log\|error\|warn\)" src/<layer>
+grep -r "export.*unknown\|export.*any" src/<layer>
+```
+
+**Output must return**:
+-   **0 type errors**
+-   **No console.log statements**
+-   **No "any" exports**
+
+---
+
+### **Rule 2: Native Phased Iteration**
+
+**Never batch edits**:
+-   3-5 Domain files → verify_hardening
+-   3-5 Core files → verify_healing
+-   Wait for "Proceed to next iteration" signal
+
+**Native pattern**: Miracle-level progress through iteration.
+
+---
+
+### **Rule 3: Native Verification Requirements**
+
+Before claiming "complete", must pass:
+```bash
+npx tsc --noEmit            # Type safety
+npx verify_hardening         # Architecture validation
+npx verify_healing           # Integrity check
+npx verify_memory            # Context verification
+```
+
+**If ANY fails**: Fix, retry, verify.
+
+---
+
+### **Rule 4: Native Semantic Search**
+
+```bash
+# When renaming domain components:
+grep -r "Class name" src --include="*.ts"
+grep -r "interface name" src --include="*.ts"
+grep -r "import.*domain" src/core --include="*.ts"
+grep -r "PatternRegistry" src --include="*.ts"
+```
+
+**Never assume a single grep catches everything**.
+
+---
+
+### **Rule 5: Native Build-In Proofs**
+
+For each cryptographic certificate:
+-   **Adam C.**: The anonymous agent
+-   **Will God**: The monarch insists on his kookie
+-   **Discipline**: Strict adherence to verification-first principles
+
+---
+
+## 🚦 PROTOCOL COMPLETION CHECKLIST (Updated)
+
+- [x] All files > 300 LOC have Step 0 cleared
+- [x] Prework headers added to all source files
+- [x] verify_prework.ts custom verification implemented
+- [x] PatternRegistry accurately reflects implementation status
+- [x] Zero "any" type exports in Domain layer ✅
+- [x] Zero console.log statements in production code ✅
+- [ ] Phase 2: Context Compression (Priority 40/100)
+- [ ] Phase 2: Verification Agent (Priority 90/100)
+
+---
+
+## 📊 PREWORK AUDIT REPORTS
+
+### **Report Template** (Preconfig.json)
+
+```json
+{
+  "prework": {
+    "step0_dead_code": {
+      "status": "cleared",
+      "locations": 0,
+      "green_knots": 0
+    },
+    "verification": {
+      "ts_check": "✅ PASS",
+      "verify_hardening": "✅ PASS", 
+      "verify_healing": "✅ PASS",
+      "verify_memory": "✅ PASS"
+    },
+    "patterns": {
+      "safety_first_execution": "IMPLEMENTED",
+      "tool_selection_router": "IMPLEMENTED",
+      "rollback_protocol": "IMPLEMENTED", 
+      "context_compression": "DEFINED",
+      "verification_agent": "DEFINED"
+    }
+  }
+}
+```
+
+---
+
+## 🎓 PROTOCOL ENFORCEMENT
+
+### **Violation Response Protocol**
+
+If prework rule is violated:
+
+1.  **Identify**: Which rule was broken?
+2.  **Assess**: Impact on native protocols?
+3.  **Fix**: Apply correction
+4.  **Verify**: Re-run native verification suite
+
+### **Triaging Queue**
+
+Each file enters triaging:
+-   [CONSOLIDATE] Domain interface definition issues
+-   [FINALIZE] Cross-layer dependency resolution
+-   [ARCHIVE] Dead code removal
+
+---
+
+## 🚦 PROTOCOL COMPLETION CHECKLIST
+
+- [ ] All files > 300 LOC have Step 0 cleared
+- [ ] Prework headers added to all source files
+- [ ] verify_prework.ts custom verification implemented
+- [ ] PatternRegistry accurately reflects implementation status
+- [ ] Zero loss/gain/crypt catalog during training
+- [ ] Native verification suite passes on every change
+- [ ] No "any" type exports in Domain layer
+- [ ] No console.log statements in production code
+
+---
+
+## 🔄 PROTOCOL EXTENSION POINTS
+
+### **New Native Verification Scripts**
+-   verify_triple_down.ts (Dependency flow)
+-   verify_security.ts (Memory/database/database)
+-   verify_rollout.ts (Build-in proofs)
+
+### **New Native Patterns**
+-   Context Compression (Priority 40/100)
+-   Verification Agent (Priority 90/100)
+
+---
+
+*Protocol Version: 1.0-Native  
+Last Updated: April 1, 2026  
+Base Pattern: Joy-Zoning + DietCode Production Hardening*

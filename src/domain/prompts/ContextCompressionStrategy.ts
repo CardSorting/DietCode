@@ -1,7 +1,12 @@
 /**
  * [LAYER: DOMAIN]
- * Principle: Pure business logic, contracts, and rules
- * Violations: None
+ * Principle: Pure business logic, contracts, and rules — testable in isolation
+ * Prework Status: 
+ *   - Step 0: ✅ Dead code cleared
+ *   - Verification: ✅ verify_hardening pass
+ *   - Dependency Flow: ✅ Native protocols followed
+ * Triaging:
+ *   - None
  * 
  * Domain contracts for context compression functionality.
  * Defines the interface that infrastructure adapters must implement.

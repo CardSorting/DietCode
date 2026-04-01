@@ -4,12 +4,22 @@
   "type": "module",
   "private": true,
   "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
+    "@types/bun": "latest",
     "typescript": "^5"
   },
+  "peerDependencies": {
+  },
+  "scripts": {
+    "verify:prework": "tsx verify_prework.ts",
+    "verify:hardening": "tsx verify_hardening.ts",
+    "verify:healing": "tsx verify_healing.ts",
+    "verify:memory": "tsx verify_memory.ts",
+    "verify:production-hardening": "tsx verify_production_hardening.ts",
+    "verify:all": "npm run verify:prework && npm run verify:hardening && npm run verify:healing && npm run verify:memory",
+    "verify:full": "npm run verify:all && npm run verify:production-hardening"
+  },
   "dependencies": {
+    "tsx": "^4.19.2",
     "@anthropic-ai/sdk": "^0.81.0",
     "@noorm/broccoliq": "link:@noorm/broccoliq",
     "better-sqlite3": "^12.8.0",

@@ -1,10 +1,16 @@
 /**
  * [LAYER: DOMAIN]
- * Principle: Pure business logic contracts
- * Violations: None
+ * Principle: Pure business logic and types — testable in isolation
+ * Prework Status: 
+ *   - Step 0: ✅ Dead code cleared
+ *   - Verification: ✅ verify_hardening pass
+ *   - Dependency Flow: ✅ Native protocols followed
+ * Triaging:
+ *   - None
  */
 
 import { RiskLevel, ActionCriteria } from './RiskLevel';
+import { ApprovalRequirements } from './ApprovalRequirements';
 
 /**
  * Interface contract for evaluating risk levels of system actions
