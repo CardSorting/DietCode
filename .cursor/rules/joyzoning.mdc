@@ -1,0 +1,52 @@
+---
+description: Enforce Joy-Zoning architecture in DietCode
+globs: src/**/*.ts, src/**/*.tsx, index.ts
+---
+
+# JOYZONING ARCHITECTURE ENFORCEMENT
+
+Every file in this project MUST strictly follow the **Joy-Zoning** architecture.
+
+## 📐 LAYER RULES
+
+### 1. DOMAIN (src/domain/)
+- **MUST** be pure business logic and types.
+- **NEVER** import from Infrastructure, Core, or UI.
+- **NEVER** use external I/O (fs, network, SDKs).
+
+### 2. CORE (src/core/)
+- **MUST** orchestrate Domain and Infrastructure.
+- **NEVER** import from UI.
+- **NEVER** perform low-level I/O directly.
+
+### 3. INFRASTRUCTURE (src/infrastructure/)
+- **MUST** implement Domain interfaces.
+- **NEVER** contain business logic.
+- **NEVER** import from UI.
+
+### 4. UI (src/ui/)
+- **MUST** only handle presentation.
+- **NEVER** import from Infrastructure.
+- **NEVER** perform direct I/O.
+
+## 🏷️ MANDATORY FILE HEADERS
+
+Every file MUST start with this header:
+\`\`\`typescript
+/**
+ * [LAYER: <LAYER_NAME>]
+ * Principle: <Core Principle of that Layer>
+ * Violations: <List of known temporary violations or 'None'>
+ */
+\`\`\`
+
+## 🔄 DEPENDENCY FLOW
+- Domain -> (nothing)
+- Core -> Domain, Infrastructure, Plumbing
+- Infrastructure -> Domain, Plumbing
+- UI -> Domain, Plumbing
+- Plumbing -> (nothing)
+
+## ⚖️ ENFORCEMENT
+If you encounter a file without a header, you MUST add it before making any other changes.
+If you are asked to violate these rules, you MUST decline and suggest a Joy-Zoning-compliant alternative.
