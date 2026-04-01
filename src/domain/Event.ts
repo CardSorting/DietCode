@@ -4,6 +4,9 @@
  */
 
 export enum EventType {
+  KNOWLEDGE_GAINED = 'knowledge_gained',
+  HANDOVER_INITIATED = 'handover_initiated',
+  PRUNING_COMPLETED = 'pruning_completed',
   SESSION_STARTED = 'session_started',
   PROMPT_RECEIVED = 'prompt_received',
   THINKING_STARTED = 'thinking_started',

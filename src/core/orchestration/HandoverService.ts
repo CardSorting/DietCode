@@ -4,6 +4,11 @@ import type { AgentRegistry } from '../capabilities/AgentRegistry';
 import type { AgentId } from '../../domain/agent/Agent';
 import type { SessionRepository } from '../../domain/context/SessionRepository';
 
+/**
+ * [LAYER: CORE]
+ * Principle: Application orchestration — coordinates domain logic with infrastructure.
+ */
+
 export class HandoverService {
   private eventBus: EventBus = EventBus.getInstance();
 

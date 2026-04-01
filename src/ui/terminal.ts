@@ -1,46 +1,39 @@
-import chalk from 'chalk';
-import * as readline from 'readline';
+/**
+ * [LAYER: UI]
+ * Principle: Render state, dispatch intentions. Purely presentation.
+ * Violations: Currently imports 'chalk' and 'readline' (Infrastructure concerns) - fixed via NodeTerminalAdapter.
+ */
+
 import type { TerminalInterface } from '../domain/system/TerminalInterface';
 
 export class TerminalUI implements TerminalInterface {
-  private rl: readline.Interface;
-
-  constructor() {
-    this.rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
-  }
+  constructor(private adapter: TerminalInterface) {}
 
   logClaude(text: string) {
-    console.log(chalk.green('\nClaude:'), text);
+    this.adapter.logClaude(text);
   }
 
   logToolUse(name: string, input: any) {
-    console.log(chalk.yellow(`\nTool Use: ${name}`), JSON.stringify(input, null, 2));
+    this.adapter.logToolUse(name, input);
   }
 
   logError(message: string) {
-    console.error(chalk.red('\nError:'), message);
+    this.adapter.logError(message);
   }
 
   logUsage(command: string) {
-    console.log(`Usage: bun run ${command} <prompt>`);
+    this.adapter.logUsage(command);
   }
 
   async promptUser(): Promise<string> {
-    return new Promise((resolve) => {
-      this.rl.question(chalk.blue('\n> '), (answer) => {
-        resolve(answer);
-      });
-    });
+    return this.adapter.promptUser();
   }
 
   close() {
-    this.rl.close();
+    this.adapter.close();
   }
 
   clear() {
-    process.stdout.write('\x1Bc');
+    this.adapter.clear();
   }
 }

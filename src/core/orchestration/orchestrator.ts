@@ -13,9 +13,7 @@ import { DomainError } from '../../domain/Errors';
 import type { SessionRepository } from '../../domain/context/SessionRepository';
 import type { DecisionRepository } from '../../domain/memory/DecisionRepository';
 import type { ProjectContext } from '../../domain/context/ProjectContext';
-import { SovereignDb } from '../../infrastructure/database/SovereignDb';
 import type { Reasoning } from '../../domain/memory/Reasoning';
-import type { SqliteAuditRepository } from '../../infrastructure/database/SqliteAuditRepository';
 import type { AgentRegistry } from '../capabilities/AgentRegistry';
 import type { Agent } from '../../domain/agent/Agent';
 import type { ContextService } from '../context/ContextService';
@@ -98,7 +96,13 @@ export class Orchestrator {
       let attachments = await this.attachmentResolver.resolve(userInput, this.project);
       
       // 5. Triple Down: Cognitive Pruning
+      const originalCount = attachments.length;
       attachments = this.pruner.prune(attachments);
+      this.eventBus.emit(EventType.PRUNING_COMPLETED, {
+        originalCount,
+        prunedCount: attachments.length,
+        sessionId
+      });
 
       const userMessageBlocks: MessageBlock[] = [{ type: 'text', text: userInput }];
       
@@ -188,26 +192,27 @@ export class Orchestrator {
                 if (targetAgentId) {
                   const newAgent = this.agentRegistry.getAgent(targetAgentId);
                   if (newAgent) {
+                    this.eventBus.emit(EventType.HANDOVER_INITIATED, {
+                      fromAgentId: this.agent.id,
+                      toAgentId: targetAgentId,
+                      reason,
+                      sessionId
+                    });
                     await this.handoverService.handover(sessionId, this.agent.id, targetAgentId, reason);
                     this.agent = newAgent;
-                    // Note: System prompt will be refreshed on next LLM call via contextService.gather
                   }
                 }
             }
 
-            // Sovereignty Pass: OFF-LOADED to background queue
+            // Sovereignty Pass: OFF-LOADED to background queue via standardized event
             if (text.toLowerCase().includes('success') || text.toLowerCase().includes('completed')) {
-              const queue = await SovereignDb.getQueue();
-              await queue.enqueue({
-                type: 'KNOWLEDGE_INGEST',
-                data: {
-                  userId: 'user-default',
-                  type: 'task_outcome',
-                  content: `Successfully completed task: ${userInput}\nOutcome: ${text}`,
-                  metadata: { taskId: sessionId, repoPath: this.project.repository.path }
-                }
-              } as any);
-              this.ui.logClaude('[SYSTEM] Background knowledge ingestion enqueued.');
+              this.eventBus.emit(EventType.KNOWLEDGE_GAINED, {
+                userId: 'user-default',
+                type: 'task_outcome',
+                content: `Successfully completed task: ${userInput}\nOutcome: ${text}`,
+                metadata: { taskId: sessionId, repoPath: this.project.repository.path }
+              });
+              this.ui.logClaude('[SYSTEM] Background knowledge ingestion triggered.');
             }
           }
           this.eventBus.emit(EventType.RESPONSE_GENERATED, { sessionId, text });

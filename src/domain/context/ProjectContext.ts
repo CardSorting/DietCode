@@ -22,6 +22,11 @@ export interface Repository {
   status?: GitStatus;
 }
 
+/**
+ * [LAYER: DOMAIN]
+ * Principle: Pure business logic — the heart of the application.
+ */
+
 export interface ProjectContext {
   workspace: Workspace;
   repository: Repository;

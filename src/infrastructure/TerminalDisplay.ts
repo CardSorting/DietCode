@@ -35,7 +35,23 @@ export class TerminalDisplay implements Display {
 
   code(content: string, language: string): void {
     process.stdout.write(`\n${this.colors.dim}--- [CODE: ${language.toUpperCase()}] ---${this.colors.reset}\n`);
-    process.stdout.write(`${this.colors.magenta}${content}${this.colors.reset}\n`);
+    
+    // Simple production-hardened syntax highlighting for common keywords
+    let highlighted = content;
+    const keywords = ['export', 'class', 'interface', 'import', 'from', 'private', 'public', 'protected', 'async', 'await', 'return', 'if', 'else', 'for', 'while', 'const', 'let', 'type'];
+    
+    keywords.forEach(kw => {
+      const regex = new RegExp(`\\b${kw}\\b`, 'g');
+      highlighted = highlighted.replace(regex, `${this.colors.cyan}${kw}${this.colors.reset}`);
+    });
+
+    // Highlight strings
+    highlighted = highlighted.replace(/(['"`])(.*?)\1/g, `${this.colors.green}$1$2$1${this.colors.reset}`);
+    
+    // Highlight comments
+    highlighted = highlighted.replace(/(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, `${this.colors.dim}$1${this.colors.reset}`);
+
+    process.stdout.write(`${highlighted}\n`);
     process.stdout.write(`${this.colors.dim}--------------------------${this.colors.reset}\n`);
   }
 

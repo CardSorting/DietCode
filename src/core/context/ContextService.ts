@@ -3,6 +3,11 @@ import type { SystemContext, ExtensionStat } from '../../domain/context/SystemCo
 import type { ProjectContext } from '../../domain/context/ProjectContext';
 import type { Filesystem } from '../../domain/system/Filesystem';
 
+/**
+ * [LAYER: CORE]
+ * Principle: Application orchestration — coordinates domain logic with infrastructure.
+ */
+
 export class ContextService {
   constructor(private filesystem: Filesystem) {}
 

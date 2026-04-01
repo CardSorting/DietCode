@@ -15,7 +15,7 @@ export interface Display {
   progress(current: number, total: number, message: string): void;
 
   /**
-   * Displays a rich code block with syntax highlighting (simulated).
+   * Displays a rich code block with syntax highlighting.
    */
   code(content: string, language: string): void;
 

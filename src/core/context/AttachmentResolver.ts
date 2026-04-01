@@ -6,6 +6,11 @@ import type { Filesystem } from '../../domain/system/Filesystem';
 import { EventBus } from '../orchestration/EventBus';
 import { EventType } from '../../domain/Event';
 
+/**
+ * [LAYER: CORE]
+ * Principle: Application orchestration — coordinates domain logic with infrastructure.
+ */
+
 export class AttachmentResolver {
   constructor(
     private filesystem: Filesystem,

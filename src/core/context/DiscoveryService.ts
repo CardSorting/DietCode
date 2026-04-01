@@ -5,6 +5,11 @@ import type { SystemAdapter } from '../../domain/system/SystemAdapter';
 import { EventBus } from '../orchestration/EventBus';
 import { EventType } from '../../domain/Event';
 
+/**
+ * [LAYER: CORE]
+ * Principle: Application orchestration — coordinates domain logic with infrastructure.
+ */
+
 export class DiscoveryService {
   private eventBus: EventBus = EventBus.getInstance();
 
