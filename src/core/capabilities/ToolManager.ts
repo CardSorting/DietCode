@@ -5,6 +5,7 @@
  * 
  * Manages the registration and execution of tools.
  * Coordinates between Domain definitions and Infrastructure implementations.
+ * Uses new Domain contracts: ToolRegistry, ToolExecutor, ToolFactory
  */
 
 import type { ToolDefinition, ToolResult } from '../../domain/agent/ToolDefinition';
@@ -15,6 +16,7 @@ import type { SafetyAwareToolContext, SafetyAwareToolOptions } from '../../domai
 import type { RollbackProtocol } from '../../domain/validation/RollbackProtocol';
 import { SafetyGuard } from './SafetyGuard';
 import { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
+import type { ToolRegistry, ToolFactory, ToolExecutionContext } from '../../domain/agent';
 
 /**
  * ToolManager orchestrates tool registration and execution
