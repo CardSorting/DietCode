@@ -4,7 +4,8 @@
  * Delegates to Infrastructure adapters for actual construction.
  */
 
-import type { ToolFactory, ToolDefinition, ToolResult } from '../../domain/agent/ToolFactory';
+import type { ToolFactory } from '../../domain/agent/ToolFactory';
+import type { ToolDefinition, ToolResult } from '../../domain/agent/ToolDefinition';
 import type { SimpleToolExecutor } from '../../domain/agent/ToolExecutor';
 
 /**

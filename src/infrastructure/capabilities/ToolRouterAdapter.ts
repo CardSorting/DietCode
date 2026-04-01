@@ -4,8 +4,7 @@
  * Violations: None
  */
 
-import { ToolRouter, UserIntention, ToolDefinition, ToolSelectionPolicy } from '../../src/domain/capabilities/ToolRouter';
-import { ToolDefinition as InfrastructureToolDefinition } from '../../src/infrastructure/tools/ToolDefinition';
+import type { ToolRouter, UserIntention, ToolDefinition, ToolSelectionPolicy, ToolRoutingResult } from '../../domain/capabilities/ToolRouter';
 
 /**
  * Infrastructure implementation of Tool-Routing pattern
@@ -15,7 +14,7 @@ export class ToolRouterAdapter implements ToolRouter {
   private toolDefinitions: Map<string, ToolDefinition>;
   private selectionPolicy: ToolSelectionPolicy;
 
-  constructor(availableTools: InfrastructureToolDefinition[] = []) {
+  constructor(availableTools: ToolDefinition[] = []) {
     // Convert Infrastructure tool definitions to Domain contracts
     this.toolDefinitions = new Map(
       availableTools.map(tool => [

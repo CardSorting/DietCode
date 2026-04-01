@@ -1,131 +1,149 @@
 /**
  * [LAYER: INFRASTRUCTURE]
- * Principle: Implementation of basic file-related tools.
- * Uses the Domain Filesystem interface for operations.
- * Production hardened with path validation and error handling.
+ * Principle: Implementation of file read/write tools.
+ * Uses the Domain Filesystem interface — never raw Node.js `fs`.
+ * Production hardened with:
+ *   - Domain contract alignment (exists/stat, not existsSync/statSync)
+ *   - Centralized path validation via PathValidator
+ *   - File extension enforcement
+ *   - Separate validate() for composability
+ *   - Single stat() call per invocation (no TOCTOU race)
  */
 
 import type { ToolDefinition, ToolResult } from '../../domain/agent/ToolDefinition';
 import type { Filesystem } from '../../domain/system/Filesystem';
-
-// Production hardening constants
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB limit
-const MAX_PATH_LENGTH = 4096;
-const ALLOWED_FILE_EXTENSIONS = ['.ts', '.js', '.json', '.md', '.txt', '.sql', '.yaml', '.yml'];
-const FORBIDDEN_PATHS = ['../', '..\\', '/etc/passwd', '/etc/shadow', '/bin', '/sbin'];
+import { validatePath, MAX_FILE_SIZE_BYTES } from './PathValidator';
 
 /**
- * Validate file path for security.
- * Prevents path traversal attacks and invalid characters.
+ * Allowed extensions for read operations.
+ * Write operations are unrestricted (the agent may need to create any file type).
  */
-function validatePath(path: string, operation: 'read' | 'write' | 'mkdir'): void {
-  // Check path length
-  if (path.length > MAX_PATH_LENGTH) {
-    throw new Error(`Path exceeds maximum length (${MAX_PATH_LENGTH} characters)`);
-  }
+const READABLE_EXTENSIONS = [
+  '.ts', '.tsx', '.js', '.jsx', '.json',
+  '.md', '.txt', '.sql',
+  '.yaml', '.yml',
+  '.css', '.scss', '.html', '.xml',
+  '.log', '.env', '.toml', '.ini', '.cfg',
+  '.sh', '.bash', '.zsh', '.py', '.go', '.rs',
+  '.java', '.kt', '.swift', '.c', '.cpp', '.h',
+];
 
-  // Check for forbidden paths
-  const forbiddenFound = FORBIDDEN_PATHS.some(forbidden => 
-    path.includes(forbidden) || path.includes(forbidden.replace('/', ''))
-  );
-  if (forbiddenFound) {
-    throw new Error('Path contains forbidden elements');
+/**
+ * Check if a path has a readable extension.
+ * Paths without extensions are allowed (e.g., Makefile, Dockerfile).
+ */
+function hasReadableExtension(filePath: string): boolean {
+  const lastDot = filePath.lastIndexOf('.');
+  if (lastDot === -1 || lastDot < filePath.lastIndexOf('/')) {
+    // No extension or dot is in a directory name — allow (Makefile, Dockerfile, etc.)
+    return true;
   }
-
-  // Check for path traversal attempts
-  if (path.match(/\.\.\/|\.\.\\|^[\\/]+/) && operation !== 'mkdir') {
-    throw new Error('Path traversal detected');
-  }
-
-  // Basic validation for read/write operations
-  if (operation !== 'mkdir') {
-    if (!path || path.trim().length === 0) {
-      throw new Error('Path is required');
-    }
-
-    if (path.length < 2) {
-      throw new Error(`Path too short (${path.length} characters). Minimum 2 required.`);
-    }
-  }
+  const ext = filePath.slice(lastDot).toLowerCase();
+  return READABLE_EXTENSIONS.includes(ext);
 }
 
+/**
+ * Create a read_file tool bound to a Filesystem instance.
+ */
 export const createReadFileTool = (fs: Filesystem): ToolDefinition<{ path: string }> => ({
   name: 'read_file',
-  description: 'Read the contents of a file.',
+  description: 'Read the contents of a file at the specified path.',
   inputSchema: {
     type: 'object',
     properties: {
-      path: { type: 'string', description: 'Path to the file to read.' },
+      path: { type: 'string', description: 'Absolute or relative path to the file to read.' },
     },
     required: ['path'],
   },
+
+  validate({ path }) {
+    validatePath(path, 'read');
+
+    if (!hasReadableExtension(path)) {
+      const ext = path.slice(path.lastIndexOf('.'));
+      throw new Error(`File extension '${ext}' is not in the allowed read list`);
+    }
+  },
+
   async execute({ path }): Promise<ToolResult> {
     try {
-      validatePath(path, 'read');
+      // Validate input
+      this.validate!({ path });
 
-      // Check file access
-      if (!fs.existsSync(path)) {
-        throw new Error(`File not found: ${path}`);
+      // Check existence via Domain contract
+      if (!fs.exists(path)) {
+        return { content: `File not found: ${path}`, isError: true };
       }
 
-      // Check read permissions
-      if (!fs.statSync(path).isFile()) {
-        throw new Error(`Not a file: ${path}`);
+      // Single stat call — Domain contract returns { isDirectory, isFile, mtimeMs }
+      const fileStat = fs.stat(path);
+
+      if (!fileStat.isFile) {
+        return { content: `Not a file (is directory): ${path}`, isError: true };
       }
 
-      // Check file size
-      const fileSize = fs.statSync(path).size;
-      if (fileSize > MAX_FILE_SIZE_BYTES) {
-        throw new Error(`File exceeds maximum size of ${MAX_FILE_SIZE_BYTES / 1024 / 1024}MB`);
-      }
-
+      // Read content
       const content = fs.readFile(path);
+
+      // Post-read size check (defense in depth)
+      if (content.length > MAX_FILE_SIZE_BYTES) {
+        return {
+          content: `File exceeds maximum readable size of ${MAX_FILE_SIZE_BYTES / 1024 / 1024}MB`,
+          isError: true,
+        };
+      }
+
       return { content };
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return { content: error.message, isError: true };
-      }
-      return {
-        content: `Unknown error reading file: ${String(error)}`,
-        isError: true
-      };
+      const message = error instanceof Error ? error.message : String(error);
+      return { content: `Error reading file: ${message}`, isError: true };
     }
   },
 });
 
+/**
+ * Create a write_file tool bound to a Filesystem instance.
+ */
 export const createWriteFileTool = (fs: Filesystem): ToolDefinition<{ path: string; content: string }> => ({
   name: 'write_file',
-  description: 'Write content to a file.',
+  description: 'Write content to a file at the specified path. Creates parent directories if needed.',
   inputSchema: {
     type: 'object',
     properties: {
-      path: { type: 'string', description: 'Path to write the file to.' },
-      content: { type: 'string', description: 'Content to write.' },
+      path: { type: 'string', description: 'Absolute or relative path to the file to write.' },
+      content: { type: 'string', description: 'Content to write to the file.' },
     },
     required: ['path', 'content'],
   },
+
+  validate({ path, content }) {
+    validatePath(path, 'write');
+
+    if (content === undefined || content === null) {
+      throw new Error('Content is required');
+    }
+
+    if (typeof content !== 'string') {
+      throw new Error('Content must be a string');
+    }
+
+    if (content.length > MAX_FILE_SIZE_BYTES) {
+      throw new Error(`Content exceeds maximum size of ${MAX_FILE_SIZE_BYTES / 1024 / 1024}MB`);
+    }
+  },
+
   async execute({ path, content }): Promise<ToolResult> {
     try {
-      validatePath(path, 'write');
+      // Validate input
+      this.validate!({ path, content });
 
-      // Validate content length (prevent DoS)
-      if (content.length > MAX_FILE_SIZE_BYTES) {
-        throw new Error(`Content exceeds maximum size of ${MAX_FILE_SIZE_BYTES / 1024 / 1024}MB`);
-      }
+      const contentStr = String(content);
 
-      // Convert to string if content is not already
-      const stringContent = String(content);
-
-      fs.writeFile(path, stringContent);
-      return { content: `Successfully wrote to ${path}` };
+      fs.writeFile(path, contentStr);
+      return { content: `Successfully wrote ${contentStr.length} bytes to ${path}` };
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return { content: error.message, isError: true };
-      }
-      return {
-        content: `Unknown error writing file: ${String(error)}`,
-        isError: true
-      };
+      const message = error instanceof Error ? error.message : String(error);
+      return { content: `Error writing file: ${message}`, isError: true };
     }
   },
 });

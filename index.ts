@@ -6,7 +6,7 @@ import { NodeTerminalAdapter } from './src/infrastructure/NodeTerminalAdapter';
 import { ToolManager } from './src/core/capabilities/ToolManager';
 import { CommandProcessor } from './src/core/capabilities/CommandProcessor';
 import { createReadFileTool, createWriteFileTool } from './src/infrastructure/tools/fileTools';
-import { grepTool } from './src/infrastructure/tools/grep';
+import { createGrepTool } from './src/infrastructure/tools/grep';
 import { createMkdirTool } from './src/infrastructure/tools/mkdir';
 import { FileSystemAdapter } from './src/infrastructure/FileSystemAdapter';
 
@@ -120,7 +120,7 @@ async function main() {
   // 2. Register default "Swarm Router" agent
   const specializedAgents = agentRegistry.getAllAgents()
     .filter(a => a.id !== 'agent-dietcode')
-    .map(a => `- ${a.title} (${a.id}): ${a.description}`)
+    .map(a => `- ${a.title} (${a.id}): ${a.def.description ?? ''}`)
     .join('\n');
 
   agentRegistry.register({
@@ -155,10 +155,10 @@ Follow the JoyZoning architecture for all operations.`,
   registry.register(SERVICES.AGENT_REGISTRY, agentRegistry);
 
   const toolManager = new ToolManager();
-  toolManager.registerTool(createReadFileTool(fs));
-  toolManager.registerTool(createWriteFileTool(fs));
-  toolManager.registerTool(grepTool);
-  toolManager.registerTool(createMkdirTool(fs));
+  toolManager.register(createReadFileTool(fs));
+  toolManager.register(createWriteFileTool(fs));
+  toolManager.register(createGrepTool(fs));
+  toolManager.register(createMkdirTool(fs));
 
   const commandProcessor = new CommandProcessor();
   commandProcessor.registerCommand({

@@ -1,116 +1,111 @@
 /**
  * [LAYER: INFRASTRUCTURE]
  * Principle: Implementation of the mkdir tool.
- * Uses the Domain Filesystem interface.
- * Production hardened with path validation, conflict prevention, and error handling.
+ * Uses the Domain Filesystem interface — never raw Node.js `fs`.
+ * Production hardened with:
+ *   - Domain contract alignment (exists/stat, not existsSync/statSync)
+ *   - Centralized path validation via PathValidator
+ *   - No variable shadowing of `path` module
+ *   - Idempotent directory creation
+ *   - Separate validate() for composability
  */
 
 import type { ToolDefinition, ToolResult } from '../../domain/agent/ToolDefinition';
 import type { Filesystem } from '../../domain/system/Filesystem';
+import { validatePath } from './PathValidator';
 
-// Production hardening constants
-const MAX_PATH_LENGTH = 4096;
-const MAX_DEPTH = 5; // Maximum directory tree depth
-const FORBIDDEN_PATHS = ['../', '..\\', '/etc/passwd', '/etc/shadow', '/bin', '/sbin', '/dev', '/proc', '/root'];
-
-/**
- * Validate directory creation path for security.
- * Prevents path traversal, deep recursion, and conflicts.
- */
-function validatePath(path: string): void {
-  if (!path || path.trim().length === 0) {
-    throw new Error('path is required');
-  }
-
-  // Check path length
-  if (path.length > MAX_PATH_LENGTH) {
-    throw new Error(`path exceeds maximum length (${MAX_PATH_LENGTH} characters)`);
-  }
-
-  // Check for forbidden paths
-  const forbiddenFound = FORBIDDEN_PATHS.some(forbidden => 
-    path.includes(forbidden) || path.includes(forbidden.replace('/', ''))
-  );
-  if (forbiddenFound) {
-    throw new Error('path contains forbidden elements');
-  }
-
-  // Check for path traversal attempts
-  if (path.match(/\.\.\/|\.\.\\|^[\\/]+/)) {
-    throw new Error('path traversal detected');
-  }
-
-  // Normalize path
-  path = path.normalize(path);
-
-  // Prevent absolute paths except in safe locations
-  if (path.startsWith('/') && !path.startsWith('/tmp') && !path.startsWith('/var/tmp')) {
-    throw new Error('Creating directories outside allowed locations is not permitted');
-  }
-
-  // Check if path is too deep (> 5 levels)
-  const depth = (path.match(/\//g) || []).length;
-  if (depth > MAX_DEPTH) {
-    throw new Error(`path depth exceeds maximum (${MAX_DEPTH} levels)`);
-  }
-
-  // Check for trailing slashes (mkdir doesn't like them)
-  if (path.endsWith('/') || path.endsWith('\\')) {
-    path = path.slice(0, -1);
-  }
-}
+/** Maximum directory tree depth for mkdir operations */
+const MAX_MKDIR_DEPTH = 15;
 
 /**
- * Check if path exists and is a directory.
+ * Check if a path already exists as a directory via Domain contract.
  */
-function isDirectory(fs: Filesystem, path: string): boolean {
+function isExistingDirectory(fs: Filesystem, dirPath: string): boolean {
   try {
-    return fs.existsSync(path) && fs.statSync(path).isDirectory();
+    if (!fs.exists(dirPath)) return false;
+    const stat = fs.stat(dirPath);
+    return stat.isDirectory;
   } catch {
     return false;
   }
 }
 
+/**
+ * Check if a path exists as a file (would conflict with mkdir).
+ */
+function isExistingFile(fs: Filesystem, dirPath: string): boolean {
+  try {
+    if (!fs.exists(dirPath)) return false;
+    const stat = fs.stat(dirPath);
+    return stat.isFile;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Create a mkdir tool bound to a Filesystem instance.
+ */
 export const createMkdirTool = (fs: Filesystem): ToolDefinition<{ path: string }> => ({
   name: 'mkdir',
-  description: 'Create a new directory at the specified path.',
+  description: 'Create a new directory at the specified path. Creates parent directories recursively.',
   inputSchema: {
     type: 'object',
     properties: {
       path: {
         type: 'string',
-        description: 'The path of the directory to create.',
+        description: 'Path of the directory to create.',
       },
     },
     required: ['path'],
   },
-  async execute({ path }): Promise<ToolResult> {
+
+  validate({ path: dirPath }) {
+    validatePath(dirPath, 'mkdir');
+
+    // Strip trailing slashes for consistent handling
+    const cleanPath = dirPath.replace(/[/\\]+$/, '');
+
+    // Check depth (count forward slashes after normalization)
+    const segments = cleanPath.split('/').filter(Boolean);
+    if (segments.length > MAX_MKDIR_DEPTH) {
+      throw new Error(
+        `Directory path depth (${segments.length}) exceeds maximum of ${MAX_MKDIR_DEPTH} levels`
+      );
+    }
+  },
+
+  async execute({ path: dirPath }): Promise<ToolResult> {
     try {
       // Validate input
-      validatePath(path);
+      this.validate!({ path: dirPath });
 
-      // Check if path already exists
-      if (isDirectory(fs, path)) {
+      // Strip trailing slashes
+      const cleanPath = dirPath.replace(/[/\\]+$/, '') || dirPath;
+
+      // Check if already exists as directory (idempotent)
+      if (isExistingDirectory(fs, cleanPath)) {
         return {
-          content: `Directory already exists: ${path}`,
-          isError: false
+          content: `Directory already exists: ${cleanPath}`,
+          isError: false,
         };
       }
 
-      // Attempt to create directory
-      fs.mkdir(path);
-      return { content: `Successfully created directory: ${path}` };
+      // Check if a file exists at this path (conflict)
+      if (isExistingFile(fs, cleanPath)) {
+        return {
+          content: `Cannot create directory: a file already exists at ${cleanPath}`,
+          isError: true,
+        };
+      }
+
+      // Create directory via Domain contract (recursive)
+      fs.mkdir(cleanPath);
+
+      return { content: `Successfully created directory: ${cleanPath}` };
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return {
-          content: `Error creating directory: ${error.message}`,
-          isError: true
-        };
-      }
-      return {
-        content: `Unknown error creating directory: ${String(error)}`,
-        isError: true
-      };
+      const message = error instanceof Error ? error.message : String(error);
+      return { content: `Error creating directory: ${message}`, isError: true };
     }
   },
 });
