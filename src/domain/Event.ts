@@ -27,7 +27,6 @@ export enum EventType {
   
   // Prompt System Events
   PROMPT_REGISTERED = 'prompt_registered',
-  PROMPT_RECEIVED = 'prompt_received',
   PROMPT_ASSEMBLED = 'prompt_assembled',
   PROMPT_LOAD_ERROR = 'prompt_load_error',
   PROMPT_CONFLICT_RESOLVED = 'prompt_conflict_resolved',

@@ -5,14 +5,19 @@
  */
 
 import type { Filesystem } from '../../domain/system/Filesystem';
+import type { LogService } from '../../domain/logging/LogService';
+import { EventBus } from '../orchestration/EventBus';
 
 export class Ignorer {
   private patterns: string[] = [];
+  private eventBus: EventBus;
 
   constructor(
     private filesystem: Filesystem,
-    private projectRoot: string
+    private projectRoot: string,
+    logService: LogService
   ) {
+    this.eventBus = EventBus.getInstance(logService);
     this.loadPatterns();
   }
 

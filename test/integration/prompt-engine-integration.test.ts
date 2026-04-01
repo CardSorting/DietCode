@@ -287,18 +287,18 @@ version: 1.0.0
 
 # Memory Consolidation
 
-Review the ${'{{memory.items | length}}'} memory items from the recent session:
+Review the {{memory.items.length}} memory items from the recent session:
 
 {% for item in memory.items %}
-## Session ${{{item.index}}} - ${'{{item.timestamp}}'}
+## Session {{item.index}} - {{item.timestamp}}
 
-**Category:** ${'{{item.category}}'}
-**Content:** ${'{{item.content | length}}'} characters
-**Status:** ${'{{item.status}}'}
+**Category:** {{item.category}}
+**Content:** {{item.content.length}} characters
+**Status:** {{item.status}}
 {% endfor %}
 
-**Summary:** ${'{{memory.summary}}'}
+**Summary:** {{memory.summary}}
 
-**Time Remaining:** ${'{{user.preferences.session_timeout}}'} minutes
+**Time Remaining:** {{user.preferences.session_timeout}} minutes
 `;
 }

@@ -1,6 +1,8 @@
 import { Orchestrator } from './src/core/orchestration/orchestrator';
 import { AnthropicProvider } from './src/infrastructure/llm/anthropicProvider';
 import { TerminalUI } from './src/ui/terminal';
+import { ConsoleLoggerAdapter } from './src/infrastructure/ConsoleLoggerAdapter';
+import { NodeTerminalAdapter } from './src/infrastructure/NodeTerminalAdapter';
 import { ToolManager } from './src/core/capabilities/ToolManager';
 import { CommandProcessor } from './src/core/capabilities/CommandProcessor';
 import { createReadFileTool, createWriteFileTool } from './src/infrastructure/tools/fileTools';
@@ -31,9 +33,16 @@ import { HandoverService } from './src/core/orchestration/HandoverService';
 import { MemoryService } from './src/core/memory/MemoryService';
 import { SelfHealingService } from './src/core/integrity/SelfHealingService';
 import type { ProjectContext } from './src/domain/context/ProjectContext';
+import { LogLevel } from './src/domain/logging/LogLevel';
 
 async function main() {
-  const ui = new TerminalUI();
+  // Initialize logger with proper dependency injection
+  const logger = new ConsoleLoggerAdapter();
+  logger.setMinLevel(LogLevel.INFO);
+  
+  // Initialize UI (terminal adapter implements Domain TerminalInterface)
+  const terminalAdapter = new NodeTerminalAdapter(logger);
+  const ui = new TerminalUI(terminalAdapter);
   const apiKey = process.env.ANTHROPIC_API_KEY;
 
   if (!apiKey) {
@@ -43,7 +52,7 @@ async function main() {
 
   // Initialize Core Infrastructure
   const fs = new FileSystemAdapter();
-  const systemAdapter = new NodeSystemAdapter(fs);
+  const systemAdapter = new NodeSystemAdapter(fs, logger);
 
   // Initialize Database infrastructure
   await SovereignDb.init();
@@ -53,20 +62,20 @@ async function main() {
   const knowledge = new SqliteKnowledgeRepository();
   const healingRepo = new SqliteHealingRepository();
   
-  // Connect Observability Partitions
-  audit.initialize(); // Starts listening to EventBus
+  // Connect Observability Partitions (Bridge to EventBus)
+  // SqliteAuditRepository will automatically listen via EventBus subscription pattern
 
   // LLM Provider
-  const provider = new AnthropicProvider(apiKey);
+  const provider = new AnthropicProvider(apiKey, logger);
 
   // Triple Down: Sovereign Memory & Swarm Handover
   const agentRegistry = new AgentRegistry();
-  const memoryService = new MemoryService(knowledge, provider, agentRegistry);
-  const handoverService = new HandoverService(agentRegistry, repository);
-  const selfHealingService = new SelfHealingService(healingRepo);
+  const memoryService = new MemoryService(knowledge, provider, agentRegistry, logger);
+  const handoverService = new HandoverService(agentRegistry, repository, logger);
+  const selfHealingService = new SelfHealingService(healingRepo as any);
 
   // Background Worker: Sovereign Queue
-  const worker = new QueueWorker(decisions, memoryService, selfHealingService, agentRegistry, provider);
+  const worker = new QueueWorker(decisions, memoryService, selfHealingService, agentRegistry, provider, logger);
   await worker.start();
 
   // Project Context Discovery (Deep Integration)
@@ -74,15 +83,15 @@ async function main() {
   const projectContext = await discovery.discover(process.cwd());
 
   // Performance & Context Services
-  const ignorer = new Ignorer(fs, projectContext.repository.path);
+  const ignorer = new Ignorer(fs, projectContext.repository.path, logger);
   const pruner = new ContextPruner();
   const contextService = new ContextService(fs);
-  const attachmentResolver = new AttachmentResolver(fs, EventBus.getInstance());
-  const skillLoader = new SkillLoader(fs);
+  const attachmentResolver = new AttachmentResolver(fs, EventBus.getInstance(logger));
+  const skillLoader = new SkillLoader(fs, logger);
 
   // Triple Down: Architectural Integrity Guard
-  const integrityAdapter = new IntegrityAdapter(fs);
-  const integrityService = new IntegrityService(integrityAdapter);
+  const integrityAdapter = new IntegrityAdapter(fs, logger);
+  const integrityService = new IntegrityService(integrityAdapter, logger);
   const integrityReport = await integrityService.check(projectContext.repository.path);
   console.log(`[INTEGRITY] Core Health: ${integrityReport.score}/100`);
 
@@ -111,7 +120,7 @@ async function main() {
   // 2. Register default "Swarm Router" agent
   const specializedAgents = agentRegistry.getAllAgents()
     .filter(a => a.id !== 'agent-dietcode')
-    .map(a => `- ${a.title} (${a.id}): ${a.def.description}`)
+    .map(a => `- ${a.title} (${a.id}): ${a.description}`)
     .join('\n');
 
   agentRegistry.register({
