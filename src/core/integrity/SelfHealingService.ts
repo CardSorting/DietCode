@@ -13,6 +13,8 @@ import { JobType, type QueueProvider } from '../../domain/system/QueueProvider';
 import type { SnapshotService } from '../memory/SnapshotService';
 import type { VerificationProvider } from '../../domain/healing/VerificationProvider';
 import type { LogService } from '../../domain/logging/LogService';
+import { LockOrchestrator, LockTimeoutStrategy } from '../manager/LockOrchestrator.ts';
+import type { LockScope } from '../../domain/safety/LockScope';
 
 export class SelfHealingService {
   private eventBus: EventBus;
@@ -45,31 +47,50 @@ export class SelfHealingService {
 
     let tasksEnqueued = 0;
 
+    const lockOrchestrator = LockOrchestrator.getInstance();
+
     for (const violation of report.violations) {
       if (violation.severity === 'error') {
-        const specialistId = this.assignSpecialist(violation);
+        // [HARDENING] Deduplication - check for existing proposals
+        const existing = await this.repository.getProposalsForViolation(violation.id);
+        if (existing.length > 0) continue;
 
-        if (this.queue && this.snapshotService) {
-          // Full healing pipeline: snapshot → enqueue
-          const snapshotId = await this.snapshotService.capture(violation.file);
+        // [HARDENING] Guarded Triage - use distributed lock
+        const scope: LockScope = {
+          taskId: 'self-healing',
+          operation: `triage_${violation.id}`,
+          timeoutMs: 30000,
+          autoRelease: true
+        };
 
-          await this.queue.enqueue({
-            type: JobType.CODE_HEAL,
-            payload: {
-              violationId: violation.id,
-              violation,
-              specialistId,
-              snapshotId,
-            },
-          });
+        try {
+          await lockOrchestrator.executeInLock(scope, async () => {
+            const specialistId = this.assignSpecialist(violation);
+
+            if (this.queue && this.snapshotService) {
+              const snapshotId = await this.snapshotService.capture(violation.file);
+
+              await this.queue.enqueue({
+                type: JobType.CODE_HEAL,
+                payload: {
+                  violationId: violation.id,
+                  violation,
+                  specialistId,
+                  snapshotId,
+                },
+              });
+            }
+
+            tasksEnqueued++;
+            this.logService.info(
+              `Enqueued healing task for ${violation.type} on ${violation.file}`,
+              { violationType: violation.type, file: violation.file },
+              { component: 'SelfHealingService' }
+            );
+          }, LockTimeoutStrategy.BACKOFF);
+        } catch (error) {
+          this.logService.warn(`Lock acquisition failed for violation ${violation.id}. Skipping triage for now.`);
         }
-
-        tasksEnqueued++;
-        this.logService.info(
-          `Enqueued healing task for ${violation.type} on ${violation.file}`,
-          { violationType: violation.type, file: violation.file },
-          { component: 'SelfHealingService' }
-        );
       }
     }
 
@@ -120,10 +141,18 @@ export class SelfHealingService {
         await this.repository.updateProposalStatus(proposal.id, HealingStatus.APPLIED);
       } else {
         this.logService.warn(
-          `Refactor applied but violation persists`,
+          `Refactor applied but violation persists. TRIGGERING ATOMIC ROLLBACK.`,
           { violationId: proposal.violationId },
           { component: 'SelfHealingService' }
         );
+
+        // [HARDENING] Atomic Rollback — restore to previous snapshot
+        if (this.snapshotService) {
+          await this.snapshotService.undo(proposal.violation.file);
+          this.logService.info(`Atomic rollback successful for ${proposal.violation.file}`);
+        }
+        
+        await this.repository.updateProposalStatus(proposal.id, HealingStatus.FAILED);
       }
     }
   }

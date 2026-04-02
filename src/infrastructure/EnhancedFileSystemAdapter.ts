@@ -21,6 +21,7 @@ import type { FileMetadata, ReadFileResult, ReadFileError } from '../domain/syst
 import type { FileErrorContext, FileErrorCode } from '../domain/system/FileError';
 import type { BinaryDetectionResult } from './FileTypes';
 import { detectBinaryFileType } from './BinaryFileTypeDetector';
+import { PathValidator } from './validation/PathValidator';
 
 /**
  * Enhanced filesystem adapter with binary detection and streaming support.
@@ -29,20 +30,28 @@ import { detectBinaryFileType } from './BinaryFileTypeDetector';
  * Implements ForgeFS-inspired complete metadata tracking and binary detection.
  */
 export class EnhancedFileSystemAdapter implements Filesystem {
+  private validator: PathValidator;
+
+  constructor(validator?: PathValidator) {
+    this.validator = validator || new PathValidator();
+  }
+
   // ─── Binary Detection ─────────────────────────────────────────────
 
   /**
    * Detect binary file type before reading.
    * Uses file command + heuristics for accurate classification.
    */
-  async detectBinary(path: string): Promise<BinaryDetectionResult> {
-    return detectBinaryFileType(path, this);
+  async detectBinary(filePath: string): Promise<BinaryDetectionResult> {
+    const validatedPath = this.validator.validate(filePath);
+    return detectBinaryFileType(validatedPath, this);
   }
 
   // ─── Text Operations ───────────────────────────────────────────────
 
-  readFile(path: string): string {
-    return fs.readFileSync(path, 'utf8');
+  readFile(filePath: string): string {
+    const validatedPath = this.validator.validate(filePath);
+    return fs.readFileSync(validatedPath, 'utf8');
   }
 
   readRange(path: string, startLine: number, endLine: number): string {
@@ -57,24 +66,24 @@ export class EnhancedFileSystemAdapter implements Filesystem {
     return lines.slice(startLine - 1, endLine).join('\n');
   }
 
-  writeFile(path: string, content: string): void {
-    fs.writeFileSync(path, content, 'utf8');
+  writeFile(filePath: string, content: string): void {
+    const validatedPath = this.validator.validate(filePath);
+    fs.writeFileSync(validatedPath, content, 'utf8');
   }
 
-  mkdir(path: string): void {
-    fs.mkdirSync(path, { recursive: true });
+  mkdir(dirPath: string): void {
+    const validatedPath = this.validator.validate(dirPath);
+    fs.mkdirSync(validatedPath, { recursive: true });
   }
 
-  exists(path: string): boolean {
-    try {
-      return fs.existsSync(path);
-    } catch {
-      return false;
-    }
+  exists(filePath: string): boolean {
+    const validatedPath = this.validator.validate(filePath);
+    return fs.existsSync(validatedPath);
   }
 
-  stat(path: string): { isDirectory: boolean; isFile: boolean; mtimeMs: number } {
-    const stats = fs.statSync(path);
+  stat(filePath: string): { isDirectory: boolean; isFile: boolean; mtimeMs: number } {
+    const validatedPath = this.validator.validate(filePath);
+    const stats = fs.statSync(validatedPath);
     return {
       isDirectory: stats.isDirectory(),
       isFile: stats.isFile(),
@@ -82,8 +91,9 @@ export class EnhancedFileSystemAdapter implements Filesystem {
     };
   }
 
-  readdir(path: string): Array<{ name: string; isDirectory: boolean }> {
-    const entries = fs.readdirSync(path, { withFileTypes: true });
+  readdir(dirPath: string): Array<{ name: string; isDirectory: boolean }> {
+    const validatedPath = this.validator.validate(dirPath);
+    const entries = fs.readdirSync(validatedPath, { withFileTypes: true });
     return entries.map((entry) => ({
       name: entry.name,
       isDirectory: entry.isDirectory(),
@@ -141,8 +151,9 @@ export class EnhancedFileSystemAdapter implements Filesystem {
    * Read first N bytes as Uint8Array.
    * For binary detection and magic byte checks.
    */
-  async readFileBuffer(path: string, length?: number): Promise<Uint8Array> {
-    const buffer = await fs.promises.readFile(path);
+  async readFileBuffer(filePath: string, length?: number): Promise<Uint8Array> {
+    const validatedPath = this.validator.validate(filePath);
+    const buffer = await fs.promises.readFile(validatedPath);
     return buffer.slice(0, length ?? buffer.length);
   }
 
@@ -150,8 +161,9 @@ export class EnhancedFileSystemAdapter implements Filesystem {
    * Read file as async stream for hashing.
    * Processes file in chunks to avoid memory issues.
    */
-  async *readFileAsStream(path: string): AsyncGenerator<Buffer, void, undefined> {
-    const readable = fs.createReadStream(path);
+  async *readFileAsStream(filePath: string): AsyncGenerator<Buffer, void, undefined> {
+    const validatedPath = this.validator.validate(filePath);
+    const readable = fs.createReadStream(validatedPath);
     try {
       for await (const chunk of readable) {
         yield chunk as Buffer;
@@ -165,22 +177,23 @@ export class EnhancedFileSystemAdapter implements Filesystem {
    * Rename/move file or directory.
    */
   async rename(from: string, to: string): Promise<void> {
-    await fs.promises.rename(from, to);
+    const validatedFrom = this.validator.validate(from);
+    const validatedTo = this.validator.validate(to);
+    await fs.promises.rename(validatedFrom, validatedTo);
   }
 
-  /**
-   * Delete file or directory.
-   */
-  async unlink(path: string): Promise<void> {
-    await fs.promises.unlink(path);
+  async unlink(filePath: string): Promise<void> {
+    const validatedPath = this.validator.validate(filePath);
+    await fs.promises.unlink(validatedPath);
   }
 
   /**
    * Stream file hash calculation.
    * Processes file in chunks and computes hash incrementally.
    */
-  async *streamFileHash(path: string): AsyncGenerator<string, void, undefined> {
-    const readable = fs.createReadStream(path);
+  async *streamFileHash(filePath: string): AsyncGenerator<string, void, undefined> {
+    const validatedPath = this.validator.validate(filePath);
+    const readable = fs.createReadStream(validatedPath);
     const hash = Buffer.alloc(0);
     
     try {

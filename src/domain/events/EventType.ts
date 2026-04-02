@@ -40,4 +40,5 @@ export enum EventType {
   CONTEXT_OPTIMIZATION = 'context_optimization',
   IMPLEMENTATION_STARTED = 'implementation_started',
   IMPLEMENTATION_COMPLETED = 'implementation_completed',
+  SYSTEM_ERROR = 'system_error',
 }

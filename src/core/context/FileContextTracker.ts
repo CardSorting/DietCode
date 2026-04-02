@@ -30,6 +30,7 @@ import type { OptimizationConfig } from "../../domain/context/ContextOptimizatio
 import { defaultOptimizationConfig } from "../../domain/context/ContextOptimizationPolicy";
 import { EventType } from "../../domain/Event";
 import { EventBus } from "../../core/orchestration/EventBus";
+import { SovereignDb } from "../../infrastructure/database/SovereignDb.ts";
 
 export class FileContextTracker {
   private static instance: FileContextTracker | null = null;
@@ -65,9 +66,35 @@ export class FileContextTracker {
   /**
    * Initialize the tracker with a watcher
    */
-  setWatcher(watcher: FileWatcherAdapter): void {
+  async setWatcher(watcher: FileWatcherAdapter): Promise<void> {
     this.watcher = watcher;
     this.watcher.onFileChange(async (event) => this.handleFileChangeEvent(event));
+    
+    // Initial sync from DB
+    await this.sync();
+  }
+
+  /**
+   * Sync persistent state from SovereignDb
+   */
+  async sync(): Promise<void> {
+    const db = await SovereignDb.db();
+    const rows = await db.selectFrom('file_context' as any)
+      .selectAll()
+      .execute();
+
+    for (const row of rows as any[]) {
+      this.stateMetadata.set(row.path, {
+        path: row.path,
+        state: row.state as FileState,
+        source: row.source as FileOperationSource,
+        lastReadDate: row.lastReadDate,
+        lastEditDate: row.lastEditDate,
+        signature: row.signature,
+        externalEditDetected: Boolean(row.externalEditDetected)
+      });
+    }
+    console.log(`📡 [ContextTracker] Synced ${rows.length} files from SovereignDb`);
   }
 
   /**
@@ -82,6 +109,10 @@ export class FileContextTracker {
       existing.state = 'modified_externally';
       existing.externalEditDetected = true;
       existing.lastEditDate = event.timestamp;
+      
+      // Persist the staleness immediately
+      await this.persistState(existing);
+      
       console.warn(`⚠️ External modification detected on ${event.path}. Context is now STALE.`);
     } else if (event.type === FileChangeType.DELETED) {
       existing.state = 'deleted';
@@ -202,10 +233,56 @@ export class FileContextTracker {
     };
 
     this.stateMetadata.set(path, entry);
+    await this.persistState(entry);
     
     if (type === 'edit' && source === 'codemarie_edited' && this.watcher) {
       this.watcher.markAsEditedByAgent(path);
     }
+  }
+
+  /**
+   * Persist state entry to SovereignDb
+   */
+  private async persistState(entry: StateMetadata): Promise<void> {
+    const db = await SovereignDb.db();
+    
+    // Check if exists first for upsert simulation in broccoliq (Kysely)
+    const existing = await db.selectFrom('file_context' as any)
+      .where('path', '=', entry.path)
+      .executeTakeFirst();
+
+    if (existing) {
+      await db.updateTable('file_context' as any)
+        .set({
+          state: entry.state,
+          source: entry.source,
+          lastReadDate: entry.lastReadDate,
+          lastEditDate: entry.lastEditDate,
+          signature: entry.signature,
+          externalEditDetected: entry.externalEditDetected ? 1 : 0
+        })
+        .where('path', '=', entry.path)
+        .execute();
+    } else {
+      await db.insertInto('file_context' as any)
+        .values({
+          path: entry.path,
+          state: entry.state,
+          source: entry.source,
+          lastReadDate: entry.lastReadDate,
+          lastEditDate: entry.lastEditDate,
+          signature: entry.signature,
+          externalEditDetected: entry.externalEditDetected ? 1 : 0
+        })
+        .execute();
+    }
+  }
+
+  /**
+   * Get metadata for a file
+   */
+  getMetadata(path: string): StateMetadata | undefined {
+    return this.stateMetadata.get(path);
   }
 
   /**

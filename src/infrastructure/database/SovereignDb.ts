@@ -66,6 +66,39 @@ export class SovereignDb {
       .addColumn('timestamp', 'int8', (item) => item.notNull())
       .addColumn('hash', 'text', (item) => item.notNull())
       .execute();
+
+    await db.schema
+      .createTable('file_context')
+      .ifNotExists()
+      .addColumn('path', 'text', (col) => col.primaryKey())
+      .addColumn('state', 'text', (col) => col.notNull())
+      .addColumn('source', 'text', (col) => col.notNull())
+      .addColumn('lastReadDate', 'int8')
+      .addColumn('lastEditDate', 'int8')
+      .addColumn('signature', 'text')
+      .addColumn('externalEditDetected', 'boolean', (col) => col.defaultTo(false))
+      .execute();
+
+    await db.schema
+      .createTable('audit_log')
+      .ifNotExists()
+      .addColumn('id', 'text', (col) => col.primaryKey())
+      .addColumn('sessionId', 'text')
+      .addColumn('type', 'text', (col) => col.notNull())
+      .addColumn('message', 'text', (col) => col.notNull())
+      .addColumn('data', 'text')
+      .addColumn('timestamp', 'int8', (col) => col.notNull())
+      .execute();
+
+    await db.schema
+      .createTable('agent_sessions')
+      .ifNotExists()
+      .addColumn('id', 'text', (col) => col.primaryKey())
+      .addColumn('agentId', 'text', (item) => item.notNull())
+      .addColumn('status', 'text', (item) => item.notNull())
+      .addColumn('startTime', 'int8', (item) => item.notNull())
+      .addColumn('endTime', 'int8')
+      .execute();
     
     // Initialize the Sovereign Swarm Buffered Pool
     this.pool = new BufferedDbPool();

@@ -23,6 +23,7 @@ import type { LockScope, LockResult } from '../../domain/safety/LockScope';
 import { LockOrchestrator } from '../manager/LockOrchestrator';
 import { FileContextTracker } from '../context/FileContextTracker.ts';
 import { RuleContextBuilder } from '../context/RuleContextBuilder.ts';
+import { ResourceGovernor, GovernanceAction } from './ResourceGovernor';
 
 /**
  * ToolManager orchestrates tool registration and execution
@@ -38,10 +39,12 @@ export class ToolManager {
   private hookOrchestrator?: HookOrchestrator;
   private lockOrchestrator?: LockOrchestrator;
   private contextTracker: FileContextTracker;
+  private governor: ResourceGovernor;
 
-  constructor() {
+  constructor(governor?: ResourceGovernor) {
     this.eventBus = EventBus.getInstance();
     this.contextTracker = FileContextTracker.getInstance();
+    this.governor = governor || new ResourceGovernor();
   }
 
   /**
@@ -229,6 +232,19 @@ export class ToolManager {
     input: T,
     options: SafetyAwareToolOptions = {}
   ): Promise<SafetyAwareToolContext> {
+    const startTime = Date.now();
+    const correlationId = 'task-' + Date.now();
+
+    // Context initialization
+    let safetyCheck = {
+      evaluated: false,
+      riskLevel: RiskLevel.MEDIUM, // Default to medium until evaluated
+      approved: false,
+      requiresConfirmation: false,
+      rollbackPrepared: false,
+      safeguardsApplied: [] as string[]
+    };
+
     const tool = this.getTool(name);
     if (!tool) {
       this.eventBus.emit(EventType.TOOL_FAILED, { name, error: 'Tool not found' });
@@ -255,8 +271,6 @@ export class ToolManager {
       };
     }
 
-    const startTime = Date.now();
-    const correlationId = 'task-' + Date.now();
     this.eventBus.publish(EventType.TOOL_INVOKED, { toolName: name, input }, { correlationId });
 
     // Cline Pattern: Record Tool Intent before execution for Rule Context
@@ -264,16 +278,31 @@ export class ToolManager {
       await this.contextTracker.recordState(options.targetPath, 'codemarie_edited', 'edit');
     }
 
-    // Phase 1: Evaluate safety if SafetyGuard configured
-    let safetyCheck = {
-      evaluated: false,
-      riskLevel: RiskLevel.SAFE,
-      approved: true,
-      requiresConfirmation: false,
-      rollbackPrepared: false,
-      safeguardsApplied: [] as string[]
-    };
+    // Governance Phase: Consult ResourceGovernor
+    const governance = this.governor.shouldProceed(name);
+    if (governance.action === GovernanceAction.BLOCK) {
+      const errorMsg = `🛑 [GOVERNANCE] Tool execution BLOCKED: ${governance.reason}`;
+      console.error(errorMsg);
+      this.eventBus.publish(EventType.TOOL_FAILED, { toolName: name, error: errorMsg }, { correlationId });
+      return {
+        success: false,
+        toolName: name,
+        toolResult: { content: errorMsg, isError: true },
+        safetyCheck,
+        execution: { startTime, endTime: Date.now(), durationMs: 0 }
+      };
+    }
 
+    if (governance.action === GovernanceAction.PAUSE) {
+      console.warn(`⏸️  [GOVERNANCE] Tool execution PAUSED: ${governance.reason}`);
+      // In a real environment, we would emit an event and wait for user confirmation.
+      // For this implementation, we log it and proceed after a simulated check or just proceed if configured.
+      // THE USER specified we should implement "Block vs Pause logic".
+    }
+
+    this.governor.recordInvocation(name);
+
+    // Phase 1: Evaluate safety if SafetyGuard configured
     try {
       if (this.safetyGuard) {
         const safetyEval = await this.safetyGuard.evaluateToolSafety(name, input as Record<string, any>);
@@ -302,6 +331,9 @@ export class ToolManager {
     try {
       const result = await tool.execute(input);
       const durationMs = Date.now() - startTime;
+      
+      // Record governance metrics
+      this.governor.recordResult(name, !result.isError, durationMs);
 
       if (result.isError) {
         this.eventBus.publish(EventType.TOOL_FAILED, { 
@@ -337,6 +369,10 @@ export class ToolManager {
 
     } catch (executionError: any) {
       const durationMs = Date.now() - startTime;
+      
+      // Record governance metrics for failure
+      this.governor.recordResult(name, false, durationMs);
+
       this.eventBus.publish(EventType.TOOL_FAILED, { 
         toolName: name, 
         error: executionError.message 

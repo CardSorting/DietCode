@@ -1,7 +1,6 @@
-import type { FileReuseDecision } from "../../domain/context/FileReadPattern";
+import type { FileReuseDecision, PatternSessionStats } from "../../domain/context/FileReadPattern";
 import { FileReuseStrategy } from "../../domain/context/FileReadPattern";
-import type { FileSignature } from "../../domain/context/FileSignatureService";
-import type { PatternSessionStats } from "../../domain/context/FileReadPattern";
+import { FileContextTracker } from "../context/FileContextTracker.ts";
 
 /**
  * Configuration for pattern analysis optimization
@@ -27,6 +26,8 @@ export const DEFAULT_PATTERN_CONFIG: PatternAnalysisConfig = {
  * Determines which file contexts should be reused based on analysis
  */
 export class PatternAnalysisService {
+  private tracker = FileContextTracker.getInstance();
+
   constructor(private config: PatternAnalysisConfig = DEFAULT_PATTERN_CONFIG) {}
 
   /**
@@ -34,16 +35,15 @@ export class PatternAnalysisService {
    */
   analyzePatternAvailability(
     filePaths: string[],
-    signatures: Map<string, FileSignature>,
     timestampWindowMs: number = this.config.trackTimestampWindowMs
   ): FileReuseDecision[] {
     const decisions: FileReuseDecision[] = [];
 
     for (const filePath of filePaths) {
-      const signature = signatures.get(filePath);
+      const metadata = this.tracker.getMetadata(filePath);
       let decision: FileReuseDecision;
 
-      if (!signature) {
+      if (!metadata) {
         // File not tracked - need to load
         decision = {
           filePath,
@@ -54,28 +54,37 @@ export class PatternAnalysisService {
           timestamp: Date.now()
         };
       } else {
-        // File tracked - evaluate based on freshness
-        const fileAge = Date.now() - signature.timestamp;
-        const isNewInWindow = fileAge <= timestampWindowMs;
+        const isStale = this.tracker.isStale(filePath);
+        const hasSignature = !!metadata.signature;
 
-        if (isNewInWindow) {
+        if (!isStale && hasSignature) {
+          // SEMANTIC PINNING: File is tracked, has a signature, and is NOT stale
           decision = {
             filePath,
             strategy: FileReuseStrategy.FULL_REUSE,
             shouldReuse: true,
             confidence: 1.0,
-            reason: "pattern_match",
+            reason: "semantic_match",
+            timestamp: Date.now()
+          };
+        } else if (isStale) {
+          // File is stale - MUST reload
+          decision = {
+            filePath,
+            strategy: FileReuseStrategy.NO_REUSE,
+            shouldReuse: false,
+            confidence: 0.1,
+            reason: "checkpoint_stale",
             timestamp: Date.now()
           };
         } else {
-          // File outside time window - check if content changed
-          const hasChanged = signature.isOutdated(signature.sizeBytes);
+          // Tracked but no signature yet or other reason
           decision = {
             filePath,
-            strategy: hasChanged ? FileReuseStrategy.NO_REUSE : FileReuseStrategy.PARTIAL_REUSE,
+            strategy: FileReuseStrategy.PARTIAL_REUSE,
             shouldReuse: false,
-            confidence: 0.3,
-            reason: hasChanged ? "checkpoint_stale" : "recently_reused",
+            confidence: 0.4,
+            reason: "metadata_only",
             timestamp: Date.now()
           };
         }

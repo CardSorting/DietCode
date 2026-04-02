@@ -7,8 +7,6 @@
  * to provide a ranked list of relevant candidates for rule evaluation.
  */
 
-import { FileChangeType } from '../../domain/context/FileChange.ts';
-import type { FileChange } from '../../domain/context/FileChange.ts';
 import type { LivePathContext, ToolIntent, RuleEvaluationContext } from '../../domain/context/RuleContextContract.ts';
 
 export class RuleContextBuilder {
@@ -29,6 +27,9 @@ export class RuleContextBuilder {
     if (lastMessage) {
       const pathsIdentified = this.extractPathsFromText(lastMessage);
       pathsIdentified.forEach(p => candidates.add(p));
+
+      const mentions = this.extractMentions(lastMessage);
+      mentions.forEach(m => candidates.add(m));
     }
 
     // 2. Extract from visible tabs (Current Focus)
@@ -61,10 +62,35 @@ export class RuleContextBuilder {
    * Extract potential paths from plain text using regex
    */
   private static extractPathsFromText(text: string): string[] {
-    // Regex looking for common path patterns
+    // Regex looking for common path patterns, including [MODIFY] [file](file:///...)
     const pathRegex = /(?:[a-zA-Z]:\\|[\\\/])?(?:[\w\-. ]+[\\\/])*[\w\-. ]+\.[\w\-]{2,}/g;
-    const matches = text.match(pathRegex) || [];
-    return matches.map(m => this.normalizePath(m));
+    const markdownPathRegex = /\[.*?\]\(file:\/\/\/(.*?)\)/g;
+    
+    const results: string[] = [];
+    
+    let m: RegExpExecArray | null;
+    while ((m = pathRegex.exec(text))) {
+      results.push(this.normalizePath(m[0]!));
+    }
+    
+    while ((m = markdownPathRegex.exec(text))) {
+      results.push(this.normalizePath(m[1]!));
+    }
+    
+    return results;
+  }
+
+  /**
+   * Extract paths from @mentions (e.g. "Check @src/core/context/Tracker.ts")
+   */
+  private static extractMentions(text: string): string[] {
+    const mentionRegex = /@([\w\-. \/]+\.[\w\-]{2,})/g;
+    const results: string[] = [];
+    let m: RegExpExecArray | null;
+    while ((m = mentionRegex.exec(text))) {
+      results.push(this.normalizePath(m[1]!));
+    }
+    return results;
   }
 
   /**

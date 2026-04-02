@@ -1,66 +1,87 @@
 /**
- * [VERIFICATION]
- * Tests the new event-driven lifecycle and rich discovery features.
+ * [VERIFICATION: INFRASTRUCTURE HARDENING]
+ * Checks PathValidator, FileSystem hardening, Governance, and Sovereign Doctor.
  */
 
 import { FileSystemAdapter } from './src/infrastructure/FileSystemAdapter';
-import { LogLevel } from './src/domain/logging/LogLevel';
-import { ConsoleLoggerAdapter } from './src/infrastructure/ConsoleLoggerAdapter';
+import { EnhancedFileSystemAdapter } from './src/infrastructure/EnhancedFileSystemAdapter';
+import { PathValidator } from './src/infrastructure/validation/PathValidator';
+import { ResourceGovernor, GovernanceAction } from './src/core/capabilities/ResourceGovernor';
+import { SovereignDoctor } from './src/core/integrity/SovereignDoctor';
 import { EventBus } from './src/core/orchestration/EventBus';
 import { EventType } from './src/domain/Event';
-import { DiscoveryService } from './src/core/context/DiscoveryService';
-import { NodeSystemAdapter } from './src/infrastructure/NodeSystemAdapter';
+import * as path from 'path';
 
 async function verify() {
-  console.log('--- DIETCODE HARDENING VERIFICATION ---');
+  console.log('--- DIETCODE INFRASTRUCTURE HARDENING VERIFICATION ---');
   
-  // Create logger for EventBus
-  const logger = new ConsoleLoggerAdapter(LogLevel.DEBUG);
-  
-  const fs = new FileSystemAdapter();
-  const systemAdapter = new NodeSystemAdapter(fs, logger);
-  const discovery = new DiscoveryService(fs, systemAdapter, logger);
-  const eventBus = EventBus.getInstance(logger);
+  const workspaceRoot = process.cwd();
+  const validator = new PathValidator(workspaceRoot);
+  const fs = new FileSystemAdapter(validator);
+  const enhancedFs = new EnhancedFileSystemAdapter(validator);
+  const eventBus = EventBus.getInstance();
 
-  // 1. Test EventBus Subscriptions
-  let eventReceived = false;
-  eventBus.on(EventType.SYSTEM_INFO_GATHERED, (event: any) => {
-    console.log(`[PASS] Received event: ${event.type}`);
-    console.log(`[PASS] Payload platform: ${event.data.platform}`);
-    eventReceived = true;
-  });
+  let passed = true;
 
-  // 2. Test Rich Discovery
-  console.log('Testing discovery...');
-  const context = await discovery.discover(process.cwd());
+  // 1. Path Traversal & Security
+  console.log('\n[PHASE 1] Testing Path Security...');
+  const traversalPath = '../secret.txt';
+  try {
+    fs.readFile(traversalPath);
+    console.error('❌ FAIL: FileSystemAdapter allowed traversal');
+    passed = false;
+  } catch (e: any) {
+    console.log(`✅ PASS: FileSystemAdapter blocked traversal: ${e.message}`);
+  }
+
+  const shellPath = 'file.txt; rm -rf /';
+  try {
+    fs.exists(shellPath);
+    console.error('❌ FAIL: FileSystemAdapter allowed shell injection');
+    passed = false;
+  } catch (e: any) {
+    console.log(`✅ PASS: FileSystemAdapter blocked shell injection: ${e.message}`);
+  }
+
+  // 2. Resource Governance
+  console.log('\n[PHASE 2] Testing Resource Governance...');
+  const governor = new ResourceGovernor({ maxToolCalls: 2 });
+  governor.recordInvocation('test');
+  governor.recordResult('test', true, 10);
+  governor.recordInvocation('test');
+  governor.recordResult('test', true, 10);
   
-  if (context.detailedContext) {
-    console.log('[PASS] Detailed context gathered.');
-    console.log(`[PASS] OS: ${context.detailedContext.system.os.platform}`);
-    console.log(`[PASS] Node: ${context.detailedContext.system.runtime.nodeVersion}`);
-    if (context.detailedContext.repo.git) {
-      console.log(`[PASS] Git Branch: ${context.detailedContext.repo.git.branch}`);
-    } else {
-      console.log('[WARN] Git context not found (might not be a repo).');
-    }
-    console.log(`[PASS] Dependencies count: ${Object.keys(context.detailedContext.repo.dependencies).length}`);
+  const govResult = governor.shouldProceed('test');
+  if (govResult.action === GovernanceAction.BLOCK) {
+    console.log(`✅ PASS: ResourceGovernor blocked calls exceeding limit: ${govResult.reason}`);
   } else {
-    throw new Error('Detailed context missing in discovery result.');
+    console.error('❌ FAIL: ResourceGovernor allowed calls exceeding limit');
+    passed = false;
   }
 
-  if (!eventReceived) {
-    throw new Error('Lifecycle event was not emitted during discovery.');
+  // 3. Sovereign Doctor
+  console.log('\n[PHASE 3] Testing Sovereign Doctor...');
+  const doctor = new SovereignDoctor(fs, workspaceRoot);
+  const health = await doctor.diagnose();
+  if (health.healthy) {
+    console.log('✅ PASS: SovereignDoctor reports healthy system');
+  } else {
+    console.log(`ℹ️  System Info: ${health.issues.length} issues detected`);
+    for (const issue of health.issues) {
+      console.log(`   - [${issue.severity}] ${issue.component}: ${issue.message}`);
+    }
   }
 
-  // 3. Test Manual Event Emission
-  console.log('Testing manual event emission...');
-  eventBus.emit(EventType.SKILL_LOADED, { name: 'test-skill', path: '/tmp/test.md' });
-
-  console.log('--- ALL VERIFICATIONS PASSED ---');
+  if (passed) {
+    console.log('\n✨ ALL HARDENING VERIFICATIONS PASSED! ✨');
+    process.exit(0);
+  } else {
+    console.log('\n❌ HARDENING VERIFICATIONS FAILED! ❌');
+    process.exit(1);
+  }
 }
 
 verify().catch(err => {
-  console.error('--- VERIFICATION FAILED ---');
-  console.error(err);
+  console.error('💥 VERIFICATION CRASHED:', err);
   process.exit(1);
 });

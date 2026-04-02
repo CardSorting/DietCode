@@ -8,18 +8,28 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { execSync } from 'child_process';
 import type { Filesystem, GitStatus } from '../domain/system/Filesystem';
+import { PathValidator } from './validation/PathValidator';
 
 export class FileSystemAdapter implements Filesystem {
-  readFile(path: string): string {
-    return fs.readFileSync(path, 'utf8');
+  private validator: PathValidator;
+
+  constructor(validator?: PathValidator) {
+    this.validator = validator || new PathValidator();
   }
 
-  readFileBuffer(path: string): Promise<Uint8Array> {
-    return Promise.resolve(fs.readFileSync(path));
+  readFile(filePath: string): string {
+    const validatedPath = this.validator.validate(filePath);
+    return fs.readFileSync(validatedPath, 'utf8');
   }
 
-  readFileAsStream(path: string): AsyncGenerator<Buffer, void, undefined> {
-    const stream = fs.createReadStream(path);
+  readFileBuffer(filePath: string): Promise<Uint8Array> {
+    const validatedPath = this.validator.validate(filePath);
+    return Promise.resolve(fs.readFileSync(validatedPath));
+  }
+
+  readFileAsStream(filePath: string): AsyncGenerator<Buffer, void, undefined> {
+    const validatedPath = this.validator.validate(filePath);
+    const stream = fs.createReadStream(validatedPath);
     let buffer = Buffer.alloc(0);
 
     return (async function* () {
@@ -31,25 +41,30 @@ export class FileSystemAdapter implements Filesystem {
   }
 
   readRange(filePath: string, startLine: number, endLine: number): string {
-    const content = fs.readFileSync(filePath, 'utf8');
+    const validatedPath = this.validator.validate(filePath);
+    const content = fs.readFileSync(validatedPath, 'utf8');
     const lines = content.split('\n');
     return lines.slice(startLine - 1, endLine).join('\n');
   }
 
-  writeFile(path: string, content: string): void {
-    fs.writeFileSync(path, content, 'utf8');
+  writeFile(filePath: string, content: string): void {
+    const validatedPath = this.validator.validate(filePath);
+    fs.writeFileSync(validatedPath, content, 'utf8');
   }
 
-  mkdir(path: string): void {
-    fs.mkdirSync(path, { recursive: true });
+  mkdir(dirPath: string): void {
+    const validatedPath = this.validator.validate(dirPath);
+    fs.mkdirSync(validatedPath, { recursive: true });
   }
 
-  exists(path: string): boolean {
-    return fs.existsSync(path);
+  exists(filePath: string): boolean {
+    const validatedPath = this.validator.validate(filePath);
+    return fs.existsSync(validatedPath);
   }
 
   stat(filePath: string): { isDirectory: boolean; isFile: boolean; mtimeMs: number } {
-    const stats = fs.statSync(filePath);
+    const validatedPath = this.validator.validate(filePath);
+    const stats = fs.statSync(validatedPath);
     return {
       isDirectory: stats.isDirectory(),
       isFile: stats.isFile(),
@@ -95,7 +110,8 @@ export class FileSystemAdapter implements Filesystem {
   }
 
   readdir(dirPath: string): Array<{ name: string; isDirectory: boolean }> {
-    return fs.readdirSync(dirPath, { withFileTypes: true }).map(e => ({
+    const validatedPath = this.validator.validate(dirPath);
+    return fs.readdirSync(validatedPath, { withFileTypes: true }).map(e => ({
       name: e.name,
       isDirectory: e.isDirectory()
     }));
@@ -124,8 +140,9 @@ export class FileSystemAdapter implements Filesystem {
   }
 
   getGitDiff(root: string): string {
+    const validatedPath = this.validator.validate(root);
     try {
-      return execSync('git diff', { cwd: root }).toString();
+      return execSync('git diff', { cwd: validatedPath }).toString();
     } catch {
       return '';
     }
@@ -140,16 +157,20 @@ export class FileSystemAdapter implements Filesystem {
   }
 
   async rename(from: string, to: string): Promise<void> {
-    return fs.promises.rename(from, to);
+    const validatedFrom = this.validator.validate(from);
+    const validatedTo = this.validator.validate(to);
+    return fs.promises.rename(validatedFrom, validatedTo);
   }
 
-  async unlink(path: string): Promise<void> {
-    return fs.promises.unlink(path);
+  async unlink(filePath: string): Promise<void> {
+    const validatedPath = this.validator.validate(filePath);
+    return fs.promises.unlink(validatedPath);
   }
 
   async *streamFileHash(filePath: string): AsyncGenerator<string, void, undefined> {
+    const validatedPath = this.validator.validate(filePath);
     const crypto = require('crypto');
-    const stream = fs.createReadStream(filePath);
+    const stream = fs.createReadStream(validatedPath);
     const hash = crypto.createHash('sha256');
     
     for await (const chunk of stream) {
