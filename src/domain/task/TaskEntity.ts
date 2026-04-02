@@ -8,6 +8,7 @@
  * Triaging:
  *   - [NEW] Implements TaskEntity, TaskState, TaskPriority for task scaffolding system
  */
+import * as crypto from 'crypto';
 
 /**
  * Unique identifier for a task
@@ -183,8 +184,53 @@ export interface TaskEntity {
     /**
      * Optional correlation ID for external systems
      */
-    executionId?: string;
   };
+}
+
+/**
+ * Semantic integrity metrics for a task implementation
+ */
+export interface SemanticIntegrity {
+  integrityScore: number;
+  structureIntegrity: boolean;
+  contentIntegrity: boolean;
+  objectiveAlignment: number;
+  violations: any[];
+  warnings: string[];
+}
+
+/**
+ * Audit record for implementation violations
+ */
+export interface Violation {
+  id: string;
+  type: string;
+  message: string;
+  severity: 'error' | 'warning' | 'info';
+  timestamp: Date;
+}
+
+/**
+ * Validation result for a task or implementation
+ */
+export interface TaskValidation {
+  isValid: boolean;
+  errors: string[];
+  warnings: string[];
+  score: number;
+  requirements: Requirement[];
+  objectives: string[];
+  acceptanceCriteria: string[];
+}
+
+/**
+ * Report on consistency between multiple artifacts
+ */
+export interface ConsistencyReport {
+  taskMd: TaskValidation;
+  implementationMd: TaskValidation;
+  gapAnalysis: any[];
+  recommendations: string[];
 }
 
 /**
@@ -193,7 +239,7 @@ export interface TaskEntity {
  */
 export function createTaskEntity(spec: TaskEntityCreationSpec): TaskEntity {
   const entity: TaskEntity = {
-    id: spec.id,
+    id: spec.id || crypto.randomUUID(),
     title: spec.title,
     objective: spec.objective,
     requirements: spec.requirements,

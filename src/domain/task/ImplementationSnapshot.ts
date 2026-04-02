@@ -8,11 +8,19 @@
  * Triaging:
  *   - [NEW] Implements ImplementationSnapshot for checkpoint tracking and drift detection
  */
+import { TaskState } from '../../domain/task/TaskEntity';
+import type { TaskId, TaskEntity, Requirement } from '../../domain/task/TaskEntity';
+import * as crypto from 'crypto';
+export type CheckpointId = string;
 
 /**
- * Unique identifier for a checkpoint in the execution timeline
+ * Token hash for content integrity verification
  */
-export type CheckpointId = string;
+export interface TokenHash {
+  hash: string;
+  timestamp: Date;
+  metadata?: Record<string, any>;
+}
 
 /**
  * Snapshot of implementation progress at a specific point in time
@@ -392,6 +400,11 @@ export enum CorrectionType {
  */
 export interface DriftVector {
   /**
+   * Overall drift score (0.0-1.0)
+   */
+  driftScore: number;
+
+  /**
    * Topic divergence metric (0.0-1.0)
    */
   topicDivergence: number;
@@ -608,8 +621,7 @@ export function computeCheckpointHash(
     taskId,
     checkpointId,
     drivenTasks?.toString() || '0',
-    outputContent || '',
-    Date.now().toString()
+    outputContent || ''
   ].join('|');
 
   return crypto.createHash('sha-256').update(data).digest('hex');
@@ -620,14 +632,17 @@ export function computeCheckpointHash(
  */
 export function calculateDriftDelta(
   before: ImplementationSnapshot,
-  after: ImplementationSnapshot
+  after: ImplementationSnapshot,
+  topicDivergence: number = 0.0
 ): DriftVector {
-  const requirementDelta = after.completedRequirements.length - before.completedRequirements.length;
+  const requirementDelta = (after.completedRequirements?.length || 0) - (before.completedRequirements?.length || 0);
+  const integrityDelta = after.semanticHealth.integrityScore - before.semanticHealth.integrityScore;
   
   return {
-    topicDivergence: 0.2, // Placeholder — actual implementation uses semantic hash comparison
-    scopeCreep: requirementDelta > 0 ? 0.4 : 0.0,
-    qualityDeterioration: before.semanticHealth.integrityScore - after.semanticHealth.integrityScore
+    driftScore: Math.abs(integrityDelta),
+    topicDivergence,
+    scopeCreep: requirementDelta > 0 ? Math.min(1.0, requirementDelta / 10) : 0.0,
+    qualityDeterioration: Math.max(0, before.semanticHealth.integrityScore - after.semanticHealth.integrityScore)
   };
 }
 

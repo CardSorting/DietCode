@@ -8,6 +8,8 @@
  * Triaging:
  *   - [NEW] Implements DriftDetectionCriteria for drift prevention threshold configuration
  */
+import { TaskState } from './TaskEntity';
+import { CorrectionType } from './ImplementationSnapshot';
 
 /**
  * Configuration contract for drift detection thresholds
@@ -178,6 +180,8 @@ export class DriftProfilingLevel {
     checkpointInterval: 500,
     semanticSimilarityThreshold: 0.75,
     strictModeEnabled: true,
+    maxFailureThreshold: 0.95,
+    autoRestoreOnCriticalDrift: true,
     maxCheckpointCacheSize: 100,
     logDriftPredictions: true,
     enableDriftPrediction: true
@@ -189,6 +193,8 @@ export class DriftProfilingLevel {
     checkpointInterval: 2000,
     semanticSimilarityThreshold: 0.9,
     strictModeEnabled: false,
+    maxFailureThreshold: 0.95,
+    autoRestoreOnCriticalDrift: true,
     maxCheckpointCacheSize: 30,
     logDriftPredictions: false,
     enableDriftPrediction: false
@@ -200,6 +206,8 @@ export class DriftProfilingLevel {
     checkpointInterval: 100,
     semanticSimilarityThreshold: 0.95,
     strictModeEnabled: true,
+    maxFailureThreshold: 0.8,
+    autoRestoreOnCriticalDrift: true,
     maxCheckpointCacheSize: 200,
     logDriftPredictions: true,
     enableDriftPrediction: true
