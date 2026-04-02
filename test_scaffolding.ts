@@ -12,15 +12,17 @@ import { TerminalDisplay } from './src/infrastructure/TerminalDisplay';
 import { EventBus } from './src/core/orchestration/EventBus';
 import { ExecutionService } from './src/core/orchestration/ExecutionService';
 import { SnapshotService } from './src/core/memory/SnapshotService';
+import { type Snapshot, type SnapshotRepository } from './src/domain/memory/Snapshot';
 import { TypeScriptValidator } from './src/infrastructure/TypeScriptValidator';
 import { ValidationService } from './src/core/integrity/ValidationService';
 import { FuzzySearchRepository } from './src/infrastructure/FuzzySearchRepository';
 import { SearchService } from './src/core/memory/SearchService';
 import { SkillLoader } from './src/core/capabilities/SkillLoader';
-import { EventType } from './src/domain/Event';
-import type { SystemEvent } from './src/domain/Event';
+import { EventType, type SystemEvent } from './src/domain/Event';
+import { ConsoleLoggerAdapter } from './src/infrastructure/ConsoleLoggerAdapter';
+import { LogLevel } from './src/domain/logging/LogLevel';
+import { PromptLoader } from './src/infrastructure/PromptLoader';
 import type { ProjectContext } from './src/domain/context/ProjectContext';
-import type { Snapshot, SnapshotRepository } from './src/domain/memory/Snapshot';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -37,14 +39,16 @@ async function test() {
   const fileSystem = new FileSystemAdapter();
   const display = new TerminalDisplay();
   const eventBus = EventBus.getInstance();
+  const logger = new ConsoleLoggerAdapter(LogLevel.INFO);
+  const promptLoader = new PromptLoader(fileSystem);
   
   const snapshotService = new SnapshotService(new MockSnapshotRepo(), fileSystem);
-  const executionService = new ExecutionService(eventBus, snapshotService);
+  const executionService = new ExecutionService(snapshotService);
   const validator = new TypeScriptValidator();
   const validationService = new ValidationService(validator, eventBus);
-  const searchRepo = new FuzzySearchRepository(fileSystem);
+  const searchRepo = new FuzzySearchRepository();
   const searchService = new SearchService(searchRepo);
-  const skillLoader = new SkillLoader(fileSystem);
+  const skillLoader = new SkillLoader(fileSystem, logger);
 
   const project: ProjectContext = {
     workspace: { id: 'test', path: process.cwd(), name: 'DietCode' },
@@ -98,7 +102,7 @@ version: "1.0.0"
 Focus on JoyZoning principles.`);
 
   const skills = await skillLoader.load(project);
-  const architect = skills.find(s => s.name === 'Sovereign Architect');
+  const architect = skills?.find((s: any) => s.name === 'Sovereign Architect');
   
   if (architect) {
     display.status(`Loaded Skill: ${architect.name} (v${architect.metadata?.version})`, 'success');

@@ -58,4 +58,22 @@ export class SwarmAuditor {
       this.logService.debug(`Knowledge record for task outcome is being tracked`, { taskId: data.taskId || 'unknown' }, { component: 'SwarmAuditor' });
     }
   }
+
+  /**
+   * Audits a specific event and emits detailed analysis
+   */
+  async auditEvent(eventType: EventType, eventData: Record<string, any>): Promise<void> {
+    this.logService.info(
+      `Auditing event: ${eventType}`,
+      eventData,
+      { component: 'SwarmAuditor' }
+    );
+    
+    // In production, this would perform deeper analysis and potentially emit to external audit systems
+    this.eventBus.emit(EventType.ERROR_OCCURRED, {
+      source: 'SwarmAuditor',
+      message: `Event audited: ${eventType}`,
+      data: eventData
+    });
+  }
 }

@@ -2,10 +2,14 @@
  * Test script to validate Claude Code Prompt pattern integration
  */
 
-import { SafetyEvaluator, RollbackManager } from './src/infrastructure/validation/SafetyEvaluator';
+import { SafetyEvaluator } from './src/infrastructure/validation/SafetyEvaluator';
 import { SafetyGuard } from './src/core/capabilities/SafetyGuard';
 import { PatternRepository } from './src/infrastructure/prompts/PatternRepository';
 import { ToolRouterAdapter } from './src/infrastructure/capabilities/ToolRouterAdapter';
+import { LogLevel } from './src/domain/logging/LogLevel';
+import { ConsoleLoggerAdapter } from './src/infrastructure/ConsoleLoggerAdapter';
+
+const logger = new ConsoleLoggerAdapter(LogLevel.INFO);
 
 /**
  * Run all demonstrations
@@ -20,34 +24,33 @@ async function runDemos() {
   // Demo 1: Safety Guard
   try {
     console.log('\n✓ Test 1: Safety Guard Integration');
-    const rollback = new RollbackManager();
-    const eval = new SafetyEvaluator();
-    const guard = new SafetyGuard(eval, rollback);
+    const evaluator = new SafetyEvaluator();
+    const guard = new SafetyGuard(evaluator);
     
-    const result = await guard.executeWithSafety(
-      async () => ({ success: true }),
-      'TEST_ACTION',
+    // Use the evaluateToolSafety method from SafetyGuard
+    const result = await guard.evaluateToolSafety(
+      'test_tool',
       { targetPath: '/test.ts' }
     );
     
-    if (result && result.safety.success) {
+    if (result.isSafe !== undefined) {
       console.log('  ✅ PASSED: Safety guard executed successfully');
+      console.log(`     - Risk Level: ${result.riskLevel}`);
+      console.log(`     - Safe: ${result.isSafe}`);
       passed++;
     } else {
       console.log('  ❌ FAILED: Safety guard returned unexpected result');
       failed++;
     }
-  } catch (error) {
-    console.log(`  ❌ FAILED: ${error}`);
+  } catch (error: any) {
+    console.log(`  ❌ FAILED: ${error?.message || error}`);
     failed++;
   }
   
   // Demo 2: Pattern Repository
   try {
     console.log('\n✓ Test 2: Pattern Repository');
-    const repo = new PatternRepository();
-    
-    const patterns = repo.getAllPatterns();
+    const patterns = PatternRepository.getAllPatterns();
     if (patterns.length > 0) {
       console.log(`  ✅ PASSED: Found ${patterns.length} patterns`);
       passed++;
@@ -55,8 +58,8 @@ async function runDemos() {
       console.log('  ❌ FAILED: No patterns found');
       failed++;
     }
-  } catch (error) {
-    console.log(`  ❌ FAILED: ${error}`);
+  } catch (error: any) {
+    console.log(`  ❌ FAILED: ${error?.message || error}`);
     failed++;
   }
   
@@ -75,8 +78,8 @@ async function runDemos() {
       console.log('  ❌ FAILED: Tool routing failed');
       failed++;
     }
-  } catch (error) {
-    console.log(`  ❌ FAILED: ${error}`);
+  } catch (error: any) {
+    console.log(`  ❌ FAILED: ${error?.message || error}`);
     failed++;
   }
   

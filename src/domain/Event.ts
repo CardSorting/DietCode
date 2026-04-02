@@ -13,4 +13,4 @@ export { EventType } from './events/EventType';
 export type { SystemEvent, EventMetadata } from './events/SystemEvent';
 
 // Event-related domain types
-// Note: EventBus implementation resides in Core layer (orchestration)
+// Note: EventBus implementation resides in Core layer (orchestration/eventbus.ts)

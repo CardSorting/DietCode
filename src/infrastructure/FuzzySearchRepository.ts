@@ -3,10 +3,12 @@
  * Principle: Implementation of Domain SearchProvider using fuzzy matching.
  */
 
-import type { SearchProvider } from '../domain/memory/SearchProvider';
+import type { SearchRepository } from '../domain/memory/SearchProvider';
 import type { KnowledgeItem } from '../domain/memory/Knowledge';
 
-export class FuzzySearchRepository implements SearchProvider {
+export class FuzzySearchRepository implements SearchRepository {
+  private _index: KnowledgeItem[] = [];
+
   /**
    * Implements a production-hardened fuzzy search for knowledge recall.
    */
@@ -33,5 +35,38 @@ export class FuzzySearchRepository implements SearchProvider {
       .sort((a, b) => b.score - a.score)
       .slice(0, limit)
       .map(s => s.item);
+  }
+
+  /**
+   * Index knowledge items for efficient searching.
+   */
+  async index(items: KnowledgeItem[]): Promise<void> {
+    this._index = [...items];
+  }
+
+  /**
+   * Remove items from the search index.
+   */
+  async remove(items: KnowledgeItem[]): Promise<void> {
+    this._index = this._index.filter(item => !items.includes(item));
+  }
+
+  /**
+   * Load index - used during initialization.
+   */
+  async loadIndex(): Promise<KnowledgeItem[]> {
+    return [...this._index];
+  }
+
+  /**
+   * Find the closest match to a query string
+   */
+  async findClosest(query: string, root: string): Promise<{ path: string } | null> {
+    // Simple implementation - returns the knowledge key as if it were a path
+    const match = this._index.find(item => 
+      item.key.toLowerCase().includes(query.toLowerCase()) ||
+      item.value.toLowerCase().includes(query.toLowerCase())
+    );
+    return match ? { path: match.key } : null;
   }
 }

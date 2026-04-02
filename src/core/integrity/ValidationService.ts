@@ -28,4 +28,14 @@ export class ValidationService {
 
     return result;
   }
+
+  /**
+   * Validates a decision code (domain-specific validation)
+   */
+  async validateDecisionCode(code: string): Promise<ValidationResult> {
+    return {
+      isValid: code.length > 0,
+      errors: code.length === 0 ? [{ line: 1, column: 1, message: 'Empty code provided' }] : []
+    };
+  }
 }

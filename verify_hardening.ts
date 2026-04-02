@@ -4,12 +4,12 @@
  */
 
 import { FileSystemAdapter } from './src/infrastructure/FileSystemAdapter';
-import { NodeSystemAdapter } from './src/infrastructure/NodeSystemAdapter';
-import { DiscoveryService } from './src/core/context/DiscoveryService';
-import { EventBus } from './src/core/orchestration/EventBus';
-import { EventType } from './src/domain/Event';
 import { LogLevel } from './src/domain/logging/LogLevel';
 import { ConsoleLoggerAdapter } from './src/infrastructure/ConsoleLoggerAdapter';
+import { EventBus } from './src/core/orchestration/EventBus';
+import { EventType } from './src/domain/Event';
+import { DiscoveryService } from './src/core/context/DiscoveryService';
+import { NodeSystemAdapter } from './src/infrastructure/NodeSystemAdapter';
 
 async function verify() {
   console.log('--- DIETCODE HARDENING VERIFICATION ---');
@@ -18,7 +18,7 @@ async function verify() {
   const logger = new ConsoleLoggerAdapter(LogLevel.DEBUG);
   
   const fs = new FileSystemAdapter();
-  const systemAdapter = new NodeSystemAdapter(fs);
+  const systemAdapter = new NodeSystemAdapter(fs, logger);
   const discovery = new DiscoveryService(fs, systemAdapter, logger);
   const eventBus = EventBus.getInstance(logger);
 

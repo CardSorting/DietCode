@@ -180,10 +180,10 @@ Follow the JoyZoning architecture for all operations.`,
   });
 
   const orchestrator = new Orchestrator(
-    provider, 
-    ui, 
-    toolManager, 
-    commandProcessor, 
+    provider,
+    ui,
+    toolManager,
+    commandProcessor,
     repository,
     decisions,
     audit,
@@ -192,9 +192,8 @@ Follow the JoyZoning architecture for all operations.`,
     attachmentResolver,
     pruner,
     ignorer,
-    handoverService,
-    memoryService,
-    projectContext
+    projectContext,
+    memoryService
   );
 
   const initialInput = process.argv.slice(2).join(' ');

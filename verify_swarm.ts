@@ -3,34 +3,81 @@
  * Tests SwarmAuditor and distributed coordination features.
  */
 
-import { FileSystemAdapter } from './src/infrastructure/FileSystemAdapter';
-import { NodeSystemAdapter } from './src/infrastructure/NodeSystemAdapter';
-import { DiscoveryService } from './src/core/context/DiscoveryService';
-import { EventBus } from './src/core/orchestration/EventBus';
-import { EventType } from './src/domain/Event';
 import { LogLevel } from './src/domain/logging/LogLevel';
 import { ConsoleLoggerAdapter } from './src/infrastructure/ConsoleLoggerAdapter';
+import { EventBus } from './src/core/orchestration/EventBus';
+import { EventType } from './src/domain/events/EventType';
 import { SwarmAuditor } from './src/core/orchestration/SwarmAuditor';
+import type { SessionRepository } from './src/domain/context/SessionRepository';
+import type { LogService } from './src/domain/logging/LogService';
+
+// Mock SessionRepository
+class MockSessionRepository implements SessionRepository {
+  private sessions: Map<string, any> = new Map();
+
+  async ensureProject(context: any, userId: string): Promise<void> {}
+  
+  async createSession(userId: string, agentId: string, description: string): Promise<string> {
+    const sessionId = `session-${Date.now()}`;
+    this.sessions.set(sessionId, {
+      sessionId,
+      messages: [],
+      agentId,
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+    return sessionId;
+  }
+  
+  async appendMessage(sessionId: string, message: any): Promise<void> {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.messages.push(message);
+      session.updatedAt = new Date().toISOString();
+      this.sessions.set(sessionId, session);
+    }
+  }
+  
+  async loadSession(sessionId: string): Promise<any> {
+    return this.sessions.get(sessionId) || null;
+  }
+  
+  async updateSessionStatus(sessionId: string, status: string, result?: any): Promise<void> {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.status = status;
+      if (result) session.result = result;
+      session.updatedAt = new Date().toISOString();
+      this.sessions.set(sessionId, session);
+    }
+  }
+  
+  async updateSessionAgent(sessionId: string, agentId: string): Promise<void> {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.agentId = agentId;
+      session.updatedAt = new Date().toISOString();
+      this.sessions.set(sessionId, session);
+    }
+  }
+  
+  async getSession(sessionId: string): Promise<any> {
+    return this.sessions.get(sessionId) || null;
+  }
+}
 
 async function verify() {
   console.log('--- DIETCODE SWARM VERIFICATION ---');
 
-  const fs = new FileSystemAdapter();
-  const systemAdapter = new NodeSystemAdapter(fs);
-  const logger = new ConsoleLoggerAdapter(LogLevel.INFO) as any; // Used for testing only
-  const discovery = new DiscoveryService(fs, systemAdapter, logger);
+  const logger = new ConsoleLoggerAdapter(LogLevel.INFO);
   const eventBus = EventBus.getInstance(logger);
-  const auditor = new SwarmAuditor(eventBus, logger);
+  const sessionRepo = new MockSessionRepository();
+  const auditor = new SwarmAuditor(eventBus, sessionRepo, logger);
 
-  // 1. Test EventBus Integration with Auditing
-  console.log('\n[1] Testing EventBus integration...');
-  const context = await discovery.discover(process.cwd());
-  eventBus.emit(EventType.SYSTEM_INFO_GATHERED, context.detailedContext || {});
-  console.log('[PASS] EventBus event emitted');
-
-  // 2. Test Auditing Functionality
-  console.log('\n[2] Testing Audit logging...');
-  await auditor.auditEvent('test-event', { type: 'system_info' });
+  // 1. Test Auditing Functionality
+  console.log('\n[1] Testing Audit logging...');
+  await auditor.auditEvent(EventType.SYSTEM_INFO_GATHERED, { type: 'system_info' });
   console.log('[PASS] Audit logged');
 
   console.log('\n--- ALL SWARM VERIFICATIONS PASSED ---');

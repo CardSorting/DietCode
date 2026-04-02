@@ -11,32 +11,34 @@ import type { HandoverService } from './HandoverService';
 import type { SwarmAuditor } from './SwarmAuditor';
 
 /**
- * Orchestrator configuration options
- */
-export interface OrchestratorConfig {
-  sessionId?: string;
-  maxConcurrency?: number;
-  enableSafety?: boolean;
-}
-
-/**
  * Orchestrator method — coordinates the high-level orchestration workflow
  * Pattern: Orchestrator Pattern — unified entry point for system operations
+ * 
+ * Domain-first: Orchestrator aggregates Core layer services for coordinated execution
  */
 export class Orchestrator {
   private eventBus: EventBus;
   private executionService?: ExecutionService;
   private handoverService?: HandoverService;
   private swarmAuditor?: SwarmAuditor;
-  private eventData?: { sessionId?: string; maxConcurrency?: number };
 
-  constructor(config?: OrchestratorConfig) {
+  constructor(
+    private provider: any,
+    private ui: any,
+    private toolManager: any,
+    private commandProcessor: any,
+    private repository: any,
+    private decisions: any,
+    private audit: any,
+    private agentRegistry: any,
+    private contextService: any,
+    private attachmentResolver: any,
+    private contextPruner: any,
+    private ignorer: any,
+    private projectContext?: any,
+    private memoryService?: any
+  ) {
     this.eventBus = EventBus.getInstance();
-    this.eventData = config;
-    
-    if (config?.maxConcurrency) {
-      console.log(`⚙️  Max concurrency: ${config.maxConcurrency}`);
-    }
   }
 
   /**
@@ -176,7 +178,6 @@ export class Orchestrator {
       executionService: this.executionService !== undefined,
       handoverService: this.handoverService !== undefined,
       swarmAuditor: this.swarmAuditor !== undefined,
-      sessionId: this.eventData?.sessionId,
       currentStage: this.getCurrentStage()
     };
   }
