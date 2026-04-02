@@ -150,12 +150,17 @@ export class LockOrchestrator {
       ? { ...LockTimeoutDefaults, timeoutMs: config }
       : config;
 
+    // Use current process/agent ID if ownerId is not provided
+    if (!scope.ownerId) {
+      scope.ownerId = process.env.AGENT_ID || `agent-${process.pid}`;
+    }
+
     const acquireFn = this.acquisitionStrategies.get(timeoutConfig.strategy);
     if (!acquireFn) {
       throw new Error(`Unknown lock timeout strategy: ${timeoutConfig.strategy}`);
     }
 
-    console.log(`🔒 Lock acquisition: ${scope.taskId}_${scope.operation} (${timeoutConfig.strategy})`);
+    console.log(`🔒 Lock acquisition: ${scope.taskId}_${scope.operation} (Owner: ${scope.ownerId})`);
     
     try {
       const ticket = await acquireFn(scope, timeoutConfig.timeoutMs);
@@ -354,4 +359,4 @@ export const NamedLockScopes = {
 /**
  * Default LockOrchestrator instance
  */
-export const defaultLockOrchestrator = LockOrchestrator.getInstance();
+export const getDefaultLockOrchestrator = () => LockOrchestrator.getInstance();

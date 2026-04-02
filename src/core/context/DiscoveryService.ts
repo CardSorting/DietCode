@@ -5,6 +5,7 @@ import type { LogService } from '../../domain/logging/LogService';
 import type { SystemAdapter } from '../../domain/system/SystemAdapter';
 import { EventBus } from '../orchestration/EventBus';
 import { EventType } from '../../domain/Event';
+import { defaultCapabilityRegistry } from '../capabilities/CapabilityRegistry';
 
 /**
  * [LAYER: CORE]
@@ -37,6 +38,8 @@ export class DiscoveryService {
       branch: repoContext.git?.branch 
     });
 
+    await this.performDeepDiscovery();
+
     return {
       workspace: {
         id: `workspace-${name}`,
@@ -67,5 +70,30 @@ export class DiscoveryService {
       current = path.dirname(current);
     }
     return currentDir;
+  }
+
+  private async performDeepDiscovery(): Promise<void> {
+    const registry = defaultCapabilityRegistry;
+    const coreCapabilities = [
+      { name: 'git', cmd: 'git --version' },
+      { name: 'node', cmd: 'node --version' },
+      { name: 'npm', cmd: 'npm --version' },
+      { name: 'docker', cmd: 'docker --version' },
+      { name: 'bun', cmd: 'bun --version' },
+    ];
+
+    for (const cap of coreCapabilities) {
+      const result = await this.systemAdapter.detectCapability(cap.name, cap.cmd);
+      registry.register({
+        name: cap.name,
+        available: result.available,
+        version: result.version
+      });
+    }
+
+    this.eventBus.emit(EventType.SYSTEM_INFO_GATHERED, {
+      component: 'DiscoveryService',
+      message: `Deep discovery complete: ${registry.getAll().filter(c => c.available).length} capabilities found`
+    });
   }
 }

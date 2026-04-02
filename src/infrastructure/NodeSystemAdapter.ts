@@ -69,6 +69,15 @@ export class NodeSystemAdapter implements SystemAdapter {
     };
   }
 
+  async detectCapability(name: string, checkCommand: string): Promise<{ available: boolean; version?: string }> {
+    try {
+      const output = execSync(checkCommand).toString().trim();
+      return { available: true, version: output };
+    } catch {
+      return { available: false };
+    }
+  }
+
   // ─── Enhanced Binary/Stream Operations ────────────────────────────
 
   /**

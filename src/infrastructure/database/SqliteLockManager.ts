@@ -73,17 +73,21 @@ export class SqliteLockManager {
       .addColumn('acquired_at', 'text', (col) => col.notNull())
       .addColumn('expires_at', 'text', (col) => col.notNull())
       .addColumn('session_id', 'text')
+      .addColumn('owner_id', 'text')
       .addColumn('auto_release', 'text', (col) => col.notNull()) // JSON string
       .execute();
 
     // Create a unique index on resource_id
-    await (db.schema as any)
-      .createIndex('idx_locks_resource_id')
-      .ifNotExists()
-      .onTable('solo_locks')
-      .column('resource_id')
-      .unique()
-      .execute();
+    try {
+      await (db.schema as any)
+        .createIndex('idx_locks_resource_id')
+        .on('solo_locks')
+        .column('resource_id')
+        .unique()
+        .execute();
+    } catch (e) {
+      // Index may already exist or syntax mismatch
+    }
   }
 
   /**
@@ -108,7 +112,8 @@ export class SqliteLockManager {
       acquiredAt: Date.now(),
       expiresAt: scope.timeoutMs || 0,
       sessionId: process.env.SESSION_ID || randomUUID(),
-      autoRelease: scope.autoRelease !== false
+      autoRelease: scope.autoRelease !== false,
+      ownerId: scope.ownerId
     };
 
     // Try immediate acquisition
@@ -163,9 +168,15 @@ export class SqliteLockManager {
       .executeTakeFirst();
 
     if (existing) {
+      // Logic for owner-based re-acquisition or takeover
+      if (existing.owner_id === ticket.ownerId) {
+        // Same owner, allow re-acquisition (extension)
+        return await this.performUpdateLock(db, existing.id, ticket, resourceId);
+      }
+
       return {
         success: false,
-        error: 'Resource is currently locked',
+        error: `Resource is currently locked by owner: ${existing.owner_id}`,
         reason: 'already_locked'
       };
     }
@@ -180,6 +191,7 @@ export class SqliteLockManager {
           acquired_at: ticket.acquiredAt.toString(),
           expires_at: ticket.expiresAt.toString(),
           session_id: ticket.sessionId,
+          owner_id: ticket.ownerId,
           auto_release: JSON.stringify(ticket.autoRelease)
         })
         .execute();
@@ -198,6 +210,39 @@ export class SqliteLockManager {
         };
       }
       throw error;
+    }
+  }
+
+  /**
+   * Internal helper to update an existing lock (takeover or extension)
+   */
+  private async performUpdateLock(
+    db: any,
+    lockId: string,
+    ticket: LockTicket,
+    resourceId: string
+  ): Promise<LockResult> {
+    try {
+      await (db as any).updateTable('solo_locks')
+        .set({
+          lock_code: ticket.code,
+          acquired_at: ticket.acquiredAt.toString(),
+          expires_at: ticket.expiresAt.toString(),
+          session_id: ticket.sessionId,
+          owner_id: ticket.ownerId,
+          auto_release: JSON.stringify(ticket.autoRelease)
+        })
+        .where('id', '=', lockId)
+        .execute();
+
+      this.locks.set(resourceId, ticket);
+      return { success: true, ticket };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: `Failed to update lock: ${error.message}`,
+        reason: 'already_locked'
+      };
     }
   }
 
@@ -318,7 +363,8 @@ export class SqliteLockManager {
           acquiredAt: parseInt(lock.acquired_at),
           expiresAt: parseInt(lock.expires_at),
           sessionId: lock.session_id,
-          autoRelease: lock.auto_release === 'true'
+          autoRelease: lock.auto_release === 'true',
+          ownerId: lock.owner_id
         }
       };
     }

@@ -26,6 +26,11 @@ export interface LockScope {
    * Whether to automatically release the lock when the process exits
    */
   autoRelease?: boolean;
+
+  /**
+   * Optional owner identifier (the agent instance owning the lock)
+   */
+  ownerId?: string;
 }
 
 /**
@@ -39,6 +44,7 @@ export interface LockTicket {
   expiresAt: number;
   sessionId?: string;
   autoRelease: boolean;
+  ownerId?: string;
 }
 
 /**

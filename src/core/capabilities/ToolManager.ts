@@ -24,6 +24,7 @@ import { LockOrchestrator } from '../manager/LockOrchestrator';
 import { FileContextTracker } from '../context/FileContextTracker.ts';
 import { RuleContextBuilder } from '../context/RuleContextBuilder.ts';
 import { ResourceGovernor, GovernanceAction } from './ResourceGovernor';
+import { ExecutionGovernor } from './ExecutionGovernor';
 
 /**
  * ToolManager orchestrates tool registration and execution
@@ -40,11 +41,13 @@ export class ToolManager {
   private lockOrchestrator?: LockOrchestrator;
   private contextTracker: FileContextTracker;
   private governor: ResourceGovernor;
+  private executionGovernor: ExecutionGovernor;
 
-  constructor(governor?: ResourceGovernor) {
+  constructor(governor?: ResourceGovernor, executionGovernor?: ExecutionGovernor) {
     this.eventBus = EventBus.getInstance();
     this.contextTracker = FileContextTracker.getInstance();
     this.governor = governor || new ResourceGovernor();
+    this.executionGovernor = executionGovernor || new ExecutionGovernor();
   }
 
   /**
@@ -327,9 +330,17 @@ export class ToolManager {
       console.error(`⚠️ Safety evaluation encountered error, proceeding with default:`, safetyError);
     }
 
-    // Phase 2: Execute tool
+    // Execution Phase: Execute tool with ExecutionGovernor for resiliency
     try {
-      const result = await tool.execute(input);
+      const result = await this.executionGovernor.execute(
+        `${name}-${Date.now()}`,
+        () => tool.execute(input),
+        {
+          timeoutMs: 60000,
+          maxRetries: 3
+        }
+      );
+      
       const durationMs = Date.now() - startTime;
       
       // Record governance metrics
