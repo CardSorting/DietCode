@@ -15,7 +15,14 @@ export class IntegrityScanner {
   /**
    * Scans the project for architectural integrity violations.
    */
-  scan(projectRoot: string): Promise<IntegrityReport> {
+  async scan(projectRoot: string): Promise<IntegrityReport> {
     throw new Error('IntegrityScanner.scan() not implemented');
+  }
+
+  /**
+   * Scans a single file for architectural integrity violations.
+   */
+  async scanFile(filePath: string, projectRoot: string): Promise<IntegrityReport> {
+    throw new Error('IntegrityScanner.scanFile() not implemented');
   }
 }

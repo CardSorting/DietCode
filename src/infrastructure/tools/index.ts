@@ -35,4 +35,5 @@ export {
   SAFE_EXTENSIONS,
   SKIP_DIRECTORIES,
 } from './PathValidator';
-export type { PathValidationErrorCode } from './PathValidator';
+// Refactoring and Integrity Tools
+export { RefactorTools } from './RefactorTools';

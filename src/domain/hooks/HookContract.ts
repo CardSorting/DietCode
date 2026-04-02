@@ -45,7 +45,7 @@ export interface Hook {
   /**
    * The hook execution handler
    */
-  execute: (input: any) => Promise<any>;
+  execute: (params: { toolName: string; input: any; result?: any }) => Promise<any>;
 }
 
 /**

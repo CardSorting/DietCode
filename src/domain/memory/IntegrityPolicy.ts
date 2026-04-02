@@ -42,6 +42,21 @@ export class IntegrityPolicy {
       message: 'Domain layer should not depend on external libraries.',
       severity: 'warn',
       layerScope: ['src/domain']
+    },
+    {
+      type: ViolationType.INVALID_LAYER_TAG,
+      // Target the first 500 characters only to ensure tag is in the header
+      pattern: /^(?:[\s\S]{0,10000}?)(?!\[LAYER:\s*(DOMAIN|CORE|INFRASTRUCTURE|UI|PLUMBING|UTILS)\])/,
+      message: 'Invalid or missing [LAYER] tag in the file header.',
+      severity: 'error',
+      layerScope: ['src/']
+    },
+    {
+       type: ViolationType.CROSS_LAYER_IMPORT,
+       pattern: /import.*from.*['"](\.\.\/){4,}/,
+       message: 'Excessive relative import depth (level 4+) indicates potential JoyZoning violation.',
+       severity: 'warn',
+       layerScope: ['src/']
     }
   ];
 

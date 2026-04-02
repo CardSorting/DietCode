@@ -114,43 +114,47 @@ export class HookOrchestrator {
    * 
    * @param toolName - Name of the tool being processed
    * @param input - Input data for the hook chain
+   * @param toolResult - Result of the tool execution (for POST_EXECUTION hooks)
    * @returns Final result after all hooks in chain
    * @throws PreToolCancellationError if pre-tool hooks cancel
    */
-  async chain<T>(toolName: string, input: T): Promise<T> {
+  async chain<T>(toolName: string, input: T, toolResult?: any): Promise<any> {
     // Phase 1: PRE_TOOL_USE hooks (for cancellation)
     const preHooks = this.hooks.get(HookPhase.PRE_TOOL_USE) || [];
-    const preToolCancellation = new Map<string, PreToolCancellationProtocol>();
 
-    console.log(`🚀 Executing PRE_TOOL_USE hooks for "${toolName}"...`);
+    if (preHooks.length > 0) {
+      console.log(`🚀 Executing PRE_TOOL_USE hooks for "${toolName}"...`);
+    }
 
     for (const hook of preHooks) {
       try {
         const result = await hook.execute({ toolName, input });
         
         // Check for cancellation protocol
-        if (result.cancel !== undefined) {
-          preToolCancellation.set(hook.name, result);
-          console.warn(`⚠️  Pre-tool hook "${hook.name}" triggered cancellation`);
+        if (result && result.shouldCancel) {
+          console.warn(`⚠️  Pre-tool hook "${hook.name}" triggered cancellation: ${result.reason}`);
           
           // Fail fast - don't execute tool
           throw new PreToolCancellationError(toolName, result);
         }
       } catch (error: any) {
-        // Catch errors but continue (isolation)
+        if (error instanceof PreToolCancellationError) throw error;
+        // Catch other errors but continue (isolation)
         console.error(`❌ Pre-tool hook "${hook.name}" failed:`, error);
       }
     }
 
     // Phase 2: TOOL_EXECUTION
     const toolHooks = this.hooks.get(HookPhase.TOOL_EXECUTION) || [];
-    let toolStage2 = input;
+    let currentInput = input;
 
-    console.log(`⚙️  Executing TOOL_EXECUTION hooks for "${toolName}"...`);
+    if (toolHooks.length > 0) {
+      console.log(`⚙️  Executing TOOL_EXECUTION hooks for "${toolName}"...`);
+    }
 
     for (const hook of toolHooks) {
       try {
-        toolStage2 = await hook.execute(toolStage2);
+        currentInput = await hook.execute({ toolName, input: currentInput });
       } catch (error: any) {
         console.error(`❌ Tool execution hook "${hook.name}" failed:`, error);
         // Continue to next hook (isolation)
@@ -159,20 +163,22 @@ export class HookOrchestrator {
 
     // Phase 3: POST_EXECUTION
     const postHooks = this.hooks.get(HookPhase.POST_EXECUTION) || [];
-    let toolStage3 = toolStage2;
+    let currentResult = toolResult;
 
-    console.log(`✅ Executing POST_EXECUTION hooks for "${toolName}"...`);
+    if (postHooks.length > 0) {
+      console.log(`✅ Executing POST_EXECUTION hooks for "${toolName}"...`);
+    }
 
     for (const hook of postHooks) {
       try {
-        toolStage3 = await hook.execute(toolStage3);
+        currentResult = await hook.execute({ toolName, input, result: currentResult });
       } catch (error: any) {
         console.error(`❌ Post-execution hook "${hook.name}" failed:`, error);
         // Continue to next hook (isolation)
       }
     }
 
-    return toolStage3;
+    return currentResult || currentInput;
   }
 
   /**

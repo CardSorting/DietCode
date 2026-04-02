@@ -205,13 +205,8 @@ export class ToolManager {
     }
 
     try {
-      // HookOrchestrator uses chain() now
-      const result = await this.hookOrchestrator.chain(toolName, {});
-
-      if (!result) {
-        console.warn(`🛑 Pre-tool hooks blocked execution: ${toolName}`);
-        return false;
-      }
+      // Use chain() for multi-phase hook execution
+      await this.hookOrchestrator.chain(toolName, {});
 
       console.log(`✅ Pre-tool hooks passed: ${toolName}`);
       return true;
@@ -305,6 +300,18 @@ export class ToolManager {
 
     this.governor.recordInvocation(name);
 
+    // Cline Phase: Execute PRE_TOOL_USE hooks
+    if (!(await this.runPreToolHooks(name))) {
+      const errorMsg = `🛑 [HOOKS] Pre-tool hooks blocked execution: ${name}`;
+      return {
+        success: false,
+        toolName: name,
+        toolResult: { content: errorMsg, isError: true },
+        safetyCheck,
+        execution: { startTime, endTime: Date.now(), durationMs: 0 }
+      };
+    }
+
     // Phase 1: Evaluate safety if SafetyGuard configured
     try {
       if (this.safetyGuard) {
@@ -366,10 +373,16 @@ export class ToolManager {
         });
       }
 
+      // Cline Phase: Execute POST_EXECUTION hooks
+      let finalResult = result;
+      if (this.hookOrchestrator) {
+        finalResult = await this.hookOrchestrator.chain(name, input, result);
+      }
+
       return {
         success: true,
         toolName: name,
-        toolResult: result,
+        toolResult: finalResult,
         safetyCheck,
         execution: {
           startTime,

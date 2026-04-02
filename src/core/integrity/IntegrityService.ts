@@ -30,7 +30,22 @@ export class IntegrityService implements IntegrityScanner {
     }
     
     const report = await this.scanner.scan(projectRoot);
+    this.reportViolations(report);
     
+    return report;
+  }
+
+  async scanFile(filePath: string, projectRoot: string): Promise<IntegrityReport> {
+    if (!this.scanner) {
+      return { score: 100, violations: [], scannedAt: new Date().toISOString() };
+    }
+    
+    const report = await this.scanner.scanFile(filePath, projectRoot);
+    this.reportViolations(report);
+    return report;
+  }
+
+  private reportViolations(report: IntegrityReport): void {
     if (report.violations.length > 0 && this.logService) {
       this.logService.warn(
         `Found ${report.violations.length} architectural violations`,
@@ -46,7 +61,5 @@ export class IntegrityService implements IntegrityScanner {
         });
       }
     }
-    
-    return report;
   }
 }

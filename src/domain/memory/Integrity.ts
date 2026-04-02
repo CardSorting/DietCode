@@ -10,6 +10,8 @@ export enum ViolationType {
   SENSITIVE_LEAK = 'sensitive_leak',
   NAMING_CONVENTION = 'naming_convention',
   DOMAIN_PURITY = 'domain_purity',
+  INVALID_LAYER_TAG = 'invalid_layer_tag',
+  MISPLACED_FILE = 'misplaced_file',
 }
 
 export interface IntegrityViolation {
