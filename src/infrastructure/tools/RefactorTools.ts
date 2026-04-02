@@ -17,13 +17,14 @@
    * 6. Dispatch ArchitectureEvent
  */
 
-import { promise as pfs } from 'fs-extra';
 import * as path from 'path';
 import * as fs from 'fs';
+import { promises as pfs } from 'fs';
 import { IntegrityScanner } from '../../domain/integrity/IntegrityScanner';
 import { type ArchitectureEvent, type MoveOptions, type ArchitecturalEventType } from '../../domain/events/ArchitectureEvent';
 import { type IntegrityReport } from '../../domain/memory/Integrity';
 import { JoySimulator } from '../architecture/JoySimulator';
+import { ImportFixer } from './ImportFixer';
 
 /**
  * Pre-flight blocking result
@@ -53,6 +54,7 @@ export interface GuardBlockResult {
 export class RefactorTools {
   private integrityScanner: IntegrityScanner;
   private simulator: JoySimulator;
+  private importFixer: ImportFixer;
   private projectRoot: string;
 
   constructor(
@@ -63,6 +65,7 @@ export class RefactorTools {
     this.simulator = new JoySimulator({
       aggressive: config.aggressiveBlocking ?? true
     });
+    this.importFixer = new ImportFixer(path.resolve(process.cwd(), '.'));
     this.projectRoot = path.resolve(process.cwd(), '.');
   }
 
@@ -116,9 +119,29 @@ export class RefactorTools {
       };
     }
 
-    // Step 4: Execute move (requires node_modules/fs-extra)
+    // Step 4: Execute move
     try {
-      await pfs.move(absOldPath, absNewPath);
+      if (!fs.existsSync(path.dirname(absNewPath))) {
+          fs.mkdirSync(path.dirname(absNewPath), { recursive: true });
+      }
+      await pfs.rename(absOldPath, absNewPath);
+      
+      // Pass 18: Auto-Header Update (Sovereign Tagging)
+      const subZoneMatch = newPath.match(/src\/[a-z]+\/([a-z0-9\-_]+)\//i);
+      if (subZoneMatch) {
+          const subZone = subZoneMatch[1];
+          let content = fs.readFileSync(absNewPath, 'utf8');
+          if (content.includes('[SUB-ZONE:')) {
+              content = content.replace(/\[SUB-ZONE:.*\]/i, `[SUB-ZONE: ${subZone}]`);
+          } else {
+              // Inject after LAYER tag
+              content = content.replace(/(\[LAYER:.*\])/i, `$1\n * [SUB-ZONE: ${subZone}]`);
+          }
+          fs.writeFileSync(absNewPath, content, 'utf8');
+      }
+
+      // Step 4.2: Resolve Imports (Pass 18: Zero-Debt Protocol)
+      await this.importFixer.fixImports(oldPath, newPath);
     } catch (err) {
       // Rollback failed - notify
       options.onEvent?.(this.createEvent('MOVE_FAILED', oldPath, newPath, currentReport, err as Error));
@@ -176,10 +199,10 @@ export class RefactorTools {
     simResult: any
   ): GuardBlockResult {
     return {
-      blocked: false,
+      blocked: simResult.isSafe === false,
       reason: '',
       simulatedScore: simResult.score,
-      violations: simResult.cascadeViolations || []
+      violations: [...(simResult.violations || []), ...(simResult.cascadeViolations || [])]
     };
   }
 
@@ -195,7 +218,7 @@ export class RefactorTools {
     ];
 
     blockResult.violations.forEach(v => {
-      msgLines.push(`• {type: ${v.type}}`);
+      msgLines.push(`• {type: ${v.type}} ${v.message}`);
     });
 
     msgLines.push('');

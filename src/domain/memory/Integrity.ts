@@ -15,6 +15,7 @@ export enum ViolationType {
   MISSING_TAG = 'missing_tag',
   LAYER_VIOLATION = 'layer_violation',
   CIRCULAR_DEPENDENCY = 'circular_dependency',
+  TAG_DRIFT = 'tag_drift',
 }
 
 export interface IntegrityViolation {

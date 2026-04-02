@@ -86,9 +86,11 @@ export function analyzeDependencies(
 
     visit(sourceFile);
 
-    // Header Rule Check
+    // Header Rule Check (Pass 17: Sovereign Tagging)
     const header = code.slice(0, 2000);
-    const layerMatch = header.match(/\[LAYER:?\s*([A-Z]+)\]/);
+    const layerMatch = header.match(/\[LAYER:?\s*([A-Z]+)\]/i);
+    const subZoneMatch = header.match(/\[SUB-ZONE:?\s*([a-zA-Z\-_]+)\]/i);
+    
     if (!layerMatch) {
         violations.push(createViolationPure(
             ViolationType.MISSING_TAG,
@@ -96,6 +98,33 @@ export function analyzeDependencies(
             `File is missing a [LAYER: TYPE] tag in the header.`,
             'error'
         ));
+    }
+
+    // Pass 17: Strict Sub-Zone Validation
+    const parts = relPath.split(path.sep);
+    // Path structure: src/<layer>/<subzone>/...
+    if (parts.length > 2 && (parts[0] === 'src' || parts[0] === 'lib')) {
+        const actualSubZone = parts[2]; // The functional cluster name
+        
+        if (subZoneMatch && subZoneMatch[1]) {
+            const declaredSubZone = subZoneMatch[1];
+            if (actualSubZone && declaredSubZone.toLowerCase() !== actualSubZone.toLowerCase()) {
+                violations.push(createViolationPure(
+                    ViolationType.TAG_DRIFT,
+                    relPath,
+                    `Sovereign Tag Drift: Header declares [SUB-ZONE: ${declaredSubZone}] but file is at /${actualSubZone}/.`,
+                    'error'
+                ));
+            }
+        } else if (actualSubZone && !relPath.endsWith('index.ts') && !relPath.endsWith('types.ts')) {
+            // Only warn for missing sub-zone tags if it's already in a sub-zone
+            violations.push(createViolationPure(
+                ViolationType.MISSING_TAG,
+                relPath,
+                `Organizational Debt: File is in cluster /${actualSubZone}/ but missing [SUB-ZONE: ${actualSubZone}] tag.`,
+                'warn'
+            ));
+        }
     }
 
     return { imports: importedFiles, violations };

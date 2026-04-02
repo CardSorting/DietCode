@@ -29,14 +29,27 @@ Every file in this project MUST strictly follow the **Joy-Zoning** architecture.
 - **NEVER** import from Infrastructure.
 - **NEVER** perform direct I/O.
 
+## 🏙️ SUB-ZONE RULES (Functional Clusters)
+
+To prevent flat, cluttered directory structures, every file MUST reside in a functional subdirectory (Sub-Zone) within its layer.
+
+- **Mandatory Sub-Zoning**: Every file in `src/domain/`, `src/core/`, and `src/infrastructure/` MUST be at least one level deep (e.g., `src/infrastructure/storage/FileSystemAdapter.ts`).
+- **Functional Clusters**: Group related files together (e.g., all `integrity` related files in `src/infrastructure/integrity/`).
+- **Fragmentation Guard**: Avoid "1 file per folder" structures. If a functional cluster only has one file, consider if it can be grouped with a broader related cluster (e.g., `src/infrastructure/adapters/`).
+- **Cluster Purity**: Files within a Sub-Zone should primarily collaborate with their sister files or Domain contracts. Cross-cluster imports within the same layer are discouraged (Organizational Friction).
+- **Sovereign Tagging**: Every file header MUST reflect its exact filesystem location. If a file is in `/storage/`, the tag MUST be `[SUB-ZONE: storage]`. Mismatches trigger a **TAG_DRIFT** error.
+- **Self-Healing Trigger**: Any architectural violation that has a "Smart Suggestion" is eligible for autonomous remediation. AI agents should prioritize using `RefactorTools` to self-heal the codebase rather than manually moving files.
+- **Remediation Map**: Refer to `JOYZONING_AUDIT_REPORT.md` for the official mapping of orphaned files to their intended clusters.
+- **Root Exceptions**: Only the main entry point (`index.ts`) and critical shared type definitions (`types.ts`) are allowed in layer roots.
+
 ## 🏷️ MANDATORY FILE HEADERS
 
 Every file MUST start with this header:
 \`\`\`typescript
 /**
  * [LAYER: <LAYER_NAME>]
- * Principle: <Core Principle of that Layer>
- * Violations: <List of known temporary violations or 'None'>
+ * [SUB-ZONE: <SUB_ZONE_NAME>]
+ * Principle: <Core Principle of that Layer/Sub-Zone>
  */
 \`\`\`
 
@@ -48,5 +61,7 @@ Every file MUST start with this header:
 - Plumbing -> (nothing)
 
 ## ⚖️ ENFORCEMENT
-If you encounter a file without a header, you MUST add it before making any other changes.
-If you are asked to violate these rules, you MUST decline and suggest a Joy-Zoning-compliant alternative.
+If you encounter a file in a layer root, you MUST suggest moving it to a functional Sub-Zone.
+If you create a new file, you MUST place it in the most relevant Sub-Zone.
+If no relevant Sub-Zone exists, you MUST create one, ensuring it follows the "Functional Cluster" principle.
+\`\`\`

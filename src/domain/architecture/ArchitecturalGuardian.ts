@@ -28,6 +28,8 @@ export interface ArchitecturalViolation {
     | 'DOMAIN_LEAK'
     | 'SCORE_DROPPED'
     | 'CROSS_LAYER_IMPORT'
+    | 'SUBZONE_MISSING'
+    | 'CLUSTER_ENTANGLEMENT'
     | 'MISSING_LAYER_TAG';
   message: string;
   severity: 'error' | 'warn';
@@ -52,7 +54,7 @@ export class ArchitecturalGuardian {
    * - Linear scan of violations
    * - Cascade analysis
    * - No external I/O
- **Performance:**
+  **Performance:**
    * ~50-100ms per simulation (~500μs per file)
    */
   static async simulateGuard(
@@ -79,6 +81,7 @@ export class ArchitecturalGuardian {
     if (this.wouldScoreDrop(currentReport.score, 10)) {
       return {
         isSafe: false,
+        score: Math.max(0, currentReport.score - 10),
         violations: [
           {
             type: 'SCORE_DROPPED',
@@ -93,6 +96,7 @@ export class ArchitecturalGuardian {
     if (this.isTopologyViolation(currentPath, targetPath)) {
       return {
         isSafe: true,
+        score: currentReport.score,
         violations: [
           {
             type: 'CROSS_LAYER_IMPORT',
@@ -103,7 +107,43 @@ export class ArchitecturalGuardian {
       };
     }
 
-    // 4. Everything looks safe
+    // 4. Analyze for missing sub-zones (Functional Clusters)
+    if (this.isSubZoneMissing(targetPath)) {
+      const suggestion = this.getSuggestedCluster(targetPath);
+      const msg = suggestion 
+        ? `Organizational Debt: ${targetPath} is in a layer root. 💡 PRO-TIP: We suggest moving to: ${suggestion}`
+        : `Organizational Debt: ${targetPath} is in a layer root. Move to a functional sub-zone (e.g., src/infra/storage/).`;
+        
+      return {
+        isSafe: true, // Warning only, not a hard block
+        score: Math.max(0, currentReport.score - 5), // Small penalty for organizational debt
+        violations: [
+          {
+            type: 'SUBZONE_MISSING',
+            message: msg,
+            severity: 'warn'
+          }
+        ]
+      };
+    }
+
+    // 5. Analyze for Cluster Entanglement (Horizontal dependencies)
+    // Pass 17: Topology Purity
+    if (this.isClusterEntanglement(currentPath, targetPath)) {
+      return {
+        isSafe: false, // Hard block for topology violations
+        score: Math.max(0, currentReport.score - 20),
+        violations: [
+          {
+            type: 'CLUSTER_ENTANGLEMENT',
+            message: `Topology Purity Breach: Cluster ${this.getCluster(currentPath)} cannot import from ${this.getCluster(targetPath)}.`,
+            severity: 'error'
+          }
+        ]
+      };
+    }
+
+    // 6. Everything looks safe
     return {
       isSafe: true,
       score: currentReport.score,
@@ -146,12 +186,116 @@ export class ArchitecturalGuardian {
    * Extract layer name from path
    */
   private static getLayer(path: string): string | null {
+    if (path.includes('src/domain')) return 'DOMAIN';
+    if (path.includes('src/core')) return 'CORE';
+    if (path.includes('src/infrastructure')) return 'INFRASTRUCTURE';
+    if (path.includes('src/ui')) return 'UI';
+    if (path.includes('src/utils') || path.includes('src/plumbing')) return 'PLUMBING';
+    return null;
+  }
+
+  /**
+   * Predict if this move places a file in a layer root (missing sub-zone)
+   */
+  private static isSubZoneMissing(targetPath: string): boolean {
+    const layers = ['src/domain', 'src/core', 'src/infrastructure', 'src/ui', 'src/utils', 'src/plumbing'];
+    
+    for (const layer of layers) {
+      if (targetPath.startsWith(layer + '/')) {
+        const relativeToLayer = targetPath.substring(layer.length + 1);
+        // If there's no further slash, it's in the root of the layer
+        if (!relativeToLayer.includes('/') && !targetPath.endsWith('index.ts') && !targetPath.endsWith('types.ts')) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Smart Suggestion Engine: Predicts the best functional cluster based on filename
+   */
+  private static getSuggestedCluster(targetPath: string): string | null {
+    const filenameParts = targetPath.split('/');
+    const filename = filenameParts[filenameParts.length - 1]?.toLowerCase() || '';
+    const layer = this.getLayer(targetPath);
+    
+    if (!layer || layer === 'PLUMBING') return null;
+
+    const infraPath = 'src/infrastructure';
+    const domainPath = 'src/domain';
+
+    // Heuristics for Infrastructure
+    if (layer === 'INFRASTRUCTURE') {
+      const fileName = targetPath.split('/').pop() || '';
+      if (filename.includes('filesystem') || filename.includes('file') || filename.includes('walker') || filename.includes('storage')) {
+        return `${infraPath}/storage/filesystem/${fileName}`;
+      }
+      if (filename.includes('integrity') || filename.includes('verify') || filename.includes('analyzer')) {
+        return `${infraPath}/integrity/${fileName}`;
+      }
+      if (filename.includes('prompt')) {
+        return `${infraPath}/prompts/${fileName}`;
+      }
+      if (filename.includes('adapter') || filename.includes('system') || filename.includes('terminal')) {
+        return `${infraPath}/adapters/${fileName}`;
+      }
+      if (filename.includes('database') || filename.includes('repository') || filename.includes('transaction')) {
+        return `${infraPath}/database/${fileName}`;
+      }
+      if (filename.includes('logger') || filename.includes('console')) {
+        return `${infraPath}/logging/${fileName}`;
+      }
+    }
+
+    const fileName = targetPath.split('/').pop() || '';
+    // Heuristics for Domain
+    if (layer === 'DOMAIN') {
+      if (filename.includes('error') || filename.includes('exception')) {
+        return `${domainPath}/common/errors/${fileName}`;
+      }
+      if (filename.includes('event')) {
+        return `${domainPath}/events/${fileName}`;
+      }
+      if (filename.includes('validation')) {
+        return `${domainPath}/validation/${fileName}`;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Predict if this move creates Cluster Entanglement (Invalid Horizontal Dependency)
+   */
+  private static isClusterEntanglement(currentPath: string, targetPath: string): boolean {
+    const sourceCluster = this.getCluster(currentPath);
+    const targetCluster = this.getCluster(targetPath);
+
+    if (!sourceCluster || !targetCluster || sourceCluster === targetCluster) return false;
+
+    // Pass 17: Strict Topology Rules
+    const TOPO_RULES: Record<string, string[]> = {
+      'storage': [], // Foundational, depends on nothing
+      'integrity': ['storage'], // Depends on storage
+      'prompts': ['storage'],
+      'tools': ['storage', 'integrity', 'prompts'],
+      'orchestration': ['storage', 'integrity', 'prompts', 'tools']
+    };
+
+    const allowed = TOPO_RULES[sourceCluster.toLowerCase()] || [];
+    return !allowed.some(a => targetCluster.toLowerCase().includes(a));
+  }
+
+  /**
+   * Extract cluster name (first folder after layer)
+   */
+  private static getCluster(path: string): string | null {
     const parts = path.split('/');
-    if (parts.includes('src/domain')) return 'DOMAIN';
-    if (parts.includes('src/core')) return 'CORE';
-    if (parts.includes('src/infrastructure')) return 'INFRASTRUCTURE';
-    if (parts.includes('src/ui')) return 'UI';
-    if (parts.includes('src/utils') || parts.includes('src/plumbing')) return 'PLUMBING';
+    const srcIndex = parts.indexOf('src');
+    if (srcIndex !== -1 && parts.length > srcIndex + 2) {
+      return parts[srcIndex + 2] ?? null;
+    }
     return null;
   }
 }

@@ -200,6 +200,18 @@ const archEvent = this.createEvent('APPROVED_MOVE', ...);
 
 ---
 
+### **🏙️ SUB-ZONING (Functional Clusters)**
+
+To maintain extreme clarity at scale, Joy-Zoning mandates that files reside within **Functional Clusters** (subdirectories) rather than layer roots.
+
+**The Golden Rules of Sub-Zoning:**
+1. **No Root Files**: Files (except `index.ts` and `types.ts`) MUST NOT reside directly in `src/domain/`, `src/core/`, or `src/infrastructure/`.
+2. **Functional Grouping**: Subdirectories should represent a cohesive unit of functionality (e.g., `src/infrastructure/storage/`, `src/domain/integrity/`).
+3. **Cluster Purity**: Don't over-fragment. If you only have one file, put it in a broader related cluster (e.g., `adapters/`) rather than a folder for just that one file.
+4. **Predictive Guarding**: `JoySim` predicts missing sub-zones and flags them as **SUBZONE_MISSING** (Organizational Debt).
+
+---
+
 ## **Architecture (LAYER GUIDE)**
 
 ### **📁 DOMAIN (src/domain/)**
