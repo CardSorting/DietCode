@@ -4,13 +4,16 @@
  * Manages transitions between Shadow Simulation and Sovereign Commit.
  */
 
-import type { TaskEntity } from '../../domain/task/TaskEntity';
+import type { TaskEntity, VitalsHeartbeat } from '../../domain/task/TaskEntity';
 import { TaskState } from '../../domain/task/TaskEntity';
 import { JoySimulator } from '../../infrastructure/simulation/JoySimulator';
 import type { SimulationResult } from '../../infrastructure/simulation/SimulationResult';
+import { CheckpointPersistenceAdapter } from '../../infrastructure/task/CheckpointPersistenceAdapter';
+import * as crypto from 'node:crypto';
 
 export class OperationalScheduler {
   private joySimulator: JoySimulator;
+  private persistence = new CheckpointPersistenceAdapter();
 
   constructor(joySimulator: JoySimulator) {
     this.joySimulator = joySimulator;
@@ -38,9 +41,13 @@ export class OperationalScheduler {
     
     // Logic from proto.md: Simulation Score < 0.95 refuses entries.
     // Maps simulation result to 0-1.0 integrity scale.
-    // 0 violations = 1.0 integrity, each violation reduces score.
-    const integrity = Math.max(0.0, 1.0 - (result.newViolations * 0.1));
+    // 0 violations = 1.0 integrity, each violation reduces score by 0.05 (Pass 18: Strict Delta).
+    const integrity = Math.max(0.0, 1.0 - (result.newViolations * 0.05));
     
+    // Update task integrity in memory
+    task.simIntegrity = integrity;
+    this.persistence.persistTask(task);
+
     return {
       ...result,
       integrity
@@ -50,12 +57,41 @@ export class OperationalScheduler {
   /**
    * Verifies if the task can transition to the SOVEREIGN_DOING state.
    */
-  canEnterSovereignDoing(integrity: number): boolean {
-    return integrity >= 0.95;
+  canEnterSovereignDoing(task: TaskEntity): boolean {
+    return (task.simIntegrity || 0) >= 0.95;
+  }
+
+  /**
+   * Generates the final cryptographic Sovereign Token (v_token).
+   * Validates the integrity of the completed task state.
+   */
+  generateSovereignToken(task: TaskEntity): string {
+    const payload = JSON.stringify({
+        id: task.id,
+        objective: task.objective,
+        integrity: task.simIntegrity,
+        completedAt: Date.now()
+    });
+    return crypto.createHash('sha256').update(payload).digest('hex');
+  }
+
+  /**
+   * Pass 18: Self-Healing Evaluation logic.
+   * "If Doubt > 10, the Harness performs an emergency rollback."
+   */
+  evaluateSelfHealing(heartbeat: VitalsHeartbeat): { action: 'NONE' | 'ROLLBACK' | 'SUSPEND'; reason?: string } {
+    if (heartbeat.doubtSignal > 10) {
+        return { action: 'ROLLBACK', reason: 'Critical Doubt Signal (Context Loss)' };
+    }
+    if (heartbeat.cognitiveHeat > 100000) {
+        return { action: 'SUSPEND', reason: 'Extreme Cognitive Heat (Looping)' };
+    }
+    return { action: 'NONE' };
   }
 
   /**
    * Transition task to the next state in the SRP pipeline.
+   * Persists the change to the sovereign database.
    */
   transition(task: TaskEntity, nextState: TaskState): TaskEntity {
     // Valid pipeline: BACKLOG → READY → SHADOW_SIM → SOVEREIGN_DOING → VERIFYING → DONE
@@ -67,6 +103,15 @@ export class OperationalScheduler {
       TaskState.VERIFYING,
       TaskState.DONE
     ];
+
+    if (nextState === TaskState.SOVEREIGN_DOING && !this.canEnterSovereignDoing(task)) {
+        throw new Error(`Sovereign Protocol Violation: Cannot enter SOVEREIGN_DOING with integrity ${task.simIntegrity}. Min required: 0.95.`);
+    }
+
+    if (nextState === TaskState.DONE) {
+        task.vToken = this.generateSovereignToken(task);
+        task.metadata.completedAt = new Date();
+    }
 
     const currentIndex = pipeline.indexOf(task.state);
     const nextIndex = pipeline.indexOf(nextState);
@@ -80,7 +125,7 @@ export class OperationalScheduler {
       throw new Error(`Invalid transition: ${task.state} -> ${nextState}. Sovereign Protocol is forward-only.`);
     }
 
-    return {
+    const updatedTask = {
       ...task,
       state: nextState,
       metadata: {
@@ -88,5 +133,8 @@ export class OperationalScheduler {
         updatedAt: new Date()
       }
     };
+
+    this.persistence.persistTask(updatedTask);
+    return updatedTask;
   }
 }

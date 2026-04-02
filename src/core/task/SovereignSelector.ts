@@ -28,30 +28,40 @@ export class SovereignSelector {
   /**
    * Generates a real provenance bundle for a task by analyzing the project state.
    */
-  /**
-   * Generates a real provenance bundle for a task by analyzing the project state.
-   */
   async generateProvenanceBundle(task: TaskEntity): Promise<ProvenanceBundle> {
-    const db = await SovereignDb.db();
     const objective = task.objective.toLowerCase();
     
-    // 1. Hub status via joy_imports
-    // Identify top "Hubs" (Files being imported the most)
-    const anchors = await this.joyCache.getTopArchitecturalAnchors(10);
-    const targetsHub = anchors.some(hub => {
-        const hubName = hub.path.toLowerCase();
-        return objective.includes(path.basename(hubName, '.ts').toLowerCase());
+    // 1. Anchor Detection via joy_imports
+    const anchors = await this.joyCache.getTopArchitecturalAnchors(15);
+    const targetsAnchor = anchors.some(anchor => {
+        const anchorName = anchor.path.toLowerCase();
+        return objective.includes(path.basename(anchorName, '.ts').toLowerCase());
     });
 
-    // 2. Complexity Analysis via analyzeDependencies (Current state)
-    // Estimate cost based on current requirement quantity vs historical churn (Simulated ratio)
-    const requirementPayoff = task.requirements.filter(r => r.isCritical).length;
-    const upsideDominance = 1.0 + (requirementPayoff * 1.5); // 1.5x boost for every critical req
+    // 2. High-Utility Check: Does this task target a core domain or infrastructure anchor?
+    const isCoreTarget = objective.includes('domain') || objective.includes('infrastructure') || objective.includes('core');
+    const sovereignUtility = targetsAnchor || isCoreTarget || task.priority <= 1;
+
+    // 3. Upside Dominance Calculation (Leverage Ratio)
+    // Formula: (Critical Reqs * 2.0 + Total Reqs) / (Complexity Factor)
+    // A high leverage ratio means the implementation payoff outweighs the cognitive cost.
+    const criticalCount = task.requirements.filter(r => r.isCritical).length;
+    const totalCount = task.requirements.length;
+    const basePayoff = (criticalCount * 2.5) + (totalCount * 0.5);
+    
+    // Complexity Penalty (Simulated based on objective length and requirement count)
+    const complexityFactor = 1.0 + (objective.length / 100) + (totalCount / 10);
+    const upsideDominance = basePayoff / complexityFactor;
+
+    // 4. Contextual Clarity
+    // Requires >= 3 requirements AND at least 50% of them having verification criteria
+    const reqsWithVerification = task.requirements.filter(r => r.verificationCriteria && r.verificationCriteria.length > 0).length;
+    const contextualClarity = totalCount >= 2 && (reqsWithVerification / totalCount >= 0.5);
 
     return {
-      sovereignUtility: targetsHub || task.priority >= 3, // High priority or hub focus
-      integrityAlignment: 1.0, // Pre-flight updated during SHADOW_SIM
-      contextualClarity: task.requirements.length >= 3 && task.acceptanceCriteria.length > 0,
+      sovereignUtility,
+      integrityAlignment: 1.0, // High-fidelity updated during SHADOW_SIM
+      contextualClarity,
       upsideDominance
     };
   }

@@ -13,12 +13,13 @@ import { FileSystemAdapter } from './src/infrastructure/FileSystemAdapter';
 import { PathValidator } from './src/infrastructure/validation/PathValidator';
 import { SovereignDb } from './src/infrastructure/database/SovereignDb';
 import * as path from 'node:path';
+import * as fs from 'node:fs';
 
 async function verifySovereignHardening() {
   console.log('🚀 Starting Antigravity Sovereign Protocol v6.0 HARDENING Verification...');
 
   const monitor = MetabolicMonitor.getInstance();
-  const fs = new FileSystemAdapter(new PathValidator());
+  const adapter = new FileSystemAdapter(new PathValidator());
   const brain = new MetabolicBrain();
   const selector = new SovereignSelector();
   const scheduler = new OperationalScheduler(new JoySimulator());
@@ -28,9 +29,9 @@ async function verifySovereignHardening() {
   monitor.resetMetrics();
   
   // Trigger a real read
-  fs.readFile('proto.md');
+  adapter.readFile('proto.md');
   // Trigger a real write (to a temp file)
-  fs.writeFile('temp_verify.txt', 'test content\nline 2');
+  adapter.writeFile('temp_verify.txt', 'test content\nline 2');
   
   const metrics = monitor.getMetrics();
   console.log('Metrics Snapshot:', metrics);
@@ -79,7 +80,18 @@ async function verifySovereignHardening() {
   console.log('\n[4] Verifying Operational Scheduler (SRP Pipeline)...');
   const task: any = {
     state: TaskState.BACKLOG,
-    id: 'harden-v6-verify'
+    id: 'harden-v6-verify',
+    title: 'Verification Task',
+    objective: 'Ensure sovereign protocol integrity',
+    priority: TaskPriority.MEDIUM,
+    requirements: [],
+    acceptanceCriteria: [],
+    initialContext: 'Self-verification',
+    metadata: {
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        userAgent: 'DietCode-Verifier'
+    }
   };
 
   const readyTask = scheduler.transition(task, TaskState.READY);
@@ -143,10 +155,46 @@ async function verifySovereignHardening() {
   
   console.log('✅ Multi-File & Caching: PASS');
 
-  console.log('\n✨ ALL PRODUCTION HARDENING v6.0 CHECKS PASSED ✨');
+  // 7. Active Integrity Guard (External Edit Detection)
+  console.log('\n[7] Verifying Active Integrity Guard (Pass 18)...');
+  const fsAdapter = new FileSystemAdapter();
+  const testFile = path.resolve(process.cwd(), 'temp_integrity_test.ts');
+  
+  // 7.1 Record initial state
+  fsAdapter.writeFile(testFile, '// [LAYER: CORE]\nexport const initial = 1;');
+  const firstAudit = await fsAdapter['scanner'].verifyFileIntegrity(testFile);
+  console.log('Initial Audit (Expect Clear):', firstAudit.clear);
+
+  // 7.2 Simulate External Edit
+  fs.writeFileSync(testFile, '// [LAYER: CORE]\nexport const modified = 2;');
+  const secondAudit = await fsAdapter['scanner'].verifyFileIntegrity(testFile);
+  console.log('Post-External Edit Audit (Expect Detected):', secondAudit.clear);
+  if (secondAudit.clear) {
+      throw new Error('❌ Active Integrity Guard ERROR: Failed to detect external modification.');
+  }
+  console.log('✅ Active Integrity Guard: PASS');
+
+  // 8. Self-Healing Protocol (Doubt Rollback)
+  console.log('\n[8] Verifying Self-Healing Protocol (Pass 18)...');
+  // Trigger a fake critical doubt signal in the monitor
+  for (let i = 0; i < 20; i++) monitor.recordRead(testFile);
+  
+  const hb = brain.calculateHeartbeat();
+  console.log('Simulated Doubt Signal:', hb.doubtSignal);
+  
+  const healAction = scheduler.evaluateSelfHealing(hb);
+  console.log('Self-Healing Action (Expect ROLLBACK):', healAction.action);
+  
+  if (healAction.action !== 'ROLLBACK') {
+      throw new Error('❌ Self-Healing ERROR: Failed to trigger rollback on critical doubt.');
+  }
+  console.log('✅ Self-Healing Protocol: PASS');
+
+  console.log('\n✨ SUPREME SOVEREIGN HARDENING v6.0 COMPLETE ✨');
   
   // Cleanup
-  try { await fs.unlink('temp_verify.txt'); } catch(e) {}
+  try { fs.unlinkSync('temp_verify.txt'); } catch(e) {}
+  try { fs.unlinkSync('temp_integrity_test.ts'); } catch(e) {}
 }
 
 verifySovereignHardening().catch(err => {

@@ -22,6 +22,7 @@ import { TaskState } from '../../domain/task/TaskEntity';
 import { CheckpointTrigger, CorrectionType, generateCheckpointId } from '../../domain/task/ImplementationSnapshot';
 import { SovereignSelector } from '../task/SovereignSelector';
 import { OperationalScheduler } from '../task/OperationalScheduler';
+import { MetabolicBrain } from '../brain/MetabolicBrain';
 import { MetabolicMonitor } from '../../infrastructure/monitoring/MetabolicMonitor';
 import * as crypto from 'crypto';
 
@@ -42,6 +43,7 @@ export class DriftDetectionOrchestrator {
   
   private selector: SovereignSelector;
   private scheduler: OperationalScheduler;
+  private brain = new MetabolicBrain();
   private monitor = MetabolicMonitor.getInstance();
 
   constructor(
@@ -208,6 +210,23 @@ export class DriftDetectionOrchestrator {
        // Valid simulation - Promote to SOVEREIGN_DOING
        const doingTask = this.scheduler.transition(task, TaskState.SOVEREIGN_DOING);
        await this.entityManager.setCurrentTask(doingTask);
+    }
+
+    // Pass 18: Self-Healing Active Defense
+    const heartbeat = this.brain.calculateHeartbeat();
+    const selfHealing = this.scheduler.evaluateSelfHealing(heartbeat);
+
+    if (selfHealing.action === 'ROLLBACK' && this.currentCheckpointId) {
+        this.log(LogLevel.WARN, 'Self-Healing TRIGGERED: Emergency Rollback', { reason: selfHealing.reason });
+        await this.restoreFromCheckpoint(this.currentCheckpointId, task.id || '');
+        // Demote back to SHADOW_SIM for regrouping
+        const retryTask = this.scheduler.transition(task, TaskState.SHADOW_SIM);
+        await this.entityManager.setCurrentTask(retryTask);
+    } else if (selfHealing.action === 'SUSPEND') {
+        this.log(LogLevel.ERROR, 'Self-Healing TRIGGERED: Task Suspension', { reason: selfHealing.reason });
+        const failedTask = this.scheduler.transition(task, TaskState.FAILED);
+        await this.entityManager.setCurrentTask(failedTask);
+        throw new Error(`Task suspended by Self-Healing Protocol: ${selfHealing.reason}`);
     }
 
     const spec: any = {

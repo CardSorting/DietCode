@@ -150,5 +150,13 @@ export class MetabolicMonitor {
       reads: 0,
       writes: 0
     };
+    this.hotspots.clear();
+  }
+
+  /**
+   * Calculates the current doubt signal (Read:Write ratio).
+   */
+  public getDoubtSignal(): number {
+    return this.metrics.reads / (this.metrics.writes || 1);
   }
 }
