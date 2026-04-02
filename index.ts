@@ -1,5 +1,5 @@
 import { Orchestrator } from './src/core/orchestration/orchestrator';
-import { AnthropicProvider } from './src/infrastructure/llm/anthropicProvider';
+import { AnthropicProvider } from './src/infrastructure/llm/providers/AnthropicProvider';
 import { TerminalUI } from './src/ui/terminal';
 import { ConsoleLoggerAdapter } from './src/infrastructure/ConsoleLoggerAdapter';
 import { NodeTerminalAdapter } from './src/infrastructure/NodeTerminalAdapter';

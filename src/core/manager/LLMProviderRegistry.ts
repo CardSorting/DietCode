@@ -17,7 +17,7 @@ import type {
 } from '../../domain/agent/LLMProviderAdapter';
 import type { ToolDefinition } from '../../domain/agent/ToolDefinition';
 import { PromptStrategy as EnumPromptStrategy } from '../../domain/agent/LLMProviderAdapter';
-import { OpenAIEmbeddingAdapter } from '../../infrastructure/llm/OpenAIEmbeddingAdapter';
+import { OpenAIEmbeddingAdapter } from '../../infrastructure/llm/providers/OpenAIEmbeddingAdapter';
 
 /**
  * Provider information interface
