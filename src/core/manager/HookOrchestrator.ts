@@ -7,9 +7,9 @@
  * Ensures hook pipeline integrity with smart failure isolation.
  */
 
+import { HookPhase } from '../../domain/hooks/HookContract';
 import type {
   Hook,
-  HookPhase,
   PreToolCancellationProtocol,
 } from '../../domain/hooks/HookContract';
 
@@ -225,31 +225,32 @@ export function createLazyHookOrchestrator(onInit: () => void): Omit<HookOrchest
     instance: null as HookOrchestrator | null,
   };
 
+  const getInstance = () => {
+    if (!state.instance) {
+      state.instance = HookOrchestrator.getInstance();
+      onInit();
+    }
+    return state.instance;
+  };
+
   return {
-    getInstance() {
-      if (!state.instance) {
-        state.instance = HookOrchestrator.getInstance();
-        onInit();
-      }
-      return state.instance;
-    },
     registerHook: (hook: Hook) => {
-      return this.getInstance().registerHook(hook);
+      return getInstance().registerHook(hook);
     },
     chain: async <T>(toolName: string, input: T) => {
-      return this.getInstance().chain<T>(toolName, input);
+      return getInstance().chain<T>(toolName, input);
     },
     getHooks: (phase: HookPhase) => {
-      return this.getInstance().getHooks(phase);
+      return getInstance().getHooks(phase);
     },
     clearPhase: (phase: HookPhase) => {
-      return this.getInstance().clearPhase(phase);
+      return getInstance().clearPhase(phase);
     },
     clearAll: () => {
-      return this.getInstance().clearAll();
+      return getInstance().clearAll();
     },
     getHookCount: (phase?: HookPhase) => {
-      return this.getInstance().getHookCount(phase);
+      return getInstance().getHookCount(phase);
     }
   };
 }

@@ -97,7 +97,10 @@ Provide a structured report.`;
       []
     );
 
-    const report = response.content.find((c: any) => c.type === 'text')?.text || 'No issues found';
+    const report = response.content
+      .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
+      .map(c => c.text)
+      .join('\n') || 'No issues found';
     
     await this.memory.distill(taskId, `Deep Audit Report for ${repoPath}:\n${report}`);
     this.logService.info('Deep audit completed and distilled into memory', { repoPath, taskId }, { component: 'QueueWorker' });
@@ -148,8 +151,11 @@ Please propose a refactor to fix this architectural violation.`;
       []
     );
 
-    const rationale = response.reasoning?.join('\n') || 'Architectural correction';
-    const proposedCode = response.content.find((c: any) => c.type === 'text')?.text || '';
+    const rationale = response.reasoning?.map(r => r.text || '').join('\n') || 'Architectural correction';
+    const proposedCode = response.content
+      .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
+      .map(c => c.text)
+      .join('\n') || '';
 
     await this.healing.recordProposal({
       id: crypto.randomUUID(),

@@ -106,8 +106,10 @@ export class ExecutionService {
         source: 'fallback',
         originalLength: filePath.length,
         optimizedLength: filePath.length,
-        wasOptimized: false
-      } as FileReadResult;
+        wasOptimized: false,
+        hash: 'fallback-' + Date.now(),
+        sizeBytes: filePath.length
+      };
     }
 
     const result = await this.contextOptimization.readFileOptimized(filePath);

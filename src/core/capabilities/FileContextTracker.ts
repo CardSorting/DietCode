@@ -4,7 +4,7 @@
  * Violations: None - uses Dependency Inversion for Infrastructure
  */
 
-import type { FileReadResult, FileReadSource, OptimizationConfig } from "../../domain/context/FileOperation"
+import type { FileReadResult, FileReadSource } from "../../domain/context/FileOperation"
 import type {
   ReadEntry,
   DuplicateReadMetadata,
@@ -15,7 +15,10 @@ import {
   isReadDuplicate,
   aggregateReadMetadata 
 } from "../../domain/context/FileMetadata"
-import type { ExtensionMessage } from "../events/ExtensionMessage"
+import type { OptimizationConfig } from "../../domain/context/ContextOptimizationPolicy"
+import { defaultOptimizationConfig } from "../../domain/context/ContextOptimizationPolicy"
+import { EventType } from "../../domain/Event"
+import { EventBus } from "../../core/orchestration/EventBus"
 
 /**
  * FileContextTracker manages tracking of file reads and duplicate detection
@@ -26,7 +29,7 @@ export class FileContextTracker {
   private readBuffer: ReadEntry[] = []
   
   // Cached metadata for files
-  private fileMetadata: Map<string, FileMetadataEntry> = new Map()
+  private fileMetadata: Map<string, DuplicateReadMetadata> = new Map()
   
   // Configuration
   private config: OptimizationConfig
@@ -39,9 +42,8 @@ export class FileContextTracker {
   
   constructor(config?: Partial<OptimizationConfig>) {
     this.config = {
-      ...config,
-      enableTwoFinger: config?.enableTwoFinger ?? true,
-      enableRos: config?.enableRos ?? false
+      ...defaultOptimizationConfig,
+      ...config
     }
     this.sessionStartTimestamp = Date.now()
   }
@@ -57,12 +59,12 @@ export class FileContextTracker {
    * Record a file read operation
    * @returns The optimized file read result
    */
-  recordRead(filePath: string, content: string, source: FileReadSource): FileReadResult {
+  async recordRead(filePath: string, content: string, source: FileReadSource): Promise<FileReadResult> {
     const entry: ReadEntry = {
       filePath,
       content,
       timestamp: Date.now(),
-      contentHash: this.calculateHash(content),
+      contentHash: await this.calculateHash(content),
       source,
       originalLength: content.length
     }
@@ -73,8 +75,12 @@ export class FileContextTracker {
   /**
    * Record multiple file reads in a batch
    */
-  recordBatchReads(reads: { filePath: string; content: string; source: FileReadSource }[]): FileReadResult[] {
-    return reads.map(read => this.recordRead(read.filePath, read.content, read.source))
+  async recordBatchReads(reads: { filePath: string; content: string; source: FileReadSource }[]): Promise<FileReadResult[]> {
+    const results: FileReadResult[] = []
+    for (const read of reads) {
+      results.push(await this.recordRead(read.filePath, read.content, read.source))
+    }
+    return results
   }
   
   /**
@@ -89,17 +95,19 @@ export class FileContextTracker {
    */
   getSessionStats(): OptimizationSessionStats {
     const { duplicateMetadata } = aggregateReadMetadata(this.readBuffer)
-    const applicableFiles = duplicateMetadata.size
+    const applicableFiles = Array.from(duplicateMetadata.keys())
+    const totalOriginalBytes = this.readBuffer.reduce((sum, e) => sum + e.originalLength, 0)
     
+    // Simple calculation for stats - in a real scenario this would track actual savings
     return {
       totalReads: this.readBuffer.length,
-      duplicateReads: applicableFiles,
-      totalOriginalBytes: this.readBuffer.reduce((sum, e) => sum + e.originalLength, 0),
-      totalOptimizedBytes: 0, // Calculated on demand
-      bytesSaved: 0, // Calculated on demand
-      percentageSaved: 0, // Calculated on demand
-      applicableFiles: Array.from(duplicateMetadata.keys()),
-      duplicatesProcessed: applicableFiles,
+      duplicateReads: applicableFiles.length,
+      totalOriginalBytes,
+      totalOptimizedBytes: totalOriginalBytes, // Placeholder
+      bytesSaved: 0,
+      percentageSaved: 0,
+      applicableFiles,
+      duplicatesProcessed: 0,
       sessionStartTime: this.sessionStartTimestamp
     }
   }
@@ -145,7 +153,10 @@ export class FileContextTracker {
         // Keep original but track as duplicate
         result = {
           ...entry,
-          wasOptimized: false
+          optimizedLength: entry.originalLength,
+          wasOptimized: false,
+          hash: entry.contentHash,
+          sizeBytes: entry.originalLength
         }
       }
       
@@ -155,7 +166,10 @@ export class FileContextTracker {
       // New unique read - add to buffer
       result = {
         ...entry,
-        wasOptimized: false
+        optimizedLength: entry.originalLength,
+        wasOptimized: false,
+        hash: entry.contentHash,
+        sizeBytes: entry.originalLength
       }
       
       // Add to buffer
@@ -191,7 +205,9 @@ export class FileContextTracker {
       originalLength: this.fileMetadata.get(filePath)?.firstReadContentHash.length || filePath.length + 43,
       optimizedLength: 43,
       wasOptimized: true,
-      optimizationReason: "two_finger_pattern"
+      optimizationReason: "two_finger_pattern",
+      hash: "duplicate-notice-" + Date.now(),
+      sizeBytes: 43
     }
   }
   
@@ -269,25 +285,46 @@ export class FileContextTracker {
    * Trigger optimization window and return optimized entries
    */
   private async triggerOptimizationWindow(): Promise<void> {
-    // In a full implementation, this would save optimized entries and clear buffer
-    // For now, we just log and clear
-    console.log(`FileContextTracker: Optimization window triggered (${this.readBuffer.length} reads)`)
+    const eventBus = EventBus.getInstance()
+    const correlationId = Date.now().toString()
     
-    this.clearBuffer()
+    eventBus.publish(EventType.CONTEXT_OPTIMIZATION, {
+      message: `Optimization window triggered (${this.readBuffer.length} reads)`,
+      readCount: this.readBuffer.length,
+      totalBytes: this.readBuffer.reduce((sum, e) => sum + e.originalLength, 0)
+    }, { correlationId })
+    
+    this.readBuffer = []
+    this.fileMetadata.clear()
   }
   
   /**
-   * Calculate content hash (simplified for now)
+   * Calculate content hash using crypto modules
+   * Returns a stable hash for duplicate detection
    */
-  private calculateHash(content: string): string {
-    // In production, use a proper hash function
-    let hash = 0
-    for (let i = 0; i < content.length; i++) {
-      const chr = content.charCodeAt(i)
-      hash = ((hash << 5) - hash) + chr
-      hash = hash & hash
+  private async calculateHash(content: string): Promise<string> {
+    try {
+      // Use crypto.subtle for production-quality hashing
+      const encoder = new TextEncoder()
+      const data = encoder.encode(content)
+      const hashBuffer = await globalThis.crypto.subtle.digest('SHA-256', data)
+      
+      // Convert buffer to hex string
+      const hashArray = Array.from(new Uint8Array(hashBuffer))
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+      
+      return hashHex
+    } catch (error) {
+      // Fallback to simple hash if crypto fails
+      console.error('Failed to compute hash, using fallback:', error)
+      let hash = 0
+      for (let i = 0; i < content.length; i++) {
+        const chr = content.charCodeAt(i)
+        hash = ((hash << 5) - hash) + chr
+        hash = (hash & hash) >>> 0
+      }
+      return hash.toString(36)
     }
-    return hash.toString(36)
   }
 }
 

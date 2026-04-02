@@ -324,7 +324,7 @@ export class ExternalSyncAdapter {
   /**
    * Update status and notify observers
    */
-  private updateStatus(newStatus: SyncStatus): void {
+  private async updateStatus(newStatus: SyncStatus): Promise<void> {
     if (this.currentStatus === newStatus) {
       return;
     }

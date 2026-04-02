@@ -12,7 +12,10 @@ import type {
   AdapterConfig,
   ModelInfo,
   PromptStrategy,
+  Message,
+  ApiStream,
 } from '../../domain/agent/LLMProviderAdapter';
+import type { ToolDefinition } from '../../domain/agent/ToolDefinition';
 import { PromptStrategy as EnumPromptStrategy } from '../../domain/agent/LLMProviderAdapter';
 import { OpenAIEmbeddingAdapter } from '../../infrastructure/llm/OpenAIEmbeddingAdapter';
 
@@ -281,41 +284,56 @@ class CompositeLLMAdapter implements LLMAdapter {
     this.config = config;
   }
 
-  async createMessage(
+  createMessage(
     system: string,
-    messages: any[],
-    tools?: any[]
-  ): Promise<any> {
-    // Try primary chain first
-    for (const adapter of this.primaryChain) {
-      try {
-        return await adapter.createMessage(system, messages, tools);
-      } catch (error: any) {
-        // Try next in primary chain
-        console.warn(`⚠️  Primary adapter failed (${adapter.constructor.name}): ${error.message}`);
-      }
-    }
+    messages: Message[],
+    tools?: ToolDefinition[]
+  ): ApiStream {
+    const primaryChain = this.primaryChain;
+    const fallbackChain = this.fallbackChain;
 
-    // Fallback to secondary chain if all primaries failed
-    for (const adapter of this.fallbackChain) {
-      try {
-        console.log(`🔄  Falling back to ${adapter.constructor.name}`);
-        return await adapter.createMessage(system, messages, tools);
-      } catch (error: any) {
-        console.warn(`❌  Fallback adapter failed (${adapter.constructor.name}): ${error.message}`);
-      }
-    }
+    return {
+      async *[Symbol.asyncIterator]() {
+        // Try primary chain first
+        for (const adapter of primaryChain) {
+          try {
+            const stream = adapter.createMessage(system, messages, tools);
+            for await (const chunk of stream) {
+              yield chunk;
+            }
+            return;
+          } catch (error: any) {
+            console.warn(`⚠️  Primary adapter failed (${adapter.constructor.name}): ${error.message}`);
+          }
+        }
 
-    throw new Error('All provider adapters failed');
+        // Fallback to secondary chain
+        for (const adapter of fallbackChain) {
+          try {
+            console.log(`🔄  Falling back to ${adapter.constructor.name}`);
+            const stream = adapter.createMessage(system, messages, tools);
+            for await (const chunk of stream) {
+              yield chunk;
+            }
+            return;
+          } catch (error: any) {
+            console.warn(`❌  Fallback adapter failed (${adapter.constructor.name}): ${error.message}`);
+          }
+        }
+
+        throw new Error('All provider adapters failed');
+      }
+    };
   }
 
   getModelInfo(): ModelInfo {
-    // Return info from first available adapter
-    return this.primaryChain[0].getModelInfo();
+    if (this.primaryChain.length === 0) {
+      throw new Error('No primary adapters configured');
+    }
+    return this.primaryChain[0]!.getModelInfo();
   }
 
   async embedText?(text: string): Promise<number[]> {
-    // Try first available adapter that supports embeddings
     for (const adapter of this.primaryChain) {
       if (adapter.embedText) {
         return await adapter.embedText(text);
@@ -332,11 +350,13 @@ class CompositeLLMAdapter implements LLMAdapter {
   }
 
   getThinkingBudgetTokenLimit(): number {
-    return this.primaryChain[0].getThinkingBudgetTokenLimit();
+    if (this.primaryChain.length === 0) return 0;
+    return this.primaryChain[0]!.getThinkingBudgetTokenLimit();
   }
 
   getPromptStrategy(): PromptStrategy {
-    return this.primaryChain[0].getPromptStrategy();
+    if (this.primaryChain.length === 0) return EnumPromptStrategy.NATIVE;
+    return this.primaryChain[0]!.getPromptStrategy();
   }
 }
 

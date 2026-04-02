@@ -37,6 +37,7 @@ export enum EventType {
   PROMPT_RIPPLE_EFFECT = 'prompt_ripple_effect',
   PROMPT_SUGGESTION_PATTERNS = 'prompt_suggestion_patterns',
   CONTEXT_LOADED = 'context_loaded',
+  CONTEXT_OPTIMIZATION = 'context_optimization',
   IMPLEMENTATION_STARTED = 'implementation_started',
   IMPLEMENTATION_COMPLETED = 'implementation_completed',
 }

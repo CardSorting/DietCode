@@ -1,9 +1,5 @@
-/**
- * [CORE: PATTERN_ANALYSIS_SERVICE]
- * Principle: Orchestrates pattern matching and optimization decisions for file context
- * Violations: None
- */
 import type { FileReuseDecision } from "../../domain/context/FileReadPattern";
+import { FileReuseStrategy } from "../../domain/context/FileReadPattern";
 import type { FileSignature } from "../../domain/context/FileSignatureService";
 import type { PatternSessionStats } from "../../domain/context/FileReadPattern";
 
@@ -51,9 +47,11 @@ export class PatternAnalysisService {
         // File not tracked - need to load
         decision = {
           filePath,
+          strategy: FileReuseStrategy.NO_REUSE,
           shouldReuse: false,
           confidence: 0.2,
           reason: "low_confidence",
+          timestamp: Date.now()
         };
       } else {
         // File tracked - evaluate based on freshness
@@ -63,18 +61,22 @@ export class PatternAnalysisService {
         if (isNewInWindow) {
           decision = {
             filePath,
+            strategy: FileReuseStrategy.FULL_REUSE,
             shouldReuse: true,
             confidence: 1.0,
             reason: "pattern_match",
+            timestamp: Date.now()
           };
         } else {
           // File outside time window - check if content changed
           const hasChanged = signature.isOutdated(signature.sizeBytes);
           decision = {
             filePath,
+            strategy: hasChanged ? FileReuseStrategy.NO_REUSE : FileReuseStrategy.PARTIAL_REUSE,
             shouldReuse: false,
             confidence: 0.3,
             reason: hasChanged ? "checkpoint_stale" : "recently_reused",
+            timestamp: Date.now()
           };
         }
       }
@@ -100,7 +102,7 @@ export class PatternAnalysisService {
     return candidates
       .filter((decision) => decision.confidence >= this.config.minReuseConfidence)
       .filter(
-        (decision, index) => totalReuseCount !== 0 ? index < this.config.maxContextReusePerSession : true
+        (_decision, index) => totalReuseCount !== 0 ? index < this.config.maxContextReusePerSession : true
       );
   }
 
@@ -111,14 +113,16 @@ export class PatternAnalysisService {
     decisions: FileReuseDecision[],
     stats: PatternSessionStats
   ): PatternSessionStats {
+    const currentReuseCount = decisions.filter(d => d.shouldReuse).length;
+    
     return {
-      ...stats,
       totalFiles: stats.totalFiles + decisions.length,
-      reuseCandidates: stats.reuseCandidates + decisions.filter(d => d.shouldReuse).length,
-      discardedCandidates: stats.discardedCandidates + decisions.filter(d => !d.shouldReuse).length,
+      reuseCandidates: stats.reuseCandidates + currentReuseCount,
+      discardedCandidates: stats.discardedCandidates + (decisions.length - currentReuseCount),
       averageReuseConfidence: stats.reuseCandidates > 0 
-        ? decisions.reduce((sum, d) => sum + d.confidence, 0) / stats.reuseCandidates
-        : stats.averageReuseConfidence,
+        ? (stats.averageReuseConfidence * stats.reuseCandidates + decisions.reduce((sum, d) => sum + d.confidence, 0)) / (stats.reuseCandidates + decisions.length)
+        : decisions.reduce((sum, d) => sum + d.confidence, 0) / decisions.length,
+      totalReuseCount: stats.totalReuseCount + currentReuseCount,
       timestamp: Date.now(),
     };
   }

@@ -117,6 +117,7 @@ export enum PromptStrategy {
   ANTHROPIC_V0 = 'anthropic_v0', // Anthropic 0.x style
   OPENAI = 'openai', // OpenAI-compatible style
   OPENROUTER = 'openrouter', // OpenRouter-specific formatting
+  COHERE = 'cohere', // Cohere-specific formatting
 }
 
 /**

@@ -9,6 +9,9 @@
 
 import { OpenAI } from 'openai';
 import type { EmbeddingService } from '../../domain/agent/EmbeddingService';
+import type { LLMAdapter, ModelInfo, ApiStream, Message } from '../../domain/agent/LLMProviderAdapter';
+import { PromptStrategy } from '../../domain/agent/LLMProviderAdapter';
+import type { ToolDefinition } from '../../domain/agent/ToolDefinition';
 
 /**
  * OpenAI Embedding Adapter configuration
@@ -25,8 +28,10 @@ export interface OpenAIEmbeddingConfig {
  * 
  * Generates embeddings using OpenAI's embedding models.
  * Supports batch generation for efficiency and rate limit adherence.
+ * 
+ * Implements both EmbeddingService for RAG and LLMAdapter for the registry.
  */
-export class OpenAIEmbeddingAdapter implements EmbeddingService {
+export class OpenAIEmbeddingAdapter implements EmbeddingService, LLMAdapter {
   private client: OpenAI;
   private model: string;
   private dimension: number;
@@ -72,7 +77,12 @@ export class OpenAIEmbeddingAdapter implements EmbeddingService {
         input: text,
       });
 
-      return result.data[0].embedding;
+      const embedding = result.data[0]?.embedding;
+      if (!embedding) {
+        throw new Error('OpenAI returned empty embedding data');
+      }
+
+      return embedding;
     } catch (error: any) {
       throw new Error(`OpenAI embedding generation failed: ${error.message}`);
     }
@@ -86,7 +96,7 @@ export class OpenAIEmbeddingAdapter implements EmbeddingService {
       return [];
     }
 
-    if (texts.length === 1) {
+    if (texts.length === 1 && texts[0]) {
       return [await this.generateEmbedding(texts[0])];
     }
 
@@ -98,7 +108,11 @@ export class OpenAIEmbeddingAdapter implements EmbeddingService {
         input: cleanTexts,
       });
 
-      return result.data.map(point => point.embedding);
+      if (!result.data || result.data.length === 0) {
+        throw new Error('OpenAI returned empty batch embedding data');
+      }
+
+      return result.data.map((point: any) => point.embedding);
     } catch (error: any) {
       throw new Error(`OpenAI batch embedding generation failed: ${error.message}`);
     }
@@ -131,6 +145,52 @@ export class OpenAIEmbeddingAdapter implements EmbeddingService {
   getModel(): string {
     return this.model;
   }
+
+  /**
+   * Stub for message creation (not supported by embedding adapter)
+   */
+  createMessage(
+    _system: string,
+    _messages: Message[],
+    _tools?: ToolDefinition[]
+  ): ApiStream {
+    throw new Error('OpenAIEmbeddingAdapter does not support message creation');
+  }
+
+  /**
+   * Get model metadata
+   */
+  getModelInfo(): ModelInfo {
+    return {
+      id: this.model,
+      name: `OpenAI ${this.model}`,
+      maxTokens: 8191,
+      supportsPromptCache: false,
+      supportsReasoning: false,
+      supportsStreaming: false
+    };
+  }
+
+  /**
+   * Generate embeddings (satisfied by generateEmbedding)
+   */
+  async embedText(text: string): Promise<number[]> {
+    return this.generateEmbedding(text);
+  }
+
+  /**
+   * Thinking budget (not applicable)
+   */
+  getThinkingBudgetTokenLimit(): number {
+    return 0;
+  }
+
+  /**
+   * Prompt strategy
+   */
+  getPromptStrategy(): PromptStrategy {
+    return PromptStrategy.OPENAI;
+  }
 }
 
 /**
@@ -148,8 +208,10 @@ export interface CohereEmbeddingConfig {
  * 
  * Generates embeddings using Cohere's embedding models.
  * Supports multi-lingual (english, multilingual) and optimized models.
+ * 
+ * Implements both EmbeddingService for RAG and LLMAdapter for the registry.
  */
-export class CohereEmbeddingAdapter implements EmbeddingService {
+export class CohereEmbeddingAdapter implements EmbeddingService, LLMAdapter {
   private apiKey: string;
   private model: string;
   private batchSize: number;
@@ -200,7 +262,7 @@ export class CohereEmbeddingAdapter implements EmbeddingService {
         throw new Error(`Cohere API error ${response.status}: ${error}`);
       }
 
-      const data = await response.json();
+      const data = await response.json() as any;
 
       return data.embeddings[0];
     } catch (error: any) {
@@ -245,7 +307,7 @@ export class CohereEmbeddingAdapter implements EmbeddingService {
           throw new Error(`Cohere API error ${response.status}: ${error}`);
         }
 
-        const data = await response.json();
+        const data = await response.json() as any;
         allEmbeddings.push(...data.embeddings);
       } catch (error: any) {
         throw new Error(`Cohere batch embedding generation failed: ${error.message}`);
@@ -281,5 +343,51 @@ export class CohereEmbeddingAdapter implements EmbeddingService {
    */
   getModel(): string {
     return this.model;
+  }
+
+  /**
+   * Get model metadata
+   */
+  getModelInfo(): ModelInfo {
+    return {
+      id: this.model,
+      name: `Cohere ${this.model}`,
+      maxTokens: 4096,
+      supportsPromptCache: false,
+      supportsReasoning: false,
+      supportsStreaming: false
+    };
+  }
+
+  /**
+   * Message creation (not supported)
+   */
+  createMessage(
+    _system: string,
+    _messages: Message[],
+    _tools?: ToolDefinition[]
+  ): ApiStream {
+    throw new Error('Message creation not supported in embedding adapter');
+  }
+
+  /**
+   * Embedding (maps to generateEmbedding)
+   */
+  async embedText(text: string): Promise<number[]> {
+    return this.generateEmbedding(text);
+  }
+
+  /**
+   * Thinking budget (not applicable)
+   */
+  getThinkingBudgetTokenLimit(): number {
+    return 0;
+  }
+
+  /**
+   * Prompt strategy
+   */
+  getPromptStrategy(): PromptStrategy {
+    return PromptStrategy.COHERE;
   }
 }

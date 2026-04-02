@@ -128,3 +128,16 @@ export interface ReadFileError {
    */
   originalError: unknown;
 }
+
+/**
+ * Built-in proof of file existence and integrity.
+ */
+export interface BuildInProof {
+  path?: string;
+  hash?: string;
+  size?: number;
+  timestamp: number;
+  status?: string;
+  eventsCount?: number;
+  conflictsCount?: number;
+}

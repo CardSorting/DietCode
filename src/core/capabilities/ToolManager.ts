@@ -18,12 +18,9 @@ import type { RollbackProtocol } from '../../domain/validation/RollbackProtocol'
 import { SafetyGuard } from './SafetyGuard';
 import type { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
 import type { ToolDefinition as DomainToolDefinition } from '../../domain/agent/ToolDefinition';
-import type { HookContract, HookPhase } from '../../domain/agent/HookContract';
-import { HookOrchestrator } from '../manager/HookOrchestrator';
-import type { LockScope } from '../../domain/safety/LockScope';
+import type { HookOrchestrator } from '../manager/HookOrchestrator';
+import type { LockScope, LockResult } from '../../domain/safety/LockScope';
 import { LockOrchestrator } from '../manager/LockOrchestrator';
-import type { LockResult } from '../../domain/safety/LockScope';
-import { EventType } from '../../domain/Event';
 
 /**
  * ToolManager orchestrates tool registration and execution
@@ -169,21 +166,24 @@ export class ToolManager {
     }
 
     const scope: LockScope = {
-      taskId: globalThis.crypto.randomUUID(),
+      taskId: 'tool-execution',
       operation,
       timeoutMs,
       autoRelease: true
     };
 
-    const result = await this.lockOrchestrator.acquire(scope, timeoutMs);
-    
-    if (result.success) {
-      console.log(`🔒 Tool lock acquired: ${operation}`);
-    } else {
-      console.warn(`⚠️  Lock acquisition failed: ${result.reason}`);
+    try {
+      const ticket = await this.lockOrchestrator.acquire(scope, timeoutMs);
+      console.log(`🔒 Tool lock acquired: ${operation} (ID: ${ticket.id})`);
+      return { success: true, ticket };
+    } catch (error: any) {
+      console.warn(`⚠️  Lock acquisition failed: ${error.message}`);
+      return { 
+        success: false, 
+        error: error.message,
+        reason: 'timeout' 
+      };
     }
-
-    return result;
   }
 
   /**
@@ -195,11 +195,8 @@ export class ToolManager {
     }
 
     try {
-      const result = await this.hookOrchestrator.run({
-        toolName,
-        phase: 'PRE_TOOL',
-        input: {}
-      });
+      // HookOrchestrator uses chain() now
+      const result = await this.hookOrchestrator.chain(toolName, {});
 
       if (!result) {
         console.warn(`🛑 Pre-tool hooks blocked execution: ${toolName}`);
@@ -255,7 +252,7 @@ export class ToolManager {
     }
 
     const startTime = Date.now();
-    const correlationId = globalThis.crypto.randomUUID();
+    const correlationId = 'task-' + Date.now();
     this.eventBus.publish(EventType.TOOL_INVOKED, { toolName: name, input }, { correlationId });
 
     // Phase 1: Evaluate safety if SafetyGuard configured
@@ -280,7 +277,8 @@ export class ToolManager {
           rollbackPrepared: Boolean(options.backupBeforeModification) && (safetyEval.riskLevel === RiskLevel.MEDIUM || safetyEval.riskLevel === RiskLevel.HIGH),
           safeguardsApplied: [
             Boolean(options.requireApprovalForHighRisk) ? 'Approval check' : '',
-            this.sanitizeArray(safetyCheck.safeguardsApplied).concat(safetyCheck.rollbackPrepared ? 'Backup prepared' : ''),
+            ...(safetyCheck.safeguardsApplied || []),
+            safetyCheck.rollbackPrepared ? 'Backup prepared' : '',
             'Tool execution protected'
           ].filter(Boolean) as string[]
         };
@@ -414,10 +412,8 @@ export class ToolManager {
 
   /**
    * Get safety status for diagnostics
-   * 
-   * @param overrideShell Internal parameter for shell-specific behavior (not exposed externally)
    */
-  getDiagnostics(overrideShell?: never): any {
+  getDiagnostics(): any {
     return {
       safetyGuard: this.safetyGuard !== undefined,
       toolRouter: this.toolRouter !== undefined,

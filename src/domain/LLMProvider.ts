@@ -5,17 +5,24 @@
  */
 
 import type { Reasoning } from './memory/Reasoning';
-import type { Message } from './context/SessionState';
+import type { Message, MessageBlock } from './context/SessionState';
 import type { ToolDefinition } from './agent/ToolDefinition';
 import type { Agent } from './agent/Agent';
 
 export interface LLMResponse {
-  content: any[];
+  content: MessageBlock[];
   usage?: {
     input_tokens: number;
     output_tokens: number;
   };
   reasoning?: Reasoning;
+}
+
+/**
+ * Global state container
+ */
+export interface GlobalState {
+  [key: string]: any;
 }
 
 export interface LLMProvider {

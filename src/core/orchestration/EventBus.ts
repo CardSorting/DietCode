@@ -45,7 +45,7 @@ export class EventBus {
    */
   emit(type: EventType, data: Record<string, any> = {}, metadata: SystemEvent['metadata'] = {}): void {
     const event: SystemEvent = {
-      id: crypto.randomUUID(),
+      id: globalThis.crypto.randomUUID(),
       type,
       timestamp: new Date().toISOString(),
       data,

@@ -70,7 +70,7 @@ export class LockOrchestrator {
 
   private lockManager = SqliteLockManager.getInstance();
 
-  private acquisitionStrategies: Map<LockTimeoutStrategy, (scope: LockScope, maxTime: number) => Promise<LockTicket>>;
+  private acquisitionStrategies: Map<LockTimeoutStrategy, (scope: LockScope, maxTime: number) => Promise<LockTicket>> = new Map();
 
   private constructor() {
     this.initializeStrategies();

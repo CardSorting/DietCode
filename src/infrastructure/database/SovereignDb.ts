@@ -56,6 +56,16 @@ export class SovereignDb {
       .addColumn('createdAt', 'text', (col) => col.notNull())
       .addColumn('appliedAt', 'text')
       .execute();
+
+    await db.schema
+      .createTable('snapshots' as any)
+      .ifNotExists()
+      .addColumn('id', 'text', (col) => col.primaryKey())
+      .addColumn('path', 'text', (item) => item.notNull())
+      .addColumn('content', 'text', (item) => item.notNull())
+      .addColumn('timestamp', 'int8', (item) => item.notNull())
+      .addColumn('hash', 'text', (item) => item.notNull())
+      .execute();
     
     // Initialize the Sovereign Swarm Buffered Pool
     this.pool = new BufferedDbPool();

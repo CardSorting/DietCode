@@ -4,16 +4,17 @@
  * Violations: None - coordinates domain and infrastructure
  */
 
-import type { FileReadResult, FileReadSource, OptimizationConfig } from "../../domain/context/FileOperation"
+import type { FileReadResult, FileReadSource } from "../../domain/context/FileOperation"
 import type { OptimizationSessionStats } from "../../domain/context/FileMetadata"
 import { 
   OptimizationMetricsAggregator, 
-  SessionMetrics,
-  SessionComparison 
+  type SessionMetrics,
+  type SessionComparison 
 } from "../capabilities/OptimizationMetrics"
-import type { FileContextTracker } from "../capabilities/FileContextTracker"
-import type { ContextOptimizationService as CoreOptimizationService } from "../capabilities/ContextOptimizationService"
-import type { SignatureDatabase } from "../../infrastructure/context/SignatureDatabase"
+import { FileContextTracker } from "../capabilities/FileContextTracker"
+import { ContextOptimizationService as CoreOptimizationService } from "../capabilities/ContextOptimizationService"
+import { SignatureDatabase } from "../../infrastructure/context/SignatureDatabase"
+import type { OptimizationConfig } from "../../domain/context/ContextOptimizationPolicy"
 
 /**
  * Result of a file read with optimization
@@ -80,13 +81,16 @@ export class ContextOptimizationServiceOrchestrator {
         decision.filePath,
         {
           filePath: decision.filePath,
-          content: decision.filePath, // Use path instead of content for optimized results
+          content: "Duplicate read notice placeholder",
           timestamp: Date.now(),
-          source: "optimization_decision",
+          source: "context_optimization",
           originalLength: decision.filePath.length,
-          optimizedLength: decision.filePath.length,
-          wasOptimized: false // This decision itself was stored as metadata
-        } as any
+          optimizedLength: 43,
+          wasOptimized: true,
+          optimizationReason: decision.reason,
+          hash: "opt-" + Date.now(),
+          sizeBytes: decision.filePath.length
+        }
       )
       
       // Log optimization event
@@ -127,17 +131,19 @@ export class ContextOptimizationServiceOrchestrator {
     const isCachedOptimization = savedSignature?.optimized && this.needsOptimization(filePath)
     
     if (isCachedOptimization) {
-      const cachedResult = {
+      const cachedResult: FileReadResult = {
         filePath,
         content: "Duplicate file read notice",
         timestamp: Date.now(),
         source: "optimization_cache",
-        originalLength: savedSignature.content.length,
+        originalLength: savedSignature?.content?.length || 0,
         optimizedLength: 43,
         wasOptimized: true,
-        optimizationReason: savedSignature.firstReadTimestamp > 0 ? 
-          "reusing_cached_optimization" : "two_finger_pattern"
-      } as FileReadResult
+        optimizationReason: (savedSignature && savedSignature.firstReadTimestamp > 0) ? 
+          "reusing_cached_optimization" : "two_finger_pattern",
+        hash: savedSignature?.hash || "cached-" + Date.now(),
+        sizeBytes: savedSignature?.sizeBytes || 0
+      }
       
       return {
         result: cachedResult,

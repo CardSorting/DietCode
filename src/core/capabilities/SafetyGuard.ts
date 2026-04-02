@@ -13,8 +13,7 @@ import type { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
 import { RiskLevel } from '../../domain/validation/RiskLevel';
 import type { SafetyAwareToolContext, SafetyAwareToolOptions } from '../../domain/capabilities/SafetyAwareToolExecution';
 import type { LockOrchestrator } from '../manager/LockOrchestrator';
-import type { LockScope } from '../../domain/safety/LockScope';
-import { LockResult } from '../../domain/safety/LockScope';
+import type { LockScope, LockResult } from '../../domain/safety/LockScope';
 
 /**
  * SafetyGuard orchestrates safe execution of actions
@@ -57,22 +56,24 @@ export class SafetyGuard {
     }
 
     const scope: LockScope = {
-      taskId: globalThis.crypto.randomUUID(),
+      taskId: 'system', // Default taskId for system-level operations
       operation,
       timeoutMs,
       autoRelease: true
     };
 
-    const result = await this.lockOrchestrator.acquire(scope, timeoutMs);
-    
-    if (result.success) {
-      // Auto-release after operation completes (would be proper with op.execute, but simple example)
-      console.log(`🔒 Operation lock acquired: ${operation}`);
-    } else {
-      console.warn(`⚠️  Lock acquisition failed: ${result.reason}`);
+    try {
+      const ticket = await this.lockOrchestrator.acquire(scope, timeoutMs);
+      console.log(`🔒 Operation lock acquired: ${operation} (ID: ${ticket.id})`);
+      return { success: true, ticket };
+    } catch (error: any) {
+      console.warn(`⚠️  Lock acquisition failed: ${error.message}`);
+      return { 
+        success: false, 
+        error: error.message,
+        reason: error.message.includes('timeout') ? 'timeout' : 'already_locked'
+      };
     }
-
-    return result;
   }
 
   /**

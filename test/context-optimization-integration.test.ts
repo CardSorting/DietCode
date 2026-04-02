@@ -6,6 +6,10 @@
 import { ExecutionService } from '../src/core/orchestration/ExecutionService';
 import { ContextOptimizationServiceOrchestrator, createDefaultOrchestrator } from '../src/core/orchestration/ContextOptimizationService';
 import { SignatureDatabase } from '../src/infrastructure/context/SignatureDatabase';
+import { SnapshotService } from '../src/core/memory/SnapshotService';
+import { SqliteSnapshotRepository } from '../src/infrastructure/database/SqliteSnapshotRepository';
+import { EnhancedFileSystemAdapter } from '../src/infrastructure/EnhancedFileSystemAdapter';
+import { SovereignDb } from '../src/infrastructure/database/SovereignDb';
 
 async function runIntegrationTest() {
   console.log('🧪 Starting Context Optimization Integration Test...\n');
@@ -13,14 +17,19 @@ async function runIntegrationTest() {
   // Step 1: Setup
   console.log('📦 Step 1: Setup');
 
-  // Create a signature database (optional - can be null for default behavior)
+  // Initialize DB for integration test
+  await SovereignDb.init(':memory:');
+
+  // Create a signature database
   const signatureDb = new SignatureDatabase();
 
   // Create the orchestrator with custom config
   const orchestrator = createDefaultOrchestrator(signatureDb);
 
-  // Create execution service
-  const snapshotService = (await import('../src/core/memory/SnapshotService')).default;
+  // Create execution service with snapshots
+  const repository = new SqliteSnapshotRepository();
+  const fs = new EnhancedFileSystemAdapter();
+  const snapshotService = new SnapshotService(repository, fs);
   const executionService = new ExecutionService(snapshotService);
 
   // Enable context optimization in execution service
@@ -63,11 +72,13 @@ async function runIntegrationTest() {
   // Step 4: Check context summary
   console.log('📈 Step 4: Check context summary');
   const summary = executionService.getContextSummary();
-  console.log('Context summary:');
-  console.log(`  Total reads: ${summary.totalReads}`);
-  console.log(`  Optimized files: ${summary.optimizedFiles}`);
-  console.log(`  Potential savings: ${summary.potentialSavings.toFixed(1)}%`);
-  console.log(`  Context saturation: ${(summary.saturation * 100).toFixed(0)}%`);
+  if (summary) {
+    console.log('Context summary:');
+    console.log(`  Total reads: ${summary.totalReads}`);
+    console.log(`  Optimized files: ${summary.optimizedFiles}`);
+    console.log(`  Potential savings: ${summary.potentialSavings.toFixed(1)}%`);
+    console.log(`  Context saturation: ${(summary.saturation * 100).toFixed(0)}%`);
+  }
   console.log();
 
   // Step 5: Generate report
@@ -84,7 +95,7 @@ async function runIntegrationTest() {
     console.log();
     
     console.log('Recommendations:');
-    report.recommendations.slice(0, 3).forEach(rec => {
+    report.recommendations.slice(0, 3).forEach((rec: string) => {
       console.log(`  - ${rec}`);
     });
   }

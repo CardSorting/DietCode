@@ -4,13 +4,16 @@
  * Violations: None - uses Dependency Inversion for Infrastructure
  */
 
-import type { FileReadResult, FileReadSource, OptimizationConfig } from "../../domain/context/FileOperation"
+import type { FileReadResult, FileReadSource } from "../../domain/context/FileOperation"
 import type {
   OptimizationSessionStats,
   FileOptimizationDecision
 } from "../../domain/context/FileMetadata"
-import type { FileContextTracker } from "./FileContextTracker"
+import { FileContextTracker } from "./FileContextTracker"
+import type { OptimizationConfig } from "../../domain/context/ContextOptimizationPolicy"
 import { defaultOptimizationConfig } from "../../domain/context/ContextOptimizationPolicy"
+import { EventType } from "../../domain/Event"
+import { EventBus } from "../../core/orchestration/EventBus"
 
 /**
  * ContextOptimizationService coordinates the optimization process
@@ -59,7 +62,7 @@ export class ContextOptimizationService {
    */
   async recordRead(filePath: string, content: string, source: FileReadSource = "tool_execute"): Promise<FileReadResult> {
     // Record the read
-    const result = this.tracker.recordRead(filePath, content, source)
+    const result = await this.tracker.recordRead(filePath, content, source)
     
     // Check if optimization window should trigger
     if (this.shouldTriggerOptimization()) {
@@ -133,7 +136,15 @@ export class ContextOptimizationService {
    * 3. Clear read buffer
    */
   private async truncateContext(): Promise<void> {
-    console.log(`ContextOptimizationService: Truncating context - savings below threshold (${this.config.savingsThreshold}%)`)
+    const eventBus = EventBus.getInstance()
+    const correlationId = Date.now().toString()
+    const stats = this.tracker.getSessionStats()
+    
+    eventBus.publish(EventType.CONTEXT_OPTIMIZATION, {
+      message: `Context truncation triggered - savings below threshold (${this.config.savingsThreshold}%)`,
+      threshold: this.config.savingsThreshold,
+      savingsRemaining: (stats.percentageSaved || 0).toFixed(1)
+    }, { correlationId })
     
     // Clear the read buffer to start fresh
     this.tracker.clearBuffer()
@@ -143,8 +154,15 @@ export class ContextOptimizationService {
    * Handle optimization decision from tracker
    */
   private handleOptimizationDecision(decision: FileOptimizationDecision): void {
-    // Forward decision event if needed
-    console.log(`ContextOptimizationService: Optimization decision - ${decision.filePath}: ${decision.reason}`)
+    const eventBus = EventBus.getInstance()
+    const correlationId = Date.now().toString()
+    
+    eventBus.publish(EventType.CONTEXT_OPTIMIZATION, {
+      filePath: decision.filePath,
+      optimizationApplied: decision.applyTwoFingerPattern,
+      reason: decision.reason,
+      calculatedSavings: decision.calculatedSavings.toFixed(1)
+    }, { correlationId })
     
     // In a full implementation, this would:
     // - Save decision to signature database

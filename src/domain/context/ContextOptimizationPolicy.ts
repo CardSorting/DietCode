@@ -76,7 +76,9 @@ export function applyTwoFingerPattern(
     originalLength: filePath.length + noticeText.length,
     optimizedLength: noticeText.length,
     wasOptimized: true,
-    optimizationReason: "two_finger_pattern"
+    optimizationReason: "two_finger_pattern",
+    hash: "notice-" + Date.now(),
+    sizeBytes: noticeText.length
   }
 }
 
@@ -149,7 +151,10 @@ export function analyzeAndApplyOptimizations(
       // Keep original
       optimizedEntries.push({
         ...entry,
-        wasOptimized: false
+        optimizedLength: entry.originalLength,
+        wasOptimized: false,
+        hash: entry.contentHash,
+        sizeBytes: entry.originalLength
       })
     }
   }
@@ -219,12 +224,12 @@ export function getOptimizationRecommendations(
 ): string[] {
   const recommendations: string[] = []
   
-  if (stats.doublesProcessed > 1 && stats.percentageSaved > config.savingsThreshold) {
+  if (stats.duplicatesProcessed > 1 && stats.percentageSaved > config.savingsThreshold) {
     recommendations.push(`Two-finger pattern successfully saved ${stats.percentageSaved.toFixed(1)}% context space`)
   }
   
-  if (stats.doublesProcessed > 5) {
-    recommendations.push(`High duplication detected (${stats.doublesProcessed} duplicates) - consider refactoring`)
+  if (stats.duplicatesProcessed > 5) {
+    recommendations.push(`High duplication detected (${stats.duplicatesProcessed} duplicates) - consider refactoring`)
   }
   
   if (stats.percentageSaved < config.savingsThreshold) {
@@ -251,7 +256,7 @@ export function shouldTruncateContext(
   const contextRatio = stats.totalOriginalBytes / config.maxContextSize
   
   // Truncate if: savings below threshold OR context size exceeded
-  const savingsTooLow = stats.doublesProcessed > 0 && percentageSaved < config.savingsThreshold
+  const savingsTooLow = stats.duplicatesProcessed > 0 && percentageSaved < config.savingsThreshold
   const contextTooLarge = contextRatio > (config.optimizationTrigger / 100)
   
   return savingsTooLow || contextTooLarge

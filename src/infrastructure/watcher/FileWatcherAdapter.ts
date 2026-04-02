@@ -8,6 +8,7 @@
  */
 
 import { watch, FSWatcher as ChokidarWatcher } from 'chokidar';
+import { FileChangeType } from '../../domain/context/FileChange';
 import type { FileChange } from '../../domain/context/FileChange';
 
 /**
@@ -62,16 +63,9 @@ export interface FileWatcherConfig {
 
 /**
  * File watch change type
+ * Re-exported from domain
  */
-export enum FileChangeType {
-  ADDED = 'added',
-  MODIFIED = 'modified',
-  DELETED = 'deleted',
-  RENAMED = 'renamed',
-  UNLINK = 'unlink',
-  ADD_DIR = 'add_dir',
-  UNLINK_DIR = 'unlink_dir',
-}
+export { FileChangeType };
 
 /**
  * FileWatcherEvent interface
@@ -141,12 +135,12 @@ export interface FileWatcherResult {
  * - Emit file change notifications
  */
 export class FileWatcherAdapter {
-  private watchers: Map<string, ChokidarWatcher> = new Map();
+  protected watchers: Map<string, ChokidarWatcher> = new Map();
   private eventQueue: FileWatcherEvent[] = [];
   private aggregateTimeout: NodeJS.Timeout | null = null;
   private onFileChangeListeners: Set<(event: FileWatcherEvent) => Promise<void>> = new Set();
   
-  private config: Required<FileWatcherConfig>;
+  protected config: Required<FileWatcherConfig>;
   private watcherOptions: any;
 
   constructor(config: FileWatcherConfig) {
@@ -176,7 +170,7 @@ export class FileWatcherAdapter {
     const paths = Array.isArray(this.config.paths) ? this.config.paths : [this.config.paths];
     
     console.log(`👀 File watcher started: ${paths.join(', ')}`);
-
+    
     for (const path of paths) {
       // Normalize path to absolute
       const absolutePath = path.startsWith('/')
@@ -188,16 +182,16 @@ export class FileWatcherAdapter {
 
       // Configure event handlers
       watcher
-        .on('add', (path) => this.handleAdd(path))
-        .on('change', (path) => this.handleChange(path))
-        .on('unlink', (path) => this.handleUnlink(path))
-        .on('addDir', (path) => this.handleAddDir(path))
-        .on('unlinkDir', (path) => this.handleUnlinkDir(path))
+        .on('add', (path: string) => this.handleAdd(path))
+        .on('change', (path: string) => this.handleChange(path))
+        .on('unlink', (path: string) => this.handleUnlink(path))
+        .on('addDir', (path: string) => this.handleAddDir(path))
+        .on('unlinkDir', (path: string) => this.handleUnlinkDir(path))
         .on('ready', () => {
           console.log(`✅ Watcher ready for: ${absolutePath}`);
           this.emitReady();
         })
-        .on('error', (error) => {
+        .on('error', (error: any) => {
           console.error(`❌ Watcher error on ${absolutePath}:`, error);
           this.emitError(error);
         });
@@ -300,7 +294,7 @@ export class FileWatcherAdapter {
   /**
    * Flush all queued events to listeners
    */
-  private flush(): void {
+  protected flush(): void {
     if (this.eventQueue.length === 0) {
       return;
     }
@@ -404,15 +398,16 @@ export class RoundRobinFileWatcher extends FileWatcherAdapter {
     super(config);
     this.watchedPaths = Array(count).fill(''); // Will be updated by watch()
   }
+  
+  private subWatchers: Map<string, FileWatcherAdapter> = new Map();
 
-  async watch(): Promise<void> {
+  override async watch(): Promise<void> {
     const rootPaths = Array.isArray(this.config.paths) ? this.config.paths : [this.config.paths];
-    
     for (let i = 0; i < rootPaths.length; i++) {
       const path = rootPaths[i];
-      const rootPathConfig = {
+      const rootPathConfig: FileWatcherConfig = {
         ...this.config,
-        paths: path,
+        paths: path as string,
       };
 
       console.log(`👀 Round-robin: Watching ${path} (stream ${i + 1}/${rootPaths.length})`);
@@ -421,15 +416,15 @@ export class RoundRobinFileWatcher extends FileWatcherAdapter {
       const watcher = new FileWatcherAdapter(rootPathConfig);
       await watcher.watch();
 
-      this.watchers.set(`round_robin_${i}`, watcher.watcher);
+      this.subWatchers.set(`round_robin_${i}`, watcher);
     }
   }
 
-  async stop(): Promise<void> {
-    for (const watcher of this.watchers.values()) {
-      (watcher as any).close();
+  override async stop(): Promise<void> {
+    for (const watcher of this.subWatchers.values()) {
+      await watcher.stop();
     }
-    this.watchers.clear();
+    this.subWatchers.clear();
     this.flush();
   }
 }

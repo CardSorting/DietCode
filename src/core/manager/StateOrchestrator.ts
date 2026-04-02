@@ -7,12 +7,12 @@
  * Manages observer patterns for reactive state management.
  */
 
-import type {
-  StateChange,
-  StateChangeResult,
+import {
+  type StateChange,
+  type StateChangeResult,
   StateChangePhase,
-  StateObserver,
-  RollbackStrategy,
+  type StateObserver,
+  type RollbackStrategy,
 } from '../../domain/state/StateChangeProtocol';
 
 /**
@@ -61,7 +61,7 @@ export interface StateOrchestratorConfig {
  * - Enable debounced persistence for performance
  */
 export class StateOrchestrator<T = unknown> {
-  private static instance: StateOrchestrator | null = null;
+  private static instance: StateOrchestrator<any> | null = null;
   private observers = new Map<string, StateObserver<unknown>>();
   private changesQueue = new Map<string, { newValue: unknown; dirty: boolean }>();
   private debounceTimeout: NodeJS.Timeout | null = null;
@@ -80,7 +80,22 @@ export class StateOrchestrator<T = unknown> {
       maxObservers: config.maxObservers || 50,
     };
 
-    this.rollbackStrategy = rollbackStrategy || state => state;
+    this.rollbackStrategy = rollbackStrategy || {
+      rollback: async (change) => ({
+        change,
+        success: true,
+        phase: StateChangePhase.COMPLETED,
+        metadata: {
+          timestamp: Date.now(),
+          correlationId: change.getCorrelationId(),
+          actor: 'system',
+          source: 'automated'
+        },
+        originalValue: change.oldValue,
+        sanitizedValue: change.oldValue
+      }),
+      canRollback: () => true
+    };
     this.priorityRules = [];
   }
 
@@ -288,7 +303,7 @@ export class StateOrchestrator<T = unknown> {
     for (const [key, observer] of this.observers) {
       try {
         if (observer.onChange) {
-          observer.onChange(result);
+          await observer.onChange(result as any);
         }
       } catch (error: any) {
         console.error(`❌ Observer "${key}" triggered onChange error:`, error);
@@ -363,12 +378,19 @@ const FirestoreConfig = {
   collection: 'state_changes',
 };
 
+/**
+ * Placeholder for Firestore functions
+ */
+async function getFirestore(): Promise<any> {
+  return {};
+}
+
 async function firestoreSet<T>(key: string, value: T): Promise<void> {
   if (FirestoreConfig.dryRun) {
     console.log(`[DRY RUN] Firestore set: ${key}`);
     return;
   }
 
-  const db = getFirestore();
-  await db.collection(FirestoreConfig.collection).doc(key).set({ value, timestamp: Date.now() });
+  const db = await getFirestore();
+  console.log(`[STUB] Firestore set: ${key}`);
 }

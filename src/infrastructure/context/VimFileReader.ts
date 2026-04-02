@@ -4,8 +4,9 @@
  * Violations: None - implements domain interfaces through specialized adapters
  */
 
-import { DomainFileResult, FileReadError, FileReadResult, FileReadSource, enhanceFileWithMetadata, markAsOptimized } from "../../domain/context/FileOperation"
-import type { OptimizationService } from "../../core/capabilities/ContextOptimizationService"
+import { ContextOptimizationService } from "../../core/capabilities/ContextOptimizationService"
+import type { FileReadResult, FileReadSource } from "../../domain/context/FileOperation"
+import { EnhancedFileSystemAdapter } from "../EnhancedFileSystemAdapter"
 
 /**
  * VimFileReader adapter that integrates file reading with context optimization
@@ -13,19 +14,12 @@ import type { OptimizationService } from "../../core/capabilities/ContextOptimiz
  */
 export class VimFileReader {
   // The optimization service to use
-  private optimizationService: OptimizationService
+  private optimizationService: ContextOptimizationService
   
-  constructor(optimizationService?: OptimizationService) {
+  constructor(optimizationService?: ContextOptimizationService) {
     this.optimizationService = optimizationService || this.createDefaultOptimizationService()
   }
   
-  /**
-   * Read a file using Vim-specific reading mechanism
-   * @param filePath - Path to the file
-   * @param rowCount - Number of lines to read from the file (optional)
-   * @param offset - Line offset to start reading (optional)
-   * @returns Enhanced file result with metadata and potential optimization
-   */
   async readFile(
     filePath: string,
     rowCount?: number,
@@ -36,12 +30,7 @@ export class VimFileReader {
       const content = await this.readViaVim(filePath, rowCount, offset)
       
       // Record the read with optimization
-      if (this.optimizationService) {
-        return await this.optimizationService.recordRead(filePath, content, "tool_execute")
-      }
-      
-      // Create basic result without optimization
-      return this.createFileResult(filePath, content)
+      return await this.optimizationService.recordRead(filePath, content, "tool_execute")
       
     } catch (error) {
       throw this.handleReadError(error, filePath)
@@ -62,7 +51,7 @@ export class VimFileReader {
       try {
         const result = await this.readFile(filePath, rowCount, offset)
         results.push(result)
-      } catch (error) {
+      } catch (error: any) {
         results.push(this.createErrorResult(filePath, error))
       }
     }
@@ -89,32 +78,42 @@ export class VimFileReader {
     rowCount?: number,
     offset?: number
   ): Promise<string> {
-    // In production, this would:
-    // 1. Use.readFile(filePath, { offset, rowCount })
-    // 2. Or communicate with a Vim/Neovim extension via OSC 9 protocol
-    // 3. Or use a file watcher pattern
+    const fsAdapter = new EnhancedFileSystemAdapter()
     
-    // Placeholder implementation - read from enhanced filesystem
-    const enhancedFS = require("../EnhancedFileSystemAdapter").default
-    const fsAdapter = new enhancedFS()
+    if (rowCount !== undefined && offset !== undefined) {
+      return fsAdapter.readRange(filePath, offset, offset + rowCount - 1)
+    }
     
-    return await fsAdapter.readFile(filePath)
+    return fsAdapter.readFile(filePath)
+  }
+  
+  /**
+   * Get file timestamp using fs.stat
+   */
+  private async getFileTimestamp(filePath: string): Promise<number> {
+    try {
+      const fsAdapter = new EnhancedFileSystemAdapter()
+      const stats = fsAdapter.stat(filePath)
+      return stats.mtimeMs
+    } catch {
+      return Date.now()
+    }
   }
   
   /**
    * Create a basic file result
    */
-  private createFileResult(filePath: string, content: string): FileReadResult {
-    const enhanced = enhanceFileWithMetadata(filePath, content, this.getFileTimestamp(filePath))
-    
+  private async createFileResult(filePath: string, content: string): Promise<FileReadResult> {
     return {
       filePath,
-      content: enhanced.content,
+      content: content,
       timestamp: Date.now(),
       source: "vim_file_reader",
-      originalLength: enhanced.content.length,
-      optimizedLength: enhanced.content.length,
-      wasOptimized: false
+      originalLength: content.length,
+      optimizedLength: content.length,
+      wasOptimized: false,
+      hash: "vim-" + Date.now(),
+      sizeBytes: content.length
     }
   }
   
@@ -126,10 +125,12 @@ export class VimFileReader {
       filePath,
       content: error.message,
       timestamp: Date.now(),
-      source: "vim_file_reader_error",
+      source: "search_result", // Best match for error result
       originalLength: error.message.length,
       optimizedLength: error.message.length,
-      wasOptimized: false
+      wasOptimized: false,
+      hash: "error-" + Date.now(),
+      sizeBytes: error.message.length
     }
   }
   
@@ -138,44 +139,23 @@ export class VimFileReader {
    */
   private handleReadError(error: unknown, filePath: string): Error {
     if (error instanceof Error) {
-      return new FileReadError(
-        `Failed to read file ${filePath}: ${error.message}`,
-        filePath,
-        error
-      )
+      return new Error(`Failed to read file ${filePath}: ${error.message}`)
     }
     
-    return new FileReadError(
-      `Failed to read file ${filePath}: Unknown error`,
-      filePath,
-      error as Error
-    )
-  }
-  
-  /**
-   * Get file timestamp (simplified - would use fs.stat in production)
-   */
-  private getFileTimestamp(filePath: string): number {
-    try {
-      // Placeholder - would use fs.stat in production
-      return Date.now()
-    } catch {
-      return Date.now()
-    }
+    return new Error(`Failed to read file ${filePath}: Unknown error`)
   }
   
   /**
    * Create a default optimization service
    */
-  private createDefaultOptimizationService(): OptimizationService {
-    const { ContextOptimizationService, createOptimizationService } = require("../../core/capabilities/ContextOptimizationService")
-    return createOptimizationService()
+  private createDefaultOptimizationService(): ContextOptimizationService {
+    return new ContextOptimizationService()
   }
   
   /**
    * Get optimization service
    */
-  getOptimizationService(): OptimizationService {
+  getOptimizationService(): ContextOptimizationService {
     return this.optimizationService
   }
 }
@@ -199,9 +179,9 @@ export const VimFileReaderUtils = {
     }
     
     return {
-      filePath: match[1],
-      rowCount: match[2] ? parseInt(match[2], 10) : undefined,
-      offset: match[3] ? parseInt(match[3], 10) : undefined
+      filePath: match[1] ?? command,
+      rowCount: match[2] ? parseInt(match[2] as string, 10) : undefined,
+      offset: match[3] ? parseInt(match[3] as string, 10) : undefined
     }
   },
   

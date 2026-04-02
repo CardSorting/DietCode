@@ -7,71 +7,10 @@
  * safety, task-level isolation, and concurrent mutation coordination.
  */
 
+import { randomUUID } from 'node:crypto';
 import type { SqliteQueue } from '@noorm/broccoliq';
-import type { LockScope } from '../../domain/safety/LockScope';
+import type { LockScope, LockTicket, LockResult } from '../../domain/safety/LockScope';
 import { SovereignDb } from './SovereignDb';
-
-/**
- * Distributed lock ticket
- * 
- * Represents an acquired lock with expiration and automatic cleanup properties
- */
-export interface LockTicket {
-  /**
-   * Unique identifier for this lock acquisition
-   */
-  id: string;
-
-  /**
-   * Unique lock code (used for release verification)
-   */
-  code: string;
-
-  /**
-   * Resource identifier (taskId_operation)
-   */
-  resourceId: string;
-
-  /**
-   * When the lock was acquired (timestamp)
-   */
-  acquiredAt: number;
-
-  /**
-   * When the lock expires (timestamp or 0 for non-expiring)
-   */
-  expiresAt: number;
-
-  /**
-   * Session ID for cleanup after process exit
-   */
-  sessionId?: string;
-}
-
-/**
- * Lock acquisition result
- */
-export interface LockResult {
-  /**
-   * The lock ticket if acquired successfully
-   */
-  success: boolean;
-
-  /**
-   * The acquired lock ticket
-   */
-  ticket?: LockTicket;
-
-  /**
-   * Error message if acquisition failed
-   */
-  error?: string;
-
-  /**
-   * Reason for failure
-   */
-  reason?: 'already_locked' | 'expired' | 'invalid_scope' | 'timeout';
-}
 
 /**
  * SqliteLockManager
@@ -138,7 +77,7 @@ export class SqliteLockManager {
       .execute();
 
     // Create a unique index on resource_id
-    await db.schema
+    await (db.schema as any)
       .createIndex('idx_locks_resource_id')
       .ifNotExists()
       .onTable('solo_locks')
@@ -163,12 +102,12 @@ export class SqliteLockManager {
     
     // Generate unique ticket
     const ticket: LockTicket = {
-      id: crypto.randomUUID(),
-      code: crypto.randomUUID(),
+      id: randomUUID(),
+      code: randomUUID(),
       resourceId,
       acquiredAt: Date.now(),
       expiresAt: scope.timeoutMs || 0,
-      sessionId: process.env.SESSION_ID || crypto.randomUUID(),
+      sessionId: process.env.SESSION_ID || randomUUID(),
       autoRelease: scope.autoRelease !== false
     };
 
@@ -216,7 +155,7 @@ export class SqliteLockManager {
     resourceId: string
   ): Promise<LockResult> {
     // Check if lock already exists (with expiration)
-    const existing = await db
+    const existing = await (db as any)
       .selectFrom('solo_locks')
       .selectAll()
       .where('resource_id', '=', resourceId)
@@ -233,7 +172,7 @@ export class SqliteLockManager {
 
     // Insert the new lock
     try {
-      await db.insertInto('solo_locks')
+      await (db as any).insertInto('solo_locks')
         .values({
           id: ticket.id,
           resource_id: resourceId,
@@ -277,7 +216,7 @@ export class SqliteLockManager {
     const db = await SovereignDb.db();
 
     // Verify lock exists and code matches
-    const lock = await db
+    const lock = await (db as any)
       .selectFrom('solo_locks')
       .selectAll()
       .where('resource_id', '=', resourceId)
@@ -290,7 +229,7 @@ export class SqliteLockManager {
     }
 
     // Clear locks table entry
-    await db
+    await (db as any)
       .deleteFrom('solo_locks')
       .where('resource_id', '=', resourceId)
       .where('lock_code', '=', expectedCode)
@@ -316,7 +255,7 @@ export class SqliteLockManager {
   ): Promise<boolean> {
     const db = await SovereignDb.db();
 
-    const lock = await db
+    const lock = await (db as any)
       .selectFrom('solo_locks')
       .select(['id', 'lock_code'])
       .where('resource_id', '=', resourceId)
@@ -330,7 +269,7 @@ export class SqliteLockManager {
 
     const newExpiresAt = Date.now() + newTimeoutMs;
 
-    await db
+    await (db as any)
       .updateTable('solo_locks')
       .set({ 
         expires_at: newExpiresAt.toString(),
@@ -362,7 +301,7 @@ export class SqliteLockManager {
 
     // Check database for expired locks
     const db = await SovereignDb.db();
-    const lock = await db
+    const lock = await (db as any)
       .selectFrom('solo_locks')
       .selectAll()
       .where('resource_id', '=', resourceId)
@@ -378,7 +317,8 @@ export class SqliteLockManager {
           resourceId: lock.resource_id,
           acquiredAt: parseInt(lock.acquired_at),
           expiresAt: parseInt(lock.expires_at),
-          sessionId: lock.session_id
+          sessionId: lock.session_id,
+          autoRelease: lock.auto_release === 'true'
         }
       };
     }
@@ -397,7 +337,7 @@ export class SqliteLockManager {
     const db = await SovereignDb.db();
     const now = Date.now().toString();
 
-    await db
+    await (db as any)
       .deleteFrom('solo_locks')
       .where('expires_at', '<=', now)
       .execute();

@@ -5,8 +5,8 @@
  */
 
 import type { OptimizationSessionStats } from "../../domain/context/FileMetadata"
-import { calculateSavingsPercentage, calculateContextSavings } from "../../domain/context/FileMetadata"
-import { shouldTruncateContext } from "../../domain/context/ContextOptimizationPolicy"
+import { calculateSavingsPercentage } from "../../domain/context/FileMetadata"
+import { shouldTruncateContext, calculateContextSavings } from "../../domain/context/ContextOptimizationPolicy"
 
 /**
  * Optimization Metrics Aggregator
@@ -19,7 +19,8 @@ export class OptimizationMetricsAggregator {
   getSessionMetrics(stats: OptimizationSessionStats): SessionMetrics {
     const savings = stats.percentageSaved || 0
     const contextRatio = stats.totalOriginalBytes / 512 / 1024 // MB ratio to 512KB
-    const readFrequency = stats.totalReads / ((stats.sessionEndTime - stats.sessionStartTime) / 60000 || 1) // reads per minute
+    const endTime = stats.sessionEndTime || Date.now()
+    const readFrequency = stats.totalReads / ((endTime - stats.sessionStartTime) / 60000 || 1) // reads per minute
 
     // Convert to readable format
     const readableSavings = (savings / 100).toFixed(2)
@@ -41,18 +42,16 @@ export class OptimizationMetricsAggregator {
       
       // Performance indicators
       duplicateRatio: stats.duplicateReads / (stats.totalReads || 1),
-      readFrequency perMinute: readFrequency,
+      readFrequencyPerMinute: readFrequency,
       optimizationScore: this.calculateScore(savings, stats.duplicateReads),
       
-      // Ratios and ratios
+      // Ratios and metrics
       contextUsageRatio: contextRatio,
       optimizationTriggerStatus: this.getTriggerStatus(stats.totalOriginalBytes),
       
       // Time metrics
-      sessionDurationMs: stats.sessionEndTime 
-        ? stats.sessionEndTime - stats.sessionStartTime 
-        : Date.now() - stats.sessionStartTime,
-      duplicateProcessingTime: 'N/A' // Would be tracked in full implementation
+      sessionDurationMs: stats.sessionEndTime ? stats.sessionEndTime - stats.sessionStartTime : Date.now() - stats.sessionStartTime,
+      duplicateProcessingTime: 'N/A', // Would be tracked in full implementation
       
       // Recommendations
       recommendations: this.generateRecommendations(stats, savings, contextRatio)
@@ -102,45 +101,31 @@ export class OptimizationMetricsAggregator {
     // Savings-based recommendations
     if (stats.duplicateReads > 0) {
       if (savings >= 30) {
-        recommendations.push(
-          `✓ Excellent optimization: ${savings.toFixed(1)}% savings from duplicate handling`
-        )
+        recommendations.push(`✓ Excellent optimization: ${savings.toFixed(1)}% savings from duplicate handling`)
       } else if (savings >= 15) {
-        recommendations.push(
-          `✓ Good optimization: ${savings.toFixed(1)}% savings from duplicate handling`
-        )
+        recommendations.push(`✓ Good optimization: ${savings.toFixed(1)}% savings from duplicate handling`)
       } else {
-        recommendations.push(
-          `⚠ Optimization could be better: only ${savings.toFixed(1)}% savings`
-        )
+        recommendations.push(`⚠ Optimization could be better: only ${savings.toFixed(1)}% savings`)
       }
     }
     
     // Read frequency recommendations
-    const readFrequency = stats.totalReads / ((stats.percentageSaved > 0 ? 1 : 1)) // Simplified
+    const simpleFrequency = stats.totalReads > 0 ? 1 : 1 // Simplified calculation
     if (stats.totalReads > 20) {
-      recommendations.push(
-        `⚠ High read frequency: ${stats.totalReads} total reads may indicate inefficient caching`
-      )
+      recommendations.push(`⚠ High read frequency: ${stats.totalReads} total reads may indicate inefficient caching`)
     }
     
     // Context size recommendations
     if (contextRatio > 90) {
-      recommendations.push(
-        `⚠ Context near limit: ${(contextRatio).toFixed(0)}% of max size`
-      )
+      recommendations.push(`⚠ Context near limit: ${(contextRatio).toFixed(0)}% of max size`)
     } else if (contextRatio > 70) {
-      recommendations.push(
-        `ℹ Context at ${(contextRatio).toFixed(0)}% of max size - consider proactive truncation`
-      )
+      recommendations.push(`ℹ Context at ${(contextRatio).toFixed(0)}% of max size - consider proactive truncation`)
     }
     
     // Duplicate ratio recommendations
     const dupRatio = stats.duplicateReads / (stats.totalReads || 1)
     if (dupRatio > 0.3) {
-      recommendations.push(
-        `⚠ High duplication ratio: ${(dupRatio * 100).toFixed(0)}% of reads are duplicates`
-      )
+      recommendations.push(`⚠ High duplication ratio: ${(dupRatio * 100).toFixed(0)}% of reads are duplicates`)
     }
     
     return recommendations
@@ -171,12 +156,12 @@ export class OptimizationMetricsAggregator {
   normalizeForDisplay(metrics: SessionMetrics): DisplayMetrics {
     return {
       ...metrics,
-      // Always use lowercase keys
+      // Always use lowercase keys for display
       totalSizeMB: metrics.totalSizeMB.toFixed(2),
       totalSizeKB: metrics.totalSizeKB.toFixed(2),
       bytesSavedKB: metrics.bytesSavedKB.toFixed(2),
       percentageSaved: metrics.percentageSaved.toFixed(1),
-      effectivelySavedKB: metrics.effectiveSavingsKB.toFixed(2),
+      effectiveSavingsKB: metrics.effectiveSavingsKB.toFixed(2),
       bytesSaved: metrics.bytesSaved.toLocaleString()
     }
   }
@@ -195,7 +180,7 @@ export interface SessionMetrics {
   percentageSaved: number
   effectiveSavingsKB: number
   duplicateRatio: number
-  readFrequency perMinute: number
+  readFrequencyPerMinute: number
   optimizationScore: number
   contextUsageRatio: number
   optimizationTriggerStatus: TriggerStatus
@@ -217,7 +202,7 @@ export interface DisplayMetrics {
   percentageSaved: string
   effectiveSavingsKB: string
   duplicateRatio: number
-  readFrequency perMinute: number
+  readFrequencyPerMinute: number
   optimizationScore: number
   contextUsageRatio: number
   optimizationTriggerStatus: TriggerStatus

@@ -1,0 +1,67 @@
+/**
+ * [LAYER: DOMAIN]
+ * Principle: Define safety scopes for distributed locking
+ */
+
+/**
+ * Lock scope definition
+ */
+export interface LockScope {
+  /**
+   * Task identifier (or session identifier)
+   */
+  taskId: string;
+
+  /**
+   * Operation identifier (what is being locked)
+   */
+  operation: string;
+
+  /**
+   * Time in milliseconds for the lock to expire automatically (0 = no expiry)
+   */
+  timeoutMs?: number;
+
+  /**
+   * Whether to automatically release the lock when the process exits
+   */
+  autoRelease?: boolean;
+}
+
+/**
+ * Lock ticket (Re-exported for convenience)
+ */
+export interface LockTicket {
+  id: string;
+  code: string;
+  resourceId: string;
+  acquiredAt: number;
+  expiresAt: number;
+  sessionId?: string;
+  autoRelease: boolean;
+}
+
+/**
+ * Lock acquisition result
+ */
+export interface LockResult {
+  /**
+   * Whether the lock was acquired successfully
+   */
+  success: boolean;
+
+  /**
+   * The lock ticket if successful
+   */
+  ticket?: LockTicket;
+
+  /**
+   * Error message if failed
+   */
+  error?: string;
+
+  /**
+   * Failure reason
+   */
+  reason?: 'already_locked' | 'expired' | 'invalid_scope' | 'timeout' | 'unlocked';
+}

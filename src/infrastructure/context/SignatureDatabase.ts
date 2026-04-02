@@ -4,7 +4,8 @@
  * Violations: None - implements Domain interfaces through a specialized adapter
  */
 
-import type { FileReadResult, FileReadSource, OptimizationDecision } from "../../domain/context/FileOperation"
+import type { FileReadResult, FileReadSource } from "../../domain/context/FileOperation"
+import type { FileOptimizationDecision as OptimizationDecision } from "../../domain/context/FileMetadata"
 
 /**
  * SignatureDatabase stores optimized file reads and manages optimization sessions
@@ -42,6 +43,7 @@ export class SignatureDatabase {
    */
   getSession(sessionId?: string): OptimizationSession | null {
     const id = sessionId || this.currentSessionId
+    if (!id) return null
     return this.sessions.get(id) || null
   }
   
@@ -52,11 +54,13 @@ export class SignatureDatabase {
     if (!this.currentSessionId) return null
     
     const session = this.getSession(this.currentSessionId)
-    session!.updatedAt = Date.now()
-    const endedSession = this.sessions.get(this.currentSessionId)
+    if (!session) return null
+    
+    session.updatedAt = Date.now()
+    const endedSession = this.sessions.get(this.currentSessionId) || null
     
     // Move to signature cache
-    this.signatures.forEach(signature => {
+    session.signatures.forEach(signature => {
       this.signatureCache.set(signature.filePath, signature)
     })
     
@@ -84,8 +88,8 @@ export class SignatureDatabase {
     const signature: FileSignature = {
       filePath,
       content: result.content,
-      contentHash: this.hashContent(result.content),
-      fileSize: result.content.length,
+      hash: result.hash,
+      sizeBytes: result.sizeBytes,
       firstReadTimestamp: result.timestamp,
       lastReadTimestamp: result.timestamp,
       readCount: 1,
@@ -175,7 +179,11 @@ export class SignatureDatabase {
       const signatures = Array.from(this.signatureCache.values())
         .sort((a, b) => a.firstReadTimestamp - b.firstReadTimestamp)
       
-      this.signatureCache.delete(signatures[0].filePath)
+      if (signatures.length > 0 && signatures[0]) {
+        this.signatureCache.delete(signatures[0].filePath)
+      } else {
+        break
+      }
     }
   }
   
@@ -199,8 +207,8 @@ export class SignatureDatabase {
 interface FileSignature {
   filePath: string
   content: string
-  contentHash: string
-  fileSize: number
+  hash: string
+  sizeBytes: number
   firstReadTimestamp: number
   lastReadTimestamp: number
   readCount: number

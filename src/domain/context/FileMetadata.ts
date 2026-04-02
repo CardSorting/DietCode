@@ -5,6 +5,7 @@
  */
 
 import type { FileReadSource, FileReadResult, FileMetadata as FileMetadataInterface } from "./FileOperation"
+export type { FileReadSource, FileReadResult }
 
 /**
  * Detailed metadata about duplicate file reads
@@ -13,6 +14,7 @@ import type { FileReadSource, FileReadResult, FileMetadata as FileMetadataInterf
 export interface DuplicateReadMetadata {
   filePath: string
   firstReadTimestamp: number
+  lastReadTimestamp?: number
   subsequentReadTimestamps: number[]
   firstReadContentHash: string
   duplicateCount: number
@@ -70,11 +72,11 @@ export function isReadDuplicate(
   windowMs: number
 ): boolean {
   const mostRecentTimestamp = recentReads.length > 0 
-    ? recentReads[recentReads.length - 1].timestamp 
+    ? (recentReads[recentReads.length - 1]?.timestamp || 0)
     : 0
   
   // Check if current read is within the duplicate window of most recent read
-  const timeDelta = Math.abs(currentEntry.timestamp - mostRecentTimestamp)
+  const timeDelta = currentEntry.timestamp - mostRecentTimestamp
   
   if (timeDelta > windowMs) {
     return false
@@ -82,7 +84,7 @@ export function isReadDuplicate(
   
   // Check if content hash matches (exact duplicate)
   const hashMatch = recentReads.some(
-    read => read.filePath === currentEntry.filePath && read.contentHash === currentEntry.contentHash
+    read => read && read.filePath === currentEntry.filePath && read.contentHash === currentEntry.contentHash
   )
   
   return hashMatch
@@ -123,14 +125,14 @@ export function determineOptimizationDecision(
   }
   
   // Check if we should apply two-finger pattern (replace with notice)
-  const bytesSaved = duplicateMetadata.firstReadTimestamp === entry.timestamp.toLocaleString()
+  const bytesSaved = duplicateMetadata.isDuplicate
     ? calculateSavingsPercentage(
-        duplicateMetadata.firstReadContentHash.length,
+        entry.originalLength,
         "Duplicate file read notice".length
       )
     : 0
   
-  // Apply two-finger if: not first read AND savings exceed threshold (or below 20%)
+  // Apply two-finger if: not first read AND savings exceed threshold
   return {
     filePath: entry.filePath,
     keepOriginal: false,
@@ -161,9 +163,7 @@ export function aggregateReadMetadata(
     let metadata = duplicateReadsByFile.get(entry.filePath)
     const currentTimestamp = Date.now()
     const timeSinceFirstRead = currentTimestamp - (metadata?.firstReadTimestamp || 0)
-    const isFirstRead = !metadata
-    
-    if (isFirstRead) {
+    if (!metadata) {
       metadata = {
         filePath: entry.filePath,
         firstReadTimestamp: currentTimestamp,
@@ -210,12 +210,12 @@ export function aggregateReadMetadata(
       totalReads: totalReadCount,
       duplicateReads: applicableFiles.length,
       totalOriginalBytes,
-      totalOptimizedBytes: entries.reduce((sum, e) => sum + (e.wasOptimized ? e.optimizedLength || 0 : e.originalLength), 0),
+      totalOptimizedBytes: entries.reduce((sum, e) => sum + ( (e as any).wasOptimized ? (e as any).optimizedLength || 0 : e.originalLength), 0),
       bytesSaved,
       percentageSaved: totalOriginalBytes > 0 ? (bytesSaved / totalOriginalBytes) * 100 : 0,
       applicableFiles,
       duplicatesProcessed: applicableFiles.length,
-      sessionStartTime: entries.length > 0 ? entries[0].timestamp : Date.now()
+      sessionStartTime: entries.length > 0 ? (entries[0] as ReadEntry).timestamp : Date.now()
     }
   }
 }

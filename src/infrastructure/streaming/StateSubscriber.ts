@@ -7,10 +7,13 @@
  * Aggregates change events for efficient batch processing.
  */
 
-import type {
-  StateObserver,
+import {
+  type StateObserver,
   StateChangePhase,
+  type StateChangeResult,
+  type StateChange,
 } from '../../domain/state/StateChangeProtocol';
+import type { GlobalState } from '../../domain/LLMProvider';
 
 /**
  * State subscriber configuration
@@ -151,7 +154,7 @@ export class StateSubscriber {
     
     this.config = {
       scope: scopeArray,
-      phases: config.phases || ['SANITIZED', 'COMPLETED'],
+      phases: config.phases || [StateChangePhase.SANITIZED, StateChangePhase.COMPLETED],
       maxBatchSize: config.maxBatchSize || 10,
       batchTimeout: config.batchTimeout || 100,
       enableDiffing: config.enableDiffing ?? true,
@@ -188,11 +191,15 @@ export class StateSubscriber {
     
     // Add a merged observer that aggregates changes for this scope
     this.listenersByScope.get(scope)!.add({
-      name: `aggregated:${scope}`,
       onChange: async (result) => {
         // Aggregate and notify all scope listeners
-        for (const listener of this.listenersByScope.get(scope)! || []) {
-          await listener.onChange(result);
+        const observers = this.listenersByScope.get(scope);
+        if (observers) {
+          for (const listener of observers) {
+            if (listener.onChange) {
+              await listener.onChange(result);
+            }
+          }
         }
       },
     });
@@ -257,7 +264,7 @@ export class StateSubscriber {
     let oldValue: unknown = undefined;
     let changeType: 'add' | 'update' | 'delete' | 'replace' = 'replace';
 
-    if (phase === 'SANITIZED') {
+    if (phase === StateChangePhase.SANITIZED) {
       const cached = this.eventQueue.get(key);
       if (cached) {
         oldValue = cached[cached.length - 1];
@@ -292,22 +299,33 @@ export class StateSubscriber {
 
     // Notify all listeners for this key
     const keyObservers = this.listeners.get(key) || new Set();
+    const result: StateChangeResult<unknown> = {
+      change: {
+        key,
+        newValue,
+        oldValue,
+        stateSet: {} as GlobalState,
+        validate: () => true,
+        sanitize: () => newValue,
+        getCorrelationId: () => correlationId || 'unknown'
+      },
+      success: phase === StateChangePhase.COMPLETED,
+      phase,
+      metadata: {
+        timestamp: Date.now(),
+        correlationId: correlationId || 'unknown',
+        actor: 'system',
+        source: (source as any) || 'automated'
+      },
+      originalValue: oldValue,
+      sanitizedValue: newValue as any
+    };
+
     for (const observer of keyObservers) {
       try {
-        await observer.onChange({
-          change,
-          key,
-          value: newValue,
-          phase,
-          success: phase === 'COMPLETED',
-          originalValue: oldValue,
-          sanitizedValue: newValue,
-          metadata: {
-            correlationId,
-            source,
-            timestamp: Date.now(),
-          },
-        });
+        if (observer.onChange) {
+          await observer.onChange(result);
+        }
       } catch (error: any) {
         console.error(`❌ StateSubscriber: Observer error for ${key}:`, error);
       }
@@ -317,47 +335,51 @@ export class StateSubscriber {
   /**
    * Rebuild scope listeners
    */
-  private rebuildScopeListeners(scope: string): void {
+  private async rebuildScopeListeners(scope: string): Promise<void> {
     const scopeObservers = this.listenersByScope.get(scope);
     if (!scopeObservers) return;
 
     // Notify remaining observers
     for (const observer of scopeObservers) {
-      await observer.onChange({
-        change: {
-          key: scope,
-          newValue: { type: 'rebuild', observers: scopeObservers.size },
-          oldValue: undefined,
-          phase: 'COMPLETED' as any,
-          correlationId: undefined,
-          timestamp: Date.now(),
-          source: 'subscriber',
-          changeType: 'replace',
-        },
-        key: scope,
-        value: { type: 'rebuild', observers: scopeObservers.size },
-        phase: 'COMPLETED',
-        success: true,
-        originalValue: undefined,
-        sanitizedValue: { type: 'rebuild', observers: scopeObservers.size },
-        metadata: {
-          timestamp: Date.now(),
-          source: 'subscriber',
-        },
-      });
+      if (observer.onChange) {
+        const result: StateChangeResult<unknown> = {
+          change: {
+            key: scope,
+            newValue: { type: 'rebuild', observers: scopeObservers.size },
+            oldValue: undefined,
+            stateSet: {} as GlobalState,
+            validate: () => true,
+            sanitize: () => ({ type: 'rebuild', observers: scopeObservers.size }),
+            getCorrelationId: () => 'rebuild'
+          },
+          success: true,
+          phase: StateChangePhase.COMPLETED,
+          metadata: {
+            timestamp: Date.now(),
+            correlationId: 'rebuild',
+            actor: 'system',
+            source: 'automated'
+          },
+          originalValue: undefined,
+          sanitizedValue: { type: 'rebuild', observers: scopeObservers.size }
+        };
+        await observer.onChange(result);
+      }
     }
   }
 
   /**
    * Flush all pending changes
    */
-  flush(): void {
+  async flush(): Promise<void> {
+    const promises: Promise<void>[] = [];
     for (const [key, queue] of this.eventQueue.entries()) {
       const value = queue[queue.length - 1];
       if (value) {
-        this.notify(key, value, 'COMPLETED', 'flush');
+        promises.push(this.notify(key, value, StateChangePhase.COMPLETED, 'flush'));
       }
     }
+    await Promise.all(promises);
     this.eventQueue.clear();
   }
 
@@ -422,7 +444,7 @@ export class StateSubscriber {
  */
 export const globalStateSubscriber = new StateSubscriber({
   scope: '*',
-  phases: ['SANITIZED', 'COMPLETED'],
+  phases: [StateChangePhase.SANITIZED, StateChangePhase.COMPLETED],
   maxBatchSize: 10,
   batchTimeout: 100,
   enableDiffing: true,
