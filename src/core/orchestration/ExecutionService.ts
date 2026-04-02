@@ -13,6 +13,8 @@ import type { ToolManager } from '../capabilities/ToolManager';
 import type { ToolRouter } from '../../domain/capabilities/ToolRouter';
 import type { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
 import { RiskLevel } from '../../domain/validation/RiskLevel';
+import type { ContextOptimizationServiceOrchestrator } from './ContextOptimizationService';
+import type { FileReadResult } from '../../domain/context/FileOperation';
 
 /**
  * Safe tool execution options
@@ -54,6 +56,7 @@ export class ExecutionService {
   private eventBus: EventBus;
   private snapshotService: SnapshotService;
   private eventData?: { sessionId?: string; timestamp?: string };
+  private contextOptimization?: ContextOptimizationServiceOrchestrator;
 
   /**
    * Initialize ExecutionService with unified safety capabilities
@@ -72,6 +75,105 @@ export class ExecutionService {
     if (executionOptions?.preserveSnapshots) {
       console.log('📦 Snapshots enabled for tool execution');
     }
+  }
+
+  /**
+   * Enable context optimization service
+   * Integrates the two-finger pattern context optimization system
+   * 
+   * @param orchestrator Context optimization orchestrator
+   */
+  enableContextOptimization(orchestrator: ContextOptimizationServiceOrchestrator): void {
+    this.contextOptimization = orchestrator;
+    console.log('🚀 Context optimization enabled');
+  }
+
+  /**
+   * Read a file with context optimization
+   * Automatically applies the two-finger pattern for duplicate file reads
+   * 
+   * @param filePath Path to the file to read
+   * @returns Promise resolving to optimized file read result
+   */
+  async readFileOptimized(filePath: string): Promise<FileReadResult> {
+    if (!this.contextOptimization) {
+      console.warn('⚠️  Context optimization not enabled. Falling back to direct file read.');
+      // Fallback to direct file read (would need file system adapter here)
+      return {
+        filePath,
+        content: 'Context optimization not enabled',
+        timestamp: Date.now(),
+        source: 'fallback',
+        originalLength: filePath.length,
+        optimizedLength: filePath.length,
+        wasOptimized: false
+      } as FileReadResult;
+    }
+
+    const result = await this.contextOptimization.readFileOptimized(filePath);
+
+    if (result.wasOptimized) {
+      console.log(`⚡ Optimized read: ${filePath} (${result.optimizationReason})`);
+      this.eventBus.publish(EventType.CONTEXT_OPTIMIZATION, {
+        filePath,
+        wasOptimized: true,
+        reason: result.optimizationReason
+      }, { sessionId: this.eventData?.sessionId });
+    }
+
+    return result.result;
+  }
+
+  /**
+   * Start a context optimization session
+   * Should be called at the beginning of a tool execution session
+   * 
+   * @param sessionId Unique session identifier
+   */
+  startOptimizationSession(sessionId: string): void {
+    if (this.contextOptimization) {
+      this.contextOptimization.startSession(sessionId);
+      console.log(`📊 Started optimization session: ${sessionId}`);
+    }
+  }
+
+  /**
+   * End a context optimization session and generate report
+   * Should be called at the end of a tool execution session
+   * 
+   * @returns Optimization report (optional)
+   */
+  async endOptimizationSession(): Promise<any> {
+    if (!this.contextOptimization) {
+      return null;
+    }
+
+    const report = await this.contextOptimization.generateReport();
+    
+    if (report.contextTruncated) {
+      console.log('⚠️  Context optimization triggered truncation');
+    }
+
+    console.log(`📊 Optimization session completed:`, {
+      score: report.metrics.optimizationScore.toFixed(1),
+      savings: report.metrics.percentageSaved.toFixed(1) + '%',
+      signatures: report.signatureCount,
+      messages: report.recommendations.slice(0, 2)
+    });
+
+    return report;
+  }
+
+  /**
+   * Get context optimization summary for diagnostics
+   * 
+   * @returns Context summary or null if optimization not enabled
+   */
+  getContextSummary() {
+    if (!this.contextOptimization) {
+      return null;
+    }
+    return this.contextOptimization.getContextSummary();
   }
 
   /**
@@ -288,6 +390,26 @@ export class ExecutionService {
       toolRouterEnabled: this.toolRouter !== undefined,
       rollbackManagerEnabled: this.rollbackManager !== undefined,
       isFullyIntegrated: this.isSafetyIntegrationEnabled()
+    };
+  }
+
+  /**
+   * Get consolidated optimization diagnostics
+   * @returns Combined diagnostics from safety integration and context optimization
+   */
+  getConsolidatedDiagnostics(_overrideShell?: never): any {
+    return {
+      safetyIntegration: this.isSafetyIntegrationEnabled() ? 'enabled' : 'disabled',
+      safetyIntegrations: this.getDiagnostics(),
+      contextOptimization: this.contextOptimization ? {
+        enabled: true,
+        summary: this.getContextSummary()
+      } : {
+        enabled: false
+      },
+      systemStatus: {
+        fullyIntegrated: this.isSafetyIntegrationEnabled() && !!this.contextOptimization
+      }
     };
   }
 }

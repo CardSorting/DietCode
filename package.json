@@ -7,8 +7,7 @@
     "@types/bun": "latest",
     "typescript": "^5"
   },
-  "peerDependencies": {
-  },
+  "peerDependencies": {},
   "scripts": {
     "verify:prework": "tsx verify_prework.ts",
     "verify:hardening": "tsx verify_hardening.ts",
