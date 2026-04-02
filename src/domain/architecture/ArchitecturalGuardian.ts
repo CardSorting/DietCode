@@ -18,6 +18,7 @@ export interface SimulatedReport {
   score: number;
   violations: ArchitecturalViolation[];
   cascadeViolations?: ArchitecturalViolation[];
+  requiresHealing?: boolean; // Pass 18: Flow Protocol
 }
 
 /**
@@ -34,6 +35,7 @@ export interface ArchitecturalViolation {
   message: string;
   severity: 'error' | 'warn';
   file?: string;
+  suggestedPath?: string;
 }
 
 /**
@@ -111,12 +113,13 @@ export class ArchitecturalGuardian {
     if (this.isSubZoneMissing(targetPath)) {
       const suggestion = this.getSuggestedCluster(targetPath);
       const msg = suggestion 
-        ? `Organizational Debt: ${targetPath} is in a layer root. 💡 PRO-TIP: We suggest moving to: ${suggestion}`
-        : `Organizational Debt: ${targetPath} is in a layer root. Move to a functional sub-zone (e.g., src/infra/storage/).`;
+        ? `Organizational Alignment Required: ${targetPath} is in a layer root. 💡 PRO-TIP: We suggest moving to: ${suggestion}`
+        : `Organizational Alignment Required: ${targetPath} is in a layer root. Move to a functional sub-zone (e.g., src/infra/storage/).`;
         
       return {
-        isSafe: true, // Warning only, not a hard block
-        score: Math.max(0, currentReport.score - 5), // Small penalty for organizational debt
+        isSafe: true, 
+        requiresHealing: true, // Pass 18: Flow Protocol
+        score: currentReport.score,
         violations: [
           {
             type: 'SUBZONE_MISSING',
@@ -131,13 +134,14 @@ export class ArchitecturalGuardian {
     // Pass 17: Topology Purity
     if (this.isClusterEntanglement(currentPath, targetPath)) {
       return {
-        isSafe: false, // Hard block for topology violations
-        score: Math.max(0, currentReport.score - 20),
+        isSafe: true, // Pass 18: Flow Protocol (Non-blocking)
+        requiresHealing: true,
+        score: currentReport.score,
         violations: [
           {
             type: 'CLUSTER_ENTANGLEMENT',
-            message: `Topology Purity Breach: Cluster ${this.getCluster(currentPath)} cannot import from ${this.getCluster(targetPath)}.`,
-            severity: 'error'
+            message: `Topology Purity Breach (Deferred): Cluster ${this.getCluster(currentPath)} cannot import from ${this.getCluster(targetPath)}.`,
+            severity: 'warn'
           }
         ]
       };

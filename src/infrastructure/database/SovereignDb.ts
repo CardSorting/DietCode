@@ -10,7 +10,7 @@ import path from 'node:path';
 import type { LogService } from '../../domain/logging/LogService';
 
 export interface DietCodeJob {
-  type: 'KNOWLEDGE_INGEST' | 'CODE_ANALYZE';
+  type: 'KNOWLEDGE_INGEST' | 'CODE_ANALYZE' | 'SELF_HEAL';
   payload: any;
 }
 

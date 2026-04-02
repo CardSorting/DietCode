@@ -4,9 +4,20 @@
  * Principle: Structural Remediation — Professional command entry point for self-healing.
  */
 
+import { HealingWorker } from './src/infrastructure/tools/HealingWorker';
 import { SelfHealer } from './src/infrastructure/tools/SelfHealer';
 
 async function main() {
+    const isWorkerMode = process.argv.includes('--worker');
+
+    if (isWorkerMode) {
+        console.log('🏙️  JOY-ZONING: HIGH-THROUGHPUT HEALING WORKER');
+        console.log('--------------------------------------------------');
+        const worker = new HealingWorker();
+        await worker.start();
+        return;
+    }
+
     const healer = new SelfHealer(process.cwd());
     const isDryRun = process.argv.includes('--dry-run');
 
@@ -15,7 +26,7 @@ async function main() {
 
     const report = await healer.healProject({
         dryRun: isDryRun,
-        onProgress: (step) => {
+        onProgress: (step: { currentPath: string; targetPath: string }) => {
             console.log(`[MOVE] ${step.currentPath} -> ${step.targetPath}`);
         }
     });

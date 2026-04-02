@@ -38,7 +38,8 @@ To prevent flat, cluttered directory structures, every file MUST reside in a fun
 - **Fragmentation Guard**: Avoid "1 file per folder" structures. If a functional cluster only has one file, consider if it can be grouped with a broader related cluster (e.g., `src/infrastructure/adapters/`).
 - **Cluster Purity**: Files within a Sub-Zone should primarily collaborate with their sister files or Domain contracts. Cross-cluster imports within the same layer are discouraged (Organizational Friction).
 - **Sovereign Tagging**: Every file header MUST reflect its exact filesystem location. If a file is in `/storage/`, the tag MUST be `[SUB-ZONE: storage]`. Mismatches trigger a **TAG_DRIFT** error.
-- **Self-Healing Trigger**: Any architectural violation that has a "Smart Suggestion" is eligible for autonomous remediation. AI agents should prioritize using `RefactorTools` to self-heal the codebase rather than manually moving files.
+- **🌊 Flow Protocol (High-Throughput)**: Organizational violations (Sub-Zone/Cluster) MUST NOT block development. Moves trigger an **Asynchronous SELF_HEAL** job in `broccoliq`.
+- **Background Alignment**: The `HealingWorker` resolves import breakages and tag drift project-wide without impeding developer flow.
 - **Remediation Map**: Refer to `JOYZONING_AUDIT_REPORT.md` for the official mapping of orphaned files to their intended clusters.
 - **Root Exceptions**: Only the main entry point (`index.ts`) and critical shared type definitions (`types.ts`) are allowed in layer roots.
 

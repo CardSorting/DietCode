@@ -1,34 +1,21 @@
 /**
  * [LAYER: INFRASTRUCTURE]
- * Principle: Refactoring Tools — IO-light file manipulation with pre-flight guards
- * 
- **Pass 16: Pre-Flight Sentinel Integration**
- * - JoySim.simulateGuard() called before EVERY file move
- * - DOMAIN_LEAK → BLOCK with detailed error
- * - ScoreDrop > 10 → BLOCK with rollback recommendation
- * - Aggressive Topology Violation → BLOCK unless FORCE flag used
- * 
- **Guard Flow:**
-   * 1. Get current IntegrityReport (run scan asynchronously)
-   * 2. Call JoySim.simulateGuard(oldPath, newPath)
-   * 3. If !force && !isSafe: BLOCK with error
-   * 4. If force: ALLOW with FORCE_OVERRIDE logging
-   * 5. Execute move
-   * 6. Dispatch ArchitectureEvent
+ * Principle: Refactor Tools — High-level Facade for architecture-guarded file moves.
+ * Pass 18: Separation of Concerns (Refactor Decoupling).
  */
 
 import * as path from 'path';
-import * as fs from 'fs';
-import { promises as pfs } from 'fs';
 import { IntegrityScanner } from '../../domain/integrity/IntegrityScanner';
-import { type ArchitectureEvent, type MoveOptions, type ArchitecturalEventType } from '../../domain/events/ArchitectureEvent';
+import { type ArchitectureEvent, type MoveOptions } from '../../domain/events/ArchitectureEvent';
 import { type IntegrityReport } from '../../domain/memory/Integrity';
 import { JoySimulator } from '../architecture/JoySimulator';
-import { ImportFixer } from './ImportFixer';
 
-/**
- * Pre-flight blocking result
- */
+// Sub-Services (Pass 18)
+import { RefactorMoveEngine } from './refactor/RefactorMoveEngine';
+import { RefactorTagSentinel } from './refactor/RefactorTagSentinel';
+import { RefactorHealer } from './refactor/RefactorHealer';
+import { RefactorEventFactory } from './refactor/RefactorEventFactory';
+
 export interface GuardBlockResult {
   blocked: boolean;
   reason: string;
@@ -37,50 +24,34 @@ export interface GuardBlockResult {
 }
 
 /**
- * RefactorTools: File manipulation with architecture guarding
- * 
- **Integration Points:**
- * - JoySimulator (infrastructure/architecture): Pre-flight simulation
- * - IntegrityScanner (domain/integrity): Current state reports
- * 
- **Blocking Matrix:**
- * | Scenario | Guard | Force True? | Blocked? |
- * |----------|-------|-------------|----------|
- * | DOMAIN LEAK | 🚫 DOMAIN_LEAK | ❌ | ✅ BLOCK |
- * | ScoreDrop (>10) | 🚫 SCORE_DROPPED | ❌ | ✅ BLOCK |
- * | CORE → UI | ⚠️ CROSS_LAYER_IMPORT | ❌ | ⚠️ WARNING |
- * | CORE → CORE | ✅ SAFE | - | ✅ ALLOW |
+ * RefactorTools: The 'Silent Sentinel' Orchestrator.
+ * Delegates work to specialized Move, Tag, Heal, and Event services.
  */
 export class RefactorTools {
-  private integrityScanner: IntegrityScanner;
-  private simulator: JoySimulator;
-  private importFixer: ImportFixer;
   private projectRoot: string;
+  private simulator: JoySimulator;
+  
+  private moveEngine: RefactorMoveEngine;
+  private tagSentinel: RefactorTagSentinel;
+  private healer: RefactorHealer;
+  private eventFactory: RefactorEventFactory;
 
   constructor(
-    integrityScanner: IntegrityScanner,
+    private integrityScanner: IntegrityScanner,
     config: { aggressiveBlocking?: boolean } = {}
   ) {
-    this.integrityScanner = integrityScanner;
-    this.simulator = new JoySimulator({
-      aggressive: config.aggressiveBlocking ?? true
-    });
-    this.importFixer = new ImportFixer(path.resolve(process.cwd(), '.'));
     this.projectRoot = path.resolve(process.cwd(), '.');
+    this.simulator = new JoySimulator({ aggressive: config.aggressiveBlocking ?? true });
+    
+    // Injecting Sub-Services
+    this.moveEngine = new RefactorMoveEngine(this.projectRoot);
+    this.tagSentinel = new RefactorTagSentinel(this.projectRoot);
+    this.healer = new RefactorHealer(this.projectRoot);
+    this.eventFactory = new RefactorEventFactory(this.projectRoot);
   }
 
   /**
-   * moveAndFixImports: Orchestrates move + guard blocking + cleanup
-   * 
- **Guard Flow:**
-   * 1. Get IntegrityReport
-   * 2. Call JoySim.simulateGuard(moved, result)
-   * 3. Check blocking (force != true && !isSafe)
-   * 4. Block with architectural error
-   * 5. Execute move
-   * 6. Dispatch event
- **Performance:**
-   * ~150ms per move (like normal move + simulation overhead)
+   * moveAndFixImports: High-throughput move with deferred healing.
    */
   async moveAndFixImports(
     oldPath: string,
@@ -93,157 +64,55 @@ export class RefactorTools {
     archEvent?: ArchitectureEvent 
   }> {
     const force = options.force ?? false;
-    const absOldPath = path.resolve(this.projectRoot, oldPath);
-    const absNewPath = path.resolve(this.projectRoot, newPath);
 
-    // Step 1: Full scan for guards (known slow: 45ms-2s)
-    const currentReport: IntegrityReport = await this.integrityScanner.scan(this.projectRoot);
-
-    // Step 2: JoySim pre-flight simulation
-    if (force) {
-      options.onEvent?.(this.createEvent('FORCE_OVERRIDE', oldPath, newPath, currentReport));
-    } else {
-      options.onEvent?.(this.createEvent('INITIATING_MOVE', oldPath, newPath, currentReport));
-    }
-
+    // Step 1: Pre-flight Intelligence
+    const currentReport = await this.integrityScanner.scan(this.projectRoot);
     const simResult = await this.simulator.simulateGuard(oldPath, newPath, currentReport);
-    let blockResult: GuardBlockResult = this.buildGuardResult(currentReport, simResult);
-
-    // Step 3: Guard blocking logic
+    
+    // Step 2: Guard Policy Enforcement
+    const blockResult = this.buildGuardResult(simResult);
     if (!force && blockResult.blocked) {
-      // Return with detailed block message
-      return {
-        success: false,
-        blocked: true,
-        reason: this.buildBlockMessage(blockResult)
-      };
+      return { success: false, blocked: true, reason: this.buildBlockMessage(blockResult) };
     }
 
-    // Step 4: Execute move
     try {
-      if (!fs.existsSync(path.dirname(absNewPath))) {
-          fs.mkdirSync(path.dirname(absNewPath), { recursive: true });
-      }
-      await pfs.rename(absOldPath, absNewPath);
-      
-      // Pass 18: Auto-Header Update (Sovereign Tagging)
-      const subZoneMatch = newPath.match(/src\/[a-z]+\/([a-z0-9\-_]+)\//i);
-      if (subZoneMatch) {
-          const subZone = subZoneMatch[1];
-          let content = fs.readFileSync(absNewPath, 'utf8');
-          if (content.includes('[SUB-ZONE:')) {
-              content = content.replace(/\[SUB-ZONE:.*\]/i, `[SUB-ZONE: ${subZone}]`);
-          } else {
-              // Inject after LAYER tag
-              content = content.replace(/(\[LAYER:.*\])/i, `$1\n * [SUB-ZONE: ${subZone}]`);
-          }
-          fs.writeFileSync(absNewPath, content, 'utf8');
-      }
+      // Step 3: Atomic Physical Move
+      await this.moveEngine.move(oldPath, newPath);
 
-      // Step 4.2: Resolve Imports (Pass 18: Zero-Debt Protocol)
-      await this.importFixer.fixImports(oldPath, newPath);
+      // Step 4: Sovereign Tag Alignment
+      await this.tagSentinel.updateTags(newPath);
+
+      // Step 5: Resolve Imports (Broccoli Flow)
+      await this.healer.resolveImports(
+        oldPath, 
+        newPath, 
+        !!simResult.requiresHealing,
+        simResult.violations?.[0]?.suggestedPath
+      );
+
     } catch (err) {
-      // Rollback failed - notify
-      options.onEvent?.(this.createEvent('MOVE_FAILED', oldPath, newPath, currentReport, err as Error));
-      return {
-        success: false,
-        blocked: false,
-        reason: `Move failed: ${err}`
-      };
+      const failEvent = this.eventFactory.createEvent('MOVE_FAILED', oldPath, newPath, currentReport, err as Error);
+      options.onEvent?.(failEvent);
+      return { success: false, blocked: false, reason: `Move failed: ${err}` };
     }
 
-    // Step 5: Dispatch success event
-    const archEvent = this.createEvent('APPROVED_MOVE', oldPath, newPath, currentReport, undefined, new Date().toISOString());
+    // Step 6: Dispatch Success Event
+    const archEvent = this.eventFactory.createEvent('APPROVED_MOVE', oldPath, newPath, currentReport);
     options.onEvent?.(archEvent);
 
-    return { 
-      success: true, 
-      blocked: false,
-      archEvent 
-    };
+    return { success: true, blocked: false, archEvent };
   }
 
-  /**
-   * Create architecture event
-   */
-  private createEvent(
-    type: ArchitecturalEventType,
-    oldPath: string,
-    newPath: string,
-    integrityReport: IntegrityReport,
-    error?: Error,
-    timestamp?: string
-  ): ArchitectureEvent {
-    return {
-      type,
-      timestamp: timestamp || new Date().toISOString(),
-      oldPath,
-      newPath,
-      oldArchScore: integrityReport.score,
-      newArchScore: integrityReport.score, // Computed after move
-      scoreChange: 0,
-      violations: integrityReport.violations,
-      metadata: {
-        origin: 'RefactorTools',
-        projectId: this.projectRoot,
-        ...error ? { error: error.message } : {}
-      }
-    };
-  }
-
-  /**
-   * Build guard blocking result from simulation
-   */
-  private buildGuardResult(
-    currentReport: IntegrityReport,
-    simResult: any
-  ): GuardBlockResult {
+  private buildGuardResult(simResult: any): GuardBlockResult {
     return {
       blocked: simResult.isSafe === false,
-      reason: '',
+      reason: simResult.violations?.[0]?.message || '',
       simulatedScore: simResult.score,
       violations: [...(simResult.violations || []), ...(simResult.cascadeViolations || [])]
     };
   }
 
-  /**
-   * Build detailed error message for blocked moves
-   */
   private buildBlockMessage(blockResult: GuardBlockResult): string {
-    const msgLines = [
-      '🚨 ARCHITECTURAL REGRESSION PREVENTED (JoySim)',
-      '',
-      blockResult.reason || 'Architecture integrity violated',
-      `${blockResult.violations.length} violation(s) detected:`
-    ];
-
-    blockResult.violations.forEach(v => {
-      msgLines.push(`• {type: ${v.type}} ${v.message}`);
-    });
-
-    msgLines.push('');
-    msgLines.push('Guardians prevented architecture:');
-    msgLines.push('• Domain files pure, cannot import Infrastructure');
-    msgLines.push('• Topology rule: CORE-→-INFRA only');
-    msgLines.push('• COMMIT: [LAYER: [LAYER: ...]');
-
-    if (blockResult.violations.length) {
-      msgLines.push('');
-      msgLines.push(`architecture: ${String.fromCharCode(0x1F50D)}`);
-    }
-
-    return msgLines.join('\n');
-  }
-
-  /**
-   * isSafeMove: Quick check without full execution
-   * 
- **Use Case:** Preview utilities, quick validation
- **Performance:** ~45ms (in line with actual move)
-   */
-  async isSafeMove(oldPath: string, newPath: string, report: IntegrityReport): Promise<boolean> {
-    const simResult = await this.simulator.simulateGuard(oldPath, newPath, report);
-    const blockResult = this.buildGuardResult(report, simResult);
-    return !blockResult.blocked;
+    return `🚨 ARCHITECTURAL REGRESSION PREVENTED\n\n${blockResult.reason}\n${blockResult.violations.length} violation(s) detected.`;
   }
 }

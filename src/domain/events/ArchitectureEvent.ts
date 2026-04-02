@@ -14,12 +14,14 @@ export type ArchitecturalEventType =
   | 'APPROVED_MOVE'
   | 'FORCE_OVERRIDE'
   | 'INITIATING_MOVE'
-  | 'MOVE_FAILED';
+  | 'MOVE_FAILED'
+  | 'HEALING_ENQUEUED';
 
 export interface ArchitecturalViolation {
   type: string;
   message: string;
   file?: string;
+  suggestedPath?: string;
 }
 
 export interface ArchitectureEvent {
