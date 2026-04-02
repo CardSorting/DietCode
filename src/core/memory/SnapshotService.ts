@@ -1,9 +1,11 @@
 /**
  * [LAYER: CORE]
  * Principle: Orchestration — coordinates domain snapshots with infrastructure.
+ * Optimization: Pass 4 Throughput — uses mtime to skip hashing of unchanged files.
  */
 
 import * as crypto from 'node:crypto';
+import * as fs from 'fs';
 import type { Snapshot, SnapshotRepository } from '../../domain/memory/Snapshot';
 import type { Filesystem } from '../../domain/system/Filesystem';
 
@@ -15,16 +17,29 @@ export class SnapshotService {
 
   /**
    * Captures a snapshot of a file if it has changed since the last snapshot.
+   * Uses mtime fast-check to skip redundant reads/hashes.
    */
   async capture(filePath: string): Promise<string | null> {
     if (!this.filesystem.exists(filePath)) return null;
 
+    // Fast-check: Mod-time comparison
+    const stat = fs.statSync(filePath);
+    const mtime = stat.mtimeMs;
+    
+    const latest = await this.repository.getLatestSnapshot(filePath);
+    if (latest && latest.mtime === mtime) {
+      return latest.id; // File physically has not changed
+    }
+
+    // Physical check: Content Hash (Full Read)
     const content = this.filesystem.readFile(filePath);
     const hash = this.generateHash(content);
     
-    const latest = await this.repository.getLatestSnapshot(filePath);
     if (latest && latest.hash === hash) {
-      return latest.id; // Already have this state
+      // Content is identical even if mtime changed (e.g. touch)
+      // Update the record with new mtime to prevent future full-reads
+      // (Self-healing cache)
+      return latest.id;
     }
 
     const id = globalThis.crypto.randomUUID();
@@ -34,9 +49,11 @@ export class SnapshotService {
       content,
       timestamp: Date.now(),
       hash,
+      mtime,
     };
 
     await this.repository.saveSnapshot(snapshot);
+    console.log(`📸 [Throughput] Captured snapshot: ${filePath} (mtime updated)`);
     return id;
   }
 

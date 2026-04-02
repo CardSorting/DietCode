@@ -5,6 +5,7 @@
  */
 
 import { getDb, setDbPath, BufferedDbPool, SqliteQueue } from '@noorm/broccoliq';
+import { sql } from 'kysely';
 import path from 'node:path';
 import type { LogService } from '../../domain/logging/LogService';
 
@@ -20,8 +21,6 @@ export class SovereignDb {
 
   /**
    * Initializes the database connection and the high-performance pool.
-   * 
-   * @param dbPath Optional path to the SQLite database file.
    */
   static async init(dbPath?: string) {
     if (this.isInitialized) return;
@@ -31,6 +30,7 @@ export class SovereignDb {
 
     // Initialize Schema
     const db = await getDb('main');
+    
     await db.schema
       .createTable('knowledge_base')
       .ifNotExists()
@@ -65,6 +65,7 @@ export class SovereignDb {
       .addColumn('content', 'text', (item) => item.notNull())
       .addColumn('timestamp', 'int8', (item) => item.notNull())
       .addColumn('hash', 'text', (item) => item.notNull())
+      .addColumn('mtime', 'int8')
       .execute();
 
     await db.schema
@@ -99,24 +100,42 @@ export class SovereignDb {
       .addColumn('startTime', 'int8', (item) => item.notNull())
       .addColumn('endTime', 'int8')
       .execute();
-    
-    // Initialize the Sovereign Swarm Buffered Pool
-    this.pool = new BufferedDbPool();
 
-    // Initialize the Sovereign Queue
+    await db.schema
+      .createTable('joy_imports')
+      .ifNotExists()
+      .addColumn('id', 'text', (col) => col.primaryKey())
+      .addColumn('source_path', 'text', (col) => col.notNull())
+      .addColumn('imported_path', 'text', (col) => col.notNull())
+      .execute();
+
+    await db.schema
+      .createIndex('idx_joy_imports_source')
+      .ifNotExists()
+      .on('joy_imports')
+      .column('source_path')
+      .execute();
+
+    await db.schema
+      .createIndex('idx_joy_imports_imported')
+      .ifNotExists()
+      .on('joy_imports')
+      .column('imported_path')
+      .execute();
+    
+    // Pass 6: Concurrency and Deadlock Mitigation
+    await sql`PRAGMA journal_mode=WAL;`.execute(db);
+    await sql`PRAGMA busy_timeout=5000;`.execute(db);
+
+    this.isInitialized = true;
+    
+    this.pool = new BufferedDbPool();
     this.queue = new SqliteQueue<DietCodeJob>({
       shardId: 'main',
       visibilityTimeoutMs: 60000,
     });
-    
-    this.isInitialized = true;
-    // TEMPORARY: Integration hack - will be removed after full logging infrastructure integration
-    // See: src/IMPLEMENTATION_SUMMARY.md
   }
 
-  /**
-   * Gets the Kysely instance for database operations.
-   */
   static async db() {
     if (!this.isInitialized) {
       await this.init();
@@ -124,9 +143,6 @@ export class SovereignDb {
     return getDb('main');
   }
 
-  /**
-   * Gets the high-performance buffered pool.
-   */
   static async getPool(): Promise<BufferedDbPool> {
     if (!this.isInitialized) {
       await this.init();
@@ -134,9 +150,6 @@ export class SovereignDb {
     return this.pool!;
   }
 
-  /**
-   * Gets the Sovereign Queue instance.
-   */
   static async getQueue(): Promise<SqliteQueue<DietCodeJob>> {
     if (!this.isInitialized) {
       await this.init();

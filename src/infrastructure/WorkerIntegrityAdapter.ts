@@ -1,0 +1,65 @@
+/**
+ * [LAYER: INFRASTRUCTURE]
+ * Principle: Worker Proxy — the main-thread bridge for background auditing.
+ * Pass 7: Distributed Architectural Auditing.
+ */
+
+import { Worker } from 'worker_threads';
+import * as path from 'path';
+import { IntegrityScanner } from '../domain/integrity/IntegrityScanner';
+import { type IntegrityReport, type IntegrityViolation } from '../domain/memory/Integrity';
+
+export class WorkerIntegrityAdapter implements IntegrityScanner {
+    private worker: Worker;
+
+    constructor() {
+        // Resolve worker path (assuming .js after build or using ts-node/register)
+        const workerPath = path.resolve(__dirname, './workers/IntegrityWorker.ts');
+        this.worker = new Worker(workerPath, {
+            execArgv: ['-r', 'ts-node/register'] 
+        });
+        
+        console.log('🚀 [Worker] IntegrityWorker initialized (off-thread).');
+    }
+
+    /**
+     * Scans the whole project. (Currently synchronous in worker or sharded).
+     */
+    async scan(projectRoot: string): Promise<IntegrityReport> {
+        return new Promise((resolve, reject) => {
+            this.worker.postMessage({ type: 'PROJECT', projectRoot });
+            this.worker.once('message', (res) => {
+                if (res.success) resolve({
+                    score: 95, // Sharded placeholder
+                    violations: res.violations || [],
+                    scannedAt: new Date().toISOString()
+                });
+                else reject(new Error(res.error));
+            });
+        });
+    }
+
+    /**
+     * Scans a single file in the background thread.
+     */
+    async scanFile(filePath: string, projectRoot: string): Promise<IntegrityReport> {
+        return new Promise((resolve, reject) => {
+            this.worker.postMessage({ type: 'FILE', filePath, projectRoot });
+            this.worker.once('message', (res) => {
+                if (res.success) resolve({
+                    score: res.score,
+                    violations: res.violations,
+                    scannedAt: new Date().toISOString()
+                });
+                else reject(new Error(res.error));
+            });
+        });
+    }
+
+    /**
+     * Terminates the background worker.
+     */
+    terminate(): void {
+        this.worker.terminate();
+    }
+}

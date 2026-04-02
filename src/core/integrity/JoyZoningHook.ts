@@ -1,60 +1,90 @@
 /**
  * [LAYER: CORE]
- * Principle: Automated Enforcement — scans files for JoyZoning violations after modification.
+ * Principle: Batched Enforcement — debounces scans for JoyZoning violations.
+ * Optimization: Pass 4 Throughput — zero stalling via background queue.
  */
 
 import type { Hook } from '../../domain/hooks/HookContract';
 import { HookPhase } from '../../domain/hooks/HookContract';
 import { IntegrityService } from './IntegrityService';
-import { ViolationType } from '../../domain/memory/Integrity';
+import { WorkerIntegrityAdapter } from '../../infrastructure/WorkerIntegrityAdapter';
+import { RefactorTools } from '../../infrastructure/tools/RefactorTools';
+import { JoyMapGenerator } from '../../infrastructure/tools/generate_joy_map';
 
 export class JoyZoningHook implements Hook {
   public readonly name = 'JoyZoningGuard';
   public readonly phase = HookPhase.POST_EXECUTION;
   public readonly priority = 100; // High priority
+  public readonly isBackground = true; 
+
+  private static isAuditing = false;
+  private auditQueue: Set<string> = new Set();
+  private auditTimeout: NodeJS.Timeout | null = null;
+  private refactorTools: RefactorTools;
+  private joyMap: JoyMapGenerator;
 
   constructor(
     private integrityService: IntegrityService,
+    private workerAdapter: WorkerIntegrityAdapter,
     private projectRoot: string
-  ) {}
+  ) {
+    this.refactorTools = new RefactorTools();
+    this.joyMap = new JoyMapGenerator();
+  }
 
-  async execute(params: { toolName: string; input: any; result?: any }): Promise<any> {
-    const { toolName, input, result } = params;
+  /**
+   * Schedules an architectural audit for the modified file.
+   * Returns immediately (non-blocking).
+   */
+  async execute(params: { toolName: string; input: any; result?: any }): Promise<void> {
+    const { input, toolName } = params;
+    const filePath = input.path || input.targetPath || input.filePath;
 
-    // Only process file-modifying tools
-    if (!['write_file', 'move_file', 'patch_file', 'replace_file_content', 'multi_replace_file_content'].includes(toolName)) {
-      return result;
+    if (filePath && typeof filePath === 'string') {
+      // 1. Instantly update JoyCache (O(1) database write)
+      this.refactorTools.updateCache(filePath, this.projectRoot).catch(() => {});
+
+      // 2. Queue for batched architectural audit
+      this.queueAudit(filePath);
+    }
+  }
+
+  private queueAudit(filePath: string): void {
+    this.auditQueue.add(filePath);
+
+    if (this.auditTimeout) {
+        clearTimeout(this.auditTimeout);
     }
 
-    const filePath = input.path || input.TargetFile || input.oldPath;
-    if (!filePath || !filePath.endsWith('.ts')) {
-      return result;
-    }
-
-    console.log(`🔍 [JoyZoning] Auto-scanning ${filePath} after ${toolName}...`);
-
-    try {
-      const report = await this.integrityService.scanFile(filePath, this.projectRoot);
-
-      if (report.violations.length > 0) {
-        console.warn(`⚠️  [JoyZoning] Found ${report.violations.length} architectural violation(s) in ${filePath}:`);
-        
-        for (const v of report.violations) {
-          console.warn(`   - [${v.type}] ${v.message}`);
-          
-          if (v.type === ViolationType.MISPLACED_FILE) {
-             console.warn(`   💡 NUDGE: Use 'RefactorTools.moveAndFixImports' to relocate this file properly.`);
-          }
+    // Debounce: Wait for 250ms of quiet before auditing
+    this.auditTimeout = setTimeout(async () => {
+        if (JoyZoningHook.isAuditing) {
+          // Already auditing, re-schedule for next tick
+          this.queueAudit(filePath);
+          return;
         }
-        
-        // We don't block the result, but we've logged the architectural debt
-      } else {
-        console.log(`✅ [JoyZoning] ${filePath} complies with architectural standards.`);
-      }
-    } catch (error) {
-      console.error(`❌ [JoyZoning] Automated scan failed for ${filePath}:`, error);
-    }
 
-    return result;
+        const batch = Array.from(this.auditQueue);
+        this.auditQueue.clear();
+        this.auditTimeout = null;
+
+        if (batch.length > 0) {
+            JoyZoningHook.isAuditing = true;
+            console.log(`🛡️  [Batched Audit] Offloading ${batch.length} files to worker thread...`);
+            try {
+              for (const path of batch) {
+                  // Pass 7: Background worker scan
+                  const report = await this.workerAdapter.scanFile(path, this.projectRoot);
+                  // We still report violations via the main service to preserve events
+                  await this.integrityService.reportViolationsThroughput(report);
+              }
+              
+              // Pass 11: Live Dashboard Generation
+              await this.joyMap.generate(this.projectRoot);
+            } finally {
+              JoyZoningHook.isAuditing = false;
+            }
+        }
+    }, 250);
   }
 }

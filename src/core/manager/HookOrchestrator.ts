@@ -1,112 +1,33 @@
-/**
- * [LAYER: CORE]
- * Principle: Orchestrate execution hooks with pre-tool cancellation
- * Prework Status: Not applicable (new file)
- * 
- * Manages multi-phase hook chains with pre-tool-use cancellation capability.
- * Ensures hook pipeline integrity with smart failure isolation.
- */
-
 import { HookPhase } from '../../domain/hooks/HookContract';
-import type {
-  Hook,
-  PreToolCancellationProtocol,
-} from '../../domain/hooks/HookContract';
+import type { Hook, PreToolCancellationProtocol } from '../../domain/hooks/HookContract';
 
 /**
- * Hook execution result
- */
-export interface HookExecutionResult {
-  /**
-   * True if the hook succeeded
-   */
-  success: boolean;
-
-  /**
-   * Hook that executed
-   */
-  hook: Hook;
-
-  /**
-   * Exception if hook failed
-   */
-  error?: Error;
-
-  /**
-   * Return value from hook execute
-   */
-  returnValue?: any;
-}
-
-/**
- * Pre-tool cancellation error
+ * Custom error for pre-tool usage cancellation
  */
 export class PreToolCancellationError extends Error {
-  public readonly toolName: string;
-  public readonly protocol: PreToolCancellationProtocol;
-
-  constructor(
-    toolName: string,
-    protocol: PreToolCancellationProtocol
-  ) {
-    super(`Pre-tool-use cancellation triggered for "${toolName}": ${protocol.reason}`);
+  constructor(public toolName: string, public protocol: PreToolCancellationProtocol) {
+    super(`Pre-tool hook cancelled execution of "${toolName}": ${protocol.reason || 'No reason provided'}`);
     this.name = 'PreToolCancellationError';
-    this.toolName = toolName;
-    this.protocol = protocol;
   }
 }
 
 /**
- * HookOrchestrator
- * 
- * Orchestrates multi-stage execution hooks with pre-tool-use cancellation.
- * Key features:
- * - Pre-tool cancellation (veto before execution)
- * - Parallel execution with failure handling
- * - Phase-based execution (PRE_TOOL_USE → TOOL_EXECUTION → POST_EXECUTION)
- * - Priority-based ordering
- * - Hook isolation (failure in one hook doesn't disable others)
- * 
- * Usage pattern:
- * 1. Register hooks by phase
- * 2. Call chain() to execute
- * 3. Hooks can veto in PRE_TOOL_USE (immediate cancellation)
- * 4. Hook errors are caught but don't halt entire pipeline
+ * [LAYER: CORE]
+ * Principle: Orchestration — coordinates the execution of hooks across phases.
  */
 export class HookOrchestrator {
-  private static instance: HookOrchestrator | null = null;
-  private hooks = new Map<HookPhase, Hook[]>();
-
-  private constructor() {}
+  private hooks: Map<HookPhase, Hook[]> = new Map();
 
   /**
-   * Get singleton instance
+   * Register a new hook
    */
-  static getInstance(): HookOrchestrator {
-    if (!HookOrchestrator.instance) {
-      HookOrchestrator.instance = new HookOrchestrator();
-    }
-    return HookOrchestrator.instance;
-  }
-
-  /**
-   * Register a hook for a specific phase
-   * 
-   * @param hook - The hook to register
-   */
-  registerHook(hook: Hook): void {
-    if (!this.hooks.has(hook.phase)) {
-      this.hooks.set(hook.phase, []);
-    }
-
-    this.hooks.get(hook.phase)!.push(hook);
-
+  register(hook: Hook): void {
+    const list = this.hooks.get(hook.phase) || [];
+    list.push(hook);
     // Sort by priority (descending)
-    this.hooks.set(hook.phase, hookSortByPriority(
-      this.hooks.get(hook.phase)!
-    ));
-
-    console.log(`✅ Hook registered: ${hook.name} (${hook.phase}, priority: ${hook.priority})`);
+    list.sort((a, b) => b.priority - a.priority);
+    this.hooks.set(hook.phase, list);
+    console.log(`🧲 Registered hook: ${hook.name} (${hook.phase})`);
   }
 
   /**
@@ -154,7 +75,13 @@ export class HookOrchestrator {
 
     for (const hook of toolHooks) {
       try {
-        currentInput = await hook.execute({ toolName, input: currentInput });
+        if (hook.isBackground) {
+          hook.execute({ toolName, input: currentInput }).catch(err => {
+            console.error(`❌ Background TOOL_EXECUTION hook "${hook.name}" failed:`, err);
+          });
+        } else {
+          currentInput = await hook.execute({ toolName, input: currentInput });
+        }
       } catch (error: any) {
         console.error(`❌ Tool execution hook "${hook.name}" failed:`, error);
         // Continue to next hook (isolation)
@@ -171,7 +98,13 @@ export class HookOrchestrator {
 
     for (const hook of postHooks) {
       try {
-        currentResult = await hook.execute({ toolName, input, result: currentResult });
+        if (hook.isBackground) {
+          hook.execute({ toolName, input, result: currentResult }).catch(err => {
+            console.error(`❌ Background POST_EXECUTION hook "${hook.name}" failed:`, err);
+          });
+        } else {
+          currentResult = await hook.execute({ toolName, input, result: currentResult });
+        }
       } catch (error: any) {
         console.error(`❌ Post-execution hook "${hook.name}" failed:`, error);
         // Continue to next hook (isolation)
@@ -182,81 +115,13 @@ export class HookOrchestrator {
   }
 
   /**
-   * Get registered hooks by phase
+   * Get all registered hooks for debugging
    */
-  getHooks(phase: HookPhase): Hook[] {
-    return this.hooks.get(phase) || [];
-  }
-
-  /**
-   * Remove all hooks from a phase
-   */
-  clearPhase(phase: HookPhase): void {
-    this.hooks.delete(phase);
-    console.log(`🗑️  Cleared ${phase} hooks`);
-  }
-
-  /**
-   * Clear all hooks
-   */
-  clearAll(): void {
-    this.hooks.clear();
-    console.log('🗑️  Cleared all hooks');
-  }
-
-  /**
-   * Get hook count
-   */
-  getHookCount(phase?: HookPhase): number {
-    if (phase) {
-      return (this.hooks.get(phase) || []).length;
+  getDiagnostics(): any {
+    const diagnostics: any = {};
+    for (const [phase, list] of this.hooks) {
+      diagnostics[phase] = list.map(h => h.name);
     }
-    return Array.from(this.hooks.values()).reduce((sum, hooks) => sum + hooks.length, 0);
+    return diagnostics;
   }
-}
-
-/**
- * Sort hooks by priority (descending)
- */
-function hookSortByPriority(hooks: Hook[]): Hook[] {
-  return [...hooks].sort((a, b) => b.priority - a.priority);
-}
-
-/**
- * Create a lazy hook orchestration system
- */
-export function createLazyHookOrchestrator(onInit: () => void): Omit<HookOrchestrator, 'getInstance'> {
-  // Replace getInstance with lazy initialization
-  const state = {
-    instance: null as HookOrchestrator | null,
-  };
-
-  const getInstance = () => {
-    if (!state.instance) {
-      state.instance = HookOrchestrator.getInstance();
-      onInit();
-    }
-    return state.instance;
-  };
-
-  return {
-    registerHook: (hook: Hook) => {
-      return getInstance().registerHook(hook);
-    },
-    chain: async <T>(toolName: string, input: T) => {
-      return getInstance().chain<T>(toolName, input);
-    },
-    getHooks: (phase: HookPhase) => {
-      return getInstance().getHooks(phase);
-    },
-    clearPhase: (phase: HookPhase) => {
-      return getInstance().clearPhase(phase);
-    },
-    clearAll: () => {
-      return getInstance().clearAll();
-    },
-    getHookCount: (phase?: HookPhase) => {
-      return getInstance().getHookCount(phase);
-    }
-  };
 }

@@ -1,17 +1,22 @@
 /**
  * [LAYER: INFRASTRUCTURE]
- * Principle: Automated Refactoring — handles file/directory moves and robust import resolution.
+ * Principle: Extreme Throughput Refactoring — O(1) dependency lookup via JoyCache.
  */
 
-import * as fs from 'fs';
+import * as fs from 'fs/promises';
+import { existsSync, readdirSync, statSync, mkdirSync, rmdirSync, unlinkSync } from 'fs'; 
 import * as path from 'path';
 import { FileSystemAdapter } from '../FileSystemAdapter';
+import { ParallelProcessor } from './ParallelProcessor';
+import { SqliteJoyCacheRepository } from '../database/SqliteJoyCacheRepository';
 
 export class RefactorTools {
   private fsAdapter: FileSystemAdapter;
+  private joyCache: SqliteJoyCacheRepository;
 
   constructor() {
     this.fsAdapter = new FileSystemAdapter();
+    this.joyCache = new SqliteJoyCacheRepository();
   }
 
   /**
@@ -22,65 +27,99 @@ export class RefactorTools {
     const absOldPath = path.resolve(projectRoot, oldPath);
     const absNewPath = path.resolve(projectRoot, newPath);
 
-    if (!fs.existsSync(absOldPath)) {
+    if (!existsSync(absOldPath)) {
       throw new Error(`Source file does not exist: ${oldPath}`);
     }
 
+    // Pass 7: Speculative JoyCache Update (Predictive)
+    // We update the cache with the new path BEFORE writing the file
+    // so it's ready for any concurrent lookups immediately.
+    this.updateCache(absOldPath, projectRoot).then(() => {
+        // After physical move, the cache for oldPath is removed
+        this.joyCache.removeFile(absOldPath);
+    });
+
     // Ensure target directory exists
     const newDir = path.dirname(absNewPath);
-    if (!fs.existsSync(newDir)) {
-      fs.mkdirSync(newDir, { recursive: true });
-    }
+    await fs.mkdir(newDir, { recursive: true });
 
-    const content = fs.readFileSync(absOldPath, 'utf8');
+    const content = await fs.readFile(absOldPath, 'utf8');
 
     // 1. Update relative imports within the moved file
     const updatedContent = this.updateInternalImports(content, absOldPath, absNewPath);
 
     // 2. Write to new location
-    fs.writeFileSync(absNewPath, updatedContent);
+    await fs.writeFile(absNewPath, updatedContent);
 
-    // 3. Update external imports (all files that import this file)
+    // 3. Update external imports (all files that import this file) in parallel via CACHE
     await this.updateExternalImports(absOldPath, absNewPath, projectRoot);
 
-    // 4. Delete old file
-    fs.unlinkSync(absOldPath);
+    // 4. Update the cache for the new path location
+    await this.updateCache(absNewPath, projectRoot);
+    await this.joyCache.removeFile(absOldPath);
+
+    // 5. Delete old file
+    await fs.unlink(absOldPath);
     
-    console.log(`✅ Moved ${path.relative(projectRoot, absOldPath)} to ${path.relative(projectRoot, absNewPath)}`);
+    console.log(`🚀 [JoyCache] Moved ${path.relative(projectRoot, absOldPath)} to ${path.relative(projectRoot, absNewPath)} (O(1) lookup)`);
   }
 
   /**
-   * Moves an entire directory and updates all imports (internal and external) recursive.
+   * Moves an entire directory and updates all imports in parallel.
    */
   async moveDirectoryAndFixImports(oldDir: string, newDir: string, projectRoot: string): Promise<void> {
     const absOldDir = path.resolve(projectRoot, oldDir);
     const absNewDir = path.resolve(projectRoot, newDir);
 
-    if (!fs.existsSync(absOldDir) || !fs.statSync(absOldDir).isDirectory()) {
+    if (!existsSync(absOldDir) || !statSync(absOldDir).isDirectory()) {
       throw new Error(`Source directory does not exist or is not a directory: ${oldDir}`);
     }
 
     const files = this.getAllTsFiles(absOldDir);
     
-    console.log(`📂 Refactoring directory: ${oldDir} → ${newDir} (${files.length} files)`);
+    console.log(`📂 [Parallel] Refactoring directory: ${oldDir} → ${newDir} (${files.length} files)`);
 
-    // Sort files by depth to prevent moving parent before child in logic
-    for (const absFilePath of files) {
+    await ParallelProcessor.map(files, async (absFilePath) => {
       const relPathInDir = path.relative(absOldDir, absFilePath);
       const absNewFilePath = path.join(absNewDir, relPathInDir);
-      
       await this.moveAndFixImports(absFilePath, absNewFilePath, projectRoot);
-    }
+    }, 15);
 
-    // Cleanup empty old dirs
     this.removeEmptyDirs(absOldDir);
+  }
+
+  /**
+   * Synchronization: Updates the JoyCache for a specific file.
+   */
+  async updateCache(filePath: string, projectRoot: string): Promise<void> {
+    if (!existsSync(filePath)) return;
+    
+    try {
+      const content = await fs.readFile(filePath, 'utf8');
+      const fileDir = path.dirname(filePath);
+      const imports: string[] = [];
+
+      const importRegex = /(import|export)\s*[\s\S]*?from\s*['"`](\.\/|\.\.\/)(.*?)['"`]/g;
+      let match;
+      while ((match = importRegex.exec(content)) !== null) {
+          const pathMatch = match[0].match(/from\s*['"`](.*?)['"`]/);
+          if (pathMatch && pathMatch[1]) {
+              const absImported = path.resolve(fileDir, pathMatch[1]);
+              const importedKey = absImported.endsWith('.ts') ? absImported : absImported + '.ts';
+              imports.push(importedKey);
+          }
+      }
+
+      await this.joyCache.updateImports(filePath, imports);
+    } catch (err) {
+      console.warn(`⚠️  Failed to update JoyCache for ${filePath}:`, err);
+    }
   }
 
   private updateInternalImports(content: string, oldPath: string, newPath: string): string {
     const oldDir = path.dirname(oldPath);
     const newDir = path.dirname(newPath);
 
-    // Perfect Resolver Regex: Handles multiline, type-only, and backticks
     const importRegex = /(import|export)\s*[\s\S]*?from\s*['"`](\.\/|\.\.\/)(.*?)['"`]/g;
 
     return content.replace(importRegex, (match) => {
@@ -95,7 +134,6 @@ export class RefactorTools {
           newRelativePath = './' + newRelativePath;
       }
 
-      // Only replace if it was a relative import
       if (originalImportPath.startsWith('.')) {
         return match.replace(originalImportPath, newRelativePath);
       }
@@ -104,26 +142,16 @@ export class RefactorTools {
   }
 
   private async updateExternalImports(oldPath: string, newPath: string, projectRoot: string): Promise<void> {
-    const oldBase = oldPath.replace(/\.ts$/, '');
-    const oldFileName = path.basename(oldBase);
-
-    // Performance Optimization: Use grep to find candidate files
-    const srcDir = path.join(projectRoot, 'src');
-    const command = `grep -rl "${oldFileName}" "${srcDir}" --include="*.ts"`;
+    const candidateFiles = await this.joyCache.getDependents(oldPath);
     
-    let candidateFiles: string[] = [];
-    try {
-      const { execSync } = require('child_process');
-      const output = execSync(command).toString();
-      candidateFiles = output.split('\n').filter((f: string) => f.trim().length > 0);
-    } catch (e) {
-      return; // No files contain the string
+    if (candidateFiles.length > 0) {
+        console.log(`📡 [JoyCache] Found ${candidateFiles.length} dependents for ${path.basename(oldPath)}`);
     }
 
-    for (const filePath of candidateFiles) {
-      if (filePath === newPath || filePath === oldPath) continue;
+    await ParallelProcessor.map(candidateFiles, async (filePath) => {
+      if (filePath === newPath || filePath === oldPath) return;
 
-      let content = fs.readFileSync(filePath, 'utf8');
+      let content = await fs.readFile(filePath, 'utf8');
       const fileDir = path.dirname(filePath);
 
       const importRegex = /(import|export)\s*[\s\S]*?from\s*['"`](\.\/|\.\.\/)(.*?)['"`]/g;
@@ -145,7 +173,6 @@ export class RefactorTools {
               newRelativeImport = './' + newRelativeImport;
           }
           changed = true;
-          // Use regex escape for the original path to safely replace it
           const escapedPath = importPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
           return match.replace(new RegExp(escapedPath), newRelativeImport);
         }
@@ -153,18 +180,21 @@ export class RefactorTools {
       });
 
       if (changed) {
-        fs.writeFileSync(filePath, content);
+        await fs.writeFile(filePath, content);
+        // Cascading update: Since we modified this file, update its cache entry too
+        await this.updateCache(filePath, projectRoot);
       }
-    }
+    }, 20);
   }
 
   private getAllTsFiles(dir: string, fileList: string[] = []): string[] {
-    if (!fs.existsSync(dir)) return fileList;
-    const files = fs.readdirSync(dir);
+    if (!existsSync(dir)) return fileList;
+    const files = readdirSync(dir);
     for (const file of files) {
       const name = path.join(dir, file);
-      if (fs.statSync(name).isDirectory()) {
-        this.getAllTsFiles(name, fileList);
+      const stat = statSync(name);
+      if (stat.isDirectory()) {
+         this.getAllTsFiles(name, fileList);
       } else if (name.endsWith('.ts')) {
         fileList.push(name);
       }
@@ -173,21 +203,24 @@ export class RefactorTools {
   }
 
   private removeEmptyDirs(dir: string): void {
-    if (!fs.existsSync(dir)) return;
+    if (!existsSync(dir)) return;
     
-    const files = fs.readdirSync(dir);
+    const files = readdirSync(dir);
     if (files.length > 0) {
       for (const file of files) {
         const fullPath = path.join(dir, file);
-        if (fs.statSync(fullPath).isDirectory()) {
+        if (statSync(fullPath).isDirectory()) {
           this.removeEmptyDirs(fullPath);
         }
       }
     }
     
-    // Final check for the current dir
-    if (fs.readdirSync(dir).length === 0) {
-      fs.rmdirSync(dir);
+    if (readdirSync(dir).length === 0) {
+      try {
+        rmdirSync(dir);
+      } catch (e) {
+        // Log skip if busy
+      }
     }
   }
 }

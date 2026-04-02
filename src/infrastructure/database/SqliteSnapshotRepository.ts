@@ -19,6 +19,7 @@ export class SqliteSnapshotRepository implements SnapshotRepository {
         content: snapshot.content,
         timestamp: snapshot.timestamp,
         hash: snapshot.hash,
+        mtime: snapshot.mtime,
       } as any
     });
 
@@ -42,6 +43,7 @@ export class SqliteSnapshotRepository implements SnapshotRepository {
       content: result.content,
       timestamp: result.timestamp,
       hash: result.hash,
+      mtime: result.mtime,
     };
   }
 
@@ -61,6 +63,7 @@ export class SqliteSnapshotRepository implements SnapshotRepository {
       content: result.content,
       timestamp: result.timestamp,
       hash: result.hash,
+      mtime: result.mtime,
     };
   }
 

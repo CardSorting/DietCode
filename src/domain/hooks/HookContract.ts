@@ -43,6 +43,11 @@ export interface Hook {
   priority: number;
 
   /**
+   * Whether this hook should execute in the background without blocking the tool execution.
+   */
+  isBackground?: boolean;
+
+  /**
    * The hook execution handler
    */
   execute: (params: { toolName: string; input: any; result?: any }) => Promise<any>;

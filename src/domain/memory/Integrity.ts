@@ -12,6 +12,9 @@ export enum ViolationType {
   DOMAIN_PURITY = 'domain_purity',
   INVALID_LAYER_TAG = 'invalid_layer_tag',
   MISPLACED_FILE = 'misplaced_file',
+  MISSING_TAG = 'missing_tag',
+  LAYER_VIOLATION = 'layer_violation',
+  CIRCULAR_DEPENDENCY = 'circular_dependency',
 }
 
 export interface IntegrityViolation {

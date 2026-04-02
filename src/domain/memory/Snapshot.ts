@@ -9,6 +9,7 @@ export interface Snapshot {
   content: string;
   timestamp: number;
   hash: string; // To avoid redundant snapshots
+  mtime?: number; // File modification time for fast-check
 }
 
 export interface SnapshotRepository {

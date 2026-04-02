@@ -22,10 +22,32 @@ import type { LockScope, LockResult } from '../../domain/safety/LockScope';
 export class SafetyGuard {
   private riskEvaluator: RiskEvaluator;
   private lockOrchestrator?: LockOrchestrator;
+  private static architecturalAlarmActive = false;
 
   constructor(riskEvaluator: RiskEvaluator, lockOrchestrator?: LockOrchestrator) {
     this.riskEvaluator = riskEvaluator;
     this.lockOrchestrator = lockOrchestrator;
+  }
+
+  /**
+   * Triggers the Global Architectural Alarm.
+   * "Soft-locks" dangerous operations until the architecture is healed.
+   */
+  static triggerAlarm(): void {
+    if (!this.architecturalAlarmActive) {
+      console.warn('🚨  [ARCHITECTURAL ALARM] System entering soft-lock due to integrity violations.');
+      this.architecturalAlarmActive = true;
+    }
+  }
+
+  /**
+   * Clears the Global Architectural Alarm.
+   */
+  static clearAlarm(): void {
+    if (this.architecturalAlarmActive) {
+      console.log('💚  [ARCHITECTURAL ALARM] Alarm cleared. System integrity restored.');
+      this.architecturalAlarmActive = false;
+    }
   }
 
   /**
@@ -111,10 +133,21 @@ export class SafetyGuard {
     
     const { canProceed, riskLevel } = await this.canProceed(riskCriteria);
     
+    // Pass 4: Architectural Alarm Enforcement
+    let effectiveRisk = riskLevel;
+    let effectiveRequiresApproval = !canProceed;
+
+    if (SafetyGuard.architecturalAlarmActive && 
+        (riskLevel === RiskLevel.HIGH || toolName.includes('move') || toolName.includes('delete'))) {
+        console.warn('🚧  [SafetyGuard] Architectural Alarm is active. Operation requires explicit approval.');
+        effectiveRisk = RiskLevel.HIGH;
+        effectiveRequiresApproval = true;
+    }
+
     return {
-      riskLevel,
-      requiresApproval: !canProceed,
-      isSafe: canProceed
+      riskLevel: effectiveRisk,
+      requiresApproval: effectiveRequiresApproval,
+      isSafe: !effectiveRequiresApproval
     };
   }
 }
