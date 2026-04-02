@@ -133,10 +133,86 @@ export class SovereignDb {
       .on('joy_imports')
       .column('imported_path')
       .execute();
+
+    await db.schema
+      .createTable('tasks')
+      .ifNotExists()
+      .addColumn('task_id', 'text', (col) => col.primaryKey())
+      .addColumn('title', 'text', (col) => col.notNull())
+      .addColumn('objective', 'text', (col) => col.notNull())
+      .addColumn('state', 'text', (col) => col.notNull())
+      .addColumn('priority', 'integer', (col) => col.notNull())
+      .addColumn('sim_integrity', 'float8')
+      .addColumn('vitals_heartbeat', 'text') // JSON
+      .addColumn('v_token', 'text')
+      .addColumn('initial_context', 'text')
+      .addColumn('created_at', 'int8', (col) => col.notNull())
+      .addColumn('updated_at', 'int8', (col) => col.notNull())
+      .addColumn('started_at', 'int8')
+      .addColumn('completed_at', 'int8')
+      .addColumn('user_agent', 'text', (col) => col.notNull())
+      .execute();
+
+    // Pass 17: Telemetry & Metabolic Infrastructure
+    await db.schema
+      .createTable('telemetry' as any)
+      .ifNotExists()
+      .addColumn('id', 'text', (col) => col.primaryKey())
+      .addColumn('repoPath', 'text', (col) => col.notNull())
+      .addColumn('agentId', 'text', (col) => col.notNull())
+      .addColumn('taskId', 'text')
+      .addColumn('promptTokens', 'integer')
+      .addColumn('completionTokens', 'integer')
+      .addColumn('totalTokens', 'integer')
+      .addColumn('modelId', 'text')
+      .addColumn('cost', 'float8')
+      .addColumn('timestamp', 'int8', (col) => col.notNull())
+      .addColumn('environment', 'text')
+      .execute();
+
+    await db.schema
+      .createTable('metabolic_telemetry' as any)
+      .ifNotExists()
+      .addColumn('id', 'text', (col) => col.primaryKey())
+      .addColumn('taskId', 'text')
+      .addColumn('tokensProcessed', 'integer')
+      .addColumn('verificationsSuccess', 'integer')
+      .addColumn('linesAdded', 'integer')
+      .addColumn('linesDeleted', 'integer')
+      .addColumn('reads', 'integer')
+      .addColumn('writes', 'integer')
+      .addColumn('cognitiveHeat', 'float8')
+      .addColumn('architecturalDecay', 'float8')
+      .addColumn('doubtSignal', 'float8')
+      .addColumn('timestamp', 'int8', (col) => col.notNull())
+      .execute();
+
+    await db.schema
+      .createIndex('idx_telemetry_taskId')
+      .ifNotExists()
+      .on('telemetry' as any)
+      .column('taskId')
+      .execute();
+
+    await db.schema
+      .createIndex('idx_metabolic_taskId')
+      .ifNotExists()
+      .on('metabolic_telemetry' as any)
+      .column('taskId')
+      .execute();
+
+    await db.schema
+      .createTable('joy_metrics' as any)
+      .ifNotExists()
+      .addColumn('path', 'text', (col) => col.primaryKey())
+      .addColumn('violation_count', 'integer', (col) => col.notNull())
+      .addColumn('hash', 'text', (col) => col.notNull())
+      .addColumn('last_scanned', 'int8', (col) => col.notNull())
+      .execute();
     
     // Pass 6: Concurrency and Deadlock Mitigation
-    await sql`PRAGMA journal_mode=WAL;`.execute(db);
-    await sql`PRAGMA busy_timeout=5000;`.execute(db);
+    await sql`PRAGMA journal_mode=WAL;`.execute(db as any);
+    await sql`PRAGMA busy_timeout=5000;`.execute(db as any);
 
     this.isInitialized = true;
     

@@ -51,6 +51,9 @@ interface DatabaseTaskRow {
   state: string;
   priority: string;
   initial_context: string;
+  sim_integrity: number | null;
+  vitals_heartbeat: string | null; // JSON
+  v_token: string | null;
   completed_at: number | null;
   created_at: number;
   started_at: number | null;
@@ -97,6 +100,9 @@ export class CheckpointPersistenceAdapter {
           state TEXT NOT NULL,
           priority TEXT NOT NULL,
           initial_context TEXT DEFAULT '',
+          sim_integrity REAL,
+          vitals_heartbeat TEXT,
+          v_token TEXT,
           completed_at INTEGER,
           created_at INTEGER NOT NULL,
           started_at INTEGER,
@@ -141,9 +147,9 @@ export class CheckpointPersistenceAdapter {
     const stmt = this.db.prepare(`
       INSERT OR REPLACE INTO tasks (
         task_id, title, objective, state, priority,
-        initial_context, completed_at, created_at,
-        started_at, updated_at, user_agent
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        initial_context, sim_integrity, vitals_heartbeat, v_token,
+        completed_at, created_at, started_at, updated_at, user_agent
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     stmt.run(
@@ -153,6 +159,9 @@ export class CheckpointPersistenceAdapter {
       task.state,
       task.priority.toString(),
       task.initialContext,
+      task.simIntegrity || null,
+      task.vitalsHeartbeat ? JSON.stringify(task.vitalsHeartbeat) : null,
+      task.vToken || null,
       task.metadata.completedAt?.getTime() || null,
       task.metadata.createdAt.getTime(),
       task.metadata.startedAt?.getTime() || null,
@@ -201,7 +210,7 @@ export class CheckpointPersistenceAdapter {
       consistencyScore: spec.consistencyScore || 1.0,
       outputHash: spec.outputHash,
       outputSizeBytes: spec.outputSizeBytes || 0,
-      state: spec.state || TaskState.IN_PROGRESS,
+      state: spec.state || TaskState.SOVEREIGN_DOING,
       tokensProcessed: spec.tokensProcessed || 0,
       trigger: spec.trigger as any,
       parentCheckpointId: spec.previousSnapshotId,
@@ -311,6 +320,9 @@ export class CheckpointPersistenceAdapter {
       initialContext: row.initial_context,
       state: row.state as TaskState,
       priority: parseInt(row.priority) as TaskPriority,
+      simIntegrity: row.sim_integrity ?? undefined,
+      vitalsHeartbeat: row.vitals_heartbeat ? JSON.parse(row.vitals_heartbeat) : undefined,
+      vToken: row.v_token ?? undefined,
       constraintViolations: [],
       metadata: {
         createdAt: new Date(row.created_at),

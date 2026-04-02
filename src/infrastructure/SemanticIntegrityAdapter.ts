@@ -29,15 +29,25 @@ const ALLOWED_IMPORTS: Record<string, string[]> = {
     'UNKNOWN': ['PLUMBING', 'DOMAIN'] // External access guard
 };
 
-export function analyzeDependencies(absPath: string, projectRoot: string, policy: IntegrityPolicy): { imports: string[], violations: IntegrityViolation[] } {
+export function analyzeDependencies(
+    absPath: string, 
+    projectRoot: string, 
+    policy: IntegrityPolicy, 
+    sourceCode?: string,
+    virtualFiles?: Map<string, string>
+): { imports: string[], violations: IntegrityViolation[] } {
     const relPath = path.relative(projectRoot, absPath);
     const violations: IntegrityViolation[] = [];
     const importedFiles: string[] = [];
 
-    if (!fs.existsSync(absPath)) return { imports: [], violations: [] };
+    // Prioritize virtualFiles, then sourceCode, then disk
+    let code: string | null = virtualFiles?.get(absPath) ?? null;
+    if (code === null && sourceCode !== undefined) code = sourceCode;
+    if (code === null) code = fs.existsSync(absPath) ? fs.readFileSync(absPath, 'utf8') : null;
+    
+    if (code === null) return { imports: [], violations: [] };
 
-    const sourceCode = fs.readFileSync(absPath, 'utf8');
-    const sourceFile = ts.createSourceFile(absPath, sourceCode, ts.ScriptTarget.Latest, true);
+    const sourceFile = ts.createSourceFile(absPath, code, ts.ScriptTarget.Latest, true);
     const fileDir = path.dirname(absPath);
 
     const visit = (node: ts.Node) => {
@@ -50,6 +60,9 @@ export function analyzeDependencies(absPath: string, projectRoot: string, policy
             const absImported = path.resolve(fileDir, importPath);
             const relImported = path.relative(projectRoot, absImported);
             importedFiles.push(relImported);
+            
+            // Pass 18: Multi-File Shadow Check
+            // We use the virtual content if it exists in the registry
             checkBoundaryPure(relPath, relImported, violations);
           }
         }
@@ -74,7 +87,7 @@ export function analyzeDependencies(absPath: string, projectRoot: string, policy
     visit(sourceFile);
 
     // Header Rule Check
-    const header = sourceCode.slice(0, 2000);
+    const header = code.slice(0, 2000);
     const layerMatch = header.match(/\[LAYER:?\s*([A-Z]+)\]/);
     if (!layerMatch) {
         violations.push(createViolationPure(

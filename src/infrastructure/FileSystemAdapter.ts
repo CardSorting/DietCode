@@ -7,11 +7,13 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { execSync } from 'child_process';
-import type { Filesystem, GitStatus } from '../domain/system/Filesystem';
+import { type Filesystem, type GitStatus } from '../domain/system/Filesystem';
 import { PathValidator } from './validation/PathValidator';
+import { MetabolicMonitor } from './monitoring/MetabolicMonitor';
 
 export class FileSystemAdapter implements Filesystem {
   private validator: PathValidator;
+  private monitor = MetabolicMonitor.getInstance();
 
   constructor(validator?: PathValidator) {
     this.validator = validator || new PathValidator();
@@ -19,11 +21,14 @@ export class FileSystemAdapter implements Filesystem {
 
   readFile(filePath: string): string {
     const validatedPath = this.validator.validate(filePath);
-    return fs.readFileSync(validatedPath, 'utf8');
+    const content = fs.readFileSync(validatedPath, 'utf8');
+    this.monitor.recordRead();
+    return content;
   }
 
   readFileBuffer(filePath: string): Promise<Uint8Array> {
     const validatedPath = this.validator.validate(filePath);
+    this.monitor.recordRead();
     return Promise.resolve(fs.readFileSync(validatedPath));
   }
 
@@ -49,12 +54,32 @@ export class FileSystemAdapter implements Filesystem {
 
   writeFile(filePath: string, content: string): void {
     const validatedPath = this.validator.validate(filePath);
+    let linesAdded = 0;
+    let linesDeleted = 0;
+    
+    // Simple line delta calculation for telemetry
+    try {
+      if (fs.existsSync(validatedPath)) {
+        const oldContent = fs.readFileSync(validatedPath, 'utf8');
+        const oldLines = oldContent.split('\n').length;
+        const newLines = content.split('\n').length;
+        if (newLines > oldLines) linesAdded = newLines - oldLines;
+        else linesDeleted = oldLines - newLines;
+      } else {
+        linesAdded = content.split('\n').length;
+      }
+    } catch (e) {
+      // Ignore for telemetry
+    }
+
     fs.writeFileSync(validatedPath, content, 'utf8');
+    this.monitor.recordWrite(linesAdded, linesDeleted);
   }
 
   mkdir(dirPath: string): void {
     const validatedPath = this.validator.validate(dirPath);
     fs.mkdirSync(validatedPath, { recursive: true });
+    this.monitor.recordWrite(1, 0); // Directory creation counts as a minor write
   }
 
   exists(filePath: string): boolean {

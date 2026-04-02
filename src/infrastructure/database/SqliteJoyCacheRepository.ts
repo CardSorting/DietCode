@@ -213,4 +213,42 @@ export class SqliteJoyCacheRepository {
             }
         }
     }
+
+    /**
+     * Pass 18: Architectural Metrics Caching
+     * Returns the cached violation count if the hash matches.
+     */
+    async getCachedViolations(filePath: string, currentHash: string): Promise<number | null> {
+        const db = await this.db.db();
+        const result = await db.selectFrom('joy_metrics' as any)
+            .select(['violation_count', 'hash'])
+            .where('path', '=', filePath)
+            .executeTakeFirst() as any;
+
+        if (result && result.hash === currentHash) {
+            return Number(result.violation_count);
+        }
+        return null;
+    }
+
+    /**
+     * Pass 18: Architectural Metrics Persistence
+     * Updates the cached metrics for a file.
+     */
+    async updateCachedViolations(filePath: string, count: number, hash: string): Promise<void> {
+        const db = await this.db.db();
+        await db.insertInto('joy_metrics' as any)
+            .values({
+                path: filePath,
+                violation_count: count,
+                hash,
+                last_scanned: Date.now()
+            })
+            .onConflict((oc: any) => oc.column('path').doUpdateSet({
+                violation_count: count,
+                hash,
+                last_scanned: Date.now()
+            }))
+            .execute();
+    }
 }

@@ -20,20 +20,20 @@ export type TaskId = string;
  * Enforces strict state transitions using domain contract
  */
 export enum TaskState {
-  /** Initial state: not yet started */
-  QUEUED = 'QUEUED',
-  /** Actively being worked on */
-  IN_PROGRESS = 'IN_PROGRESS',
-  /** Task paused for user feedback or drift correction */
-  SUSPENDED = 'SUSPENDED',
-  /** Complete validation pending manual review */
-  REVIEW_PENDING = 'REVIEW_PENDING',
+  /** Task acknowledged but not yet refined */
+  BACKLOG = 'BACKLOG',
+  /** Requirements 100% defined and ready for simulation */
+  READY = 'READY',
+  /** Virtualized execution for pre-flight integrity check */
+  SHADOW_SIM = 'SHADOW_SIM',
+  /** Active implementation in the sovereign workspace */
+  SOVEREIGN_DOING = 'SOVEREIGN_DOING',
+  /** Post-implementation verification loop */
+  VERIFYING = 'VERIFYING',
   /** Successfully completed and verified */
-  COMPLETED = 'COMPLETED',
+  DONE = 'DONE',
   /** Execution failed beyond recovery */
-  FAILED = 'FAILED',
-  /** Moved to archive */
-  ARCHIVED = 'ARCHIVED'
+  FAILED = 'FAILED'
 }
 
 /**
@@ -153,7 +153,6 @@ export interface TaskEntity {
   
   /**
    * Current lifecycle state of the task
-   * Enforced by TaskState machine transitions
    */
   state: TaskState;
   
@@ -163,8 +162,22 @@ export interface TaskEntity {
   priority: TaskPriority;
   
   /**
+   * Integrity score from SHADOW_SIM pre-flight (0-1.0)
+   */
+  simIntegrity?: number;
+  
+  /**
+   * Real-time metabolic telemetry metrics
+   */
+  vitalsHeartbeat?: VitalsHeartbeat;
+  
+  /**
+   * Final cryptographic verification signature
+   */
+  vToken?: string;
+  
+  /**
    * List of constraint violations detected during execution
-   * Prevents execution of unsafe state transitions
    */
   constraintViolations: string[];
   
@@ -178,13 +191,23 @@ export interface TaskEntity {
     completedAt?: Date;
     /**
      * Origin of behavior for intent logging
-     * Clarifies source vs. standard execution
      */
     userAgent: string;
-    /**
-     * Optional correlation ID for external systems
-     */
   };
+}
+
+/**
+ * Real-time metabolic telemetry metrics (The Antigravity Brain)
+ */
+export interface VitalsHeartbeat {
+  /** Measures token consumption vs. successful verifications */
+  cognitiveHeat: number;
+  /** Measures Added:Deleted line ratio (Target: Negative Growth) */
+  architecturalDecay: number;
+  /** Tracks Read:Write frequency (Doubt detection) */
+  doubtSignal: number;
+  /** Timestamp of the last heartbeat */
+  timestamp: number;
 }
 
 /**
@@ -245,7 +268,7 @@ export function createTaskEntity(spec: TaskEntityCreationSpec): TaskEntity {
     requirements: spec.requirements,
     acceptanceCriteria: spec.acceptanceCriteria,
     initialContext: spec.initialContext,
-    state: TaskState.QUEUED,
+    state: TaskState.BACKLOG,
     priority: spec.priority || TaskPriority.MEDIUM,
     constraintViolations: [],
     metadata: {
@@ -346,13 +369,13 @@ export interface TaskEntityCreationSpec {
  * List of valid TaskState values for validation
  */
 const validTaskStates = [
-  TaskState.QUEUED,
-  TaskState.IN_PROGRESS,
-  TaskState.SUSPENDED,
-  TaskState.REVIEW_PENDING,
-  TaskState.COMPLETED,
-  TaskState.FAILED,
-  TaskState.ARCHIVED
+  TaskState.BACKLOG,
+  TaskState.READY,
+  TaskState.SHADOW_SIM,
+  TaskState.SOVEREIGN_DOING,
+  TaskState.VERIFYING,
+  TaskState.DONE,
+  TaskState.FAILED
 ];
 
 /**

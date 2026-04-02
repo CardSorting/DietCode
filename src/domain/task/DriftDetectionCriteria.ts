@@ -295,18 +295,18 @@ export function computeDriftRecommendation(
       requiresUserConfirmation: true,
       correctiveAction: CorrectionType.PAUSE_FOR_REVIEW,
       explanation: `Moderate drift detected (score: ${currentDriftScore.toFixed(2)}). Requires user confirmation before proceeding.`,
-      suggestedState: TaskState.SUSPENDED
+      suggestedState: TaskState.SHADOW_SIM
     };
   }
 
   if (criteria.strictModeEnabled && currentDriftScore >= criteria.maxDriftThreshold) {
     return {
-      shouldProceed: currentTaskState === TaskState.IN_PROGRESS,
+      shouldProceed: currentTaskState === TaskState.SOVEREIGN_DOING,
       requiresUserConfirmation: true,
       correctiveAction: CorrectionType.REINFORCE_OBJECTIVE,
       explanation: `Drift exceeds acceptable threshold (score: ${currentDriftScore.toFixed(2)}). Please re-anchor to core objective.`,
-      suggestedState: currentTaskState === TaskState.IN_PROGRESS 
-        ? TaskState.SUSPENDED 
+      suggestedState: currentTaskState === TaskState.SOVEREIGN_DOING 
+        ? TaskState.SHADOW_SIM 
         : currentTaskState
     };
   }

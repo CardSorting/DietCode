@@ -12,9 +12,11 @@ import type { ToolDefinition } from '../../../domain/agent/ToolDefinition';
 import type { Agent } from '../../../domain/agent/Agent';
 import { SovereignDb } from '../../database/SovereignDb';
 import type { LogService } from '../../../domain/logging/LogService';
+import { MetabolicMonitor } from '../../monitoring/MetabolicMonitor';
 
 export class AnthropicProvider implements LLMProvider {
   private client: Anthropic;
+  private monitor = MetabolicMonitor.getInstance();
 
   constructor(apiKey: string, private logService: LogService) {
     this.client = new Anthropic({ apiKey });
@@ -83,12 +85,17 @@ export class AnthropicProvider implements LLMProvider {
 
     const content = response.content.filter((c: any) => c.type !== 'thinking');
 
+    const usage = {
+      input_tokens: response.usage.input_tokens,
+      output_tokens: response.usage.output_tokens,
+    };
+
+    // Instrument MetabolicMonitor
+    this.monitor.recordTokens(usage.input_tokens + usage.output_tokens);
+
     return {
       content: content as any,
-      usage: {
-        input_tokens: response.usage.input_tokens,
-        output_tokens: response.usage.output_tokens,
-      },
+      usage,
       reasoning: reasoning.length > 0 ? reasoning : undefined,
     };
   }

@@ -20,6 +20,9 @@ import { TaskConsistencyValidator } from '../../infrastructure/task/TaskConsiste
 import { LogLevel } from '../../domain/logging/LogLevel';
 import { TaskState } from '../../domain/task/TaskEntity';
 import { CheckpointTrigger, CorrectionType, generateCheckpointId } from '../../domain/task/ImplementationSnapshot';
+import { SovereignSelector } from '../task/SovereignSelector';
+import { OperationalScheduler } from '../task/OperationalScheduler';
+import { MetabolicMonitor } from '../../infrastructure/monitoring/MetabolicMonitor';
 import * as crypto from 'crypto';
 
 /**
@@ -36,12 +39,18 @@ export class DriftDetectionOrchestrator {
   private currentDriftScore: number = 0;
   private lastCheckpointTimestamp: Date = new Date();
   private checkpointTokenCount: Map<string, number> = new Map();
+  
+  private selector: SovereignSelector;
+  private scheduler: OperationalScheduler;
+  private monitor = MetabolicMonitor.getInstance();
 
   constructor(
     persistenceAdapter: CheckpointPersistenceAdapter,
     semanticAnalyzer: SemanticIntegrityAnalyser,
     consistencyValidator: TaskConsistencyValidator,
     entityManager: TaskEntityManager,
+    selector: SovereignSelector,
+    scheduler: OperationalScheduler,
     config?: {
       criteria: DriftDetectionCriteria;
       autoCheckpointInterval: number;
@@ -52,6 +61,8 @@ export class DriftDetectionOrchestrator {
     this.semanticAnalyzer = semanticAnalyzer;
     this.consistencyValidator = consistencyValidator;
     this.entityManager = entityManager;
+    this.selector = selector;
+    this.scheduler = scheduler;
 
     this.currentCheckpointId = null;
     this.currentDriftScore = 0;
@@ -60,12 +71,30 @@ export class DriftDetectionOrchestrator {
   }
 
   /**
-   * Initialize drift detection for a new task
+   * Initialize drift detection for a new task using Sovereign Protocol v6.0
    */
   async initializeTask(taskMd: string, initialCheck: number): Promise<ImplementationSnapshot> {
     const taskValidation = await this.consistencyValidator.validateTask(taskMd);
     const currentTask = await this.entityManager.getCurrentTask();
     const taskId = currentTask?.id || this.entityManager.getTaskId(taskMd);
+    
+    if (!currentTask) {
+      throw new Error('No current task found for initialization');
+    }
+
+    // Pass 17: Sovereign Negative-Audit Gate
+    const bundle = await this.selector.generateProvenanceBundle(currentTask);
+    const audit = this.selector.evaluate(bundle);
+
+    if (!audit.pass) {
+       this.log(LogLevel.ERROR, 'Sovereign Gate: Negative-Audit Failed', { reasons: audit.reasons });
+       await this.entityManager.setCurrentTask({ ...currentTask, state: TaskState.FAILED });
+       throw new Error(`Task rejected by Sovereign Selector: ${audit.reasons.join('; ')}`);
+    }
+
+    // Transition to READY
+    const readyTask = this.scheduler.transition(currentTask, TaskState.READY);
+    await this.entityManager.setCurrentTask(readyTask);
     
     const snapshot = await this.createCheckpoint(
       taskMd,
@@ -77,6 +106,8 @@ export class DriftDetectionOrchestrator {
       }
     );
 
+    this.monitor.setTaskId(taskId);
+    this.monitor.recordVerification(true);
     this.currentCheckpointId = snapshot.checkpointId;
     this.currentDriftScore = snapshot.semanticHealth.integrityScore;
     
@@ -149,12 +180,35 @@ export class DriftDetectionOrchestrator {
     trigger: string,
     context: { validation?: any; taskId?: string } = {}
   ): Promise<ImplementationSnapshot> {
+    const task = await this.entityManager.getCurrentTask();
+    if (!task) throw new Error('No active task to checkpoint');
+
     const semanticIntegrity = this.semanticAnalyzer.calculateSemanticIntegrity(
       markdownContent,
       []
     );
 
     const driftScore = 1.0 - semanticIntegrity.integrityScore;
+
+    // Pass 14: Simulated Reality Protocol Gate
+    if (task.state === TaskState.SHADOW_SIM || task.state === TaskState.READY) {
+       const sim = await this.scheduler.simulateShadowExecution(
+         task,
+         'task.md',
+         markdownContent,
+         '.',
+         {}
+       );
+
+       if (!this.scheduler.canEnterSovereignDoing(sim.integrity)) {
+          this.log(LogLevel.ERROR, 'SRP Gate: Simulation Integrity Failed', { integrity: sim.integrity });
+          throw new Error(`Simulation Integrity (${sim.integrity.toFixed(2)}) below 0.95. Refusing entry to SOVEREIGN_DOING.`);
+       }
+
+       // Valid simulation - Promote to SOVEREIGN_DOING
+       const doingTask = this.scheduler.transition(task, TaskState.SOVEREIGN_DOING);
+       await this.entityManager.setCurrentTask(doingTask);
+    }
 
     const spec: any = {
       checkpointId: (trigger === 'initialization' || trigger === 'demographic') ? generateCheckpointId() : (this.currentCheckpointId || generateCheckpointId()),
@@ -163,7 +217,7 @@ export class DriftDetectionOrchestrator {
       consistencyScore: semanticIntegrity.objectiveAlignment,
       outputHash: markdownContent,
       outputSizeBytes: markdownContent.length,
-      state: TaskState.IN_PROGRESS,
+      state: (await this.entityManager.getCurrentTask())?.state || TaskState.SOVEREIGN_DOING,
       tokensProcessed: 0,
       trigger: trigger as CheckpointTrigger,
       validatedBy: undefined,
@@ -171,8 +225,7 @@ export class DriftDetectionOrchestrator {
       userConfirmationRequired: false
     };
 
-    const task = await this.entityManager.getCurrentTask();
-    const taskId = task?.id || String(context.taskId ?? '');
+    const taskId = task.id || String(context.taskId ?? '');
     
     const snapshot = await this.checkpointAdapter.createCheckpoint(
       taskId,
@@ -180,6 +233,10 @@ export class DriftDetectionOrchestrator {
       []
     );
 
+    // Pass 17: Metabolic Snapshot Persistence
+    await this.monitor.flushToDatabase(taskId);
+    this.monitor.recordVerification(true);
+    
     this.currentCheckpointId = snapshot.checkpointId;
     this.currentDriftScore = snapshot.driftScore;
 
@@ -204,7 +261,7 @@ export class DriftDetectionOrchestrator {
     const recommendation = this.calculateDriftRecommendation(
       currentDriftScore,
       criteria,
-      TaskState.IN_PROGRESS
+      TaskState.SOVEREIGN_DOING
     );
 
     const emojiRating = this.getEmojiForAction(recommendation.correctiveAction);
@@ -251,7 +308,7 @@ export class DriftDetectionOrchestrator {
         requiresUserConfirmation: true,
         correctiveAction: CorrectionType.PAUSE_FOR_REVIEW,
         explanation: `Drift detected (${currentDriftScore.toFixed(2)}). Requires confirmation before continuing.`,
-        suggestedState: TaskState.SUSPENDED
+        suggestedState: TaskState.SHADOW_SIM
       };
     }
 
