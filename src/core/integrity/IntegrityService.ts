@@ -36,9 +36,22 @@ export class IntegrityService implements IntegrityScanner {
     }
     
     const report = await this.scanner.scan(projectRoot);
-    this.reportViolations(report);
-    this.recordHistory(report).catch(() => {});
+    await this.reportViolations(report);
     
+    // Phase 2: Critical - Replace silent error swallowing with proper logging
+    try {
+      await this.recordHistory(report);
+    } catch (historyError) {
+      const errorMessage = historyError instanceof Error ? historyError.message : 'Unknown history recording error';
+      if (this.logService) {
+        this.logService.error(
+          'Failed to record integrity scan history',
+          { error: errorMessage, report },
+          { component: 'IntegrityService' }
+        );
+      }
+    }
+
     return report;
   }
 
@@ -58,7 +71,7 @@ export class IntegrityService implements IntegrityScanner {
         }
     }
 
-    this.reportViolations(report);
+    await this.reportViolations(report);
     return report;
   }
 
@@ -69,7 +82,7 @@ export class IntegrityService implements IntegrityScanner {
       this.reportViolations(report);
   }
 
-  private reportViolations(report: IntegrityReport): void {
+  private async reportViolations(report: IntegrityReport): Promise<void> {
     if (report.violations.length > 0) {
       if (this.logService) {
         this.logService.warn(
@@ -96,7 +109,18 @@ export class IntegrityService implements IntegrityScanner {
 
       // Pass 5: Proactive Healing Integration
       if (this.healingService) {
-          this.healingService.processViolations(report.violations).catch(() => {});
+          try {
+            await this.healingService.processViolations(report.violations);
+          } catch (healingError) {
+            const errorMessage = healingError instanceof Error ? healingError.message : 'Unknown healing process error';
+            if (this.logService) {
+              this.logService.error(
+                'Failed to process integrity violations',
+                { error: errorMessage, violationCount: report.violations.length },
+                { component: 'IntegrityService' }
+              );
+            }
+          }
       }
     } else {
         // No violations: Clear the alarm

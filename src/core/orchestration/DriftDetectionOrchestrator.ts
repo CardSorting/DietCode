@@ -9,17 +9,14 @@
  *   - [NEW] Implements DriftDetectionOrchestrator for end-to-end drift prevention
  */
 
-import { TaskId, TaskState } from '../../domain/task/TaskEntity';
-import { 
-  DriftDetectionCriteria, 
-  DriftDetectionRecommendation, 
-  CorrectionType 
-} from '../../domain/task/DriftDetectionCriteria';
-import { ImplementationSnapshot, CheckpointId } from '../../domain/task/ImplementationSnapshot';
+import type { TaskId, TaskEntity } from '../../domain/task/TaskEntity';
+import type { DriftDetectionCriteria, DriftDetectionRecommendation } from '../../domain/task/DriftDetectionCriteria';
+import type { ImplementationSnapshot, CheckpointId } from '../../domain/task/ImplementationSnapshot';
 import { CheckpointPersistenceAdapter } from '../../infrastructure/task/CheckpointPersistenceAdapter';
 import { SemanticIntegrityAnalyser } from '../../infrastructure/task/SemanticIntegrityAnalyser';
 import { TaskConsistencyValidator } from '../../infrastructure/task/TaskConsistencyValidator';
-import { LogLevel } from '../../domain/logging/Logging';
+import { LogLevel } from '../../domain/logging/LogLevel';
+import { TaskState } from '../../domain/task/TaskEntity';
 
 /**
  * Coordinates drift detection across task.md and implementation.md
@@ -34,6 +31,7 @@ export class DriftDetectionOrchestrator {
   private currentCheckpointId: CheckpointId | null = null;
   private currentDriftScore: number = 0;
   private lastCheckpointTimestamp: Date = new Date();
+  private checkpointTokenCount: Map<string, number> = new Map();
 
   constructor(
     persistenceAdapter: CheckpointPersistenceAdapter,
@@ -51,7 +49,13 @@ export class DriftDetectionOrchestrator {
         maxDriftThreshold: 0.3,
         requiresConfirmationForDriftAbove: 0.6,
         checkpointInterval: 1000,
-        // ... default values
+        semanticSimilarityThreshold: 0.75,
+        strictModeEnabled: true,
+        maxFailureThreshold: 0.95,
+        autoRestoreOnCriticalDrift: true,
+        maxCheckpointCacheSize: 100,
+        logDriftPredictions: true,
+        enableDriftPrediction: true
       }
     }
   ) {
@@ -63,7 +67,7 @@ export class DriftDetectionOrchestrator {
     this.currentCheckpointId = null;
     this.currentDriftScore = 0;
     this.lastCheckpointTimestamp = new Date();
-    this.checkpointTokenCount = 0; // 🐛 FIX: Added missing initialization
+    this.checkpointTokenCount = new Map<string, number>(); // ✅ Initialize checkpoint map
   }
 
   /**
@@ -102,12 +106,12 @@ export class DriftDetectionOrchestrator {
     
     // Check if checkpoint interval exceeded
     if (!this.currentCheckpointId || 
-        (tokensProcessed - this.checkpointTokenCount) >= criteria.checkpointInterval) {
+        (tokensProcessed - (this.checkpointTokenCount.get('current') || 0)) >= criteria.checkpointInterval) {
       const task = await this.entityManager.getCurrentTask();
       
       if (task) {
         const updatedSnapshot = await this.checkpointAdapter.createCheckpoint(
-          task.id,
+          task.id || '',
           {
             checkpointId: this.currentCheckpointId,
             driftScore: currentDriftScore,
@@ -130,7 +134,8 @@ export class DriftDetectionOrchestrator {
           []
         );
 
-        this.checkpointTokenCount = tokensProcessed;
+        const taskId = task.id || '';
+        this.checkpointTokenCount.set(taskId, tokensProcessed);
         this.currentCheckpointId = updatedSnapshot.checkpointId;
         this.currentDriftScore = updatedSnapshot.driftScore;
 
@@ -230,12 +235,7 @@ export class DriftDetectionOrchestrator {
       TaskState.IN_PROGRESS
     );
 
-    const emojiRating = {
-      'same': '✅',
-      'diverging': '👀',
-      'diverged': '⚠️',
-      'unknown': '❓'
-    }[recommendation.correctiveAction];
+    const emojiRating = this.getEmojiForAction(recommendation.correctiveAction);
 
     this.log(LogLevel.WARN, `${emojiRating} Drift detected: ${recommendation.explanation}`, {
       driftScore: currentDriftScore,
@@ -516,11 +516,27 @@ export class DriftDetectionOrchestrator {
       [LogLevel.WARN]: '⚠️ [DriftDetectionOrchestrator]',
       [LogLevel.ERROR]: '❌ [DriftDetectionOrchestrator]',
       [LogLevel.CRITICAL]: '🚨 [DriftDetectionOrchestrator]'
-    }[level];
+    } as Record<LogLevel, string>[level];
 
     const dataString = data ? ` | ${JSON.stringify(data)}` : '';
 
     console.log(`${levelPrefix} ${message}${dataString}`);
+  }
+
+  /**
+   * Get safe corrective action key (fixes TS7053)
+   */
+  private getCorrectionKey(action: string): string {
+    return action === 'DRIFT_CORRECTION' ? 'same' :
+           action === 'PAUSE_FOR_REVIEW' ? 'diverged' : 'unknown';
+  }
+
+  /**
+   * Get emoji for corrective action (fixes TS7053)
+   */
+  private getEmojiForAction(action: string): string {
+    return this.getCorrectionKey(action) === 'same' ? '✅' :
+           this.getCorrectionKey(action) === 'diverged' ? '⚠️' : '❓';
   }
 }
 

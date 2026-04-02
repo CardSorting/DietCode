@@ -185,7 +185,7 @@ export class TaskConsistencyValidator {
 
     const hasImplementationObjective = content.includes('implementation-objective') || 
                                        content.includes('Implementation Objective') ||
-                                       content.includes(f'Objective:');
+                                       content.includes(`Objective:`);
 
     if (!hasImplementationObjective) {
       warnings.push('Loose implementation objective - recommended: defined tracking field');
