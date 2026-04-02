@@ -4,7 +4,7 @@
  */
 
 import { PromptSource, PromptSource as PromptSourceEnum } from './PromptIndex';
-import { PromptCategory } from './PromptCategory';
+import { PromptCategory, type PromptDefinition } from './PromptCategory';
 
 export interface PromptAudit {
   promptId: string;
@@ -28,7 +28,7 @@ export interface ConflictResolution {
   type: ConflictType;
   resolution: ConflictResolutionStrategy;
   affectedPrompts: string[];
-  metadata: Record<string, any>;
+  metadata: Record<string, any> | undefined;
 }
 
 export enum ConflictType {
@@ -67,15 +67,15 @@ export class ConflictResolver {
     incomingSource: PromptSourceEnum
   ): ConflictResolutionStrategy {
     // Rule: Higher priority always wins (User > Project > Repository > Embedded)
-    if (incomingPriority > existing.metadata.priority) {
+    const existingPriority = existing.metadata?.priority ?? 0;
+    if (incomingPriority > existingPriority) {
       return ConflictResolutionStrategy.OVERRIDE;
     }
 
     // Rule: If priorities are equal, use timestamp tiebreaker
-    const existingPriority = existing.metadata.priority;
     if (incomingPriority === existingPriority) {
-      const incomingTime = incoming.metadata.timestamp;
-      const existingTime = existing.metadata.timestamp;
+      const incomingTime = incoming.metadata?.timestamp;
+      const existingTime = existing.metadata?.timestamp;
       
       if (!incomingTime || !existingTime) return ConflictResolutionStrategy.KEEP_EXISTING;
       return new Date(incomingTime) > new Date(existingTime) 
@@ -85,8 +85,8 @@ export class ConflictResolver {
 
     // Rule: Scope restrictions take precedence
     if (
-      existing.metadata.scope === 'restricted' && 
-      incoming.metadata.scope === 'public'
+      existing.metadata?.scope === 'restricted' && 
+      incoming.metadata?.scope === 'public'
     ) {
       return ConflictResolutionStrategy.KEEP_EXISTING;
     }
@@ -94,4 +94,146 @@ export class ConflictResolver {
     // Default: Keep existing prompt
     return ConflictResolutionStrategy.KEEP_EXISTING;
   }
+
+  /**
+   * Resolves type of conflict and returns the resolution strategy.
+   */
+  static analyze(
+    existing: PromptDefinition,
+    incoming: PromptDefinition,
+    incomingPriority: number,
+    incomingSource: PromptSourceEnum
+  ): ConflictType {
+    // Type 1: Duplicate IDs - deeper probing required
+    if (existing.id === incoming.id) {
+      return ConflictType.DUPLICATE_ID;
+    }
+
+    // Type 2: Clashing metadata keys
+    if (
+      existing.metadata &&
+      incoming.metadata &&
+      !this.areMetadataCompatible(existing.metadata, incoming.metadata)
+    ) {
+      return ConflictType.CLASHING_METADATA_KEY;
+    }
+
+    // Type 3: Priority violations
+    const existingPriority = existing.metadata?.priority ?? 0;
+    if (existingPriority > incomingPriority) {
+      return ConflictType.PRIORITY_VIOLATION;
+    }
+
+    // Type 4: Category mismatches
+    if (existing.category !== incoming.category) {
+      return ConflictType.CATEGORY_MISMATCH;
+    }
+
+    // Unknown conflict type
+    return ConflictType.OVERRIDDEN_PREAMBLE;
+  }
+
+  private static areMetadataCompatible(
+    existing: Record<string, any>,
+    incoming: Record<string, any>
+  ): boolean {
+    const keys: string[] = [...Object.keys(existing), ...Object.keys(incoming)];
+    for (const key of keys) {
+      if (!this.isSharedMetadataKey(key)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private static isSharedMetadataKey(key: string): boolean {
+    return [
+      'priority',
+      'timestamp',
+      'source',
+      'scope',
+      'labels',
+      'tags',
+      'version'
+    ].includes(key);
+  }
+
+  /**
+   * Reviews conflict resolution history and provides summary statistics.
+   */
+    static reviewHistory(auditRecord: PromptAudit): ConflictSummary {
+    const conflictCount = auditRecord.conflictHistory.length;
+    const resolvedByStrategy = new Map<ConflictResolutionStrategy, number>();
+    
+    for (const conflict of auditRecord.conflictHistory) {
+      const count = resolvedByStrategy.get(conflict.resolution) ?? 0;
+      resolvedByStrategy.set(conflict.resolution, count + 1);
+    }
+
+    const lastConflict: ConflictResolution | undefined = 
+      conflictCount > 0 
+        ? (auditRecord.conflictHistory[conflictCount - 1] ?? auditRecord.conflictHistory[0])
+        : undefined;
+    
+    return {
+      conflictCount,
+      totalStrategies: resolvedByStrategy.size,
+      strategies: Object.fromEntries(resolvedByStrategy) as Record<ConflictResolutionStrategy, number>,
+      complianceStatus: auditRecord.compliance,
+      lastConflict: lastConflict || {
+        id: '',
+        timestamp: '',
+        type: ConflictType.DUPLICATE_ID,
+        resolution: ConflictResolutionStrategy.KEEP_EXISTING,
+        affectedPrompts: [],
+        metadata: {}
+      }
+    };
+  }
+
+  /**
+   * Consolidates similar conflict resolutions into groups for analysis
+   */
+    static consolidateSimilarConflicts(
+    auditRecord: PromptAudit
+  ): GroupedConflictSummary {
+    const groups = new Map<ConflictType, number>();
+    
+    for (const conflict of auditRecord.conflictHistory) {
+      const count = groups.get(conflict.type) ?? 0;
+      groups.set(conflict.type, count + 1);
+    }
+
+    const mostCommonEntry = [...groups.entries()]
+        .sort((a, b) => (b[1] as number) - (a[1] as number))[0];
+    const mostCommonType = mostCommonEntry ? mostCommonEntry[0] : undefined;
+    const mostCommonConflict = auditRecord.conflictHistory.find(c => c.type === mostCommonType) ?? {
+      id: '',
+      timestamp: '',
+      type: ConflictType.DUPLICATE_ID,
+      resolution: ConflictResolutionStrategy.KEEP_EXISTING,
+      affectedPrompts: [],
+      metadata: {}
+    };
+    
+    return {
+      mostCommonConflict,
+      mostCommonType,
+      count: groups.size
+    };
+  }
 }
+
+export interface ConflictSummary {
+  conflictCount: number;
+  totalStrategies: number;
+  strategies: Record<ConflictResolutionStrategy, number>;
+  complianceStatus: PromptComplianceRecord;
+  lastConflict: ConflictResolution;
+}
+
+    export interface GroupedConflictSummary {
+      mostCommonConflict: ConflictResolution;
+      mostCommonType: string | undefined;
+      count: number;
+    }

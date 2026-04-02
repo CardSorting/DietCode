@@ -42,6 +42,16 @@ export interface SessionState {
   messages: Message[];
   systemPrompt: string;
   metadata: Record<string, any>;
+  // Additional session metadata
+  activeOrchestrator?: string;
+  lastUpdated?: string;
+  handoverData?: {
+    previousOrchestrator?: string;
+    transferTimestamp?: number;
+    correlationId?: string;
+  };
+  agentId?: string;
+  sessionId?: string;
 }
 
 export const createInitialState = (systemPrompt: string): SessionState => ({

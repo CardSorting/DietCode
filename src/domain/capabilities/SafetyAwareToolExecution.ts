@@ -33,6 +33,8 @@ export type SafetyAwareToolContext = {
  * Options for safety-aware tool execution
  */
 export type SafetyAwareToolOptions = {
+  toolName?: string;
+  input?: any;
   requireApprovalForHighRisk?: boolean;
   backupBeforeModification?: boolean;
   enforceParallelSafety?: boolean;

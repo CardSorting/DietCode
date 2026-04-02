@@ -10,7 +10,6 @@
  */
 
 import type { RiskLevel, ApprovalRequirements } from './RiskLevel';
-import type { ActionCriteria } from './RiskLevel';
 
 /**
  * Interface contract for evaluating risk levels of system actions
@@ -36,17 +35,6 @@ export interface RiskEvaluator {
   getApprovalRequirements(criteria: ActionCriteria): Promise<ApprovalRequirements>;
 }
 
-/**
- * Approval requirements definition
- * Pure Domain types - no implementation details here
- */
-export interface ApprovalRequirements {
-  requiresConfirmation: boolean;
-  requiresRollback: boolean;
-  requiresBackup: boolean;
-  restrictions: string[];
-  recommendedSafeguards: string[];
-}
 
 /**
  * Action criteria for risk evaluation

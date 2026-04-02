@@ -15,7 +15,7 @@ async function verify() {
   console.log('--- DIETCODE HARDENING VERIFICATION ---');
   
   // Create logger for EventBus
-  const logger = new ConsoleLoggerAdapter(LogLevel.debug);
+  const logger = new ConsoleLoggerAdapter(LogLevel.DEBUG);
   
   const fs = new FileSystemAdapter();
   const systemAdapter = new NodeSystemAdapter(fs);

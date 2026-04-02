@@ -4,8 +4,8 @@
  * Violations: None
  */
 
-import { PATTERN_REGISTRY, getAllPatterns } from '../../src/domain/prompts/PatternRegistry';
-import { PatternMapping } from '../../src/domain/prompts/SplitStrategy';
+import { PATTERN_REGISTRY, getAllPatterns } from '../../domain/prompts/PatternRegistry';
+import type { PatternMapping } from '../../domain/prompts/SplitStrategy';
 
 /**
  * Repository for pattern definitions
@@ -50,8 +50,10 @@ export class PatternRepository {
     };
 
     return getAllPatterns().sort((a, b) => {
-      const priorityA = priorityOrder[a.patternName.toLowerCase().split(' ')[0]] || 0;
-      const priorityB = priorityOrder[b.patternName.toLowerCase().split(' ')[0]] || 0;
+      const keyA = a.patternName.toLowerCase().split(' ')[0] ?? '';
+      const keyB = b.patternName.toLowerCase().split(' ')[0] ?? '';
+      const priorityA = priorityOrder[keyA] ?? 0;
+      const priorityB = priorityOrder[keyB] ?? 0;
       return priorityB - priorityA;
     });
   }
@@ -129,7 +131,9 @@ export class PatternRepository {
                        pattern.patternName.toLowerCase().includes('agent') ? 'agent' :
                        'other';
 
-      counts[category]++;
+      if (counts[category] !== undefined) {
+        counts[category]++;
+      }
     }
 
     return counts;

@@ -3,8 +3,8 @@
  * Principle: Implementation of Domain SearchProvider using fuzzy matching.
  */
 
-import type { SearchProvider } from '../../domain/memory/SearchProvider';
-import type { KnowledgeItem } from '../../domain/memory/Knowledge';
+import type { SearchProvider } from '../domain/memory/SearchProvider';
+import type { KnowledgeItem } from '../domain/memory/Knowledge';
 
 export class FuzzySearchRepository implements SearchProvider {
   /**

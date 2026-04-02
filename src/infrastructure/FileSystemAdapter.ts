@@ -57,8 +57,8 @@ export class FileSystemAdapter implements Filesystem {
     };
   }
 
-  walk(root: string, ignorer?: { isIgnored(path: string): boolean }): string[] {
-    const files: string[] = [];
+  walk(root: string, ignorer?: { isIgnored(path: string): boolean }): Array<{ path: string }> {
+    const files: { path: string }[] = [];
     const internalWalk = (dir: string) => {
       const entries = fs.readdirSync(dir, { withFileTypes: true });
       for (const entry of entries) {
@@ -72,7 +72,7 @@ export class FileSystemAdapter implements Filesystem {
           if (['node_modules', '.git', '.gemini'].includes(entry.name)) continue;
           internalWalk(fullPath);
         } else {
-          files.push(relativePath);
+          files.push({ path: relativePath });
         }
       }
     };
@@ -137,5 +137,28 @@ export class FileSystemAdapter implements Filesystem {
     } catch {
       return 'main';
     }
+  }
+
+  async rename(from: string, to: string): Promise<void> {
+    return fs.promises.rename(from, to);
+  }
+
+  async unlink(path: string): Promise<void> {
+    return fs.promises.unlink(path);
+  }
+
+  async *streamFileHash(filePath: string): AsyncGenerator<string, void, undefined> {
+    const crypto = require('crypto');
+    const stream = fs.createReadStream(filePath);
+    const hash = crypto.createHash('sha256');
+    
+    for await (const chunk of stream) {
+      hash.update(chunk);
+      yield hash.digest('hex');
+    }
+  }
+
+  then<T>(onFulfilled: (data: any) => T, onRejected?: (error: any) => T): Promise<T> {
+    return Promise.resolve(onFulfilled(undefined));
   }
 }

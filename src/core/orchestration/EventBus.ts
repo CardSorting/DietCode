@@ -10,7 +10,7 @@ import type { LogService } from '../../domain/logging/LogService';
 import { LogLevel } from '../../domain/logging/LogLevel';
 
 export class EventBus {
-  private static instance: EventBus;
+  private static instance?: EventBus;
   private emitter: EventEmitter = new EventEmitter();
   private logService: LogService;
 
@@ -19,9 +19,13 @@ export class EventBus {
     this.logService = logService;
   }
 
-  static getInstance(logService: LogService): EventBus {
+  static getInstance(logService: LogService): EventBus;
+  static getInstance(): EventBus;
+  static getInstance(logService?: LogService): EventBus {
     if (!EventBus.instance) {
-      EventBus.instance = new EventBus(logService);
+      EventBus.instance = new EventBus(logService || new Proxy({} as any, {
+        get: () => () => {}
+      }));
     }
     return EventBus.instance;
   }

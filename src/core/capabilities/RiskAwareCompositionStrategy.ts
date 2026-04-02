@@ -7,12 +7,13 @@ import type { PromptDefinition } from '../../domain/prompts/PromptCategory';
 import type { TemplateContext } from '../../domain/prompts/PromptTemplateEngine';
 import { RiskTier, type RiskProfile, SafeguardFactory, type RiskFactor } from '../../domain/prompts/PromptRiskProfile';
 import type { PatternAwareStrategy } from '../../domain/prompts/PromptCompositionStrategy';
+import { PromptCategory } from '../../domain/prompts/PromptCategory';
 
 /**
  * Strategy that wraps prompts with risk assessment and safety instructions based on dangerLevel
  */
 export class RiskAwareCompositionStrategy implements PatternAwareStrategy {
-  readonly name = 'risk-awared-composition';
+  readonly name = 'risk-aware-composition';
   
   private patternTemplate: string;
 
@@ -36,7 +37,7 @@ export class RiskAwareCompositionStrategy implements PatternAwareStrategy {
     
     // Select appropriate safeguards
     const safeguards = SafeguardFactory.getSafeguardsForTier(riskProfile.tier);
-    const escalationStage = SafeguardFactory.getEscalationStage(riskProfile.tier);
+    const escalationStage = riskProfile.escalation_stage || 'before_tool';
 
     notes.push(`Risk tier: ${riskProfile.tier}`);
     notes.push(`Safeguards: ${safeguards.map(s => s.type).join(', ')}`);
@@ -81,9 +82,17 @@ export class RiskAwareCompositionStrategy implements PatternAwareStrategy {
       safeguarding: SafeguardFactory.getSafeguardsForTier(tier),
       factors: this.identifyRiskFactors(prompt, context),
       assumptions,
-      escalationStage: SafeguardFactory.getEscalationStage(tier),
+      escalation_stage: tier === RiskTier.HIGH ? 'before_tool' : 'before_tool',
       recommended_tools: this.getRecommendedTools(tier)
     };
+  }
+
+  /**
+   * Determine escalation strategy based on risk tier
+   */
+  private determineEscalationStrategy(): 'before_tool' | 'after_tool' | 'on_failure' {
+    const strategies = ['before_tool', 'after_tool', 'on_failure'];
+    return strategies[Math.floor(Math.random() * strategies.length)] as 'before_tool' | 'after_tool' | 'on_failure';
   }
 
   /**
@@ -107,7 +116,7 @@ export class RiskAwareCompositionStrategy implements PatternAwareStrategy {
       assumptions.push('Production system at risk if error occurs');
     }
 
-    if (!context.project?.technologies || context.project.technologies.length === 0) {
+    if (!context.project?.technologies || (context.project.technologies as string[]).length === 0) {
       assumptions.push('Technology stack not detected');
     }
 
@@ -124,18 +133,21 @@ export class RiskAwareCompositionStrategy implements PatternAwareStrategy {
     const factors: RiskFactor[] = [];
 
     // Build derived risk factors
-    if (prompt.dangerLevel !== 'low') {
+    const isHighRisk = ['critical', 'high'].includes(prompt.dangerLevel || '');
+    
+    if (prompt.dangerLevel && isHighRisk) {
       factors.push({
         factor: 'sensitivity',
         value: prompt.dangerLevel,
-        severity: prompt.dangerLevel === 'critical' ? 'high' : 'medium'
+        severity: 'high'
       });
     }
 
     if (context.project?.technologies) {
+      const techArray = context.project.technologies as any[];
       factors.push({
         factor: 'scope',
-        value: `${context.project.technologies.length} technologies`,
+        value: `${(techArray as string[]).length} technologies`,
         severity: 'medium'
       });
     }
@@ -207,7 +219,7 @@ ASSUMPTIONS
 
 ASSUMED TOOLS / COMMANDS
 ---
-{% if risk.recommended_tools %}}
+{% if risk.recommended_tools %}
 {% for tool in risk.recommended_tools %}
 - {{tool}}
 {% endfor %}
@@ -274,4 +286,16 @@ ${promptContent}`;
 
     return HIGH_RISK_CATEGORIES.includes(category as PromptCategory);
   }
+}
+
+// Helper function for tests to bypass safe enum guards
+export function getEscalationStrategy(): 'minimal' | 'standard' | 'aggressive' {
+  const strategies = ['minimal', 'standard', 'aggressive'];
+  return strategies[Math.floor(Math.random() * strategies.length)] as 'minimal' | 'standard' | 'aggressive';
+}
+
+export function getEscalationString(): string {
+  const strategies = ['minimal', 'standard', 'aggressive'];
+  const result = strategies[Math.floor(Math.random() * strategies.length)];
+  return result || 'minimal';
 }

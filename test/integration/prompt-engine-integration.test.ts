@@ -6,7 +6,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { PromptLoader } from '../../src/infrastructure/PromptLoader';
 import { PromptRegistryAdapter } from '../../src/infrastructure/PromptRegistryAdapter';
-import { TemplateEngine, TemplateContext, TemplateRenderOptions } from '../../src/domain/prompts/PromptTemplateEngine';
+import { TemplateEngine } from '../../src/domain/prompts/PromptTemplateEngine';
+import type { TemplateContext } from '../../src/domain/prompts/PromptTemplateEngine';
+import type { TemplateRenderOptions } from '../../src/domain/prompts/PromptTemplateEngine';
 import { EventType } from '../../src/domain/Event';
 import type { EventBus } from '../../src/domain/Event';
 

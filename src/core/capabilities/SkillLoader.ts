@@ -13,9 +13,15 @@ import type { LogService } from '../../domain/logging/LogService';
  */
 
 export class SkillLoader {
-  private eventBus: EventBus = EventBus.getInstance();
+  private eventBus: EventBus;
 
-  constructor(private filesystem: Filesystem, private logService: LogService) { }
+  constructor(
+    private filesystem: Filesystem,
+    private logService: LogService,
+    eventData?: { sessionId?: string; timestamp?: string }
+  ) {
+    this.eventBus = EventBus.getInstance(undefined as any);
+  }
 
   /**
    * Loads all skills from the project's skill directory.

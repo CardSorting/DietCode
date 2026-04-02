@@ -71,11 +71,18 @@ async function main() {
   // Triple Down: Sovereign Memory & Swarm Handover
   const agentRegistry = new AgentRegistry();
   const memoryService = new MemoryService(knowledge, provider, agentRegistry, logger);
-  const handoverService = new HandoverService(agentRegistry, repository, logger);
-  const selfHealingService = new SelfHealingService(healingRepo as any, logger);
+  const handoverService = new HandoverService(repository, { sessionId: 'test' });
+  const selfHealingService = new SelfHealingService(healingRepo as any, logger as any);
 
   // Background Worker: Sovereign Queue
-  const worker = new QueueWorker(decisions, memoryService, selfHealingService, agentRegistry, provider, logger);
+  const worker = new QueueWorker(
+    decisions,
+    memoryService,
+    selfHealingService,
+    agentRegistry,
+    provider,
+    logger as any
+  );
   await worker.start();
 
   // Project Context Discovery (Deep Integration)
@@ -98,7 +105,9 @@ async function main() {
   // Triple Down: Autonomous Self-Healing Assessment
   if (integrityReport.violations.length > 0) {
       const tasks = await selfHealingService.triage(integrityReport);
-      console.log(`[HEALING] Sovereign Swarm enqueued ${tasks} self-healing tasks.`);
+      if (tasks !== undefined && tasks !== null) {
+        console.log(`[HEALING] Sovereign Swarm enqueued ${tasks} self-healing tasks.`);
+      }
   }
 
   // Load custom skills
@@ -133,13 +142,6 @@ Your mission is to orchestrate complex tasks by coordinating specialized agents.
 [SOVEREIGN SWARM]
 Available specialists:
 ${specializedAgents}
-
-[SWARM RULES]
-1. If a task requires deep architectural review, suggest handing over to 'agent-architect'.
-2. If a task involves extensive refactoring or dead code pruning, suggest 'agent-refactorer'.
-3. If a task involves sensitive secrets or security audits, suggest 'agent-security'.
-4. To request a handover, output: "[HANDOVER: agent-id] Reason for handover".
-
 Follow the JoyZoning architecture for all operations.`,
     model: 'claude-3-7-sonnet-20250219',
     maxTokens: 4096,

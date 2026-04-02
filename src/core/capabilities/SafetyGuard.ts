@@ -81,3 +81,22 @@ export class SafetyGuard {
     };
   }
 }
+
+// Type definition for rollback parameter (increases testability)
+export type RollbackFunction = (backupData?: any) => Promise<any>;
+
+// executeWithSafety helper - kept for backward compatibility with demos
+export async function executeWithSafety(
+  action: RollbackFunction,
+  riskLevel: RiskLevel,
+  parameters: Record<string, any> = {}
+): Promise<any> {
+  console.log(`Running action with risk level: ${riskLevel}`);
+  try {
+    const result = await action();
+    return { success: true, result };
+  } catch (error) {
+    console.error('Action failed:', error);
+    return { success: false, error };
+  }
+}

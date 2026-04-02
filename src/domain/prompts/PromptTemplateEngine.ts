@@ -3,7 +3,9 @@
  * Principle: Pure business logic for template rendering and variable substitution.
  */
 
-import { PromptDefinition, PromptCategory } from './PromptCategory';
+import { PromptCategory } from './PromptCategory';
+import type { PromptDefinition } from './PromptCategory';
+import type { KnowledgeItem } from '../memory/Knowledge';
 
 export interface TemplateContext {
   sessionId: string;
@@ -11,6 +13,7 @@ export interface TemplateContext {
   user?: {
     name: string;
     role: string;
+    preferences?: Record<string, unknown>;
   };
   project?: {
     name: string;
@@ -50,7 +53,7 @@ export interface TemplateNode {
 
 export interface TemplateCondition {
   variable: string;
-  operator: 'eq' | 'ne' | 'gt' | 'lt' | 'contains' | 'matches';
+  operator: 'eq' | 'ne' | 'gt' | 'lt' | 'contains' | 'matches' | 'in';
   value: any;
 }
 
@@ -59,6 +62,7 @@ export interface TemplateRenderOptions {
   defaultValues?: Record<string, any>;
   context?: Partial<TemplateContext>;
   trace?: boolean;
+  visited?: Set<string>;
 }
 
 export enum TemplateErrorType {
@@ -93,7 +97,9 @@ export class TemplateEngine {
   ): string {
     const { strict = true, defaultValues = {}, trace = false } = options;
     
-    if (trace) console.log('[TemplateEngine] Rendering:', prompt.substring(0, 100) + '...');
+    if (trace) {
+      // Trace logging - allowed in Core layer, but keeping it minimal
+    }
 
     // Parse template into AST
     const ast = this.parseTemplate(prompt);
@@ -115,8 +121,6 @@ export class TemplateEngine {
       trace,
       visited: new Set<string>()
     });
-
-    if (trace) console.log('[TemplateEngine] Rendered to:', result.substring(0, 100) + '...');
 
     // Clean up
     this.variableCache.clear();
@@ -232,41 +236,56 @@ export class TemplateEngine {
 
     for (const token of tokens) {
       if (token.type === 'newline') {
-        deepest.content += '\n';
+        if (deepest.content) {
+          deepest.content += '\n';
+        }
         continue;
       }
 
       if (token.type === 'text') {
-        deepest = {
+        const textNode: TemplateNode = {
           type: 'text',
-          content: token.content,
+          content: token.content || '',
           children: []
         };
-        stack[stack.length - 1].children!.push(deepest);
-        deepest = deepest;
+        const parent = stack[stack.length - 1];
+        if (parent && parent.children) {
+          parent.children.push(textNode);
+          deepest = textNode;
+        }
       }
       else if (token.type === 'variable') {
         const variableNode: TemplateNode = {
           type: 'variable',
-          variableName: token.name,
+          variableName: token.name || '',
+          content: '',
           children: []
         };
-        stack[stack.length - 1].children!.push(variableNode);
-        deepest = variableNode;
+        const parent = stack[stack.length - 1];
+        if (parent && parent.children) {
+          parent.children.push(variableNode);
+          deepest = variableNode;
+        }
       }
       else if (token.type === 'control') {
-        const [command, ...args] = token.content.trim().split(/\s+/);
+        const command = (token.content || '').trim().split(/\s+/)[0];
         
-        if (command === 'if' || command === 'for') {
-          const condition = args.join(' ');
+        const normalizedCommand = command as 'if' | 'for';
+        
+        if (normalizedCommand === 'if' || normalizedCommand === 'for') {
+          const args = (token.content || '').trim().split(/\s+/).slice(1).join(' ');
           const newNode: TemplateNode = {
-            type: command,
-            testCondition: this.parseCondition(condition),
-            children: []
-          };
-          stack[stack.length - 1].children!.push(newNode);
-          stack.push(newNode);
-          deepest = newNode;
+            type: normalizedCommand,
+          content: '',
+          children: [],
+          testCondition: this.parseCondition(args) ?? undefined
+        };
+          const parent = stack[stack.length - 1];
+          if (parent && parent.children) {
+            parent.children.push(newNode);
+            stack.push(newNode);
+            deepest = newNode;
+          }
         }
       }
     }
@@ -275,18 +294,28 @@ export class TemplateEngine {
   }
 
   /**
-   * Parses condition string like "var == value"
+   * Parses condition string like "var == value" or "var in items"
    */
-  private parseCondition(condition: string): TemplateCondition {
+  private parseCondition(condition: string): TemplateCondition | null {
+    const inMatch = condition.match(/(\w+)\s+in\s+(.+)/);
+    if (inMatch && inMatch[1] && inMatch[2]) {
+      return {
+        variable: inMatch[1].trim(),
+        operator: 'in',
+        value: inMatch[2].trim()
+      };
+    }
+    
     const match = condition.match(/(\w+)\s*(==|!=|>=|>|<=|<)\s*(.+)/);
-    if (match) {
+    if (match && match[1] && match[2] && match[3]) {
       return {
         variable: match[1].trim(),
-        operator: match[2] as any,
+        operator: match[2] as 'eq' | 'ne' | 'gt' | 'lt',
         value: this.parseValue(match[3].trim())
       };
     }
-    throw new Error(`Invalid condition: ${condition}`);
+    
+    return null;
   }
 
   private parseValue(value: string): any {
@@ -301,26 +330,26 @@ export class TemplateEngine {
     return value;
   }
 
-  /**
-   * Renders AST with context
-   */
   private renderAST(
     node: TemplateNode,
     context: TemplateContext,
-    options: TemplateRenderOptions & { visited: Set<string> }
+    options: TemplateRenderOptions & { visited: Set<string>; }
   ): string {
     switch (node.type) {
       case 'text':
         return node.content;
 
       case 'variable':
-        return this.resolveVariable(node.variableName!, context, options);
+        if (!node.variableName) return '';
+        return this.resolveVariable(node.variableName, context, options);
 
       case 'if':
-        return this.renderIf(node, context, options);
+        const ifResult = this.renderIf(node, context, options);
+        return ifResult;
 
       case 'for':
-        return this.renderFor(node, context, options);
+        const forResult = this.renderFor(node, context, options);
+        return forResult;
 
       case 'literal':
         return node.content;
@@ -330,9 +359,6 @@ export class TemplateEngine {
     }
   }
 
-  /**
-   * Resolves a variable by name
-   */
   private resolveVariable(
     name: string,
     context: TemplateContext,
@@ -340,29 +366,29 @@ export class TemplateEngine {
   ): string {
     const [parent, ...keys] = name.split('.');
 
-    // Circular reference guard
-    if (options.visited.has(name)) {
+    const visitedSet = options.visited || new Set<string>();
+    if (visitedSet.has(name)) {
       throw new Error(`Circular reference detected: ${name}`);
     }
-    options.visited.add(name);
+    visitedSet.add(name);
 
-    let value: any = context[parent];
+    let value: any = context[parent as keyof TemplateContext];
 
-    // Walk nested properties
     for (const key of keys) {
-      if (value && typeof value === 'object' && key in value) {
-        value = value[key];
+      if (value && typeof value === 'object' && (value as Record<string, any>)[key as string] !== undefined) {
+        value = (value as Record<string, any>)[key as string];
       } else {
+        visitedSet.delete(name);
+
+        const defaultValuesRecord = options.defaultValues as Record<string, any>;
         return options.strict ? 
           `{{${name}}}` : 
-          options.defaultValues?.[name] || '';
+          defaultValuesRecord?.[name] || '';
       }
     }
 
-    // Clean up from circular reference guard
-    options.visited.delete(name);
+    visitedSet.delete(name);
 
-    // Convert to string
     if (typeof value === 'object' && value !== null) {
       return JSON.stringify(value, null, 2);
     }
@@ -370,40 +396,40 @@ export class TemplateEngine {
     return String(value || '');
   }
 
-  /**
-   * Renders conditional block ({% if condition %})
-   */
   private renderIf(
     node: TemplateNode,
     context: TemplateContext,
     options: TemplateRenderOptions
   ): string {
     if (!node.testCondition) return '';
-
-    const result = this.testCondition(node.testCondition, context);
     
-    if (result) {
-      return node.children?.map(child => 
-        this.renderAST(child, context, options)
-      ).join('') || '';
-    }
-
-    return '';
+    const result = this.testCondition(node.testCondition, context);
+    if (!result) return '';
+    
+    const childrenArr = node.children;
+    if (!childrenArr) return '';
+    
+    const safeOptions: TemplateRenderOptions & { visited: Set<string> } = options 
+      ? { ...options, visited: options.visited || new Set<string>() }
+      : { strict: true, visited: new Set<string>(), context: {} };
+    const rendered = childrenArr.map(child =>
+      this.renderAST(child, context, safeOptions)
+    ).join('');
+    
+    return rendered || '';
   }
 
-  /**
-   * Tests a condition against context
-   */
   private testCondition(condition: TemplateCondition, context: TemplateContext): boolean {
+    if (!condition.variable) return false;
+
     const { variable, operator, value } = condition;
 
-    // Navigate to variable
     const [parent, ...keys] = variable.split('.');
-    let varValue: any = context[parent];
+    let varValue: any = context[parent as keyof TemplateContext];
 
     for (const key of keys) {
-      if (varValue && typeof varValue === 'object' && key in varValue) {
-        varValue = varValue[key];
+      if (varValue && typeof varValue === 'object' && (varValue as Record<string, any>)[key as string] !== undefined) {
+        varValue = (varValue as Record<string, any>)[key as string];
       } else {
         return false;
       }
@@ -418,67 +444,61 @@ export class TemplateEngine {
     }
   }
 
-  /**
-   * Renders for loop ({% for item in variable %})
-   */
   private renderFor(
     node: TemplateNode,
     context: TemplateContext,
     options: TemplateRenderOptions
   ): string {
-    // Extract loop variable from node.testCondition (e.g., "var in items")
-    if (!node.testCondition) return '';
+    if (!node.testCondition || !node.children) return '';
 
-    const [targetVar, sourceVar] = node.testCondition.variable.split(' in ');
+    const { variable, operator } = node.testCondition;
     
-    // Navigate to source array
-    const [parent, ...keys] = sourceVar.split('.');
-    let items: any[] = context[parent];
+    if (operator !== 'in') return '';
 
-    for (const key of keys) {
-      if (items && typeof items === 'object' && key in items) {
-        items = items[key];
+    const parts = variable.split(' in ');
+    const targetVar = parts[0]?.trim();
+    const sourceVar = parts[1]?.trim();
+    if (!targetVar || !sourceVar) return '';
+
+    const keys = sourceVar.split('.');
+    const firstKey = keys[0];
+    if (!firstKey) return '';
+    
+    let items: any = context[firstKey as keyof TemplateContext];
+    if (!items) return '';
+    
+    for (let i = 1; i < keys.length; i++) {
+      if (items && typeof items === 'object' && (items as Record<string, any>)[keys[i] as string] !== undefined) {
+        items = (items as Record<string, any>)[keys[i] as string];
       }
     }
 
     if (!Array.isArray(items)) {
-      console.warn(`[TemplateEngine] Iteration target is not an array: ${sourceVar}`);
       return '';
     }
 
-    // Render each item
-    return items.map((item, index) => {
-      // Create partial context for this iteration
-      const partialContext = { ...context };
-      
-      // Convert array item to object format (preserve order)
-      partialContext[targetVar] = {
-        value: item,
-        index,
-        isFirst: index === 0,
-        isLast: index === items.length - 1,
-        first: index === 0,
-        last: index === items.length - 1
-      };
-
-      // Create context with dot notation for variable access
-      const visited = new Set<string>(
-        options.visited || []
-      );
-      const contextWithItem = {
-        ...context,
+      return items.map((item: any | undefined, index: number) => {
+      const visitedSet = options.visited || new Set<string>();
+      const contextWithItem: TemplateContext = {
+        sessionId: context.sessionId,
+        timestamp: context.timestamp,
+        user: context.user,
+        project: context.project,
+        event: context.event,
+        memory: context.memory,
+        tool: context.tool,
         [sourceVar]: items
       };
 
-      return node.children?.map(child => 
-        this.renderAST(child, contextWithItem, { ...options, visited })
-      ).join('\n') || '';
+      const childrenArr = node.children;
+      if (!childrenArr) return '';
+      
+      return childrenArr.map(child => 
+        this.renderAST(child, contextWithItem, { ...options, visited: visitedSet })
+      ).join('\n');
     }).join('\n');
   }
 
-  /**
-   * Validates a template for syntax errors
-   */
   validateTemplate(template: string): { valid: boolean; errors: TemplateError[] } {
     const errors: TemplateError[] = [];
     
@@ -496,18 +516,13 @@ export class TemplateEngine {
     return { valid: errors.length === 0, errors };
   }
 
-  /**
-   * Recursively validates AST
-   */
   private validateAST(
     node: TemplateNode,
     template: string,
     errors: TemplateError[],
     line: number
   ): void {
-    // Validate if blocks
     if (node.testCondition) {
-      // Simple validation - ensure variable exists
       if (!node.testCondition.variable) {
         errors.push({
           type: TemplateErrorType.INVALID_CONDITION,
@@ -518,7 +533,6 @@ export class TemplateEngine {
       }
     }
 
-    // Validate children
     if (node.children) {
       for (const child of node.children) {
         this.validateAST(child, template, errors, line);
@@ -526,9 +540,6 @@ export class TemplateEngine {
     }
   }
 
-  /**
-   * Simple line/column finder (simplified implementation)
-   */
   private getColumn(template: string, line: number): number {
     let currentLine = 1;
     let col = 1;
@@ -548,35 +559,25 @@ export class TemplateEngine {
     return template.length + 1;
   }
 
-  /**
-   * Pre-compiles a template for performance
-   */
   compile(template: string): TemplateNode {
     return this.parseTemplate(template);
   }
 
-  /**
-   * Renders a pre-compiled template
-   */
-  renderCompiled(
-    ast: TemplateNode,
-    context: TemplateContext,
-    options: TemplateRenderOptions = {}
-  ): string {
+  renderCompiled(ast: TemplateNode, context: TemplateContext, options?: Omit<TemplateRenderOptions, 'visited'> & { visited: Set<string> }): string {
+    const visitedSet = options?.visited || new Set<string>();
     return this.renderAST(ast, context, {
-      ...options,
-      visited: new Set<string>()
-    });
+      strict: options?.strict,
+      defaultValues: options?.defaultValues,
+      trace: options?.trace,
+      visited: visitedSet
+    } as TemplateRenderOptions & { visited: Set<string> });
   }
 
-  /**
-   * Merges context layers
-   */
   private mergeContexts(
     priorityContext: Partial<TemplateContext>,
     defaultValues: Record<string, any>
   ): TemplateContext {
-    return {
+    const merged: TemplateContext = {
       sessionId: priorityContext.sessionId || defaultValues.sessionId || 'unknown',
       timestamp: priorityContext.timestamp || new Date().toISOString(),
       user: { ...defaultValues.user, ...priorityContext.user },
@@ -585,6 +586,8 @@ export class TemplateEngine {
       memory: defaultValues.memory || priorityContext.memory,
       tool: defaultValues.tool || priorityContext.tool
     };
+    
+    return merged;
   }
 }
 
@@ -592,4 +595,12 @@ interface TemplateToken {
   type: 'text' | 'variable' | 'control' | 'component' | 'newline';
   content?: string;
   name?: string;
+}
+
+export function createTemplateContext(): TemplateContext {
+  return {
+    sessionId: '',
+    timestamp: new Date().toISOString(),
+    user: { name: 'unknown', role: 'developer' }
+  };
 }

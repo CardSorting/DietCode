@@ -9,7 +9,26 @@
  *   - [FINALIZE] Implements RollbackAwareSafetyOrchestrator for Core integration
  */
 
-import { ApprovalRequirements } from './RiskEvaluator';
+import type { ApprovalRequirements } from './RiskLevel';
+
+/**
+ * Enum for rollback operation types
+ */
+export enum RollbackOperationType {
+  FILE = 'FILE',
+  CONFIGURATION = 'CONFIGURATION',
+  DATABASE = 'DATABASE',
+  SNAPSHOT = 'SNAPSHOT'
+}
+
+/**
+ * Enum for restore operation results
+ */
+export enum RestoreResult {
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
+  SKIPPED = 'SKIPPED'
+}
 
 /**
  * Represents a backup of system state before an operation

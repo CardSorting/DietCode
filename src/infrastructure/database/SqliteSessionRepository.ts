@@ -177,6 +177,13 @@ export class SqliteSessionRepository implements SessionRepository {
     });
   }
 
+  /**
+   * Gets a session by ID (alias for loadSession).
+   */
+  async getSession(sessionId: string): Promise<SessionState | null> {
+    return this.loadSession(sessionId);
+  }
+
   async updateSessionAgent(sessionId: string, agentId: string): Promise<void> {
     const pool = await SovereignDb.getPool();
     const now = Date.now();

@@ -10,8 +10,9 @@ import { SafetyGuard } from '../capabilities/SafetyGuard';
 import type { RollbackProtocol } from '../../domain/validation/RollbackProtocol';
 import type { SafetyAwareToolContext, SafetyAwareToolOptions } from '../../domain/capabilities/SafetyAwareToolExecution';
 import type { ToolManager } from '../capabilities/ToolManager';
-import { ToolRouter } from '../../domain/capabilities/ToolRouter';
-import { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
+import type { ToolRouter } from '../../domain/capabilities/ToolRouter';
+import type { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
+import { RiskLevel } from '../../domain/validation/RiskLevel';
 
 /**
  * Safe tool execution options
@@ -52,20 +53,20 @@ export class ExecutionService {
   private toolRouter?: ToolRouter;
   private eventBus: EventBus;
   private snapshotService: SnapshotService;
+  private eventData?: { sessionId?: string; timestamp?: string };
 
   /**
    * Initialize ExecutionService with unified safety capabilities
-   * @param eventBus Event bus for lifecycle events
    * @param snapshotService Snapshot service for pre-execution capture
    * @param executionOptions Execution configuration options
    */
   constructor(
-    eventBus: EventBus,
     snapshotService: SnapshotService,
     executionOptions?: SafeExecutionOptions
   ) {
-    this.eventBus = eventBus;
     this.snapshotService = snapshotService;
+    this.eventBus = EventBus.getInstance();
+    this.eventData = executionOptions as { sessionId?: string; timestamp?: string } | undefined;
     
     // Apply options if provided
     if (executionOptions?.preserveSnapshots) {
@@ -91,7 +92,7 @@ export class ExecutionService {
     this.toolManager = toolManager;
     this.toolRouter = toolRouter;
     this.rollbackManager = rollbackManager;
-    this.safetyGuard = new SafetyGuard(riskEvaluator, rollbackManager);
+    this.safetyGuard = new SafetyGuard(riskEvaluator);
 
     console.log('🛡️  Unified SafetyGuard integration enabled');
     console.log('🔧 Tool routing:', toolRouter ? 'Enabled' : 'Disabled');
@@ -102,21 +103,24 @@ export class ExecutionService {
    * Execute a tool with unified safety envelope
    * Pattern: Safety-Instrumented Execution - wraps tool execution with full safety envelope
    * 
-   * @param toolName Name of the tool to execute
-   * @param input Parameters for tool execution
-   * @param options Configuration options for safety behavior
+   * @param executionOptions Safety configuration options
+   * @param toolName Optional tool name
+   * @param input Optional input parameters
    * @returns Promise resolving to unified execution result with safety metadata
    */
-  async executeWithUnifiedSafety<T>(
-    toolName: string,
-    input: T,
-    options: SafetyAwareToolOptions = {}
+  async executeWithUnifiedSafety(
+    executionOptions?: SafeExecutionOptions,
+    toolName?: string,
+    input?: Record<string, any>
   ): Promise<UnifiedToolExecutionResult> {
     const startTime = Date.now();
     const correlationId = globalThis.crypto.randomUUID();
     
     // Phase 1: Setup and Validation
-    this.eventBus.publish(EventType.TOOL_CALL_START, { toolName, input }, { correlationId });
+    this.eventBus.publish(EventType.TOOL_CALL_START, { 
+      toolName: toolName || 'default-tool', 
+      input 
+    }, { correlationId, sessionId: this.eventData?.sessionId });
 
     if (!this.safetyGuard || !this.toolManager) {
       throw new Error(
@@ -125,25 +129,22 @@ export class ExecutionService {
     }
 
     // Phase 2: Route to appropriate tool (if router available)
-    let finalToolName = toolName;
     let toolRouteInfo: UnifiedToolExecutionResult['metadata']['toolRoute'];
 
     if (this.toolRouter) {
       try {
         const routeResult = await this.toolRouter.route({
-          operationType: toolName,
-          target: options.targetPath,
-          parameters: input as Record<string, any>
+          operationType: toolName || 'default-tool',
+          target: executionOptions?.targetPath,
+          parameters: input
         });
 
         if (routeResult.matchesCriteria) {
-          finalToolName = routeResult.tool.name;
           toolRouteInfo = {
             toolName: routeResult.tool.name,
-            matchesCriteria: routeResult.matchesCriteria,
-            overrideShell: routeResult.overrideShell
+            matchesCriteria: routeResult.matchesCriteria
           };
-          console.log(`🧭 Tool routed: ${toolName} → ${finalToolName}`);
+          console.log(`🧭 Tool routed: ${toolName || 'default-tool'} → ${routeResult.tool.name}`);
         }
       } catch (routeError) {
         console.warn(`⚠️  Tool routing failed, using original tool: ${routeError}`);
@@ -154,26 +155,25 @@ export class ExecutionService {
     let toolResult: any;
     try {
       toolResult = await this.toolManager.executeWithSafety(
-        finalToolName,
+        toolName || 'default-tool',
         input,
-        options
+        executionOptions
       );
       
       this.eventBus.publish(
         toolResult.success ? EventType.TOOL_CALL_SUCCESS : EventType.TOOL_CALL_FAILURE,
         { 
-          toolName: finalToolName,
+          toolName: toolName || 'default-tool',
           result: toolResult,
           safetyCheck: toolResult.safetyCheck
         },
-        { correlationId }
+        { correlationId, sessionId: this.eventData?.sessionId }
       );
       
       return this.buildUnifiedResult(
         toolResult,
         toolRouteInfo,
-        startTime,
-        correlationId
+        startTime
       );
 
     } catch (toolExecutionError: any) {
@@ -184,17 +184,17 @@ export class ExecutionService {
       this.eventBus.publish(
         EventType.TOOL_CALL_FAILURE,
         { 
-          toolName: finalToolName, 
+          toolName: toolName || 'default-tool', 
           error: toolExecutionError.message 
         },
         { correlationId }
       );
 
       // Attempt rollback if safety guard was configured
-      if (options.targetPath && this.safetyGuard) {
-        console.log(`♻️  Attempting rollback for ${options.targetPath}...`);
+      if (executionOptions?.targetPath && this.safetyGuard) {
+        console.log(`♻️  Attempting rollback for ${executionOptions.targetPath}...`);
         try {
-          await (this.rollbackManager as any).rollbackByPath(options.targetPath);
+          await (this.rollbackManager as any).rollbackByPath(executionOptions.targetPath);
           console.log(`✅ Rollback completed`);
         } catch (rollbackError) {
           console.error(`💥 Rollback failed: ${rollbackError}`);
@@ -203,7 +203,7 @@ export class ExecutionService {
 
       return this.buildUnifiedResult(
         {
-          toolName: finalToolName,
+          toolName: toolName || 'default-tool',
           toolResult: {
             content: `Tool execution failed: ${toolExecutionError.message}`,
             isError: true
@@ -211,7 +211,7 @@ export class ExecutionService {
           success: false,
           safetyCheck: {
             evaluated: true,
-            riskLevel: 'HIGH',
+            riskLevel: RiskLevel.HIGH,
             approved: false,
             requiresConfirmation: false,
             rollbackPrepared: false,
@@ -224,20 +224,23 @@ export class ExecutionService {
           }
         },
         toolRouteInfo,
-        startTime,
-        correlationId
+        startTime
       );
     }
   }
 
   /**
    * Build unified execution result from tool context
+   * 
+   * @param toolResult Tool execution result from SafetyGuard
+   * @param toolRouteInfo Optional routing information
+   * @param startTime Execution start time
+   * @returns Unified execution result
    */
   private buildUnifiedResult(
     toolResult: SafetyAwareToolContext,
     toolRouteInfo?: UnifiedToolExecutionResult['metadata']['toolRoute'],
-    startTime: number,
-    correlationId: string
+    startTime: number = Date.now()
   ): UnifiedToolExecutionResult {
     const executionTime = Date.now() - startTime;
 
@@ -274,27 +277,11 @@ export class ExecutionService {
   }
 
   /**
-   * Get current risk level for a tool operation
-   */
-  async getRiskLevel(operationType: string, parameters?: Record<string, any>): Promise<string> {
-    if (!this.safetyGuard) {
-      throw new Error('Safety integration not enabled');
-    }
-
-    const criteria = {
-      operationType,
-      parameters,
-      targetPath: parameters?.path
-    };
-
-    const { riskLevel } = await this.safetyGuard.canProceed(criteria);
-    return riskLevel;
-  }
-
-  /**
    * Safety integration diagnostics
+   * 
+   * @param overrideShell Internal parameter for shell-specific behavior (not exposed externally)
    */
-  getDiagnostics() {
+  getDiagnostics(overrideShell?: never): any {
     return {
       safetyGuardEnabled: this.safetyGuard !== undefined,
       toolManagerEnabled: this.toolManager !== undefined,

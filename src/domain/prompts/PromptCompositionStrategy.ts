@@ -3,8 +3,8 @@
  * Principle: Interface contracts for prompt composition strategies
  */
 
-import { PromptDefinition } from './PromptCategory';
-import { TemplateContext } from './PromptTemplateEngine';
+import type { PromptDefinition } from './PromptCategory';
+import type { TemplateContext } from './PromptTemplateEngine';
 
 /**
  * Strategy interface for applying context-based enhancements
@@ -52,7 +52,7 @@ export interface SkillAwareStrategy {
 export interface CompositeCompositionStrategy {
   strategies: (ContextAwareStrategy | PatternAwareStrategy | VerificationAwareStrategy | SkillAwareStrategy)[];
   
-  async compose(prompt: PromptDefinition, context: Partial<TemplateContext>): Promise<{
+  compose(prompt: PromptDefinition, context: Partial<TemplateContext>): Promise<{
     finalPrompt: string;
     appliedStrategies: string[];
     allNotes: string[];

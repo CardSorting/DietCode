@@ -26,4 +26,6 @@ export interface IntegrityReport {
   score: number; // 0-100
   violations: IntegrityViolation[];
   scannedAt: string;
+  fileCount?: number;
+  renderCount?: number;
 }

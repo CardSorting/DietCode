@@ -1,22 +1,15 @@
 /**
  * [LAYER: INFRASTRUCTURE]
- * Principle: Infrastructure implementation of FileWalkerConfig builder.
- * Provides fluent API with ForgeWalker-style preset strategies.
+ * Principle: Infrastructure implementation of FileWalkerConfig builder
  * 
- * Inspired by: ForgeWalker's WalkerConfigBuilder with min_all + max_all presets
- * Violations: None
- * Prework Status:
- *   - Step 0: ✅ Dead code cleared
- *   - Verification: ✅ verify_hardening pass
- *   - Dependency Flow: ✅ Native protocols followed
- * Triaging:
- *   - [IMPLEMENT] Fluent builder for FileWalkerConfig with preset strategies
+ * Inspired by: ForgeWalker's WalkerConfigBuilder with preset strategies
  */
-import type { FileWalkerConfig, FileWalkerStrategy } from '../../domain/system/FileWalkerOptions';
+
+import type { FileWalkerConfig } from '../domain/system/FileWalkerOptions';
+import { FileWalkerStrategy } from '../domain/system/FileWalkerOptions';
 
 /**
- * Fluent builder for FileWalker configuration.
- * Provides preset strategies and incremental configuration.
+ * Fluent builder for FileWalker configuration
  * 
  * Usage:
  * ```typescript
@@ -26,7 +19,7 @@ import type { FileWalkerConfig, FileWalkerStrategy } from '../../domain/system/F
  *   .build();
  * ```
  */
-export class WalkerConfigBuilder implements Partial<FileWalkerConfig> {
+export class WalkerConfigBuilder {
   private config: FileWalkerConfig = {
     strategy: FileWalkerStrategy.MINIMAL,
     maxDepth: 5,
@@ -38,48 +31,34 @@ export class WalkerConfigBuilder implements Partial<FileWalkerConfig> {
   };
 
   /**
-   * Create a builder with MINIMAL strategy preset.
-   * Conservative traversal: depth=5, 1MB files, skip binary, 10MB total.
-   * 
-   * @returns New WalkerConfigBuilder instance
+   * Create a builder with MINIMAL strategy preset
    */
   static minimal(): WalkerConfigBuilder {
     const builder = new WalkerConfigBuilder();
-    builder.strategy(FileWalkerStrategy.MINIMAL);
+    builder.config.strategy = FileWalkerStrategy.MINIMAL;
     return builder;
   }
 
   /**
-   * Create a builder with MODERATE strategy preset.
-   * Balanced traversal: depth=15, 10MB files, include binary, 100MB total.
-   * 
-   * @returns New WalkerConfigBuilder instance
+   * Create a builder with MODERATE strategy preset
    */
   static moderate(): WalkerConfigBuilder {
     const builder = new WalkerConfigBuilder();
-    builder.strategy(FileWalkerStrategy.MODERATE);
+    builder.config.strategy = FileWalkerStrategy.MODERATE;
     return builder;
   }
 
   /**
-   * Create a builder with MAXIMAL strategy preset.
-   * Aggressive full traversal: unlimited depth/size.
-   * Use with caution — can scan entire filesystem.
-   * 
-   * @returns New WalkerConfigBuilder instance
+   * Create a builder with MAXIMAL strategy preset
    */
   static maximal(): WalkerConfigBuilder {
     const builder = new WalkerConfigBuilder();
-    builder.strategy(FileWalkerStrategy.MAXIMAL);
+    builder.config.strategy = FileWalkerStrategy.MAXIMAL;
     return builder;
   }
 
   /**
-   * Set the overall traversal strategy preset.
-   * Controls default limits when other values are undefined.
-   * 
-   * @param strategy - FileWalkerStrategy preset
-   * @returns This builder for method chaining
+   * Set the traversal strategy
    */
   strategy(strategy: FileWalkerStrategy): this {
     this.config.strategy = strategy;
@@ -87,11 +66,7 @@ export class WalkerConfigBuilder implements Partial<FileWalkerConfig> {
   }
 
   /**
-   * Set maximum directory depth to traverse.
-   * Prevents infinite recursion on nested structures.
-   * 
-   * @param depth - Maximum depth (0 = allow infinite, default: 5)
-   * @returns This builder for method chaining
+   * Set maximum directory depth
    */
   maxDepth(depth: number): this {
     this.config.maxDepth = depth;
@@ -99,11 +74,7 @@ export class WalkerConfigBuilder implements Partial<FileWalkerConfig> {
   }
 
   /**
-   * Set maximum number of files per directory (breadth limit).
-   * Prevents scanning huge directories (e.g., node_modules).
-   * 
-   * @param breadth - Maximum files per directory (0 = unlimited)
-   * @returns This builder for method chaining
+   * Set maximum files per directory
    */
   maxBreadth(breadth: number): this {
     this.config.maxBreadth = breadth;
@@ -111,11 +82,7 @@ export class WalkerConfigBuilder implements Partial<FileWalkerConfig> {
   }
 
   /**
-   * Set maximum size of individual files.
-   * Prevents reading massive binaries (e.g., AWS logs at 2GB).
-   * 
-   * @param size - Maximum file size in bytes
-   * @returns This builder for method chaining
+   * Set maximum file size in bytes
    */
   maxFileSize(size: number): this {
     this.config.maxFileSizeBytes = size;
@@ -123,11 +90,7 @@ export class WalkerConfigBuilder implements Partial<FileWalkerConfig> {
   }
 
   /**
-   * Set maximum combined size of all files in traversal.
-   * Prevents scanning multi-GB directories.
-   * 
-   * @param size - Maximum total size in bytes
-   * @returns This builder for method chaining
+   * Set maximum total file size in bytes
    */
   maxTotalFileSize(size: number): this {
     this.config.maxTotalFileSizeBytes = size;
@@ -135,11 +98,7 @@ export class WalkerConfigBuilder implements Partial<FileWalkerConfig> {
   }
 
   /**
-   * Set whether to skip binary files (exclude .exe, .png, .zip, etc).
-   * Conserves I/O bandwidth by skipping known binaries.
-   * 
-   * @param skip - True to skip binary files, false to include all
-   * @returns This builder for method chaining
+   * Set whether to skip binary files
    */
   skipBinary(skip: boolean): this {
     this.config.skipBinary = skip;
@@ -147,11 +106,7 @@ export class WalkerConfigBuilder implements Partial<FileWalkerConfig> {
   }
 
   /**
-   * Set whether to include dotfiles (files starting with '.').
-   * True includes .gitignore, .env; False excludes them.
-   * 
-   * @param include - True to include dotfiles, false to exclude
-   * @returns This builder for method chaining
+   * Set whether to include dotfiles
    */
   includeDotfiles(include: boolean): this {
     this.config.includeDotfiles = include;
@@ -159,19 +114,14 @@ export class WalkerConfigBuilder implements Partial<FileWalkerConfig> {
   }
 
   /**
-   * Build the final configuration object.
-   * Returns a frozen copy with no further modifications possible.
-   * 
-   * @returns FileWalkerConfig ready for use
+   * Build and freeze the configuration
    */
   build(): FileWalkerConfig {
     return Object.freeze({ ...this.config });
   }
 
   /**
-   * Get the current configuration (unfrozen, for testing).
-   * 
-   * @returns Current partial FileWalkerConfig
+   * Get the current configuration
    */
   get(): FileWalkerConfig {
     return this.config;

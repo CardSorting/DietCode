@@ -15,7 +15,7 @@ export class ContextService {
    * Gathers comprehensive system context for the given project.
    */
   async gather(project: ProjectContext): Promise<SystemContext> {
-    const root = project.repository.path;
+    const root = project.repository.path as string;
     const stats = this.getFileStats(root);
     const activeBranch = this.filesystem.getBranch(root);
     
@@ -31,13 +31,13 @@ export class ContextService {
     };
   }
 
-  private getFileStats(root: string): { extensionStats: ExtensionStat[], totalFiles: number } {
+    private getFileStats(root: string): { extensionStats: ExtensionStat[], totalFiles: number } {
     const counts: Record<string, number> = {};
     const files = this.filesystem.walk(root);
     const totalFiles = files.length;
 
     for (const file of files) {
-      const ext = path.extname(file).slice(1) || 'no-extension';
+      const ext = path.extname(file.path).slice(1) || 'no-extension';
       counts[ext] = (counts[ext] || 0) + 1;
     }
 

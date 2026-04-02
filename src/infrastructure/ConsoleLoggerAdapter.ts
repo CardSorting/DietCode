@@ -6,10 +6,14 @@
 
 import type { LogService } from '../domain/logging/LogService';
 import { LogLevel } from '../domain/logging/LogLevel';
-import { LogEntry, LogMetadata } from '../domain/logging/LogEntry';
+import type { LogEntry, LogMetadata } from '../domain/logging/LogEntry';
 
 export class ConsoleLoggerAdapter implements LogService {
   private minLevel: LogLevel = LogLevel.INFO;
+
+  constructor(minLevel: LogLevel = LogLevel.INFO) {
+    this.minLevel = minLevel;
+  }
 
   /**
    * Sets minimum log level to filter debug and info messages.

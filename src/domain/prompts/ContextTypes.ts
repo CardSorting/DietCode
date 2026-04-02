@@ -7,6 +7,19 @@
  */
 
 /**
+ * Context statistics
+ */
+export interface ContextStatistics {
+  totalMessages: number;
+  totalTokens: number;
+  averageMessageLength: number;
+  peakContextLength: number;
+  compressionHistory: number[]; // timestamps when compression occurred
+  errorHistory: Array<{ timestamp: Date; errorId: string }>;
+  userEngagementScore: number;
+}
+
+/**
  * Session identifier
  */
 export type SessionId = string;
@@ -68,14 +81,37 @@ export interface ContextModification {
 }
 
 /**
- * Context statistics
+ * Compressed context representation
  */
-export interface ContextStatistics {
-  totalMessages: number;
-  totalTokens: number;
-  averageMessageLength: number;
-  peakContextLength: number;
-  compressionHistory: number[]; // timestamps when compression occurred
-  errorHistory: Array<{ timestamp: Date; errorId: string }>;
-  userEngagementScore: number;
+export interface CompressedContext {
+  sessionId: SessionId;
+  originalLength: number;
+  compressedLength: number;
+  compressionRatio: number;
+  retainedMessages: string[];
+  lostContentSummary?: string;
+  timestamp: Date;
 }
+
+/**
+ * Options for context compression operations
+ */
+export interface CompressionOptions {
+  targetRatio: number;
+  preserveCriticalContext: boolean;
+  maxRetainedMessages: number;
+  debugMode: boolean;
+}
+
+/**
+ * Compression strategy interface
+ */
+export interface ContextCompressionStrategy {
+  compress(context: SessionContext, options: CompressionOptions): Promise<CompressedContext>;
+  getStrategyName(): string;
+}
+
+/**
+ * Factory function type for creating compression strategies
+ */
+export type ContextCompressionFactory = () => ContextCompressionStrategy;

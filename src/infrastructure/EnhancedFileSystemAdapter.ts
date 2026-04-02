@@ -218,42 +218,35 @@ export class EnhancedFileSystemAdapter implements Filesystem {
   }
 
   /**
-   * Walk filesystem directory tree.
-   * Returns async generator over all files and directories.
+   * Walk filesystem directory tree synchronously.
+   * Returns flat array of all files and directories.
+   * Matches the Filesystem domain interface contract.
    */
-  async *walk(
-    root: string,
-    options?: { maxDepth?: number; filter?: (stats: { isDirectory: boolean; isFile: boolean; mtimeMs: number }) => boolean }
-  ): AsyncGenerator<{ path: string; stats: { isDirectory: boolean; isFile: boolean; mtimeMs: number } }, void, undefined> {
-    const maxDepth = options?.maxDepth ?? Infinity;
-    
-    async function* traverse(currentPath: string, depth: number, self: EnhancedFileSystemAdapter): AsyncGenerator<{ path: string; stats: { isDirectory: boolean; isFile: boolean; mtimeMs: number } }, void, any> {
-      if (depth > maxDepth) return;
-      
-      const fileStats = self.stat(currentPath);
-      
-      if (options?.filter?.(fileStats) === false) {
-        return;
-      }
-      
-      yield { path: currentPath, stats: fileStats };
-      
-      if (fileStats.isFile()) {
-        return;
-      }
-      
-      try {
-        const entries = self.readdir(currentPath);
-        for (const entry of entries) {
-          const fullPath = path.join(currentPath, entry.name);
-          yield* traverse(fullPath, depth + 1, self);
-        }
-      } catch (error) {
-        // Directory might not exist anymore 
-        return;
-      }
-    }
+  walk(
+    dir: string,
+    ignorer?: { isIgnored(path: string): boolean }
+  ): Array<{ path: string }> {
+    const results: Array<{ path: string }> = [];
 
-    yield* traverse(root, 0, this);
+    const traverse = (currentPath: string): void => {
+      if (ignorer?.isIgnored(currentPath)) return;
+
+      try {
+        const entries = this.readdir(currentPath);
+        for (const entry of entries) {
+          const fullPath = require('path').join(currentPath, entry.name);
+          if (ignorer?.isIgnored(fullPath)) continue;
+          results.push({ path: fullPath });
+          if (entry.isDirectory) {
+            traverse(fullPath);
+          }
+        }
+      } catch {
+        // Directory not accessible, skip
+      }
+    };
+
+    traverse(dir);
+    return results;
   }
 }

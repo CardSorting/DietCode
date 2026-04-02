@@ -13,7 +13,7 @@
  *   - [IMPLEMENT] Multi-method fallback for binary detection (file cmd → heuristics → magic bytes)
  */
 import * as childProcess from 'child_process';
-import type { Filesystem } from '../../domain/system/Filesystem';
+import type { Filesystem } from '../domain/system/Filesystem';
 import type { BinaryDetectionResult } from './FileTypes';
 
 /**
@@ -49,27 +49,7 @@ const BINARY_EXTENSIONS: ReadonlySet<string> = new Set([
   'sqlite', 'db', 'mdb',
 ]);
 
-/**
- * Binary type classification result.
- */
-export interface BinaryDetectionResult {
-  /**
-   * Whether the file is binary.
-   */
-  isBinary: boolean;
-  
-  /**
-   * MIME type from file command (if available).
-   * Example: "application/octet-stream", "image/png"
-   */
-  mimeType?: string;
-  
-  /**
-   * Human-readable binary type description.
-   * Example: "PE executable (Microsoft)"
-   */
-  binaryType?: string;
-}
+
 
 /**
  * Detect file type using multi-method fallback strategy.
@@ -120,7 +100,7 @@ export async function detectBinaryFileType(
   // Method 3: Check first 1024 bytes for NUL bytes (heuristic)
   try {
     const buffer = await fs.readFileBuffer(path, 1024);
-    const hasNulByte = buffer.some((byte) => byte === 0x00);
+    const hasNulByte = Array.from(buffer).some((byte: number) => byte === 0x00);
     
     if (hasNulByte) {
       return {
@@ -135,7 +115,7 @@ export async function detectBinaryFileType(
 
   // Method 4: Check magic bytes for executable signatures
   try {
-    const buffer = fs.readFileBuffer(path, 16);
+    const buffer = await fs.readFileBuffer(path, 16);
     return checkMagicBytes(buffer, path);
   } catch (error) {
     // All methods failed, assume text
@@ -184,7 +164,7 @@ function parseMIMEType(mimeType: string): string | undefined {
 function checkMagicBytes(buffer: Uint8Array, path: string): BinaryDetectionResult {
   // Check byte alignment
   const bytes = buffer.slice(0, 16);
-  const bytesHex = bytes.map((b) => b.toString(16).padStart(2, '0')).join(' ');
+  const bytesHex = Array.from(bytes).map((b: number) => b.toString(16).padStart(2, '0')).join(' ');
 
   // Check for known magic bytes
   let detectedType: string | undefined;

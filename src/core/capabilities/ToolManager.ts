@@ -12,11 +12,11 @@ import type { ToolDefinition, ToolResult } from '../../domain/agent/ToolDefiniti
 import { EventBus } from '../orchestration/EventBus';
 import { EventType } from '../../domain/Event';
 import type { ToolRouter } from '../../domain/capabilities/ToolRouter';
+import { RiskLevel } from '../../domain/validation/RiskLevel';
 import type { SafetyAwareToolContext, SafetyAwareToolOptions } from '../../domain/capabilities/SafetyAwareToolExecution';
 import type { RollbackProtocol } from '../../domain/validation/RollbackProtocol';
 import { SafetyGuard } from './SafetyGuard';
 import type { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
-import { RiskLevel } from '../../domain/validation/RiskLevel';
 import type { ToolDefinition as DomainToolDefinition } from '../../domain/agent/ToolDefinition';
 
 /**
@@ -25,11 +25,15 @@ import type { ToolDefinition as DomainToolDefinition } from '../../domain/agent/
  */
 export class ToolManager {
   private tools: Map<string, DomainToolDefinition> = new Map();
-  private eventBus: EventBus = EventBus.getInstance();
+  private eventBus: EventBus;
   private toolRouter?: ToolRouter;
   private safetyGuard?: SafetyGuard;
   private riskEvaluator?: RiskEvaluator;
   private rollbackManager?: RollbackProtocol;
+
+  constructor() {
+    this.eventBus = EventBus.getInstance();
+  }
 
   /**
    * Register a tool with the ToolManager
@@ -89,17 +93,20 @@ export class ToolManager {
    * Override safety components for modular integration
    * Called by ExecutionService during system initialization
    * 
-   * @param safetyGuard Optional SafetyGuard instance (RiskEvaluator injected via closure)
    * @param toolRouter Optional tool router for smart routing
+   * @param safetyGuard Optional SafetyGuard instance (RiskEvaluator injected via closure)
+   * @param riskEvaluator Risk evaluation engine from Domain
    * @param rollbackProtocol Optional RollbackProtocol (Domain contract) for rollback capabilities
    */
   configureSafety(
-    safetyGuard?: SafetyGuard,
     toolRouter?: ToolRouter,
+    safetyGuard?: SafetyGuard,
+    riskEvaluator?: RiskEvaluator,
     rollbackProtocol?: RollbackProtocol
   ): void {
-    this.safetyGuard = safetyGuard;
     this.toolRouter = toolRouter;
+    this.safetyGuard = safetyGuard;
+    this.riskEvaluator = riskEvaluator;
     this.rollbackManager = rollbackProtocol;
 
     if (toolRouter) {
@@ -311,8 +318,10 @@ export class ToolManager {
 
   /**
    * Get safety status for diagnostics
+   * 
+   * @param overrideShell Internal parameter for shell-specific behavior (not exposed externally)
    */
-  getSafetyDiagnostics() {
+  getDiagnostics(overrideShell?: never): any {
     return {
       safetyGuard: this.safetyGuard !== undefined,
       toolRouter: this.toolRouter !== undefined,

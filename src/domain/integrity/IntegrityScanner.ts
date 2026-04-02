@@ -11,9 +11,11 @@ import type { IntegrityReport } from '../memory/Integrity';
  * Core layer defines the actual IntegrityService that implements this.
  * Infrastructure adapters inject this into domain components.
  */
-export interface DomainIntegrityScanner {
+export class IntegrityScanner {
   /**
    * Scans the project for architectural integrity violations.
    */
-  scan(projectRoot: string): Promise<IntegrityReport>;
+  scan(projectRoot: string): Promise<IntegrityReport> {
+    throw new Error('IntegrityScanner.scan() not implemented');
+  }
 }

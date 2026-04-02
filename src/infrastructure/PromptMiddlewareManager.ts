@@ -3,9 +3,10 @@
  * Principle: Adapters and integrations — reactive prompt modification middleware.
  */
 
-import type { EventBus, SystemEvent } from '../../domain/Event';
-import { PromptDefinition } from '../../domain/prompts/PromptCategory';
-import { EventType } from '../../domain/Event';
+import type { EventBus } from '../core/orchestration/EventBus';
+import type { SystemEvent } from '../domain/Event';
+import type { PromptDefinition } from '../domain/prompts/PromptCategory';
+import { EventType } from '../domain/Event';
 
 export interface PromptModifier {
   (prompt: string, event: SystemEvent): string;
@@ -194,7 +195,7 @@ Focus on extraction of penetrant logic before persistent commitment.
     
     // Filter for relevant modifiers (exact match or wildcard *)
     const relevantModifiers = modifiers.filter(([type]) => 
-      type === eventType || type === '*'
+      type === eventType || (type as string) === '*'
     );
 
     if (relevantModifiers.length === 0) return promptBuffer;
@@ -256,7 +257,7 @@ Focus on extraction of penetrant logic before persistent commitment.
     const keyPart = item.key || item.id || '';
     const valuePart = item.value || item.value.value;
     
-    if (lengthOf(valuePart) > 100) {
+    if (this.lengthOf(valuePart) > 100) {
       return valuePart.substring(0, 100) + '...';
     }
     

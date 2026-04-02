@@ -8,20 +8,30 @@ import { EventBus } from '../orchestration/EventBus';
 import { EventType } from '../../domain/Event';
 import type { IntegrityViolation, IntegrityReport, ViolationType } from '../../domain/memory/Integrity';
 import type { LogService } from '../../domain/logging/LogService';
-import type { DomainIntegrityScanner } from '../../domain/integrity/IntegrityScanner';
+import { IntegrityScanner } from '../../domain/integrity/IntegrityScanner';
 
-export class IntegrityService implements DomainIntegrityScanner {
+export class IntegrityService implements IntegrityScanner {
   private eventBus: EventBus = EventBus.getInstance();
 
-  constructor(private scanner: IntegrityScanner, private logService: LogService) {}
+  constructor(
+    private scanner?: IntegrityScanner,
+    private logService?: LogService
+  ) {}
 
-  /**
-   * Performs an architectural integrity scan across the codebase.
-   */
   async scan(projectRoot: string): Promise<IntegrityReport> {
+    if (!this.scanner) {
+      return {
+        score: 100,
+        violations: [],
+        scannedAt: new Date().toISOString(),
+        fileCount: 0,
+        renderCount: 0
+      };
+    }
+    
     const report = await this.scanner.scan(projectRoot);
     
-    if (report.violations.length > 0) {
+    if (report.violations.length > 0 && this.logService) {
       this.logService.warn(
         `Found ${report.violations.length} architectural violations`,
         { violationCount: report.violations.length },

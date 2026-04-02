@@ -41,5 +41,5 @@ export interface Filesystem {
   
   // Utility operations
   then<T>(onFulfilled: (data: any) => T, onRejected?: (error: any) => T): Promise<T>;
-  walk(path: string, options?: FileWalkerOptions): AsyncGenerator<{ path: string; stat: any }, void, undefined>;
+  walk(path: string, ignorer?: { isIgnored(path: string): boolean }): Array<{ path: string }>;
 }

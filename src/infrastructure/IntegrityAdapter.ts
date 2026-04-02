@@ -4,7 +4,7 @@
  */
 
 import * as path from 'path';
-import type { IntegrityScanner } from '../core/integrity/IntegrityService';
+import type { IntegrityScanner } from '../domain/integrity/IntegrityScanner';
 import type { IntegrityReport, IntegrityViolation } from '../domain/memory/Integrity';
 import { ViolationType } from '../domain/memory/Integrity';
 import { IntegrityPolicy } from '../domain/memory/IntegrityPolicy';
@@ -21,7 +21,7 @@ export class IntegrityAdapter implements IntegrityScanner {
     const files = this.filesystem.walk(srcDir);
 
     for (const file of files) {
-      const fullPath = path.join(srcDir, file);
+      const fullPath = file.path;
       const content = this.filesystem.readFile(fullPath);
       const relPath = path.relative(projectRoot, fullPath);
 
@@ -39,7 +39,7 @@ export class IntegrityAdapter implements IntegrityScanner {
       }
 
       // Rule 5: Naming Conventions
-      const fileName = path.basename(file);
+      const fileName = path.basename(fullPath);
       if (relPath.includes('/core/') && fileName.match(/[A-Z].*\.ts$/) && !fileName.match(/(Service|Manager|Processor|Loader|Resolver|Bus|Registry|Pruner|Ignorer|Adapter)\.ts$/)) {
           violations.push(this.createViolation(
             ViolationType.NAMING_CONVENTION,

@@ -37,4 +37,9 @@ export interface SessionRepository {
    * Updates the active agent for a session.
    */
   updateSessionAgent(sessionId: string, agentId: string): Promise<void>;
+
+  /**
+   * Gets a session by ID
+   */
+  getSession(sessionId: string): Promise<SessionState | null>;
 }

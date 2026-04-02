@@ -4,8 +4,9 @@
  * Violations: None
  */
 
-import { RiskEvaluator, ActionCriteria, ApprovalRequirements } from '../../src/domain/validation/RiskEvaluator';
-import { RiskLevel } from '../../src/domain/validation/RiskLevel';
+import type { RiskEvaluator, ActionCriteria } from '../../domain/validation/RiskEvaluator';
+import type { ApprovalRequirements } from '../../domain/validation/RiskLevel';
+import { RiskLevel } from '../../domain/validation/RiskLevel';
 
 /**
  * Infrastructure implementation of RiskEvaluator

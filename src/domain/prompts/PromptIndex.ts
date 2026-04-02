@@ -3,8 +3,10 @@
  * Principle: Pure business logic for managing loaded prompt collections.
  */
 
-import { PromptCategory, PromptDefinition, MaintenanceTier } from './PromptCategory';
-import type { Event } from '../Event';
+import type { PromptCategory } from './PromptCategory';
+import type { PromptDefinition } from './PromptCategory';
+import type { PromptCollection } from './PromptCategory';
+import type { SystemEvent } from '../events/SystemEvent';
 import type { PromptAudit } from './PromptAudit';
 
 export interface PromptIndex {
@@ -23,8 +25,12 @@ export enum PromptSource {
   TEMPORARY_CACHE = 'TEMPORARY_CACHE'
 }
 
-export interface PromptSource {
-  origin: PromptSource;
+// Export enum as type alias to avoid circular dependency
+export type PromptSourceEnum = PromptSource;
+
+// Renamed to avoid conflict with PromptSource enum
+export interface PromptSourceConfig {
+  origin: PromptSourceEnum;
   path: string;
   priority: number;
   loadedAt: string;

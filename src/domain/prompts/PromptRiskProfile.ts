@@ -3,8 +3,8 @@
  * Principle: Pure business logic for risk assessment and safety categorization
  */
 
-import { PromptDefinition } from './PromptCategory';
-import { PromptAudit } from './PromptAudit';
+import type { PromptDefinition } from './PromptCategory';
+import type { PromptAudit } from './PromptAudit';
 
 /**
  * Risk tier classification for prompt executions
@@ -86,11 +86,6 @@ export class SafeguardFactory {
             type: 'rollback',
             description: 'Prepare rollback script for idempotency',
             required: true
-          },
-          {
-            type: 'commit',
-            description: 'Create descriptive commit message',
-            required: false
           }
         ];
 

@@ -8,6 +8,9 @@ import { IntegrityAdapter } from './src/infrastructure/IntegrityAdapter';
 import { IntegrityService } from './src/core/integrity/IntegrityService';
 import { Ignorer } from './src/core/context/Ignorer';
 import { ContextPruner } from './src/core/context/ContextPruner';
+import { ConsoleLoggerAdapter } from './src/infrastructure/ConsoleLoggerAdapter';
+import type { LogService } from './src/domain/logging/LogService';
+import { LogLevel } from './src/domain/logging/LogLevel';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -19,7 +22,8 @@ async function verify() {
 
   // 1. Test Ignore Logic
   console.log('\n[1] Testing Ignorer...');
-  const ignorer = new Ignorer(fileSystem, root);
+  const logger = new ConsoleLoggerAdapter(LogLevel.INFO) as LogService;
+  const ignorer = new Ignorer(fileSystem, root, logger);
   const gitIgnored = ignorer.isIgnored('.git/config');
   const nodeIgnored = ignorer.isIgnored('node_modules/bun/index.js');
   const srcNotIgnored = !ignorer.isIgnored('src/core/orchestrator.ts');
@@ -35,13 +39,13 @@ async function verify() {
   // 2. Test Integrity Guard
   console.log('\n[2] Testing Integrity Guard...');
   const integrityAdapter = new IntegrityAdapter(fileSystem);
-  const integrityService = new IntegrityService(integrityAdapter);
+  const integrityService = new IntegrityService(integrityAdapter, logger);
   
   // Create a deliberate violation in a temp file
   const violationFile = path.join(root, 'src', 'domain', 'Violation.ts');
   fs.writeFileSync(violationFile, 'import * as fs from "fs";\nexport const x = 1;');
   
-  const report = await integrityService.check(root);
+  const report = await integrityService.scan(root);
   const violationFound = report.violations.some((v: any) => v.file.includes('Violation.ts'));
   
   console.log(`[PASS] Integrity Score: ${report.score}/100`);

@@ -3,8 +3,11 @@
  * Principle: Adapters and integrations — connects prompt files to domain contracts.
  */
 
-import { PromptDefinition, PromptCategory } from '../domain/prompts/PromptCategory';
-import { TemplateEngine, TemplateContext, TemplateRenderOptions } from '../domain/prompts/PromptTemplateEngine';
+import { PromptCategory } from '../domain/prompts/PromptCategory';
+import type { PromptDefinition } from '../domain/prompts/PromptCategory';
+import { TemplateEngine } from '../domain/prompts/PromptTemplateEngine';
+import type { TemplateContext } from '../domain/prompts/PromptTemplateEngine';
+import type { TemplateRenderOptions } from '../domain/prompts/PromptTemplateEngine';
 import type { Filesystem } from '../domain/system/Filesystem';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -35,7 +38,7 @@ export class PromptLoader {
    * Loads and parses a single markdown prompt file.
    */
   async loadMarkdownFile(filepath: string): Promise<PromptDefinition> {
-    const raw = await this.filesystem.readFile(filepath);
+    const raw = this.filesystem.readFile(filepath);
     const { frontmatter, content } = this.parseTealiumMark(raw);
     
     return {
@@ -68,7 +71,7 @@ export class PromptLoader {
       return { frontmatter: {}, content };
     }
 
-    const frontmatterBlock = match[1];
+    const frontmatterBlock = match[1]!;
     const bodyContent = content.substring(match[0].length);
 
     const frontmatter: any = {};

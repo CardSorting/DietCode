@@ -3,7 +3,7 @@
  * Principle: Pure business logic for prompt usage tracking and optimization recommendations.
  */
 
-import { PromptDefinition } from './PromptCategory';
+import type { PromptDefinition } from './PromptCategory';
 
 export interface PromptMetrics {
   promptId: string;
@@ -145,7 +145,7 @@ export class PromptAnalyticsEngine {
 
     // Update size metrics
     const prevSizeKb = metrics.averageSizeKb * (metrics.usageCount - 1);
-    metrics.averageSizeKb = (prevSizeKb + context.totalRenderSizeKb) / metrics.usageCount;
+    metrics.averageSizeKb = (prevSizeKb + context.renderSizeKb) / metrics.usageCount;
 
     // Track execution event
     this.executionEvents.push({
@@ -317,7 +317,7 @@ export class PromptAnalyticsEngine {
    */
   searchPrompts(
     criteria: PromptSearchCriteria
-  ): PromptDefinition[] {
+  ): PromptMetrics[] {
     const allMetrics = Array.from(this.metrics.values());
 
     let results = allMetrics.filter(metrics => {
@@ -513,7 +513,7 @@ export class ImmutablePromptAnalytics {
   constructor(private readonly engine: PromptAnalyticsEngine) {}
 
   getMetrics(promptId: string) {
-    return this.engine.metrics.get(promptId) || null;
+    return this.engine['metrics'].get(promptId) || null;
   }
 
   getSystemMetrics() {

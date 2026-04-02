@@ -4,15 +4,7 @@
  * Provides fzf-based selection and input with fluent API patterns.
  * 
  * Inspired by: ForgeSelect's SelectBuilder and InputBuilder
- * Violations: None
- * Prework Status:
- *   - Step 0: ✅ Dead code cleared
- *   - Verification: ✅ verify_hardening pass
- *   - Dependency Flow: ✅ Native protocols followed
- * Triaging:
- *   - [IMPLEMENT] Fluent builders for interactive prompts with fzf integration
  */
-import type { ToolHandler } from '../../domain/agent/ToolBuilder';
 
 /**
  * FZF-based user selection builder.
@@ -31,7 +23,7 @@ export class SelectBuilder {
   private initialText?: string;
   private startingCursor?: number;
   private helpMessage?: string;
-  private items: string[] = [];
+  private selectedItems: string[] = [];
 
   /**
    * Provide initial text for selection.
@@ -77,8 +69,15 @@ export class SelectBuilder {
    * @returns This builder for method chaining
    */
   items(options: string[]): this {
-    this.items = options;
+    this.selectedItems = options;
     return this;
+  }
+
+  /**
+   * Get the count of available items
+   */
+  get itemCount(): number {
+    return this.selectedItems.length;
   }
 
   /**
@@ -88,33 +87,23 @@ export class SelectBuilder {
    * @returns Selected option string or null
    */
   async prompt(): Promise<string | null> {
-    if (this.items.length === 0) {
+    if (this.itemCount === 0) {
       throw new Error('SelectBuilder: No items provided for selection');
     }
 
     // Simulated FZF integration (replace with actual FZF library implementation)
-    // In a real implementation, this would use:
-    // const fzf = new Fzf(this.items, {
-    //   layout: 'fzf-pretty',
-    //   prompt: '> ',
-    //   exact: true,
-    //   caseInsensitive: true,
-    // });
-    
-    // Console-based mock for demonstration:
     console.log(`\n${this.helpMessage || 'Use arrow keys to navigate, Enter to select, ESC to cancel'}`);
-    console.log(`\nAvailable options (${this.items.length}):`);
+    console.log(`\nAvailable options (${this.itemCount}):`);
     
-    this.items.forEach((item, index) => {
+    this.selectedItems.forEach((item, index) => {
       const prefix = (index === (this.startingCursor ?? index)) ? '> ' : '  ';
       console.log(`${prefix}${item}`);
     });
 
     console.log(`\n${this.initialText || ''}`);
 
-    // Simulate selection (replace with actual FZF/CLI interaction in production)
-    // For now, return the first item as default simulation
-    return this.items[0];
+    // Simulate selection
+    return this.selectedItems[0] || null;
   }
 }
 
@@ -162,11 +151,11 @@ export class InputBuilder {
    * Set a custom validator function.
    * Returns true if valid, or error message if invalid.
    * 
-   * @param validate - Validation function (value, i, arr)
+   * @param validate - Validation function taking single value
    * @returns This builder for method chaining
    */
   withValidator(
-    validate: (value: string, i: number, arr: string[]) => boolean | string
+    validate: (value: string) => boolean | string
   ): this {
     this.validator = validate;
     return this;
@@ -206,7 +195,7 @@ export class InputBuilder {
         }
 
         if (this.validator) {
-          const validation = this.validator(value, 0, []);
+          const validation = this.validator(value);
           if (validation !== true) {
             reject(new Error(`Input validation failed: ${validation}`));
             rl.close();
@@ -235,7 +224,6 @@ export function buildSelectToolHandler<TInput, TResult>(
   toolName: string
 ): ToolHandler<TInput, TResult> {
   async function execute(input: TInput): Promise<TResult> {
-    // In production, input would be provided to SelectBuilder
     const selection = await selectBuilder.prompt();
     
     if (!selection) {
@@ -251,9 +239,10 @@ export function buildSelectToolHandler<TInput, TResult>(
   return {
     execute,
     getMetadata() {
+      const itemCount = selectBuilder.itemCount;
       return {
         name: toolName,
-        description: `Interactive selection tool with ${selectBuilder.items.length} options`,
+        description: `Interactive selection tool with ${itemCount} options`,
         operationType: 'SELECT',
         soloUseOnly: true,
         parallelizable: false,
@@ -262,4 +251,20 @@ export function buildSelectToolHandler<TInput, TResult>(
       };
     },
   };
+}
+
+// ToolHandler type definition
+export interface ToolHandler<TInput, TResult> {
+  execute(input: TInput): Promise<TResult>;
+  getMetadata(): ExecutableToolMetadata;
+}
+
+export interface ExecutableToolMetadata {
+  name: string;
+  description: string;
+  operationType: string;
+  soloUseOnly?: boolean;
+  parallelizable?: boolean;
+  provenance: string;
+  tags?: string[];
 }

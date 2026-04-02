@@ -48,7 +48,7 @@ export class NodeSystemAdapter implements SystemAdapter {
         git = { branch, dirty, lastCommitHash: hash };
       }
     } catch (e) {
-      this.logService.error('Failed to gather git context', e, { projectRoot });
+      this.logService.error('Failed to gather git context', e, { component: 'NodeSystemAdapter' });
     }
 
     let dependencies: Record<string, string> = {};
@@ -58,7 +58,7 @@ export class NodeSystemAdapter implements SystemAdapter {
         const pkg = JSON.parse(this.filesystem.readFile(pkgPath));
         dependencies = { ...pkg.dependencies, ...pkg.devDependencies };
       } catch (e) {
-        this.logService.error('Failed to parse package.json', e, { pkgPath });
+        this.logService.error('Failed to parse package.json', e, { component: 'NodeSystemAdapter' });
       }
     }
 
@@ -84,7 +84,7 @@ export class NodeSystemAdapter implements SystemAdapter {
    * Processes file in chunks to avoid memory issues.
    */
   async *readFileAsStream(path: string): AsyncGenerator<Buffer, void, undefined> {
-    return this.filesystem.readFileAsStream(path);
+    yield* this.filesystem.readFileAsStream(path);
   }
 
   // ─── Error Handling ───────────────────────────────────────────────

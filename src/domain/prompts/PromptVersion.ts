@@ -3,8 +3,9 @@
  * Principle: Pure business logic for prompt version control and lineage tracking.
  */
 
-import { PromptDefinition, PromptCategory } from './PromptCategory';
-import type { Event } from '../Event';
+import { PromptCategory } from './PromptCategory';
+import type { PromptDefinition } from './PromptCategory';
+import type { SystemEvent } from '../events/SystemEvent';
 
 export interface PromptVersion {
   id: string;
@@ -124,7 +125,7 @@ export class PromptVersionController {
   restoreVersion(
     promptId: string,
     versionId: string
-  ): PromisedVersion {
+  ): PromptVersion {
     const versions = this.versions.get(promptId);
     const version = versions?.find(v => v.id === versionId);
 
@@ -252,11 +253,13 @@ export class PromptVersionController {
         });
         oldLine++;
       } else if (oldLines[oldLine] === newLines[newLine]) {
-        if (oldLines[oldLine].trim()) {
+        const oldLineText = oldLines[oldLine] || '';
+        const newLineText = newLines[newLine] || '';
+        if (oldLineText.trim()) {
           diffs.push({
             type: 'text',
-            left: `  ${oldLines[oldLine]}`,
-            right: `  ${newLines[newLine]}`,
+            left: `  ${oldLineText}`,
+            right: `  ${newLineText}`,
             location: { line: newLine + 1, length: 1 },
             description: 'Unchanged'
           });
@@ -265,7 +268,7 @@ export class PromptVersionController {
         newLine++;
       } else {
         // Line changed - detect if it's a variable vs text
-        const isVariableLines = this.isVariableLine(oldLines[oldLine]) && this.isVariableLine(newLines[newLine]);
+        const isVariableLines = this.isVariableLine((oldLines[oldLine] || '')) && this.isVariableLine((newLines[newLine] || ''));
         
         diffs.push({
           type: isVariableLines ? 'variable' : 'text',
@@ -290,19 +293,23 @@ export class PromptVersionController {
   }
 
   /**
-   * Resets to a prior version (marks as user conflict)
+   * Resets to a prior version (marks as auto-reset)
    */
   autoReset(promptId: string, reason?: string) {
     const currentVersion = this.latestVersions.get(promptId);
     if (!currentVersion) return;
 
-    this.createVersion(promptId, currentVersion.renderedContent, currentVersion.originalTemplate, {
-      renderTriggers: { sessionId: 'system', timestamp: new Date().toISOString() },
-      environmentalContext: { projectPath: '', activeTools: [], loadedCollections: [], userContext: {} },
-      performanceMetrics: { renderTimeMs: 0, variableCount: 0, ifBlockCount: 0, forLoopCount: 0, sizeKb: 0 }
-    }, { reason, tags: ['auto-reset'] });
-
-    console.log(`[PromptVersion] Auto-reset ${promptId}`);
+    this.createVersion(
+      promptId, 
+      currentVersion.renderedContent, 
+      currentVersion.originalTemplate, 
+      {
+        renderTriggers: { sessionId: 'system', timestamp: new Date().toISOString() },
+        environmentalContext: { projectPath: '', activeTools: [], loadedCollections: [], userContext: {} },
+        performanceMetrics: { renderTimeMs: 0, variableCount: 0, ifBlockCount: 0, forLoopCount: 0, sizeKb: 0 }
+      },
+      { reason, tags: ['auto-reset'] }
+    );
   }
 
   /**
@@ -325,8 +332,6 @@ export class PromptVersionController {
   }
 }
 
-export type PromisedVersion = Promise<PromptVersion>;
-
 /**
  * Convenience wrapper for version controller
  */
@@ -338,9 +343,16 @@ export class PromptVersionSnapshot extends PromptVersionController {
   /**
    * Records a prompt snapshot on event
    */
-  record(event: SystemEvent, renderedPrompt: string, originalTemplate: string): PromptVersion {
+  record(
+    event: SystemEvent, 
+    renderedPrompt: string, 
+    originalTemplate: string
+  ): PromptVersion {
+    const promptData = event.data || {};
+    const promptId = promptData.promptId || promptData.session?.promptId || 'unknown';
+    
     return this.createVersion(
-      event.data.promptId || 'unknown',
+      promptId,
       renderedPrompt,
       originalTemplate,
       this.extractContextFromEvent(event)
@@ -351,21 +363,21 @@ export class PromptVersionSnapshot extends PromptVersionController {
     return {
       renderTriggers: {
         sessionId: event.metadata?.sessionId || 'unknown',
-        timestamp: event.timestamp,
+        timestamp: event.timestamp || new Date().toISOString(),
         event
       },
       environmentalContext: {
-        projectPath: event.data.projectPath || '',
-        activeTools: event.data.activeTools || [],
-        loadedCollections: event.data.loadedCollections || [],
-        userContext: event.data.userContext || {}
+        projectPath: event.data?.projectPath || event.data?.workspace || '',
+        activeTools: event.data?.activeTools || [],
+        loadedCollections: event.data?.loadedCollections || [],
+        userContext: event.data?.userContext || {}
       },
       performanceMetrics: {
         renderTimeMs: event.metadata?.durationMs || 0,
-        variableCount: event.data.variableCount || 0,
-        ifBlockCount: event.data.ifBlockCount || 0,
-        forLoopCount: event.data.forLoopCount || 0,
-        sizeKb: Math.round(renderedPrompt.length / 1024)
+        variableCount: event.data?.variableCount || 0,
+        ifBlockCount: event.data?.ifBlockCount || 0,
+        forLoopCount: event.data?.forLoopCount || 0,
+        sizeKb: 0
       }
     };
   }

@@ -89,3 +89,22 @@ export interface AssertionResult {
   timestamp: Date;
   executionDurationMs?: number;
 }
+
+/**
+ * Verification result verdict
+ */
+export type VerificationVerdict = 'PASS' | 'FAIL' | 'INCONCLUSIVE' | 'TIMEOUT' | 'PARTIAL';
+
+/**
+ * Complete verification result
+ */
+export interface VerificationResult {
+  verdict: VerificationVerdict;
+  timestamp: Date;
+  totalAssertions: number;
+  passedAssertions: number;
+  failedAssertions: number;
+  skippedAssertions: number;
+  summary: string;
+  detailedResults?: AssertionResult[];
+}

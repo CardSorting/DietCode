@@ -31,4 +31,9 @@ export interface SearchRepository extends SearchProvider {
    * Load index - used during initialization.
    */
   loadIndex(): Promise<KnowledgeItem[]>;
+  
+  /**
+   * Find the closest match to a query string
+   */
+  findClosest(query: string, root: string): Promise<{ path: string } | null>;
 }

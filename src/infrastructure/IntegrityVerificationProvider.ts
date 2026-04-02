@@ -3,9 +3,9 @@
  * Principle: Concrete implementation of VerificationProvider using IntegrityScanner.
  */
 
-import type { VerificationProvider, VerificationResult } from '../../domain/healing/VerificationProvider';
-import type { DomainIntegrityScanner } from '../../domain/integrity/IntegrityScanner';
-import type { HealingRepository } from '../../domain/healing/HealingRepository';
+import type { VerificationProvider, VerificationResult } from '../domain/healing/VerificationProvider';
+import type { IntegrityScanner } from '../domain/integrity/IntegrityScanner';
+import type { HealingRepository } from '../domain/healing/HealingRepository';
 
 export class IntegrityVerificationProvider implements VerificationProvider {
   constructor(
@@ -19,7 +19,7 @@ export class IntegrityVerificationProvider implements VerificationProvider {
    */
   async verifyResolution(violationId: string): Promise<VerificationResult> {
     const report = await this.scanner.scan(this.projectRoot);
-    const violation = report.violations.find(v => v.id === violationId);
+    const violation = report.violations.find((v) => v.id === violationId);
 
     if (!violation) {
       return {
