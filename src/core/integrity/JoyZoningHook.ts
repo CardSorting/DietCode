@@ -1,22 +1,20 @@
 /**
  * [LAYER: CORE]
- * Principle: Batched Enforcement — debounces scans for JoyZoning violations.
- * Optimization: Pass 4 Throughput — zero stalling via background queue.
+ * Principle: Integrity Hook — captures file save events and triggers architectural audits.
+ * Pass 13: Autonomous Self-Healing Integration.
  */
 
-import type { Hook } from '../../domain/hooks/HookContract';
-import { HookPhase } from '../../domain/hooks/HookContract';
+import type { Hook } from '../../domain/orchestration/Hook';
 import { IntegrityService } from './IntegrityService';
 import { WorkerIntegrityAdapter } from '../../infrastructure/WorkerIntegrityAdapter';
 import { RefactorTools } from '../../infrastructure/tools/RefactorTools';
 import { JoyMapGenerator } from '../../infrastructure/tools/generate_joy_map';
+import { HealingService } from './HealingService';
+import type { HealingRepository } from '../../domain/healing/HealingRepository';
+import { HealingStatus } from '../../domain/healing/Healing';
 
 export class JoyZoningHook implements Hook {
   public readonly name = 'JoyZoningGuard';
-  public readonly phase = HookPhase.POST_EXECUTION;
-  public readonly priority = 100; // High priority
-  public readonly isBackground = true; 
-
   private static isAuditing = false;
   private auditQueue: Set<string> = new Set();
   private auditTimeout: NodeJS.Timeout | null = null;
@@ -26,65 +24,49 @@ export class JoyZoningHook implements Hook {
   constructor(
     private integrityService: IntegrityService,
     private workerAdapter: WorkerIntegrityAdapter,
+    private healingService: HealingService,
+    private healingRepository: HealingRepository,
     private projectRoot: string
   ) {
     this.refactorTools = new RefactorTools();
     this.joyMap = new JoyMapGenerator();
   }
 
-  /**
-   * Schedules an architectural audit for the modified file.
-   * Returns immediately (non-blocking).
-   */
-  async execute(params: { toolName: string; input: any; result?: any }): Promise<void> {
-    const { input, toolName } = params;
-    const filePath = input.path || input.targetPath || input.filePath;
-
-    if (filePath && typeof filePath === 'string') {
-      // 1. Instantly update JoyCache (O(1) database write)
-      this.refactorTools.updateCache(filePath, this.projectRoot).catch(() => {});
-
-      // 2. Queue for batched architectural audit
-      this.queueAudit(filePath);
+  async onExecute(context: any): Promise<void> {
+    const filePath = context.filePath;
+    if (!filePath || !filePath.endsWith('.ts')) return;
+    this.auditQueue.add(filePath);
+    if (this.auditTimeout) {
+      clearTimeout(this.auditTimeout);
     }
+    this.auditTimeout = setTimeout(async () => {
+      await this.runAuditBatch();
+    }, 2000);
   }
 
-  private queueAudit(filePath: string): void {
-    this.auditQueue.add(filePath);
-
-    if (this.auditTimeout) {
-        clearTimeout(this.auditTimeout);
-    }
-
-    // Debounce: Wait for 250ms of quiet before auditing
-    this.auditTimeout = setTimeout(async () => {
-        if (JoyZoningHook.isAuditing) {
-          // Already auditing, re-schedule for next tick
-          this.queueAudit(filePath);
-          return;
-        }
-
-        const batch = Array.from(this.auditQueue);
-        this.auditQueue.clear();
-        this.auditTimeout = null;
-
-        if (batch.length > 0) {
-            JoyZoningHook.isAuditing = true;
-            console.log(`🛡️  [Batched Audit] Offloading ${batch.length} files to worker thread...`);
-            try {
-              for (const path of batch) {
-                  // Pass 7: Background worker scan
-                  const report = await this.workerAdapter.scanFile(path, this.projectRoot);
-                  // We still report violations via the main service to preserve events
-                  await this.integrityService.reportViolationsThroughput(report);
-              }
-              
-              // Pass 11: Live Dashboard Generation
-              await this.joyMap.generate(this.projectRoot);
-            } finally {
-              JoyZoningHook.isAuditing = false;
+  private async runAuditBatch(): Promise<void> {
+    if (JoyZoningHook.isAuditing || this.auditQueue.size === 0) return;
+    JoyZoningHook.isAuditing = true;
+    const batch = Array.from(this.auditQueue);
+    this.auditQueue.clear();
+    try {
+        for (const filePath of batch) {
+            const report = await this.integrityService.scanFile(filePath, this.projectRoot);
+            if (report.violations.length > 0) {
+                const proposals = await this.healingRepository.getProposalsForViolation(report.violations[0].id);
+                for (const proposal of proposals) {
+                    if (proposal.confidence === 1.0 && proposal.status === HealingStatus.PENDING) {
+                        await this.healingService.applyProposal(proposal.id);
+                    }
+                }
             }
+            await this.integrityService.reportViolationsThroughput(report);
         }
-    }, 250);
+        await this.joyMap.generate(this.projectRoot);
+    } catch (err) {
+        console.error('❌ [JoyZoning] Audit batch failed:', err);
+    } finally {
+        JoyZoningHook.isAuditing = false;
+    }
   }
 }

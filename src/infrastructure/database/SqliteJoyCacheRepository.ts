@@ -8,6 +8,8 @@
 import { SovereignDb } from './SovereignDb';
 import { LruCache } from '../tools/LruCache';
 import * as crypto from 'node:crypto';
+import * as path from 'path';
+import * as fs from 'fs';
 
 export interface JoyImportEntry {
     id: string;
@@ -156,6 +158,7 @@ export class SqliteJoyCacheRepository {
             } as any
         });
         
+        
         await pool.push({
             type: 'delete',
             table: 'joy_imports' as any,
@@ -165,5 +168,49 @@ export class SqliteJoyCacheRepository {
                 value: filePath
             } as any
         });
+    }
+
+    /**
+     * Pass 15: Dead Code Detection 
+     * Identifies files with zero inbound dependencies (Afferent Coupling = 0).
+     */
+    async getProjectOrphans(projectRoot: string): Promise<string[]> {
+        const db = await this.db.db();
+        
+        // 1. Get all files that ARE imported by something
+        const importedRows = await db.selectFrom('joy_imports' as any)
+            .select('imported_path')
+            .distinct()
+            .execute();
+            
+        const importedPaths = new Set(importedRows.map((r: any) => r.imported_path));
+        
+        // 2. Scan the source directories
+        const allFiles: string[] = [];
+        this.listTsFiles(path.join(projectRoot, 'src/domain'), allFiles);
+        this.listTsFiles(path.join(projectRoot, 'src/infrastructure'), allFiles);
+        this.listTsFiles(path.join(projectRoot, 'src/core'), allFiles);
+
+        // 3. Subtract imported files from all files
+        const orphans = allFiles
+            .map(f => path.relative(projectRoot, f))
+            .filter(rel => !importedPaths.has(rel))
+            // Exclude entry points and contracts
+            .filter(rel => !rel.includes('index.ts') && !rel.includes('App.ts') && !rel.includes('contracts/'));
+
+        return orphans;
+    }
+
+    private listTsFiles(dir: string, fileList: string[]): void {
+        if (!fs.existsSync(dir)) return;
+        const files = fs.readdirSync(dir);
+        for (const file of files) {
+            const name = path.join(dir, file);
+            if (fs.statSync(name).isDirectory()) {
+                this.listTsFiles(name, fileList);
+            } else if (name.endsWith('.ts')) {
+                fileList.push(name);
+            }
+        }
     }
 }

@@ -1,7 +1,7 @@
 /**
  * [LAYER: INFRASTRUCTURE]
  * Principle: Deep Strategic Audit — uses the TypeScript Compiler API for AST-based analysis.
- * Exported for: Worker Thread Isolation (Pass 7 Zero-Stall).
+ * Pass 12: Strategic Boundary Alignment — implements the new Plumbing-centric architecture.
  */
 
 import * as ts from 'typescript';
@@ -15,6 +15,19 @@ import {
   type IntegrityReport, 
   ViolationType 
 } from '../domain/memory/Integrity';
+
+/**
+ * ARCHITECTURAL RULE MATRIX (Pass 12)
+ * Source Layer -> Allowed Target Layers
+ */
+const ALLOWED_IMPORTS: Record<string, string[]> = {
+    'DOMAIN': [], // Independent
+    'CORE': ['DOMAIN', 'INFRASTRUCTURE', 'PLUMBING'], // Orchestrator
+    'INFRASTRUCTURE': ['DOMAIN', 'PLUMBING'], // Adapter
+    'UI': ['DOMAIN', 'PLUMBING'], // Delivery (No Infrastructure!)
+    'PLUMBING': [], // Truly Independent
+    'UNKNOWN': ['PLUMBING', 'DOMAIN'] // External access guard
+};
 
 export function analyzeDependencies(absPath: string, projectRoot: string, policy: IntegrityPolicy): { imports: string[], violations: IntegrityViolation[] } {
     const relPath = path.relative(projectRoot, absPath);
@@ -79,12 +92,27 @@ function checkBoundaryPure(source: string, target: string, violations: Integrity
     const sourceLayer = getLayerFromPath(source);
     const targetLayer = getLayerFromPath(target);
 
-    if ((sourceLayer === 'DOMAIN' || sourceLayer === 'CORE') && 
-        (targetLayer === 'INFRASTRUCTURE' || targetLayer === 'UI')) {
+    // Skip self-layer and unknown targets (external library checks handled by other policies)
+    if (sourceLayer === targetLayer || targetLayer === 'UNKNOWN') return;
+
+    const allowed = ALLOWED_IMPORTS[sourceLayer] || [];
+
+    if (!allowed.includes(targetLayer)) {
+        let message = `Architectural Breach: ${sourceLayer} is illegally importing ${targetLayer} (${target}).`;
+        
+        // High-precision feedback for new Pass 12 rules
+        if (sourceLayer === 'UI' && targetLayer === 'INFRASTRUCTURE') {
+            message = `Delivery Leak: UI cannot direct-import INFRASTRUCTURE. Use Domain models or Plumbing utilities instead.`;
+        } else if (sourceLayer === 'PLUMBING') {
+            message = `Plumbing Violation: Plumbing must remain fully independent. Detected import of ${targetLayer}.`;
+        } else if (sourceLayer === 'DOMAIN') {
+            message = `Domain Violation: Domain must remain independent. Detected import of ${targetLayer}.`;
+        }
+
         violations.push(createViolationPure(
             ViolationType.LAYER_VIOLATION,
             source,
-            `Layer Leak! ${sourceLayer} is illegally importing ${targetLayer} (${target}).`,
+            message,
             'error'
         ));
     }
@@ -95,6 +123,7 @@ function getLayerFromPath(pathName: string): string {
     if (pathName.includes('src/core')) return 'CORE';
     if (pathName.includes('src/infrastructure')) return 'INFRASTRUCTURE';
     if (pathName.includes('src/ui')) return 'UI';
+    if (pathName.includes('src/plumbing') || pathName.includes('src/utils')) return 'PLUMBING';
     return 'UNKNOWN';
 }
 

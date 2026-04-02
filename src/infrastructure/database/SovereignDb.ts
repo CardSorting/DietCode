@@ -53,6 +53,7 @@ export class SovereignDb {
       .addColumn('rationale', 'text', (col) => col.notNull())
       .addColumn('proposedCode', 'text', (col) => col.notNull())
       .addColumn('status', 'text', (col) => col.notNull())
+      .addColumn('confidence', 'float8', (col) => col.defaultTo(1.0))
       .addColumn('createdAt', 'text', (col) => col.notNull())
       .addColumn('appliedAt', 'text')
       .execute();
@@ -107,6 +108,16 @@ export class SovereignDb {
       .addColumn('id', 'text', (col) => col.primaryKey())
       .addColumn('source_path', 'text', (col) => col.notNull())
       .addColumn('imported_path', 'text', (col) => col.notNull())
+      .execute();
+
+    await db.schema
+      .createTable('joy_history')
+      .ifNotExists()
+      .addColumn('id', 'text', (col) => col.primaryKey())
+      .addColumn('score', 'float8', (col) => col.notNull())
+      .addColumn('violation_count', 'integer', (col) => col.notNull())
+      .addColumn('file_count', 'integer', (col) => col.notNull())
+      .addColumn('timestamp', 'int8', (col) => col.notNull())
       .execute();
 
     await db.schema

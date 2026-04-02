@@ -12,6 +12,8 @@ import { IntegrityScanner } from '../../domain/integrity/IntegrityScanner';
 import { SafetyGuard } from '../capabilities/SafetyGuard';
 import { HealingService } from './HealingService';
 import { RiskLevel } from '../../domain/validation/RiskLevel';
+import { SovereignDb } from '../../infrastructure/database/SovereignDb';
+import * as crypto from 'crypto';
 
 export class IntegrityService implements IntegrityScanner {
   private eventBus: EventBus = EventBus.getInstance();
@@ -35,6 +37,7 @@ export class IntegrityService implements IntegrityScanner {
     
     const report = await this.scanner.scan(projectRoot);
     this.reportViolations(report);
+    this.recordHistory(report).catch(() => {});
     
     return report;
   }
@@ -99,5 +102,21 @@ export class IntegrityService implements IntegrityScanner {
         // No violations: Clear the alarm
         SafetyGuard.clearAlarm();
     }
+  }
+
+  private async recordHistory(report: IntegrityReport): Promise<void> {
+      const pool = await SovereignDb.getPool();
+      await pool.push({
+          type: 'insert',
+          table: 'joy_history' as any,
+          values: {
+              id: crypto.randomUUID(),
+              score: report.score,
+              violation_count: report.violations.length,
+              file_count: report.fileCount || 0,
+              timestamp: Date.now()
+          } as any
+      });
+      await pool.flush();
   }
 }

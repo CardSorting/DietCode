@@ -19,6 +19,7 @@ export interface HealingProposal {
   rationale: string;
   proposedCode: string;
   status: HealingStatus;
+  confidence: number; // 0.0 to 1.0
   createdAt: string;
   appliedAt?: string;
 }

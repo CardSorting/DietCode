@@ -26,6 +26,7 @@ export class SqliteHealingRepository implements HealingRepository {
                 rationale: proposal.rationale,
                 proposedCode: proposal.proposedCode,
                 status: proposal.status,
+                confidence: proposal.confidence,
                 createdAt: proposal.createdAt,
                 appliedAt: proposal.appliedAt || null,
             } as any
@@ -98,6 +99,7 @@ export class SqliteHealingRepository implements HealingRepository {
             rationale: row.rationale,
             proposedCode: row.proposedCode,
             status: row.status as HealingStatus,
+            confidence: row.confidence || 0.5,
             createdAt: row.createdAt,
             appliedAt: row.appliedAt,
         };
