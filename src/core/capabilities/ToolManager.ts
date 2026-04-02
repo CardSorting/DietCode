@@ -21,6 +21,8 @@ import type { ToolDefinition as DomainToolDefinition } from '../../domain/agent/
 import type { HookOrchestrator } from '../manager/HookOrchestrator';
 import type { LockScope, LockResult } from '../../domain/safety/LockScope';
 import { LockOrchestrator } from '../manager/LockOrchestrator';
+import { FileContextTracker } from '../context/FileContextTracker.ts';
+import { RuleContextBuilder } from '../context/RuleContextBuilder.ts';
 
 /**
  * ToolManager orchestrates tool registration and execution
@@ -35,9 +37,11 @@ export class ToolManager {
   private rollbackManager?: RollbackProtocol;
   private hookOrchestrator?: HookOrchestrator;
   private lockOrchestrator?: LockOrchestrator;
+  private contextTracker: FileContextTracker;
 
   constructor() {
     this.eventBus = EventBus.getInstance();
+    this.contextTracker = FileContextTracker.getInstance();
   }
 
   /**
@@ -254,6 +258,11 @@ export class ToolManager {
     const startTime = Date.now();
     const correlationId = 'task-' + Date.now();
     this.eventBus.publish(EventType.TOOL_INVOKED, { toolName: name, input }, { correlationId });
+
+    // Cline Pattern: Record Tool Intent before execution for Rule Context
+    if (options.targetPath) {
+      await this.contextTracker.recordState(options.targetPath, 'codemarie_edited', 'edit');
+    }
 
     // Phase 1: Evaluate safety if SafetyGuard configured
     let safetyCheck = {

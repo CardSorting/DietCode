@@ -188,16 +188,24 @@ export class SignatureDatabase {
   }
   
   /**
-   * Generate content hash
+   * Generate production-grade SHA-256 content hash
    */
-  private hashContent(content: string): string {
-    let hash = 0
-    for (let i = 0; i < content.length; i++) {
-      const char = content.charCodeAt(i)
-      hash = ((hash << 5) - hash) + char
-      hash = hash & hash
+  private async hashContent(content: string): Promise<string> {
+    try {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(content);
+      const hashBuffer = await globalThis.crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    } catch (error) {
+      // Fallback for non-crypto environments
+      let hash = 0;
+      for (let i = 0; i < content.length; i++) {
+        hash = ((hash << 5) - hash) + content.charCodeAt(i);
+        hash = (hash & hash) >>> 0;
+      }
+      return hash.toString(36);
     }
-    return hash.toString(36)
   }
 }
 

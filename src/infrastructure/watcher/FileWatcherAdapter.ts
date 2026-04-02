@@ -8,8 +8,8 @@
  */
 
 import { watch, FSWatcher as ChokidarWatcher } from 'chokidar';
-import { FileChangeType } from '../../domain/context/FileChange';
-import type { FileChange } from '../../domain/context/FileChange';
+import { FileChangeType } from '../../domain/context/FileChange.ts';
+import type { FileChange } from '../../domain/context/FileChange.ts';
 
 /**
  * File watcher configuration
@@ -142,6 +142,7 @@ export class FileWatcherAdapter {
   
   protected config: Required<FileWatcherConfig>;
   private watcherOptions: any;
+  private recentlyEditedByAgent: Set<string> = new Set();
 
   constructor(config: FileWatcherConfig) {
     this.config = {
@@ -160,6 +161,10 @@ export class FileWatcherAdapter {
       ignoreInitial: true, // Don't emit events for initial scan
       cwd: process.cwd(),
       persistent: true,
+      awaitWriteFinish: {
+        stabilityThreshold: 100,
+        pollInterval: 100,
+      },
     };
   }
 
@@ -228,12 +233,30 @@ export class FileWatcherAdapter {
    */
   private handleChange(path: string): void {
     if (!this.config.emitChange) return;
+
+    // Cline Pattern: Ignore events for files we just edited
+    if (this.recentlyEditedByAgent.has(path)) {
+      this.recentlyEditedByAgent.delete(path);
+      return;
+    }
+
     this.enqueueEvent({
       type: FileChangeType.MODIFIED,
       path,
       timestamp: Date.now(),
       exists: true,
     });
+  }
+
+  /**
+   * Mark a file as recently edited by the agent to ignore the next watcher event.
+   */
+  public markAsEditedByAgent(path: string): void {
+    this.recentlyEditedByAgent.add(path);
+    // Cleanup after 1 second if no event received (safety net)
+    setTimeout(() => {
+      this.recentlyEditedByAgent.delete(path);
+    }, 1000);
   }
 
   /**

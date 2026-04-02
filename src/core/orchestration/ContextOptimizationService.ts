@@ -11,8 +11,8 @@ import {
   type SessionMetrics,
   type SessionComparison 
 } from "../capabilities/OptimizationMetrics"
-import { FileContextTracker } from "../capabilities/FileContextTracker"
-import { ContextOptimizationService as CoreOptimizationService } from "../capabilities/ContextOptimizationService"
+import { FileContextTracker } from "../context/FileContextTracker"
+import { ContextOptimizationService as CoreOptimizationService } from "../context/ContextOptimizationService"
 import { SignatureDatabase } from "../../infrastructure/context/SignatureDatabase"
 import type { OptimizationConfig } from "../../domain/context/ContextOptimizationPolicy"
 
