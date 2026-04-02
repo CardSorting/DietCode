@@ -18,6 +18,12 @@ import type { RollbackProtocol } from '../../domain/validation/RollbackProtocol'
 import { SafetyGuard } from './SafetyGuard';
 import type { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
 import type { ToolDefinition as DomainToolDefinition } from '../../domain/agent/ToolDefinition';
+import type { HookContract, HookPhase } from '../../domain/agent/HookContract';
+import { HookOrchestrator } from '../manager/HookOrchestrator';
+import type { LockScope } from '../../domain/safety/LockScope';
+import { LockOrchestrator } from '../manager/LockOrchestrator';
+import type { LockResult } from '../../domain/safety/LockScope';
+import { EventType } from '../../domain/Event';
 
 /**
  * ToolManager orchestrates tool registration and execution
@@ -30,6 +36,8 @@ export class ToolManager {
   private safetyGuard?: SafetyGuard;
   private riskEvaluator?: RiskEvaluator;
   private rollbackManager?: RollbackProtocol;
+  private hookOrchestrator?: HookOrchestrator;
+  private lockOrchestrator?: LockOrchestrator;
 
   constructor() {
     this.eventBus = EventBus.getInstance();
@@ -115,6 +123,94 @@ export class ToolManager {
 
     if (safetyGuard && this.riskEvaluator && this.rollbackManager) {
       console.log('🛡️  Safety integration complete (RiskEvaluator + RollbackProtocol)');
+    }
+  }
+
+  /**
+   * Configure hooks for pre-tool execution pipeline
+   * Maps to Cline's hook-driven architecture
+   * 
+   * @param hookOrchestrator Hook orchestration pipeline
+   * @deprecated Prefer configureHooksSync for type safety
+   */
+  configureHooks(
+    hookOrchestrator: HookOrchestrator
+  ): void {
+    this.hookOrchestrator = hookOrchestrator;
+    console.log('🔗 Hooks configured for tool execution');
+  }
+
+  /**
+   * Configure hooks and locks synchronously (recommended for type safety)
+   * Integrates with Cline's multi-phase execution model
+   * 
+   * @param hookOrchestrator Hook orchestration pipeline for pre/cancel hooks
+   * @param lockOrchestrator Distributed lock coordination for dangerous operations
+   */
+  configureHooksSync(
+    hookOrchestrator: HookOrchestrator,
+    lockOrchestrator?: LockOrchestrator
+  ): void {
+    this.hookOrchestrator = hookOrchestrator;
+    this.lockOrchestrator = lockOrchestrator;
+    console.log('🔗 Hooks & locks configured');
+  }
+
+  /**
+   * Lock execution scope before tool runs (Cline-style pre-tool locking)
+   */
+  async acquireToolLock(
+    operation: string,
+    timeoutMs: number = 60000
+  ): Promise<LockResult> {
+    if (!this.lockOrchestrator) {
+      console.warn('⚠️  LockOrchestrator not configured, skipping lock acquisition');
+      return { success: true };
+    }
+
+    const scope: LockScope = {
+      taskId: globalThis.crypto.randomUUID(),
+      operation,
+      timeoutMs,
+      autoRelease: true
+    };
+
+    const result = await this.lockOrchestrator.acquire(scope, timeoutMs);
+    
+    if (result.success) {
+      console.log(`🔒 Tool lock acquired: ${operation}`);
+    } else {
+      console.warn(`⚠️  Lock acquisition failed: ${result.reason}`);
+    }
+
+    return result;
+  }
+
+  /**
+   * Execute hooks before tool runs (Cline pre-tool cancellation)
+   */
+  async runPreToolHooks(toolName: string): Promise<boolean> {
+    if (!this.hookOrchestrator) {
+      return true; // No hooks configured, proceed
+    }
+
+    try {
+      const result = await this.hookOrchestrator.run({
+        toolName,
+        phase: 'PRE_TOOL',
+        input: {}
+      });
+
+      if (!result) {
+        console.warn(`🛑 Pre-tool hooks blocked execution: ${toolName}`);
+        return false;
+      }
+
+      console.log(`✅ Pre-tool hooks passed: ${toolName}`);
+      return true;
+    } catch (error: any) {
+      console.error(`⚠️  Pre-tool hooks error:`, error);
+      return false;
     }
   }
 

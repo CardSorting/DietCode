@@ -12,6 +12,9 @@
 import type { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
 import { RiskLevel } from '../../domain/validation/RiskLevel';
 import type { SafetyAwareToolContext, SafetyAwareToolOptions } from '../../domain/capabilities/SafetyAwareToolExecution';
+import type { LockOrchestrator } from '../manager/LockOrchestrator';
+import type { LockScope } from '../../domain/safety/LockScope';
+import { LockResult } from '../../domain/safety/LockScope';
 
 /**
  * SafetyGuard orchestrates safe execution of actions
@@ -19,9 +22,11 @@ import type { SafetyAwareToolContext, SafetyAwareToolOptions } from '../../domai
  */
 export class SafetyGuard {
   private riskEvaluator: RiskEvaluator;
+  private lockOrchestrator?: LockOrchestrator;
 
-  constructor(riskEvaluator: RiskEvaluator) {
+  constructor(riskEvaluator: RiskEvaluator, lockOrchestrator?: LockOrchestrator) {
     this.riskEvaluator = riskEvaluator;
+    this.lockOrchestrator = lockOrchestrator;
   }
 
   /**
@@ -37,6 +42,37 @@ export class SafetyGuard {
       canProceed,
       riskLevel
     };
+  }
+
+  /**
+   * Acquire lock for dangerous operation (Cline safety guard)
+   */
+  async acquireOperationLock(
+    operation: string,
+    timeoutMs: number = 30000
+  ): Promise<LockResult> {
+    if (!this.lockOrchestrator) {
+      console.warn('⚠️  LockOrchestrator not configured, skipping lock acquisition');
+      return { success: true };
+    }
+
+    const scope: LockScope = {
+      taskId: globalThis.crypto.randomUUID(),
+      operation,
+      timeoutMs,
+      autoRelease: true
+    };
+
+    const result = await this.lockOrchestrator.acquire(scope, timeoutMs);
+    
+    if (result.success) {
+      // Auto-release after operation completes (would be proper with op.execute, but simple example)
+      console.log(`🔒 Operation lock acquired: ${operation}`);
+    } else {
+      console.warn(`⚠️  Lock acquisition failed: ${result.reason}`);
+    }
+
+    return result;
   }
 
   /**
