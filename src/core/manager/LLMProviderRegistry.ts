@@ -18,6 +18,8 @@ import type {
 import type { ToolDefinition } from '../../domain/agent/ToolDefinition';
 import { PromptStrategy as EnumPromptStrategy } from '../../domain/agent/LLMProviderAdapter';
 import { OpenAIEmbeddingAdapter } from '../../infrastructure/llm/providers/OpenAIEmbeddingAdapter';
+import { CloudflareAdapter } from '../../infrastructure/llm/providers/CloudflareProvider';
+import type { LogService } from '../../domain/logging/LogService';
 
 /**
  * Provider information interface
@@ -57,7 +59,7 @@ export class LLMProviderRegistry {
   private providerInfos = new Map<string, ProviderInfo>();
   private isLoadingModels = new Set<string>();
 
-  private constructor() {}
+  private constructor() { }
 
   /**
    * Get singleton instance
@@ -150,13 +152,13 @@ export class LLMProviderRegistry {
 
       // Load model info from adapter
       const modelInfo = adapter.getModelInfo();
-      
+
       if (modelInfo) {
         this.models.set(`${providerId}_${modelInfo.id}`, {
           data: modelInfo,
           timestamp: Date.now(),
         });
-        
+
         console.log(`✅ Provider models loaded: ${providerId} (${modelInfo.name})`);
       }
 
@@ -189,6 +191,16 @@ export class LLMProviderRegistry {
       case 'openrouter':
         // Note: Would require OpenRouterAdapter implementation
         throw new Error(`OpenRouter adapter not implemented yet. Please implement src/infrastructure/llm/OpenRouterAdapter.ts`);
+
+      case 'cloudflare':
+        if (!config.apiKey && !(config as any).apiToken) {
+          throw new Error('Cloudflare requires an API token');
+        }
+        return new CloudflareAdapter({
+          accountId: (config as any).accountId || process.env.CLOUDFLARE_ACCOUNT_ID || '',
+          apiToken: config.apiKey || (config as any).apiToken,
+          model: config.model,
+        });
 
       default:
         throw new Error(`Unknown provider: ${providerId}`);
@@ -339,13 +351,13 @@ class CompositeLLMAdapter implements LLMAdapter {
         return await adapter.embedText(text);
       }
     }
-    
+
     for (const adapter of this.fallbackChain) {
       if (adapter.embedText) {
         return await adapter.embedText(text);
       }
     }
-    
+
     throw new Error('No provider supports embeddings');
   }
 
@@ -384,4 +396,31 @@ export function initializeOpenAIEmbeddings(apiKey: string) {
   });
 
   console.log('✅ OpenAI embeddings auto-registered');
+}
+
+/**
+ * Auto-register Cloudflare registry
+ */
+export function initializeCloudflare(accountId: string, apiToken: string) {
+  const registry = LLMProviderRegistry.getInstance();
+  const adapter = new CloudflareAdapter({
+    accountId,
+    apiToken,
+    model: '@cf/moonshotai/kimi-k2.5',
+  });
+
+  registry.registerProvider('cloudflare', adapter);
+  registry.registerProviderInfo({
+    id: 'cloudflare',
+    name: 'Cloudflare Workers AI',
+    capabilities: {
+      supportsStreaming: true,
+      supportsPromptCache: true,
+      supportsReasoning: true,
+      supportsEmbeddings: false,
+    },
+    defaultModel: '@cf/moonshotai/kimi-k2.5'
+  });
+
+  console.log('✅ Cloudflare AI auto-registered');
 }

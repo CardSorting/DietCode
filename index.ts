@@ -1,5 +1,6 @@
 import { Orchestrator } from './src/core/orchestration/orchestrator';
 import { AnthropicProvider } from './src/infrastructure/llm/providers/AnthropicProvider';
+import { CloudflareProvider } from './src/infrastructure/llm/providers/CloudflareProvider';
 import { TerminalUI } from './src/ui/terminal';
 import { ConsoleLoggerAdapter } from './src/infrastructure/ConsoleLoggerAdapter';
 import { NodeTerminalAdapter } from './src/infrastructure/NodeTerminalAdapter';
@@ -9,7 +10,6 @@ import { createReadFileTool, createWriteFileTool, createReadRangeTool, createLis
 import { createGrepTool } from './src/infrastructure/tools/grep';
 import { createMkdirTool } from './src/infrastructure/tools/mkdir';
 import { FileSystemAdapter } from './src/infrastructure/FileSystemAdapter';
-
 import { Registry, SERVICES } from './src/core/orchestration/Registry';
 import { SovereignDb } from './src/infrastructure/database/SovereignDb';
 import { SqliteSessionRepository } from './src/infrastructure/database/SqliteSessionRepository';
@@ -40,14 +40,17 @@ async function main() {
   // Initialize logger with proper dependency injection
   const logger = new ConsoleLoggerAdapter();
   logger.setMinLevel(LogLevel.INFO);
-  
+
   // Initialize UI (terminal adapter implements Domain TerminalInterface)
   const terminalAdapter = new NodeTerminalAdapter(logger);
   const ui = new TerminalUI(terminalAdapter);
-  const apiKey = process.env.ANTHROPIC_API_KEY;
 
-  if (!apiKey) {
-    ui.logError('ANTHROPIC_API_KEY is not set');
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const cfAccountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+  const cfApiToken = process.env.CLOUDFLARE_API_TOKEN;
+
+  if (!apiKey && (!cfAccountId || !cfApiToken)) {
+    ui.logError('Neither ANTHROPIC_API_KEY nor CLOUDFLARE (ACCOUNT_ID/API_TOKEN) are set');
     process.exit(1);
   }
 
@@ -62,12 +65,23 @@ async function main() {
   const audit = new SqliteAuditRepository();
   const knowledge = new SqliteKnowledgeRepository();
   const healingRepo = new SqliteHealingRepository();
-  
+
   // Connect Observability Partitions (Bridge to EventBus)
   // SqliteAuditRepository will automatically listen via EventBus subscription pattern
 
   // LLM Provider
-  const provider = new AnthropicProvider(apiKey, logger);
+  let provider: any;
+  if (cfAccountId && cfApiToken) {
+    console.log(`[CORE] Initializing Cloudflare Workers AI (@cf/moonshotai/kimi-k2.5)`);
+    provider = new CloudflareProvider({
+      accountId: cfAccountId,
+      apiToken: cfApiToken,
+      logService: logger,
+    });
+  } else {
+    console.log(`[CORE] Initializing Anthropic Provider`);
+    provider = new AnthropicProvider(apiKey!, logger);
+  }
 
   // Triple Down: Sovereign Memory & Swarm Handover
   const agentRegistry = new AgentRegistry();
@@ -106,10 +120,10 @@ async function main() {
 
   // Triple Down: Autonomous Self-Healing Assessment
   if (integrityReport.violations.length > 0) {
-      const tasks = await selfHealingService.triage(integrityReport);
-      if (tasks !== undefined && tasks !== null) {
-        console.log(`[HEALING] Sovereign Swarm enqueued ${tasks} self-healing tasks.`);
-      }
+    const tasks = await selfHealingService.triage(integrityReport);
+    if (tasks !== undefined && tasks !== null) {
+      console.log(`[HEALING] Sovereign Swarm enqueued ${tasks} self-healing tasks.`);
+    }
   }
 
   // Load custom skills
@@ -145,7 +159,7 @@ Your mission is to orchestrate complex tasks by coordinating specialized agents.
 Available specialists:
 ${specializedAgents}
 Follow the JoyZoning architecture for all operations.`,
-    model: 'claude-3-7-sonnet-20250219',
+    model: cfAccountId ? '@cf/moonshotai/kimi-k2.5' : 'claude-3-7-sonnet-20250219',
     maxTokens: 4096,
   });
 
