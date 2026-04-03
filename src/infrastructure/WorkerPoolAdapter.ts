@@ -1,58 +1,16 @@
-/**
- * [LAYER: INFRASTRUCTURE]
- * Principle: Multi-Core Worker Pool — High-throughput parallel scanning
- * 
- **Pass 16: Multi-Worker Architecture**
- * - Spawns os.cpus() workers for parallel file scanning
- * - Shards files across workers (round-robin)
- * - Aggregates results for final IntegrityReport
- * 
- **Performance Stats (Measured):**
- * - Time: 45s → 45ms (1000x improvement)
- * - Memory: 2GB → 200MB shards (10x reduction)
- * - CPU: 12% → 98% utilization (8x better)
- * - Throughput: 600 files/s → 6000 files/s (10x speed)
- * 
- **Architecture:**
-   * Collector Worker: Collects all files recursively
-   * Scorer Workers (N = os.cpus()): Parallel file scanning
-   * Aggregator: Combines results into single IntegrityReport
- */
-
-import { Worker, isMainThread, parentPort, workerData } from 'worker_threads';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
+import * as crypto from 'crypto';
+import { Worker } from 'worker_threads';
+import { SovereignDb } from './database/SovereignDb';
+import { JobType } from '../domain/system/QueueProvider';
 import { IntegrityScanner } from '../domain/integrity/IntegrityScanner';
+import { SovereignWorkerProxy } from './queue/SovereignWorkerProxy';
 import { type IntegrityReport, type IntegrityViolation } from '../domain/memory/Integrity';
 import type { LogService } from '../domain/logging/LogService';
 
-/**
- * Worker pool metrics
- */
-export interface PoolMetrics {
-  workerCount: number;
-  filesPerWorker: number;
-  totalCPUTime: number;
-  completedWorkers: number;
-  failedWorkers: number;
-}
-
-/**
- * Sharded scanning request
- */
-interface ScanPartitionRequest {
-  type: 'SCAN_PARTITION';
-  shardId: number;
-  files: string[];
-  scannerType: 'IntegrityScanner';
-  projectRoot: string;
-}
-
-/**
- * Work result from a single worker
- */
-interface ShardResult {
+export interface ShardResult {
   shardId: number;
   success: boolean;
   score: number;
@@ -61,118 +19,142 @@ interface ShardResult {
   error?: string;
 }
 
+export interface ScanPartitionRequest {
+  type: 'SCAN_PARTITION';
+  shardId: number;
+  files: string[];
+  scannerType: string;
+  projectRoot: string;
+}
+
+export interface PoolMetrics {
+  workerCount: number;
+  completedWorkers: number;
+  failedWorkers: number;
+  totalCPUTime: number;
+}
+
 /**
- * WorkerPoolAdapter: Multi-core parallel scanning engine
+ * [LAYER: INFRASTRUCTURE]
+ * Principle: Parallelized Integrity Checks via Worker Pool or Sovereign Queue.
  * 
- **Integration:**
- * - IntegrityScanner: Reusable domain interface
- * - Worker: Background tasks for parallel work
- * 
- **Scaling:**
- * - Ideal: 4-8 CPU cores (scales linearly up to 16)
- * - Near-optimal: 12 CPU cores (maximum capacity)
- * - Overkill: 25+ cores (aggregation overhead dominates)
+ * Strategy 1: Local Worker Pool (Fastest, High CPU Peak)
+ * Strategy 2: Sovereign Queue (Throttled, Distributed)
  */
-export class WorkerPoolAdapter implements IntegrityScanner {
+export class WorkerPoolAdapter {
   private workers: Worker[] = [];
   private completedResults: ShardResult[] = [];
   private projectRoot: string;
   private metrics!: PoolMetrics;
+  private useQueue: boolean;
+  private proxy: SovereignWorkerProxy;
 
   constructor(
     private scanner: IntegrityScanner,
-    private logService: LogService
+    private logService: LogService,
+    useQueue = true
   ) {
-    // DETECT CORES: os.cpus().length
+    this.useQueue = useQueue;
     const cpuCores = os.cpus().length;
     this.projectRoot = path.resolve(process.cwd(), '.');
+    
+    const broccoliQueue: any = {
+        enqueue: async (job: any) => {
+            const qa = await SovereignDb.getQueue();
+            return qa.enqueue(job);
+        }
+    };
+    this.proxy = new SovereignWorkerProxy(broccoliQueue, logService);
 
-    // Spawn workers
-    const workerPath = path.resolve(__dirname, './workers/ShardedIntegrityWorker.ts');
-    this.workers = Array.from({ length: cpuCores }, (_, i) => 
-      new Worker(workerPath, {
-        workerData: { shardId: i },
-        execArgv: ['-r', 'tsx']
-      })
-    );
-
-    // Listen for messages
-    this.workers.forEach((worker, i) => {
-      worker.on('message', (result: ShardResult) => {
-        this.handleWorkerResult(i, result);
-      });
-
-      worker.on('error', (err: Error) => {
-        this.logService.error(`Worker ${i} crashed: ${err.message}`, err, { component: 'WorkerPoolAdapter', nodeId: `worker-${i}` });
-        this.metrics.failedWorkers++;
-      });
-    });
+    if (!this.useQueue) {
+        // Spawn workers
+        const workerPath = path.resolve(__dirname, './workers/ShardedIntegrityWorker.ts');
+        this.workers = Array.from({ length: cpuCores }, (_, i) => 
+          new Worker(workerPath, {
+            workerData: { shardId: i },
+            execArgv: ['-r', 'tsx']
+          })
+        );
+    
+        // Listen for messages
+        this.workers.forEach((worker, i) => {
+          worker.on('message', (result: ShardResult) => {
+            this.handleWorkerResult(i, result);
+          });
+    
+          worker.on('error', (err: Error) => {
+            this.logService.error(`Worker ${i} crashed: ${err.message}`, err, { component: 'WorkerPoolAdapter', nodeId: `worker-${i}` });
+            this.metrics.failedWorkers++;
+          });
+        });
+    } else {
+        this.logService.info('WorkerPoolAdapter initialized in Sovereign Queue mode (Throttled CPU)', {}, { component: 'WorkerPoolAdapter' });
+    }
 
     this.metrics = {
       workerCount: cpuCores,
-      filesPerWorker: 0,
-      totalCPUTime: 0,
       completedWorkers: 0,
-      failedWorkers: 0
+      failedWorkers: 0,
+      totalCPUTime: 0
     };
   }
 
-  /**
-   * scan: Main entry point for multi-core scanning
-   * 
- **Strategy:**
-   * 1. Collect all files from FileSystemAdapter
-   * 2. Shard files into different groups
-   * 3. Dispatch each shard to separate worker
-   * 4. Wait for all workers to complete
- **Performance:**
-   * 45s → 45ms (1000x improvement)
-   * Drops to ~5s under high load
-   */
   async scan(projectRoot: string): Promise<IntegrityReport> {
     const startTime = Date.now();
+    this.metrics.completedWorkers = 0;
+    this.metrics.failedWorkers = 0;
+    this.completedResults = [];
 
-    // Step 1: Collect all files
-    const projectFiles = this.collectFiles(projectRoot);
+    // Step 1: Collect files
+    const projectFiles = this.getAllTsFiles(path.join(projectRoot, 'src'));
     const fileCount = projectFiles.length;
+    
+    // Step 2: Sharding
+    // We use cpu count or queue concurrency for shard count
+    const shardCount = this.useQueue ? 8 : this.workers.length;
+    this.logService.info(`Sharding ${fileCount} files across ${shardCount} workers (${Math.round(fileCount/shardCount)}/worker)`, { fileCount, shardCount }, { component: 'WorkerPoolAdapter' });
 
-    // Confirm strict density: "multiple CPU cores were processed into shards"
-    const shardCount = Math.min(this.metrics.workerCount, projectFiles.length);
-    const filesPerWorker = Math.floor(fileCount / shardCount);
-    this.metrics.filesPerWorker = Math.max(filesPerWorker, 1);
-
-    this.logService.info(`Sharding ${fileCount} files across ${shardCount} workers (${filesPerWorker}/worker)`, { fileCount, shardCount }, { component: 'WorkerPoolAdapter' });
-
-    // Step 2: Distribute shards to workers
     const partitions: string[][] = Array.from({ length: shardCount }, () => []);
     projectFiles.forEach((file, index) => {
       const partition = partitions[index % shardCount];
       if (partition) {
-        partition.push(file);
+        partition.push(path.relative(projectRoot, file));
       }
     });
 
-    // Step 3: Execute scan partitions
+    if (this.useQueue) {
+        return this.scanViaQueue(partitions, projectRoot, startTime, fileCount);
+    }
+
+    // Step 3: Execute scan partitions (Local Workers)
     const promises = partitions.map((files, shardId) => {
       return new Promise<ShardResult>((resolve) => {
         // Send message to worker (WorkerPoolAdapter.ts:145)
-        if (this.workers[shardId]) {
-            this.workers[shardId].postMessage({
+        const worker = this.workers[shardId];
+        if (worker) {
+            worker.postMessage({
                 type: 'SCAN_PARTITION',
                 shardId,
                 files,
                 scannerType: 'IntegrityScanner',
                 projectRoot
             } as ScanPartitionRequest);
+            
+            // Listen for specific shard completion
+            const listener = (result: ShardResult) => {
+                if (result.shardId === shardId) {
+                    worker.removeListener('message', listener);
+                    resolve(result);
+                }
+            };
+            worker.on('message', listener);
         }
       });
     });
 
-    // Step 4: Wait for all results
     const shardResults = await Promise.all(promises);
     this.postProcessResults(shardResults, startTime);
 
-    // Step 5: Compute final score
     const maxScore = Math.max(0, 100 - shardResults.reduce((acc, r) => acc + r.violations.length * 5, 0));
     const combinedViolations = shardResults.flatMap(r => r.violations);
 
@@ -184,38 +166,25 @@ export class WorkerPoolAdapter implements IntegrityScanner {
     };
   }
 
-  /**
-   * Scans a single file. Delegated to the inner scanner.
-   */
-  async scanFile(filePath: string, projectRoot: string): Promise<IntegrityReport> {
-    return this.scanner.scanFile(filePath, projectRoot);
-  }
-
-  /**
-   * Collect all TypeScript files recursively
-   */
-  private collectFiles(root: string): string[] {
-    const files: string[] = [];
-
-    const walkDir = (dir: string) => {
-      try {
-        const items = fs.readdirSync(dir);
-        items.forEach(item => {
-          const fullPath = path.join(dir, item);
-          const stat = fs.statSync(fullPath);
-          if (stat.isDirectory() && !item.includes('node_modules') && !item.includes('.git')) {
-            walkDir(fullPath);
-          } else if (stat.isFile() && fullPath.endsWith('.ts')) {
-            files.push(fullPath);
+  private getAllTsFiles(dir: string, fileList: string[] = []): string[] {
+    if (!fs.existsSync(dir)) return fileList;
+    
+    const walkDir = (currentPath: string) => {
+      const files = fs.readdirSync(currentPath);
+      for (const file of files) {
+        const filePath = path.join(currentPath, file);
+        if (fs.statSync(filePath).isDirectory()) {
+          if (!file.includes('node_modules') && !file.includes('.git') && !file.includes('.antigravity')) {
+            walkDir(filePath);
           }
-        });
-      } catch (err) {
-        // Directory doesn't exist, move on
+        } else if (file.endsWith('.ts')) {
+          fileList.push(filePath);
+        }
       }
     };
 
-    walkDir(root);
-    return files;
+    walkDir(dir);
+    return fileList;
   }
 
   /**
@@ -247,10 +216,44 @@ export class WorkerPoolAdapter implements IntegrityScanner {
     }
   }
 
-  /**
-   * Get current metrics
-   */
   getMetrics(): PoolMetrics {
     return this.metrics;
+  }
+
+  /**
+   * scanViaQueue: Strategy 2 - Distributed sharding via BroccoliQ
+   */
+  private async scanViaQueue(partitions: string[][], projectRoot: string, startTime: number, fileCount: number): Promise<IntegrityReport> {
+    const shards = partitions.map(p => ({
+        files: p,
+        projectRoot
+    }));
+
+    const results = await this.proxy.executeDistributed<any, IntegrityReport>(
+        JobType.INTEGRITY_SHARD,
+        shards,
+        { timeoutMs: 120000 }
+    );
+
+    const shardResults: ShardResult[] = results.map(r => ({
+        shardId: r.shardId,
+        success: r.success,
+        score: r.payload?.score || 0,
+        violations: r.payload?.violations || [],
+        time: 0,
+        error: r.error
+    }));
+
+    this.postProcessResults(shardResults, startTime);
+
+    const maxScore = Math.max(0, 100 - shardResults.reduce((acc, r) => acc + r.violations.length * 5, 0));
+    const combinedViolations = shardResults.flatMap(r => r.violations);
+
+    return {
+      score: maxScore,
+      violations: combinedViolations,
+      scannedAt: new Date().toISOString(),
+      fileCount
+    };
   }
 }

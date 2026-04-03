@@ -1,15 +1,6 @@
 /**
  * [LAYER: INFRASTRUCTURE]
  * Principle: High-Throughput Scanning via Worker Pool Sharding
- * 
- * **Pass 16: Multi-Worker Architecture**
- * - Before: ParallelProcessor.map (25 tasks on main thread)
- * - After: WorkerPoolAdapter (os.cpus() threads distributed)
- * 
- * Performance improvements:
- * - 6.7x faster scanning (15s → 2.2s)
- * - 10x memory reduction (2GB → 200MB shards)
- * - 8x CPU utilization (12% → 98%)
  */
 
 import * as fs from 'fs';
@@ -27,30 +18,31 @@ import {
 import type { LogService } from '../domain/logging/LogService';
 
 export class IntegrityAdapter implements IntegrityScanner {
-  private poolAdapter: WorkerPoolAdapter;
+  private poolAdapter!: WorkerPoolAdapter;
   private policy: IntegrityPolicy;
   private filesystem: FileSystemAdapter;
+  private isWorker: boolean;
+  private useQueue: boolean;
 
-  constructor(policy: IntegrityPolicy, private logService: LogService) {
-    // Initialize with smaller, domain-based scanner for fallback
+  constructor(policy: IntegrityPolicy, private logService: LogService, isWorker = false, useQueue = true) {
+    this.isWorker = isWorker;
+    this.useQueue = useQueue;
     this.filesystem = new FileSystemAdapter();
     this.policy = policy;
-    this.poolAdapter = new WorkerPoolAdapter(this, logService); // Transparent delegation
+    if (!this.isWorker) {
+      this.poolAdapter = new WorkerPoolAdapter(this, logService, useQueue);
+    }
   }
 
   /**
    * MAIN METHOD: Scans project using WorkerPoolAdapter for multi-core sharding.
-   * 
-   **Architecture:**
-   * - Uses WorkerPoolAdapter for parallel scanning (os.cpus() threads)
-   * - Files distributed into equal partitions
-   * - Workers run independently, results aggregated
-   * 
-   **Performance:**
-   * ~45s → 45ms (10x improvement over previous implementation)
    */
   async scan(projectRoot: string): Promise<IntegrityReport> {
-    // Delegate to WorkerPoolAdapter (from Phase 16)
+    if (this.isWorker) {
+        // Workers should use sequential scanFiles to avoid recursive pool spawning
+        const files = this.getAllFiles(path.join(projectRoot, 'src'));
+        return this.scanFiles(files.map(f => path.relative(projectRoot, f)), projectRoot);
+    }
     return this.poolAdapter.scan(projectRoot);
   }
 
@@ -71,7 +63,27 @@ export class IntegrityAdapter implements IntegrityScanner {
     };
   }
 
-  private async scanSingleFile(absPath: string, relPath: string): Promise<IntegrityViolation[]> {
+  /**
+   * Scans a set of files sequentially (no worker pool).
+   */
+  async scanFiles(files: string[], projectRoot: string): Promise<IntegrityReport> {
+    const allViolations: IntegrityViolation[] = [];
+    for (const file of files) {
+        const fullPath = path.resolve(projectRoot, file);
+        const relPath = path.relative(projectRoot, fullPath);
+        const violations = await this.scanSingleFile(fullPath, relPath);
+        allViolations.push(...violations);
+    }
+    const score = Math.max(0, 100 - (allViolations.length * 5));
+    return {
+        score,
+        violations: allViolations,
+        scannedAt: new Date().toISOString(),
+        fileCount: files.length
+    };
+  }
+
+  public async scanSingleFile(absPath: string, relPath: string): Promise<IntegrityViolation[]> {
     const violations: IntegrityViolation[] = [];
     
     if (!fs.existsSync(absPath)) return [];

@@ -226,6 +226,57 @@ export class SovereignDb {
       .addColumn('owner', 'text', (col) => col.notNull())
       .addColumn('expires_at', 'int8', (col) => col.notNull())
       .execute();
+
+    await db.schema
+      .createTable('integrity_shard_results' as any)
+      .ifNotExists()
+      .addColumn('id', 'text', (col) => col.primaryKey())
+      .addColumn('correlationId', 'text', (col) => col.notNull())
+      .addColumn('shardId', 'integer', (col) => col.notNull())
+      .addColumn('status', 'text', (col) => col.notNull())
+      .addColumn('result', 'text') // JSON
+      .addColumn('error', 'text')
+      .addColumn('timestamp', 'int8', (col) => col.notNull())
+      .execute();
+
+    await db.schema
+      .createIndex('idx_integrity_correlation')
+      .ifNotExists()
+      .on('integrity_shard_results' as any)
+      .column('correlationId')
+      .execute();
+
+    await db.schema
+      .createTable('sovereign_tasks' as any)
+      .ifNotExists()
+      .addColumn('id', 'text', (col) => col.primaryKey())
+      .addColumn('type', 'text', (col) => col.notNull())
+      .addColumn('status', 'text', (col) => col.notNull())
+      .addColumn('total_shards', 'integer', (col) => col.notNull())
+      .addColumn('completed_shards', 'integer', (col) => col.defaultTo(0))
+      .addColumn('metadata', 'text') // JSON
+      .addColumn('created_at', 'int8', (col) => col.notNull())
+      .addColumn('updated_at', 'int8', (col) => col.notNull())
+      .execute();
+
+    await db.schema
+      .createTable('job_results' as any)
+      .ifNotExists()
+      .addColumn('id', 'text', (col) => col.primaryKey())
+      .addColumn('taskId', 'text', (col) => col.notNull())
+      .addColumn('shardId', 'integer', (col) => col.notNull())
+      .addColumn('status', 'text', (col) => col.notNull())
+      .addColumn('payload', 'text') // JSON result
+      .addColumn('error', 'text')
+      .addColumn('timestamp', 'int8', (col) => col.notNull())
+      .execute();
+
+    await db.schema
+      .createIndex('idx_job_results_task')
+      .ifNotExists()
+      .on('job_results' as any)
+      .column('taskId')
+      .execute();
     
     // Pass 6: Concurrency and Deadlock Mitigation
     await sql`PRAGMA journal_mode=WAL;`.execute(db as any);
@@ -258,6 +309,9 @@ export class SovereignDb {
     if (!this.isInitialized) {
       await this.init();
     }
+    try {
+        (this.queue as any).setMaxListeners?.(200);
+    } catch (e) { /* ignore */ }
     return this.queue!;
   }
 

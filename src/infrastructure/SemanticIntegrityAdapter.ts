@@ -212,6 +212,25 @@ export class SemanticIntegrityAdapter implements IntegrityScanner {
     };
   }
 
+  /**
+   * Scans a set of files sequentially (no worker pool).
+   */
+  async scanFiles(files: string[], projectRoot: string): Promise<IntegrityReport> {
+    const allViolations: IntegrityViolation[] = [];
+    for (const file of files) {
+        const absPath = path.resolve(projectRoot, file);
+        const { violations } = analyzeDependencies(absPath, projectRoot, this.policy);
+        allViolations.push(...violations);
+    }
+    const score = Math.max(0, 100 - (allViolations.length * 3));
+    return {
+        score,
+        violations: allViolations,
+        scannedAt: new Date().toISOString(),
+        fileCount: files.length
+    };
+  }
+
   async scanFile(filePath: string, projectRoot: string): Promise<IntegrityReport> {
     const absPath = path.resolve(projectRoot, filePath);
     const { violations } = analyzeDependencies(absPath, projectRoot, this.policy);

@@ -12,6 +12,9 @@ import type { SelfHealingService } from '../../core/integrity/SelfHealingService
 import type { LLMProvider } from '../../domain/LLMProvider';
 import type { AgentRegistry } from '../../core/capabilities/AgentRegistry';
 import type { LogService } from '../../domain/logging/LogService';
+import { IntegrityAdapter } from '../IntegrityAdapter';
+import { SemanticIntegrityAdapter } from '../SemanticIntegrityAdapter';
+import { IntegrityPolicy } from '../../domain/memory/IntegrityPolicy';
 import * as crypto from 'crypto';
 
 export class QueueWorker {
@@ -55,6 +58,12 @@ export class QueueWorker {
           break;
         case 'CODE_ANALYZE':
           await this.handleCodeAnalyze(payload);
+          break;
+        case 'INTEGRITY_SHARD':
+          await this.handleIntegrityShard(job.id, payload.payload);
+          break;
+        case 'SEMANTIC_SHARD':
+          await this.handleSemanticShard(job.id, payload.payload);
           break;
         default:
           this.logService.warn(`Unknown job type: ${payload.type}`, { type: payload.type }, { component: 'QueueWorker' });
@@ -168,5 +177,120 @@ Please propose a refactor to fix this architectural violation.`;
       confidence: 1.0,
       createdAt: new Date().toISOString()
     });
+  }
+
+  private async handleIntegrityShard(jobId: string, payload: any) {
+    const { correlationId, shardId, files, projectRoot } = payload;
+    
+    this.logService.info(
+      `Processing integrity shard`,
+      { correlationId, shardId, fileCount: files.length },
+      { component: 'QueueWorker' }
+    );
+
+    const policy = new IntegrityPolicy();
+    const scanner = new IntegrityAdapter(policy, this.logService, true); // isWorker = true
+    
+    try {
+      const report = await scanner.scanFiles(files, projectRoot);
+      const db = await SovereignDb.db();
+      
+      await db.insertInto('integrity_shard_results' as any)
+        .values({
+          id: crypto.randomUUID(),
+          correlationId,
+          shardId,
+          status: 'completed',
+          result: JSON.stringify(report),
+          timestamp: Date.now()
+        })
+        .execute();
+        
+      this.logService.info(
+        `Shard completed`,
+        { correlationId, shardId, violations: report.violations.length },
+        { component: 'QueueWorker' }
+      );
+    } catch (err: any) {
+      this.logService.error(
+        `Shard failed`,
+        { correlationId, shardId, error: err.message },
+        { component: 'QueueWorker' }
+      );
+      
+      const db = await SovereignDb.db();
+      await db.insertInto('integrity_shard_results' as any)
+        .values({
+          id: crypto.randomUUID(),
+          correlationId,
+          shardId,
+          status: 'failed',
+          error: err.message,
+          timestamp: Date.now()
+        })
+        .execute();
+    }
+  }
+
+  private async handleSemanticShard(jobId: string, payload: any) {
+    const { taskId, file, projectRoot } = payload;
+    
+    this.logService.info(
+      `Processing semantic shard`,
+      { taskId, file },
+      { component: 'QueueWorker' }
+    );
+
+    const policy = new IntegrityPolicy();
+    const scanner = new SemanticIntegrityAdapter(policy);
+    
+    try {
+      const report = await scanner.scanFile(file, projectRoot);
+      await this.reportJobResult(taskId, 0, 'completed', report);
+        
+      this.logService.info(
+        `Semantic shard completed`,
+        { taskId, file, violations: report.violations.length },
+        { component: 'QueueWorker' }
+      );
+    } catch (err: any) {
+      this.logService.error(
+        `Semantic shard failed`,
+        { taskId, file, error: err.message },
+        { component: 'QueueWorker' }
+      );
+      await this.reportJobResult(taskId, 0, 'failed', undefined, err.message);
+    }
+  }
+
+  private async reportJobResult(taskId: string, shardId: number, status: string, payload?: any, error?: string) {
+    const db = await SovereignDb.db();
+    const resultId = crypto.randomUUID();
+    
+    // 1. Insert into job_results
+    await db.insertInto('job_results' as any)
+        .values({
+            id: resultId,
+            taskId,
+            shardId,
+            status,
+            payload: payload ? JSON.stringify(payload) : null,
+            error: error || null,
+            timestamp: Date.now()
+        })
+        .execute();
+
+    // 2. Update sovereign_tasks progress
+    try {
+        await db.updateTable('sovereign_tasks' as any)
+            .set({
+                completed_shards: (db as any).raw('completed_shards + 1'),
+                updated_at: Date.now()
+            })
+            .where('id', '=', taskId)
+            .execute();
+    } catch (e) {
+        // Task entry might not exist if it was a standalone shard
+    }
   }
 }
