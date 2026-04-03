@@ -58,12 +58,6 @@ export interface ImplementationSnapshot {
   totalRequirements: number;
   
   /**
-   * Drift Assessment Divergence (0.0 = perfect alignment, 1.0 = complete deviation)
-   * Evaluated by comparing objective resonance to output fidelity
-   */
-  driftScore: number;
-  
-  /**
    * Human-readable explanation of detected drift
    */
   driftReason?: string;
@@ -75,13 +69,7 @@ export interface ImplementationSnapshot {
   semanticHealth: SemanticHealth;
   
   /**
-   * Consistency Alignment (0.0-1.0) between task.md and implementation
-   */
-  consistencyScore: number;
-  
-  /**
    * SHA-256 hash of the agent's output content
-   * Used for semantic integrity verification
    */
   outputHash: string;
   
@@ -111,29 +99,9 @@ export interface ImplementationSnapshot {
  */
 export interface SemanticHealth {
   /**
-   * Probability of no domain purity violations (Legacy: use axiomProfile)
-   */
-  integrityScore: number;
-  
-  /**
    * Multi-tiered axiomatic verification results
    */
   axiomProfile: AxiomProfile;
-  
-  /**
-   * Structure integrity (Legacy: use axiomProfile)
-   */
-  structureIntegrity: boolean;
-  
-  /**
-   * Content integrity (Legacy: use axiomProfile)
-   */
-  contentIntegrity: boolean;
-  
-  /**
-   * Objective alignment (Legacy: use axiomProfile)
-   */
-  objectiveAlignment: number;
   
   /**
    * List of violations detected in this snapshot
@@ -315,11 +283,6 @@ export interface DriftAssessment {
   status: ComplianceState;
   
   /**
-   * Evaluated alignment divergence (Legacy: use status)
-   */
-  driftScore: number;
-  
-  /**
    * Explains why drift is happening
    */
   driftExplanation: string;
@@ -430,12 +393,7 @@ export enum CorrectionType {
  */
 export interface DriftVector {
   /**
-   * Overall alignment divergence (0.0-1.0)
-   */
-  driftScore: number;
-
-  /**
-   * Topic divergence metric (0.0-1.0)
+   * Topic divergence metric (0.0-1.0) — how far content is from original intent
    */
   topicDivergence: number;
   
@@ -443,11 +401,6 @@ export interface DriftVector {
    * Scope creep metric (0.0-1.0) — unexpected features added
    */
   scopeCreep: number;
-  
-  /**
-   * Quality degradation metric (0.0-1.0)
-   */
-  qualityDeterioration: number;
 }
 
 /**
@@ -464,9 +417,7 @@ export function createImplementationSnapshot(
     completedRequirements: spec.completedRequirements || [],
     pendingRequirements: spec.pendingRequirements || [],
     totalRequirements: spec.totalRequirements || 0,
-    driftScore: spec.driftScore || 0,
     semanticHealth: spec.semanticHealth || createDefaultSemanticHealth(),
-    consistencyScore: spec.consistencyScore || 1.0,
     outputHash: spec.outputHash || '',
     outputSizeBytes: spec.outputSizeBytes || 0,
     state: spec.state,
@@ -489,7 +440,6 @@ export function createImplementationSnapshot(
  */
 function createDefaultSemanticHealth(): SemanticHealth {
   return {
-    integrityScore: 0,
     axiomProfile: {
       status: ComplianceState.BLOCKED,
       failingAxioms: [IntegrityAxiom.STRUCTURAL],
@@ -502,9 +452,6 @@ function createDefaultSemanticHealth(): SemanticHealth {
         [IntegrityAxiom.COGNITIVE_SIMPLICITY]: false
       }
     },
-    structureIntegrity: false,
-    contentIntegrity: false,
-    objectiveAlignment: 0,
     violations: [],
     warnings: []
   };
@@ -541,24 +488,6 @@ function validateImplementationSnapshot(snapshot: ImplementationSnapshot): void 
 
   if (!snapshot.metadata) {
     throw new ValidationError('Snapshot metadata is required');
-  }
-
-  // Validate semantic health
-  if (typeof snapshot.semanticHealth.integrityScore !== 'number') {
-    throw new ValidationError('Semantic health integrityScore must be a number');
-  }
-
-  if (typeof snapshot.semanticHealth.objectiveAlignment !== 'number') {
-    throw new ValidationError('Semantic health objectiveAlignment must be a number');
-  }
-
-  // Validate semantic health is normalized
-  if (snapshot.semanticHealth.integrityScore < 0 || snapshot.semanticHealth.integrityScore > 1) {
-    throw new ValidationError('Integrity score must be between 0 and 1');
-  }
-
-  if (snapshot.semanticHealth.objectiveAlignment < 0 || snapshot.semanticHealth.objectiveAlignment > 1) {
-    throw new ValidationError('Objective alignment must be between 0 and 1');
   }
 
   // Validate metadata
@@ -609,10 +538,8 @@ export interface ImplementationSnapshotCreationSpec {
   completedRequirements?: Requirement[];
   pendingRequirements?: Requirement[];
   totalRequirements?: number;
-  driftScore?: number;
   driftReason?: string;
   semanticHealth?: SemanticHealth;
-  consistencyScore?: number;
   outputHash: string;
   outputSizeBytes?: number;
   state: TaskState;
@@ -674,17 +601,12 @@ export function computeCheckpointHash(
  */
 export function calculateDriftDelta(
   before: ImplementationSnapshot,
-  after: ImplementationSnapshot,
-  topicDivergence: number = 0.0
+  after: ImplementationSnapshot
 ): DriftVector {
-  const requirementDelta = (after.completedRequirements?.length || 0) - (before.completedRequirements?.length || 0);
-  const integrityDelta = after.semanticHealth.integrityScore - before.semanticHealth.integrityScore;
-  
+  const isAxiomCompliant = after.semanticHealth.axiomProfile.status === ComplianceState.CLEARED;
   return {
-    driftScore: Math.abs(integrityDelta),
-    topicDivergence,
-    scopeCreep: requirementDelta > 0 ? Math.min(1.0, requirementDelta / 10) : 0.0,
-    qualityDeterioration: Math.max(0, before.semanticHealth.integrityScore - after.semanticHealth.integrityScore)
+    topicDivergence: isAxiomCompliant ? 0.0 : 1.0,
+    scopeCreep: after.totalRequirements > before.totalRequirements ? (after.totalRequirements - before.totalRequirements) / before.totalRequirements : 0.0
   };
 }
 

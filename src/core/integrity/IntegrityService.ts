@@ -27,7 +27,6 @@ export class IntegrityService implements IntegrityScanner {
   async scan(projectRoot: string): Promise<IntegrityReport> {
     if (!this.scanner) {
       return {
-        score: 100,
         violations: [],
         scannedAt: new Date().toISOString(),
         fileCount: 0,
@@ -56,7 +55,7 @@ export class IntegrityService implements IntegrityScanner {
   }
 
   async scanFile(filePath: string, projectRoot: string): Promise<IntegrityReport> {
-    if (!this.scanner) return { score: 100, violations: [], scannedAt: new Date().toISOString() };
+    if (!this.scanner) return { violations: [], scannedAt: new Date().toISOString() };
     const report = await this.scanner.scanFile(filePath, projectRoot);
     
     // Pass 11: Proactive structural analysis (Coupling/Anchor detection)
@@ -135,7 +134,6 @@ export class IntegrityService implements IntegrityScanner {
           table: 'joy_history' as any,
           values: {
               id: crypto.randomUUID(),
-              score: report.score,
               violation_count: report.violations.length,
               file_count: report.fileCount || 0,
               timestamp: Date.now()

@@ -19,11 +19,11 @@ export class SqliteCheckpointRepository {
     const stmt = this.db.prepare(`
       INSERT INTO checkpoints (
         checkpoint_id, task_id, timestamp, completed_requirements,
-        pending_requirements, drift_score, semantic_health,
-        consistency_score, output_hash, output_size_bytes,
+        pending_requirements, semantic_health,
+        output_hash, output_size_bytes,
         state, tokens_processed, trigger, previous_snapshot_id,
         user_confirmation_required, drift_reason
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     stmt.run(...values);
   }

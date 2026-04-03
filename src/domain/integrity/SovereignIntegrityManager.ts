@@ -77,10 +77,7 @@ export class SovereignIntegrityManager {
             return true;
         });
 
-        const score = Math.max(0, 100 - (uniqueViolations.length * 3));
-
-        return {
-            score,
+    return {
             violations: uniqueViolations,
             scannedAt: new Date().toISOString(),
             fileCount

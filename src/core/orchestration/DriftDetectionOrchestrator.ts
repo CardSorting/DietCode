@@ -214,6 +214,7 @@ export class DriftDetectionOrchestrator {
           throw new Error(`Axiomatic Compliance Failed: ${firstViolation?.message || 'Unknown violation'}. Refusing entry to SOVEREIGN_DOING.`);
        }
 
+       task.simAxiomProfile = semanticIntegrity.axiomProfile;
        const doingTask = this.scheduler.transition(task, TaskState.SOVEREIGN_DOING);
        await this.entityManager.setCurrentTask(doingTask);
     }
@@ -235,9 +236,7 @@ export class DriftDetectionOrchestrator {
 
     const spec: any = {
       checkpointId: (trigger === 'initialization' || trigger === 'demographic') ? generateCheckpointId() : (this.currentCheckpointId || generateCheckpointId()),
-      driftScore: isAxiomCompliant ? 0.0 : 1.0,
       semanticHealth: semanticIntegrity,
-      consistencyScore: isAxiomCompliant ? 1.0 : 0.0,
       outputHash: markdownContent,
       outputSizeBytes: markdownContent.length,
       state: (await this.entityManager.getCurrentTask())?.state || TaskState.SOVEREIGN_DOING,
@@ -263,10 +262,8 @@ export class DriftDetectionOrchestrator {
    * Evaluate compliance state and provide recommendation
    */
   async evaluateDrift(
-    taskMd: string,
-    expectedScore: number
+    taskMd: string
   ): Promise<{
-    driftScore: number;
     recommendation: DriftDetectionRecommendation;
     snapshot: ImplementationSnapshot;
   }> {
@@ -282,7 +279,7 @@ export class DriftDetectionOrchestrator {
     if (this.currentAxiomProfile.status !== ComplianceState.CLEARED) {
         const snapshot = await this.createCheckpoint(
             taskMd,
-            expectedScore,
+            1.0,
             'demographic',
             { taskId: (await this.entityManager.getCurrentTask())?.id }
         );
@@ -298,7 +295,6 @@ export class DriftDetectionOrchestrator {
         });
 
         return {
-            driftScore: 1.0,
             recommendation,
             snapshot
         };
@@ -309,11 +305,10 @@ export class DriftDetectionOrchestrator {
     });
 
     return {
-        driftScore: 0.0,
         recommendation,
         snapshot: await this.createCheckpoint(
             taskMd,
-            expectedScore,
+            1.0,
             'demographic',
             { taskId: (await this.entityManager.getCurrentTask())?.id }
         )
@@ -329,7 +324,6 @@ export class DriftDetectionOrchestrator {
     
     this.log(LogLevel.WARN, 'Sovereign Audit Complete', {
         totalFiles: report.totalFilesScanned,
-        debtScore: report.architecturalDebtScore.toFixed(4),
         blockedCount: report.blockedFilesCount
     });
 
@@ -384,19 +378,17 @@ export class DriftDetectionOrchestrator {
 
     const isAxiomCompliant = later.semanticHealth.axiomProfile.status === ComplianceState.CLEARED;
     const topicDivergence = isAxiomCompliant ? 0.0 : 1.0;
-    const delta = calculateDriftDelta(earlier, later, topicDivergence);
+    const delta = calculateDriftDelta(earlier, later);
 
     const vector = {
       axiomStatus: later.semanticHealth.axiomProfile.status,
       topicDivergence,
-      scopeCreep: delta.scopeCreep,
-      qualityDeterioration: delta.qualityDeterioration
+      scopeCreep: delta.scopeCreep
     };
     
     const organismality = Math.max(
       delta.topicDivergence,
-      delta.scopeCreep,
-      delta.qualityDeterioration
+      delta.scopeCreep
     );
 
     return { delta, vector, organismality };
@@ -438,11 +430,7 @@ export class DriftDetectionOrchestrator {
 
   private cachedCriteria: Record<string, DriftDetectionCriteria> = {
     development: {
-      maxDriftThreshold: 0.5,
-      requiresConfirmationForDriftAbove: 0.7,
       checkpointInterval: 500,
-      semanticSimilarityThreshold: 0.75,
-      maxFailureThreshold: 0.95,
       autoRestoreOnCriticalDrift: true,
       maxCheckpointCacheSize: 100,
       logDriftPredictions: true,
@@ -450,11 +438,7 @@ export class DriftDetectionOrchestrator {
       enabledAxioms: [IntegrityAxiom.STRUCTURAL, IntegrityAxiom.RESONANCE]
     },
     staging: {
-      maxDriftThreshold: 0.3,
-      requiresConfirmationForDriftAbove: 0.6,
       checkpointInterval: 1000,
-      semanticSimilarityThreshold: 0.85,
-      maxFailureThreshold: 0.95,
       autoRestoreOnCriticalDrift: true,
       maxCheckpointCacheSize: 50,
       logDriftPredictions: false,
@@ -462,11 +446,7 @@ export class DriftDetectionOrchestrator {
       enabledAxioms: [IntegrityAxiom.STRUCTURAL, IntegrityAxiom.RESONANCE, IntegrityAxiom.PURITY]
     },
     production: {
-      maxDriftThreshold: 0.2,
-      requiresConfirmationForDriftAbove: 0.5,
       checkpointInterval: 2000,
-      semanticSimilarityThreshold: 0.9,
-      maxFailureThreshold: 0.95,
       autoRestoreOnCriticalDrift: true,
       maxCheckpointCacheSize: 30,
       logDriftPredictions: false,

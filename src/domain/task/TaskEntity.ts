@@ -216,10 +216,8 @@ export interface VitalsHeartbeat {
  * Semantic integrity metrics for a task implementation
  */
 export interface SemanticIntegrity {
-  integrityScore: number;
   structureIntegrity: boolean;
   contentIntegrity: boolean;
-  objectiveAlignment: number;
   violations: any[];
   warnings: string[];
 }
@@ -242,10 +240,10 @@ export interface TaskValidation {
   isValid: boolean;
   errors: string[];
   warnings: string[];
-  score: number;
   requirements: Requirement[];
   objectives: string[];
   acceptanceCriteria: string[];
+  axiomProfile: AxiomProfile;
 }
 
 /**

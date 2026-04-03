@@ -18,10 +18,8 @@ export class CheckpointMapper {
       completedRequirements: JSON.parse(row.completed_requirements),
       pendingRequirements: JSON.parse(row.pending_requirements),
       totalRequirements: 0, // Recalculated by the orchestrator if needed
-      driftScore: row.drift_score || 0,
       driftReason: row.drift_reason || undefined,
       semanticHealth: JSON.parse(row.semantic_health),
-      consistencyScore: row.consistency_score || 0,
       outputHash: row.output_hash,
       outputSizeBytes: row.output_size_bytes || 0,
       state: row.state as TaskState,
@@ -37,7 +35,7 @@ export class CheckpointMapper {
   /**
    * Converts a snapshot to a value array for SQL INSERT.
    * Order must match: checkpoint_id, task_id, timestamp, completed_requirements,
-   * pending_requirements, drift_score, semantic_health, consistency_score,
+   * pending_requirements, semantic_health,
    * output_hash, output_size_bytes, state, tokens_processed, trigger,
    * previous_snapshot_id, user_confirmation_required, drift_reason
    */
@@ -48,9 +46,7 @@ export class CheckpointMapper {
       snapshot.timestamp.getTime(),
       JSON.stringify(snapshot.completedRequirements),
       JSON.stringify(snapshot.pendingRequirements),
-      snapshot.driftScore,
       JSON.stringify(snapshot.semanticHealth),
-      snapshot.consistencyScore,
       snapshot.outputHash,
       snapshot.outputSizeBytes,
       snapshot.state,

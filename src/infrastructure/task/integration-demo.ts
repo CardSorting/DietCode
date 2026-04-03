@@ -50,17 +50,13 @@ async function demonstrateDriftPrevention() {
   const logService = new ConsoleLoggerAdapter();
   await Core.init(sovereignDbPath, Schema.ensureSchema.bind(Schema));
   const queueAdapter = new BroccoliQueueAdapter();
-  const workerProxy = new SovereignWorkerProxy(queueAdapter, logService);
-
-
   const orchestrator = new DriftDetectionOrchestrator(
     persistence,
     semanticAnalyzer,
     consistencyValidator,
     entityManager,
     selector,
-    scheduler,
-    workerProxy
+    scheduler
   );
 
   console.log('✅ Hardened Infrastructure Initialized (SQLite Persistence)');
@@ -86,7 +82,7 @@ Implement a production-hardened drift detection system for core infrastructure.
 
   // Validate the task using real logic
   const taskValidation = await consistencyValidator.validateTask(taskMd);
-  console.log(`🔍 Task Validation Score: ${taskValidation.score}/100`);
+  console.log(`🔍 Task Validation Status: ${taskValidation.axiomProfile.status}`);
   
   const task = createTaskEntity({
     title: 'Drift Prevention System',
@@ -103,29 +99,23 @@ Implement a production-hardened drift detection system for core infrastructure.
 
   // Step 3: Initial Checkpoint
   console.log('📝 Phase 2: Initial Checkpoint\n');
-  const initialSnapshot = await orchestrator.initializeTask(taskMd, taskValidation.score);
+  const initialSnapshot = await orchestrator.initializeTask(taskMd, 1.0);
   
   console.log(`📸 Initial Checkpoint: ${initialSnapshot.checkpointId}`);
-  console.log(`📊 Integrity Score: ${initialSnapshot.semanticHealth.integrityScore.toFixed(2)}`);
-  console.log(`📊 Objective Alignment: ${initialSnapshot.semanticHealth.objectiveAlignment.toFixed(2)}\n`);
+  console.log(`📊 Axiomatic Status: ${initialSnapshot.semanticHealth.axiomProfile.status}\n`);
 
   // Step 4: Simulate Progress and Auto-Checkpointing
   console.log('📝 Phase 3: Simulating Progress & Drift Detection\n');
 
   // Simulate 600 tokens processed (triggers auto-checkpointing in dev mode > 500)
   console.log('🚀 Processing work tokens...');
-  const driftScore = 0.15; // 15% drift
-  const snapshotAfterWork = await orchestrator.checkAndPersistCheckpoints(driftScore, 600);
+  const snapshotAfterWork = await orchestrator.checkAndPersistCheckpoints(600);
 
   if (snapshotAfterWork) {
     console.log(`📸 Auto-Checkpoint Triggered: ${snapshotAfterWork.checkpointId}`);
-    console.log(`⚠️  Detected Drift: ${snapshotAfterWork.driftScore.toFixed(2)}`);
+    console.log(`⚠️  Status: ${snapshotAfterWork.semanticHealth.axiomProfile.status}`);
     
-    const evaluation = await orchestrator.evaluateDrift(
-      taskMd, 
-      0.85, 
-      task.objective
-    );
+    const evaluation = await orchestrator.evaluateDrift(taskMd);
     
     console.log(`🎯 Evaluation: ${evaluation.recommendation.explanation}`);
     console.log(`🎯 Action: ${evaluation.recommendation.correctiveAction}\n`);
@@ -133,14 +123,9 @@ Implement a production-hardened drift detection system for core infrastructure.
 
   // Step 5: Simulate Severe Drift
   console.log('📝 Phase 4: Simulating Severe Drift\n');
-  const severeDriftScore = 0.85; // 85% drift
-  const severeEvaluation = await orchestrator.evaluateDrift(
-    'Completely unrelated content about baking cakes', 
-    0.1, 
-    task.objective
-  );
+  const severeEvaluation = await orchestrator.evaluateDrift('Completely unrelated content about baking cakes');
 
-  console.log(`🚨 SEVERE DRIFT DETECTED: ${severeDriftScore.toFixed(2)}`);
+  console.log(`🚨 SEVERE DRIFT DETECTED`);
   console.log(`🛑 Action Required: ${severeEvaluation.recommendation.correctiveAction}`);
   console.log(`🛑 Suggested State: ${severeEvaluation.recommendation.suggestedState}\n`);
 
@@ -149,7 +134,7 @@ Implement a production-hardened drift detection system for core infrastructure.
   console.log(`🔄 Restoring to last safe checkpoint: ${initialSnapshot.checkpointId}...`);
   const restoredSnapshot = await orchestrator.restoreFromCheckpoint(initialSnapshot.checkpointId, task.id);
   
-  console.log(`✅ State Restored. Current Drift Score: ${restoredSnapshot.driftScore.toFixed(2)}`);
+  console.log(`✅ State Restored. Status: ${restoredSnapshot.semanticHealth.axiomProfile.status}`);
   console.log(`✅ Current Task State: ${restoredSnapshot.state}\n`);
 
   // Step 7: Final Metrics

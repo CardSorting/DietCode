@@ -26,12 +26,6 @@ export interface ProjectIntegrityReport {
   flaggedFilesCount: number;
   
   /**
-   * Overall project debt score (0.0 - 1.0)
-   * 0.0 = Perfect Compliance, 1.0 = Total Decay
-   */
-  architecturalDebtScore: number;
-  
-  /**
    * Detailed results categorized by layer
    */
   resultsByLayer: Record<string, FileIntegrityResult[]>;

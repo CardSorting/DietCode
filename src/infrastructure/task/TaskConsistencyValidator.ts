@@ -14,6 +14,8 @@ import * as crypto from 'crypto';
 import type { TaskValidation, ConsistencyReport, Requirement } from '../../domain/task/TaskEntity';
 import { RequirementType, TaskPriority } from '../../domain/task/TaskEntity';
 import { SemanticIntegrityAnalyser } from './SemanticIntegrityAnalyser';
+import type { AxiomProfile } from '../../domain/task/ImplementationSnapshot';
+import { ComplianceState, IntegrityAxiom } from '../../domain/task/ImplementationSnapshot';
 import { FileSystemAdapter } from '../FileSystemAdapter';
 
 /**
@@ -31,10 +33,27 @@ export class TaskConsistencyValidator {
   async validateTask(content: string): Promise<TaskValidation> {
     const errors: string[] = [];
     const warnings: string[] = [];
-    let score = 100;
-
     if (!content || content.trim().length === 0) {
-      return { isValid: false, errors: ['Content is empty'], warnings: [], score: 0, requirements: [], objectives: [], acceptanceCriteria: [] };
+      return { 
+        isValid: false, 
+        errors: ['Content is empty'], 
+        warnings: [], 
+        requirements: [], 
+        objectives: [], 
+        acceptanceCriteria: [],
+        axiomProfile: {
+          status: ComplianceState.FLAGGED,
+          failingAxioms: [IntegrityAxiom.STRUCTURAL],
+          axiomResults: {
+            [IntegrityAxiom.STRUCTURAL]: false,
+            [IntegrityAxiom.RESONANCE]: false,
+            [IntegrityAxiom.PURITY]: false,
+            [IntegrityAxiom.STABILITY]: false,
+            [IntegrityAxiom.INTERFACE_INTEGRITY]: false,
+            [IntegrityAxiom.COGNITIVE_SIMPLICITY]: false
+          }
+        }
+      };
     }
 
     const sections = this.extractMarkdownSections(content);
@@ -42,24 +61,22 @@ export class TaskConsistencyValidator {
 
     if (!sections.mission && (!sections.objectives || sections.objectives.length === 0)) {
       errors.push('Missing mission statement or objectives - required for drift prevention');
-      score -= 30;
     }
 
     if (requirements.length === 0) {
       errors.push('No requirements defined in task.md');
-      score -= 40;
     }
 
-    score = Math.max(0, score);
+    const health = this.semanticAnalyzer.assessIntegrityAlignment(content, [], { objective: sections.objectives[0] || sections.mission });
 
     return {
-      isValid: errors.length === 0 && score >= 60,
+      isValid: errors.length === 0 && health.axiomProfile.status !== ComplianceState.BLOCKED,
       errors,
       warnings,
-      score,
       requirements,
       objectives: sections.objectives.length ? sections.objectives : [sections.mission || ''],
-      acceptanceCriteria: sections.acceptanceCriteria
+      acceptanceCriteria: sections.acceptanceCriteria,
+      axiomProfile: health.axiomProfile
     };
   }
 
@@ -69,25 +86,52 @@ export class TaskConsistencyValidator {
   async validateImplementation(content: string): Promise<TaskValidation> {
     const errors: string[] = [];
     const warnings: string[] = [];
-    let score = 100;
-
     if (!content || content.trim().length === 0) {
-      return { isValid: false, errors: ['Content is empty'], warnings: [], score: 0, requirements: [], objectives: [], acceptanceCriteria: [] };
+      return { 
+        isValid: false, 
+        errors: ['Content is empty'], 
+        warnings: [], 
+        requirements: [], 
+        objectives: [], 
+        acceptanceCriteria: [],
+        axiomProfile: {
+          status: ComplianceState.FLAGGED,
+          failingAxioms: [IntegrityAxiom.STRUCTURAL],
+          axiomResults: {
+            [IntegrityAxiom.STRUCTURAL]: false,
+            [IntegrityAxiom.RESONANCE]: false,
+            [IntegrityAxiom.PURITY]: false,
+            [IntegrityAxiom.STABILITY]: false,
+            [IntegrityAxiom.INTERFACE_INTEGRITY]: false,
+            [IntegrityAxiom.COGNITIVE_SIMPLICITY]: false
+          }
+        }
+      };
     }
 
     if (content.length < 50) {
       errors.push('Implementation.md is too short - likely incomplete');
-      score -= 30;
     }
 
     return {
-      isValid: errors.length === 0 && score >= 60,
+      isValid: errors.length === 0,
       errors,
       warnings,
-      score,
       requirements: [],
       objectives: [],
-      acceptanceCriteria: []
+      acceptanceCriteria: [],
+      axiomProfile: {
+        status: errors.length === 0 ? ComplianceState.CLEARED : ComplianceState.FLAGGED,
+        failingAxioms: [],
+        axiomResults: {
+            [IntegrityAxiom.STRUCTURAL]: true,
+            [IntegrityAxiom.RESONANCE]: true,
+            [IntegrityAxiom.PURITY]: true,
+            [IntegrityAxiom.STABILITY]: true,
+            [IntegrityAxiom.INTERFACE_INTEGRITY]: true,
+            [IntegrityAxiom.COGNITIVE_SIMPLICITY]: true
+        }
+      }
     };
   }
 
@@ -118,19 +162,20 @@ export class TaskConsistencyValidator {
 
   private analyzeGaps(
     taskVal: TaskValidation,
-    implVal: TaskValidation,
+    _implVal: TaskValidation,
     taskMd: string,
     implMd: string
   ): Gap[] {
     const gaps: Gap[] = [];
-    const similarity = this.semanticAnalyzer.calculateLinearDistance(taskMd, implMd);
+    // Using axiomatic assessment instead of linear distance scoring
+    const health = this.semanticAnalyzer.assessIntegrityAlignment(implMd, [], { objective: taskVal.objectives[0] });
     
-    if (similarity > 0.4) {
+    if (health.axiomProfile.status === 'BLOCKED' || !health.axiomProfile.axiomResults['resonance']) {
       gaps.push({
         gapType: 'intent-mismatch',
-        threshold: 0.4,
-        current: similarity,
-        message: `High semantic divergence score: ${similarity.toFixed(2)}`
+        threshold: 0,
+        current: 1,
+        message: `Semantic divergence detected: Resonace Axiom failure.`
       });
     }
 

@@ -29,9 +29,6 @@ export interface ArchitectureEvent {
   timestamp: string;
   oldPath: string;
   newPath: string;
-  oldArchScore: number;
-  newArchScore: number;
-  scoreChange: number;
   violations?: ArchitecturalViolation[];
   metadata?: Record<string, unknown>;
 }

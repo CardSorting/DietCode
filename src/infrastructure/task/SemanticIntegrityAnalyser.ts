@@ -102,11 +102,7 @@ export class SemanticIntegrityAnalyser {
     });
 
     return {
-      integrityScore: status === ComplianceState.CLEARED ? 1.0 : (status === ComplianceState.FLAGGED ? 0.5 : 0.0),
       axiomProfile: profile,
-      structureIntegrity: structuralResult,
-      contentIntegrity: structuralResult && purityAxiomResult,
-      objectiveAlignment: resonanceResult ? 1.0 : 0.0,
       violations,
       warnings: status === ComplianceState.FLAGGED ? ['Content requires structural alignment review'] : []
     };
@@ -183,26 +179,7 @@ export class SemanticIntegrityAnalyser {
     return this.astAnalyser.detectHighComplexity(content, 12);
   }
 
-  /**
-   * Calculates entropy as an auxiliary measure of information density
-   */
-  calculateEntropy(text: string): number {
-    if (!text || text.length === 0) return 0;
-    
-    const frequencies = new Map<string, number>();
-    for (const char of text) {
-      frequencies.set(char, (frequencies.get(char) || 0) + 1);
-    }
-    
-    let entropy = 0;
-    const len = text.length;
-    for (const count of frequencies.values()) {
-      const p = count / len;
-      entropy -= p * Math.log2(p);
-    }
-    
-    return entropy;
-  }
+
 
   /**
    * Project-Wide Axiomatic Audit (Axiom 3.0)
@@ -232,7 +209,8 @@ export class SemanticIntegrityAnalyser {
           scanDirectory(fullPath);
         } else if (entry.isFile() && (entry.name.endsWith('.ts') || entry.name.endsWith('.js'))) {
           const content = fs.readFileSync(fullPath, 'utf8');
-          const layer = fullPath.includes('domain') ? 'domain' : 
+          const layer: 'domain' | 'infrastructure' | 'core' | 'unknown' = 
+                        fullPath.includes('domain') ? 'domain' : 
                         fullPath.includes('infrastructure') ? 'infrastructure' : 
                         fullPath.includes('core') ? 'core' : 'unknown';
 
@@ -245,6 +223,9 @@ export class SemanticIntegrityAnalyser {
             violations: health.violations
           };
 
+          if (!resultsByLayer[layer]) {
+            resultsByLayer[layer] = [];
+          }
           resultsByLayer[layer].push(result);
           totalFiles++;
 
@@ -257,15 +238,12 @@ export class SemanticIntegrityAnalyser {
 
     scanDirectory(srcDir);
 
-    const debtScore = totalFiles === 0 ? 0 : (blockedCount * 1.0 + flaggedCount * 0.4) / totalFiles;
-
     return {
       timestamp: new Date(),
       totalFilesScanned: totalFiles,
       compliantFilesCount: compliantCount,
       blockedFilesCount: blockedCount,
       flaggedFilesCount: flaggedCount,
-      architecturalDebtScore: debtScore,
       resultsByLayer,
       remediationPlan: this.generateRemediationPlan(blockedCount, flaggedCount, resultsByLayer)
     };

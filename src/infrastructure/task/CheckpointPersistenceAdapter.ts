@@ -90,10 +90,7 @@ export class CheckpointPersistenceAdapter implements IPersistenceAdapter {
       completedRequirements: spec.completedRequirements || [],
       pendingRequirements,
       totalRequirements: allRequirements.length,
-      driftScore: spec.driftScore || 0,
-      driftReason: spec.driftReason,
       semanticHealth: {
-        ...spec.semanticHealth,
         axiomProfile: spec.axiomProfile || { 
           status: ComplianceState.CLEARED, 
           failingAxioms: [],
@@ -109,7 +106,6 @@ export class CheckpointPersistenceAdapter implements IPersistenceAdapter {
         violations: spec.semanticHealth?.violations || [],
         warnings: spec.semanticHealth?.warnings || []
       },
-      consistencyScore: spec.consistencyScore || 1.0,
       outputHash: spec.outputHash,
       outputSizeBytes: spec.outputSizeBytes || 0,
       state: spec.state || TaskState.SOVEREIGN_DOING,
@@ -171,17 +167,13 @@ export class CheckpointPersistenceAdapter implements IPersistenceAdapter {
  */
 export interface CheckpointSpec {
   checkpointId?: string;
-  driftScore?: number;
   completedRequirements?: Requirement[];
   semanticHealth: {
-    integrityScore: number;
     structureIntegrity: boolean;
     contentIntegrity: boolean;
-    objectiveAlignment: number;
     violations?: Violation[];
     warnings?: string[];
   };
-  consistencyScore?: number;
   outputHash: string;
   outputSizeBytes?: number;
   state?: TaskState;

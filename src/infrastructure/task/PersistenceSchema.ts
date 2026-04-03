@@ -9,9 +9,7 @@ export interface DatabaseCheckpointRow {
   timestamp: number;
   completed_requirements: string;
   pending_requirements: string;
-  drift_score: number;
   semantic_health: string;
-  consistency_score: number;
   output_hash: string;
   output_size_bytes: number;
   state: string;
@@ -65,9 +63,7 @@ export const INITIAL_SCHEMA = `
     timestamp INTEGER NOT NULL,
     completed_requirements TEXT NOT NULL,
     pending_requirements TEXT NOT NULL,
-    drift_score REAL,
     semantic_health TEXT NOT NULL,
-    consistency_score REAL,
     output_hash TEXT NOT NULL,
     output_size_bytes INTEGER,
     state TEXT NOT NULL,

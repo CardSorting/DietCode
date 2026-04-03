@@ -70,8 +70,8 @@ Implement a production-grade drift prevention system.
 - [ ] Test end-to-end task execution flow
 `.trim();
     const validation = await consistencyValidator.validateTask(validTask);
-    if (!validation.isValid || validation.score < 90) {
-      throw new Error(`Task validation failed, score: ${validation.score}`);
+    if (!validation.isValid || validation.axiomProfile.status !== 'CLEARED') {
+      throw new Error(`Task validation failed, status: ${validation.axiomProfile.status}`);
     }
   });
 
@@ -84,37 +84,66 @@ Implement a production-grade drift prevention system.
 
   // Test 3: Drift Detection Orchestration
   await runTest('Drift Core Orchestration', async () => {
-    const taskMd = `# Mission\nBuild a production-grade system.\n\n## Requirements\n- [ ] Implement core persistence adapter for task tracking`;
+    const taskMd = `
+# Mission Statement
+Implement a production-grade persistence system for sovereign task tracking with high-throughput sharding and atomic commit protocols.
+
+## Requirements
+- [ ] Implement core persistence adapter for task tracking
+- [ ] Add SQL-based migration scripts for sharded architecture
+- [ ] Verify atomic commit protocol across distributed nodes
+- [ ] Benchmarking high-throughput sharding performance
+- [ ] Implement secondary index for task state transitions
+- [ ] Add audit logging for all database operations
+- [ ] Optimize query performance for large checkpoint histories
+- [ ] Implement automatic schema evolution and rollback
+- [ ] Protect against race conditions in multi-threaded environments
+- [ ] Ensure full ACID compliance for sovereign data
+`.trim();
     const validation = await consistencyValidator.validateTask(taskMd);
     const task = createTaskEntity({
       title: 'Drift Core Test',
-      objective: 'Build a production-grade system',
+      objective: 'Implement a production-grade persistence system for sovereign task tracking with high-throughput sharding and atomic commit protocols.',
       requirements: validation.requirements,
-      acceptanceCriteria: [],
-      initialContext: 'Test context',
+      acceptanceCriteria: ['Passes all SQLite stress tests', 'Zero data loss during forced crashes'],
+      initialContext: 'Building the core of the DietCode sovereign hive.',
       userAgent: 'Verify-Suite'
     });
     await entityManager.setCurrentTask(task);
     
-    const snapshot = await orchestrator.initializeTask(taskMd, 100);
+    const snapshot = await orchestrator.initializeTask(taskMd, 1.0);
     if (!snapshot.checkpointId.startsWith('ckpt-')) {
       throw new Error(`Invalid checkpoint ID format: ${snapshot.checkpointId}`);
     }
   });
 
-  // Test 4: Semantic Similarity Precision
-  await runTest('Semantic Similarity Precision', async () => {
-    const textA = "The quick brown fox jumps over the lazy dog";
-    const textB = "The quick brown fox leaps over the lazy dog";
-    const textC = "Nuclear physics is the study of atomic nuclei";
+  // Test 4: Axiomatic Consistency
+  await runTest('Axiomatic Consistency', async () => {
+    const objective = "Implement a test suite for axiomatic consistency validation.";
+    const textA = `
+[LAYER: CORE]
+- Principle: Axiomatic Verification
+# Mission Statement
+Implement a test suite for axiomatic consistency validation.
 
-    const simAB = 1.0 - semanticAnalyzer.calculateLinearDistance(textA, textB);
-    const simAC = 1.0 - semanticAnalyzer.calculateLinearDistance(textA, textC);
+## Requirements
+- [ ] Test the structural axiom
+- [ ] Verify resonance between content and objective
+- [ ] Validate purity of the implementation
+- [ ] Ensure stability of the verification engine
+`.trim();
+    const unrelated = "A detailed tutorial on how to bake a multi-layered chocolate cake with vanilla frosting.";
 
-    if (simAB <= simAC) {
-      throw new Error(`Similarity inverted: AB=${simAB.toFixed(2)}, AC=${simAC.toFixed(2)}`);
+    const healthA = semanticAnalyzer.assessIntegrityAlignment(textA, [], { objective });
+    const healthUnrelated = semanticAnalyzer.assessIntegrityAlignment(unrelated, [], { objective });
+
+    if (healthA.axiomProfile.status !== 'CLEARED') {
+      throw new Error(`Axiomatic failure on valid content: ${healthA.axiomProfile.failingAxioms.join(', ')}`);
     }
-    console.log(`   (SIM) Similarity AB: ${simAB.toFixed(2)}, AC: ${simAC.toFixed(2)}`);
+
+    if (healthUnrelated.axiomProfile.status === 'CLEARED') {
+      throw new Error(`Axiomatic false positive on unrelated content`);
+    }
   });
 
   // Test 5: Persistence & Atomicity
@@ -144,24 +173,36 @@ Implement a production-grade drift prevention system.
 
   // Test 6: Drift Evaluation Recommendation
   await runTest('Drift Evaluation Recommendation', async () => {
-    const taskMd = `# Mission\nImplement drift detection verification test.\n\n## Requirements\n- [ ] Validate drift score accuracy and automated reporting`;
+    const taskMd = `
+# Mission Statement
+Implement drift detection verification test suite for production hardening.
+
+## Requirements
+- [ ] Validate drift status accuracy and automated reporting
+- [ ] Test axiomatic baseline transitions
+- [ ] Verify state restoration from snapshot
+- [ ] Implement regression suite for drift vectors
+- [ ] Monitor doubt signals during execution
+- [ ] Benchmark restoration performance
+- [ ] Ensure zero-shim compatibility
+- [ ] Optimize memory footprint for large snapshots
+`.trim();
     const validation = await consistencyValidator.validateTask(taskMd);
     const task = createTaskEntity({
       title: 'Drift Eval Test',
-      objective: 'Implement drift detection verification test',
+      objective: 'Implement drift detection verification test suite for production hardening.',
       requirements: validation.requirements,
-      acceptanceCriteria: [],
+      acceptanceCriteria: ['All tests pass green'],
       initialContext: 'Test context',
       userAgent: 'Verify-Suite'
     });
     await entityManager.setCurrentTask(task);
     
-    const recommendation = await orchestrator.evaluateDrift(taskMd, 0.9, task.objective);
-    // Threshold adjusted for strict n-gram similarity logic
-    if (recommendation.driftScore > 0.8) {
-      throw new Error(`Unexpectedly high drift score: ${recommendation.driftScore.toFixed(2)}`);
+    const evaluation = await orchestrator.evaluateDrift(taskMd);
+    if (evaluation.recommendation.correctiveAction !== 'drift_correction') {
+      throw new Error(`Expected drift_correction, got ${evaluation.recommendation.correctiveAction}`);
     }
-    console.log(`   (DRIFT) Evaluated Score: ${recommendation.driftScore.toFixed(2)}`);
+    console.log(`   (DRIFT) Evaluated Status: ${evaluation.snapshot.semanticHealth.axiomProfile.status}`);
   });
 
   // Final Results
