@@ -4,12 +4,7 @@
  * No implementation details, only contract for log data structure.
  */
 
-export enum LogLevel {
-  ERROR = 'error',
-  WARN = 'warn',
-  INFO = 'info',
-  DEBUG = 'debug',
-}
+import { LogLevel } from './LogLevel';
 
 export interface LogMetadata {
   correlationId?: string;

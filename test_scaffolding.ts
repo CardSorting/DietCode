@@ -40,7 +40,7 @@ async function test() {
   const display = new TerminalDisplay();
   const eventBus = EventBus.getInstance();
   const logger = new ConsoleLoggerAdapter(LogLevel.INFO);
-  const promptLoader = new PromptLoader(fileSystem);
+  const promptLoader = new PromptLoader(fileSystem, logger);
   
   const snapshotService = new SnapshotService(new MockSnapshotRepo(), fileSystem);
   const executionService = new ExecutionService(snapshotService);

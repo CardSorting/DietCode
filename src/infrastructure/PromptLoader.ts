@@ -11,12 +11,14 @@ import type { TemplateRenderOptions } from '../domain/prompts/PromptTemplateEngi
 import type { Filesystem } from '../domain/system/Filesystem';
 import * as fs from 'fs';
 import * as path from 'path';
+import type { LogService } from '../domain/logging/LogService';
 
 export class PromptLoader {
   private categoryMap: Map<string, PromptCategory> = this.initializeCategoryMap();
 
   constructor(
-    private filesystem: Filesystem
+    private filesystem: Filesystem,
+    private logService: LogService
   ) {}
 
   /**
@@ -159,7 +161,7 @@ export class PromptLoader {
   validatePrompt(prompt: PromptDefinition): boolean {
     // Rule 1: Content size limits
     if (prompt.content.length > 100000) {
-      console.warn(`[${prompt.id}] Prompt exceeds size limit (100KB)`);
+      this.logService.warn(`[${prompt.id}] Prompt exceeds size limit (100KB)`, { promptId: prompt.id, size: prompt.content.length });
       return false;
     }
 
@@ -175,7 +177,7 @@ export class PromptLoader {
 
     for (const pattern of dangerousPatterns) {
       if (prompt.content.includes(pattern)) {
-        console.warn(`[${prompt.id}] Contains dangerous pattern: ${pattern}`);
+        this.logService.warn(`[${prompt.id}] Contains dangerous pattern: ${pattern}`, { promptId: prompt.id, pattern });
         return false;
       }
     }
@@ -186,7 +188,7 @@ export class PromptLoader {
       prompt.content.includes('<input') ||
       prompt.content.includes('onclick=')
     ) {
-      console.warn(`[${prompt.id}] Contains interactive HTML elements (allowed only in secure contexts)`);
+      this.logService.warn(`[${prompt.id}] Contains interactive HTML elements (allowed only in secure contexts)`, { promptId: prompt.id });
     }
 
     return true;

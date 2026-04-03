@@ -4,7 +4,6 @@
  * Pass 13: Autonomous Self-Healing Integration.
  */
 
-import type { Hook } from '../../domain/orchestration/Hook';
 import { IntegrityService } from './IntegrityService';
 import { WorkerIntegrityAdapter } from '../../infrastructure/WorkerIntegrityAdapter';
 import { RefactorTools } from '../../infrastructure/tools/RefactorTools';
@@ -12,12 +11,15 @@ import { JoyMapGenerator } from '../../infrastructure/tools/generate_joy_map';
 import { HealingService } from './HealingService';
 import type { HealingRepository } from '../../domain/healing/HealingRepository';
 import { HealingStatus } from '../../domain/healing/Healing';
+import { type Hook, HookPhase } from '../../domain/hooks/HookContract';
 
 export class JoyZoningHook implements Hook {
   public readonly name = 'JoyZoningGuard';
+  public readonly phase = HookPhase.POST_EXECUTION;
+  public readonly priority = 10;
   private static isAuditing = false;
   private auditQueue: Set<string> = new Set();
-  private auditTimeout: NodeJS.Timeout | null = null;
+  private auditTimeout: any = null;
   private refactorTools: RefactorTools;
   private joyMap: JoyMapGenerator;
 
@@ -28,12 +30,12 @@ export class JoyZoningHook implements Hook {
     private healingRepository: HealingRepository,
     private projectRoot: string
   ) {
-    this.refactorTools = new RefactorTools();
+    this.refactorTools = new RefactorTools(this.integrityService);
     this.joyMap = new JoyMapGenerator();
   }
 
-  async onExecute(context: any): Promise<void> {
-    const filePath = context.filePath;
+  async execute(params: { toolName: string; input: any; result?: any }): Promise<void> {
+    const filePath = params.input?.path || params.input?.filePath || (params.result as any)?.path;
     if (!filePath || !filePath.endsWith('.ts')) return;
     this.auditQueue.add(filePath);
     if (this.auditTimeout) {
@@ -53,10 +55,13 @@ export class JoyZoningHook implements Hook {
         for (const filePath of batch) {
             const report = await this.integrityService.scanFile(filePath, this.projectRoot);
             if (report.violations.length > 0) {
-                const proposals = await this.healingRepository.getProposalsForViolation(report.violations[0].id);
-                for (const proposal of proposals) {
-                    if (proposal.confidence === 1.0 && proposal.status === HealingStatus.PENDING) {
-                        await this.healingService.applyProposal(proposal.id);
+                const violationId = report.violations[0]?.id;
+                if (violationId) {
+                    const proposals = await this.healingRepository.getProposalsForViolation(violationId);
+                    for (const proposal of proposals) {
+                        if (proposal.confidence === 1.0 && proposal.status === HealingStatus.PENDING) {
+                            await this.healingService.applyProposal(proposal.id);
+                        }
                     }
                 }
             }

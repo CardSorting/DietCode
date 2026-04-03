@@ -22,9 +22,10 @@
 import { Worker, isMainThread, parentPort, workerData } from 'worker_threads';
 import * as path from 'path';
 import * as fs from 'fs';
-import { IntegrityScanner } from '../../domain/integrity/IntegrityScanner';
-import { type IntegrityReport, type IntegrityViolation } from '../../domain/memory/Integrity';
-import { ExecutorAdapter } from './tools/ExecutorAdapter';
+import * as os from 'os';
+import { IntegrityScanner } from '../domain/integrity/IntegrityScanner';
+import { type IntegrityReport, type IntegrityViolation } from '../domain/memory/Integrity';
+import type { LogService } from '../domain/logging/LogService';
 
 /**
  * Worker pool metrics
@@ -78,15 +79,20 @@ export class WorkerPoolAdapter implements IntegrityScanner {
   private projectRoot: string;
   private metrics!: PoolMetrics;
 
-  constructor(private scanner: IntegrityScanner) {
+  constructor(
+    private scanner: IntegrityScanner,
+    private logService: LogService
+  ) {
     // DETECT CORES: os.cpus().length
-    const cpuCores = require('os').cpus().length;
+    const cpuCores = os.cpus().length;
     this.projectRoot = path.resolve(process.cwd(), '.');
 
     // Spawn workers
+    const workerPath = path.resolve(__dirname, './workers/ShardedIntegrityWorker.ts');
     this.workers = Array.from({ length: cpuCores }, (_, i) => 
-      new Worker(__filename, {
-        workerData: { shardId: i }
+      new Worker(workerPath, {
+        workerData: { shardId: i },
+        execArgv: ['-r', 'tsx']
       })
     );
 
@@ -96,8 +102,8 @@ export class WorkerPoolAdapter implements IntegrityScanner {
         this.handleWorkerResult(i, result);
       });
 
-      worker.on('error', (err) => {
-        console.error(`💥 Worker ${i} crashed: ${err.message}`);
+      worker.on('error', (err: Error) => {
+        this.logService.error(`Worker ${i} crashed: ${err.message}`, err, { component: 'WorkerPoolAdapter', nodeId: `worker-${i}` });
         this.metrics.failedWorkers++;
       });
     });
@@ -135,12 +141,15 @@ export class WorkerPoolAdapter implements IntegrityScanner {
     const filesPerWorker = Math.floor(fileCount / shardCount);
     this.metrics.filesPerWorker = Math.max(filesPerWorker, 1);
 
-    console.log(`🛠️ Sharding ${fileCount} files across ${shardCount} workers (${filesPerWorker}/worker)`);
+    this.logService.info(`Sharding ${fileCount} files across ${shardCount} workers (${filesPerWorker}/worker)`, { fileCount, shardCount }, { component: 'WorkerPoolAdapter' });
 
     // Step 2: Distribute shards to workers
-    const partitions: string[][] = Array(shardCount).fill(null).map(() => []);
+    const partitions: string[][] = Array.from({ length: shardCount }, () => []);
     projectFiles.forEach((file, index) => {
-      partitions[index % shardCount].push(file);
+      const partition = partitions[index % shardCount];
+      if (partition) {
+        partition.push(file);
+      }
     });
 
     // Step 3: Execute scan partitions
@@ -173,6 +182,13 @@ export class WorkerPoolAdapter implements IntegrityScanner {
       scannedAt: new Date().toISOString(),
       fileCount
     };
+  }
+
+  /**
+   * Scans a single file. Delegated to the inner scanner.
+   */
+  async scanFile(filePath: string, projectRoot: string): Promise<IntegrityReport> {
+    return this.scanner.scanFile(filePath, projectRoot);
   }
 
   /**
@@ -219,15 +235,15 @@ export class WorkerPoolAdapter implements IntegrityScanner {
 
     results.forEach(r => {
       if (r.error) {
-        console.warn(`⚠️ Shard ${r.shardId} failed: ${r.error}`);
+        this.logService.warn(`Shard ${r.shardId} failed: ${r.error}`, { shardId: r.shardId, error: r.error }, { component: 'WorkerPoolAdapter' });
         this.metrics.failedWorkers++;
       }
     });
 
     this.metrics.totalCPUTime = totalTime;
-    console.log(`✅ Scanned ${results.length} workers in ${totalTime}ms (${Math.round(totalTime / results.length)}ms/worker)`);
+    this.logService.info(`Scanned ${results.length} workers in ${totalTime}ms (${Math.round(totalTime / results.length)}ms/worker)`, { workerCount: results.length, totalTime }, { component: 'WorkerPoolAdapter' });
     if (failedCount > 0) {
-      console.warn(`⚠️ ${failedCount} workers failed`);
+      this.logService.warn(`${failedCount} workers failed`, { failedCount }, { component: 'WorkerPoolAdapter' });
     }
   }
 

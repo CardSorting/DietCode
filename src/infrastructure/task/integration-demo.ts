@@ -11,6 +11,9 @@ import { CheckpointPersistenceAdapter } from './CheckpointPersistenceAdapter';
 import { SemanticIntegrityAnalyser } from './SemanticIntegrityAnalyser';
 import { TaskConsistencyValidator } from './TaskConsistencyValidator';
 import { FileSystemAdapter } from '../FileSystemAdapter';
+import { SovereignSelector } from '../../core/task/SovereignSelector';
+import { OperationalScheduler } from '../../core/task/OperationalScheduler';
+import { JoySimulator } from '../simulation/JoySimulator';
 import { TaskState, TaskPriority, RequirementType, createTaskEntity } from '../../domain/task/TaskEntity';
 import { CheckpointTrigger } from '../../domain/task/ImplementationSnapshot';
 import * as path from 'path';
@@ -31,11 +34,17 @@ async function demonstrateDriftPrevention() {
   const consistencyValidator = new TaskConsistencyValidator(fileSystem, semanticAnalyzer);
   const entityManager = new TaskEntityManager(persistence);
 
+  const selector = new SovereignSelector();
+  const simulator = new JoySimulator();
+  const scheduler = new OperationalScheduler(simulator);
+  
   const orchestrator = new DriftDetectionOrchestrator(
     persistence,
     semanticAnalyzer,
     consistencyValidator,
-    entityManager
+    entityManager,
+    selector,
+    scheduler
   );
 
   console.log('✅ Hardened Infrastructure Initialized (SQLite Persistence)');

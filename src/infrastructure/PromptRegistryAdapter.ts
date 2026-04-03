@@ -23,6 +23,7 @@ import { TemplateEngine } from '../domain/prompts/PromptTemplateEngine';
 import { PromptLoader } from './PromptLoader';
 import type { TemplateContext, TemplateRenderOptions } from '../domain/prompts/PromptTemplateEngine';
 import { RiskTier } from '../domain/prompts/PromptRiskProfile';
+import type { LogService } from '../domain/logging/LogService';
 
 export class PromptRegistryAdapter {
   private currentIndex: PromptIndex;
@@ -38,7 +39,8 @@ export class PromptRegistryAdapter {
     private contextService: ContextService,
     private promptLoader: PromptLoader,
     private listSources: ListPromptsSourcesFunction,
-    private loadSource: LoadPromptSourceFunction
+    private loadSource: LoadPromptSourceFunction,
+    private logService: LogService
   ) {
     this.currentIndex = {
       version: '1.0.0',
@@ -205,7 +207,7 @@ export class PromptRegistryAdapter {
           }
         }
       } catch (error) {
-        console.error(`Failed to load prompts from ${source.path}:`, error);
+        this.logService.error(`Failed to load prompts from ${source.path}:`, error, { component: 'PromptRegistryAdapter' });
         this.eventBus.publish(EventType.PROMPT_LOAD_ERROR, {
           path: source.path,
           error: error instanceof Error ? error.message : 'Unknown error'

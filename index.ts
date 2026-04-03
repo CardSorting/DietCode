@@ -32,6 +32,7 @@ import { IntegrityAdapter } from './src/infrastructure/IntegrityAdapter';
 import { HandoverService } from './src/core/orchestration/HandoverService';
 import { MemoryService } from './src/core/memory/MemoryService';
 import { SelfHealingService } from './src/core/integrity/SelfHealingService';
+import { IntegrityPolicy } from './src/domain/memory/IntegrityPolicy';
 import type { ProjectContext } from './src/domain/context/ProjectContext';
 import { LogLevel } from './src/domain/logging/LogLevel';
 
@@ -72,7 +73,7 @@ async function main() {
   const agentRegistry = new AgentRegistry();
   const memoryService = new MemoryService(knowledge, provider, agentRegistry, logger);
   const handoverService = new HandoverService(repository, { sessionId: 'test' });
-  const selfHealingService = new SelfHealingService(healingRepo as any, logger as any);
+  const selfHealingService = new SelfHealingService(healingRepo, logger); // Fixed types
 
   // Background Worker: Sovereign Queue
   const worker = new QueueWorker(
@@ -97,8 +98,9 @@ async function main() {
   const skillLoader = new SkillLoader(fs, logger);
 
   // Triple Down: Architectural Integrity Guard
-  const integrityAdapter = new IntegrityAdapter(fs);
-  const integrityService = new IntegrityService(integrityAdapter, logger);
+  const integrityPolicy = new IntegrityPolicy();
+  const integrityAdapter = new IntegrityAdapter(integrityPolicy, logger);
+  const integrityService = new IntegrityService(integrityAdapter, undefined, logger);
   const integrityReport = await integrityService.scan(projectContext.repository.path);
   console.log(`[INTEGRITY] Core Health: ${integrityReport.score}/100`);
 

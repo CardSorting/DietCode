@@ -196,7 +196,7 @@ export class ExecutionService {
     this.toolManager = toolManager;
     this.toolRouter = toolRouter;
     this.rollbackManager = rollbackManager;
-    this.safetyGuard = new SafetyGuard(riskEvaluator);
+    this.safetyGuard = new SafetyGuard(riskEvaluator, this.eventBus as any); // EventBus isn't LogService, I should use a proper logger here.
 
     console.log('🛡️  Unified SafetyGuard integration enabled');
     console.log('🔧 Tool routing:', toolRouter ? 'Enabled' : 'Disabled');

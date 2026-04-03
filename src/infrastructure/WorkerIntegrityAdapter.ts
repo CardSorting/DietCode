@@ -8,18 +8,19 @@ import { Worker } from 'worker_threads';
 import * as path from 'path';
 import { IntegrityScanner } from '../domain/integrity/IntegrityScanner';
 import { type IntegrityReport, type IntegrityViolation } from '../domain/memory/Integrity';
+import type { LogService } from '../domain/logging/LogService';
 
 export class WorkerIntegrityAdapter implements IntegrityScanner {
     private worker: Worker;
 
-    constructor() {
+    constructor(private logService: LogService) {
         // Resolve worker path (assuming .js after build or using ts-node/register)
         const workerPath = path.resolve(__dirname, './workers/IntegrityWorker.ts');
         this.worker = new Worker(workerPath, {
             execArgv: ['-r', 'ts-node/register'] 
         });
         
-        console.log('🚀 [Worker] IntegrityWorker initialized (off-thread).');
+        this.logService.info('[Worker] IntegrityWorker initialized (off-thread).', {}, { component: 'WorkerIntegrityAdapter' });
     }
 
     /**

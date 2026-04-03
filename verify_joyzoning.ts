@@ -10,6 +10,7 @@ import { IntegrityAdapter } from './src/infrastructure/IntegrityAdapter';
 import { IntegrityService } from './src/core/integrity/IntegrityService';
 import { FileSystemAdapter } from './src/infrastructure/FileSystemAdapter';
 import { ConsoleLoggerAdapter } from './src/infrastructure/ConsoleLoggerAdapter';
+import { IntegrityPolicy } from './src/domain/memory/IntegrityPolicy';
 import { LogLevel } from './src/domain/logging/LogLevel';
 import * as path from 'path';
 
@@ -17,8 +18,9 @@ async function main() {
     const logger = new ConsoleLoggerAdapter();
     logger.setMinLevel(LogLevel.INFO);
     const fs = new FileSystemAdapter();
-    const integrityAdapter = new IntegrityAdapter(fs);
-    const integrityService = new IntegrityService(integrityAdapter, logger);
+    const policy = new IntegrityPolicy();
+    const integrityAdapter = new IntegrityAdapter(policy, logger);
+    const integrityService = new IntegrityService(integrityAdapter, undefined, logger);
 
     const projectRoot = process.cwd();
     const targetFile = process.argv[2];

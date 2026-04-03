@@ -5,6 +5,10 @@
  * 
  * Inspired by: ForgeSelect's SelectBuilder and InputBuilder
  */
+ 
+import type { LogService } from '../domain/logging/LogService';
+import { ConsoleLoggerAdapter } from './ConsoleLoggerAdapter';
+import { LogLevel } from '../domain/logging/LogLevel';
 
 /**
  * FZF-based user selection builder.
@@ -24,6 +28,11 @@ export class SelectBuilder {
   private startingCursor?: number;
   private helpMessage?: string;
   private selectedItems: string[] = [];
+  private logService: LogService;
+
+  constructor(logService?: LogService) {
+    this.logService = logService || new ConsoleLoggerAdapter(LogLevel.INFO);
+  }
 
   /**
    * Provide initial text for selection.
@@ -92,15 +101,15 @@ export class SelectBuilder {
     }
 
     // Simulated FZF integration (replace with actual FZF library implementation)
-    console.log(`\n${this.helpMessage || 'Use arrow keys to navigate, Enter to select, ESC to cancel'}`);
-    console.log(`\nAvailable options (${this.itemCount}):`);
+    this.logService.info(`\n${this.helpMessage || 'Use arrow keys to navigate, Enter to select, ESC to cancel'}`);
+    this.logService.info(`\nAvailable options (${this.itemCount}):`);
     
     this.selectedItems.forEach((item, index) => {
       const prefix = (index === (this.startingCursor ?? index)) ? '> ' : '  ';
-      console.log(`${prefix}${item}`);
+      this.logService.info(`${prefix}${item}`);
     });
 
-    console.log(`\n${this.initialText || ''}`);
+    this.logService.info(`\n${this.initialText || ''}`);
 
     // Simulate selection
     return this.selectedItems[0] || null;
@@ -123,6 +132,11 @@ export class InputBuilder {
   private message?: string;
   private defaultValue?: string;
   private validator?: (value: string) => boolean | string;
+  private logService: LogService;
+
+  constructor(logService?: LogService) {
+    this.logService = logService || new ConsoleLoggerAdapter(LogLevel.INFO);
+  }
 
   /**
    * Set the input prompt message.
@@ -203,7 +217,7 @@ export class InputBuilder {
           }
         }
 
-        console.log(`\nSelected: ${value}`);
+        this.logService.info(`\nSelected: ${value}`);
         resolve(value);
         rl.close();
       });

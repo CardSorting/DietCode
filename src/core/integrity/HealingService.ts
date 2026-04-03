@@ -9,18 +9,24 @@ import type { HealingRepository } from '../../domain/healing/HealingRepository';
 import { type IntegrityViolation, ViolationType } from '../../domain/memory/Integrity';
 import { SqliteJoyCacheRepository } from '../../infrastructure/database/SqliteJoyCacheRepository';
 import { RefactorTools } from '../../infrastructure/tools/RefactorTools';
+import { IntegrityScanner } from '../../domain/integrity/IntegrityScanner';
 import * as crypto from 'crypto';
 import * as path from 'path';
 import * as fs from 'fs';
 
 export class HealingService {
-  private refactorTools = new RefactorTools();
-
+  private refactorTools?: RefactorTools;
+  
   constructor(
     private repository: HealingRepository,
     private joyCache: SqliteJoyCacheRepository,
-    private projectRoot: string
-  ) {}
+    private projectRoot: string,
+    scanner?: IntegrityScanner
+  ) {
+    if (scanner) {
+      this.refactorTools = new RefactorTools(scanner);
+    }
+  }
 
   async processViolations(violations: IntegrityViolation[]): Promise<HealingProposal[]> {
     const proposals: HealingProposal[] = [];
@@ -61,7 +67,9 @@ export class HealingService {
   async applyProposal(id: string): Promise<boolean> {
       const proposal = await this.repository.getProposalById(id);
       if (!proposal || proposal.status !== HealingStatus.PENDING) return false;
+      
       try {
+          if (!this.refactorTools) return false;
           switch (proposal.violation.type) {
               case ViolationType.MISSING_TAG:
                   const content = fs.readFileSync(path.resolve(this.projectRoot, proposal.violation.file), 'utf8');
@@ -71,8 +79,7 @@ export class HealingService {
               case ViolationType.MISPLACED_FILE:
                   const targetDir = this.getTargetDir(proposal.violation.message);
                   const targetPath = path.join(targetDir, path.basename(proposal.violation.file));
-                  // Fix: Added projectRoot as 3rd argument
-                  await this.refactorTools.moveAndFixImports(proposal.violation.file, targetPath, this.projectRoot);
+                  await this.refactorTools.moveAndFixImports(proposal.violation.file, targetPath, { force: false });
                   break;
               default:
                   return false;

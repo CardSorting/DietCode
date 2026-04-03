@@ -11,6 +11,9 @@ import { CheckpointPersistenceAdapter } from '../infrastructure/task/CheckpointP
 import { SemanticIntegrityAnalyser } from '../infrastructure/task/SemanticIntegrityAnalyser';
 import { TaskConsistencyValidator } from '../infrastructure/task/TaskConsistencyValidator';
 import { FileSystemAdapter } from '../infrastructure/FileSystemAdapter';
+import { SovereignSelector } from '../core/task/SovereignSelector';
+import { OperationalScheduler } from '../core/task/OperationalScheduler';
+import { JoySimulator } from '../infrastructure/simulation/JoySimulator';
 import { TaskState, TaskPriority, createTaskEntity, RequirementType } from '../domain/task/TaskEntity';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -28,7 +31,19 @@ async function runVerification() {
   const fileSystem = new FileSystemAdapter();
   const consistencyValidator = new TaskConsistencyValidator(fileSystem, semanticAnalyzer);
   const entityManager = new TaskEntityManager(persistence);
-  const orchestrator = new DriftDetectionOrchestrator(persistence, semanticAnalyzer, consistencyValidator, entityManager);
+  
+  const selector = new SovereignSelector();
+  const simulator = new JoySimulator();
+  const scheduler = new OperationalScheduler(simulator);
+  
+  const orchestrator = new DriftDetectionOrchestrator(
+    persistence, 
+    semanticAnalyzer, 
+    consistencyValidator, 
+    entityManager,
+    selector,
+    scheduler
+  );
 
   const results: { name: string; passed: boolean; message: string }[] = [];
 

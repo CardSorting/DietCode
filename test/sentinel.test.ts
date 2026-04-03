@@ -16,12 +16,16 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { ConsoleLoggerAdapter } from '../src/infrastructure/ConsoleLoggerAdapter';
+import { LogLevel } from '../src/domain/logging/LogLevel';
 import { IntegrityScanner } from '../src/domain/integrity/IntegrityScanner';
-import { IntegrityReport } from '../src/domain/memory/Integrity';
+import { type IntegrityReport } from '../src/domain/memory/Integrity';
 import { WorkerPoolAdapter } from '../src/infrastructure/WorkerPoolAdapter';
 import { RefactorTools } from '../src/infrastructure/tools/RefactorTools';
 import { ArchitecturalGuardian } from '../src/domain/architecture/ArchitecturalGuardian';
 import { JoySimulator } from '../src/infrastructure/architecture/JoySimulator';
+import { IntegrityAdapter } from '../src/infrastructure/IntegrityAdapter';
+import { IntegrityPolicy } from '../src/domain/memory/IntegrityPolicy';
 
 describe('🛡️ SENTINEL ARCHITECTURE VERIFICATION', () => {
   let integrityScanner: IntegrityScanner;
@@ -31,9 +35,11 @@ describe('🛡️ SENTINEL ARCHITECTURE VERIFICATION', () => {
 
   beforeAll(() => {
     // Initialize Sentinels
-    integrityScanner = new IntegrityScanner(); // Reuse existing IntegrityScanner
+    const policy = new IntegrityPolicy();
+    const logger = new ConsoleLoggerAdapter(LogLevel.INFO);
+    integrityScanner = new IntegrityAdapter(policy, logger); // Use real implementation
     guardian = new ArchitecturalGuardian();
-    simulator = new JoySimulator(guardian);
+    simulator = new JoySimulator({ aggressive: true });
     refactorTools = new RefactorTools(integrityScanner);
   });
 
@@ -58,7 +64,7 @@ describe('🛡️ SENTINEL ARCHITECTURE VERIFICATION', () => {
     const newPath = 'src/domain/Tool.ts'; // ❌ This is a DOMAIN LEAK
     
     // Run JoySim simulation
-    const simResult = await simulator.simulate(
+    const simResult = await simulator.simulateGuard(
       `/${oldPath}`,
       `/${newPath}`,
       currentReport
@@ -69,10 +75,9 @@ describe('🛡️ SENTINEL ARCHITECTURE VERIFICATION', () => {
     expect(simResult.violations.some((v) => v.type === 'DOMAIN_LEAK'), 'Should detect DOMAIN_LEAK').toBe(true);
 
     // Verify REFLECTIVE BLOCKING in RefactorTools
-    const force = false;
-    const blockResult = await refactorTools['isSafeMove'](oldPath, newPath, currentReport);
+    const blockResult = await refactorTools.moveAndFixImports(oldPath, newPath, { force: false });
     
-    expect(blockResult, 'RefactorTools should also block this move').toBe(false);
+    expect(blockResult.blocked, 'RefactorTools should also block this move').toBe(true);
 
     console.log('✅ SENTINEL-1: Domain leak correctly detected and blocked');
   });
@@ -89,7 +94,7 @@ describe('🛡️ SENTINEL ARCHITECTURE VERIFICATION', () => {
     const oldPath = 'src/core/SafetyGuard.ts';
     const newPath = 'src/core/SafetyGuard.ts/tabs'; // Valid: Core file moved within Core
 
-    const simResult = await simulator.simulate(oldPath, newPath, currentReport);
+    const simResult = await simulator.simulateGuard(oldPath, newPath, currentReport);
 
     expect(simResult.isSafe, 'JoySim should approve clean moves').toBe(true);
     expect(simResult.score, 'Score should not drop significantly').toBeGreaterThan(80);
@@ -109,7 +114,7 @@ describe('🛡️ SENTINEL ARCHITECTURE VERIFICATION', () => {
     const oldPath = 'src/infrastructure/FileIntegrityAnalyzer.ts';
     const newPath = 'src/core/IntegrityAnalyzer.ts'; // Might cause cascade violations
 
-    const simResult = await simulator.simulate(oldPath, newPath, currentReport);
+    const simResult = await simulator.simulateGuard(oldPath, newPath, currentReport);
 
     // If score drops by >10 points, should be blocked (unless blocked earlier by topology)
     if (simResult.isSafe) {
@@ -133,7 +138,8 @@ describe('🛡️ SENTINEL ARCHITECTURE VERIFICATION', () => {
    - No worker crashes
    */
   it('SENTINEL-4: Multi-Worker Pool Performance', async () => {
-    const pool = new WorkerPoolAdapter(integrityScanner);
+    const logger = new ConsoleLoggerAdapter(LogLevel.INFO);
+    const pool = new WorkerPoolAdapter(integrityScanner, logger);
     const startTime = Date.now();
     const projectRoot = '/Users/bozoegg/Downloads/DietCode';
 
@@ -192,7 +198,7 @@ describe('🛡️ SENTINEL ARCHITECTURE VERIFICATION', () => {
     };
 
     for (const testCase of testCases) {
-      const result = await guardian.simulateGuard(
+      const result = await ArchitecturalGuardian.simulateGuard(
         `/${testCase.oldPath}`,
         `/${testCase.newPath}`,
         currentReport
@@ -256,7 +262,7 @@ describe('🛡️ SENTINEL ARCHITECTURE VERIFICATION', () => {
     );
 
     expect(forceResult.blocked, 'Force=true should allow for testing').toBe(false);
-    expect(forceResult.archEvent.type, 'Event should be FORCE_OVERRIDE').toBe('FORCE_OVERRIDE');
+    expect(forceResult.archEvent?.type, 'Event should be FORCE_OVERRIDE').toBe('FORCE_OVERRIDE');
 
     console.log('✅ SENTINEL-7: Fail-safe rollback handled correctly');
   });

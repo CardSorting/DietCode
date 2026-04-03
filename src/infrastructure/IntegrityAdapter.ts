@@ -16,6 +16,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
 import { WorkerPoolAdapter } from './WorkerPoolAdapter';
+import { FileSystemAdapter } from './FileSystemAdapter';
 import { IntegrityScanner } from '../domain/integrity/IntegrityScanner';
 import { IntegrityPolicy } from '../domain/memory/IntegrityPolicy';
 import { 
@@ -23,17 +24,18 @@ import {
   type IntegrityReport, 
   ViolationType 
 } from '../domain/memory/Integrity';
+import type { LogService } from '../domain/logging/LogService';
 
 export class IntegrityAdapter implements IntegrityScanner {
   private poolAdapter: WorkerPoolAdapter;
   private policy: IntegrityPolicy;
   private filesystem: FileSystemAdapter;
 
-  constructor(policy: IntegrityPolicy) {
+  constructor(policy: IntegrityPolicy, private logService: LogService) {
     // Initialize with smaller, domain-based scanner for fallback
     this.filesystem = new FileSystemAdapter();
     this.policy = policy;
-    this.poolAdapter = new WorkerPoolAdapter(this); // Transparent delegation
+    this.poolAdapter = new WorkerPoolAdapter(this, logService); // Transparent delegation
   }
 
   /**

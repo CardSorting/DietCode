@@ -4,7 +4,7 @@
  * Violations: None - implements domain interfaces through specialized adapters
  */
 
-import { ContextOptimizationService } from "../../core/capabilities/ContextOptimizationService"
+import { ContextOptimizationService } from "../../core/context/ContextOptimizationService"
 import type { FileReadResult, FileReadSource } from "../../domain/context/FileOperation"
 import { EnhancedFileSystemAdapter } from "../EnhancedFileSystemAdapter"
 

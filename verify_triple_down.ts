@@ -9,6 +9,7 @@ import { IntegrityService } from './src/core/integrity/IntegrityService';
 import { Ignorer } from './src/core/context/Ignorer';
 import { ContextPruner } from './src/core/context/ContextPruner';
 import { ConsoleLoggerAdapter } from './src/infrastructure/ConsoleLoggerAdapter';
+import { IntegrityPolicy } from './src/domain/memory/IntegrityPolicy';
 import type { LogService } from './src/domain/logging/LogService';
 import { LogLevel } from './src/domain/logging/LogLevel';
 import * as path from 'path';
@@ -38,8 +39,9 @@ async function verify() {
 
   // 2. Test Integrity Guard
   console.log('\n[2] Testing Integrity Guard...');
-  const integrityAdapter = new IntegrityAdapter(fileSystem);
-  const integrityService = new IntegrityService(integrityAdapter, logger);
+  const policy = new IntegrityPolicy();
+  const integrityAdapter = new IntegrityAdapter(policy, logger);
+  const integrityService = new IntegrityService(integrityAdapter, undefined, logger);
   
   // Create a deliberate violation in a temp file
   const violationFile = path.join(root, 'src', 'domain', 'Violation.ts');

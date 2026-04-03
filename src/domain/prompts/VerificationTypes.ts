@@ -19,12 +19,12 @@ export type AssertionCondition = string;
 /**
  * Expected value for an assertion
  */
-export type ExpectedValue = any;
+export type ExpectedValue = unknown;
 
 /**
  * Actual observed value from verification
  */
-export type ObservedValue = any;
+export type ObservedValue = unknown;
 
 /**
  * Error details if assertion failed
@@ -47,7 +47,7 @@ export interface TestCase {
   codeUnderTest: string;
   assertions: Assertion[];
   failureThreshold?: number; // Default 70% for PASS/PARTIAL logic
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -65,7 +65,7 @@ export interface Assertion {
  */
 export interface Counterexample {
   assertionId: string;
-  input: any;
+  input: unknown;
   expected: ExpectedValue;
   observed: ObservedValue;
   reasoning: string;

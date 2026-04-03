@@ -6,13 +6,16 @@
 
 import { WorkerIntegrityAdapter } from './src/infrastructure/WorkerIntegrityAdapter';
 import { ViolationType } from './src/domain/memory/Integrity';
+import { ConsoleLoggerAdapter } from './src/infrastructure/ConsoleLoggerAdapter';
+import { LogLevel } from './src/domain/logging/LogLevel';
 import * as path from 'path';
 
 async function runDeepAudit() {
     console.log('🌸 [JoyFull] Starting Distributed Architectural Audit (Worker-Throttled)...');
     
     const projectRoot = process.cwd();
-    const workerScanner = new WorkerIntegrityAdapter();
+    const logger = new ConsoleLoggerAdapter(LogLevel.INFO);
+    const workerScanner = new WorkerIntegrityAdapter(logger);
 
     const startTime = Date.now();
     // Pass 7: Background worker scan

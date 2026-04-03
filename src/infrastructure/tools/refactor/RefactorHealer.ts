@@ -6,6 +6,7 @@
 
 import { SovereignDb } from '../../database/SovereignDb';
 import { ImportFixer } from '../ImportFixer';
+import { JobType } from '../../../domain/system/QueueProvider';
 
 export class RefactorHealer {
     private importFixer: ImportFixer;
@@ -27,7 +28,7 @@ export class RefactorHealer {
             // High-Throughput: Enqueue background healing
             const queue = await SovereignDb.getQueue();
             await queue.enqueue({
-                type: 'SELF_HEAL',
+                type: JobType.JOY_ZONING_HEAL,
                 payload: {
                     oldPath,
                     newPath,

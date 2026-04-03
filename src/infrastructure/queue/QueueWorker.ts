@@ -12,6 +12,7 @@ import type { SelfHealingService } from '../../core/integrity/SelfHealingService
 import type { LLMProvider } from '../../domain/LLMProvider';
 import type { AgentRegistry } from '../../core/capabilities/AgentRegistry';
 import type { LogService } from '../../domain/logging/LogService';
+import * as crypto from 'crypto';
 
 export class QueueWorker {
   private isProcessing = false;
@@ -164,6 +165,7 @@ Please propose a refactor to fix this architectural violation.`;
       rationale,
       proposedCode,
       status: 'pending' as any,
+      confidence: 1.0,
       createdAt: new Date().toISOString()
     });
   }

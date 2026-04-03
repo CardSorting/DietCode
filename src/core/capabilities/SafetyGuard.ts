@@ -9,25 +9,24 @@
  *   - [CONSOLIDATE] May benefit from RollbackProtocol integration
  */
 
-import type { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
+import type { RiskEvaluator, ActionCriteria } from '../../domain/validation/RiskEvaluator';
 import { RiskLevel } from '../../domain/validation/RiskLevel';
-import type { SafetyAwareToolContext, SafetyAwareToolOptions } from '../../domain/capabilities/SafetyAwareToolExecution';
 import type { LockOrchestrator } from '../manager/LockOrchestrator';
 import type { LockScope, LockResult } from '../../domain/safety/LockScope';
+import type { LogService } from '../../domain/logging/LogService';
 
 /**
  * SafetyGuard orchestrates safe execution of actions
  * Wraps execution with risk evaluation and rollback capabilities
  */
 export class SafetyGuard {
-  private riskEvaluator: RiskEvaluator;
-  private lockOrchestrator?: LockOrchestrator;
   private static architecturalAlarmActive = false;
 
-  constructor(riskEvaluator: RiskEvaluator, lockOrchestrator?: LockOrchestrator) {
-    this.riskEvaluator = riskEvaluator;
-    this.lockOrchestrator = lockOrchestrator;
-  }
+  constructor(
+    private riskEvaluator: RiskEvaluator, 
+    private logService: LogService,
+    private lockOrchestrator?: LockOrchestrator
+  ) {}
 
   /**
    * Triggers the Global Architectural Alarm.
@@ -35,6 +34,8 @@ export class SafetyGuard {
    */
   static triggerAlarm(): void {
     if (!this.architecturalAlarmActive) {
+      // Static context can't use injected logService easily without refactoring, 
+      // but we'll use console.warn for now as it's a global emergency.
       console.warn('🚨  [ARCHITECTURAL ALARM] System entering soft-lock due to integrity violations.');
       this.architecturalAlarmActive = true;
     }
@@ -53,7 +54,7 @@ export class SafetyGuard {
   /**
    * Check if action can proceed safely
    */
-  async canProceed(criteria: any): Promise<{ canProceed: boolean; riskLevel: RiskLevel }> {
+  async canProceed(criteria: ActionCriteria): Promise<{ canProceed: boolean; riskLevel: RiskLevel }> {
     const riskLevel = await this.riskEvaluator.evaluateRisk(criteria);
     const requirements = await this.riskEvaluator.getApprovalRequirements(criteria);
     
@@ -73,7 +74,7 @@ export class SafetyGuard {
     timeoutMs: number = 30000
   ): Promise<LockResult> {
     if (!this.lockOrchestrator) {
-      console.warn('⚠️  LockOrchestrator not configured, skipping lock acquisition');
+      this.logService.warn('LockOrchestrator not configured, skipping lock acquisition', { operation }, { component: 'SafetyGuard' });
       return { success: true };
     }
 
@@ -86,10 +87,10 @@ export class SafetyGuard {
 
     try {
       const ticket = await this.lockOrchestrator.acquire(scope, timeoutMs);
-      console.log(`🔒 Operation lock acquired: ${operation} (ID: ${ticket.id})`);
+      this.logService.info(`Operation lock acquired: ${operation} (ID: ${ticket.id})`, { operation, ticketId: ticket.id }, { component: 'SafetyGuard' });
       return { success: true, ticket };
     } catch (error: any) {
-      console.warn(`⚠️  Lock acquisition failed: ${error.message}`);
+      this.logService.warn(`Lock acquisition failed: ${error.message}`, { operation, error: error.message }, { component: 'SafetyGuard' });
       return { 
         success: false, 
         error: error.message,
@@ -125,10 +126,10 @@ export class SafetyGuard {
     requiresApproval: boolean;
     isSafe: boolean;
   }> {
-    const riskCriteria = {
-      operationType: toolName.startsWith('db-') ? 'database' : 'file',
+    const riskCriteria: ActionCriteria = {
+      actionType: toolName.startsWith('db-') ? 'database' : 'file',
       parameters,
-      targetPath: parameters.targetPath || parameters.path
+      targetPath: (parameters.targetPath || parameters.path) as string
     };
     
     const { canProceed, riskLevel } = await this.canProceed(riskCriteria);
@@ -139,7 +140,7 @@ export class SafetyGuard {
 
     if (SafetyGuard.architecturalAlarmActive && 
         (riskLevel === RiskLevel.HIGH || toolName.includes('move') || toolName.includes('delete'))) {
-        console.warn('🚧  [SafetyGuard] Architectural Alarm is active. Operation requires explicit approval.');
+        this.logService.warn('Architectural Alarm is active. Operation requires explicit approval.', { toolName, riskLevel }, { component: 'SafetyGuard' });
         effectiveRisk = RiskLevel.HIGH;
         effectiveRequiresApproval = true;
     }
@@ -153,14 +154,14 @@ export class SafetyGuard {
 }
 
 // Type definition for rollback parameter (increases testability)
-export type RollbackFunction = (backupData?: any) => Promise<any>;
+export type RollbackFunction = (backupData?: unknown) => Promise<unknown>;
 
 // executeWithSafety helper - kept for backward compatibility with demos
 export async function executeWithSafety(
   action: RollbackFunction,
   riskLevel: RiskLevel,
-  parameters: Record<string, any> = {}
-): Promise<any> {
+  parameters: Record<string, unknown> = {}
+): Promise<unknown> {
   console.log(`Running action with risk level: ${riskLevel}`);
   try {
     const result = await action();

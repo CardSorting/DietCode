@@ -11,8 +11,8 @@ async function runRemediator() {
     steps.forEach((step, idx) => {
         console.log(`[${idx + 1}] File: ${step.file}`);
         console.log(`    Target: ${step.targetPath}`);
-        console.log(`    Move: ${step.mvCommand}`);
-        console.log(`    Header: ${step.sedHeaderUpdate}`);
+        console.log(`    Move: ${step.currentPath} -> ${step.targetPath}`);
+        console.log(`    Layer: ${step.targetLayer} / ${step.targetSubZone}`);
         console.log('---');
     });
 }

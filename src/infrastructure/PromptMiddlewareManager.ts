@@ -7,6 +7,7 @@ import type { EventBus } from '../core/orchestration/EventBus';
 import type { SystemEvent } from '../domain/Event';
 import type { PromptDefinition } from '../domain/prompts/PromptCategory';
 import { EventType } from '../domain/Event';
+import type { LogService } from '../domain/logging/LogService';
 
 export interface PromptModifier {
   (prompt: string, event: SystemEvent): string;
@@ -16,7 +17,8 @@ export class PromptMiddlewareManager {
   private middlewareMap: Map<EventType, PromptModifier>;
 
   constructor(
-    private eventBus: EventBus
+    private eventBus: EventBus,
+    private logService: LogService
   ) {
     this.middlewareMap = new Map();
     this.initializeMiddlewareRegistry();
@@ -208,7 +210,7 @@ Focus on extraction of penetrant logic before persistent commitment.
         modifiedPrompt = modifier(modifiedPrompt, event);
       } catch (error) {
         // Log but don't discard prompt
-        console.error(`Middleware failed for ${eventType}:`, error);
+        this.logService.error(`Middleware failed for ${eventType}:`, error, { component: 'PromptMiddlewareManager' });
       }
     }
 

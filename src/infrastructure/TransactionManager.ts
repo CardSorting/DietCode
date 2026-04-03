@@ -7,6 +7,7 @@
 import type { Filesystem } from '../domain/system/Filesystem';
 import { RollbackManager } from './validation/RollbackManager';
 import * as path from 'path';
+import type { LogService } from '../domain/logging/LogService';
 
 export type TransactionChangeType = 'WRITE' | 'DELETE' | 'RENAME';
 
@@ -24,7 +25,8 @@ export class TransactionManager {
 
   constructor(
     private filesystem: Filesystem,
-    private rollbackManager: RollbackManager
+    private rollbackManager: RollbackManager,
+    private logService: LogService
   ) {}
 
   /**
@@ -36,7 +38,7 @@ export class TransactionManager {
     }
     this.activeTransaction = [];
     this.isTransactionActive = true;
-    console.log('✅ [TRANSACTION] Started');
+    this.logService.info('[TRANSACTION] Started', {}, { component: 'TransactionManager' });
   }
 
   /**
@@ -83,7 +85,7 @@ export class TransactionManager {
   async commit(): Promise<void> {
     this.ensureTransaction();
 
-    console.log(`🚀 [TRANSACTION] Committing ${this.activeTransaction.length} changes...`);
+    this.logService.info(`[TRANSACTION] Committing ${this.activeTransaction.length} changes...`, { count: this.activeTransaction.length }, { component: 'TransactionManager' });
     
     try {
       for (const change of this.activeTransaction) {
@@ -93,9 +95,9 @@ export class TransactionManager {
           await this.filesystem.unlink(change.path);
         }
       }
-      console.log('✅ [TRANSACTION] Committed successfully');
+      this.logService.info('[TRANSACTION] Committed successfully', {}, { component: 'TransactionManager' });
     } catch (error: any) {
-      console.error(`❌ [TRANSACTION] Commit failed: ${error.message}. Rolling back...`);
+      this.logService.error(`[TRANSACTION] Commit failed: ${error.message}. Rolling back...`, error, { component: 'TransactionManager' });
       await this.rollback();
       throw error;
     } finally {
@@ -108,7 +110,7 @@ export class TransactionManager {
    * Aborts the current transaction and rolls back any backups.
    */
   async rollback(): Promise<void> {
-    console.log('🔄 [TRANSACTION] Rolling back...');
+    this.logService.info('[TRANSACTION] Rolling back...', {}, { component: 'TransactionManager' });
     await this.rollbackManager.fullRollback();
     this.isTransactionActive = false;
     this.activeTransaction = [];

@@ -57,8 +57,9 @@ export class OperationalScheduler {
   /**
    * Verifies if the task can transition to the SOVEREIGN_DOING state.
    */
-  canEnterSovereignDoing(task: TaskEntity): boolean {
-    return (task.simIntegrity || 0) >= 0.95;
+  canEnterSovereignDoing(input: TaskEntity | number): boolean {
+    const integrity = typeof input === 'number' ? input : (input.simIntegrity || 0);
+    return integrity >= 0.95;
   }
 
   /**

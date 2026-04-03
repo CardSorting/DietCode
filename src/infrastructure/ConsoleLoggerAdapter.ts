@@ -142,11 +142,12 @@ export class ConsoleLoggerAdapter implements LogService {
    * Colors log level output based on severity.
    */
   private colorizeLevel(level: LogLevel): string {
-    const levelMap = {
+    const levelMap: Record<LogLevel, string> = {
       [LogLevel.DEBUG]: 'DEBUG',
       [LogLevel.INFO]: 'INFO',
       [LogLevel.WARN]: 'WARN',
       [LogLevel.ERROR]: 'ERROR',
+      [LogLevel.CRITICAL]: 'CRITICAL',
     };
     return levelMap[level];
   }

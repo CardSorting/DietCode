@@ -7,12 +7,14 @@
 import { IntegrityService } from '../../core/integrity/IntegrityService';
 import { IntegrityAdapter } from '../IntegrityAdapter';
 import { IntegrityPolicy } from '../../domain/memory/IntegrityPolicy';
+import { ConsoleLoggerAdapter } from '../ConsoleLoggerAdapter';
 import * as path from 'path';
 
 async function runAudit() {
     const projectRoot = process.cwd();
+    const logger = new ConsoleLoggerAdapter();
     const policy = new IntegrityPolicy();
-    const adapter = new IntegrityAdapter(policy);
+    const adapter = new IntegrityAdapter(policy, logger);
     const service = new IntegrityService(adapter);
 
     console.log('🛡️  JoyZoning Audit: Starting project-wide scan...');

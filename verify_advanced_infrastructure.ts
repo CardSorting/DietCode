@@ -31,7 +31,7 @@ async function verify() {
   
   const discovery = new DiscoveryService(fs, systemAdapter, logger);
   const rollback = new RollbackManager();
-  const txManager = new TransactionManager(fs, rollback);
+  const txManager = new TransactionManager(fs, rollback, logger);
 
   let passed = true;
 

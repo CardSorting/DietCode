@@ -7,36 +7,67 @@
  */
 
 import { parentPort, workerData } from 'worker_threads';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as crypto from 'crypto';
 import { IntegrityScanner } from '../../domain/integrity/IntegrityScanner';
-import { type IntegrityReport, type IntegrityViolation } from '../../domain/memory/Integrity';
+import { IntegrityPolicy } from '../../domain/memory/IntegrityPolicy';
+import { type IntegrityReport, type IntegrityViolation, ViolationType } from '../../domain/memory/Integrity';
 
-// Placeholder scanner - in real implementation, IntegrityScanner would be injected from parentervisor
-const scanner: IntegrityScanner = {
-  scan: async (root: string) => ({
-    score: 100,
-    violations: [],
-    scannedAt: new Date().toISOString(),
-    fileCount: 0
-  })
-};
-
-/**
- * SKETCH: Orchestrator holds scanner references for each thread
-const { IntegrityScanner } from '../../../domain/integrity/IntegrityScanner';
-const { type ShardResult } from '../WorkerPoolAdapter';
-
-// Must inject IntegrityScanner instance down from parent supervisor
-const orchestrator = {
-  provides: () => new {}; // Placeholder
-};
-
-// Mock for worker script
-const scanner = {}; 
-
-if (!scanner.scanFile) {
-  console.error('❌ No scanner instance for shard');
-  process.exit(1);
+interface ShardResult {
+  shardId: number;
+  success: boolean;
+  score: number;
+  violations: IntegrityViolation[];
+  time: number;
+  error?: string;
 }
+
+const policy = new IntegrityPolicy();
+
+const scanner = {
+  async scanFile(filePath: string, projectRoot: string): Promise<IntegrityReport> {
+    const fullPath = path.resolve(projectRoot, filePath);
+    const relPath = path.relative(projectRoot, fullPath);
+    const violations: IntegrityViolation[] = [];
+    
+    if (!fs.existsSync(fullPath)) {
+        return { score: 100, violations: [], scannedAt: new Date().toISOString() };
+    }
+
+    try {
+        const fd = fs.openSync(fullPath, 'r');
+        const buffer = Buffer.alloc(16384);
+        fs.readSync(fd, buffer, 0, 16384, 0);
+        fs.closeSync(fd);
+        const content = buffer.toString('utf8');
+
+        const rules = policy.getRulesForPath(relPath);
+        for (const rule of rules) {
+            if (content.match(rule.pattern)) {
+                violations.push({
+                    id: crypto.randomUUID(),
+                    type: rule.type,
+                    file: relPath,
+                    message: rule.message,
+                    severity: rule.severity,
+                    timestamp: new Date().toISOString()
+                });
+            }
+        }
+    } catch (e) {
+        // Skip inaccessible files
+    }
+
+    return {
+        score: Math.max(0, 100 - violations.length * 5),
+        violations,
+        scannedAt: new Date().toISOString()
+    };
+  }
+};
+
+// No mock needed now
 
 /**
  * ShardedIntegrityWorker: Implements scanning logic for individual partition
@@ -52,7 +83,7 @@ try {
   console.log(`🔍 Worker scanning ${files.length} files (shard #${shardId})`);
   const startTime = Date.now();
 
-  const violations: any[] = [];
+  const violations: IntegrityViolation[] = [];
 
   for (const file of files) {
     try {
@@ -71,13 +102,13 @@ try {
     success: true,
     score: Math.max(0, 100 - violations.length * 5),
     violations,
-    time,
-    error: undefined
+    time
   } as ShardResult);
 
   process.exit(0);
 } catch (err) {
-  const time = Date.now() - (Date.now());  // Placeholder timing
+  const { shardId } = workerData;
+  const time = 0;
   
   // Post failure result
   parentPort?.postMessage({

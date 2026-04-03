@@ -25,7 +25,8 @@ async function runDemos() {
   try {
     console.log('\n✓ Test 1: Safety Guard Integration');
     const evaluator = new SafetyEvaluator();
-    const guard = new SafetyGuard(evaluator);
+    const logger = new ConsoleLoggerAdapter(LogLevel.INFO);
+    const guard = new SafetyGuard(evaluator, logger);
     
     // Use the evaluateToolSafety method from SafetyGuard
     const result = await guard.evaluateToolSafety(

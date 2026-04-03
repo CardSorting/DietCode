@@ -13,8 +13,8 @@ import type { ValidationRepository } from './src/domain/Validation';
 async function verify() {
   console.log('--- DIETCODE PRODUCTION HARDENING VERIFICATION ---');
 
-  const integrityAdapter = new IntegrityAdapter({} as any); // Using minimal filesystem mock
   const logger = new ConsoleLoggerAdapter(LogLevel.INFO);
+  const integrityAdapter = new IntegrityAdapter({} as any, logger); // Using minimal filesystem mock
   const validationRepo = {} as ValidationRepository;
   
   const validationService = new ValidationService(validationRepo, EventBus.getInstance(logger));

@@ -48,7 +48,7 @@ async function demoSafetyFirstExecution() {
       targetPath: '/src/index.ts', 
       actionType: 'file_edit' 
     }
-  );
+  ) as any;
   
   if (safeResult?.success) {
     console.log(`   ✅ Success!`);
@@ -69,7 +69,7 @@ async function demoSafetyFirstExecution() {
       isDestructive: true,
       actionType: 'database_delete' 
     }
-  );
+  ) as any;
   
   if (highRiskResult?.success === false) {
     console.log(`   ✅ Action failed but safely handled`);
@@ -243,7 +243,7 @@ async function demoEndToEnd() {
       isDestructive: true,
       affectedUsers: 50
     }
-  );
+  ) as any;
   
   if (result?.success === false) {
     console.log(`   ✅ Execution complete with failure handling`);
