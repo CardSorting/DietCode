@@ -9,7 +9,7 @@ import type { LLMProvider, LLMResponse } from '../../../domain/LLMProvider';
 import type { Message, MessageBlock } from '../../../domain/context/SessionState';
 import type { ToolDefinition } from '../../../domain/agent/ToolDefinition';
 import type { Agent } from '../../../domain/agent/Agent';
-import { SovereignDb } from '../../database/SovereignDb';
+import { Core } from '../../database/sovereign/Core';
 import type { LogService } from '../../../domain/logging/LogService';
 import { MetabolicMonitor } from '../../monitoring/MetabolicMonitor';
 import type { LLMAdapter, ModelInfo, ApiStream, Message as AdapterMessage } from '../../../domain/agent/LLMProviderAdapter';
@@ -170,7 +170,7 @@ export class CloudflareProvider implements LLMProvider {
 
   private async logTelemetry(response: any, agentId: string, duration: number, taskId?: string) {
     try {
-      const db = await SovereignDb.db();
+      const db = await Core.db();
       const usage = response.usage;
       const modelId = response.model;
       const promptTokens = usage?.prompt_tokens ?? 0;
@@ -180,7 +180,7 @@ export class CloudflareProvider implements LLMProvider {
       const outputCost = (completionTokens / 1_000_000) * 3.0;
       const totalCost = inputCost + outputCost;
 
-      await db.insertInto('telemetry' as any)
+      await (db as any).insertInto('telemetry' as any)
         .values({
           id: globalThis.crypto.randomUUID(),
           repoPath: process.cwd(),
@@ -200,6 +200,7 @@ export class CloudflareProvider implements LLMProvider {
     }
   }
 }
+
 
 /**
  * CloudflareAdapter

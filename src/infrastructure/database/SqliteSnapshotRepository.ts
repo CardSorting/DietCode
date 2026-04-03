@@ -1,18 +1,16 @@
-/**
- * [LAYER: INFRASTRUCTURE]
- * Principle: Persists file biological state (Snapshots) to BroccoliDB.
- */
-
-import { SovereignDb } from './SovereignDb';
+import { Core } from './sovereign/Core';
 import type { Snapshot, SnapshotRepository } from '../../domain/memory/Snapshot';
 
+/**
+ * [LAYER: INFRASTRUCTURE]
+ * Principle: Persists file biological state (Snapshots) to BroccoliQ Hive.
+ * Massively parallel snapshotting for swarm-wide integrity.
+ */
 export class SqliteSnapshotRepository implements SnapshotRepository {
   async saveSnapshot(snapshot: Snapshot): Promise<void> {
-    const pool = await SovereignDb.getPool();
-    
-    await pool.push({
+    await Core.push({
       type: 'insert',
-      table: 'snapshots' as any,
+      table: 'snapshots',
       values: {
         id: snapshot.id,
         path: snapshot.path,
@@ -20,20 +18,18 @@ export class SqliteSnapshotRepository implements SnapshotRepository {
         timestamp: snapshot.timestamp,
         hash: snapshot.hash,
         mtime: snapshot.mtime,
-      } as any
+      }
     });
 
-    await pool.flush();
+    await Core.flush();
   }
 
   async getLatestSnapshot(filePath: string): Promise<Snapshot | null> {
-    const db = await SovereignDb.db();
-    
-    const result = await db.selectFrom('snapshots' as any)
-      .selectAll()
-      .where('path', '=', filePath)
-      .orderBy('timestamp', 'desc')
-      .executeTakeFirst() as any;
+    const results = await Core.selectWhere('snapshots', 
+      { column: 'path', operator: '=', value: filePath },
+      { orderBy: { column: 'timestamp', direction: 'desc' }, limit: 1 }
+    );
+    const result = results[0] as any;
 
     if (!result) return null;
 
@@ -48,12 +44,11 @@ export class SqliteSnapshotRepository implements SnapshotRepository {
   }
 
   async getSnapshotById(id: string): Promise<Snapshot | null> {
-    const db = await SovereignDb.db();
-    
-    const result = await db.selectFrom('snapshots' as any)
-      .selectAll()
-      .where('id', '=', id)
-      .executeTakeFirst() as any;
+    const results = await Core.selectWhere('snapshots', 
+      { column: 'id', operator: '=', value: id },
+      { limit: 1 }
+    );
+    const result = results[0] as any;
 
     if (!result) return null;
 
@@ -68,18 +63,17 @@ export class SqliteSnapshotRepository implements SnapshotRepository {
   }
 
   async cleanup(beforeTimestamp: number): Promise<void> {
-    const pool = await SovereignDb.getPool();
-    
-    await pool.push({
+    await Core.push({
       type: 'delete',
-      table: 'snapshots' as any,
+      table: 'snapshots',
       where: {
         column: 'timestamp',
         operator: '<',
         value: beforeTimestamp,
-      } as any
+      }
     });
 
-    await pool.flush();
+    await Core.flush();
   }
 }
+

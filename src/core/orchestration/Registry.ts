@@ -38,7 +38,7 @@ export const SERVICES = {
   LLM: 'LLMProvider',
   UI: 'TerminalInterface',
   FS: 'Filesystem',
-  DATABASE: 'SovereignDb',
+  DATABASE: 'Core',
   REPOSITORY: 'SessionRepository',
   DECISIONS_REPOSITORY: 'DecisionRepository',
   QUEUE: 'SqliteQueue',

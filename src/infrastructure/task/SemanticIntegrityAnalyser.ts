@@ -20,6 +20,13 @@ import { ViolationType } from '../../domain/task/ImplementationSnapshot';
  */
 export class SemanticIntegrityAnalyser {
   /**
+   * Generates a stable SHA-256 hash for content caching
+   */
+  static calculateHash(content: string): string {
+    return crypto.createHash('sha256').update(content).digest('hex');
+  }
+
+  /**
    * Calculates linear distance between two text strings
    */
   calculateLinearDistance(text1: string, text2: string): number {
@@ -161,10 +168,17 @@ export class SemanticIntegrityAnalyser {
 
   private generateNGrams(text: string, n: number): Set<string> {
     const grams = new Set<string>();
-    const tokens = this.tokenize(text.toLowerCase()).join(' ');
+    const tokens = text.toLowerCase().replace(/[^\w\s]/g, ' ');
+    
     if (tokens.length < n) return grams;
+    
+    // Memory-efficient slide window over the string
     for (let i = 0; i <= tokens.length - n; i++) {
-      grams.add(tokens.substring(i, i + n));
+        const gram = tokens.substring(i, i + n);
+        // Avoid adding pure whitespace grams
+        if (gram.trim().length > 0) {
+            grams.add(gram);
+        }
     }
     return grams;
   }

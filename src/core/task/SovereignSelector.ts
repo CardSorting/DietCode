@@ -7,8 +7,8 @@
 import type { TaskEntity } from '../../domain/task/TaskEntity';
 import { SqliteJoyCacheRepository } from '../../infrastructure/database/SqliteJoyCacheRepository';
 import { SemanticIntegrityAnalyser } from '../../infrastructure/task/SemanticIntegrityAnalyser';
-import { SovereignDb } from '../../infrastructure/database/SovereignDb';
-import * as path from 'path';
+import * as path from 'node:path';
+
 
 export interface ProvenanceBundle {
   /** Does this build a permanent asset? Proved by dependency trace. */

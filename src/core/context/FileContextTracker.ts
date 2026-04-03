@@ -11,11 +11,11 @@ import {
   type FileMetadataEntry as StateMetadata, 
   type FileOperationSource, 
   type FileState 
-} from '../../domain/context/FileContextContract.ts';
-import type { LivePathContext, ToolIntent, RuleEvaluationContext } from '../../domain/context/RuleContextContract.ts';
-import { FileWatcherAdapter, type FileWatcherEvent } from '../../infrastructure/watcher/FileWatcherAdapter.ts';
-import { FileChangeType } from '../../domain/context/FileChange.ts';
-import type { FileReadResult, FileReadSource } from "../../domain/context/FileOperation.ts";
+} from '../../domain/context/FileContextContract';
+import type { LivePathContext, ToolIntent, RuleEvaluationContext } from '../../domain/context/RuleContextContract';
+import { FileWatcherAdapter, type FileWatcherEvent } from '../../infrastructure/watcher/FileWatcherAdapter';
+import { FileChangeType } from '../../domain/context/FileChange';
+import type { FileReadResult, FileReadSource } from "../../domain/context/FileOperation";
 import type {
   ReadEntry,
   DuplicateReadMetadata,
@@ -30,7 +30,8 @@ import type { OptimizationConfig } from "../../domain/context/ContextOptimizatio
 import { defaultOptimizationConfig } from "../../domain/context/ContextOptimizationPolicy";
 import { EventType } from "../../domain/Event";
 import { EventBus } from "../../core/orchestration/EventBus";
-import { SovereignDb } from "../../infrastructure/database/SovereignDb.ts";
+import { Core } from "../../infrastructure/database/sovereign/Core";
+
 
 export class FileContextTracker {
   private static instance: FileContextTracker | null = null;
@@ -75,11 +76,11 @@ export class FileContextTracker {
   }
 
   /**
-   * Sync persistent state from SovereignDb
+   * Sync persistent state from modular Sovereign DB
    */
   async sync(): Promise<void> {
-    const db = await SovereignDb.db();
-    const rows = await db.selectFrom('file_context' as any)
+    const db = await Core.db();
+    const rows = await (db as any).selectFrom('file_context' as any)
       .selectAll()
       .execute();
 
@@ -241,18 +242,18 @@ export class FileContextTracker {
   }
 
   /**
-   * Persist state entry to SovereignDb
+   * Persist state entry to modular Sovereign DB
    */
   private async persistState(entry: StateMetadata): Promise<void> {
-    const db = await SovereignDb.db();
+    const db = await Core.db();
     
     // Check if exists first for upsert simulation in broccoliq (Kysely)
-    const existing = await db.selectFrom('file_context' as any)
+    const existing = await (db as any).selectFrom('file_context' as any)
       .where('path', '=', entry.path)
       .executeTakeFirst();
 
     if (existing) {
-      await db.updateTable('file_context' as any)
+      await (db as any).updateTable('file_context' as any)
         .set({
           state: entry.state,
           source: entry.source,
@@ -264,7 +265,7 @@ export class FileContextTracker {
         .where('path', '=', entry.path)
         .execute();
     } else {
-      await db.insertInto('file_context' as any)
+      await (db as any).insertInto('file_context' as any)
         .values({
           path: entry.path,
           state: entry.state,

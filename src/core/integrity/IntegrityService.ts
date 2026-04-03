@@ -12,8 +12,8 @@ import { IntegrityScanner } from '../../domain/integrity/IntegrityScanner';
 import { SafetyGuard } from '../capabilities/SafetyGuard';
 import { HealingService } from './HealingService';
 import { RiskLevel } from '../../domain/validation/RiskLevel';
-import { SovereignDb } from '../../infrastructure/database/SovereignDb';
-import * as crypto from 'crypto';
+import { Core } from '../../infrastructure/database/sovereign/Core';
+import * as crypto from 'node:crypto';
 
 export class IntegrityService implements IntegrityScanner {
   private eventBus: EventBus = EventBus.getInstance();
@@ -129,7 +129,7 @@ export class IntegrityService implements IntegrityScanner {
   }
 
   private async recordHistory(report: IntegrityReport): Promise<void> {
-      const pool = await SovereignDb.getPool();
+      const pool = Core.pool;
       await pool.push({
           type: 'insert',
           table: 'joy_history' as any,

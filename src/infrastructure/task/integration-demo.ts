@@ -16,8 +16,13 @@ import { OperationalScheduler } from '../../core/task/OperationalScheduler';
 import { JoySimulator } from '../simulation/JoySimulator';
 import { TaskState, TaskPriority, RequirementType, createTaskEntity } from '../../domain/task/TaskEntity';
 import { CheckpointTrigger } from '../../domain/task/ImplementationSnapshot';
-import * as path from 'path';
-import * as fs from 'fs';
+import { Core } from '../database/sovereign/Core';
+import { Schema } from '../database/sovereign/Schema';
+import { SovereignWorkerProxy } from '../queue/SovereignWorkerProxy';
+import { BroccoliQueueAdapter } from '../queue/BroccoliQueueAdapter';
+import { ConsoleLoggerAdapter } from '../ConsoleLoggerAdapter';
+import * as path from 'node:path';
+import * as fs from 'node:fs';
 
 async function demonstrateDriftPrevention() {
   console.log('\n');
@@ -26,7 +31,10 @@ async function demonstrateDriftPrevention() {
 
   // Step 1: Initialize real infrastructure
   const dbPath = path.join(process.cwd(), 'data', 'demo-checkpoints.db');
-  if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath); // Start fresh for demo
+  const sovereignDbPath = path.join(process.cwd(), 'data', 'demo-sovereign.db');
+  
+  if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
+  if (fs.existsSync(sovereignDbPath)) fs.unlinkSync(sovereignDbPath);
 
   const persistence = new CheckpointPersistenceAdapter(dbPath);
   const semanticAnalyzer = new SemanticIntegrityAnalyser();
@@ -38,13 +46,21 @@ async function demonstrateDriftPrevention() {
   const simulator = new JoySimulator();
   const scheduler = new OperationalScheduler(simulator);
   
+  // Pass 18: Initialize Sovereign Worker Proxy
+  const logService = new ConsoleLoggerAdapter();
+  await Core.init(sovereignDbPath, Schema.ensureSchema.bind(Schema));
+  const queueAdapter = new BroccoliQueueAdapter();
+  const workerProxy = new SovereignWorkerProxy(queueAdapter, logService);
+
+
   const orchestrator = new DriftDetectionOrchestrator(
     persistence,
     semanticAnalyzer,
     consistencyValidator,
     entityManager,
     selector,
-    scheduler
+    scheduler,
+    workerProxy
   );
 
   console.log('✅ Hardened Infrastructure Initialized (SQLite Persistence)');
@@ -55,13 +71,17 @@ async function demonstrateDriftPrevention() {
 
   const taskMd = `
 # Mission Statement
-Implement a state-of-the-art drift detection system for agentic workflows.
+Implement a production-hardened drift detection system for core infrastructure.
 
 ## Requirements
-- [ ] Implement SQLite-backed persistence for checkpoints
-- [ ] Create semantic similarity engine using n-grams
-- [ ] Build consistency validator for markdown artifacts
-- [ ] Add drift detection orchestration logic
+- [ ] The system must implement SQLite-backed persistence for checkpoints
+    - Verification: Check for .db file creation and data integrity
+- [ ] The system must create a semantic similarity engine using n-grams
+    - Verification: Compare similarity scores against target values
+- [ ] The system must build a consistency validator for markdown artifacts
+    - Verification: Validate malformed markdown and ensure error counts match
+- [ ] The system must add drift detection orchestration logic
+    - Verification: Trigger auto-checkpoints when drift exceed thresholds
 `.trim();
 
   // Validate the task using real logic

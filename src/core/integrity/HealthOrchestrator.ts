@@ -4,9 +4,9 @@
  * Implementation: Coordination of Tracker, Lock, and DB health checks.
  */
 
-import { FileContextTracker } from '../context/FileContextTracker.ts';
-import { LockOrchestrator } from '../manager/LockOrchestrator.ts';
-import { SovereignDb } from '../../infrastructure/database/SovereignDb.ts';
+import { FileContextTracker } from '../context/FileContextTracker';
+import { LockOrchestrator } from '../manager/LockOrchestrator';
+import { Core } from '../../infrastructure/database/sovereign/Core';
 
 export interface SystemHealthReport {
   timestamp: number;
@@ -34,13 +34,13 @@ export class HealthOrchestrator {
    * Generates a comprehensive health report of the Sovereign system.
    */
   async generateReport(): Promise<SystemHealthReport> {
-    const db = await SovereignDb.db();
+    const db = await Core.db();
     
     // 1. Check Database & Queue
     let dbStatus = 'healthy';
     let queueCount = 0;
     try {
-      const queue = await SovereignDb.getQueue();
+      const queue = await Core.getQueue();
       // Note: SqliteQueue might not have length, but we can check connectivity
       queueCount = 0; // Placeholder for actual queue depth if available
     } catch (e) {
@@ -77,6 +77,7 @@ export class HealthOrchestrator {
 
     return report;
   }
+
 
   /**
    * Outputs a human-readable health summary.

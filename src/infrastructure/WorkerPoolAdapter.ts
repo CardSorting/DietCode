@@ -1,9 +1,9 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
-import * as crypto from 'crypto';
+import * as crypto from 'node:crypto';
 import { Worker } from 'worker_threads';
-import { SovereignDb } from './database/SovereignDb';
+import { Core } from './database/sovereign/Core';
 import { JobType } from '../domain/system/QueueProvider';
 import { IntegrityScanner } from '../domain/integrity/IntegrityScanner';
 import { SovereignWorkerProxy } from './queue/SovereignWorkerProxy';
@@ -60,7 +60,7 @@ export class WorkerPoolAdapter {
     
     const broccoliQueue: any = {
         enqueue: async (job: any) => {
-            const qa = await SovereignDb.getQueue();
+            const qa = await Core.getQueue();
             return qa.enqueue(job);
         }
     };

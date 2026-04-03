@@ -1,13 +1,13 @@
 /**
  * [LAYER: INFRASTRUCTURE]
- * Principle: Persistent Audit Logging — sinks logs into SovereignDb.
+ * Principle: Persistent Audit Logging — sinks logs into modular Sovereign infrastructure.
  * Implementation: LogService adapter.
  */
 
 import type { LogService } from '../../domain/logging/LogService';
 import type { LogEntry, LogMetadata } from '../../domain/logging/LogEntry';
 import { LogLevel } from '../../domain/logging/LogLevel';
-import { SovereignDb } from '../database/SovereignDb.ts';
+import { Core } from '../database/sovereign/Core';
 
 export class SovereignLogAdapter implements LogService {
   private minLevel: LogLevel = LogLevel.INFO;
@@ -50,10 +50,10 @@ export class SovereignLogAdapter implements LogService {
 
   private async persistAuditLog(level: LogLevel, message: string, data?: unknown, metadata?: LogMetadata): Promise<void> {
     try {
-      const db = await SovereignDb.db();
+      const db = await Core.db();
       const id = globalThis.crypto.randomUUID();
       
-      await db.insertInto('audit_log' as any)
+      await (db as any).insertInto('audit_log' as any)
         .values({
           id,
           sessionId: this.currentSessionId,
@@ -81,3 +81,4 @@ export class SovereignLogAdapter implements LogService {
     return this.minLevel;
   }
 }
+

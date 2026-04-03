@@ -12,7 +12,8 @@ import type {
   LockTicket,
   LockResult,
 } from '../../domain/safety/LockScope';
-import { SqliteLockManager } from '../../infrastructure/database/SqliteLockManager';
+import { LockManager } from '../../infrastructure/database/sovereign/LockManager';
+
 
 /**
  * Lock acquisition timeout strategy
@@ -68,7 +69,7 @@ export enum LockReleaseStrategy {
 export class LockOrchestrator {
   private static instance: LockOrchestrator | null = null;
 
-  private lockManager = SqliteLockManager.getInstance();
+  private lockManager = LockManager.getInstance();
 
   private acquisitionStrategies: Map<LockTimeoutStrategy, (scope: LockScope, maxTime: number) => Promise<LockTicket>> = new Map();
 

@@ -1,11 +1,4 @@
-/**
- * [LAYER: INFRASTRUCTURE]
- * Principle: Background worker for DietCode using SqliteQueue.
- * Offloads heavy or non-blocking work from the main interactive loop.
- * Uses structured logging for production-grade observability.
- */
-
-import { SovereignDb } from '../database/SovereignDb';
+import { Core, type DietCodeJob } from '../database/sovereign/Core';
 import type { DecisionRepository } from '../../domain/memory/DecisionRepository';
 import type { MemoryService } from '../../core/memory/MemoryService';
 import type { SelfHealingService } from '../../core/integrity/SelfHealingService';
@@ -15,7 +8,7 @@ import type { LogService } from '../../domain/logging/LogService';
 import { IntegrityAdapter } from '../IntegrityAdapter';
 import { SemanticIntegrityAdapter } from '../SemanticIntegrityAdapter';
 import { IntegrityPolicy } from '../../domain/memory/IntegrityPolicy';
-import * as crypto from 'crypto';
+import * as crypto from 'node:crypto';
 
 export class QueueWorker {
   private isProcessing = false;
@@ -34,15 +27,13 @@ export class QueueWorker {
    */
   async start() {
     if (this.isProcessing) return;
-    const queue = await SovereignDb.getQueue();
+    const queue = await Core.getQueue();
     
     this.logService.info('Sovereign Queue Worker started', {}, { component: 'QueueWorker' });
     
-    // Process jobs with concurrency of 5
-    // Each job is polled from the 'queue_jobs' table in BroccoliDB
-    queue.process(async (job) => {
-      const payload = typeof job.payload === 'string' ? JSON.parse(job.payload) : job.payload;
-      
+    // V2.0 processing loop: (payload, fullJob)
+    // Using explicit typing for DietCode v2 integration
+    await (queue as any).process(async (payload: any, job: any) => {
       this.logService.info(
         `Executing job`,
         { type: payload.type, jobId: job.id },
@@ -108,8 +99,8 @@ Provide a structured report.`;
     );
 
     const report = response.content
-      .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
-      .map(c => c.text)
+      .filter((c: any): c is { type: 'text'; text: string } => c.type === 'text')
+      .map((c: any) => c.text)
       .join('\n') || 'No issues found';
     
     await this.memory.distill(taskId, `Deep Audit Report for ${repoPath}:\n${report}`);
@@ -161,10 +152,10 @@ Please propose a refactor to fix this architectural violation.`;
       []
     );
 
-    const rationale = response.reasoning?.map(r => r.text || '').join('\n') || 'Architectural correction';
+    const rationale = response.reasoning?.map((r: any) => r.text || '').join('\n') || 'Architectural correction';
     const proposedCode = response.content
-      .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
-      .map(c => c.text)
+      .filter((c: any): c is { type: 'text'; text: string } => c.type === 'text')
+      .map((c: any) => c.text)
       .join('\n') || '';
 
     await this.healing.recordProposal({
@@ -193,18 +184,19 @@ Please propose a refactor to fix this architectural violation.`;
     
     try {
       const report = await scanner.scanFiles(files, projectRoot);
-      const db = await SovereignDb.db();
       
-      await db.insertInto('integrity_shard_results' as any)
-        .values({
+      await Core.push({
+        type: 'insert',
+        table: 'integrity_shard_results',
+        values: {
           id: crypto.randomUUID(),
           correlationId,
           shardId,
           status: 'completed',
           result: JSON.stringify(report),
           timestamp: Date.now()
-        })
-        .execute();
+        }
+      });
         
       this.logService.info(
         `Shard completed`,
@@ -218,17 +210,18 @@ Please propose a refactor to fix this architectural violation.`;
         { component: 'QueueWorker' }
       );
       
-      const db = await SovereignDb.db();
-      await db.insertInto('integrity_shard_results' as any)
-        .values({
+      await Core.push({
+        type: 'insert',
+        table: 'integrity_shard_results',
+        values: {
           id: crypto.randomUUID(),
           correlationId,
           shardId,
           status: 'failed',
           error: err.message,
           timestamp: Date.now()
-        })
-        .execute();
+        }
+      });
     }
   }
 
@@ -264,33 +257,29 @@ Please propose a refactor to fix this architectural violation.`;
   }
 
   private async reportJobResult(taskId: string, shardId: number, status: string, payload?: any, error?: string) {
-    const db = await SovereignDb.db();
-    const resultId = crypto.randomUUID();
-    
-    // 1. Insert into job_results
-    await db.insertInto('job_results' as any)
-        .values({
-            id: resultId,
-            taskId,
-            shardId,
-            status,
-            payload: payload ? JSON.stringify(payload) : null,
-            error: error || null,
-            timestamp: Date.now()
-        })
-        .execute();
+    // Hive Pattern: Zero-Latency result reporting
+    await Core.push({
+      type: 'insert',
+      table: 'job_results',
+      values: {
+          id: crypto.randomUUID(),
+          taskId,
+          shardId,
+          status,
+          payload: payload ? JSON.stringify(payload) : null,
+          error: error || null,
+          timestamp: Date.now()
+      }
+    });
 
-    // 2. Update sovereign_tasks progress
-    try {
-        await db.updateTable('sovereign_tasks' as any)
-            .set({
-                completed_shards: (db as any).raw('completed_shards + 1'),
-                updated_at: Date.now()
-            })
-            .where('id', '=', taskId)
-            .execute();
-    } catch (e) {
-        // Task entry might not exist if it was a standalone shard
-    }
+    await Core.push({
+      type: 'update',
+      table: 'sovereign_tasks',
+      values: {
+          completed_shards: (Core.pool.constructor as any).increment(1), 
+          updated_at: Date.now()
+      },
+      where: { column: 'id', operator: '=', value: taskId }
+    });
   }
 }

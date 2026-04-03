@@ -24,6 +24,8 @@ import { SovereignSelector } from '../task/SovereignSelector';
 import { OperationalScheduler } from '../task/OperationalScheduler';
 import { MetabolicBrain } from '../brain/MetabolicBrain';
 import { MetabolicMonitor } from '../../infrastructure/monitoring/MetabolicMonitor';
+import { SovereignWorkerProxy } from '../../infrastructure/queue/SovereignWorkerProxy';
+import { JobType } from '../../domain/system/QueueProvider';
 import * as crypto from 'crypto';
 
 /**
@@ -43,6 +45,7 @@ export class DriftDetectionOrchestrator {
   
   private selector: SovereignSelector;
   private scheduler: OperationalScheduler;
+  private workerProxy?: SovereignWorkerProxy;
   private brain = new MetabolicBrain();
   private monitor = MetabolicMonitor.getInstance();
 
@@ -53,6 +56,7 @@ export class DriftDetectionOrchestrator {
     entityManager: TaskEntityManager,
     selector: SovereignSelector,
     scheduler: OperationalScheduler,
+    workerProxy?: SovereignWorkerProxy,
     config?: {
       criteria: DriftDetectionCriteria;
       autoCheckpointInterval: number;
@@ -65,6 +69,7 @@ export class DriftDetectionOrchestrator {
     this.entityManager = entityManager;
     this.selector = selector;
     this.scheduler = scheduler;
+    this.workerProxy = workerProxy;
 
     this.currentCheckpointId = null;
     this.currentDriftScore = 0;
@@ -136,7 +141,8 @@ export class DriftDetectionOrchestrator {
         const updatedSnapshot: ImplementationSnapshot = await this.checkpointAdapter.createCheckpoint(
           taskId,
           {
-            checkpointId: this.currentCheckpointId || undefined,
+            checkpointId: undefined, // Generate new ID
+            previousSnapshotId: this.currentCheckpointId || undefined,
             driftScore: currentDriftScore,
             semanticHealth: {
               integrityScore: currentDriftScore,
@@ -185,10 +191,26 @@ export class DriftDetectionOrchestrator {
     const task = await this.entityManager.getCurrentTask();
     if (!task) throw new Error('No active task to checkpoint');
 
-    const semanticIntegrity = this.semanticAnalyzer.calculateSemanticIntegrity(
-      markdownContent,
-      []
-    );
+    let semanticIntegrity: any;
+    
+    if (this.workerProxy) {
+        this.log(LogLevel.INFO, 'Offloading Semantic Integrity analysis to background worker');
+        const result = await this.workerProxy.executeSingle<any, any>(
+            JobType.SEMANTIC_SCORING,
+            { content: markdownContent, tokenHashes: [] }
+        );
+        if (result.success) {
+            semanticIntegrity = result.payload;
+        } else {
+            this.log(LogLevel.WARN, `Background scoring failed: ${result.error}. Falling back to local execution.`);
+            semanticIntegrity = this.semanticAnalyzer.calculateSemanticIntegrity(markdownContent, []);
+        }
+    } else {
+        semanticIntegrity = this.semanticAnalyzer.calculateSemanticIntegrity(
+            markdownContent,
+            []
+        );
+    }
 
     const driftScore = 1.0 - semanticIntegrity.integrityScore;
 

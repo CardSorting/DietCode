@@ -176,18 +176,48 @@ export class TaskConsistencyValidator {
     const lines = content.split('\n');
     const reqPattern = /^\s*-\s+\[[ xX]?\]\s+(.+)$/;
 
-    for (const line of lines) {
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (line === undefined) continue;
+      
       const match = line.match(reqPattern);
+      
       if (match && match[1]) {
         const description = match[1].trim();
+        const verificationCriteria: string[] = [];
+        
+        // Look ahead for verification criteria (nested bullets)
+        let j = i + 1;
+        while (j < lines.length) {
+          const nextLine = lines[j];
+          if (nextLine === undefined) {
+            j++;
+            continue;
+          }
+          
+          const vMatch = nextLine.match(/^\s{4,}-\s+(.+)$/); // Indented bullet
+          if (vMatch && vMatch[1]) {
+            verificationCriteria.push(vMatch[1].trim());
+            j++;
+          } else if (nextLine.trim() === '') {
+            j++;
+            continue;
+          } else {
+            break;
+          }
+        }
+        
         requirements.push({
           uniqueId: `req-${crypto.createHash('md5').update(description).digest('hex').substring(0, 8)}`,
           description,
           type: this.detectRequirementType(description),
           priority: TaskPriority.MEDIUM,
           isCritical: description.toLowerCase().includes('must'),
-          section: 'Requirements'
+          section: 'Requirements',
+          verificationCriteria: verificationCriteria.length > 0 ? verificationCriteria : undefined
         });
+        
+        i = j - 1; // Skip the lines we consumed
       }
     }
 

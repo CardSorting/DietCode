@@ -16,8 +16,7 @@ import { RefactorTagSentinel } from './refactor/RefactorTagSentinel';
 import { RefactorHealer } from './refactor/RefactorHealer';
 import { RefactorEventFactory } from './refactor/RefactorEventFactory';
 
-// Sovereign Infrastructure (Pass 18 Hardening)
-import { SovereignDb } from '../database/SovereignDb';
+import { AuditRecorder } from '../database/sovereign/AuditRecorder';
 import { BroccoliQueueAdapter } from '../queue/BroccoliQueueAdapter';
 import { JobType } from '../../domain/system/QueueProvider';
 
@@ -84,13 +83,13 @@ export class RefactorTools {
     const isJoyZoningFile = oldPath.endsWith('JOY_ZONING_GUIDE.md') || newPath.endsWith('JOY_ZONING_GUIDE.md');
     
     // Check persistent database for prior bypasses (Pass 18 Hardening)
-    const alreadyBypassed = await SovereignDb.isBypassed(oldPath);
+    const alreadyBypassed = await AuditRecorder.isBypassed(oldPath);
 
     if (!force && blockResult.blocked && isJoyZoningFile && !alreadyBypassed) {
       console.log(`⚠️  JOYZONING BYPASS (PERSISTED): Allowing first-pass regression for ${oldPath}`);
       
       // Persist the bypass event to ensure policy enforcement holds across restarts
-      await SovereignDb.recordBypass(oldPath, blockResult.violations[0]?.type || 'UNKNOWN');
+      await AuditRecorder.recordBypass(oldPath, blockResult.violations[0]?.type || 'UNKNOWN');
 
       blockResult.blocked = false; // Override block for this pass
       
@@ -136,6 +135,7 @@ export class RefactorTools {
 
     return { success: true, blocked: false, archEvent };
   }
+
 
   private buildGuardResult(simResult: any): GuardBlockResult {
     return {

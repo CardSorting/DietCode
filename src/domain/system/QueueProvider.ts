@@ -10,12 +10,16 @@ export enum JobType {
   JOY_ZONING_HEAL = 'JOY_ZONING_HEAL',
   INTEGRITY_SHARD = 'INTEGRITY_SHARD',
   SEMANTIC_SHARD = 'SEMANTIC_SHARD',
+  SEMANTIC_SCORING = 'SEMANTIC_SCORING',
+  IMPACT_SCORING = 'IMPACT_SCORING',
+  SHARDED_SCORING = 'SHARDED_SCORING',
   UNIFIED_SCAN = 'UNIFIED_SCAN'
 }
 
 export interface JobDefinition<T = unknown> {
   type: JobType;
   payload: T;
+  priority?: number; // 0 = standard, 1 = high
 }
 
 export interface QueueProvider {

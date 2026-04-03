@@ -1,24 +1,17 @@
-/**
- * [LAYER: INFRASTRUCTURE]
- * SQLite implementation of the HealingRepository using BroccoliDB.
- * Pass 10: Sovereign Healing Buffers — implements write-behind caching for remediation.
- * Zero-Wait: Tool execution never stalls for SQLite disk I/O on healing.
- */
-
-import { SovereignDb } from './SovereignDb';
+import { Core } from './sovereign/Core';
 import type { HealingRepository } from '../../domain/healing/HealingRepository';
 import { HealingStatus, type HealingProposal } from '../../domain/healing/Healing';
 
+/**
+ * SQLite implementation of the HealingRepository using BroccoliQ Hive.
+ * Utilizes Write-Behind architecture for zero-latency remediation tracking.
+ */
 export class SqliteHealingRepository implements HealingRepository {
-    /**
-     * Saves a healing proposal asynchronously via BufferedDbPool.
-     */
     async saveProposal(proposal: HealingProposal): Promise<void> {
-        const pool = await SovereignDb.getPool();
-        
-        await pool.push({
+        // 2.0 Architectural Pattern: Zero-Wait ingestion
+        await Core.push({
             type: 'insert',
-            table: 'healing_proposals' as any,
+            table: 'healing_proposals',
             values: {
                 id: proposal.id,
                 violationId: proposal.violationId,
@@ -29,66 +22,52 @@ export class SqliteHealingRepository implements HealingRepository {
                 confidence: proposal.confidence,
                 createdAt: proposal.createdAt,
                 appliedAt: proposal.appliedAt || null,
-            } as any
+            }
         });
-
-        // We DO NOT await flush() here. This is why it's Zero-Wait.
-        // Persistence will happen in the background sequentially.
     }
 
     async getProposalById(id: string): Promise<HealingProposal | null> {
-        const db = await SovereignDb.db();
-        const row = await db.selectFrom('healing_proposals' as any)
-            .selectAll()
-            .where('id', '=', id)
-            .executeTakeFirst();
+        const results = await Core.selectWhere('healing_proposals', 
+            { column: 'id', operator: '=', value: id },
+            { limit: 1 }
+        );
 
-        if (!row) return null;
-        return this.mapRowToProposal(row);
+        if (!results[0]) return null;
+        return this.mapRowToProposal(results[0]);
     }
 
     async getProposalsForViolation(violationId: string): Promise<HealingProposal[]> {
-        const db = await SovereignDb.db();
-        const rows = await db.selectFrom('healing_proposals' as any)
-            .selectAll()
-            .where('violationId', '=', violationId)
-            .execute();
+        const results = await Core.selectWhere('healing_proposals', 
+            { column: 'violationId', operator: '=', value: violationId }
+        );
 
-        return rows.map(row => this.mapRowToProposal(row));
+        return results.map((row: any) => this.mapRowToProposal(row));
     }
 
-    /**
-     * Updates the status of a proposal asynchronously.
-     */
     async updateProposalStatus(id: string, status: HealingStatus): Promise<void> {
-        const pool = await SovereignDb.getPool();
-        
         const updateData: any = { status };
         if (status === HealingStatus.APPLIED) {
             updateData.appliedAt = new Date().toISOString();
         }
         
-        await pool.push({
+        await Core.push({
             type: 'update',
-            table: 'healing_proposals' as any,
+            table: 'healing_proposals',
             values: updateData,
             where: {
                 column: 'id',
                 operator: '=',
                 value: id
-            } as any
+            }
         });
     }
 
     async listRecentProposals(limit: number = 10): Promise<HealingProposal[]> {
-        const db = await SovereignDb.db();
-        const rows = await db.selectFrom('healing_proposals' as any)
-            .selectAll()
-            .orderBy('createdAt', 'desc')
-            .limit(limit)
-            .execute();
+        const results = await Core.selectWhere('healing_proposals', [], 
+            { orderBy: { column: 'createdAt', direction: 'desc' }, limit }
+        );
 
-        return rows.map(row => this.mapRowToProposal(row));
+        return results.map((row: any) => this.mapRowToProposal(row));
     }
 
     private mapRowToProposal(row: any): HealingProposal {
@@ -105,3 +84,4 @@ export class SqliteHealingRepository implements HealingRepository {
         };
     }
 }
+

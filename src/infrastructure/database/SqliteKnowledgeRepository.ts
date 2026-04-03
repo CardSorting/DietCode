@@ -1,17 +1,17 @@
-/**
- * [LAYER: INFRASTRUCTURE]
- * Concrete implementation of KnowledgeRepository using SQLite and BufferedDbPool.
- */
-
-import { SovereignDb } from './SovereignDb';
+import { Core } from './sovereign/Core';
 import type { KnowledgeItem, KnowledgeRepository } from '../../domain/memory/Knowledge';
 
+/**
+ * Concrete implementation of KnowledgeRepository using BroccoliQ Hive.
+ * Utilizes Write-Behind architecture for massless ingestion.
+ */
 export class SqliteKnowledgeRepository implements KnowledgeRepository {
   async save(item: KnowledgeItem): Promise<void> {
-    const db = await SovereignDb.db();
-    
-    await db.insertInto('knowledge_base' as any)
-      .values({
+    // 2.0 Architectural Pattern: Push to Memory Buffer (Level 7)
+    await Core.push({
+      type: 'insert',
+      table: 'knowledge_base',
+      values: {
         id: item.id,
         knowledge_key: item.key,
         knowledge_value: item.value,
@@ -20,18 +20,16 @@ export class SqliteKnowledgeRepository implements KnowledgeRepository {
         tags: JSON.stringify(item.tags),
         metadata: JSON.stringify(item.metadata || {}),
         createdAt: item.createdAt,
-      } as any)
-      .execute();
+      }
+    });
   }
 
   async findRelevant(query: string, limit: number = 5): Promise<KnowledgeItem[]> {
-    const db = await SovereignDb.db();
-    const results = await db
-      .selectFrom('knowledge_base' as any)
-      .selectAll()
-      .where('knowledge_key' as any, 'like', `%${query}%`)
-      .limit(limit)
-      .execute();
+    // Fluid Select: Automatically merges buffers & disk
+    const results = await Core.selectWhere('knowledge_base', 
+      { column: 'knowledge_key', operator: 'LIKE', value: `%${query}%` },
+      { limit }
+    );
 
     return results.map((r: any) => ({
       ...r,
@@ -43,11 +41,7 @@ export class SqliteKnowledgeRepository implements KnowledgeRepository {
   }
 
   async getAll(): Promise<KnowledgeItem[]> {
-    const db = await SovereignDb.db();
-    const results = await db
-      .selectFrom('knowledge_base' as any)
-      .selectAll()
-      .execute();
+    const results = await Core.selectWhere('knowledge_base', []);
 
     return results.map((r: any) => ({
       ...r,
@@ -58,3 +52,4 @@ export class SqliteKnowledgeRepository implements KnowledgeRepository {
     }));
   }
 }
+

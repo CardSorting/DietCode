@@ -5,16 +5,30 @@
  */
 
 import { HealingWorker } from './src/infrastructure/tools/HealingWorker';
+import { ScoringWorker } from './src/infrastructure/workers/ScoringWorker';
 import { SelfHealer } from './src/infrastructure/tools/SelfHealer';
 
 async function main() {
     const isWorkerMode = process.argv.includes('--worker');
+    const dbArgIndex = process.argv.indexOf('--db');
+    const dbPath = dbArgIndex !== -1 ? process.argv[dbArgIndex + 1] : undefined;
 
     if (isWorkerMode) {
+        if (dbPath) {
+            console.log(`🗄️  Using custom database: ${dbPath}`);
+            const { SovereignDb } = await import('./src/infrastructure/database/SovereignDb');
+            await SovereignDb.init(dbPath);
+        }
         console.log('🏙️  JOY-ZONING: HIGH-THROUGHPUT HEALING WORKER');
+        console.log('📊 JOY-ZONING: DISTRIBUTED SCORING WORKER');
         console.log('--------------------------------------------------');
-        const worker = new HealingWorker();
-        await worker.start();
+        const healingWorker = new HealingWorker();
+        const scoringWorker = new ScoringWorker();
+        
+        await Promise.all([
+            healingWorker.start(),
+            scoringWorker.start()
+        ]);
         return;
     }
 

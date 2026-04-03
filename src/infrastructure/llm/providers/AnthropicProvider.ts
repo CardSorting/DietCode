@@ -10,7 +10,7 @@ import type { LLMProvider, LLMResponse } from '../../../domain/LLMProvider';
 import type { Message } from '../../../domain/context/SessionState';
 import type { ToolDefinition } from '../../../domain/agent/ToolDefinition';
 import type { Agent } from '../../../domain/agent/Agent';
-import { SovereignDb } from '../../database/SovereignDb';
+import { Core } from '../../database/sovereign/Core';
 import type { LogService } from '../../../domain/logging/LogService';
 import { MetabolicMonitor } from '../../monitoring/MetabolicMonitor';
 
@@ -102,7 +102,7 @@ export class AnthropicProvider implements LLMProvider {
 
   private async logTelemetry(response: any, agentId: string, duration: number, taskId?: string) {
     try {
-      const db = await SovereignDb.db();
+      const db = await Core.db();
       const usage = response.usage;
       const modelId = response.model;
       
@@ -115,7 +115,7 @@ export class AnthropicProvider implements LLMProvider {
       const outputCost = (completionTokens / 1_000_000) * 15.0;
       const totalCost = inputCost + outputCost;
 
-      await db.insertInto('telemetry' as any)
+      await (db as any).insertInto('telemetry' as any)
         .values({
           id: globalThis.crypto.randomUUID(),
           repoPath: process.cwd(),
@@ -135,3 +135,4 @@ export class AnthropicProvider implements LLMProvider {
     }
   }
 }
+

@@ -4,14 +4,17 @@
  * Pass 18: Broccoli Flow Protocol.
  */
 
-import { SovereignDb } from '../database/SovereignDb';
+import { Core } from '../database/sovereign/Core';
+import { LockManager } from '../database/sovereign/LockManager';
+import { MetabolicRecorder } from '../database/sovereign/MetabolicRecorder';
+import { AuditRecorder } from '../database/sovereign/AuditRecorder';
 import { ImportFixer } from './ImportFixer';
 import { RefactorTagSentinel } from './refactor/RefactorTagSentinel';
 import { RefactorMoveEngine } from './refactor/RefactorMoveEngine';
 import { JoyZoningHealer } from './JoyZoningHealer';
 import { JobType } from '../../domain/system/QueueProvider';
 import { ArchitecturalGuardian } from '../../domain/architecture/ArchitecturalGuardian';
-import * as path from 'path';
+import * as path from 'node:path';
 
 export class HealingWorker {
   private importFixer: ImportFixer;
@@ -32,7 +35,7 @@ export class HealingWorker {
    */
   async start(): Promise<void> {
     if (this.isProcessing) return;
-    const queue = await SovereignDb.getQueue();
+    const queue = await Core.getQueue();
 
     console.log('🌱 JoyZoning Healing Worker: INITIALIZED');
     
@@ -65,7 +68,7 @@ export class HealingWorker {
         console.log(`[JoyZoning] Pass 4 Verified Strategy Analysis: ${resource}`);
         
         // Phase 3: Distributed Atomic Lock (Durable Guarding)
-        const locked = await SovereignDb.acquireLock(resource, owner);
+        const locked = await LockManager.acquireLock(resource, owner);
         if (!locked) {
           console.log(`[JoyZoning] Resource Logic Locked: Skipping concurrent healing for ${resource}`);
           return;
@@ -96,14 +99,14 @@ export class HealingWorker {
             const isVerified = postHealReport.violations.length === 0;
             
             // Step 4: Metabolic Telemetry (Activity Accounting)
-            await SovereignDb.recordMetabolicEvent({
+            await MetabolicRecorder.recordMetabolicEvent({
               linesAdded: 1, 
               reads: 2, // Analysis + Audit
               writes: 1
             });
 
             // Step 5: Persistent Audit Trail (Verified Outcome)
-            await SovereignDb.recordAudit(
+            await AuditRecorder.recordAudit(
               isVerified ? 'JOYZONING_VERIFIED' : 'JOYZONING_DRIFT',
               isVerified 
                 ? `Remediation verified: ${result.step.file} reached zero-drift state.` 
@@ -116,7 +119,7 @@ export class HealingWorker {
             );
 
             // Step 6: Resolve Imports (Deferred Async via broccoliq)
-            const queue = await SovereignDb.getQueue();
+            const queue = await Core.getQueue();
             await queue.enqueue({
               type: JobType.CODE_HEAL, 
               payload: {
@@ -129,10 +132,10 @@ export class HealingWorker {
           }
         } catch (err) {
           console.error(`❌ [JoyZoning] Durable Remediation FAILED: ${err}`);
-          await SovereignDb.recordAudit('JOYZONING_HEAL_FAIL', `Durable move failed: ${resource}`, { error: String(err) });
+          await AuditRecorder.recordAudit('JOYZONING_HEAL_FAIL', `Durable move failed: ${resource}`, { error: String(err) });
         } finally {
           // Phase 3: Absolute Lock Release
-          await SovereignDb.releaseLock(resource, owner);
+          await LockManager.releaseLock(resource, owner);
         }
       }
     }, { concurrency: 3 });
@@ -143,3 +146,4 @@ export class HealingWorker {
     console.log('🛑 JoyZoning Healing Worker: STOPPED');
   }
 }
+

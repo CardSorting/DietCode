@@ -8,7 +8,7 @@
  * MetabolicMonitor: Singleton service for environment-wide instrumentation.
  * Tracks I/O operations, token consumption, and verification signals.
  */
-import { SovereignDb } from '../database/SovereignDb';
+import { Core } from '../database/sovereign/Core';
 import * as crypto from 'node:crypto';
 
 export interface BrainMetrics {
@@ -65,11 +65,11 @@ export class MetabolicMonitor {
    * Persists the current metabolic window to the database.
    */
   public async flushToDatabase(taskId: string): Promise<void> {
-    const db = await SovereignDb.db();
+    const db = await Core.db();
     const metrics = this.getMetrics();
     
     // Pass 17: Zero-Wait Telemetry Persistence
-    await db.insertInto('metabolic_telemetry' as any)
+    await (db as any).insertInto('metabolic_telemetry' as any)
       .values({
         id: crypto.randomUUID(),
         taskId,
@@ -160,3 +160,4 @@ export class MetabolicMonitor {
     return this.metrics.reads / (this.metrics.writes || 1);
   }
 }
+

@@ -1,29 +1,26 @@
-/**
- * [LAYER: INFRASTRUCTURE]
- * Principle: Implementation of Domain QueueProvider using BroccoliDB
- */
-
-import { SovereignDb } from '../database/SovereignDb';
+import { Core } from '../database/sovereign/Core';
 import type { QueueProvider } from '../../domain/system/QueueProvider';
 import type { JobDefinition } from '../../domain/system/QueueProvider';
 
 export class BroccoliQueueAdapter implements QueueProvider {
   /**
-   * Enqueues a typed job into the Sovereign Swarm Queue
+   * Enqueues a typed job into the Sovereign Swarm Queue (v2.0)
    */
   async enqueue<T>(job: JobDefinition<T>): Promise<string> {
-    const queue = await SovereignDb.getQueue();
+    const queue = await Core.getQueue();
     
     // Normalize type to string for JSON serialization
     const jobTypeStr = typeof job.type === 'string' ? job.type : String(job.type);
     
-    // Create a properly typed object for the queue
-    const dietCodeJob: { type: string; payload: T } = {
+    // Create the payload exactly as expected by DietCodeJob
+    const payload = {
       type: jobTypeStr,
-      payload: job.payload
+      payload: job.payload,
     };
 
-    // Cast to match DietCodeJob interface expected by queue.enqueue
-    return queue.enqueue(dietCodeJob as any);
+    // V2.0: Options are passed as a second argument
+    return queue.enqueue(payload as any, {
+      priority: job.priority
+    });
   }
 }

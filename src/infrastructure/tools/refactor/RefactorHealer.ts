@@ -4,7 +4,7 @@
  * Principle: Refactor Healer — Orchestrates import resolution (Sync vs Async).
  */
 
-import { SovereignDb } from '../../database/SovereignDb';
+import { Core } from '../../database/sovereign/Core';
 import { ImportFixer } from '../ImportFixer';
 import { JobType } from '../../../domain/system/QueueProvider';
 
@@ -26,7 +26,7 @@ export class RefactorHealer {
     ): Promise<boolean> {
         if (requiresHealing) {
             // High-Throughput: Enqueue background healing
-            const queue = await SovereignDb.getQueue();
+            const queue = await Core.getQueue();
             await queue.enqueue({
                 type: JobType.JOY_ZONING_HEAL,
                 payload: {
@@ -43,3 +43,4 @@ export class RefactorHealer {
         }
     }
 }
+

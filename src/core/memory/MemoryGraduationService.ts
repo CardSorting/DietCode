@@ -4,7 +4,7 @@
  * Implementation: Knowledge extraction and persistence coordination.
  */
 
-import { SovereignDb } from '../../infrastructure/database/SovereignDb.ts';
+import { Core } from '../../infrastructure/database/sovereign/Core';
 
 export interface LearnedFact {
   key: string;
@@ -21,14 +21,14 @@ export class MemoryGraduationService {
    * Only promotes facts with confidence above the threshold.
    */
   async graduate(facts: LearnedFact[], confidenceThreshold: number = 0.8): Promise<number> {
-    const db = await SovereignDb.db();
+    const db = await Core.db();
     let promotedCount = 0;
 
     for (const fact of facts) {
       if (fact.confidence >= confidenceThreshold) {
         const id = globalThis.crypto.randomUUID();
         
-        await db.insertInto('knowledge_base' as any)
+        await (db as any).insertInto('knowledge_base' as any)
           .values({
             id,
             knowledge_key: fact.key,
@@ -53,8 +53,8 @@ export class MemoryGraduationService {
    * Finalize a session and bridge its local context.
    */
   async finalizeSession(sessionId: string): Promise<void> {
-    const db = await SovereignDb.db();
-    await db.updateTable('agent_sessions' as any)
+    const db = await Core.db();
+    await (db as any).updateTable('agent_sessions' as any)
       .set({ 
         status: 'completed',
         endTime: Date.now()
@@ -65,3 +65,4 @@ export class MemoryGraduationService {
     console.log(`🏁 [Session] Session ${sessionId} finalized and graduated.`);
   }
 }
+

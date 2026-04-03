@@ -1,35 +1,34 @@
-/**
- * [LAYER: INFRASTRUCTURE]
- * Principle: Implementation of SessionRepository using BroccoliDB.
- */
-
-import { SovereignDb } from './SovereignDb';
+import { Core } from './sovereign/Core';
 import type { SessionRepository } from '../../domain/context/SessionRepository';
 import type { Message, SessionState } from '../../domain/context/SessionState';
 import type { ProjectContext } from '../../domain/context/ProjectContext';
 
+/**
+ * [LAYER: INFRASTRUCTURE]
+ * Implementation of SessionRepository using BroccoliQ Hive.
+ * Manages project, agent, and task state with high-throughput write-ahead logs.
+ */
 export class SqliteSessionRepository implements SessionRepository {
   /**
-   * Deep Integration: Ensures the workspace and repository exist in BroccoliDB.
+   * Deep Integration: Ensures the workspace and repository exist in BroccoliQ.
    */
   async ensureProject(context: ProjectContext, userId: string): Promise<void> {
-    const pool = await SovereignDb.getPool();
     const now = Date.now();
 
     // 1. Ensure Workspace
-    await pool.push({
+    await Core.push({
       type: 'upsert',
       table: 'workspaces',
       values: {
         id: context.workspace.id,
         userId: userId,
         createdAt: now,
-      } as any,
+      },
       conflictTarget: 'id',
     });
 
     // 2. Ensure Repository
-    await pool.push({
+    await Core.push({
       type: 'upsert',
       table: 'repositories',
       values: {
@@ -39,27 +38,26 @@ export class SqliteSessionRepository implements SessionRepository {
         repoPath: context.repository.path,
         defaultBranch: context.repository.defaultBranch,
         createdAt: now,
-      } as any,
+      },
       conflictTarget: 'id',
     });
     
-    await pool.flush();
+    await Core.flush();
   }
 
   async createSession(userId: string, agentId: string, description: string): Promise<string> {
-    const pool = await SovereignDb.getPool();
     const sessionId = globalThis.crypto.randomUUID();
     const now = Date.now();
 
     // Ensure user and agent exist in the Hive
-    await pool.push({
+    await Core.push({
       type: 'insert',
       table: 'users',
       values: { id: userId, createdAt: now },
       conflictTarget: 'id',
-    } as any);
+    });
 
-    await pool.push({
+    await Core.push({
       type: 'insert',
       table: 'agents',
       values: { 
@@ -71,9 +69,9 @@ export class SqliteSessionRepository implements SessionRepository {
         lastActive: now 
       },
       conflictTarget: 'id',
-    } as any);
+    });
 
-    await pool.push({
+    await Core.push({
       type: 'insert',
       table: 'tasks',
       values: {
@@ -84,31 +82,30 @@ export class SqliteSessionRepository implements SessionRepository {
         description: description,
         createdAt: now,
         updatedAt: now,
-      } as any
+      }
     });
 
-    await pool.flush();
+    await Core.flush();
     return sessionId;
   }
 
   async appendMessage(sessionId: string, message: Message): Promise<void> {
-    const pool = await SovereignDb.getPool();
-    const db = await SovereignDb.db(); // Need direct read for session info
-    const eventId = globalThis.crypto.randomUUID();
     const now = Date.now();
 
-    const session = await db.selectFrom('tasks' as any)
-      .select(['userId', 'agentId'])
-      .where('id', '=', sessionId)
-      .executeTakeFirst() as any;
+    // Fluid Read: Get session context
+    const results = await Core.selectWhere('tasks', 
+      { column: 'id', operator: '=', value: sessionId },
+      { limit: 1 }
+    );
+    const session = results[0] as any;
 
     if (!session) throw new Error(`Session ${sessionId} not found`);
 
-    await pool.push({
+    await Core.push({
       type: 'insert',
       table: 'audit_events',
       values: {
-        id: eventId,
+        id: globalThis.crypto.randomUUID(),
         userId: session.userId,
         agentId: session.agentId,
         type: 'session_message',
@@ -117,36 +114,35 @@ export class SqliteSessionRepository implements SessionRepository {
           message: message
         }),
         createdAt: now,
-      } as any
+      }
     });
       
-    await pool.push({
+    await Core.push({
       type: 'update',
       table: 'tasks',
       values: { updatedAt: now },
-      where: { column: 'id', value: sessionId } as any,
+      where: { column: 'id', operator: '=', value: sessionId },
     });
   }
 
   async loadSession(sessionId: string): Promise<SessionState | null> {
-    const db = await SovereignDb.db();
-    
-    const task = await db.selectFrom('tasks' as any)
-      .selectAll()
-      .where('id', '=', sessionId)
-      .executeTakeFirst() as any;
+    // 1. Get task state
+    const taskResults = await Core.selectWhere('tasks', 
+      { column: 'id', operator: '=', value: sessionId },
+      { limit: 1 }
+    );
+    const task = taskResults[0] as any;
 
     if (!task) return null;
 
-    const events = await db.selectFrom('audit_events' as any)
-      .selectAll()
-      .where('type', '=', 'session_message')
-      .where('data', 'like', `%${sessionId}%`)
-      .orderBy('createdAt', 'asc')
-      .execute() as any[];
+    // 2. Get session messages from audit events
+    const eventResults = await Core.selectWhere('audit_events', [
+      { column: 'type', operator: '=', value: 'session_message' },
+      { column: 'data', operator: 'LIKE', value: `%${sessionId}%` }
+    ], { orderBy: { column: 'createdAt', direction: 'asc' } });
 
     const messages: Message[] = [];
-    for (const event of events) {
+    for (const event of eventResults as any[]) {
       const data = JSON.parse(event.data);
       if (data.taskId === sessionId) {
         messages.push(data.message);
@@ -162,42 +158,38 @@ export class SqliteSessionRepository implements SessionRepository {
   }
 
   async updateSessionStatus(sessionId: string, status: string, result?: any): Promise<void> {
-    const pool = await SovereignDb.getPool();
     const now = Date.now();
 
-    await pool.push({
+    await Core.push({
       type: 'update',
       table: 'tasks',
       values: { 
         status, 
         result: result ? JSON.stringify(result) : null,
         updatedAt: now 
-      } as any,
-      where: { column: 'id', value: sessionId } as any,
+      },
+      where: { column: 'id', operator: '=', value: sessionId },
     });
   }
 
-  /**
-   * Gets a session by ID (alias for loadSession).
-   */
   async getSession(sessionId: string): Promise<SessionState | null> {
     return this.loadSession(sessionId);
   }
 
   async updateSessionAgent(sessionId: string, agentId: string): Promise<void> {
-    const pool = await SovereignDb.getPool();
     const now = Date.now();
 
-    await pool.push({
+    await Core.push({
       type: 'update',
       table: 'tasks',
       values: { 
         agentId, 
         updatedAt: now 
-      } as any,
-      where: { column: 'id', value: sessionId } as any,
+      },
+      where: { column: 'id', operator: '=', value: sessionId },
     });
     
-    await pool.flush();
+    await Core.flush();
   }
 }
+
