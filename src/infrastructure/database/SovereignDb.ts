@@ -8,9 +8,10 @@ import { getDb, setDbPath, BufferedDbPool, SqliteQueue } from '@noorm/broccoliq'
 import { sql } from 'kysely';
 import path from 'node:path';
 import type { LogService } from '../../domain/logging/LogService';
+import { JobType } from '../../domain/system/QueueProvider';
 
 export interface DietCodeJob {
-  type: 'KNOWLEDGE_INGEST' | 'CODE_ANALYZE' | 'SELF_HEAL';
+  type: JobType;
   payload: any;
 }
 
@@ -209,6 +210,22 @@ export class SovereignDb {
       .addColumn('hash', 'text', (col) => col.notNull())
       .addColumn('last_scanned', 'int8', (col) => col.notNull())
       .execute();
+
+    await db.schema
+      .createTable('joy_bypasses')
+      .ifNotExists()
+      .addColumn('path', 'text', (col) => col.primaryKey())
+      .addColumn('violation_type', 'text', (col) => col.notNull())
+      .addColumn('timestamp', 'int8', (col) => col.notNull())
+      .execute();
+
+    await db.schema
+      .createTable('locks' as any)
+      .ifNotExists()
+      .addColumn('resource', 'text', (col) => col.primaryKey())
+      .addColumn('owner', 'text', (col) => col.notNull())
+      .addColumn('expires_at', 'int8', (col) => col.notNull())
+      .execute();
     
     // Pass 6: Concurrency and Deadlock Mitigation
     await sql`PRAGMA journal_mode=WAL;`.execute(db as any);
@@ -242,5 +259,112 @@ export class SovereignDb {
       await this.init();
     }
     return this.queue!;
+  }
+
+  /**
+   * Check if a path has already been bypassed.
+   */
+  static async isBypassed(path: string): Promise<boolean> {
+    const db = await this.db();
+    const result = await db
+      .selectFrom('joy_bypasses' as any)
+      .selectAll()
+      .where('path', '=', path)
+      .executeTakeFirst();
+    return !!result;
+  }
+
+  /**
+   * Record a bypass event for a specific path.
+   */
+  static async recordBypass(path: string, violationType: string): Promise<void> {
+    const db = await this.db();
+    await db
+      .insertInto('joy_bypasses' as any)
+      .values({
+        path,
+        violation_type: violationType,
+        timestamp: Date.now()
+      })
+      .onConflict((oc: any) => oc.column('path').doUpdateSet({ timestamp: Date.now() }))
+      .execute();
+  }
+
+  /**
+   * Acquire a distributed lock for a resource.
+   */
+  static async acquireLock(resource: string, owner: string, ttlMs = 60000): Promise<boolean> {
+    const db = await this.db();
+    const now = Date.now();
+    
+    // Cleanup expired locks
+    await db.deleteFrom('locks' as any)
+      .where('resource', '=', resource)
+      .where('expires_at', '<', now)
+      .execute();
+
+    try {
+      await db.insertInto('locks' as any)
+        .values({
+          resource,
+          owner,
+          expires_at: now + ttlMs
+        })
+        .execute();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /**
+   * Release a distributed lock.
+   */
+  static async releaseLock(resource: string, owner: string): Promise<void> {
+    const db = await this.db();
+    await db.deleteFrom('locks' as any)
+      .where('resource', '=', resource)
+      .where('owner', '=', owner)
+      .execute();
+  }
+
+  /**
+   * Record metabolic activity for a task.
+   */
+  static async recordMetabolicEvent(data: {
+    taskId?: string,
+    linesAdded?: number,
+    linesDeleted?: number,
+    reads?: number,
+    writes?: number
+  }): Promise<void> {
+    const db = await this.db();
+    await db.insertInto('metabolic_telemetry' as any)
+      .values({
+        id: Math.random().toString(36).substring(7),
+        taskId: data.taskId || 'JOYZONING_CORE',
+        linesAdded: data.linesAdded || 0,
+        linesDeleted: data.linesDeleted || 0,
+        reads: data.reads || 0,
+        writes: data.writes || 0,
+        timestamp: Date.now()
+      })
+      .execute();
+  }
+
+  /**
+   * Record an audit log entry.
+   */
+  static async recordAudit(type: string, message: string, data?: any): Promise<void> {
+    const db = await this.db();
+    await db.insertInto('audit_log' as any)
+      .values({
+        id: Math.random().toString(36).substring(7),
+        type,
+        message,
+        data: data ? JSON.stringify(data) : null,
+        timestamp: Date.now()
+      })
+      .execute();
   }
 }

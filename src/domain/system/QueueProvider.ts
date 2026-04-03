@@ -6,7 +6,8 @@
 export enum JobType {
   KNOWLEDGE_INGEST = 'KNOWLEDGE_INGEST',
   CODE_HEAL = 'CODE_HEAL',
-  CODE_ANALYZE = 'CODE_ANALYZE'
+  CODE_ANALYZE = 'CODE_ANALYZE',
+  JOY_ZONING_HEAL = 'JOY_ZONING_HEAL'
 }
 
 export interface JobDefinition<T = any> {

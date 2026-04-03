@@ -16,6 +16,11 @@ import { RefactorTagSentinel } from './refactor/RefactorTagSentinel';
 import { RefactorHealer } from './refactor/RefactorHealer';
 import { RefactorEventFactory } from './refactor/RefactorEventFactory';
 
+// Sovereign Infrastructure (Pass 18 Hardening)
+import { SovereignDb } from '../database/SovereignDb';
+import { BroccoliQueueAdapter } from '../queue/BroccoliQueueAdapter';
+import { JobType } from '../../domain/system/QueueProvider';
+
 export interface GuardBlockResult {
   blocked: boolean;
   reason: string;
@@ -35,6 +40,9 @@ export class RefactorTools {
   private tagSentinel: RefactorTagSentinel;
   private healer: RefactorHealer;
   private eventFactory: RefactorEventFactory;
+  
+  // Persistence (Pass 18 Hardening)
+  private queueAdapter = new BroccoliQueueAdapter();
 
   constructor(
     private integrityScanner: IntegrityScanner,
@@ -70,7 +78,33 @@ export class RefactorTools {
     const simResult = await this.simulator.simulateGuard(oldPath, newPath, currentReport);
     
     // Step 2: Guard Policy Enforcement
-    const blockResult = this.buildGuardResult(simResult);
+    let blockResult = this.buildGuardResult(simResult);
+    
+    // JoyZoning Special Case: JOY_ZONING_GUIDE.md First-Pass Bypass
+    const isJoyZoningFile = oldPath.endsWith('JOY_ZONING_GUIDE.md') || newPath.endsWith('JOY_ZONING_GUIDE.md');
+    
+    // Check persistent database for prior bypasses (Pass 18 Hardening)
+    const alreadyBypassed = await SovereignDb.isBypassed(oldPath);
+
+    if (!force && blockResult.blocked && isJoyZoningFile && !alreadyBypassed) {
+      console.log(`⚠️  JOYZONING BYPASS (PERSISTED): Allowing first-pass regression for ${oldPath}`);
+      
+      // Persist the bypass event to ensure policy enforcement holds across restarts
+      await SovereignDb.recordBypass(oldPath, blockResult.violations[0]?.type || 'UNKNOWN');
+
+      blockResult.blocked = false; // Override block for this pass
+      
+      // Flag and Queue for Self-Healing
+      await this.queueAdapter.enqueue({
+        type: JobType.JOY_ZONING_HEAL,
+        payload: {
+          path: newPath, 
+          violations: blockResult.violations,
+          suggestedPath: simResult.violations?.[0]?.suggestedPath
+        }
+      });
+    }
+
     if (!force && blockResult.blocked) {
       return { success: false, blocked: true, reason: this.buildBlockMessage(blockResult) };
     }

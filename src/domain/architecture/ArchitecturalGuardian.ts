@@ -189,7 +189,7 @@ export class ArchitecturalGuardian {
   /**
    * Extract layer name from path
    */
-  private static getLayer(path: string): string | null {
+  public static getLayer(path: string): string | null {
     if (path.includes('src/domain')) return 'DOMAIN';
     if (path.includes('src/core')) return 'CORE';
     if (path.includes('src/infrastructure')) return 'INFRASTRUCTURE';
@@ -201,7 +201,7 @@ export class ArchitecturalGuardian {
   /**
    * Predict if this move places a file in a layer root (missing sub-zone)
    */
-  private static isSubZoneMissing(targetPath: string): boolean {
+  public static isSubZoneMissing(targetPath: string): boolean {
     const layers = ['src/domain', 'src/core', 'src/infrastructure', 'src/ui', 'src/utils', 'src/plumbing'];
     
     for (const layer of layers) {
@@ -219,7 +219,7 @@ export class ArchitecturalGuardian {
   /**
    * Smart Suggestion Engine: Predicts the best functional cluster based on filename
    */
-  private static getSuggestedCluster(targetPath: string): string | null {
+  public static getSuggestedCluster(targetPath: string): string | null {
     const filenameParts = targetPath.split('/');
     const filename = filenameParts[filenameParts.length - 1]?.toLowerCase() || '';
     const layer = this.getLayer(targetPath);
@@ -294,7 +294,7 @@ export class ArchitecturalGuardian {
   /**
    * Extract cluster name (first folder after layer)
    */
-  private static getCluster(path: string): string | null {
+  public static getCluster(path: string): string | null {
     const parts = path.split('/');
     const srcIndex = parts.indexOf('src');
     if (srcIndex !== -1 && parts.length > srcIndex + 2) {

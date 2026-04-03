@@ -13,8 +13,8 @@ export interface RemediationStep {
     file: string;
     currentPath: string;
     targetPath: string;
-    mvCommand: string;
-    sedHeaderUpdate: string;
+    targetLayer: string;
+    targetSubZone: string;
 }
 
 export class Remediator {
@@ -33,18 +33,17 @@ export class Remediator {
 
         for (const file of files) {
             const relPath = path.relative(this.projectRoot, file);
-            const target = (ArchitecturalGuardian as any).getSuggestedCluster(relPath);
+            const target = ArchitecturalGuardian.getSuggestedCluster(relPath);
 
             if (target) {
-                const subZoneMatch = target.match(/src\/[a-z]+\/([a-z0-9\-_]+)\//i);
-                const subZone = subZoneMatch ? subZoneMatch[1] : 'unknown';
+                const subZone = ArchitecturalGuardian.getCluster(target) || 'unknown';
 
                 steps.push({
                     file: path.basename(file),
                     currentPath: relPath,
                     targetPath: target,
-                    mvCommand: `mkdir -p ${path.dirname(target)} && mv ${relPath} ${target}`,
-                    sedHeaderUpdate: `sed -i '' 's/\\[LAYER:.*\\]/\\[LAYER: ${this.getLayer(relPath)}\\]\\n * \\[SUB-ZONE: ${subZone}\\]/' ${target}`
+                    targetLayer: ArchitecturalGuardian.getLayer(target) || 'UNKNOWN',
+                    targetSubZone: subZone
                 });
             }
         }
@@ -71,11 +70,4 @@ export class Remediator {
         return orphans;
     }
 
-    private getLayer(filePath: string): string {
-        if (filePath.includes('src/domain')) return 'DOMAIN';
-        if (filePath.includes('src/core')) return 'CORE';
-        if (filePath.includes('src/infrastructure')) return 'INFRASTRUCTURE';
-        if (filePath.includes('src/ui')) return 'UI';
-        return 'UNKNOWN';
-    }
 }

@@ -15,6 +15,7 @@
 
 import { ArchitecturalGuardian, type SimulatedReport, type ArchitecturalViolation } from '../../domain/architecture/ArchitecturalGuardian';
 import * as path from 'path';
+import * as fs from 'fs';
 
 export interface SimulatorConfig {
   threshold: number; // Score drop threshold to trigger block (default: 10)
@@ -126,8 +127,13 @@ export class JoySimulator {
    * Get sister files: Files in same directory that might import the one being moved
    */
   private getSisterFiles(filePath: string): string[] {
-    const dir = path.dirname(filePath);
-    return ['.*\.ts']; // Placeholder - would resolve via FileSystemAdapter
+    const absPath = path.resolve(process.cwd(), filePath);
+    const dir = path.dirname(absPath);
+    if (!fs.existsSync(dir)) return [];
+    
+    return fs.readdirSync(dir)
+      .filter(file => file.endsWith('.ts') || file.endsWith('.tsx'))
+      .map(file => path.join(path.dirname(filePath), file));
   }
 
   /**
