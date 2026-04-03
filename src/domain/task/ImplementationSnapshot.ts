@@ -58,8 +58,8 @@ export interface ImplementationSnapshot {
   totalRequirements: number;
   
   /**
-   * Drift score (0.0 = perfect alignment, 1.0 = complete deviation)
-   * Calculated by comparing objective hash to output hash
+   * Drift Assessment Divergence (0.0 = perfect alignment, 1.0 = complete deviation)
+   * Evaluated by comparing objective resonance to output fidelity
    */
   driftScore: number;
   
@@ -75,7 +75,7 @@ export interface ImplementationSnapshot {
   semanticHealth: SemanticHealth;
   
   /**
-   * Consistency score (0.0-1.0) between task.md and implementation
+   * Consistency Alignment (0.0-1.0) between task.md and implementation
    */
   consistencyScore: number;
   
@@ -107,26 +107,31 @@ export interface ImplementationSnapshot {
 }
 
 /**
- * Semantic health metrics — indicates implementation quality and safety
+ * Axiomatic health metrics — indicates implementation compliance and safety
  */
 export interface SemanticHealth {
   /**
-   * Integrity score (0.0-1.0) — probability of no domain purity violations
+   * Probability of no domain purity violations (Legacy: use axiomProfile)
    */
   integrityScore: number;
   
   /**
-   * Structure integrity — files exist, proper layer separation maintained
+   * Multi-tiered axiomatic verification results
+   */
+  axiomProfile: AxiomProfile;
+  
+  /**
+   * Structure integrity (Legacy: use axiomProfile)
    */
   structureIntegrity: boolean;
   
   /**
-   * Content integrity — hash validation passed (no corruption)
+   * Content integrity (Legacy: use axiomProfile)
    */
   contentIntegrity: boolean;
   
   /**
-   * Objective alignment (0.0-1.0) — semantic similarity to task objective
+   * Objective alignment (Legacy: use axiomProfile)
    */
   objectiveAlignment: number;
   
@@ -181,33 +186,58 @@ export interface Violation {
 }
 
 /**
+ * Contextual Axioms for layer-specific compliance
+ */
+export enum ContextualAxiom {
+  CORE_STABILITY = 'core_stability',
+  DOMAIN_PURITY = 'domain_purity',
+  INFRA_HARDENING = 'infra_hardening',
+  TEST_COVERAGE = 'test_coverage'
+}
+
+/**
  * Types of violations detected in implementation
  */
 export enum ViolationType {
-  /**
-   * Domain purity violation — I/O operations in domain layer
-   */
   DOMAIN_PURITY = 'domain_purity',
-  
-  /**
-   * Cross-layer import violation — Outer layer importing inner layer
-   */
   CROSS_LAYER_IMPORT = 'cross_layer_import',
-  
-  /**
-   * IO in domain — File system or network access in Domain layer
-   */
   IO_IN_DOMAIN = 'io_in_domain',
-  
-  /**
-   * Task misalignment — Output deviates from task objective
-   */
+  DOMAIN_LEAK = 'domain_leak',
+  GHOST_IMPLEMENTATION = 'ghost_implementation',
   TASK_MISALIGNMENT = 'task_misalignment',
-  
-  /**
-   * Rollback required — State corruption detected
-   */
-  ROLLBACK_REQUIRED = 'rollback_required'
+  ROLLBACK_REQUIRED = 'rollback_required',
+  AXIOM_VIOLATION = 'axiom_violation',
+  HIGH_COMPLEXITY = 'high_complexity'
+}
+
+/**
+ * Axioms for deterministic integrity verification
+ */
+export enum IntegrityAxiom {
+  STRUCTURAL = 'structural', // File/Markdown structure integrity
+  RESONANCE = 'resonance',   // Semantic objective alignment
+  PURITY = 'purity',         // Architectural layer separation
+  STABILITY = 'stability',    // Drift constraint compliance
+  INTERFACE_INTEGRITY = 'interface_integrity', // Ghost implementation check
+  COGNITIVE_SIMPLICITY = 'cognitive_simplicity' // Maintenance guard
+}
+
+/**
+ * Compliance state derived from axiom verification
+ */
+export enum ComplianceState {
+  CLEARED = 'CLEARED',   // All critical axioms passing
+  FLAGGED = 'FLAGGED',   // Minor structural warnings
+  BLOCKED = 'BLOCKED'    // Critical axiom violation
+}
+
+/**
+ * Results of axiomatic verification
+ */
+export interface AxiomProfile {
+  status: ComplianceState;
+  failingAxioms: IntegrityAxiom[];
+  axiomResults: Record<IntegrityAxiom, boolean>;
 }
 
 /**
@@ -280,12 +310,12 @@ export enum CheckpointTrigger {
  */
 export interface DriftAssessment {
   /**
-   * Severity classification of detected drift
+   * Axiomatic compliance status
    */
-  severity: DriftSeverity;
+  status: ComplianceState;
   
   /**
-   * Calculated drift score (0.0-1.0)
+   * Evaluated alignment divergence (Legacy: use status)
    */
   driftScore: number;
   
@@ -400,7 +430,7 @@ export enum CorrectionType {
  */
 export interface DriftVector {
   /**
-   * Overall drift score (0.0-1.0)
+   * Overall alignment divergence (0.0-1.0)
    */
   driftScore: number;
 
@@ -460,6 +490,18 @@ export function createImplementationSnapshot(
 function createDefaultSemanticHealth(): SemanticHealth {
   return {
     integrityScore: 0,
+    axiomProfile: {
+      status: ComplianceState.BLOCKED,
+      failingAxioms: [IntegrityAxiom.STRUCTURAL],
+      axiomResults: {
+        [IntegrityAxiom.STRUCTURAL]: false,
+        [IntegrityAxiom.RESONANCE]: false,
+        [IntegrityAxiom.PURITY]: false,
+        [IntegrityAxiom.STABILITY]: false,
+        [IntegrityAxiom.INTERFACE_INTEGRITY]: false,
+        [IntegrityAxiom.COGNITIVE_SIMPLICITY]: false
+      }
+    },
     structureIntegrity: false,
     contentIntegrity: false,
     objectiveAlignment: 0,

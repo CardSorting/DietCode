@@ -1,0 +1,260 @@
+
+# Project-Wide Integrity Audit (Axiom 3.0)
+
+- **Timestamp**: 2026-04-03T23:14:36.690Z
+- **Total Files Scanned**: 241
+- **Architectural Debt Score**: 0.1054 (0.0 = Perfect)
+
+## Compliance Summary
+
+- ✅ **Compliant**: 188
+- ⚠️ **Flagged**: 46
+- 🚫 **Blocked**: 7
+
+## Remediation Plan
+
+- CRITICAL: Resolve 7 BLOCKED files immediately to restore sovereignty.
+- WARNING: Schedule cleanup for 46 FLAGGED files to reduce architectural debt.
+
+## Layer Breakdown
+
+### Domain Layer (86 files)
+- [CLEARED] src/domain/Errors.ts (0 violations)
+- [FLAGGED] src/domain/Event.ts (1 violations)
+- [CLEARED] src/domain/LLMProvider.ts (0 violations)
+- [CLEARED] src/domain/Validation.ts (0 violations)
+- [CLEARED] src/domain/agent/Agent.ts (0 violations)
+- [CLEARED] src/domain/agent/CommandDefinition.ts (0 violations)
+- [CLEARED] src/domain/agent/EmbeddingService.ts (0 violations)
+- [CLEARED] src/domain/agent/LLMProviderAdapter.ts (0 violations)
+- [CLEARED] src/domain/agent/PromptTemplate.ts (0 violations)
+- [CLEARED] src/domain/agent/Skill.ts (0 violations)
+- [CLEARED] src/domain/agent/ToolBuilder.ts (0 violations)
+- [CLEARED] src/domain/agent/ToolDefinition.ts (0 violations)
+- [CLEARED] src/domain/agent/ToolExecutor.ts (0 violations)
+- [CLEARED] src/domain/agent/ToolFactory.ts (0 violations)
+- [CLEARED] src/domain/agent/ToolRegistry.ts (0 violations)
+- [BLOCKED] src/domain/architecture/ArchitecturalGuardian.ts (2 violations)
+- [CLEARED] src/domain/capabilities/SafetyAwareToolExecution.ts (0 violations)
+- [CLEARED] src/domain/capabilities/ToolRouter.ts (0 violations)
+- [CLEARED] src/domain/context/Attachment.ts (0 violations)
+- [FLAGGED] src/domain/context/ContextOptimizationPolicy.ts (1 violations)
+- [FLAGGED] src/domain/context/FileChange.ts (1 violations)
+- [CLEARED] src/domain/context/FileContextContract.ts (0 violations)
+- [FLAGGED] src/domain/context/FileMetadata.ts (1 violations)
+- [FLAGGED] src/domain/context/FileOperation.ts (1 violations)
+- [FLAGGED] src/domain/context/FileReadPattern.ts (1 violations)
+- [FLAGGED] src/domain/context/FileSignatureService.ts (1 violations)
+- [CLEARED] src/domain/context/Mcp.ts (0 violations)
+- [FLAGGED] src/domain/context/Partition.ts (1 violations)
+- [CLEARED] src/domain/context/ProjectContext.ts (0 violations)
+- [CLEARED] src/domain/context/RuleContextContract.ts (0 violations)
+- [CLEARED] src/domain/context/SessionRepository.ts (0 violations)
+- [CLEARED] src/domain/context/SessionState.ts (0 violations)
+- [FLAGGED] src/domain/context/SystemContext.ts (1 violations)
+- [CLEARED] src/domain/events/ArchitectureEvent.ts (0 violations)
+- [FLAGGED] src/domain/events/EventType.ts (1 violations)
+- [FLAGGED] src/domain/events/SystemEvent.ts (1 violations)
+- [FLAGGED] src/domain/healing/Healing.ts (1 violations)
+- [FLAGGED] src/domain/healing/HealingRepository.ts (1 violations)
+- [CLEARED] src/domain/healing/VerificationProvider.ts (0 violations)
+- [CLEARED] src/domain/hooks/HookContract.ts (0 violations)
+- [CLEARED] src/domain/integrity/IntegrityScanner.ts (0 violations)
+- [CLEARED] src/domain/integrity/SovereignIntegrityManager.ts (0 violations)
+- [CLEARED] src/domain/logging/LogEntry.ts (0 violations)
+- [CLEARED] src/domain/logging/LogLevel.ts (0 violations)
+- [CLEARED] src/domain/logging/LogService.ts (0 violations)
+- [CLEARED] src/domain/memory/DecisionRepository.ts (0 violations)
+- [FLAGGED] src/domain/memory/Integrity.ts (1 violations)
+- [CLEARED] src/domain/memory/IntegrityPolicy.ts (0 violations)
+- [FLAGGED] src/domain/memory/Knowledge.ts (1 violations)
+- [CLEARED] src/domain/memory/Reasoning.ts (0 violations)
+- [CLEARED] src/domain/memory/SearchProvider.ts (0 violations)
+- [CLEARED] src/domain/memory/Snapshot.ts (0 violations)
+- [CLEARED] src/domain/prompts/ContextCompressionStrategy.ts (0 violations)
+- [CLEARED] src/domain/prompts/ContextTypes.ts (0 violations)
+- [CLEARED] src/domain/prompts/PatternRegistry.ts (0 violations)
+- [BLOCKED] src/domain/prompts/PromptAnalytics.ts (2 violations)
+- [CLEARED] src/domain/prompts/PromptAudit.ts (0 violations)
+- [CLEARED] src/domain/prompts/PromptCategory.ts (0 violations)
+- [CLEARED] src/domain/prompts/PromptCompositionStrategy.ts (0 violations)
+- [CLEARED] src/domain/prompts/PromptIndex.ts (0 violations)
+- [CLEARED] src/domain/prompts/PromptRiskProfile.ts (0 violations)
+- [FLAGGED] src/domain/prompts/PromptTemplate.ts (1 violations)
+- [BLOCKED] src/domain/prompts/PromptTemplateEngine.ts (2 violations)
+- [BLOCKED] src/domain/prompts/PromptVersion.ts (2 violations)
+- [CLEARED] src/domain/prompts/SplitStrategy.ts (0 violations)
+- [CLEARED] src/domain/prompts/VerificationAgent.ts (0 violations)
+- [CLEARED] src/domain/prompts/VerificationTypes.ts (0 violations)
+- [CLEARED] src/domain/safety/LockScope.ts (0 violations)
+- [CLEARED] src/domain/state/StateChangeProtocol.ts (0 violations)
+- [CLEARED] src/domain/system/AuditProvider.ts (0 violations)
+- [CLEARED] src/domain/system/Display.ts (0 violations)
+- [CLEARED] src/domain/system/FileError.ts (0 violations)
+- [CLEARED] src/domain/system/FileMetadata.ts (0 violations)
+- [CLEARED] src/domain/system/FileWalkerOptions.ts (0 violations)
+- [CLEARED] src/domain/system/Filesystem.ts (0 violations)
+- [CLEARED] src/domain/system/QueueProvider.ts (0 violations)
+- [FLAGGED] src/domain/system/SystemAdapter.ts (1 violations)
+- [CLEARED] src/domain/system/TerminalInterface.ts (0 violations)
+- [BLOCKED] src/domain/task/DriftDetectionCriteria.ts (2 violations)
+- [BLOCKED] src/domain/task/ImplementationSnapshot.ts (2 violations)
+- [CLEARED] src/domain/task/ProjectIntegrityReport.ts (0 violations)
+- [BLOCKED] src/domain/task/TaskEntity.ts (2 violations)
+- [CLEARED] src/domain/ui/WebViewMessageProtocol.ts (0 violations)
+- [CLEARED] src/domain/validation/RiskEvaluator.ts (0 violations)
+- [CLEARED] src/domain/validation/RiskLevel.ts (0 violations)
+- [CLEARED] src/domain/validation/RollbackProtocol.ts (0 violations)
+
+### Infrastructure Layer (96 files)
+- [CLEARED] src/infrastructure/BinaryFileTypeDetector.ts
+- [CLEARED] src/infrastructure/ConsoleLoggerAdapter.ts
+- [CLEARED] src/infrastructure/EnhancedFileSystemAdapter.ts
+- [CLEARED] src/infrastructure/FileIntegrityAnalyzer.ts
+- [CLEARED] src/infrastructure/FileSystemAdapter.ts
+- [CLEARED] src/infrastructure/FileTypes.ts
+- [CLEARED] src/infrastructure/FuzzySearchRepository.ts
+- [CLEARED] src/infrastructure/IntegrityAdapter.ts
+- [CLEARED] src/infrastructure/IntegrityVerificationProvider.ts
+- [FLAGGED] src/infrastructure/NodeSystemAdapter.ts
+- [CLEARED] src/infrastructure/NodeTerminalAdapter.ts
+- [CLEARED] src/infrastructure/PromptLoader.ts
+- [CLEARED] src/infrastructure/PromptMiddlewareManager.ts
+- [CLEARED] src/infrastructure/PromptRegistryAdapter.ts
+- [CLEARED] src/infrastructure/SelectedOptionsBuilder.ts
+- [CLEARED] src/infrastructure/SemanticIntegrityAdapter.ts
+- [CLEARED] src/infrastructure/TerminalDisplay.ts
+- [CLEARED] src/infrastructure/TransactionManager.ts
+- [CLEARED] src/infrastructure/TypeScriptValidator.ts
+- [CLEARED] src/infrastructure/WalkerConfigBuilder.ts
+- [CLEARED] src/infrastructure/WorkerIntegrityAdapter.ts
+- [CLEARED] src/infrastructure/WorkerPoolAdapter.ts
+- [CLEARED] src/infrastructure/architecture/JoySimulator.ts
+- [CLEARED] src/infrastructure/capabilities/ToolRouterAdapter.ts
+- [FLAGGED] src/infrastructure/context/ContextOptimizationIntegration.ts
+- [FLAGGED] src/infrastructure/context/SignatureDatabase.ts
+- [FLAGGED] src/infrastructure/context/VimFileReader.ts
+- [CLEARED] src/infrastructure/database/FileSignatureService.ts
+- [FLAGGED] src/infrastructure/database/SovereignDb.ts
+- [FLAGGED] src/infrastructure/database/SqliteAuditRepository.ts
+- [CLEARED] src/infrastructure/database/SqliteDecisionRepository.ts
+- [FLAGGED] src/infrastructure/database/SqliteHealingRepository.ts
+- [FLAGGED] src/infrastructure/database/SqliteJoyCacheRepository.ts
+- [FLAGGED] src/infrastructure/database/SqliteKnowledgeRepository.ts
+- [FLAGGED] src/infrastructure/database/SqliteLockManager.ts
+- [FLAGGED] src/infrastructure/database/SqliteSessionRepository.ts
+- [CLEARED] src/infrastructure/database/SqliteSnapshotRepository.ts
+- [FLAGGED] src/infrastructure/database/sovereign/AuditRecorder.ts
+- [FLAGGED] src/infrastructure/database/sovereign/Core.ts
+- [CLEARED] src/infrastructure/database/sovereign/LockManager.ts
+- [FLAGGED] src/infrastructure/database/sovereign/MetabolicRecorder.ts
+- [FLAGGED] src/infrastructure/database/sovereign/Schema.ts
+- [FLAGGED] src/infrastructure/database/sovereign/ScoringCache.ts
+- [CLEARED] src/infrastructure/llm/providers/AnthropicProvider.ts
+- [CLEARED] src/infrastructure/llm/providers/CloudflareProvider.ts
+- [CLEARED] src/infrastructure/llm/providers/CohereEmbeddingAdapter.ts
+- [CLEARED] src/infrastructure/llm/providers/OpenAIEmbeddingAdapter.ts
+- [CLEARED] src/infrastructure/logging/SovereignLogAdapter.ts
+- [CLEARED] src/infrastructure/monitoring/ActiveIntegrityScanner.ts
+- [CLEARED] src/infrastructure/monitoring/MetabolicMonitor.ts
+- [CLEARED] src/infrastructure/prompts/ContextCompressorAdapter.ts
+- [CLEARED] src/infrastructure/prompts/PatternRepository.ts
+- [FLAGGED] src/infrastructure/prompts/PromptTemplateLoader.ts
+- [CLEARED] src/infrastructure/prompts/VerificationAgentAdapter.ts
+- [FLAGGED] src/infrastructure/queue/BroccoliQueueAdapter.ts
+- [FLAGGED] src/infrastructure/queue/QueueWorker.ts
+- [CLEARED] src/infrastructure/queue/SovereignWorkerProxy.ts
+- [CLEARED] src/infrastructure/simulation/ArchitecturalImpactAnalyzer.ts
+- [CLEARED] src/infrastructure/simulation/JoySimulator.ts
+- [CLEARED] src/infrastructure/simulation/SimulationResult.ts
+- [CLEARED] src/infrastructure/simulation/VirtualContentAnalyzer.ts
+- [CLEARED] src/infrastructure/streaming/StateSubscriber.ts
+- [CLEARED] src/infrastructure/task/AxiomaticASTAnalyser.ts
+- [CLEARED] src/infrastructure/task/CheckpointPersistenceAdapter.ts
+- [CLEARED] src/infrastructure/task/SemanticIntegrityAnalyser.ts
+- [CLEARED] src/infrastructure/task/TaskConsistencyValidator.ts
+- [CLEARED] src/infrastructure/task/integration-demo.ts
+- [CLEARED] src/infrastructure/tools/EnhancedFileTools.ts
+- [CLEARED] src/infrastructure/tools/HealingWorker.ts
+- [CLEARED] src/infrastructure/tools/ImportFixer.ts
+- [CLEARED] src/infrastructure/tools/JoyForge.ts
+- [CLEARED] src/infrastructure/tools/JoyZoningHealer.ts
+- [CLEARED] src/infrastructure/tools/LruCache.ts
+- [CLEARED] src/infrastructure/tools/ParallelProcessor.ts
+- [CLEARED] src/infrastructure/tools/PathValidator.ts
+- [CLEARED] src/infrastructure/tools/RefactorTools.ts
+- [CLEARED] src/infrastructure/tools/Remediator.ts
+- [CLEARED] src/infrastructure/tools/SelfHealer.ts
+- [CLEARED] src/infrastructure/tools/ToolRegistry.ts
+- [CLEARED] src/infrastructure/tools/fileTools.ts
+- [CLEARED] src/infrastructure/tools/generate_joy_map.ts
+- [CLEARED] src/infrastructure/tools/grep.ts
+- [FLAGGED] src/infrastructure/tools/index.ts
+- [CLEARED] src/infrastructure/tools/joy_check.ts
+- [CLEARED] src/infrastructure/tools/mkdir.ts
+- [CLEARED] src/infrastructure/tools/refactor/RefactorEventFactory.ts
+- [CLEARED] src/infrastructure/tools/refactor/RefactorHealer.ts
+- [CLEARED] src/infrastructure/tools/refactor/RefactorMoveEngine.ts
+- [CLEARED] src/infrastructure/tools/refactor/RefactorTagSentinel.ts
+- [CLEARED] src/infrastructure/validation/PathValidator.ts
+- [CLEARED] src/infrastructure/validation/RollbackManager.ts
+- [CLEARED] src/infrastructure/validation/SafetyEvaluator.ts
+- [CLEARED] src/infrastructure/watcher/FileWatcherAdapter.ts
+- [CLEARED] src/infrastructure/workers/IntegrityWorker.ts
+- [CLEARED] src/infrastructure/workers/ScoringWorker.ts
+- [CLEARED] src/infrastructure/workers/ShardedIntegrityWorker.ts
+
+### Core Layer (52 files)
+- [CLEARED] src/core/brain/MetabolicBrain.ts
+- [CLEARED] src/core/capabilities/AgentRegistry.ts
+- [CLEARED] src/core/capabilities/ApprovalService.ts
+- [CLEARED] src/core/capabilities/CapabilityRegistry.ts
+- [CLEARED] src/core/capabilities/CommandProcessor.ts
+- [CLEARED] src/core/capabilities/ContextProviderEngine.ts
+- [CLEARED] src/core/capabilities/ExecutionGovernor.ts
+- [FLAGGED] src/core/capabilities/OptimizationMetrics.ts
+- [FLAGGED] src/core/capabilities/PatternAnalysisService.ts
+- [CLEARED] src/core/capabilities/PromptService.ts
+- [CLEARED] src/core/capabilities/ResourceGovernor.ts
+- [CLEARED] src/core/capabilities/RiskAwareCompositionStrategy.ts
+- [CLEARED] src/core/capabilities/RollbackProtocol.ts
+- [CLEARED] src/core/capabilities/SafetyGuard.ts
+- [CLEARED] src/core/capabilities/SkillLoader.ts
+- [CLEARED] src/core/capabilities/ToolFactory.ts
+- [CLEARED] src/core/capabilities/ToolManager.ts
+- [CLEARED] src/core/context/AttachmentResolver.ts
+- [CLEARED] src/core/context/ContextOptimizationService.ts
+- [CLEARED] src/core/context/ContextPruner.ts
+- [CLEARED] src/core/context/ContextService.ts
+- [CLEARED] src/core/context/DiscoveryService.ts
+- [CLEARED] src/core/context/FileContextTracker.ts
+- [CLEARED] src/core/context/Ignorer.ts
+- [CLEARED] src/core/context/RuleContextBuilder.ts
+- [CLEARED] src/core/integration/AddExternalSyncAdapter.ts
+- [CLEARED] src/core/integrity/HealingService.ts
+- [CLEARED] src/core/integrity/HealthOrchestrator.ts
+- [CLEARED] src/core/integrity/IntegrityService.ts
+- [CLEARED] src/core/integrity/JoyZoningHook.ts
+- [CLEARED] src/core/integrity/SelfHealingService.ts
+- [CLEARED] src/core/integrity/SovereignDoctor.ts
+- [CLEARED] src/core/integrity/ValidationService.ts
+- [CLEARED] src/core/manager/HookOrchestrator.ts
+- [CLEARED] src/core/manager/LLMProviderRegistry.ts
+- [CLEARED] src/core/manager/LockOrchestrator.ts
+- [CLEARED] src/core/manager/StateOrchestrator.ts
+- [CLEARED] src/core/memory/MemoryGraduationService.ts
+- [CLEARED] src/core/memory/MemoryService.ts
+- [CLEARED] src/core/memory/SearchService.ts
+- [CLEARED] src/core/memory/SnapshotService.ts
+- [FLAGGED] src/core/orchestration/ContextOptimizationService.ts
+- [CLEARED] src/core/orchestration/DriftDetectionOrchestrator.ts
+- [FLAGGED] src/core/orchestration/EventBus.ts
+- [CLEARED] src/core/orchestration/ExecutionService.ts
+- [CLEARED] src/core/orchestration/HandoverService.ts
+- [CLEARED] src/core/orchestration/Registry.ts
+- [CLEARED] src/core/orchestration/SwarmAuditor.ts
+- [CLEARED] src/core/orchestration/orchestrator.ts
+- [CLEARED] src/core/task/FocusShield.ts
+- [CLEARED] src/core/task/OperationalScheduler.ts
+- [CLEARED] src/core/task/SovereignSelector.ts
+  

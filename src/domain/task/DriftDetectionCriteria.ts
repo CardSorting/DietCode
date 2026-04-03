@@ -9,7 +9,8 @@
  *   - [NEW] Implements DriftDetectionCriteria for drift prevention threshold configuration
  */
 import { TaskState } from './TaskEntity';
-import { CorrectionType } from './ImplementationSnapshot';
+import { CorrectionType, IntegrityAxiom, ComplianceState, ContextualAxiom } from './ImplementationSnapshot';
+import type { AxiomProfile } from './ImplementationSnapshot';
 
 /**
  * Configuration contract for drift detection thresholds
@@ -43,41 +44,45 @@ export interface DriftDetectionCriteria {
   semanticSimilarityThreshold: number;
   
   /**
-   * Maximum drift score for transition to FAILED state
-   * Range: 0.0 - 1.0 (default: 0.95 = 95% drift)
+   * Enabled axioms for verification
+   */
+  enabledAxioms: IntegrityAxiom[];
+  
+  /**
+   * Maximum tolerated alignment divergence before blocking (Legacy: use Axioms)
    */
   maxFailureThreshold: number;
   
   /**
-   * Whether to enforce strict mode (all drift > 0 triggers confirmation)
-   * Range: boolean (default: false)
-   */
-  strictModeEnabled: boolean;
-  
-  /**
    * Whether to restore from last checkpoint on severe drift errors
-   * Range: boolean (default: true)
    */
   autoRestoreOnCriticalDrift: boolean;
   
   /**
    * Maximum number of checkpoints to keep in memory cache
-   * Range: 0 - 1000 (default: 50)
    */
   maxCheckpointCacheSize: number;
   
   /**
    * Whether to log drift predictions to console
-   * Range: boolean (default: false for performance)
    */
   logDriftPredictions: boolean;
   
   /**
    * Whether to enable drift prediction heuristics
-   * Range: boolean (default: true)
    */
   enableDriftPrediction: boolean;
 }
+
+/**
+ * Maps architectural layers to mandatory axioms
+ */
+export const ArchitecturalAxiomMap: Record<string, IntegrityAxiom[]> = {
+  domain: [IntegrityAxiom.PURITY, IntegrityAxiom.RESONANCE],
+  infrastructure: [IntegrityAxiom.STRUCTURAL, IntegrityAxiom.STABILITY],
+  core: [IntegrityAxiom.STABILITY, IntegrityAxiom.RESONANCE, IntegrityAxiom.STRUCTURAL],
+  unknown: [IntegrityAxiom.STRUCTURAL]
+};
 
 /**
  * Factory function with sensible defaults for drift detection
@@ -89,11 +94,18 @@ export function createDefaultDriftCriteria(): DriftDetectionCriteria {
     checkpointInterval: 1000,
     semanticSimilarityThreshold: 0.85,
     maxFailureThreshold: 0.95,
-    strictModeEnabled: false,
     autoRestoreOnCriticalDrift: true,
     maxCheckpointCacheSize: 50,
     logDriftPredictions: false,
-    enableDriftPrediction: true
+    enableDriftPrediction: true,
+    enabledAxioms: [
+      IntegrityAxiom.STRUCTURAL, 
+      IntegrityAxiom.RESONANCE, 
+      IntegrityAxiom.PURITY,
+      IntegrityAxiom.STABILITY,
+      IntegrityAxiom.INTERFACE_INTEGRITY,
+      IntegrityAxiom.COGNITIVE_SIMPLICITY
+    ]
   };
 }
 
@@ -101,72 +113,26 @@ export function createDefaultDriftCriteria(): DriftDetectionCriteria {
  * Validation rules for drift detection criteria
  */
 export function validateDriftCriteria(criteria: DriftDetectionCriteria): void {
-  if (typeof criteria.maxDriftThreshold !== 'number') {
-    throw new ValidationError('maxDriftThreshold must be a number');
-  }
+  const validators = [
+    { field: 'maxDriftThreshold', check: (v: any) => typeof v === 'number' && v >= 0 && v <= 1 },
+    { field: 'requiresConfirmationForDriftAbove', check: (v: any) => typeof v === 'number' && v >= 0 && v < 1 },
+    { field: 'checkpointInterval', check: (v: any) => typeof v === 'number' && v >= 0 },
+    { field: 'semanticSimilarityThreshold', check: (v: any) => typeof v === 'number' && v >= 0 && v <= 1 },
+    { field: 'maxFailureThreshold', check: (v: any) => typeof v === 'number' && v >= 0 && v <= 1 },
+    { field: 'autoRestoreOnCriticalDrift', check: (v: any) => typeof v === 'boolean' },
+    { field: 'maxCheckpointCacheSize', check: (v: any) => typeof v === 'number' && v >= 0 },
+    { field: 'logDriftPredictions', check: (v: any) => typeof v === 'boolean' },
+    { field: 'enableDriftPrediction', check: (v: any) => typeof v === 'boolean' }
+  ];
 
-  if (criteria.maxDriftThreshold < 0 || criteria.maxDriftThreshold > 1) {
-    throw new ValidationError('maxDriftThreshold must be between 0 and 1');
-  }
-
-  if (typeof criteria.requiresConfirmationForDriftAbove !== 'number') {
-    throw new ValidationError('requiresConfirmationForDriftAbove must be a number');
-  }
-
-  if (criteria.requiresConfirmationForDriftAbove >= 1 || criteria.requiresConfirmationForDriftAbove < 0) {
-    throw new ValidationError('requiresConfirmationForDriftAbove must be between 0 and 1');
+  for (const { field, check } of validators) {
+    if (!check((criteria as any)[field])) {
+      throw new ValidationError(`Invalid value for ${field}`);
+    }
   }
 
   if (criteria.requiresConfirmationForDriftAbove <= criteria.maxDriftThreshold) {
     throw new ValidationError('requiresConfirmationForDriftAbove must be greater than maxDriftThreshold');
-  }
-
-  if (typeof criteria.checkpointInterval !== 'number') {
-    throw new ValidationError('checkpointInterval must be a number');
-  }
-
-  if (criteria.checkpointInterval < 0) {
-    throw new ValidationError('checkpointInterval cannot be negative');
-  }
-
-  if (typeof criteria.semanticSimilarityThreshold !== 'number') {
-    throw new ValidationError('semanticSimilarityThreshold must be a number');
-  }
-
-  if (criteria.semanticSimilarityThreshold < 0 || criteria.semanticSimilarityThreshold > 1) {
-    throw new ValidationError('semanticSimilarityThreshold must be between 0 and 1');
-  }
-
-  if (typeof criteria.maxFailureThreshold !== 'number') {
-    throw new ValidationError('maxFailureThreshold must be a number');
-  }
-
-  if (criteria.maxFailureThreshold < 0 || criteria.maxFailureThreshold > 1) {
-    throw new ValidationError('maxFailureThreshold must be between 0 and 1');
-  }
-
-  if (criteria.strictModeEnabled === undefined || typeof criteria.strictModeEnabled !== 'boolean') {
-    throw new ValidationError('strictModeEnabled must be a boolean');
-  }
-
-  if (criteria.autoRestoreOnCriticalDrift === undefined || typeof criteria.autoRestoreOnCriticalDrift !== 'boolean') {
-    throw new ValidationError('autoRestoreOnCriticalDrift must be a boolean');
-  }
-
-  if (typeof criteria.maxCheckpointCacheSize !== 'number') {
-    throw new ValidationError('maxCheckpointCacheSize must be a number');
-  }
-
-  if (criteria.maxCheckpointCacheSize < 0) {
-    throw new ValidationError('maxCheckpointCacheSize cannot be negative');
-  }
-
-  if (typeof criteria.logDriftPredictions !== 'boolean') {
-    throw new ValidationError('logDriftPredictions must be a boolean');
-  }
-
-  if (typeof criteria.enableDriftPrediction !== 'boolean') {
-    throw new ValidationError('enableDriftPrediction must be a boolean');
   }
 }
 
@@ -179,12 +145,12 @@ export class DriftProfilingLevel {
     requiresConfirmationForDriftAbove: 0.7,
     checkpointInterval: 500,
     semanticSimilarityThreshold: 0.75,
-    strictModeEnabled: true,
     maxFailureThreshold: 0.95,
     autoRestoreOnCriticalDrift: true,
     maxCheckpointCacheSize: 100,
     logDriftPredictions: true,
-    enableDriftPrediction: true
+    enableDriftPrediction: true,
+    enabledAxioms: [IntegrityAxiom.STRUCTURAL, IntegrityAxiom.RESONANCE]
   };
 
   static readonly PRODUCTION = {
@@ -192,12 +158,12 @@ export class DriftProfilingLevel {
     requiresConfirmationForDriftAbove: 0.5,
     checkpointInterval: 2000,
     semanticSimilarityThreshold: 0.9,
-    strictModeEnabled: false,
     maxFailureThreshold: 0.95,
     autoRestoreOnCriticalDrift: true,
     maxCheckpointCacheSize: 30,
     logDriftPredictions: false,
-    enableDriftPrediction: false
+    enableDriftPrediction: false,
+    enabledAxioms: [IntegrityAxiom.STRUCTURAL, IntegrityAxiom.RESONANCE, IntegrityAxiom.PURITY, IntegrityAxiom.STABILITY]
   };
 
   static readonly EXPERIMENTAL = {
@@ -205,12 +171,12 @@ export class DriftProfilingLevel {
     requiresConfirmationForDriftAbove: 0.3,
     checkpointInterval: 100,
     semanticSimilarityThreshold: 0.95,
-    strictModeEnabled: true,
     maxFailureThreshold: 0.8,
     autoRestoreOnCriticalDrift: true,
     maxCheckpointCacheSize: 200,
     logDriftPredictions: true,
-    enableDriftPrediction: true
+    enableDriftPrediction: true,
+    enabledAxioms: [IntegrityAxiom.STRUCTURAL]
   };
 }
 
@@ -271,43 +237,31 @@ export interface DriftDetectionRecommendation {
 }
 
 /**
- * Computes drift detection recommendation based on current credentials
+ * Computes drift detection recommendation based on axiomatic compliance
  */
 export function computeDriftRecommendation(
-  currentDriftScore: number,
+  axiomProfile: AxiomProfile,
   criteria: DriftDetectionCriteria,
   currentTaskState: TaskState
 ): DriftDetectionRecommendation {
-  // Determine what action to take based on drift score
-  if (currentDriftScore >= criteria.maxFailureThreshold) {
+  // Determine what action to take based on Axiom Compliance
+  if (axiomProfile.status === ComplianceState.BLOCKED) {
     return {
       shouldProceed: false,
       requiresUserConfirmation: false,
       correctiveAction: CorrectionType.PAUSE_FOR_REVIEW,
-      explanation: `Critical drift detected (score: ${currentDriftScore.toFixed(2)}). Maximum failure threshold exceeded.`,
+      explanation: `Critical Axiom Violation: ${axiomProfile.failingAxioms.join(', ')}. Entry blocked.`,
       suggestedState: TaskState.FAILED
     };
   }
 
-  if (currentDriftScore >= criteria.requiresConfirmationForDriftAbove) {
+  if (axiomProfile.status === ComplianceState.FLAGGED) {
     return {
       shouldProceed: false,
       requiresUserConfirmation: true,
       correctiveAction: CorrectionType.PAUSE_FOR_REVIEW,
-      explanation: `Moderate drift detected (score: ${currentDriftScore.toFixed(2)}). Requires user confirmation before proceeding.`,
+      explanation: `Axiomatic Divergence: ${axiomProfile.failingAxioms.join(', ')}. Requires review.`,
       suggestedState: TaskState.SHADOW_SIM
-    };
-  }
-
-  if (criteria.strictModeEnabled && currentDriftScore >= criteria.maxDriftThreshold) {
-    return {
-      shouldProceed: currentTaskState === TaskState.SOVEREIGN_DOING,
-      requiresUserConfirmation: true,
-      correctiveAction: CorrectionType.REINFORCE_OBJECTIVE,
-      explanation: `Drift exceeds acceptable threshold (score: ${currentDriftScore.toFixed(2)}). Please re-anchor to core objective.`,
-      suggestedState: currentTaskState === TaskState.SOVEREIGN_DOING 
-        ? TaskState.SHADOW_SIM 
-        : currentTaskState
     };
   }
 
@@ -315,7 +269,7 @@ export function computeDriftRecommendation(
     shouldProceed: true,
     requiresUserConfirmation: false,
     correctiveAction: CorrectionType.DRIFT_CORRECTION,
-    explanation: `Drift within acceptable range (score: ${currentDriftScore.toFixed(2)}). Proceeding with current approach.`,
+    explanation: `Axiomatic Clearance: All core constraints satisfied.`,
     suggestedState: currentTaskState
   };
 }

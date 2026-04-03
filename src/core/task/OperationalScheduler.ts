@@ -9,6 +9,8 @@ import { TaskState } from '../../domain/task/TaskEntity';
 import { JoySimulator } from '../../infrastructure/simulation/JoySimulator';
 import type { SimulationResult } from '../../infrastructure/simulation/SimulationResult';
 import { CheckpointPersistenceAdapter } from '../../infrastructure/task/CheckpointPersistenceAdapter';
+import { ComplianceState } from '../../domain/task/ImplementationSnapshot';
+import type { AxiomProfile } from '../../domain/task/ImplementationSnapshot';
 import * as crypto from 'node:crypto';
 
 export class OperationalScheduler {
@@ -21,16 +23,16 @@ export class OperationalScheduler {
 
   /**
    * Performs the SHADOW_SIM pre-flight execution and returns the results.
-   * "If the Simulated Verification Score < 0.95, the Harness refuses to enter SOVEREIGN_DOING."
+   * "If the Simulated Integrity Clearance < 0.95, the Harness refuses to enter SOVEREIGN_DOING."
    */
   async simulateShadowExecution(
     task: TaskEntity,
     filePath: string,
     proposedContent: string,
     projectRoot: string,
-    policy: any, // IntegrityPolicy
+    policy: any,
     virtualFiles?: Map<string, string>
-  ): Promise<SimulationResult & { integrity: number }> {
+  ): Promise<SimulationResult & { axiomProfile: AxiomProfile }> {
     const result = await this.joySimulator.simulateImpact(
         filePath, 
         proposedContent, 
@@ -39,27 +41,34 @@ export class OperationalScheduler {
         virtualFiles
     );
     
-    // Logic from proto.md: Simulation Score < 0.95 refuses entries.
-    // Maps simulation result to 0-1.0 integrity scale.
-    // 0 violations = 1.0 integrity, each violation reduces score by 0.05 (Pass 18: Strict Delta).
-    const integrity = Math.max(0.0, 1.0 - (result.newViolations * 0.05));
+    // Axiomatic Mapping: 0 violations = CLEARED
+    const status = result.newViolations === 0 ? ComplianceState.CLEARED : ComplianceState.BLOCKED;
+    const axiomProfile: AxiomProfile = {
+        status,
+        failingAxioms: result.newViolations > 0 ? [(result as any).violationType || 'structural'] : [],
+        axiomResults: {
+            structural: result.newViolations === 0,
+            resonance: true,
+            purity: true,
+            stability: true
+        }
+    };
     
-    // Update task integrity in memory
-    task.simIntegrity = integrity;
+    task.simAxiomProfile = axiomProfile;
     this.persistence.persistTask(task);
 
     return {
       ...result,
-      integrity
+      axiomProfile
     };
   }
 
   /**
    * Verifies if the task can transition to the SOVEREIGN_DOING state.
    */
-  canEnterSovereignDoing(input: TaskEntity | number): boolean {
-    const integrity = typeof input === 'number' ? input : (input.simIntegrity || 0);
-    return integrity >= 0.95;
+  canEnterSovereignDoing(input: TaskEntity | AxiomProfile): boolean {
+    const profile = (input as any).status ? (input as AxiomProfile) : (input as TaskEntity).simAxiomProfile;
+    return profile?.status === ComplianceState.CLEARED;
   }
 
   /**
@@ -70,7 +79,7 @@ export class OperationalScheduler {
     const payload = JSON.stringify({
         id: task.id,
         objective: task.objective,
-        integrity: task.simIntegrity,
+        axiomStatus: task.simAxiomProfile?.status,
         completedAt: Date.now()
     });
     return crypto.createHash('sha256').update(payload).digest('hex');
@@ -106,7 +115,7 @@ export class OperationalScheduler {
     ];
 
     if (nextState === TaskState.SOVEREIGN_DOING && !this.canEnterSovereignDoing(task)) {
-        throw new Error(`Sovereign Protocol Violation: Cannot enter SOVEREIGN_DOING with integrity ${task.simIntegrity}. Min required: 0.95.`);
+        throw new Error(`Sovereign Protocol Violation: Cannot enter SOVEREIGN_DOING without Axiomatic Compliance.`);
     }
 
     if (nextState === TaskState.DONE) {

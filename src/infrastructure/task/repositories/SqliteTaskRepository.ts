@@ -1,0 +1,59 @@
+import type { Database } from 'better-sqlite3';
+import type { TaskId, TaskEntity } from '../../../domain/task/TaskEntity';
+import type { DatabaseTaskRow } from '../PersistenceSchema';
+import { TaskMapper } from '../mappers/TaskMapper';
+
+/**
+ * [LAYER: INFRASTRUCTURE]
+ * Principle: Specialized repository for Task persistence using SQLite.
+ */
+export class SqliteTaskRepository {
+  constructor(private db: Database) {}
+
+  /**
+   * Persists a task entity.
+   */
+  save(task: TaskEntity): void {
+    const values = TaskMapper.toRowValues(task);
+    const stmt = this.db.prepare(`
+      INSERT OR REPLACE INTO tasks (
+        task_id, title, objective, state, priority,
+        initial_context, sim_integrity, vitals_heartbeat, v_token,
+        completed_at, created_at, started_at, updated_at, user_agent
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    stmt.run(...values);
+  }
+
+  /**
+   * Retrieves a task by ID.
+   */
+  findById(taskId: TaskId): TaskEntity | null {
+    const row = this.db.prepare('SELECT * FROM tasks WHERE task_id = ?').get(taskId) as DatabaseTaskRow | undefined;
+    if (!row) return null;
+    return TaskMapper.fromRow(row);
+  }
+
+  /**
+   * Lists recent tasks.
+   */
+  list(limit: number = 100): any[] {
+    return this.db.prepare(`
+      SELECT task_id, title, objective, state, priority, updated_at 
+      FROM tasks 
+      ORDER BY updated_at DESC 
+      LIMIT ?
+    `).all(limit);
+  }
+
+  /**
+   * Updates task state and timestamp.
+   */
+  updateState(taskId: TaskId, state: string): void {
+    this.db.prepare('UPDATE tasks SET state = ?, updated_at = ? WHERE task_id = ?').run(
+      state,
+      Date.now(),
+      taskId
+    );
+  }
+}

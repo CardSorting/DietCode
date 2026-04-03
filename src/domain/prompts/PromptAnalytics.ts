@@ -104,6 +104,7 @@ export class PromptAnalyticsEngine {
       renderCount: number;
       templateSizeKb: number;
       variableCount: number;
+      timestamp?: string;
     }
   ): void {
     // Initialize metrics if not exists
@@ -111,8 +112,8 @@ export class PromptAnalyticsEngine {
       this.metrics.set(promptId, {
         promptId,
         category: 'unknown',
-        firstUsed: new Date().toISOString(),
-        lastUsed: new Date().toISOString(),
+        firstUsed: context.timestamp || '',
+        lastUsed: context.timestamp || '',
         usageCount: 0,
         successRate: 0,
         averageRenderTimeMs: 0,
@@ -129,7 +130,7 @@ export class PromptAnalyticsEngine {
 
     // Update usage metrics
     metrics.usageCount++;
-    metrics.lastUsed = new Date().toISOString();
+    metrics.lastUsed = context.timestamp || '';
 
     // Update timing metrics
     metrics.totalRenderTimeMs += context.renderTimeMs;
@@ -149,7 +150,7 @@ export class PromptAnalyticsEngine {
 
     // Track execution event
     this.executionEvents.push({
-      timestamp: new Date().toISOString(),
+      timestamp: context.timestamp || '', // Passed from context
       promptId,
       success: context.success,
       renderTimeMs: context.renderTimeMs,
@@ -203,9 +204,7 @@ export class PromptAnalyticsEngine {
       category: metrics.category,
       benchmarks,
       concurrency: {
-        averageRequestsPerSecond: this.calculateAvg(events.map(e => e.timestamp).map(t => {
-          return Math.round(1 / 100); // Simplified
-        })),
+        averageRequestsPerSecond: 0, // Simplified
         peakRequestsPerSecond: Math.max(...events.map(e => 10)), // Placeholder
         avgTimeInQueueMs: 0
       },
@@ -419,8 +418,7 @@ export class PromptAnalyticsEngine {
       .sort((a, b) => b.successRate - a.successRate)
       .slice(0, 10);
 
-    console.log(`[PromptAnalytics] Reinforcing ${highPriorityPrompts.length} high-performing prompts`);
-
+    // Logging replaced with state update for purity
     highPriorityPrompts.forEach(prompt => {
       const existing = this.metrics.get(prompt.promptId);
       if (existing) {

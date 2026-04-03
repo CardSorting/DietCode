@@ -220,50 +220,49 @@ export class ArchitecturalGuardian {
    * Smart Suggestion Engine: Predicts the best functional cluster based on filename
    */
   public static getSuggestedCluster(targetPath: string): string | null {
-    const filenameParts = targetPath.split('/');
-    const filename = filenameParts[filenameParts.length - 1]?.toLowerCase() || '';
     const layer = this.getLayer(targetPath);
-    
     if (!layer || layer === 'PLUMBING') return null;
 
+    const filename = targetPath.split('/').pop()?.toLowerCase() || '';
     const infraPath = 'src/infrastructure';
     const domainPath = 'src/domain';
 
-    // Heuristics for Infrastructure
-    if (layer === 'INFRASTRUCTURE') {
-      const fileName = targetPath.split('/').pop() || '';
-      if (filename.includes('filesystem') || filename.includes('file') || filename.includes('walker') || filename.includes('storage')) {
-        return `${infraPath}/storage/filesystem/${fileName}`;
-      }
-      if (filename.includes('integrity') || filename.includes('verify') || filename.includes('analyzer')) {
-        return `${infraPath}/integrity/${fileName}`;
-      }
-      if (filename.includes('prompt')) {
-        return `${infraPath}/prompts/${fileName}`;
-      }
-      if (filename.includes('adapter') || filename.includes('system') || filename.includes('terminal')) {
-        return `${infraPath}/adapters/${fileName}`;
-      }
-      if (filename.includes('database') || filename.includes('repository') || filename.includes('transaction')) {
-        return `${infraPath}/database/${fileName}`;
-      }
-      if (filename.includes('logger') || filename.includes('console')) {
-        return `${infraPath}/logging/${fileName}`;
-      }
-    }
+    const infraMap: Record<string, string> = {
+      'filesystem': 'storage/filesystem',
+      'file': 'storage/filesystem',
+      'walker': 'storage/filesystem',
+      'storage': 'storage/filesystem',
+      'integrity': 'integrity',
+      'verify': 'integrity',
+      'analyzer': 'integrity',
+      'prompt': 'prompts',
+      'adapter': 'adapters',
+      'system': 'adapters',
+      'terminal': 'adapters',
+      'database': 'database',
+      'repository': 'database',
+      'transaction': 'database',
+      'logger': 'logging',
+      'console': 'logging'
+    };
+
+    const domainMap: Record<string, string> = {
+      'error': 'common/errors',
+      'exception': 'common/errors',
+      'event': 'events',
+      'validation': 'validation'
+    };
 
     const fileName = targetPath.split('/').pop() || '';
-    // Heuristics for Domain
+
+    if (layer === 'INFRASTRUCTURE') {
+      const cluster = Object.keys(infraMap).find(key => filename.includes(key));
+      return cluster ? `${infraPath}/${infraMap[cluster]}/${fileName}` : null;
+    }
+
     if (layer === 'DOMAIN') {
-      if (filename.includes('error') || filename.includes('exception')) {
-        return `${domainPath}/common/errors/${fileName}`;
-      }
-      if (filename.includes('event')) {
-        return `${domainPath}/events/${fileName}`;
-      }
-      if (filename.includes('validation')) {
-        return `${domainPath}/validation/${fileName}`;
-      }
+      const cluster = Object.keys(domainMap).find(key => filename.includes(key));
+      return cluster ? `${domainPath}/${domainMap[cluster]}/${fileName}` : null;
     }
 
     return null;

@@ -21,6 +21,7 @@ export interface PromptVersion {
   contextualData: ContextualData;
   diffs?: Diff[];
   conflictResolution?: ConflictResolution;
+  recordedAt?: string;
 }
 
 export interface ContextualData {
@@ -93,13 +94,13 @@ export class PromptVersionController {
     } = {}
   ): PromptVersion {
     const version: PromptVersion = {
-      id: crypto.randomUUID(),
+      id: context.renderTriggers.sessionId + '-' + (Math.random() * 1000000).toFixed(0),
       previousVersionId: this.latestVersions.get(promptId)?.id,
       comparisonId: options.comparisonId,
       snapshot: this.generateSnapshot(promptId, renderedContent, context),
       renderedContent,
       originalTemplate,
-      renderedAt: new Date().toISOString(),
+      renderedAt: context.renderTriggers.timestamp,
       recordedBy: 'system',
       reason: options.reason,
       tags: options.tags || ['snapshot'],

@@ -9,6 +9,8 @@
  *   - [NEW] Implements TaskEntity, TaskState, TaskPriority for task scaffolding system
  */
 import * as crypto from 'crypto';
+import { ComplianceState, IntegrityAxiom } from './ImplementationSnapshot';
+import type { AxiomProfile } from './ImplementationSnapshot';
 
 /**
  * Unique identifier for a task
@@ -162,9 +164,9 @@ export interface TaskEntity {
   priority: TaskPriority;
   
   /**
-   * Integrity score from SHADOW_SIM pre-flight (0-1.0)
+   * Axiomatic compliance profile from SHADOW_SIM (Post-Scoring)
    */
-  simIntegrity?: number;
+  simAxiomProfile?: AxiomProfile;
   
   /**
    * Real-time metabolic telemetry metrics
