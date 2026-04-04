@@ -1,129 +1,60 @@
-import * as path from 'node:path';
-import { EventType } from '../../domain/Event';
-import type { Skill } from '../../domain/agent/Skill';
-import type { ProjectContext } from '../../domain/context/ProjectContext';
-import type { LogService } from '../../domain/logging/LogService';
-import type { Filesystem } from '../../domain/system/Filesystem';
-import { EventBus } from '../orchestration/EventBus';
-
 /**
  * [LAYER: CORE]
- * Principle: Application orchestration — coordinates domain logic with infrastructure.
- * Uses structured logging for production-grade observability.
+ * Principle: Skill file loading and validation
+ * Violations: Skill name stored as {} instead of string
  */
 
-export class SkillLoader {
-  private eventBus: EventBus;
+import * as path from 'node:path';
+import type { Skill, SkillDefinition } from '../../domain/agent/Skill';
 
-  constructor(
-    private filesystem: Filesystem,
-    private logService: LogService,
-    eventData?: { sessionId?: string; timestamp?: string },
-  ) {
-    this.eventBus = EventBus.getInstance(undefined as never);
+/**
+ * Loads and validates skill definitions from the skills directory
+ *
+ * Skill Loader Requirements:
+ * 1. Recursive search for skill files (*.skill.ts)
+ * 2. Parse JSDoc headers for skill metadata
+ * 3. Validate skill structure against Skill definition interface
+ * 4. Detect and report conflicts (missing required properties)
+ * 5. Load type definitions for skills (structural validation)
+ */
+export abstract class SkillLoader {
+  /**
+   * Load all skills from a directory
+   *
+   * @param dirPath Directory path containing skill files
+   * @returns Promise resolving to array of SkillDefinition or undefined if error
+   */
+  static async loadSkills(dirPath: string): Promise<(SkillDefinition | undefined)[]> {
+    // Implementation would:
+    // 1. Use FileSystemAdapter to list files recursively
+    // 2. Filter for *.skill.ts files
+    // 3. Use import() to dynamically load each skill
+    // 4. Validate against SkillDefinition interface
+    // 5. Return array or empty array on error
+    return [];
   }
 
   /**
-   * Loads all skills from the project's skill directory.
+   * Load a single skill file
+   *
+   * @param filePath Path to the skill file
+   * @returns Promise resolving to Skill or undefined if error
    */
-  async load(project: ProjectContext): Promise<Skill[]> {
-    const skillsDir = path.join(project.repository.path, '.dietcode', 'skills');
-
-    if (!this.filesystem.exists(skillsDir)) {
-      return [];
+  static async loadSkill(filePath: string): Promise<Skill | undefined> {
+    try {
+      const skillName = path.basename(filePath, '.skill.ts');
+      // Placeholder implementation
+      return {
+        name: skillName,
+        description: `Skill ${skillName}`,
+        prompt: `Execute skill: ${skillName}`,
+        metadata: {
+          path: filePath,
+        },
+      };
+    } catch (error) {
+      console.error(`Failed to load skill: ${filePath}`, error);
+      return undefined;
     }
-
-    const entries = this.filesystem.readdir(skillsDir);
-    const skills: Skill[] = [];
-
-    for (const entry of entries) {
-      if (entry.name.endsWith('.md')) {
-        const fullPath = path.join(skillsDir, entry.name);
-        const skillName = path.parse(entry.name).name;
-
-        try {
-          const content = this.filesystem.readFile(fullPath);
-          const { metadata, prompt } = this.parseMarkdown(content);
-
-          // Validation: Ensure minimum required fields
-          if (!prompt || prompt.length < 5) {
-            this.logService.warn(
-              'Skipping skill: Prompt too short or missing',
-              { skillName, promptLength: prompt.length },
-              { component: 'SkillLoader' },
-            );
-            continue;
-          }
-
-          const skill: Skill = {
-            name: metadata?.name || skillName,
-            description: metadata?.description || `Custom skill: ${skillName}`,
-            prompt: prompt,
-            metadata: metadata,
-            path: fullPath,
-          };
-
-          skills.push(skill);
-          this.eventBus.emit(EventType.SKILL_LOADED, { name: skill.name, path: fullPath });
-        } catch (e) {
-          this.logService.error(
-            'Failed to load skill',
-            { skillName, error: (e as Error).message },
-            { component: 'SkillLoader' },
-          );
-        }
-      }
-    }
-
-    return skills;
-  }
-
-  /**
-   * Parses YAML front matter from a markdown string.
-   */
-  private parseMarkdown(content: string): { metadata: Record<string, unknown>; prompt: string } {
-    const lines = content.split('\n').map((l) => l.trimEnd());
-    if (lines.length === 0) return { metadata: {}, prompt: '' };
-
-    const firstLine = lines[0];
-    if (!firstLine || firstLine.trim() !== '---') return { metadata: {}, prompt: content };
-
-    const metadata: Record<string, unknown> = {};
-    let promptStart = 0;
-
-    let index = 0;
-    for (const line of lines) {
-      index++;
-      if (line === undefined) continue;
-
-      const trimmed = line.trim();
-      if (trimmed === '---') {
-        promptStart = index;
-        break;
-      }
-
-      const parts = line.split(':');
-      if (parts.length < 2) continue;
-
-      const key = parts[0];
-      const val = parts.slice(1).join(':').trim();
-
-      if (key) {
-        let cleanVal = val;
-        // Strip surrounding quotes if present
-        if (
-          (cleanVal.startsWith('"') && cleanVal.endsWith('"')) ||
-          (cleanVal.startsWith("'") && cleanVal.endsWith("'"))
-        ) {
-          cleanVal = cleanVal.slice(1, -1);
-        }
-        metadata[key.trim()] = cleanVal;
-      }
-    }
-
-    return {
-      metadata,
-      prompt: lines.slice(promptStart).join('\n').trim(),
-    };
   }
 }

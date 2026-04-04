@@ -15,7 +15,6 @@
  */
 export interface SimulatedReport {
   isSafe: boolean;
-  score: number;
   violations: ArchitecturalViolation[];
   cascadeViolations?: ArchitecturalViolation[];
   requiresHealing?: boolean; // Pass 18: Flow Protocol
@@ -68,7 +67,6 @@ export class ArchitecturalGuardian {
     if (ArchitecturalGuardian.isDomainLeak(currentPath, targetPath)) {
       return {
         isSafe: false,
-        score: Math.max(0, currentReport.score - 35), // Large penalty for domain leak
         violations: [
           {
             type: 'DOMAIN_LEAK',
@@ -83,7 +81,6 @@ export class ArchitecturalGuardian {
     if (ArchitecturalGuardian.wouldScoreDrop(currentReport.score, 10)) {
       return {
         isSafe: false,
-        score: Math.max(0, currentReport.score - 10),
         violations: [
           {
             type: 'SCORE_DROPPED',
@@ -98,7 +95,6 @@ export class ArchitecturalGuardian {
     if (ArchitecturalGuardian.isTopologyViolation(currentPath, targetPath)) {
       return {
         isSafe: true,
-        score: currentReport.score,
         violations: [
           {
             type: 'CROSS_LAYER_IMPORT',
@@ -119,7 +115,6 @@ export class ArchitecturalGuardian {
       return {
         isSafe: true,
         requiresHealing: true, // Pass 18: Flow Protocol
-        score: currentReport.score,
         violations: [
           {
             type: 'SUBZONE_MISSING',
@@ -136,7 +131,6 @@ export class ArchitecturalGuardian {
       return {
         isSafe: true, // Pass 18: Flow Protocol (Non-blocking)
         requiresHealing: true,
-        score: currentReport.score,
         violations: [
           {
             type: 'CLUSTER_ENTANGLEMENT',
@@ -150,7 +144,6 @@ export class ArchitecturalGuardian {
     // 6. Everything looks safe
     return {
       isSafe: true,
-      score: currentReport.score,
       violations: [],
     };
   }

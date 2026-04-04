@@ -11,7 +11,7 @@ async function main() {
 
 - **Timestamp**: ${report.timestamp.toISOString()}
 - **Total Files Scanned**: ${report.totalFilesScanned}
-- **Architectural Debt Score**: ${report.architecturalDebtScore.toFixed(4)} (0.0 = Perfect)
+- **Architectural Debt Score**: N/A (calculate from violations via duplicate architecture guard: score = 100 - violations.length * 10)
 
 ## Compliance Summary
 

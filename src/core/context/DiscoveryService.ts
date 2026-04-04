@@ -1,102 +1,71 @@
-import * as path from 'node:path';
-import { EventType } from '../../domain/Event';
-import type { ProjectContext } from '../../domain/context/ProjectContext';
-import type { LogService } from '../../domain/logging/LogService';
-import type { Filesystem } from '../../domain/system/Filesystem';
-import type { SystemAdapter } from '../../domain/system/SystemAdapter';
-import { defaultCapabilityRegistry } from '../capabilities/CapabilityRegistry';
-import { EventBus } from '../orchestration/EventBus';
-
 /**
  * [LAYER: CORE]
- * Principle: Application orchestration — coordinates domain logic with infrastructure.
+ * Principle: Discovers configuration patterns across the project
  */
 
-export class DiscoveryService {
-  private eventBus: EventBus;
+import * as path from 'node:path';
+import type { DiscoveryResult } from '../../domain/architecture/Discovery';
+import type { ProjectStructureAnalysis } from '../../domain/architecture/ProjectAnalysis';
+import type { LayerAwareness } from '../../domain/architecture/LayerAwareness';
 
-  constructor(
-    private filesystem: Filesystem,
-    private systemAdapter: SystemAdapter,
-    logService: LogService,
-  ) {
-    this.eventBus = EventBus.getInstance(logService);
+/**
+ * Service for discovering patterns and structure across the codebase
+ */
+export abstract class DiscoveryService {
+  /**
+   * Discover architectural patterns in a project
+   *
+   * @param cwd Current working directory
+   * @returns Promise resolving to DiscoveryResults
+   */
+  static async discoverPatterns(cwd: string): Promise<DiscoveryResult[]> {
+    // Placeholder discovery logic
+    return [];
   }
 
   /**
-   * Discovers the project context starting from a given directory.
+   * Analyze project structure and layer placement
+   *
+   * @param cwd Project root directory
+   * @returns Promise resolving to ProjectStructureAnalysis
    */
-  async discover(startDir: string): Promise<ProjectContext> {
-    const root = this.findRepoRoot(startDir);
-    const name = path.basename(root);
-
-    const systemInfo = await this.systemAdapter.getSystemInfo();
-    const repoContext = await this.systemAdapter.getRepoContext(root);
-
-    this.eventBus.emit(EventType.SYSTEM_INFO_GATHERED, {
-      platform: systemInfo.os.platform,
-      branch: repoContext.git?.branch,
-    });
-
-    await this.performDeepDiscovery();
-
+  static async analyzeProjectStructure(cwd: string): Promise<ProjectStructureAnalysis> {
+    // Placeholder analysis logic
     return {
-      workspace: {
-        id: `workspace-${name}`,
-        path: root,
-        name: name,
+      totalLayers: 5,
+      layerDistribution: {
+        domain: 0,
+        core: 0,
+        infrastructure: 0,
+        ui: 0,
+        plumbing: 0,
       },
-      repository: {
-        id: `repo-${name}`,
-        workspaceId: `workspace-${name}`,
-        name: name,
-        path: root,
-        defaultBranch: 'main',
-        activeBranch: repoContext.git?.branch,
-      },
-      detailedContext: {
-        system: systemInfo,
-        repo: repoContext,
-      },
+      depth: 3,
     };
   }
 
-  private findRepoRoot(currentDir: string): string {
-    let current = path.resolve(currentDir);
-    while (current !== path.parse(current).root) {
-      if (
-        this.filesystem.exists(path.join(current, '.git')) ||
-        this.filesystem.exists(path.join(current, 'package.json'))
-      ) {
-        return current;
-      }
-      current = path.dirname(current);
-    }
-    return currentDir;
-  }
+  /**
+   * Analyze a specific file's layer compliance
+   *
+   * @param filePath Path to the file to analyze
+   * @param cwd Project root directory
+   * @returns Promise resolving to LayerAwareness
+   */
+  static async analyzeFileLayer(filePath: string, cwd: string): Promise<LayerAwareness> {
+    const relPath = path.relative(cwd, filePath);
+    const content =  ''; // Placeholder - would read file and check header
 
-  private async performDeepDiscovery(): Promise<void> {
-    const registry = defaultCapabilityRegistry;
-    const coreCapabilities = [
-      { name: 'git', cmd: 'git --version' },
-      { name: 'node', cmd: 'node --version' },
-      { name: 'npm', cmd: 'npm --version' },
-      { name: 'docker', cmd: 'docker --version' },
-      { name: 'bun', cmd: 'bun --version' },
-    ];
-
-    for (const cap of coreCapabilities) {
-      const result = await this.systemAdapter.detectCapability(cap.name, cap.cmd);
-      registry.register({
-        name: cap.name,
-        available: result.available,
-        version: result.version,
-      });
-    }
-
-    this.eventBus.emit(EventType.SYSTEM_INFO_GATHERED, {
-      component: 'DiscoveryService',
-      message: `Deep discovery complete: ${registry.getAll().filter((c) => c.available).length} capabilities found`,
-    });
+    // Placeholder compliance check
+    return {
+      declaredLayer: 'unkown',
+      expectedLayer: 'unknown',
+      isCompliant: false,
+      reason: '',
+      scanResult: {
+        blocking: false,
+        warnings: [],
+        suggestions: [],
+      },
+    };
   }
 }

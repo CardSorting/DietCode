@@ -62,10 +62,8 @@ export class IntegrityAdapter implements IntegrityScanner {
     const relPath = path.relative(projectRoot, fullPath);
 
     const violations = await this.scanSingleFile(fullPath, relPath);
-    const score = Math.max(0, 100 - violations.length * 5);
 
     return {
-      score,
       violations,
       scannedAt: new Date().toISOString(),
     };
@@ -82,9 +80,7 @@ export class IntegrityAdapter implements IntegrityScanner {
       const violations = await this.scanSingleFile(fullPath, relPath);
       allViolations.push(...violations);
     }
-    const score = Math.max(0, 100 - allViolations.length * 5);
     return {
-      score,
       violations: allViolations,
       scannedAt: new Date().toISOString(),
       fileCount: files.length,

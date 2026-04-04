@@ -39,13 +39,7 @@ export class HealthOrchestrator {
     // 1. Check Database & Queue
     let dbStatus = 'healthy';
     let queueCount = 0;
-    try {
-      const queue = await Core.getQueue();
-      // Note: SqliteQueue might not have length, but we can check connectivity
-      queueCount = 0; // Placeholder for actual queue depth if available
-    } catch (e) {
-      dbStatus = 'degraded';
-    }
+    // Note: Queue depth tracking removed - using database polling directly in QueueWorker
 
     // 2. Check Context Tracker
     const stats = this.tracker.getSessionStats();

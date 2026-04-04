@@ -64,7 +64,7 @@ async function main() {
   const systemAdapter = new NodeSystemAdapter(fs, logger);
 
   // Initialize Database infrastructure
-  await SovereignDb.init();
+  await SovereignDb.init('./data/diet-code-sovereign.db');
   const repository = new SqliteSessionRepository();
   const decisions = new SqliteDecisionRepository();
   const audit = new SqliteAuditRepository();
@@ -121,7 +121,9 @@ async function main() {
   const integrityAdapter = new IntegrityAdapter(integrityPolicy, logger);
   const integrityService = new IntegrityService(integrityAdapter, undefined, logger);
   const integrityReport = await integrityService.scan(projectContext.repository.path);
-  console.log(`[INTEGRITY] Core Health: ${integrityReport.score}/100`);
+  // Calculate health score from violation severity (0-100 scale)
+  const score = Math.max(0, 100 - integrityReport.violations.length * 10);
+  console.log(`[INTEGRITY] Core Health: ${score}/100`);
 
   // Triple Down: Autonomous Self-Healing Assessment
   if (integrityReport.violations.length > 0) {
@@ -175,7 +177,7 @@ Follow the JoyZoning architecture for all operations.`,
   registry.register(SERVICES.DATABASE, SovereignDb);
   registry.register(SERVICES.REPOSITORY, repository);
   registry.register(SERVICES.DECISIONS_REPOSITORY, decisions);
-  registry.register(SERVICES.QUEUE, await SovereignDb.getQueue());
+  registry.register(SERVICES.QUEUE, await SovereignDb.db());
   registry.register(SERVICES.AGENT_REGISTRY, agentRegistry);
 
   const toolManager = new ToolManager();

@@ -271,8 +271,8 @@ export class LLMProviderRegistry {
     config: AdapterConfig,
   ): CompositeLLMAdapter {
     return new CompositeLLMAdapter(
-      primaryProviders.map((id) => this.getAdapter(id)!),
-      fallbackProviders.map((id) => this.getAdapter(id)!),
+      primaryProviders.map((id) => this.getAdapter(id)!) as LLMAdapter[],
+      fallbackProviders.map((id) => this.getAdapter(id)!) as LLMAdapter[],
       config,
     );
   }
@@ -338,7 +338,11 @@ class CompositeLLMAdapter implements LLMAdapter {
     if (this.primaryChain.length === 0) {
       throw new Error('No primary adapters configured');
     }
-    return this.primaryChain[0]?.getModelInfo();
+    const modelInfo = this.primaryChain[0]?.getModelInfo();
+    if (!modelInfo) {
+      throw new Error('Failed to get model info from primary adapter');
+    }
+    return modelInfo;
   }
 
   async embedText?(text: string): Promise<number[]> {
@@ -359,12 +363,14 @@ class CompositeLLMAdapter implements LLMAdapter {
 
   getThinkingBudgetTokenLimit(): number {
     if (this.primaryChain.length === 0) return 0;
-    return this.primaryChain[0]?.getThinkingBudgetTokenLimit();
+    const limit = this.primaryChain[0]?.getThinkingBudgetTokenLimit();
+    return limit ?? 0;
   }
 
   getPromptStrategy(): PromptStrategy {
     if (this.primaryChain.length === 0) return EnumPromptStrategy.NATIVE;
-    return this.primaryChain[0]?.getPromptStrategy();
+    const strategy = this.primaryChain[0]?.getPromptStrategy();
+    return strategy ?? EnumPromptStrategy.NATIVE;
   }
 }
 

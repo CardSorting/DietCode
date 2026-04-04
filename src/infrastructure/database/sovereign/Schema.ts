@@ -57,6 +57,8 @@ export class Schema {
       'id TEXT PRIMARY KEY, workspaceId TEXT NOT NULL, repoId TEXT NOT NULL, repoPath TEXT NOT NULL, forkedFrom TEXT, forkedFromRemote TEXT, defaultBranch TEXT NOT NULL, createdAt BIGINT',
     nodes:
       'id TEXT PRIMARY KEY, repoPath TEXT NOT NULL, parentId TEXT, data TEXT, message TEXT, timestamp BIGINT, author TEXT, type TEXT, tree TEXT, usage TEXT, metadata TEXT',
+    hive_file_context:
+      'id TEXT PRIMARY KEY, path TEXT NOT NULL, state TEXT NOT NULL, source TEXT NOT NULL, last_read_date INTEGER, last_edit_date INTEGER, signature TEXT, external_edit_detected INTEGER DEFAULT 0',
   };
 
   // Tables that need surgical patching (can already have ID via CREATE)
@@ -85,6 +87,7 @@ export class Schema {
     'workspaces',
     'repositories',
     'nodes',
+    'hive_file_context',
   ];
 
   /**
@@ -377,6 +380,18 @@ export class Schema {
             'tree',
             'usage',
             'metadata',
+          ];
+        }
+        if (tableName === 'hive_file_context') {
+          return [
+            'id',
+            'path',
+            'state',
+            'source',
+            'last_read_date',
+            'last_edit_date',
+            'signature',
+            'external_edit_detected',
           ];
         }
         throw new Error(`No column definition for table '${tableName}'`);

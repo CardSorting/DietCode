@@ -65,7 +65,9 @@ export class AttachmentResolver {
                 path: tag.path,
                 startLine: tag.range.start,
                 endLine: tag.range.end,
-                totalLines: 0, // Could be gathered if needed
+                totalLines: tag.range.end - tag.range.start + 1,
+                isPruned: false,
+                originalLineCount: tag.range.end - tag.range.start + 1,
               },
             },
           };
@@ -88,6 +90,8 @@ export class AttachmentResolver {
                 startLine: 1,
                 endLine: lines.length,
                 totalLines: lines.length,
+                isPruned: false,
+                originalLineCount: lines.length,
               },
             },
           };

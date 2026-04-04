@@ -9,7 +9,9 @@ import type { PatternAwareStrategy } from '../../domain/prompts/PromptCompositio
 import {
   type RiskFactor,
   type RiskProfile,
+  type SafetySafeguard,
   RiskTier,
+  SafeguardFactory,
 } from '../../domain/prompts/PromptRiskProfile';
 import type { TemplateContext } from '../../domain/prompts/PromptTemplateEngine';
 
@@ -51,7 +53,7 @@ export class RiskAwareCompositionStrategy implements PatternAwareStrategy {
     const escalationStage = riskProfile.escalation_stage || 'before_tool';
 
     notes.push(`Risk tier: ${riskProfile.tier}`);
-    notes.push(`Safeguards: ${safeguards.map((s) => s.type).join(', ')}`);
+    notes.push(`Safeguards: ${safeguards.map((s: SafetySafeguard) => s.type).join(', ')}`);
 
     // Wrap prompt with risk assessment instructions
     const wrappedPrompt = this.wrapPromptWithRiskAssessment(
@@ -92,7 +94,7 @@ export class RiskAwareCompositionStrategy implements PatternAwareStrategy {
       assumptions,
       escalation_stage: tier === RiskTier.HIGH ? 'before_tool' : 'before_tool',
       recommended_tools: this.getRecommendedTools(tier),
-    };
+    } as RiskProfile;
   }
 
   /**

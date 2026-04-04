@@ -3,7 +3,13 @@
  * Principle: Executors task execution with automatic retry logic
  */
 
-import type { TaskDefinition } from '../../domain/task/TaskDefinition';
+/**
+ * Task definition with an execute function
+ */
+export interface TaskDefinition {
+  id: string;
+  execute: () => Promise<unknown>;
+}
 
 /**
  * Custom error type for retryable task execution failures
@@ -31,6 +37,7 @@ export interface TaskExecutionRequest {
   task: TaskDefinition;
   groupId?: string;
   priority?: number;
+  attempts?: number; // Added attempts property
 }
 
 /**
@@ -110,14 +117,6 @@ export class ExecutionGovernor {
   static configure(config: Partial<ExecutionGovernorConfig>): void {
     ExecutionGovernor.config = { ...ExecutionGovernor.config, ...config };
   }
-
-/**
- * Queue manager for task queue operations
- */
-const queueManager = {
-  addTaskToQueue,
-  dequeueTask,
-};
 
   /**
    * Execute a task with automatic retry logic

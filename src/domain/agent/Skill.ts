@@ -11,3 +11,14 @@ export interface Skill {
   resources?: string[];
   path?: string;
 }
+
+export interface SkillDefinition {
+  name: string;
+  type: string;
+  description: string;
+  version: string;
+  cooldownSeconds: number;
+  minPrerequisites: number;
+  scope: string;
+  tags: string[];
+}

@@ -36,19 +36,6 @@ import type {
   FileWatcherEvent,
 } from '../../infrastructure/watcher/FileWatcherAdapter';
 
-/**
- * Type definition for the file_context table in the Sovereign DB
- */
-type FileContextRow = {
-  path: string;
-  state: string;
-  source: string;
-  lastReadDate: number | null;
-  lastEditDate: number | null;
-  signature: string | null;
-  externalEditDetected: number | null;
-};
-
 export class FileContextTracker {
   private static instance: FileContextTracker | null = null;
 
@@ -95,8 +82,10 @@ export class FileContextTracker {
    * Sync persistent state from modular Sovereign DB
    */
   async sync(): Promise<void> {
-    const db = await Core.db();
-    const rows = await db.selectFrom('file_context').selectAll<FileContextRow>().execute();
+    const rows = ((await Core.selectWhere({
+      table: 'hive_file_context',
+      where: {},
+    })) as any);
 
     for (const row of rows) {
       this.stateMetadata.set(row.path, {
@@ -263,32 +252,33 @@ export class FileContextTracker {
    * Persist state entry to modular Sovereign DB
    */
   private async persistState(entry: StateMetadata): Promise<void> {
-    const db = await Core.db();
+    // Check if exists first
+    const rows = ((await Core.selectWhere({
+      table: 'hive_file_context',
+      where: { path: entry.path },
+    })) as any);
 
-    // Check if exists first for upsert simulation in broccoliq (Kysely)
-    const existing = await db
-      .selectFrom('file_context')
-      .where('path', '=', entry.path)
-      .selectAll<FileContextRow>()
-      .executeTakeFirst();
-
-    if (existing) {
-      await db
-        .updateTable('file_context')
-        .set({
+    if (rows.length > 0) {
+      // Update existing
+      await Core.push({
+        type: 'update',
+        table: 'hive_file_context',
+        where: { path: entry.path },
+        values: {
           state: entry.state,
           source: entry.source,
           lastReadDate: entry.lastReadDate,
           lastEditDate: entry.lastEditDate,
           signature: entry.signature,
           externalEditDetected: entry.externalEditDetected ? 1 : 0,
-        })
-        .where('path', '=', entry.path)
-        .execute();
+        },
+      });
     } else {
-      await db
-        .insertInto('file_context')
-        .values({
+      // Insert new
+      await Core.push({
+        type: 'insert',
+        table: 'hive_file_context',
+        values: {
           path: entry.path,
           state: entry.state,
           source: entry.source,
@@ -296,8 +286,8 @@ export class FileContextTracker {
           lastEditDate: entry.lastEditDate,
           signature: entry.signature,
           externalEditDetected: entry.externalEditDetected ? 1 : 0,
-        })
-        .execute();
+        },
+      });
     }
   }
 

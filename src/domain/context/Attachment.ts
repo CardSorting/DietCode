@@ -13,6 +13,8 @@ export interface FileInfo {
   startLine: number;
   endLine: number;
   totalLines: number;
+  isPruned: boolean;
+  originalLineCount?: number;
 }
 
 export type AttachmentContent =

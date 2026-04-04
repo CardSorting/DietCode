@@ -97,7 +97,8 @@ export class ContextProviderEngine {
     const cacheKey = this.generateCacheKey(prompt, sessionContext);
 
     if (this.config.cacheEnabled && this.cache.has(cacheKey)) {
-      return this.cache.get(cacheKey)?.context;
+      const cached = this.cache.get(cacheKey);
+      return cached ? cached.context : {};
     }
 
     // Start with base context

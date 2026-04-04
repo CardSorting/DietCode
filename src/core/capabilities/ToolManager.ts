@@ -21,7 +21,6 @@ import type { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
 import { RiskLevel } from '../../domain/validation/RiskLevel';
 import type { RollbackProtocol } from '../../domain/validation/RollbackProtocol';
 import { FileContextTracker } from '../context/FileContextTracker.ts';
-import { RuleContextBuilder } from '../context/RuleContextBuilder.ts';
 import type { HookOrchestrator } from '../manager/HookOrchestrator';
 import type { LockOrchestrator } from '../manager/LockOrchestrator';
 import { EventBus } from '../orchestration/EventBus';
@@ -99,8 +98,9 @@ export class ToolManager {
         toolName: routeResult.tool.name,
         matchesCriteria: routeResult.matchesCriteria,
       };
-    } catch (error) {
-      console.error(`❌ Tool routing failed: ${error}`);
+    } catch (error: unknown) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      console.error(`❌ Tool routing failed: ${err.message}`);
       return null;
     }
   }
@@ -353,26 +353,36 @@ export class ToolManager {
 
     // Execution Phase: Execute tool with ExecutionGovernor for resiliency
     try {
-      const result = await this.executionGovernor.execute(
-        `${name}-${Date.now()}`,
-        () => tool.execute(input),
-        {
-          timeoutMs: 60000,
-          maxRetries: 3,
+      const result = await ExecutionGovernor.execute({ // Fixed: static method call
+        task: {
+          id: `${name}-${Date.now()}`,
+          execute: () => tool.execute(input),
         },
-      );
+        attempts: 0,
+      });
 
       const durationMs = Date.now() - startTime;
 
       // Record governance metrics
-      this.governor.recordResult(name, !result.isError, durationMs);
+      this.governor.recordResult(name, !result, durationMs);
 
-      if (result.isError) {
+      if (result) {
+        // Result is safe (no error)
+        this.eventBus.publish(
+          EventType.TOOL_COMPLETED,
+          { toolName: name },
+          {
+            correlationId,
+            durationMs,
+          },
+        );
+      } else {
+        // Result indicates error
         this.eventBus.publish(
           EventType.TOOL_FAILED,
           {
             toolName: name,
-            error: result.content,
+            error: 'Tool execution failed',
           },
           {
             correlationId,
@@ -384,27 +394,17 @@ export class ToolManager {
         if (safetyCheck.rollbackPrepared && options.targetPath) {
           console.log(`♻️ Rollback triggered for: ${options.targetPath}`);
         }
-      } else {
-        this.eventBus.publish(
-          EventType.TOOL_COMPLETED,
-          { toolName: name },
-          {
-            correlationId,
-            durationMs,
-          },
-        );
       }
 
       // Cline Phase: Execute POST_EXECUTION hooks
-      let finalResult = result;
       if (this.hookOrchestrator) {
-        finalResult = await this.hookOrchestrator.chain(name, input, result);
+        await this.hookOrchestrator.chain(name, input, result);
       }
 
       return {
         success: true,
         toolName: name,
-        toolResult: finalResult,
+        toolResult: result as ToolResult,
         safetyCheck,
         execution: {
           startTime,
@@ -418,11 +418,12 @@ export class ToolManager {
       // Record governance metrics for failure
       this.governor.recordResult(name, false, durationMs);
 
+      const err = executionError instanceof Error ? executionError : new Error(String(executionError));
       this.eventBus.publish(
         EventType.TOOL_FAILED,
         {
           toolName: name,
-          error: executionError.message,
+          error: err.message,
         },
         {
           correlationId,
@@ -434,7 +435,7 @@ export class ToolManager {
         success: false,
         toolName: name,
         toolResult: {
-          content: `Error executing tool '${name}': ${executionError.message}`,
+          content: `Error executing tool '${name}': ${err.message}`,
           isError: true,
         },
         safetyCheck: {
@@ -445,7 +446,7 @@ export class ToolManager {
           rollbackPrepared: safetyCheck.rollbackPrepared,
           safeguardsApplied: [
             ...(safetyCheck.safeguardsApplied || []),
-            `Execution failed: ${executionError.message}`,
+            `Execution failed: ${err.message}`,
           ],
         },
         execution: {
@@ -490,9 +491,9 @@ export class ToolManager {
     } catch (error: unknown) {
       const err = error instanceof Error ? error : new Error(String(error));
       const durationMs = Date.now() - startTime;
-      this.eventBus.emit(EventType.TOOL_FAILED, { name, error: error.message }, { durationMs });
+      this.eventBus.emit(EventType.TOOL_FAILED, { name, error: err.message }, { durationMs });
       return {
-        content: `Error executing tool '${name}': ${error.message}`,
+        content: `Error executing tool '${name}': ${err.message}`,
         isError: true,
       };
     }
