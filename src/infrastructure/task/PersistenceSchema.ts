@@ -1,8 +1,8 @@
 /**
  * [LAYER: INFRASTRUCTURE]
  * Principle: Centralized schema and row definitions for task/checkpoint persistence.
- * Axiomatic Finality: Domain tables are namespaced with 'hive_' to avoid
- * collisions with BroccoliDB system tables.
+ * Axiomatic Finality: Domain tables are namespaced with 'hive_' and created
+ * using raw SQL to ensure unquoted identifier consistency with BroccoliDB.
  */
 
 export interface DatabaseCheckpointRow {
@@ -41,14 +41,14 @@ export interface DatabaseTaskRow {
 }
 
 export const INITIAL_SCHEMA = `
-  -- Tasks table (Namespaced)
+  -- Tasks table (Namespaced & Unquoted)
   CREATE TABLE IF NOT EXISTS hive_tasks (
     id TEXT PRIMARY KEY,
     task_id TEXT NOT NULL UNIQUE,
     title TEXT NOT NULL,
     objective TEXT NOT NULL,
     state TEXT NOT NULL,
-    priority TEXT NOT NULL,
+    priority INTEGER NOT NULL,
     initial_context TEXT DEFAULT '',
     vitals_heartbeat TEXT,
     v_token TEXT,
@@ -59,7 +59,7 @@ export const INITIAL_SCHEMA = `
     user_agent TEXT NOT NULL
   );
 
-  -- Checkpoints table (Namespaced)
+  -- Checkpoints table (Namespaced & Unquoted)
   CREATE TABLE IF NOT EXISTS hive_checkpoints (
     id TEXT PRIMARY KEY,
     checkpoint_id TEXT NOT NULL UNIQUE,

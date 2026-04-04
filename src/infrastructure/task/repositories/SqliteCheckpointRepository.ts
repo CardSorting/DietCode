@@ -18,7 +18,7 @@ export class SqliteCheckpointRepository {
    */
   save(snapshot: ImplementationSnapshot): void {
     const values = CheckpointMapper.toRowValues(snapshot);
-    const id = snapshot.id || crypto.randomUUID(); // Axiomatic Primary Key
+    const id = snapshot.checkpointId || crypto.randomUUID(); // Axiomatic Primary Key
     
     const stmt = this.db.prepare(`
       INSERT OR REPLACE INTO hive_checkpoints (
