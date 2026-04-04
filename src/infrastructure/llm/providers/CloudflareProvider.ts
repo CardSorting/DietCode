@@ -174,23 +174,20 @@ export class CloudflareProvider implements LLMProvider {
       const usage = response.usage;
       const modelId = response.model;
       const promptTokens = usage?.prompt_tokens ?? 0;
-      const completionTokens = usage?.completion_tokens ?? 0;
-      const totalTokens = promptTokens + completionTokens;
-      const inputCost = (promptTokens / 1_000_000) * 0.6;
-      const outputCost = (completionTokens / 1_000_000) * 3.0;
-      const totalCost = inputCost + outputCost;
+      const model = response.model;
+      const repoPath = process.cwd();
 
-      await (db as any).insertInto('telemetry' as any)
+      await (db as any).insertInto('hive_llm_telemetry' as any)
         .values({
           id: globalThis.crypto.randomUUID(),
-          repoPath: process.cwd(),
-          agentId: agentId,
-          taskId: taskId ?? null,
-          promptTokens,
-          completionTokens,
-          totalTokens,
-          modelId: modelId,
-          cost: totalCost,
+          repo_path: repoPath,
+          agent_id: agentId,
+          task_id: taskId ?? null,
+          prompt_tokens: usage.prompt_tokens,
+          completion_tokens: usage.completion_tokens,
+          total_tokens: usage.prompt_tokens + usage.completion_tokens,
+          model_id: model,
+          cost: 0, // Cloudflare Workers AI is often flat-rate or included
           timestamp: Date.now(),
           environment: JSON.stringify({ duration, platform: process.platform, provider: 'cloudflare' }),
         } as any)

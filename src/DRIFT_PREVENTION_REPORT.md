@@ -13,11 +13,11 @@ This document details the **production-grade AI tool harness architecture** desi
 ### 🎯 Core Objective
 
 Create a **preventative, not just reactive** drift detection system that:
-- Detects semantic divergence in real-time
-- Prevents irreversible state corruption
-- Enables human-in-the-loop decision making
-- Maintains task fidelity across execution sessions
-- Provides complete auditability and restoration capability
+- Detects semantic divergence via Axiomatic Resonance
+- Prevents irreversible state corruption through strict compliance gating
+- Enables human-in-the-loop decision making for FLAGGED states
+- Maintains task fidelity across execution sessions via Checkpoint Integrity
+- Provides complete auditability and axiomatic restoration capability
 
 ---
 
@@ -76,12 +76,10 @@ export enum DriftProfilingLevel {
 }
 
 export interface DriftDetectionCriteria {
-  maxDriftThreshold: number;      // Maximum drift allowed
-  semanticSimilarityThreshold: number; // Required similarity % 
-  requiresConfirmationForDriftAbove: number;
-  checkpointInterval: number;      // Tokens between checkpoints
   strictModeEnabled: boolean;
   highPrecisionProfiling: boolean;
+  requiredAxioms: string[];        // Axioms that MUST pass
+  checkpointInterval: number;      // Tokens between checkpoints
 }
 ```
 
@@ -92,9 +90,8 @@ export interface DriftDetectionCriteria {
 ```typescript
 export interface ImplementationSnapshot {
   checkpointId: string;
-  driftScore: number;              // 0-1 (0 = complete drift)
-  semanticHealth: SemanticHealth;
-  consistencyScore: number;
+  complianceState: ComplianceState; // CLEARED | FLAGGED | BLOCKED
+  semanticHealth: SemanticHealth;   // AxiomProfile
   outputHash: string;              // SHA-256
   outputSizeBytes: number;
   taskId: string;
@@ -124,7 +121,7 @@ export interface TaskEntity {
 
 export interface TaskValidation {
   isValid: boolean;
-  score: number;
+  axiomProfile: AxiomProfile;
   errors: string[];
   warnings: string[];
   requirements: Requirement[];
@@ -194,9 +191,9 @@ async validateConsistency(taskMd: string, implementationMd: string): Promise<Con
 
 ```typescript
 class DriftDetectionOrchestrator {
-  initializeTask(taskMd: string, initialCheck: number): Promise<ImplementationSnapshot>;
-  checkAndPersistCheckpoints(currentDriftScore: number, tokensProcessed: number): Promise<ImplementationSnapshot | null>;
-  evaluateDrift(taskMd: string, expectedScore: number, referenceObjective: string): Promise<Recommendation>;
+  initializeTask(taskMd: string): Promise<ImplementationSnapshot>;
+  checkAndPersistCheckpoints(tokensProcessed: number): Promise<ImplementationSnapshot | null>;
+  evaluateDrift(taskMd: string): Promise<Recommendation>;
   restoreFromCheckpoint(checkpointId: string, taskId: string): Promise<ImplementationSnapshot>;
 }
 ```
@@ -239,26 +236,25 @@ class DriftDetectionOrchestrator {
 
 ## 🛡️ Drift Prevention Mechanism
 
-### 1️⃣ Semantic Similarity Analysis
+### 1️⃣ Axiomatic Integrity Analysis
 
 ```typescript
-DriftScore = 1.0 - LinearDistance(referenceObjective, currentContent)
-LinearDistance = (ZeroSum + Pseudocompare + SemResidual) / 3
+AxiomProfile = SemanticAnalyser.assessIntegrityAlignment(content, constraints)
+Status = AxiomProfile.status // CLEARED | FLAGGED | BLOCKED
 ```
 
-**Scoring Ranges:**
-- ✅ **0.9 - 1.0**: Identical or minimal divergence
-- ⚠️ **0.5 - 0.9**: Partial divergence (monitor)
-- 🚨 **0.0 - 0.5**: Severe divergence (pause/restore)
+**Compliance States:**
+- ✅ **CLEARED**: All core axioms pass (Resonance, Structure, Purity).
+- ⚠️ **FLAGGED**: Minor divergence or structural warnings.
+- 🚨 **BLOCKED**: Critical mission drift or protocol violation.
 
-### 2️⃣ Threshold-Based Responses
+### 2️⃣ Status-Based Responses
 
-| Drift Score | Response                    | Action                     |
-|-------------|-----------------------------|----------------------------|
-| **< 0.3**   | PROCEED ✅                  | Continue execution          |
-| **0.3 - 0.6** | CONTINUE WITH CAUTION ⏳ | Monitor, add more checkpoints |
-| **0.6 - 0.9** | PAUSE FOR REVIEW ⚠️      | Require human confirmation |
-| **> 0.9**   | SEVERE DRIFT 🚨            | Full restore recommended   |
+| Compliance State | Response                    | Action                     |
+|------------------|-----------------------------|----------------------------|
+| **CLEARED**      | PROCEED ✅                  | Continue execution          |
+| **FLAGGED**      | CONTINUE WITH CAUTION ⏳ | Monitor, add more checkpoints |
+| **BLOCKED**      | SEVERE DRIFT 🚨            | Full restore required      |
 
 ### 3️⃣ Checkpoint Strategy
 

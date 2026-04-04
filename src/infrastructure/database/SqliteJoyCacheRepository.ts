@@ -27,7 +27,7 @@ export class SqliteJoyCacheRepository {
         // 2a. Queue the Delete Task
         await Core.push({
             type: 'delete',
-            table: 'joy_imports',
+            table: 'hive_joy_imports',
             where: {
                 column: 'source_path',
                 operator: '=',
@@ -45,7 +45,7 @@ export class SqliteJoyCacheRepository {
 
             await Core.push({
                 type: 'insert',
-                table: 'joy_imports',
+                table: 'hive_joy_imports',
                 values: entries
             });
         }
@@ -61,7 +61,7 @@ export class SqliteJoyCacheRepository {
         if (cached) return cached;
 
         // 2. TIER 2: Fluid Select from Hive
-        const results = await Core.selectWhere('joy_imports', 
+        const results = await Core.selectWhere('hive_joy_imports', 
             { column: 'imported_path', operator: '=', value: targetPath }
         );
         
@@ -81,14 +81,14 @@ export class SqliteJoyCacheRepository {
         const db = await Core.db();
         
         // Complex metrics use direct shard reads for grouping/counting
-        const caResult = await (db as any).selectFrom('joy_imports' as any)
+        const caResult = await (db as any).selectFrom('hive_joy_imports' as any)
             .select(({ fn }: any) => fn.count('id').as('count'))
             .where('imported_path', '=', filePath)
             .executeTakeFirst() as any;
 
         const ca = Number(caResult?.count || 0);
 
-        const ceResult = await (db as any).selectFrom('joy_imports' as any)
+        const ceResult = await (db as any).selectFrom('hive_joy_imports' as any)
             .select(({ fn }: any) => fn.count('id').as('count'))
             .where('source_path', '=', filePath)
             .executeTakeFirst() as any;
@@ -105,7 +105,7 @@ export class SqliteJoyCacheRepository {
      */
     async getTopArchitecturalAnchors(limit: number = 5): Promise<{ path: string; count: number }[]> {
         const db = await Core.db();
-        const results = await (db as any).selectFrom('joy_imports' as any)
+        const results = await (db as any).selectFrom('hive_joy_imports' as any)
             .select(['imported_path as path', ({ fn }: any) => fn.count('id').as('count')])
             .groupBy('imported_path')
             .orderBy('count', 'desc')
@@ -125,7 +125,7 @@ export class SqliteJoyCacheRepository {
         // Level 7 background cleanup
         await Core.push({
             type: 'delete',
-            table: 'joy_imports',
+            table: 'hive_joy_imports',
             where: {
                 column: 'source_path',
                 operator: '=',
@@ -135,7 +135,7 @@ export class SqliteJoyCacheRepository {
         
         await Core.push({
             type: 'delete',
-            table: 'joy_imports',
+            table: 'hive_joy_imports',
             where: {
                 column: 'imported_path',
                 operator: '=',
@@ -151,7 +151,7 @@ export class SqliteJoyCacheRepository {
     async getProjectOrphans(projectRoot: string): Promise<string[]> {
         const db = await Core.db();
         
-        const importedRows = await (db as any).selectFrom('joy_imports' as any)
+        const importedRows = await (db as any).selectFrom('hive_joy_imports' as any)
             .select('imported_path')
             .distinct()
             .execute();
@@ -189,7 +189,7 @@ export class SqliteJoyCacheRepository {
      * Returns the cached violation count from the Hive if the hash matches.
      */
     async getCachedViolations(filePath: string, currentHash: string): Promise<number | null> {
-        const results = await Core.selectWhere('joy_metrics', 
+        const results = await Core.selectWhere('hive_joy_metrics', 
             { column: 'path', operator: '=', value: filePath },
             { limit: 1 }
         );
@@ -208,8 +208,9 @@ export class SqliteJoyCacheRepository {
     async updateCachedViolations(filePath: string, count: number, hash: string): Promise<void> {
         await Core.push({
             type: 'upsert',
-            table: 'joy_metrics',
+            table: 'hive_joy_metrics',
             values: {
+                id: crypto.randomUUID(),
                 path: filePath,
                 violation_count: count,
                 hash,

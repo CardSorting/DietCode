@@ -15,6 +15,8 @@ import { SovereignSelector } from '../core/task/SovereignSelector';
 import { OperationalScheduler } from '../core/task/OperationalScheduler';
 import { JoySimulator } from '../infrastructure/simulation/JoySimulator';
 import { TaskState, TaskPriority, createTaskEntity, RequirementType } from '../domain/task/TaskEntity';
+import { Core } from '../infrastructure/database/sovereign/Core';
+import { Schema } from '../infrastructure/database/sovereign/Schema';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -24,8 +26,21 @@ async function runVerification() {
   console.log('================================================\n');
 
   const dbPath = path.join(process.cwd(), 'data', 'verification.db');
-  if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
+  const sovereignDbPath = path.join(process.cwd(), 'data', 'verification-sovereign.db');
+  
+  const cleanup = (p: string) => {
+    const lock = p + '.lock';
+    if (fs.existsSync(lock)) fs.unlinkSync(lock);
+    [p, `${p}-wal`, `${p}-shm`, `${p}_signals.db`, `${p}_signals.db-wal`, `${p}_signals.db-shm`].forEach(f => {
+      if (fs.existsSync(f)) try { fs.unlinkSync(f); } catch (e) {}
+    });
+  };
 
+  cleanup(dbPath);
+  cleanup(sovereignDbPath);
+  cleanup(path.join(process.cwd(), 'data', 'diet-code-checkpoints.db'));
+  cleanup(path.join(process.cwd(), 'sovereign.db'));
+  
   const persistence = new CheckpointPersistenceAdapter(dbPath);
   const semanticAnalyzer = new SemanticIntegrityAnalyser();
   const fileSystem = new FileSystemAdapter();
@@ -35,6 +50,9 @@ async function runVerification() {
   const selector = new SovereignSelector();
   const simulator = new JoySimulator();
   const scheduler = new OperationalScheduler(simulator);
+  
+  // Pass 18: Initialize Sovereign Hive on Verification Path
+  await Core.init(sovereignDbPath, Schema.ensureSchema.bind(Schema));
   
   const orchestrator = new DriftDetectionOrchestrator(
     persistence, 
@@ -85,15 +103,22 @@ Implement a production-grade drift prevention system.
   // Test 3: Drift Detection Orchestration
   await runTest('Drift Core Orchestration', async () => {
     const taskMd = `
+[LAYER: CORE]
+- Principle: Persistence
 # Mission Statement
 Implement a production-grade persistence system for sovereign task tracking with high-throughput sharding and atomic commit protocols.
 
 ## Requirements
 - [ ] Implement core persistence adapter for task tracking
+    - Verification: Test with concurrent SQLite connections
 - [ ] Add SQL-based migration scripts for sharded architecture
+    - Verification: Run migration on empty database
 - [ ] Verify atomic commit protocol across distributed nodes
+    - Verification: Measure rollback success under forced failures
 - [ ] Benchmarking high-throughput sharding performance
+    - Verification: Average latency < 5ms for 10k ops
 - [ ] Implement secondary index for task state transitions
+    - Verification: Check query execution plan for index usage
 - [ ] Add audit logging for all database operations
 - [ ] Optimize query performance for large checkpoint histories
 - [ ] Implement automatic schema evolution and rollback
@@ -103,7 +128,7 @@ Implement a production-grade persistence system for sovereign task tracking with
     const validation = await consistencyValidator.validateTask(taskMd);
     const task = createTaskEntity({
       title: 'Drift Core Test',
-      objective: 'Implement a production-grade persistence system for sovereign task tracking with high-throughput sharding and atomic commit protocols.',
+      objective: 'Implement a production-grade infrastructure persistence system for sovereign task tracking with high-throughput sharding and atomic commit protocols.',
       requirements: validation.requirements,
       acceptanceCriteria: ['Passes all SQLite stress tests', 'Zero data loss during forced crashes'],
       initialContext: 'Building the core of the DietCode sovereign hive.',
@@ -119,20 +144,20 @@ Implement a production-grade persistence system for sovereign task tracking with
 
   // Test 4: Axiomatic Consistency
   await runTest('Axiomatic Consistency', async () => {
-    const objective = "Implement a test suite for axiomatic consistency validation.";
+    const objective = "Test axiomatic resonance with structural constraints.";
     const textA = `
 [LAYER: CORE]
 - Principle: Axiomatic Verification
 # Mission Statement
-Implement a test suite for axiomatic consistency validation.
+Test axiomatic resonance with structural constraints.
 
 ## Requirements
 - [ ] Test the structural axiom
+    - Verification: Check for [LAYER] header
 - [ ] Verify resonance between content and objective
-- [ ] Validate purity of the implementation
-- [ ] Ensure stability of the verification engine
+    - Verification: Compare similarity scores
 `.trim();
-    const unrelated = "A detailed tutorial on how to bake a multi-layered chocolate cake with vanilla frosting.";
+    const unrelated = "Baking a multi-layered chocolate cake with vanilla frosting.";
 
     const healthA = semanticAnalyzer.assessIntegrityAlignment(textA, [], { objective });
     const healthUnrelated = semanticAnalyzer.assessIntegrityAlignment(unrelated, [], { objective });

@@ -99,20 +99,7 @@ export class SafetyGuard {
     }
   }
 
-  /**
-   * Get safety score (0-100) for an action
-   * Higher is safer
-   */
-  getSafetyScore(riskLevel: RiskLevel): number {
-    const scores = {
-      [RiskLevel.SAFE]: 100,
-      [RiskLevel.LOW]: 75,
-      [RiskLevel.MEDIUM]: 50,
-      [RiskLevel.HIGH]: 25
-    };
-    
-    return scores[riskLevel];
-  }
+
 
   /**
    * Convenience method: Convenience check for tool execution safety

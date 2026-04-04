@@ -6,6 +6,7 @@ import { TaskMapper } from '../mappers/TaskMapper';
 /**
  * [LAYER: INFRASTRUCTURE]
  * Principle: Specialized repository for Task persistence using SQLite.
+ * Namespaced with 'hive_' to avoid collision with BroccoliDB system tables.
  */
 export class SqliteTaskRepository {
   constructor(private db: Database) {}
@@ -14,22 +15,23 @@ export class SqliteTaskRepository {
    * Persists a task entity.
    */
   save(task: TaskEntity): void {
-    const values = TaskMapper.toRowValues(task);
+    const taskData = TaskMapper.toRowValues(task);
+    const id = task.id; // task_id is used as the axiomatic primary key 'id'
     const stmt = this.db.prepare(`
-      INSERT OR REPLACE INTO tasks (
-        task_id, title, objective, state, priority,
-        initial_context, sim_integrity, vitals_heartbeat, v_token,
+      INSERT OR REPLACE INTO hive_tasks (
+        id, task_id, title, objective, state, priority,
+        initial_context, vitals_heartbeat, v_token,
         completed_at, created_at, started_at, updated_at, user_agent
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
-    stmt.run(...values);
+    stmt.run(id, ...taskData);
   }
 
   /**
    * Retrieves a task by ID.
    */
   findById(taskId: TaskId): TaskEntity | null {
-    const row = this.db.prepare('SELECT * FROM tasks WHERE task_id = ?').get(taskId) as DatabaseTaskRow | undefined;
+    const row = this.db.prepare('SELECT * FROM hive_tasks WHERE task_id = ?').get(taskId) as DatabaseTaskRow | undefined;
     if (!row) return null;
     return TaskMapper.fromRow(row);
   }
@@ -40,7 +42,7 @@ export class SqliteTaskRepository {
   list(limit: number = 100): any[] {
     return this.db.prepare(`
       SELECT task_id, title, objective, state, priority, updated_at 
-      FROM tasks 
+      FROM hive_tasks 
       ORDER BY updated_at DESC 
       LIMIT ?
     `).all(limit);
@@ -50,7 +52,7 @@ export class SqliteTaskRepository {
    * Updates task state and timestamp.
    */
   updateState(taskId: TaskId, state: string): void {
-    this.db.prepare('UPDATE tasks SET state = ?, updated_at = ? WHERE task_id = ?').run(
+    this.db.prepare('UPDATE hive_tasks SET state = ?, updated_at = ? WHERE task_id = ?').run(
       state,
       Date.now(),
       taskId

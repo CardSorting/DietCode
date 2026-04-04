@@ -1,131 +1,131 @@
-import { getDb, setDbPath, dbPool, SqliteQueue } from '@noorm/broccoliq';
-import { sql } from 'kysely';
-import path from 'node:path';
-import fs from 'node:fs';
-import { JobType } from '../../../domain/system/QueueProvider';
+import * as path from 'node:path';
+import * as fs from 'node:fs';
+import { setDbPath, getDb, dbPool, SqliteQueue } from '@noorm/broccoliq';
 
-export interface DietCodeJob {
-  type: JobType;
-  payload: any;
-  priority?: number;
-}
+export type DietCodeJob = {
+    type: 'audit' | 'integrity' | 'persist';
+    taskId: string;
+    payload: any;
+};
 
-/**
- * Sovereign Hive Orchestrator (Core)
- * 
- * Gateway to the sharded, buffered persistence layer of BroccoliQ v2.0.
- * Implements the Zero-Shim pattern for high-velocity agent operations.
- */
 export class Core {
   private static isInitialized = false;
+  private static initializationPromise: Promise<void> | null = null;
   public static pool: typeof dbPool = dbPool;
   private static queue: SqliteQueue<DietCodeJob> | null = null;
 
+  /**
+   * Checks if the Sovereign Hive has been successfully initialized.
+   */
+  public static isAvailable(): boolean {
+    return this.isInitialized;
+  }
+
+  /**
+   * Core initialization hook — established the Sovereign Hive.
+   */
   static async init(dbPath?: string, ensureSchemaFn?: (db: any) => Promise<void>) {
-    if (this.isInitialized) return;
+    if (this.initializationPromise) return this.initializationPromise;
 
-    const resolvedPath = dbPath || path.resolve(process.cwd(), 'sovereign.db');
-    const lockPath = resolvedPath + '.lock';
-    
-    // Level 10 Sovereignty: Environment Calibration
-    setDbPath(resolvedPath);
+    this.initializationPromise = (async () => {
+        const resolvedPath = dbPath || path.resolve(process.cwd(), 'data', 'sovereign.db');
+        const dataDir = path.dirname(resolvedPath);
+        
+        if (!fs.existsSync(dataDir)) {
+          fs.mkdirSync(dataDir, { recursive: true });
+        }
 
-    // Pass 20: Atomic Initialization Guard (File-based)
-    let hasLock = false;
-    for (let attempts = 0; attempts < 60; attempts++) {
-        try {
-            if (!fs.existsSync(lockPath)) {
-                fs.writeFileSync(lockPath, process.pid.toString());
-                hasLock = true;
-                break;
-            } else {
-                const stats = fs.statSync(lockPath);
-                if (Date.now() - stats.mtimeMs > 30000) {
-                    try { fs.unlinkSync(lockPath); } catch (e) {}
-                    continue;
-                }
-            }
-        } catch (e) { /* Race condition */ }
-        await new Promise(r => setTimeout(r, 500));
-    }
-
-    // Pass 20: Immediate Concurrency and Deadlock Mitigation
-    const db = await getDb('main');
-    
-    // Explicit hardening remains for sovereign integrity
-    await sql`PRAGMA journal_mode=WAL;`.execute(db as any);
-    await sql`PRAGMA busy_timeout=30000;`.execute(db as any);
-
-    try {
-        if (hasLock && ensureSchemaFn) {
+        console.log(`[CORE] Initializing Sovereign Hive at: ${resolvedPath}`);
+        
+        // BroccoliQ v2: Top-level path registration
+        setDbPath(resolvedPath);
+        
+        if (ensureSchemaFn) {
+            const db = await dbPool.getDb('main');
             await ensureSchemaFn(db);
         }
-    } finally {
-        if (hasLock) {
-            try { fs.unlinkSync(lockPath); } catch (e) {}
-        }
-    }
+        
+        this.isInitialized = true;
+        console.log(`[CORE] Sovereign Hive initialized (v2.0 Architecture)`);
+    })();
 
-    this.isInitialized = true;
+    return this.initializationPromise;
+  }
+
+  /**
+   * Access the main Sovereign database instance.
+   */
+  static async db() {
+    if (!this.isInitialized && !this.initializationPromise) {
+      await this.init();
+    } else if (this.initializationPromise) {
+      await this.initializationPromise;
+    }
+    return dbPool.getDb('main');
+  }
+
+  /**
+   * Push a high-velocity data operation to the Sovereign Hive.
+   */
+  static async push(op: any) {
+    if (!this.isInitialized) {
+        await this.init();
+    }
+    return dbPool.push(op);
+  }
+
+  /**
+   * Fluid select operation from the Sovereign Hive.
+   */
+  static async selectWhere(table: string, where: any, options: any = {}) {
+    if (!this.isInitialized) {
+        await this.init();
+    }
+    return dbPool.selectWhere(table as any, where, undefined, options);
+  }
+
+  /**
+   * Lifecycle management: Shadow execution for atomic persistence.
+   */
+  static async runInShadow<T>(agentId: string, fn: () => Promise<T>): Promise<T> {
+    if (!this.isInitialized) await this.init();
     
-    // V2: Shard-aware High-Throughput Queue
-    this.queue = new SqliteQueue<DietCodeJob>({
-      shardId: 'main',
-      visibilityTimeoutMs: 60000,
-    });
-
-    console.log('[CORE] Sovereign Hive initialized (v2.0 Architecture)');
-  }
-
-  /**
-   * High-throughput write via Hive Buffer (Write-Behind)
-   * Targets Level 7 Memory Buffer first, synced to disk in heartbeats.
-   */
-  static async push(op: any, agentId?: string) {
-    if (!this.isInitialized) await this.init();
-    return this.pool.push(op, agentId);
-  }
-
-  /**
-   * Fluid read with Hive Consistency
-   * Automatically merges disk state with active memory buffers.
-   */
-  static async selectWhere(table: string, where: any, options?: any) {
-    if (!this.isInitialized) await this.init();
-    return (this.pool as any).selectWhere(table, where, undefined, options);
-  }
-
-  /**
-   * Sovereign Shadow Execution
-   * Wraps multiple operations in an atomic Agent Shadow for isolated consistency.
-   */
-  static async runInShadow<T>(agentId: string, fn: (agentId: string) => Promise<T>): Promise<T> {
-    if (!this.isInitialized) await this.init();
-    await this.pool.beginWork(agentId);
+    // BroccoliQ v2: Manual shadow lifecycle
+    await dbPool.beginWork(agentId);
     try {
-      const result = await fn(agentId);
-      await this.pool.commitWork(agentId);
-      return result;
-    } catch (e) {
-      // Shadows in v2 expire or can be explicitly cleared.
-      // We don't commit if an error occurred to maintain integrity.
-      throw e;
+        const result = await fn();
+        await dbPool.commitWork(agentId);
+        return result;
+    } catch (err) {
+        // Rollback is implicit in Zero-Shim by not committing
+        throw err;
     }
   }
 
-  static async db(shardId: string = "main") {
+  /**
+   * Access a specific database shard.
+   */
+  static async getShard(shardId: string) {
     if (!this.isInitialized) await this.init();
-    return getDb(shardId);
+    return dbPool.getDb(shardId);
   }
 
+  /**
+   * Access the Sovereign Job Queue.
+   */
   static async getQueue(): Promise<SqliteQueue<DietCodeJob>> {
-    if (!this.isInitialized) await this.init();
-    return this.queue!;
+    if (!this.queue) {
+        this.queue = new SqliteQueue<DietCodeJob>({ table: 'hive_queue' } as any);
+    }
+    return this.queue;
   }
 
+  /**
+   * Graceful shutdown of the Sovereign Hive.
+   */
   static async flush() {
     if (this.isInitialized) {
-      await this.pool.flush();
+        await dbPool.stop();
     }
   }
 }

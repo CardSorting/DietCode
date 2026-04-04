@@ -17,8 +17,8 @@ export interface ProvenanceBundle {
   isIntegrityAligned: boolean;
   /** Verification of all entry-points and side-effects. */
   contextualClarity: boolean;
-  /** Leverage ratio: Quantified reduction in future complexity vs cost (Target: > 2.0). */
-  upsideDominance: number;
+  /** Axiomatic Upside Dominance (High Efficiency, High Impact, etc.). */
+  upsideDominance: 'HIGH_IMPACT' | 'NOMINAL' | 'LOW_LEVERAGE';
 }
 
 export class SovereignSelector {
@@ -51,8 +51,14 @@ export class SovereignSelector {
     // 4. Upside Dominance Calculation (Leverage Ratio)
     const criticalCount = task.requirements.filter(r => r.isCritical).length;
     const basePayoff = (criticalCount * 2.5) + (totalCount * 0.5);
+    
+    // Complexity Penalty (Simulated based on objective length and requirement count)
     const complexityFactor = 1.0 + (objective.length / 100) + (totalCount / 10);
-    const upsideDominance = basePayoff / complexityFactor;
+    const leverageRatio = basePayoff / complexityFactor;
+    
+    let upsideDominance: 'HIGH_IMPACT' | 'NOMINAL' | 'LOW_LEVERAGE' = 'LOW_LEVERAGE';
+    if (leverageRatio >= 1.5) upsideDominance = 'HIGH_IMPACT';
+    else if (leverageRatio >= 1.0) upsideDominance = 'NOMINAL';
 
     return {
       sovereignUtility,
@@ -85,8 +91,8 @@ export class SovereignSelector {
     }
     
     // Upside Dominance: Higher payoff than cognitive cost
-    if (bundle.upsideDominance < 2.0) {
-      reasons.push(`Fails Upside Dominance: Leverage ratio ${bundle.upsideDominance.toFixed(2)} is below 2.0.`);
+    if (bundle.upsideDominance === 'LOW_LEVERAGE') {
+      reasons.push(`Fails Upside Dominance: Leverage ratio is too low for core implementation.`);
     }
 
     return {

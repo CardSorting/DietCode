@@ -115,16 +115,16 @@ export class AnthropicProvider implements LLMProvider {
       const outputCost = (completionTokens / 1_000_000) * 15.0;
       const totalCost = inputCost + outputCost;
 
-      await (db as any).insertInto('telemetry' as any)
+      await (db as any).insertInto('hive_llm_telemetry' as any)
         .values({
           id: globalThis.crypto.randomUUID(),
-          repoPath: process.cwd(),
-          agentId: agentId,
-          taskId: taskId ?? null,
-          promptTokens,
-          completionTokens,
-          totalTokens,
-          modelId: modelId,
+          repo_path: process.cwd(),
+          agent_id: agentId,
+          task_id: taskId ?? null,
+          prompt_tokens: promptTokens,
+          completion_tokens: completionTokens,
+          total_tokens: totalTokens,
+          model_id: modelId,
           cost: totalCost,
           timestamp: Date.now(),
           environment: JSON.stringify({ duration, platform: process.platform }),

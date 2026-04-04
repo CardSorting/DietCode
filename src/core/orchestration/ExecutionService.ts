@@ -157,7 +157,7 @@ export class ExecutionService {
     }
 
     console.log(`📊 Optimization session completed:`, {
-      score: report.metrics.optimizationScore.toFixed(1),
+      efficiency: report.metrics.efficiencyRating,
       savings: report.metrics.percentageSaved.toFixed(1) + '%',
       signatures: report.signatureCount,
       messages: report.recommendations.slice(0, 2)

@@ -43,7 +43,7 @@ export class OptimizationMetricsAggregator {
       // Performance indicators
       duplicateRatio: stats.duplicateReads / (stats.totalReads || 1),
       readFrequencyPerMinute: readFrequency,
-      optimizationScore: this.calculateScore(savings, stats.duplicateReads),
+      efficiencyRating: this.calculateEfficiencyRating(savings, stats.duplicateReads),
       
       // Ratios and metrics
       contextUsageRatio: contextRatio,
@@ -59,14 +59,13 @@ export class OptimizationMetricsAggregator {
   }
 
   /**
-   * Calculate optimization score (0-100)
+   * Calculate efficiency rating (Optimal, High, Nominal, Low)
    */
-  private calculateScore(savings: number, dups: number): number {
-    // Score formula: Weighted savings + duplication ratio bonus
-    const savingsScore = savings
-    const dupScore = Math.min(dups / 5, 20) // Max 20 points for handling duplicates
-    
-    return Math.min(savingsScore + dupScore, 100)
+  private calculateEfficiencyRating(savings: number, dups: number): 'OPTIMAL' | 'HIGH' | 'NOMINAL' | 'LOW' {
+    if (savings > 50 || (savings > 30 && dups > 10)) return 'OPTIMAL';
+    if (savings > 30 || (savings > 20 && dups > 5)) return 'HIGH';
+    if (savings > 10) return 'NOMINAL';
+    return 'LOW';
   }
 
   /**
@@ -181,7 +180,7 @@ export interface SessionMetrics {
   effectiveSavingsKB: number
   duplicateRatio: number
   readFrequencyPerMinute: number
-  optimizationScore: number
+  efficiencyRating: string
   contextUsageRatio: number
   optimizationTriggerStatus: TriggerStatus
   sessionDurationMs: number
@@ -203,7 +202,7 @@ export interface DisplayMetrics {
   effectiveSavingsKB: string
   duplicateRatio: number
   readFrequencyPerMinute: number
-  optimizationScore: number
+  efficiencyRating: string
   contextUsageRatio: number
   optimizationTriggerStatus: TriggerStatus
   sessionDurationMs: number

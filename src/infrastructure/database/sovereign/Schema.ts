@@ -3,10 +3,12 @@ import { sql } from 'kysely';
 export class Schema {
   /**
    * Internal schema management — handles idempotent table and index creation.
+   * Axiomatic Finality: Domain tables are namespaced with 'hive_' to avoid
+   * collisions with BroccoliDB system tables.
    */
   static async ensureSchema(db: any) {
     await db.schema
-      .createTable('knowledge_base')
+      .createTable('hive_kb')
       .ifNotExists()
       .addColumn('id', 'text', (col: any) => col.primaryKey())
       .addColumn('knowledge_key', 'text', (col: any) => col.notNull())
@@ -15,25 +17,25 @@ export class Schema {
       .addColumn('confidence', 'float8', (col: any) => col.notNull())
       .addColumn('tags', 'text', (col: any) => col.notNull())
       .addColumn('metadata', 'text')
-      .addColumn('createdAt', 'text', (col: any) => col.notNull())
+      .addColumn('created_at', 'text', (col: any) => col.notNull())
       .execute();
 
     await db.schema
-      .createTable('healing_proposals')
+      .createTable('hive_healing_proposals')
       .ifNotExists()
       .addColumn('id', 'text', (col: any) => col.primaryKey())
-      .addColumn('violationId', 'text', (col: any) => col.notNull())
-      .addColumn('violation', 'text', (col: any) => col.notNull()) // JSON string
+      .addColumn('violation_id', 'text', (col: any) => col.notNull())
+      .addColumn('violation', 'text', (col: any) => col.notNull())
       .addColumn('rationale', 'text', (col: any) => col.notNull())
-      .addColumn('proposedCode', 'text', (col: any) => col.notNull())
+      .addColumn('proposed_code', 'text', (col: any) => col.notNull())
       .addColumn('status', 'text', (col: any) => col.notNull())
       .addColumn('confidence', 'float8', (col: any) => col.defaultTo(1.0))
-      .addColumn('createdAt', 'text', (col: any) => col.notNull())
-      .addColumn('appliedAt', 'text')
+      .addColumn('created_at', 'text', (col: any) => col.notNull())
+      .addColumn('applied_at', 'text')
       .execute();
 
     await db.schema
-      .createTable('snapshots' as any)
+      .createTable('hive_snapshots' as any)
       .ifNotExists()
       .addColumn('id', 'text', (col: any) => col.primaryKey())
       .addColumn('path', 'text', (item: any) => item.notNull())
@@ -44,22 +46,23 @@ export class Schema {
       .execute();
 
     await db.schema
-      .createTable('file_context')
+      .createTable('hive_file_context')
       .ifNotExists()
-      .addColumn('path', 'text', (col: any) => col.primaryKey())
+      .addColumn('id', 'text', (col: any) => col.primaryKey())
+      .addColumn('path', 'text', (col: any) => col.notNull())
       .addColumn('state', 'text', (col: any) => col.notNull())
       .addColumn('source', 'text', (col: any) => col.notNull())
-      .addColumn('lastReadDate', 'int8')
-      .addColumn('lastEditDate', 'int8')
+      .addColumn('last_read_date', 'int8')
+      .addColumn('last_edit_date', 'int8')
       .addColumn('signature', 'text')
-      .addColumn('externalEditDetected', 'boolean', (col: any) => col.defaultTo(false))
+      .addColumn('external_edit_detected', 'boolean', (col: any) => col.defaultTo(false))
       .execute();
 
     await db.schema
-      .createTable('audit_log')
+      .createTable('hive_audit')
       .ifNotExists()
       .addColumn('id', 'text', (col: any) => col.primaryKey())
-      .addColumn('sessionId', 'text')
+      .addColumn('session_id', 'text')
       .addColumn('type', 'text', (col: any) => col.notNull())
       .addColumn('message', 'text', (col: any) => col.notNull())
       .addColumn('data', 'text')
@@ -67,17 +70,17 @@ export class Schema {
       .execute();
 
     await db.schema
-      .createTable('agent_sessions')
+      .createTable('hive_agent_sessions')
       .ifNotExists()
       .addColumn('id', 'text', (col: any) => col.primaryKey())
-      .addColumn('agentId', 'text', (item: any) => item.notNull())
+      .addColumn('agent_id', 'text', (item: any) => item.notNull())
       .addColumn('status', 'text', (item: any) => item.notNull())
-      .addColumn('startTime', 'int8', (item: any) => item.notNull())
-      .addColumn('endTime', 'int8')
+      .addColumn('start_time', 'int8', (item: any) => item.notNull())
+      .addColumn('end_time', 'int8')
       .execute();
 
     await db.schema
-      .createTable('joy_imports')
+      .createTable('hive_joy_imports')
       .ifNotExists()
       .addColumn('id', 'text', (col: any) => col.primaryKey())
       .addColumn('source_path', 'text', (col: any) => col.notNull())
@@ -85,39 +88,38 @@ export class Schema {
       .execute();
 
     await db.schema
-      .createTable('joy_history')
+      .createTable('hive_joy_history')
       .ifNotExists()
       .addColumn('id', 'text', (col: any) => col.primaryKey())
-      .addColumn('score', 'float8', (col: any) => col.notNull())
       .addColumn('violation_count', 'integer', (col: any) => col.notNull())
       .addColumn('file_count', 'integer', (col: any) => col.notNull())
       .addColumn('timestamp', 'int8', (col: any) => col.notNull())
       .execute();
 
     await db.schema
-      .createIndex('idx_joy_imports_source')
+      .createTable('hive_metabolic_telemetry')
       .ifNotExists()
-      .on('joy_imports')
-      .column('source_path')
+      .addColumn('id', 'text', (col: any) => col.primaryKey())
+      .addColumn('task_id', 'text')
+      .addColumn('reads', 'integer', (col: any) => col.notNull())
+      .addColumn('writes', 'integer', (col: any) => col.notNull())
+      .addColumn('lines_added', 'integer', (col: any) => col.notNull())
+      .addColumn('lines_deleted', 'integer', (col: any) => col.notNull())
+      .addColumn('tokens_processed', 'integer', (col: any) => col.notNull())
+      .addColumn('verifications_success', 'integer', (col: any) => col.notNull())
+      .addColumn('timestamp', 'int8', (col: any) => col.notNull())
       .execute();
 
     await db.schema
-      .createIndex('idx_joy_imports_imported')
+      .createTable('hive_tasks')
       .ifNotExists()
-      .on('joy_imports')
-      .column('imported_path')
-      .execute();
-
-    await db.schema
-      .createTable('tasks')
-      .ifNotExists()
-      .addColumn('task_id', 'text', (col: any) => col.primaryKey())
+      .addColumn('id', 'text', (col: any) => col.primaryKey())
+      .addColumn('task_id', 'text', (col: any) => col.unique().notNull())
       .addColumn('title', 'text', (col: any) => col.notNull())
       .addColumn('objective', 'text', (col: any) => col.notNull())
       .addColumn('state', 'text', (col: any) => col.notNull())
       .addColumn('priority', 'integer', (col: any) => col.notNull())
-      .addColumn('sim_integrity', 'float8')
-      .addColumn('vitals_heartbeat', 'text') // JSON
+      .addColumn('vitals_heartbeat', 'text')
       .addColumn('v_token', 'text')
       .addColumn('initial_context', 'text')
       .addColumn('created_at', 'int8', (col: any) => col.notNull())
@@ -127,75 +129,46 @@ export class Schema {
       .addColumn('user_agent', 'text', (col: any) => col.notNull())
       .execute();
 
-    // Pass 17: Telemetry & Metabolic Infrastructure
     await db.schema
-      .createTable('telemetry' as any)
+      .createTable('hive_llm_telemetry')
       .ifNotExists()
       .addColumn('id', 'text', (col: any) => col.primaryKey())
-      .addColumn('repoPath', 'text', (col: any) => col.notNull())
-      .addColumn('agentId', 'text', (col: any) => col.notNull())
-      .addColumn('taskId', 'text')
-      .addColumn('promptTokens', 'integer')
-      .addColumn('completionTokens', 'integer')
-      .addColumn('totalTokens', 'integer')
-      .addColumn('modelId', 'text')
+      .addColumn('repo_path', 'text', (col: any) => col.notNull())
+      .addColumn('agent_id', 'text', (col: any) => col.notNull())
+      .addColumn('task_id', 'text')
+      .addColumn('prompt_tokens', 'integer')
+      .addColumn('completion_tokens', 'integer')
+      .addColumn('total_tokens', 'integer')
+      .addColumn('model_id', 'text')
       .addColumn('cost', 'float8')
       .addColumn('timestamp', 'int8', (col: any) => col.notNull())
       .addColumn('environment', 'text')
       .execute();
 
     await db.schema
-      .createTable('metabolic_telemetry' as any)
+      .createTable('hive_joy_metrics')
       .ifNotExists()
       .addColumn('id', 'text', (col: any) => col.primaryKey())
-      .addColumn('taskId', 'text')
-      .addColumn('tokensProcessed', 'integer')
-      .addColumn('verificationsSuccess', 'integer')
-      .addColumn('linesAdded', 'integer')
-      .addColumn('linesDeleted', 'integer')
-      .addColumn('reads', 'integer')
-      .addColumn('writes', 'integer')
-      .addColumn('cognitiveHeat', 'float8')
-      .addColumn('architecturalDecay', 'float8')
-      .addColumn('doubtSignal', 'float8')
-      .addColumn('timestamp', 'int8', (col: any) => col.notNull())
-      .execute();
-
-    await db.schema
-      .createIndex('idx_telemetry_taskId')
-      .ifNotExists()
-      .on('telemetry' as any)
-      .column('taskId')
-      .execute();
-
-    await db.schema
-      .createIndex('idx_metabolic_taskId')
-      .ifNotExists()
-      .on('metabolic_telemetry' as any)
-      .column('taskId')
-      .execute();
-
-    await db.schema
-      .createTable('joy_metrics' as any)
-      .ifNotExists()
-      .addColumn('path', 'text', (col: any) => col.primaryKey())
+      .addColumn('path', 'text', (col: any) => col.notNull())
       .addColumn('violation_count', 'integer', (col: any) => col.notNull())
       .addColumn('hash', 'text', (col: any) => col.notNull())
       .addColumn('last_scanned', 'int8', (col: any) => col.notNull())
       .execute();
 
     await db.schema
-      .createTable('joy_bypasses')
+      .createTable('hive_joy_bypasses')
       .ifNotExists()
-      .addColumn('path', 'text', (col: any) => col.primaryKey())
+      .addColumn('id', 'text', (col: any) => col.primaryKey())
+      .addColumn('path', 'text', (col: any) => col.notNull())
       .addColumn('violation_type', 'text', (col: any) => col.notNull())
       .addColumn('timestamp', 'int8', (col: any) => col.notNull())
       .execute();
 
-    await (db as any).schema
-      .createTable('locks' as any)
+    await db.schema
+      .createTable('hive_locks')
       .ifNotExists()
-      .addColumn('resource', 'text', (col: any) => col.primaryKey())
+      .addColumn('id', 'text', (col: any) => col.primaryKey())
+      .addColumn('resource', 'text', (col: any) => col.notNull())
       .addColumn('owner_id', 'text', (col: any) => col.notNull())
       .addColumn('lock_code', 'text', (col: any) => col.notNull())
       .addColumn('expires_at', 'int8', (col: any) => col.notNull())
@@ -203,63 +176,34 @@ export class Schema {
       .execute();
 
     await db.schema
-      .createTable('integrity_shard_results' as any)
-      .ifNotExists()
-      .addColumn('id', 'text', (col: any) => col.primaryKey())
-      .addColumn('correlationId', 'text', (col: any) => col.notNull())
-      .addColumn('shardId', 'integer', (col: any) => col.notNull())
-      .addColumn('status', 'text', (col: any) => col.notNull())
-      .addColumn('result', 'text') // JSON
-      .addColumn('error', 'text')
-      .addColumn('timestamp', 'int8', (col: any) => col.notNull())
-      .execute();
-
-    await db.schema
-      .createIndex('idx_integrity_correlation')
-      .ifNotExists()
-      .on('integrity_shard_results' as any)
-      .column('correlationId')
-      .execute();
-
-    await db.schema
-      .createTable('sovereign_tasks' as any)
+      .createTable('hive_queue')
       .ifNotExists()
       .addColumn('id', 'text', (col: any) => col.primaryKey())
       .addColumn('type', 'text', (col: any) => col.notNull())
       .addColumn('status', 'text', (col: any) => col.notNull())
       .addColumn('total_shards', 'integer', (col: any) => col.notNull())
       .addColumn('completed_shards', 'integer', (col: any) => col.defaultTo(0))
-      .addColumn('metadata', 'text') // JSON
+      .addColumn('metadata', 'text')
       .addColumn('created_at', 'int8', (col: any) => col.notNull())
       .addColumn('updated_at', 'int8', (col: any) => col.notNull())
       .execute();
 
     await db.schema
-      .createTable('job_results' as any)
+      .createTable('hive_job_results')
       .ifNotExists()
       .addColumn('id', 'text', (col: any) => col.primaryKey())
-      .addColumn('taskId', 'text', (col: any) => col.notNull())
-      .addColumn('shardId', 'integer', (col: any) => col.notNull())
+      .addColumn('task_id', 'text', (col: any) => col.notNull())
+      .addColumn('shard_id', 'integer', (col: any) => col.notNull())
       .addColumn('status', 'text', (col: any) => col.notNull())
-      .addColumn('payload', 'text') // JSON result
+      .addColumn('payload', 'text')
       .addColumn('error', 'text')
       .addColumn('priority', 'integer', (col: any) => col.defaultTo(0))
       .addColumn('timestamp', 'int8', (col: any) => col.notNull())
       .execute();
 
-    await db.schema
-      .createTable('scoring_cache' as any)
-      .ifNotExists()
-      .addColumn('hash', 'text', (col: any) => col.primaryKey())
-      .addColumn('result', 'text', (col: any) => col.notNull()) // JSON
-      .addColumn('timestamp', 'int8', (col: any) => col.notNull())
-      .execute();
-
-    await db.schema
-      .createIndex('idx_job_results_task')
-      .ifNotExists()
-      .on('job_results' as any)
-      .column('taskId')
-      .execute();
+    // Axiosmatic Index Finality
+    await db.schema.createIndex('idx_hive_telemetry_task').ifNotExists().on('hive_llm_telemetry').column('task_id').execute();
+    await db.schema.createIndex('idx_hive_metabolic_task').ifNotExists().on('hive_metabolic_telemetry').column('task_id').execute();
+    await db.schema.createIndex('idx_hive_kb_key').ifNotExists().on('hive_kb').column('knowledge_key').execute();
   }
 }

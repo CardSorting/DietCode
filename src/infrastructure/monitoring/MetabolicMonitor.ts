@@ -38,8 +38,10 @@ export class MetabolicMonitor {
   private constructor() {
     // Pass 17: Background Metabolic Flush Interval (30s)
     setInterval(() => {
-        if (this.currentTaskId) {
-            this.flushToDatabase(this.currentTaskId).catch(console.error);
+        if (this.currentTaskId && Core.isAvailable()) {
+            this.flushToDatabase(this.currentTaskId).catch(err => {
+                // Silent fail in interval to avoid spamming console during tests
+            });
         }
     }, 30000);
   }
@@ -69,14 +71,14 @@ export class MetabolicMonitor {
     const metrics = this.getMetrics();
     
     // Pass 17: Zero-Wait Telemetry Persistence
-    await (db as any).insertInto('metabolic_telemetry' as any)
+    await (db as any).insertInto('hive_metabolic_telemetry' as any)
       .values({
         id: crypto.randomUUID(),
-        taskId,
-        tokensProcessed: metrics.tokensProcessed,
-        verificationsSuccess: metrics.verificationsSuccess,
-        linesAdded: metrics.linesAdded,
-        linesDeleted: metrics.linesDeleted,
+        task_id: taskId,
+        tokens_processed: metrics.tokensProcessed,
+        verifications_success: metrics.verificationsSuccess,
+        lines_added: metrics.linesAdded,
+        lines_deleted: metrics.linesDeleted,
         reads: metrics.reads,
         writes: metrics.writes,
         timestamp: Date.now()

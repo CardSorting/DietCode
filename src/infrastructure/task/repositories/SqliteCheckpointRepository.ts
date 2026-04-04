@@ -3,10 +3,12 @@ import type { TaskId } from '../../../domain/task/TaskEntity';
 import type { CheckpointId, ImplementationSnapshot } from '../../../domain/task/ImplementationSnapshot';
 import { CheckpointMapper } from '../mappers/CheckpointMapper';
 import type { DatabaseCheckpointRow } from '../PersistenceSchema';
+import * as crypto from 'node:crypto';
 
 /**
  * [LAYER: INFRASTRUCTURE]
  * Principle: Specialized repository for Checkpoint persistence using SQLite.
+ * Namespaced with 'hive_' to avoid collision with BroccoliDB system tables.
  */
 export class SqliteCheckpointRepository {
   constructor(private db: Database) {}
@@ -16,16 +18,18 @@ export class SqliteCheckpointRepository {
    */
   save(snapshot: ImplementationSnapshot): void {
     const values = CheckpointMapper.toRowValues(snapshot);
+    const id = snapshot.id || crypto.randomUUID(); // Axiomatic Primary Key
+    
     const stmt = this.db.prepare(`
-      INSERT INTO checkpoints (
-        checkpoint_id, task_id, timestamp, completed_requirements,
+      INSERT OR REPLACE INTO hive_checkpoints (
+        id, checkpoint_id, task_id, timestamp, completed_requirements,
         pending_requirements, semantic_health,
         output_hash, output_size_bytes,
         state, tokens_processed, trigger, previous_snapshot_id,
         user_confirmation_required, drift_reason
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
-    stmt.run(...values);
+    stmt.run(id, ...values);
   }
 
   /**
@@ -33,7 +37,7 @@ export class SqliteCheckpointRepository {
    */
   findById(taskId: TaskId, checkpointId: CheckpointId): ImplementationSnapshot | null {
     const row = this.db.prepare(`
-      SELECT * FROM checkpoints 
+      SELECT * FROM hive_checkpoints 
       WHERE task_id = ? AND checkpoint_id = ?
     `).get(taskId, checkpointId) as DatabaseCheckpointRow | undefined;
     if (!row) return null;
@@ -45,7 +49,7 @@ export class SqliteCheckpointRepository {
    */
   findByTaskId(taskId: TaskId, limit: number = 5): ImplementationSnapshot[] {
     const rows = this.db.prepare(`
-      SELECT * FROM checkpoints 
+      SELECT * FROM hive_checkpoints 
       WHERE task_id = ? 
       ORDER BY timestamp DESC 
       LIMIT ?
@@ -63,7 +67,7 @@ export class SqliteCheckpointRepository {
         MAX(timestamp) as newest_timestamp,
         COUNT(DISTINCT task_id) as task_count,
         COUNT(*) as checkpoint_count
-      FROM checkpoints
+      FROM hive_checkpoints
     `).get();
   }
 }

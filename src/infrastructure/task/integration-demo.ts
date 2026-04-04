@@ -33,8 +33,16 @@ async function demonstrateDriftPrevention() {
   const dbPath = path.join(process.cwd(), 'data', 'demo-checkpoints.db');
   const sovereignDbPath = path.join(process.cwd(), 'data', 'demo-sovereign.db');
   
-  if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
-  if (fs.existsSync(sovereignDbPath)) fs.unlinkSync(sovereignDbPath);
+  const cleanup = (p: string) => {
+    [p, `${p}-wal`, `${p}-shm`].forEach(f => {
+      if (fs.existsSync(f)) fs.unlinkSync(f);
+    });
+  };
+
+  cleanup(dbPath);
+  cleanup(sovereignDbPath);
+  cleanup(path.join(process.cwd(), 'data', 'diet-code-checkpoints.db'));
+  cleanup(path.join(process.cwd(), 'sovereign.db'));
 
   const persistence = new CheckpointPersistenceAdapter(dbPath);
   const semanticAnalyzer = new SemanticIntegrityAnalyser();
@@ -73,11 +81,11 @@ Implement a production-hardened drift detection system for core infrastructure.
 - [ ] The system must implement SQLite-backed persistence for checkpoints
     - Verification: Check for .db file creation and data integrity
 - [ ] The system must create a semantic similarity engine using n-grams
-    - Verification: Compare similarity scores against target values
+    - Verification: Compare axiomatic resonance against mission baseline
 - [ ] The system must build a consistency validator for markdown artifacts
     - Verification: Validate malformed markdown and ensure error counts match
 - [ ] The system must add drift detection orchestration logic
-    - Verification: Trigger auto-checkpoints when drift exceed thresholds
+    - Verification: Trigger auto-checkpoints when axioms indicate mission drift
 `.trim();
 
   // Validate the task using real logic

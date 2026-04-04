@@ -1,15 +1,18 @@
 /**
  * [LAYER: INFRASTRUCTURE]
  * Principle: Centralized schema and row definitions for task/checkpoint persistence.
+ * Axiomatic Finality: Domain tables are namespaced with 'hive_' to avoid
+ * collisions with BroccoliDB system tables.
  */
 
 export interface DatabaseCheckpointRow {
+  id: string; // Axiomatic Primary Key
   checkpoint_id: string;
   task_id: string;
   timestamp: number;
-  completed_requirements: string;
-  pending_requirements: string;
-  semantic_health: string;
+  completed_requirements: string; // JSON
+  pending_requirements: string; // JSON
+  semantic_health: string; // JSON
   output_hash: string;
   output_size_bytes: number;
   state: string;
@@ -21,13 +24,13 @@ export interface DatabaseCheckpointRow {
 }
 
 export interface DatabaseTaskRow {
+  id: string; // Axiomatic Primary Key
   task_id: string;
   title: string;
   objective: string;
   state: string;
   priority: string;
   initial_context: string;
-  sim_integrity: string | null; // JSON for AxiomProfile
   vitals_heartbeat: string | null; // JSON
   v_token: string | null;
   completed_at: number | null;
@@ -38,15 +41,15 @@ export interface DatabaseTaskRow {
 }
 
 export const INITIAL_SCHEMA = `
-  -- Tasks table
-  CREATE TABLE IF NOT EXISTS tasks (
-    task_id TEXT PRIMARY KEY,
+  -- Tasks table (Namespaced)
+  CREATE TABLE IF NOT EXISTS hive_tasks (
+    id TEXT PRIMARY KEY,
+    task_id TEXT NOT NULL UNIQUE,
     title TEXT NOT NULL,
     objective TEXT NOT NULL,
     state TEXT NOT NULL,
     priority TEXT NOT NULL,
     initial_context TEXT DEFAULT '',
-    sim_integrity TEXT,
     vitals_heartbeat TEXT,
     v_token TEXT,
     completed_at INTEGER,
@@ -56,9 +59,10 @@ export const INITIAL_SCHEMA = `
     user_agent TEXT NOT NULL
   );
 
-  -- Checkpoints table
-  CREATE TABLE IF NOT EXISTS checkpoints (
-    checkpoint_id TEXT PRIMARY KEY,
+  -- Checkpoints table (Namespaced)
+  CREATE TABLE IF NOT EXISTS hive_checkpoints (
+    id TEXT PRIMARY KEY,
+    checkpoint_id TEXT NOT NULL UNIQUE,
     task_id TEXT NOT NULL,
     timestamp INTEGER NOT NULL,
     completed_requirements TEXT NOT NULL,
@@ -72,10 +76,10 @@ export const INITIAL_SCHEMA = `
     previous_snapshot_id TEXT,
     user_confirmation_required INTEGER DEFAULT 0,
     drift_reason TEXT,
-    FOREIGN KEY (task_id) REFERENCES tasks(task_id)
+    FOREIGN KEY (task_id) REFERENCES hive_tasks(task_id)
   );
 
-  -- Indexes
-  CREATE INDEX IF NOT EXISTS idx_tasks_state ON tasks(state);
-  CREATE INDEX IF NOT EXISTS idx_checkpoints_task_timestamp ON checkpoints(task_id, timestamp DESC);
+  -- Axiomatic Indexes
+  CREATE INDEX IF NOT EXISTS idx_hive_tasks_state ON hive_tasks(state);
+  CREATE INDEX IF NOT EXISTS idx_hive_checkpoints_task_timestamp ON hive_checkpoints(task_id, timestamp DESC);
 `;

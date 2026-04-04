@@ -20,7 +20,6 @@ export class TaskMapper {
       initialContext: row.initial_context,
       state: row.state as TaskState,
       priority: parseInt(row.priority) as TaskPriority,
-      simAxiomProfile: row.sim_integrity ? JSON.parse(row.sim_integrity) : undefined,
       vitalsHeartbeat: row.vitals_heartbeat ? JSON.parse(row.vitals_heartbeat) : undefined,
       vToken: row.v_token ?? undefined,
       constraintViolations: [],
@@ -37,8 +36,8 @@ export class TaskMapper {
   /**
    * Converts a TaskEntity to a value array for SQL INSERT/REPLACE.
    * Order must match: task_id, title, objective, state, priority, initial_context,
-   * sim_integrity, vitals_heartbeat, v_token, completed_at, created_at, started_at,
-   * updated_at, user_agent
+   *   vitals_heartbeat, v_token, completed_at, created_at, started_at,
+   *   updated_at, user_agent
    */
   static toRowValues(task: TaskEntity): any[] {
     return [
@@ -48,7 +47,6 @@ export class TaskMapper {
       task.state,
       task.priority.toString(),
       task.initialContext,
-      task.simAxiomProfile ? JSON.stringify(task.simAxiomProfile) : null,
       task.vitalsHeartbeat ? JSON.stringify(task.vitalsHeartbeat) : null,
       task.vToken || null,
       task.metadata.completedAt?.getTime() || null,
