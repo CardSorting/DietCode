@@ -25,8 +25,20 @@ export class TerminalUI implements TerminalInterface {
     this.adapter.logUsage(command);
   }
 
-  async promptUser(): Promise<string> {
-    return this.adapter.promptUser();
+  logSuccess(message: string) {
+    this.adapter.logSuccess(message);
+  }
+
+  logInfo(message: string) {
+    this.adapter.logInfo(message);
+  }
+
+  async promptUser(query?: string): Promise<string> {
+    return this.adapter.promptUser(query);
+  }
+
+  async promptSecret(query: string): Promise<string> {
+    return this.adapter.promptSecret(query);
   }
 
   close() {

@@ -9,7 +9,10 @@ export interface TerminalInterface {
   logToolUse(name: string, input: any): void;
   logError(message: string): void;
   logUsage(command: string): void;
-  promptUser(): Promise<string>;
+  logSuccess(message: string): void;
+  logInfo(message: string): void;
+  promptUser(query?: string): Promise<string>;
+  promptSecret(query: string): Promise<string>;
   close(): void;
   clear(): void;
 }

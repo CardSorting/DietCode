@@ -40,6 +40,7 @@ import {
 import { createGrepTool } from './src/infrastructure/tools/grep';
 import { createMkdirTool } from './src/infrastructure/tools/mkdir';
 import { TerminalUI } from './src/ui/terminal';
+import { BootstrapService } from './src/core/setup/BootstrapService';
 
 async function main() {
   // Initialize logger with proper dependency injection
@@ -50,17 +51,17 @@ async function main() {
   const terminalAdapter = new NodeTerminalAdapter(logger);
   const ui = new TerminalUI(terminalAdapter);
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  const cfAccountId = process.env.CLOUDFLARE_ACCOUNT_ID;
-  const cfApiToken = process.env.CLOUDFLARE_API_TOKEN;
-
-  if (!apiKey && (!cfAccountId || !cfApiToken)) {
-    ui.logError('Neither ANTHROPIC_API_KEY nor CLOUDFLARE (ACCOUNT_ID/API_TOKEN) are set');
-    process.exit(1);
-  }
-
   // Initialize Core Infrastructure
   const fs = new FileSystemAdapter();
+
+  // Triple Down: Sovereign Onboarding & Setup
+  const bootstrap = new BootstrapService(fs, ui);
+  const config = await bootstrap.bootstrap();
+
+  const apiKey = config.anthropicApiKey;
+  const cfAccountId = config.cloudflareAccountId;
+  const cfApiToken = config.cloudflareApiToken;
+
   const systemAdapter = new NodeSystemAdapter(fs, logger);
 
   // Initialize Database infrastructure
@@ -85,7 +86,11 @@ async function main() {
     });
   } else {
     console.log('[CORE] Initializing Anthropic Provider');
-    provider = new AnthropicProvider(apiKey!, logger);
+    if (!apiKey) {
+      ui.logError('Anthropic API Key is missing. This should have been caught by bootstrap.');
+      process.exit(1);
+    }
+    provider = new AnthropicProvider(apiKey, logger);
   }
 
   // Triple Down: Sovereign Memory & Swarm Handover
