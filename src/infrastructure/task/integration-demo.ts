@@ -56,6 +56,26 @@ async function demonstrateDriftPrevention() {
   
   // Pass 18: Initialize Sovereign Worker Proxy
   const logService = new ConsoleLoggerAdapter();
+
+  // --- LEGACY SIMULATION: Force Nuclear Patching ---
+  console.log('🧪 Simulating legacy schema environment...');
+  const Database = (await import('better-sqlite3')).default;
+  const legacyDb = new Database(sovereignDbPath);
+  
+  // Create tables WITHOUT 'id' to force patching
+  legacyDb.exec(`
+    CREATE TABLE queue_settings (key TEXT PRIMARY KEY, value TEXT, updatedAt BIGINT);
+    CREATE TABLE settings (key TEXT PRIMARY KEY, value TEXT, updatedAt BIGINT);
+    CREATE TABLE branches (repoPath TEXT, name TEXT, head TEXT, PRIMARY KEY(repoPath, name));
+    CREATE TABLE claims (repoPath TEXT, branch TEXT, path TEXT, PRIMARY KEY(repoPath, branch, path));
+    
+    -- Insert some dummy data to verify migration
+    INSERT INTO queue_settings (key, value, updatedAt) VALUES ('maintenance_mode', 'false', ${Date.now()});
+    INSERT INTO settings (key, value, updatedAt) VALUES ('system_version', '1.0.0-legacy', ${Date.now()});
+  `);
+  legacyDb.close();
+  // ------------------------------------------------
+
   await Core.init(sovereignDbPath, Schema.ensureSchema.bind(Schema));
   const queueAdapter = new BroccoliQueueAdapter();
   const orchestrator = new DriftDetectionOrchestrator(

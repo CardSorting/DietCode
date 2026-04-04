@@ -272,7 +272,7 @@ export class Schema {
 
             // STEP 6: Delete template row
             await this.withTimeout(
-                this.withDbExecute(db, CompiledQuery.raw(`DELETE FROM ${tableName}_new`)),
+                this.withDbExecute(db, CompiledQuery.raw(`DELETE FROM ${tableName}_new WHERE id = '${idValue}'`)),
                 Math.min(timeoutMs, 500),
                 `Delete template row`
             );
