@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import { COLORS, ICONS } from '../design/Theme';
+import { CinematicRenderer } from './CinematicRenderer';
 
 /**
  * Pure layout functions for branding and splash elements.
@@ -24,6 +25,27 @@ export const SplashRenderer = {
       `  ${icon[3]}   ${version}`,
       `  ${icon[4]}`,
     ].join('\n');
+  },
+
+  /**
+   * Performs a cinematic boot sequence.
+   */
+  async bootSequence(): Promise<void> {
+    const diagnostics = [
+      'INIT: Sovereign Kernel [OK]',
+      'SYNC: Hive Memory Core [OK]',
+      'SCAN: Agent Phantoms [8 FOUND]',
+      'BOOT: DietCode OS v2.0...',
+    ];
+
+    for (const msg of diagnostics) {
+      await CinematicRenderer.typewriter(COLORS.MUTED(`[DEBUG] ${msg}`), 5);
+      await new Promise(r => setTimeout(r, 50));
+    }
+
+    console.log('\n');
+    await CinematicRenderer.revealLines(this.renderSplash().split('\n'), 50);
+    console.log('\n');
   },
 
   /**

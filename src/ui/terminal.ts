@@ -7,24 +7,47 @@
 import type { TerminalInterface, HudData } from '../domain/system/TerminalInterface';
 import { Hud } from './components/Hud';
 import { BoxRenderer } from './renderers/BoxRenderer';
+import { CinematicRenderer } from './renderers/CinematicRenderer';
+import { MetabolicRenderer } from './renderers/MetabolicRenderer';
+import { AuthSequence } from './components/AuthSequence';
+import { COLORS } from './design/Theme';
 
 export class TerminalUI implements TerminalInterface {
   private hud: Hud;
+  private auth: AuthSequence;
+  private currentHeat = 0;
 
   constructor(private terminal: TerminalInterface) {
     this.hud = new Hud();
+    this.auth = new AuthSequence();
+    this.hud.startHeartbeat();
   }
 
-  logClaude(text: string) {
-    this.terminal.logClaude(text);
+  /**
+   * High-Immersion Boot Sequence.
+   */
+  async init(userName: string) {
+    await this.auth.authenticate(userName);
+  }
+
+  async logClaude(text: string) {
+    const cleanText = text.trim() ? text : '(No response)';
+    // Cinematic reveal with ambient drift
+    const header = MetabolicRenderer.ambientDrift('\n[ CLAUDE-3.7 SIGNAL ]\n', Date.now() / 1000);
+    await CinematicRenderer.hardType(header, 5);
+    console.log(BoxRenderer.render('SOVEREIGN TRANSMISSION', cleanText, this.currentHeat > 50 ? 'WARNING' : 'SUCCESS'));
   }
 
   logToolUse<T = void>(name: string, input: T) {
+    // Waveform visualization for tool usage
+    console.log(MetabolicRenderer.renderWaveform(0.5));
     this.terminal.logToolUse(name, input);
   }
 
   logError(message: string) {
-    this.terminal.logError(message);
+    // Glitch effect and metabolic shift
+    console.error(COLORS.GLITCH('\n CRITICAL ERROR '), message);
+    this.currentHeat = Math.min(100, this.currentHeat + 20);
   }
 
   logUsage(command: string) {
@@ -32,24 +55,23 @@ export class TerminalUI implements TerminalInterface {
   }
 
   logSuccess(message: string) {
-    this.terminal.logSuccess(message);
+    const successHeader = MetabolicRenderer.ambientDrift('\n SUCCESS: ', Date.now() / 1000);
+    console.log(successHeader, COLORS.HIGHLIGHT(message));
+    this.currentHeat = Math.max(0, this.currentHeat - 10);
   }
 
   logInfo(message: string) {
-    this.terminal.logInfo(message);
+    console.log(COLORS.PRIMARY('\n INFO: '), message);
   }
 
   renderHud(data: HudData) {
-    const rendered = this.hud.render(data);
-    this.terminal.renderHud(data); // Legacy delegating for now, or we could pass the string if the interface supported it.
-    // Actually, TerminalInterface.renderHud(data: HudData) usually means it handles the rendering.
-    // But TerminalUI is a wrapper. If we want TerminalUI to be the "Root", it should probably handle the string generation.
-    // Let's assume the underlying terminal (adapter) handles the actual I/O.
+    // Inject the pulse indicator from the component heartbeat
+    const pulse = this.hud.getPulseIndicator();
+    // In a real terminal, we would update the rendered buffer.
+    this.terminal.renderHud(data);
   }
 
   drawBox(title: string, content: string, color?: string) {
-    // TerminalUI can now use BoxRenderer directly if it wants to "compose" things,
-    // but typically it delegates I/O to the adapter.
     this.terminal.drawBox(title, content, color);
   }
 
@@ -62,10 +84,11 @@ export class TerminalUI implements TerminalInterface {
   }
 
   close() {
+    this.hud.stopHeartbeat();
     this.terminal.close();
   }
 
-  clear() {
-    this.terminal.clear();
+  async clear() {
+    await CinematicRenderer.wipe();
   }
 }
