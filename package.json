@@ -1,12 +1,16 @@
 {
-  "name": "dietcode",
-  "version": "1.0.0",
-  "description": "DietCode - Sovereign Tooling & Agent Orchestration Infrastructure",
-  "module": "index.ts",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "name": "@noorm/broccoliq",
+  "version": "2.0.0",
   "type": "module",
-  "private": true,
+  "private": false,
+  "description": "BroccoliQ - Sharded Sovereign Hive Architecture (Level 10 Persistence)",
+  "main": "./dist/infrastructure/index.js",
+  "types": "./dist/infrastructure/index.d.ts",
+  "exports": {
+    ".": "./dist/infrastructure/index.js",
+    "./pool": "./dist/infrastructure/db/pool/index.js",
+    "./queue": "./dist/infrastructure/queue/SqliteQueue.js"
+  },
   "files": [
     "dist",
     "README.md",
@@ -15,43 +19,35 @@
     "CODE_OF_CONDUCT.md",
     "SECURITY.md"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/cardsorting/dietcode.git"
-  },
-  "bugs": {
-    "url": "https://github.com/cardsorting/dietcode/issues"
-  },
-  "license": "MIT",
   "engines": {
     "node": ">=18.0.0",
     "bun": ">=1.0.0"
   },
-  "devDependencies": {
-    "@types/better-sqlite3": "^7.6.13",
-    "@types/bun": "latest",
-    "typescript": "^5",
-    "vitest": "^3.2.4"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cardsorting/broccoliq.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cardsorting/broccoliq/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "verify:prework": "tsx verify_prework.ts",
-    "verify:hardening": "tsx verify_hardening.ts",
-    "verify:healing": "tsx verify_healing.ts",
-    "verify:memory": "tsx verify_memory.ts",
-    "verify:production-hardening": "tsx verify_production_hardening.ts",
-    "verify:all": "npm run verify:prework && npm run verify:hardening && npm run verify:healing && npm run verify:memory",
-    "verify:full": "npm run verify:all && npm run verify:production-hardening"
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "benchmark": "npx tsx ./infrastructure/db/Benchmark.ts",
+    "update-kb": "npx tsx ./infrastructure/db/PopulateKnowledge.ts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.81.0",
-    "@noorm/broccoliq": "file:../broccolidb",
-    "better-sqlite3": "^12.8.0",
-    "chalk": "^5.6.2",
-    "chokidar": "^5.0.0",
-    "kysely": "^0.28.15",
-    "kysely-bun-sqlite": "^0.4.0",
-    "openai": "^4.104.0",
-    "tsx": "^4.19.2",
-    "zod": "^4.3.6"
-  }
+    "better-sqlite3": "^11.3.0",
+    "kysely": "^0.27.2",
+    "kysely-bun-sqlite": "^0.4.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.2",
+    "@types/better-sqlite3": "^7.6.12"
+  },
+  "license": "MIT"
 }
