@@ -7,6 +7,7 @@ import type { DatabaseTaskRow } from '../PersistenceSchema';
  * Principle: Pure mapping functions for TaskEntity <-> DatabaseTaskRow.
  */
 export class TaskMapper {
+  private constructor() {}
   /**
    * Converts a database row to a TaskEntity.
    */

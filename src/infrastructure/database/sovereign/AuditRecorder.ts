@@ -1,6 +1,7 @@
 import { Core } from './Core';
 
 export class AuditRecorder {
+  private constructor() {}
   /**
    * Check if a path has already been bypassed.
    */

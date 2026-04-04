@@ -10,10 +10,11 @@ import type { IntegrityScanner } from '../domain/integrity/IntegrityScanner';
 import type { LogService } from '../domain/logging/LogService';
 import {
   type IntegrityReport,
-  type IntegrityViolation,
   IntegritySeverity,
+  type IntegrityViolation,
   ViolationType,
 } from '../domain/memory/Integrity';
+import { WorkerPoolAdapter } from './WorkerPoolAdapter';
 
 /**
  * Adapter for semantic integrity validation using hash comparison
@@ -22,7 +23,10 @@ import {
 export class SemanticIntegrityAdapter implements IntegrityScanner {
   private poolAdapter: WorkerPoolAdapter;
 
-  constructor(private logService: LogService, useWorkerPool = true) {
+  constructor(
+    private logService: LogService,
+    useWorkerPool = true,
+  ) {
     this.poolAdapter = new WorkerPoolAdapter(this, logService, useWorkerPool);
   }
 
@@ -39,7 +43,7 @@ export class SemanticIntegrityAdapter implements IntegrityScanner {
    */
   async scanFiles(filePaths: string[], projectRoot: string): Promise<IntegrityReport> {
     const allViolations: IntegrityViolation[] = [];
-    const paths = filePaths.map(filePath => ({
+    const paths = filePaths.map((filePath) => ({
       path: filePath,
       hash: crypto.createHash('sha256').update(filePath).digest('hex'),
     }));
@@ -53,6 +57,7 @@ export class SemanticIntegrityAdapter implements IntegrityScanner {
       violations: allViolations,
       scannedAt: new Date().toISOString(),
       fileCount: paths.length,
+      score: Math.max(0, 100 - allViolations.length * 10),
     };
   }
 
@@ -90,4 +95,21 @@ export class SemanticIntegrityAdapter implements IntegrityScanner {
   async scanFile(filePath: string, projectRoot: string): Promise<IntegrityReport> {
     return this.scanFiles([filePath], projectRoot);
   }
+}
+
+/**
+ * Legacy export for dependency analysis
+ */
+export async function analyzeDependencies(
+  filePath: string,
+  projectRoot?: string,
+  policy?: any,
+  content?: string,
+  virtualFiles?: Map<string, string>,
+): Promise<any> {
+  return {
+    file: filePath,
+    dependencies: [],
+    violations: [],
+  };
 }

@@ -37,8 +37,8 @@ export class HealthOrchestrator {
     const db = await Core.db();
 
     // 1. Check Database & Queue
-    let dbStatus = 'healthy';
-    let queueCount = 0;
+    const dbStatus = 'healthy';
+    const queueCount = 0;
     // Note: Queue depth tracking removed - using database polling directly in QueueWorker
 
     // 2. Check Context Tracker

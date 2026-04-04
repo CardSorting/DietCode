@@ -45,7 +45,6 @@ export interface SimulatorConfig {
  */
 export class JoySimulator {
   private config: SimulatorConfig;
-  private guardian: ArchitecturalGuardian;
 
   constructor(config: Partial<SimulatorConfig> = {}) {
     this.config = {
@@ -53,7 +52,7 @@ export class JoySimulator {
       timeout: config.timeout ?? 100,
       aggressive: config.aggressive ?? true,
     };
-    this.guardian = new ArchitecturalGuardian();
+    // Architectural Guardian utilized via static context
   }
 
   /**
@@ -110,7 +109,7 @@ export class JoySimulator {
   ): Promise<ArchitecturalViolation[]> {
     const cascade: ArchitecturalViolation[] = [];
 
-    currentViolations.forEach((v) => {
+    for (const v of currentViolations) {
       if (v.type === 'DOMAIN_LEAK') {
         cascade.push({
           type: 'CROSS_LAYER_IMPORT',
@@ -126,7 +125,7 @@ export class JoySimulator {
           severity: 'warn',
         });
       }
-    });
+    }
 
     return cascade;
   }

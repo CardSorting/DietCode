@@ -65,7 +65,7 @@ export class DefaultToolFactory implements ToolFactory {
     const tool: ToolDefinition<Input, Output> = {
       name: config.name,
       description: config.description,
-      inputSchema: config.inputSchema,
+      inputSchema: config.inputSchema as any,
       validate: configValidate,
       async execute(input: Input): Promise<ToolResult<Output>> {
         // Validate if validate method exists

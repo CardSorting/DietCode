@@ -82,10 +82,10 @@ export class FileContextTracker {
    * Sync persistent state from modular Sovereign DB
    */
   async sync(): Promise<void> {
-    const rows = ((await Core.selectWhere({
+    const rows = (await Core.selectWhere({
       table: 'hive_file_context',
       where: {},
-    })) as any);
+    })) as any;
 
     for (const row of rows) {
       this.stateMetadata.set(row.path, {
@@ -253,10 +253,10 @@ export class FileContextTracker {
    */
   private async persistState(entry: StateMetadata): Promise<void> {
     // Check if exists first
-    const rows = ((await Core.selectWhere({
+    const rows = (await Core.selectWhere({
       table: 'hive_file_context',
       where: { path: entry.path },
-    })) as any);
+    })) as any;
 
     if (rows.length > 0) {
       // Update existing

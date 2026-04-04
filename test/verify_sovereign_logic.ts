@@ -13,14 +13,14 @@ async function testSovereign() {
  */
 export const data = 42;
 `;
-  const res1 = analyzeDependencies(
+  const res1 = await analyzeDependencies(
     'src/infrastructure/storage/FileSystem.ts',
     process.cwd(),
     policy,
     codeWithDrift,
   );
 
-  const driftViolation = res1.violations.find((v) => v.type === 'tag_drift');
+  const driftViolation = (res1 as any).violations.find((v: any) => v.type === 'tag_drift');
   if (driftViolation) {
     console.log('✅ Success: Detected Tag Drift!', driftViolation.message);
   } else {

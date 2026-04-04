@@ -87,7 +87,7 @@ export interface PromptSearchCriteria {
 }
 
 export class PromptAnalyticsEngine {
-  private metrics: Map<string, PromptMetrics> = new Map();
+  public readonly metrics: Map<string, PromptMetrics> = new Map();
   private performanceProfiles: Map<string, PromptPerformanceProfile> = new Map();
   private executionEvents: PromptEvent[] = [];
 
@@ -126,7 +126,8 @@ export class PromptAnalyticsEngine {
       });
     }
 
-    const metrics = this.metrics.get(promptId)!;
+    const metrics = this.metrics.get(promptId);
+    if (!metrics) return; // Should not happen due to set() above
 
     // Update usage metrics
     metrics.usageCount++;
@@ -282,7 +283,8 @@ export class PromptAnalyticsEngine {
         .sort((a, b) => b.averageRenderTimeMs - a.averageRenderTimeMs)
         .slice(0, 3);
 
-      slowPrompts.forEach((prompt, index) => {
+      let index = 0;
+      for (const prompt of slowPrompts) {
         recommendations.push({
           id: 'ss',
           promptId: prompt.promptId,
@@ -303,7 +305,8 @@ export class PromptAnalyticsEngine {
             timeframe: 'Next deployment cycle',
           },
         });
-      });
+        index++;
+      }
     }
 
     return recommendations.slice(0, maxRecommendations);
@@ -427,12 +430,12 @@ export class PromptAnalyticsEngine {
       .slice(0, 10);
 
     // Logging replaced with state update for purity
-    highPriorityPrompts.forEach((prompt) => {
+    for (const prompt of highPriorityPrompts) {
       const existing = this.metrics.get(prompt.promptId);
       if (existing) {
         existing.featureMapping.push('reinforced');
       }
-    });
+    }
   }
 
   // Private helper methods

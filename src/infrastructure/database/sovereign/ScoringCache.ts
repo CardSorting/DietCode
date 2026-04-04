@@ -1,6 +1,7 @@
 import { Core } from './Core';
 
 export class ScoringCache {
+  private constructor() {}
   /**
    * Get cached scoring result by content hash.
    */

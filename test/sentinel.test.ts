@@ -30,7 +30,6 @@ import { RefactorTools } from '../src/infrastructure/tools/RefactorTools';
 describe('🛡️ SENTINEL ARCHITECTURE VERIFICATION', () => {
   let integrityScanner: IntegrityScanner;
   let refactorTools: RefactorTools;
-  let guardian: ArchitecturalGuardian;
   let simulator: JoySimulator;
 
   beforeAll(() => {
@@ -38,7 +37,6 @@ describe('🛡️ SENTINEL ARCHITECTURE VERIFICATION', () => {
     const policy = new IntegrityPolicy();
     const logger = new ConsoleLoggerAdapter(LogLevel.INFO);
     integrityScanner = new IntegrityAdapter(policy, logger); // Use real implementation
-    guardian = new ArchitecturalGuardian();
     simulator = new JoySimulator({ aggressive: true });
     refactorTools = new RefactorTools(integrityScanner);
   });

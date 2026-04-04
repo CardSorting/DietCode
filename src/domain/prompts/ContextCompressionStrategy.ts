@@ -120,6 +120,7 @@ export interface ContextCompressionStrategy {
  * Context compression factory for creating domain instances
  */
 export class ContextCompressionFactory {
+  private constructor() {}
   /**
    * Creates a new context compression instance
    *

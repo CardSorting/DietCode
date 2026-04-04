@@ -92,23 +92,23 @@ export class LockOrchestrator {
     this.acquisitionStrategies = new Map();
 
     // Immediate acquisition
-    this.acquisitionStrategies.set(LockTimeoutStrategy.IMMEDIATE, async (scope, maxTime) => {
+    this.acquisitionStrategies.set(LockTimeoutStrategy.IMMEDIATE, async (scope, _maxTime) => {
       const result = await this.lockManager.acquire(scope, 0);
-      if (!result.success) {
+      if (!result.success || !result.ticket) {
         throw new Error(`Lock immediate acquisition failed: ${result.error}`);
       }
-      return result.ticket!;
+      return result.ticket;
     });
 
     // Polling acquisition
     this.acquisitionStrategies.set(LockTimeoutStrategy.POLLING, async (scope, maxTime) => {
       const result = await this.lockManager.acquire(scope, maxTime);
-      if (!result.success) {
+      if (!result.success || !result.ticket) {
         throw new Error(
           `Lock polling acquisition timed out: ${result.error} (reason: ${result.reason})`,
         );
       }
-      return result.ticket!;
+      return result.ticket;
     });
 
     // Backoff acquisition
@@ -119,8 +119,8 @@ export class LockOrchestrator {
 
       while (Date.now() - startTime < maxTime) {
         const result = await this.lockManager.acquire(scope, 0);
-        if (result.success) {
-          return result.ticket!;
+        if (result.success && result.ticket) {
+          return result.ticket;
         }
 
         // Calculate exponential backoff delay

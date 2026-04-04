@@ -270,11 +270,15 @@ export class LLMProviderRegistry {
     fallbackProviders: string[],
     config: AdapterConfig,
   ): CompositeLLMAdapter {
-    return new CompositeLLMAdapter(
-      primaryProviders.map((id) => this.getAdapter(id)!) as LLMAdapter[],
-      fallbackProviders.map((id) => this.getAdapter(id)!) as LLMAdapter[],
-      config,
-    );
+    const primary = primaryProviders
+      .map((id) => this.getAdapter(id))
+      .filter((a): a is LLMAdapter => a !== undefined);
+
+    const fallback = fallbackProviders
+      .map((id) => this.getAdapter(id))
+      .filter((a): a is LLMAdapter => a !== undefined);
+
+    return new CompositeLLMAdapter(primary, fallback, config);
   }
 }
 

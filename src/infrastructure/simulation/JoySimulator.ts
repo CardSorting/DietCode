@@ -35,14 +35,14 @@ export class JoySimulator {
     let diskViolationCount = await this.joyCache.getCachedViolations(absPath, currentHash);
 
     if (diskViolationCount === null) {
-      const { violations } = analyzeDependencies(absPath, projectRoot, policy);
+      const { violations } = await analyzeDependencies(absPath, projectRoot, policy);
       diskViolationCount = violations.length;
       // Background cache update
-      await this.joyCache.updateCachedViolations(absPath, diskViolationCount, currentHash);
+      await this.joyCache.updateCachedViolations(absPath, diskViolationCount ?? 0, currentHash);
     }
 
     // 2. Virtual Analysis (Pass 18: Multi-File Shadow Check)
-    const { violations: predictedViolations } = this.virtualAnalyzer.analyze(
+    const { violations: predictedViolations } = await this.virtualAnalyzer.analyze(
       absPath,
       proposedContent,
       projectRoot,
@@ -51,6 +51,6 @@ export class JoySimulator {
     );
 
     // 3. Impact Assessment (Pass 18: Delta Tuning)
-    return this.impactAnalyzer.calculateImpact(predictedViolations.length, diskViolationCount);
+    return this.impactAnalyzer.calculateImpact(predictedViolations.length, diskViolationCount || 0);
   }
 }

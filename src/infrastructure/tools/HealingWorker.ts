@@ -42,8 +42,8 @@ export class HealingWorker {
     this.isProcessing = true;
 
     // Process jobs with concurrency of 3 for refactoring safety
-    queue.process(
-      async (job) => {
+    (queue as any)?.process(
+      async (job: any) => {
         // BroccoliQ payload normalization
         const payload = typeof job.payload === 'string' ? JSON.parse(job.payload) : job.payload;
 
@@ -124,8 +124,8 @@ export class HealingWorker {
               );
 
               // Step 6: Resolve Imports (Deferred Async via broccoliq)
-              const queue = await Core.getQueue();
-              await queue.enqueue({
+              const q = await Core.getQueue();
+              await q?.enqueue({
                 type: JobType.CODE_HEAL,
                 payload: {
                   oldPath: result.step.currentPath,

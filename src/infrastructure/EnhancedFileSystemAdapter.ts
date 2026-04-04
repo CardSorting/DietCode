@@ -213,13 +213,6 @@ export class EnhancedFileSystemAdapter implements Filesystem {
   }
 
   /**
-   * Promisify async generator - useful for simple patterns.
-   */
-  then<T>(onFulfilled: (data: any) => T, onRejected?: (error: any) => T): Promise<T> {
-    return Promise.resolve(onFulfilled(this));
-  }
-
-  /**
    * Pipe stream to async generator.
    */
   pipe<T>(generator: AsyncGenerator<T, void, unknown>): void {

@@ -4,6 +4,7 @@
  */
 
 export class ParallelProcessor {
+  private constructor() {}
   /**
    * Processes an array of items with a concurrency limit
    *

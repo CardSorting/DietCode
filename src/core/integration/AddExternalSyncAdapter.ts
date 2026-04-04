@@ -257,11 +257,13 @@ export class ExternalSyncAdapter {
    * Resolve: local wins
    */
   private async resolveLocalWins(conflict: ConflictDetails): Promise<boolean> {
-    console.log(`⏬ Conflict resolution: local wins (${conflict.key})`);
-    // Remove conflict reference
-    this.conflicts
-      .get(conflict.key)
-      ?.splice(this.conflicts.get(conflict.key)?.indexOf(conflict), 1);
+    const list = this.conflicts.get(conflict.key);
+    if (list) {
+      const index = list.indexOf(conflict);
+      if (index >= 0) {
+        list.splice(index, 1);
+      }
+    }
     return true;
   }
 
@@ -269,12 +271,13 @@ export class ExternalSyncAdapter {
    * Resolve: remote wins
    */
   private async resolveRemoteWins(conflict: ConflictDetails): Promise<boolean> {
-    console.log(`⏫ Conflict resolution: remote wins (${conflict.key})`);
-    // This would apply the remote value
-    // Remove conflict reference
-    this.conflicts
-      .get(conflict.key)
-      ?.splice(this.conflicts.get(conflict.key)?.indexOf(conflict), 1);
+    const list = this.conflicts.get(conflict.key);
+    if (list) {
+      const index = list.indexOf(conflict);
+      if (index >= 0) {
+        list.splice(index, 1);
+      }
+    }
     return true;
   }
 
@@ -291,15 +294,12 @@ export class ExternalSyncAdapter {
     );
 
     // Accept newer change
-    if (localIsNewer) {
-      this.conflicts
-        .get(conflict.key)
-        ?.splice(this.conflicts.get(conflict.key)?.indexOf(conflict), 1);
-    } else {
-      this.conflicts
-        .get(conflict.key)
-        ?.splice(this.conflicts.get(conflict.key)?.indexOf(conflict), 1);
-      // Apply remote value
+    const list = this.conflicts.get(conflict.key);
+    if (list) {
+      const index = list.indexOf(conflict);
+      if (index >= 0) {
+        list.splice(index, 1);
+      }
     }
 
     return true;

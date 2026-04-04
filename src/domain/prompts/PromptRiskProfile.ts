@@ -64,6 +64,7 @@ export interface RiskAssessmentResult {
  * Determines safety safeguard requirements based on risk tier
  */
 export class SafeguardFactory {
+  private constructor() {}
   static getSafeguardsForTier(tier: RiskTier): SafetySafeguard[] {
     switch (tier) {
       case RiskTier.LOW:

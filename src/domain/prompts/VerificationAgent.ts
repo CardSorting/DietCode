@@ -78,6 +78,7 @@ export interface VerificationAgent {
  * Verification agent factory for creating domain instances
  */
 export class VerificationAgentFactory {
+  private constructor() {}
   /**
    * Creates a new verification agent instance
    *

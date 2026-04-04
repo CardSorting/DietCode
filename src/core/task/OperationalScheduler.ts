@@ -52,6 +52,8 @@ export class OperationalScheduler {
         resonance: true,
         purity: true,
         stability: true,
+        interface_integrity: true,
+        cognitive_simplicity: true,
       },
     };
 

@@ -172,14 +172,16 @@ async function demoPatternRegistry() {
   // Priority-ordered patterns
   console.log('\n⭐ Priority Order Patterns:');
   const prioritized = PatternRepository.getPatternsSortedByPriority();
-  prioritized.forEach((pattern: PatternMapping, index: number) => {
+  let index = 0;
+  for (const pattern of prioritized) {
     console.log(`   ${index + 1}. ${pattern.patternName} (${pattern.domainElement?.name})`);
-  });
+    index++;
+  }
 
   // Count patterns by category
   console.log('\n📈 Pattern Distribution:');
   const counts = PatternRepository.countPatternsByCategory();
-  Object.entries(counts).forEach(([category, count]) => {
+  for (const [category, count] of Object.entries(counts)) {
     const emoji =
       category === 'safety'
         ? '🛡️ '
@@ -191,7 +193,7 @@ async function demoPatternRegistry() {
               ? '📊 '
               : '🤖 ';
     console.log(`   ${emoji}${category}: ${count} patterns`);
-  });
+  }
 
   // Validate completeness
   console.log('\n✅ Completeness Check:');
@@ -199,9 +201,9 @@ async function demoPatternRegistry() {
   console.log(`   All patterns have Domain contracts: ${validation.valid}`);
   if (!validation.valid) {
     console.log('   Missing mappings:');
-    validation.missing.forEach((m) => {
+    for (const m of validation.missing) {
       console.log(`     - ${m.pattern} (${m.element})`);
-    });
+    }
   }
 
   // Get specific pattern details

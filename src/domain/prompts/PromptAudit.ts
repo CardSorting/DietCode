@@ -57,6 +57,7 @@ export interface PromptComplianceRecord {
 }
 
 export class ConflictResolver {
+  private constructor() {}
   /**
    * Determines the appropriate resolution strategy for a conflict.
    */

@@ -53,6 +53,7 @@ export interface FileErrorContext {
  * Each error represents a distinct validation or I/O situation.
  */
 export class FileErrorCode {
+  private constructor() {}
   /**
    * Rejected because binary content detected.
    * Read operations should be text-only.

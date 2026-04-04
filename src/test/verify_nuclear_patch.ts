@@ -18,9 +18,9 @@ async function runRigorousTest() {
 
   // Cleanup
   const cleanup = (p: string) => {
-    [p, `${p}-wal`, `${p}-shm`].forEach((f) => {
+    for (const f of [p, `${p}-wal`, `${p}-shm`]) {
       if (fs.existsSync(f)) fs.unlinkSync(f);
-    });
+    }
   };
   cleanup(testDbPath);
 

@@ -18,7 +18,7 @@ async function test() {
   };
 
   console.log('1. Initializing DB...');
-  await SovereignDb.init();
+  await SovereignDb.init('./data/verify_v7.db');
 
   console.log('2. Starting Queue Worker...');
   const worker = new QueueWorker(
@@ -33,6 +33,7 @@ async function test() {
 
   console.log('3. Preparing Unified Scan...');
   const queue = await SovereignDb.getQueue();
+  if (!queue) throw new Error('Queue initialization failed');
   const manager = new SovereignIntegrityManager(queue);
 
   const projectRoot = process.cwd();

@@ -61,6 +61,7 @@ export class WorkerPoolAdapter {
     const broccoliQueue: any = {
       enqueue: async (job: any) => {
         const qa = await Core.getQueue();
+        if (!qa) throw new Error('BroccoliQueue not initialized');
         return qa.enqueue(job);
       },
     };
@@ -79,7 +80,9 @@ export class WorkerPoolAdapter {
       );
 
       // Listen for messages
-      this.workers.forEach((worker, i) => {
+      for (let i = 0; i < this.workers.length; i++) {
+        const worker = this.workers[i];
+        if (!worker) continue;
         worker.on('message', (result: ShardResult) => {
           this.handleWorkerResult(i, result);
         });
@@ -91,7 +94,7 @@ export class WorkerPoolAdapter {
           });
           this.metrics.failedWorkers++;
         });
-      });
+      }
     } else {
       this.logService.info(
         'WorkerPoolAdapter initialized in Sovereign Queue mode (Throttled CPU)',
@@ -128,12 +131,14 @@ export class WorkerPoolAdapter {
     );
 
     const partitions: string[][] = Array.from({ length: shardCount }, () => []);
-    projectFiles.forEach((file, index) => {
+    let index = 0;
+    for (const file of projectFiles) {
       const partition = partitions[index % shardCount];
       if (partition) {
         partition.push(path.relative(projectRoot, file));
       }
-    });
+      index++;
+    }
 
     if (this.useQueue) {
       return this.scanViaQueue(partitions, projectRoot, startTime, fileCount);
@@ -222,7 +227,7 @@ export class WorkerPoolAdapter {
     const failedCount = results.filter((r) => !r.success).length;
     const totalTime = Date.now() - startTime;
 
-    results.forEach((r) => {
+    for (const r of results) {
       if (r.error) {
         this.logService.warn(
           `Shard ${r.shardId} failed: ${r.error}`,
@@ -231,7 +236,7 @@ export class WorkerPoolAdapter {
         );
         this.metrics.failedWorkers++;
       }
-    });
+    }
 
     this.metrics.totalCPUTime = totalTime;
     this.logService.info(

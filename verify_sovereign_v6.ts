@@ -78,7 +78,7 @@ async function verifySovereignHardening() {
   const audit = selector.evaluate(bundle);
   console.log('Audit Result:', audit.pass ? 'PASS' : 'FAIL', audit.reasons);
 
-  if (bundle.upsideDominance <= 1.0) {
+  if (bundle.upsideDominance === 'LOW_LEVERAGE') {
     throw new Error('❌ SovereignSelector ERROR: Upside dominance calculation invalid.');
   }
   console.log('✅ SovereignSelector: PASS');
@@ -150,7 +150,7 @@ async function verifySovereignHardening() {
     virtualFiles,
   );
 
-  console.log('Multi-File Integrity:', multiSim.integrity);
+  console.log('Multi-File Integrity:', multiSim.axiomProfile.status);
   console.log('Violations Detected (Expect Layer Violation):', multiSim.newViolations);
 
   if (multiSim.newViolations === 0) {

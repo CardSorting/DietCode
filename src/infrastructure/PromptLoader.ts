@@ -73,21 +73,24 @@ export class PromptLoader {
       return { frontmatter: {}, content };
     }
 
-    const frontmatterBlock = match[1]!;
+    const frontmatterBlock = match[1];
     const bodyContent = content.substring(match[0].length);
 
     const frontmatter: any = {};
 
-    // Parse YAML-style frontmatter
-    frontmatterBlock.split('\n').forEach((line: string) => {
-      const [key, ...valueParts] = line.split(':');
-      if (key && valueParts.length > 0) {
-        const value = valueParts.join(':').trim();
-        frontmatter[key.trim()] = value.includes(',')
-          ? value.split(',').map((v: string) => v.trim())
-          : value;
+    if (frontmatterBlock) {
+      // Parse YAML-style frontmatter
+      const lines = frontmatterBlock.split('\n');
+      for (const line of lines) {
+        const [key, ...valueParts] = line.split(':');
+        if (key && valueParts.length > 0) {
+          const value = valueParts.join(':').trim();
+          frontmatter[key.trim()] = value.includes(',')
+            ? value.split(',').map((v: string) => v.trim())
+            : value;
+        }
       }
-    });
+    }
 
     return { frontmatter, content: bodyContent };
   }
@@ -98,8 +101,9 @@ export class PromptLoader {
 
   private classifyByMetadata(frontmatter: any, filepath: string): PromptCategory {
     // Check for explicit category
-    if (frontmatter.category && this.categoryMap.has(frontmatter.category.toLowerCase())) {
-      return this.categoryMap.get(frontmatter.category.toLowerCase())!;
+    if (frontmatter.category) {
+      const category = this.categoryMap.get(frontmatter.category.toLowerCase());
+      if (category) return category;
     }
 
     // Heuristic classification based on filename/content

@@ -64,7 +64,9 @@ export class SovereignIntegrityManager {
    */
   aggregateResults(shardResults: IntegrityReport[], fileCount: number): IntegrityReport {
     const allViolations: IntegrityViolation[] = [];
-    shardResults.forEach((r) => allViolations.push(...r.violations));
+    for (const r of shardResults) {
+      allViolations.push(...r.violations);
+    }
 
     // Deduplicate violations by content/type/file
     const seen = new Set<string>();
@@ -79,6 +81,7 @@ export class SovereignIntegrityManager {
       violations: uniqueViolations,
       scannedAt: new Date().toISOString(),
       fileCount,
+      score: Math.max(0, 100 - uniqueViolations.length * 10),
     };
   }
 }

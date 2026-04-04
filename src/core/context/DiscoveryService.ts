@@ -4,14 +4,38 @@
  */
 
 import * as path from 'node:path';
-import type { DiscoveryResult } from '../../domain/architecture/Discovery';
-import type { ProjectStructureAnalysis } from '../../domain/architecture/ProjectAnalysis';
-import type { LayerAwareness } from '../../domain/architecture/LayerAwareness';
+import type { DiscoveryResult } from '../../domain/architecture/Discovery.ts';
+import type { LayerAwareness } from '../../domain/architecture/LayerAwareness.ts';
+import type { ProjectStructureAnalysis } from '../../domain/architecture/ProjectAnalysis.ts';
 
 /**
  * Service for discovering patterns and structure across the codebase
  */
-export abstract class DiscoveryService {
+export class DiscoveryService {
+  constructor(
+    private fs: any,
+    private systemAdapter: any,
+    private logger: any,
+  ) {}
+
+  /**
+   * Main discovery entry point
+   *
+   * @param cwd Project root directory
+   */
+  async discover(cwd: string): Promise<any> {
+    return {
+      workspace: { id: 'default', path: cwd, name: 'DietCode' },
+      repository: {
+        id: 'repo-default',
+        workspaceId: 'default',
+        name: 'DietCode',
+        path: cwd,
+        defaultBranch: 'main',
+      },
+    };
+  }
+
   /**
    * Discover architectural patterns in a project
    *
@@ -53,7 +77,7 @@ export abstract class DiscoveryService {
    */
   static async analyzeFileLayer(filePath: string, cwd: string): Promise<LayerAwareness> {
     const relPath = path.relative(cwd, filePath);
-    const content =  ''; // Placeholder - would read file and check header
+    const content = ''; // Placeholder - would read file and check header
 
     // Placeholder compliance check
     return {

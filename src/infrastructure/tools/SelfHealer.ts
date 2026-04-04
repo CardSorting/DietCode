@@ -26,7 +26,12 @@ export class SelfHealer {
   constructor(projectRoot: string) {
     this.remediator = new Remediator(projectRoot);
     // We use the SemanticIntegrityAdapter for deep scanning
-    this.scanner = new SemanticIntegrityAdapter({} as IntegrityPolicy);
+    this.scanner = new SemanticIntegrityAdapter({
+      info: () => {},
+      error: () => {},
+      warn: () => {},
+      debug: () => {},
+    } as any);
     this.refactorTools = new RefactorTools(this.scanner);
   }
 

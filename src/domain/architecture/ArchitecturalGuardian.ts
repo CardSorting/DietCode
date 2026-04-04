@@ -18,6 +18,7 @@ export interface SimulatedReport {
   violations: ArchitecturalViolation[];
   cascadeViolations?: ArchitecturalViolation[];
   requiresHealing?: boolean; // Pass 18: Flow Protocol
+  score: number;
 }
 
 /**
@@ -48,6 +49,7 @@ export interface ArchitecturalViolation {
  * 4. TOPOLOGY: CORE → UI violation is a warning, not hard block
  */
 export class ArchitecturalGuardian {
+  private constructor() {} // Static-only class
   /**
    * SimulateGuard: Predicts if moving a file will maintain architecture
    *
@@ -74,6 +76,7 @@ export class ArchitecturalGuardian {
             severity: 'error',
           },
         ],
+        score: currentReport.score - 50,
       };
     }
 
@@ -88,6 +91,7 @@ export class ArchitecturalGuardian {
             severity: 'error',
           },
         ],
+        score: currentReport.score - 10,
       };
     }
 
@@ -102,6 +106,7 @@ export class ArchitecturalGuardian {
             severity: 'warn',
           },
         ],
+        score: currentReport.score - 5,
       };
     }
 
@@ -122,6 +127,7 @@ export class ArchitecturalGuardian {
             severity: 'warn',
           },
         ],
+        score: currentReport.score - 2,
       };
     }
 
@@ -138,6 +144,7 @@ export class ArchitecturalGuardian {
             severity: 'warn',
           },
         ],
+        score: currentReport.score - 5,
       };
     }
 
@@ -145,6 +152,7 @@ export class ArchitecturalGuardian {
     return {
       isSafe: true,
       violations: [],
+      score: currentReport.score,
     };
   }
 

@@ -55,10 +55,11 @@ export class ContextOptimizationService {
     const discardedContext = new Map<string, string>();
 
     for (const decision of optimizedDecisions) {
-      if (decision.shouldReuse && existingContext.has(decision.filePath)) {
-        reusedContext.set(decision.filePath, existingContext.get(decision.filePath)!);
+      const content = existingContext.get(decision.filePath);
+      if (decision.shouldReuse && content !== undefined) {
+        reusedContext.set(decision.filePath, content);
       } else {
-        discardedContext.set(decision.filePath, existingContext.get(decision.filePath) || '');
+        discardedContext.set(decision.filePath, content || '');
       }
     }
 

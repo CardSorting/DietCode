@@ -14,12 +14,14 @@ export interface MetabolicData {
   modelId?: string;
   cost?: number;
   environment?: string;
+  cognitiveHeat?: number;
 }
 
 /**
  * MetabolicRecorder: Persistence adapter for streaming environment vitals.
  */
 export class MetabolicRecorder {
+  private constructor() {} // Static-only class
   static async recordMetabolicEvent(data: MetabolicData) {
     // 2.0 Architectural Pattern: Async Telemetry Push (Level 3)
 

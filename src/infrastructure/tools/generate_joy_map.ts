@@ -54,7 +54,9 @@ export class JoyMapGenerator {
     md += '## 🌑 Orphaned Files (Dead Code)\n';
     md += 'Files with zero inbound dependencies that may be safe to prune.\n\n';
     if (orphans.length > 0) {
-      orphans.forEach((o) => (md += `- \`${o}\`\n`));
+      for (const o of orphans) {
+        md += `- \`${o}\`\n`;
+      }
     } else {
       md += '_No orphans detected. Codebase is lean and purposeful._\n';
     }

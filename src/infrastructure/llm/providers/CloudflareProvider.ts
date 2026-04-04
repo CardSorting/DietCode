@@ -91,12 +91,14 @@ export class CloudflareProvider implements LLMProvider {
 
       if (message.tool_calls) {
         for (const tc of message.tool_calls) {
-          content.push({
-            type: 'tool_use',
-            id: tc.id,
-            name: tc.function.name,
-            input: JSON.parse(tc.function.arguments),
-          });
+          if (tc.type === 'function') {
+            content.push({
+              type: 'tool_use',
+              id: tc.id,
+              name: tc.function.name,
+              input: JSON.parse(tc.function.arguments),
+            });
+          }
         }
       }
 

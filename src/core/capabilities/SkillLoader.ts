@@ -17,7 +17,21 @@ import type { Skill, SkillDefinition } from '../../domain/agent/Skill';
  * 4. Detect and report conflicts (missing required properties)
  * 5. Load type definitions for skills (structural validation)
  */
-export abstract class SkillLoader {
+export class SkillLoader {
+  constructor(
+    private fileSystem: any,
+    private logger: any,
+  ) {}
+
+  /**
+   * Load skills for a project structure
+   *
+   * @param project Project context to load skills for
+   */
+  async load(project: any): Promise<any[]> {
+    const skillPath = path.join(project.repository.path, '.dietcode', 'skills');
+    return SkillLoader.loadSkills(skillPath);
+  }
   /**
    * Load all skills from a directory
    *

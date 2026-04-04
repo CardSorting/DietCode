@@ -310,8 +310,8 @@ export class TemplateEngine {
     return null;
   }
 
-  private parseValue(value: string): any {
-    value = value.trim();
+  private parseValue(inputValue: string): any {
+    const value = inputValue.trim();
     if (value.startsWith('"') || value.startsWith("'")) {
       return value.slice(1, -1);
     }

@@ -27,7 +27,7 @@ export class RefactorHealer {
     if (requiresHealing) {
       // High-Throughput: Enqueue background healing
       const queue = await Core.getQueue();
-      await queue.enqueue({
+      await queue?.enqueue({
         type: JobType.JOY_ZONING_HEAL,
         payload: {
           oldPath,

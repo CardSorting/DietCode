@@ -180,7 +180,8 @@ export class ContextCompressorAdapter implements ContextCompressionStrategy {
     const compressionRatio = originalLength > 0 ? targetRatio : 0;
 
     const fieldsWithContent = [false, false, false, false, false, false, false].reduce(
-      (count, hasContent) => {
+      (acc, hasContent) => {
+        let count = acc;
         count += hasContent ? 1 : 0;
         return count;
       },

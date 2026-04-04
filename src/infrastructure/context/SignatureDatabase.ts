@@ -60,9 +60,9 @@ export class SignatureDatabase {
     const endedSession = this.sessions.get(this.currentSessionId) || null;
 
     // Move to signature cache
-    session.signatures.forEach((signature) => {
+    for (const signature of session.signatures) {
       this.signatureCache.set(signature.filePath, signature);
-    });
+    }
 
     // Limit cache size
     this.pruneCache();

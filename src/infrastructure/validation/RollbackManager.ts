@@ -110,11 +110,13 @@ export class RollbackManager implements DomainRollbackProtocol {
 
     // Restore in reverse order (newest first)
     for (let i = this.backups.length - 1; i >= 0; i--) {
-      try {
-        // Don't attempt to restore since backup.id doesn't match operation.id
-        // Just clean up the list instead
-      } catch (error) {
-        console.error('❌ Failed during full rollback:', error);
+      const operation = this.backups[i];
+      if (operation) {
+        try {
+          await operation.restore();
+        } catch (error) {
+          console.error('❌ Failed during full rollback:', error);
+        }
       }
     }
 

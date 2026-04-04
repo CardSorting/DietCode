@@ -112,6 +112,13 @@ export class ExecutionGovernor {
   private static config: ExecutionGovernorConfig = defaultExecutionGovernorConfig;
 
   /**
+   * Instance method for task execution (delegates to static)
+   */
+  async execute(request: TaskExecutionRequest): Promise<unknown> {
+    return ExecutionGovernor.execute(request);
+  }
+
+  /**
    * Configure execution governor behavior
    */
   static configure(config: Partial<ExecutionGovernorConfig>): void {

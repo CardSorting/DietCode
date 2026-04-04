@@ -30,8 +30,8 @@ export class ScoringWorker {
     console.log('📊 Scoring Worker: INITIALIZED');
     this.isProcessing = true;
 
-    queue.process(
-      async (job) => {
+    (queue as any)?.process(
+      async (job: any) => {
         const start = Date.now();
         const payload = typeof job.payload === 'string' ? JSON.parse(job.payload) : job.payload;
         const { taskId, shardId, payload: innerPayload } = payload;
@@ -87,8 +87,11 @@ export class ScoringWorker {
           const duration = Date.now() - start;
           await MetabolicRecorder.recordMetabolicEvent({
             taskId,
-            cognitiveHeat: duration / 1000, // Convert to heat units
-          });
+            linesAdded: 0,
+            reads: 1,
+            writes: 1,
+            cognitiveHeat: duration / 1000,
+          } as any);
 
           console.log(`✅ [ScoringWorker] Job ${job.id} completed in ${duration}ms.`);
         } catch (err: any) {

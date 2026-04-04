@@ -1,4 +1,4 @@
-import { Kysely } from 'kysely';
+import type { Kysely } from 'kysely';
 
 /**
  * [LAYER: INFRASTRUCTURE]
@@ -18,7 +18,7 @@ export interface DatabaseSchema {
     createdAt: number;
     updatedAt: number;
   };
-  
+
   repositories: {
     id: string;
     workspaceId: string;
@@ -29,7 +29,7 @@ export interface DatabaseSchema {
     defaultBranch: string;
     createdAt: number;
   };
-  
+
   files: {
     id: string;
     path: string;
@@ -39,7 +39,7 @@ export interface DatabaseSchema {
     updatedAt: number;
     author: string;
   };
-  
+
   nodes: {
     id: string;
     repoPath: string;
@@ -53,7 +53,7 @@ export interface DatabaseSchema {
     usage: string | null;
     metadata: string | null;
   };
-  
+
   // Hive tables
   hive_file_context: {
     id: string;

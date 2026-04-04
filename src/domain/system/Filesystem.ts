@@ -40,6 +40,5 @@ export interface Filesystem {
   streamFileHash(path: string): AsyncGenerator<string, void, undefined>;
 
   // Utility operations
-  then<T>(onFulfilled: (data: any) => T, onRejected?: (error: any) => T): Promise<T>;
   walk(path: string, ignorer?: { isIgnored(path: string): boolean }): Array<{ path: string }>;
 }

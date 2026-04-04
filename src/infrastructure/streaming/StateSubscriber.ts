@@ -289,7 +289,7 @@ export class StateSubscriber {
     this.eventQueue.get(key)?.push(newValue);
 
     // Acknowledge event in queue (diffing cleanup)
-    if (this.eventQueue.get(key)?.length > 10) {
+    if ((this.eventQueue.get(key)?.length || 0) > 10) {
       this.eventQueue.get(key)?.shift();
     }
 
@@ -408,15 +408,15 @@ export class StateSubscriber {
    * Register generic listener for multiple keys
    */
   registerListener(keys: string[], listener: StateObserver): () => void {
-    keys.forEach((key) => {
+    for (const key of keys) {
       this.subscribe(key, listener);
-    });
+    }
 
     // Return unsubscribe function
     return () => {
-      keys.forEach((key) => {
+      for (const key of keys) {
         this.unsubscribe(key, listener);
-      });
+      }
     };
   }
 

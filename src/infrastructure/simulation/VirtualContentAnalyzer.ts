@@ -11,13 +11,13 @@ export class VirtualContentAnalyzer {
    * Analyzes a proposed content string for architectural violations.
    * Maps to Pass 14: Predictive Impact Simulation.
    */
-  analyze(
+  async analyze(
     filePath: string,
     content: string,
     projectRoot: string,
     policy: IntegrityPolicy,
     virtualFiles?: Map<string, string>,
   ) {
-    return analyzeDependencies(filePath, projectRoot, policy, content, virtualFiles);
+    return await analyzeDependencies(filePath, projectRoot, policy, content, virtualFiles);
   }
 }

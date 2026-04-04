@@ -17,7 +17,7 @@ import { PathValidator } from './validation/PathValidator';
 export class FileSystemAdapter implements Filesystem {
   private validator: PathValidator;
   private monitor = MetabolicMonitor.getInstance();
-  private scanner = new ActiveIntegrityScanner();
+  public scanner = new ActiveIntegrityScanner();
   private focusShield = FocusShield.getInstance();
 
   constructor(validator?: PathValidator) {
@@ -241,9 +241,5 @@ export class FileSystemAdapter implements Filesystem {
       hash.update(chunk);
       yield hash.digest('hex');
     }
-  }
-
-  then<T>(onFulfilled: (data: any) => T, onRejected?: (error: any) => T): Promise<T> {
-    return Promise.resolve(onFulfilled(undefined));
   }
 }

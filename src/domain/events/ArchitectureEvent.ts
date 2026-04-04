@@ -24,12 +24,17 @@ export interface ArchitecturalViolation {
   suggestedPath?: string;
 }
 
+import type { IntegrityViolation } from '../memory/Integrity';
+
 export interface ArchitectureEvent {
   type: ArchitecturalEventType;
   timestamp: string;
   oldPath: string;
   newPath: string;
-  violations?: ArchitecturalViolation[];
+  violations?: IntegrityViolation[];
+  oldArchScore?: number;
+  newArchScore?: number;
+  scoreChange?: number;
   metadata?: Record<string, unknown>;
 }
 

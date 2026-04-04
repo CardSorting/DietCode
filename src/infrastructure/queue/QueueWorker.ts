@@ -111,27 +111,14 @@ export class QueueWorker {
         // Wait before next check
         await new Promise((resolve) => setTimeout(resolve, 1000));
       } catch (error) {
-        this.logService.error(
-          'Error processing jobs',
-          {},
-          { component: 'QueueWorker' },
-        );
+        this.logService.error('Error processing jobs', {}, { component: 'QueueWorker' });
         await new Promise((resolve) => setTimeout(resolve, 5000));
       }
     }
   }
 
-  private async processJob(
-    jobType: string,
-    jobData: any,
-    jobId: string,
-    queue: any,
-  ) {
-    this.logService.info(
-      'Executing job',
-      { type: jobType, jobId },
-      { component: 'QueueWorker' },
-    );
+  private async processJob(jobType: string, jobData: any, jobId: string, queue: any) {
+    this.logService.info('Executing job', { type: jobType, jobId }, { component: 'QueueWorker' });
 
     switch (jobType) {
       case 'KNOWLEDGE_INGEST':
@@ -366,7 +353,7 @@ Please propose a refactor to fix this architectural violation.`;
     );
 
     const policy = new IntegrityPolicy();
-    const scanner = new SemanticIntegrityAdapter(policy);
+    const scanner = new SemanticIntegrityAdapter(this.logService);
 
     try {
       const report = await scanner.scanFile(file, projectRoot);

@@ -6,7 +6,7 @@
 import { execSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import type { SyntaxError, ValidationRepository, ValidationResult } from '../domain/Validation';
+import type { CodeSyntaxError, ValidationRepository, ValidationResult } from '../domain/Validation';
 
 export class TypeScriptValidator implements ValidationRepository {
   /**
@@ -25,7 +25,7 @@ export class TypeScriptValidator implements ValidationRepository {
     try {
       // Using tsc with noEmit and a few basic flags
       const command = `npx tsc ${tmpFile} --noEmit --esModuleInterop --skipLibCheck --target esnext`;
-      execSync(command, { encoding: 'utf-8', stdio: 'pipe' });
+      const output = execSync(command, { encoding: 'utf-8', stdio: 'pipe' });
 
       return { isValid: true, errors: [] };
     } catch (error: any) {
@@ -38,9 +38,9 @@ export class TypeScriptValidator implements ValidationRepository {
     }
   }
 
-  private parseErrors(output: string, fileName: string): SyntaxError[] {
+  private parseErrors(output: string, fileName: string): CodeSyntaxError[] {
     const lines = output.split('\n');
-    const errors: SyntaxError[] = [];
+    const errors: CodeSyntaxError[] = [];
 
     // Simple regex to extract line, column, and message from tsc output
     const regex = /:(\d+):(\d+) - error TS\d+: (.*)/;

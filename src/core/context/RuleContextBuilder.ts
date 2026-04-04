@@ -23,13 +23,19 @@ function extractPathsFromText(text: string): string[] {
 
   const results: string[] = [];
 
-  let match: ReturnType<typeof pathRegex.exec> | null;
-  while ((match = pathRegex.exec(text))) {
+  let match = pathRegex.exec(text);
+  while (match) {
     results.push(normalizePath(match[0]));
+    match = pathRegex.exec(text);
   }
 
-  while ((match = markdownPathRegex.exec(text))) {
-    results.push(normalizePath(match[1]));
+  match = markdownPathRegex.exec(text);
+  while (match) {
+    const p = match[1];
+    if (p) {
+      results.push(normalizePath(p));
+    }
+    match = markdownPathRegex.exec(text);
   }
 
   return results;
@@ -39,9 +45,13 @@ function extractPathsFromText(text: string): string[] {
 function extractMentions(text: string): string[] {
   const mentionRegex = /@([\w\-. \/]+\.[\w\-]{2,})/g;
   const results: string[] = [];
-  let match: ReturnType<typeof mentionRegex.exec> | null;
-  while ((match = mentionRegex.exec(text))) {
-    results.push(normalizePath(match[1]));
+  let match = mentionRegex.exec(text);
+  while (match) {
+    const p = match[1];
+    if (p) {
+      results.push(normalizePath(p));
+    }
+    match = mentionRegex.exec(text);
   }
   return results;
 }
@@ -50,10 +60,11 @@ function extractMentions(text: string): string[] {
 function extractPathsFromPatch(patch: string): string[] {
   const paths: string[] = [];
   const fileHeaderRegex = /^\*\*\* (?:Add|Update|Delete) File: (.+?)(?:\n|$)/gm;
-  let match: ReturnType<typeof fileHeaderRegex.exec> | null;
-  while ((match = fileHeaderRegex.exec(patch))) {
+  let match = fileHeaderRegex.exec(patch);
+  while (match) {
     const matchValue = match[1] || '';
     paths.push(normalizePath(matchValue.trim()));
+    match = fileHeaderRegex.exec(patch);
   }
   return paths;
 }

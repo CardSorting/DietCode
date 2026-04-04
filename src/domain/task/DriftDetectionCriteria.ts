@@ -108,6 +108,7 @@ export function validateDriftCriteria(criteria: DriftDetectionCriteria): void {
  * Adjustable drift criteria for different environments
  */
 export class DriftProfilingLevel {
+  private constructor() {}
   static readonly DEVELOPER = {
     checkpointInterval: 500,
     autoRestoreOnCriticalDrift: true,

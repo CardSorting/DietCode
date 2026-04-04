@@ -13,6 +13,7 @@ import { CompiledQuery } from 'kysely';
  * - Failure isolation: table failures don't cascade to remaining tables
  */
 export class Schema {
+  private constructor() {}
   // Schema registry for table definitions
   private static readonly TABLE_SCHEMAS: Record<string, string> = {
     queue_settings: 'id TEXT PRIMARY KEY, key TEXT NOT NULL UNIQUE, value TEXT, updatedAt INTEGER',
@@ -120,7 +121,7 @@ export class Schema {
       );
 
       // Extract column names from result
-      let tableInfo;
+      let tableInfo: any[];
       if (Array.isArray(result)) {
         tableInfo = result;
       } else if (result && typeof result === 'object') {

@@ -97,8 +97,8 @@ export class TransactionManager {
 
     try {
       for (const change of this.activeTransaction) {
-        if (change.type === 'WRITE') {
-          this.filesystem.writeFile(change.path, change.newContent!);
+        if (change.type === 'WRITE' && change.newContent !== undefined) {
+          this.filesystem.writeFile(change.path, change.newContent);
         } else if (change.type === 'DELETE') {
           await this.filesystem.unlink(change.path);
         }

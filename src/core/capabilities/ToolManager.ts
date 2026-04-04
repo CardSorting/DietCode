@@ -194,7 +194,7 @@ export class ToolManager {
       console.warn(`⚠️  Lock acquisition failed: ${err.message}`);
       return {
         success: false,
-        error: error.message,
+        error: (error as any).message,
         reason: 'timeout',
       };
     }
@@ -353,7 +353,8 @@ export class ToolManager {
 
     // Execution Phase: Execute tool with ExecutionGovernor for resiliency
     try {
-      const result = await ExecutionGovernor.execute({ // Fixed: static method call
+      const result = await ExecutionGovernor.execute({
+        // Fixed: static method call
         task: {
           id: `${name}-${Date.now()}`,
           execute: () => tool.execute(input),
@@ -418,7 +419,8 @@ export class ToolManager {
       // Record governance metrics for failure
       this.governor.recordResult(name, false, durationMs);
 
-      const err = executionError instanceof Error ? executionError : new Error(String(executionError));
+      const err =
+        executionError instanceof Error ? executionError : new Error(String(executionError));
       this.eventBus.publish(
         EventType.TOOL_FAILED,
         {

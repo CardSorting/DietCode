@@ -71,10 +71,10 @@ export class TerminalDisplay implements Display {
       'type',
     ];
 
-    keywords.forEach((kw) => {
+    for (const kw of keywords) {
       const regex = new RegExp(`\\b${kw}\\b`, 'g');
       highlighted = highlighted.replace(regex, `${this.colors.cyan}${kw}${this.colors.reset}`);
-    });
+    }
 
     // Highlight strings
     highlighted = highlighted.replace(

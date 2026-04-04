@@ -46,7 +46,11 @@ export class PromptTemplateLoader {
     if (!PromptTemplateLoader.instance && config) {
       PromptTemplateLoader.instance = new PromptTemplateLoader(config);
     }
-    return PromptTemplateLoader.instance!;
+    const instance = PromptTemplateLoader.instance;
+    if (!instance) {
+      throw new Error('PromptTemplateLoader not initialized');
+    }
+    return instance;
   }
 
   async loadTemplate(

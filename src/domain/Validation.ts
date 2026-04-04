@@ -3,7 +3,7 @@
  * Principle: Pure model for cognitive code integrity (Validation).
  */
 
-export interface SyntaxError {
+export interface CodeSyntaxError {
   line: number;
   column: number;
   message: string;
@@ -11,7 +11,7 @@ export interface SyntaxError {
 
 export interface ValidationResult {
   isValid: boolean;
-  errors: SyntaxError[];
+  errors: CodeSyntaxError[];
 }
 
 export interface ValidationRepository {

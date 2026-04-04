@@ -40,15 +40,16 @@ async function verify() {
   const execGov = new ExecutionGovernor();
   let callCount = 0;
   try {
-    await execGov.execute(
-      'test-retry',
-      async () => {
-        callCount++;
-        if (callCount < 3) throw new Error('SQLITE_BUSY');
-        return 'SUCCESS';
+    await execGov.execute({
+      task: {
+        id: 'test-retry',
+        execute: async () => {
+          callCount++;
+          if (callCount < 3) throw new Error('SQLITE_BUSY');
+          return 'SUCCESS';
+        },
       },
-      { maxRetries: 3, backoffMs: 10 },
-    );
+    });
 
     if (callCount === 3) {
       console.log('✅ PASS: ExecutionGovernor retried on SQLITE_BUSY');
@@ -66,7 +67,7 @@ async function verify() {
   await discovery.discover(workspaceRoot);
   const gitCap = defaultCapabilityRegistry.get('git');
   if (gitCap?.available) {
-    console.log(`✅ PASS: git discovered (${gitCap.version})`);
+    console.log(`✅ PASS: git discovered (${gitCap.metadata?.version})`);
   } else {
     console.error('❌ FAIL: git was not discovered');
     passed = false;

@@ -7,6 +7,7 @@ import type { DatabaseCheckpointRow } from '../PersistenceSchema';
  * Principle: Pure mapping functions for ImplementationSnapshot <-> DatabaseCheckpointRow.
  */
 export class CheckpointMapper {
+  private constructor() {}
   /**
    * Converts a database row to an ImplementationSnapshot.
    */

@@ -13,6 +13,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { dbPool, setDbPath } from '@noorm/broccoliq';
+import { CompiledQuery } from 'kysely';
 import { Schema } from '../infrastructure/database/sovereign/Schema';
 
 async function verifySchemaPatching() {
@@ -32,14 +33,14 @@ async function verifySchemaPatching() {
       `${dbPath}1-shm`,
       `${dbPath}1-wal`,
     ];
-    files.forEach((f) => {
+    for (const f of files) {
       if (fs.existsSync(f)) {
         try {
           fs.unlinkSync(f);
           console.log(`[CLEANUP] Removed old database: ${f}`);
         } catch (e) {}
       }
-    });
+    }
   };
 
   const testTables = [
@@ -73,16 +74,16 @@ async function verifySchemaPatching() {
     for (const tableName of testTables) {
       try {
         // Get table info - use raw SQL with templating
-        const sql = `PRAGMA table_info(${tableName})`;
-        const tableInfoResult = await db.executeQuery(sql);
+        const tableInfoResult = await db.executeQuery(
+          CompiledQuery.raw(`PRAGMA table_info(${tableName})`),
+        );
 
         // Parse result
-        let tableInfo;
+        let tableInfo: any[] = [];
         if (Array.isArray(tableInfoResult)) {
           tableInfo = tableInfoResult;
         } else if (tableInfoResult && typeof tableInfoResult === 'object') {
-          tableInfo =
-            tableInfoResult.rows || tableInfoResult.result || Object.values(tableInfoResult);
+          tableInfo = (tableInfoResult as any).rows || Object.values(tableInfoResult);
         }
 
         const columns = tableInfo.map((col: any) => col.name);
@@ -133,10 +134,8 @@ async function verifySchemaPatching() {
     console.log('\n[TEST] Testing Kysely query patterns that would have failed...');
     for (const tableName of testTables) {
       try {
-        // This is the query pattern that would fail: no such column: id
         // It should now work because id exists
-        const sql = `SELECT * FROM ${tableName} LIMIT 1`;
-        await db.executeQuery(sql);
+        await db.executeQuery(CompiledQuery.raw(`SELECT * FROM ${tableName} LIMIT 1`));
         console.log(`  ✓ ${tableName.padEnd(25)} - Kysely queries work`);
       } catch (e: any) {
         results.push({
@@ -156,9 +155,9 @@ async function verifySchemaPatching() {
     const allPassed = results.length > 0 && results.every((r) => r.status.includes('PASS'));
     const anyFailed = results.some((r) => !r.status.includes('PASS'));
 
-    results.forEach((r) => {
+    for (const r of results) {
       console.log(`  ${r.status}`);
-    });
+    }
 
     const passedCount = results.filter((r) => r.status.includes('PASS')).length;
     console.log(`\n  Passed: ${passedCount}/${results.length}`);

@@ -25,9 +25,10 @@ async function findMissingIdColumn() {
       } else {
         // Now try a raw execution to see if quoting is the issue
         try {
-          await db.executeQuery({
+          await (db as any).executeQuery({
             sql: `SELECT id FROM ${table.name} LIMIT 1`,
             parameters: [],
+            query: { kind: 'RawNode', sql: { kind: 'RawNode', sqlFragments: [] } } as any,
           });
           // console.log(`[✅] Table '${table.name}' has 'id' and is readable.`);
         } catch (e: any) {

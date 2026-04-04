@@ -9,9 +9,9 @@ import type { PatternAwareStrategy } from '../../domain/prompts/PromptCompositio
 import {
   type RiskFactor,
   type RiskProfile,
-  type SafetySafeguard,
   RiskTier,
   SafeguardFactory,
+  type SafetySafeguard,
 } from '../../domain/prompts/PromptRiskProfile';
 import type { TemplateContext } from '../../domain/prompts/PromptTemplateEngine';
 

@@ -2,8 +2,9 @@ import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { dbPool, setDbPath } from '@noorm/broccoliq';
-import type { DatabaseSchema } from './DatabaseSchema';
 import { Kysely } from 'kysely';
+import { BroccoliQueueAdapter } from '../../queue/BroccoliQueueAdapter';
+import type { DatabaseSchema } from './DatabaseSchema';
 
 // Expose the bike-pool for direct access
 export const pool = dbPool;
@@ -13,7 +14,10 @@ export const pool = dbPool;
  * Principle: Centralized Sovereign Hive Orchestration
  */
 export class Core {
+  private constructor() {} // Static-only class
+
   private static Kysely: Kysely<DatabaseSchema> | null = null;
+  private static appQueue: BroccoliQueueAdapter | null = null;
   private static isInitialized = false;
   private static currentDbPath: string | null = null;
   private static heartbeatInterval: NodeJS.Timeout | null = null;
@@ -29,6 +33,7 @@ export class Core {
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
       setDbPath(resolvedPath);
       Core.currentDbPath = resolvedPath;
+      Core.appQueue = new BroccoliQueueAdapter();
       Core.isInitialized = true;
       if (ensureSchemaFn) {
         await ensureSchemaFn(dbPool);
@@ -54,7 +59,7 @@ export class Core {
   static kysely(): Kysely<DatabaseSchema> {
     if (!Core.isInitialized) throw new Error('Core not initialized.');
     if (!Core.Kysely) {
-      Core.Kysely = new Kysely<DatabaseSchema>({ db: dbPool });
+      Core.Kysely = new Kysely<DatabaseSchema>({ dialect: dbPool as any });
     }
     return Core.Kysely;
   }
@@ -70,7 +75,7 @@ export class Core {
 
   static async getQueue() {
     if (!Core.isInitialized) throw new Error('Core not initialized.');
-    return appQueue;
+    return Core.appQueue;
   }
 
   static async push(...args: any[]) {

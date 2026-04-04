@@ -11,7 +11,14 @@
     "./pool": "./dist/infrastructure/db/pool/index.js",
     "./queue": "./dist/infrastructure/queue/SqliteQueue.js"
   },
-  "files": ["dist", "README.md", "LICENSE", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT.md",
+    "SECURITY.md"
+  ],
   "engines": {
     "node": ">=18.0.0",
     "bun": ">=1.0.0"
@@ -37,18 +44,24 @@
     "check": "biome check --apply ."
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.82.0",
     "better-sqlite3": "^11.3.0",
     "kysely": "^0.27.2",
-    "kysely-bun-sqlite": "^0.4.0"
+    "kysely-bun-sqlite": "^0.4.0",
+    "openai": "^6.33.0"
   },
   "devDependencies": {
-    "typescript": "^5.6.2",
-    "@types/better-sqlite3": "^7.6.12",
     "@biomejs/biome": "^1.8.3",
+    "@eslint/js": "^9.10.0",
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^25.5.2",
+    "chokidar": "^5.0.0",
     "eslint": "^9.10.0",
-    "typescript-eslint": "^8.5.0",
     "eslint-config-prettier": "^9.1.0",
-    "@eslint/js": "^9.10.0"
+    "typescript": "^5.6.2",
+    "typescript-eslint": "^8.5.0",
+    "vitest": "^3.2.4"
   },
   "license": "MIT"
 }

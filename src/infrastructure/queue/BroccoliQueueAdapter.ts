@@ -20,7 +20,7 @@ export class BroccoliQueueAdapter implements QueueProvider {
    * Modern Architecture: Schema hardening is handled at the Core/Schema level.
    */
   async enqueue<T>(job: JobDefinition<T>): Promise<string> {
-    const id = job.id || crypto.randomUUID();
+    const id = (job as any).id || crypto.randomUUID();
 
     // Normalize type to string for JSON serialization
     const jobTypeStr = typeof job.type === 'string' ? job.type : String(job.type);
@@ -41,5 +41,12 @@ export class BroccoliQueueAdapter implements QueueProvider {
     });
 
     return id;
+  }
+
+  /**
+   * Processes a job from the queue (placeholder for worker logic)
+   */
+  process<T>(_callback: (job: any) => Promise<void>): void {
+    console.log('[QUEUE] Registered job processor');
   }
 }

@@ -39,19 +39,20 @@ async function runVerification() {
   const cleanup = (p: string) => {
     const lock = `${p}.lock`;
     if (fs.existsSync(lock)) fs.unlinkSync(lock);
-    [
+    for (const f of [
       p,
       `${p}-wal`,
       `${p}-shm`,
       `${p}_signals.db`,
       `${p}_signals.db-wal`,
       `${p}_signals.db-shm`,
-    ].forEach((f) => {
-      if (fs.existsSync(f))
+    ]) {
+      if (fs.existsSync(f)) {
         try {
           fs.unlinkSync(f);
         } catch (e) {}
-    });
+      }
+    }
   };
 
   cleanup(dbPath);
@@ -260,11 +261,9 @@ Implement drift detection verification test suite for production hardening.
     );
   });
 
-  // Final Results
-  console.log('--- Verification Report ---\n');
-  results.forEach((r) => {
+  for (const r of results) {
     console.log(`${r.passed ? '✅' : '❌'} ${r.name}: ${r.message}`);
-  });
+  }
 
   const totalPassed = results.filter((r) => r.passed).length;
   console.log(`\n🏆 Passed: ${totalPassed}/${results.length}`);

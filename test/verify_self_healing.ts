@@ -6,7 +6,12 @@ import { RefactorTools } from '../src/infrastructure/tools/RefactorTools';
 
 async function testSelfHealing() {
   const projectRoot = process.cwd();
-  const scanner = new SemanticIntegrityAdapter({} as IntegrityPolicy);
+  const scanner = new SemanticIntegrityAdapter({
+    info: () => {},
+    error: () => {},
+    warn: () => {},
+    debug: () => {},
+  } as any);
   const refactorTools = new RefactorTools(scanner);
 
   console.log('--- Phase 1: Setup Test Scenario ---');

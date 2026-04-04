@@ -22,7 +22,7 @@ export class LockManager {
    * Ensures the core hive is operational.
    */
   static async initialize(): Promise<void> {
-    await Core.init();
+    await Core.init('./data/sovereign.db');
   }
 
   /**

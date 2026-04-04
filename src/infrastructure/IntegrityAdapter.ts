@@ -66,6 +66,7 @@ export class IntegrityAdapter implements IntegrityScanner {
     return {
       violations,
       scannedAt: new Date().toISOString(),
+      score: Math.max(0, 100 - violations.length * 10),
     };
   }
 
@@ -84,6 +85,7 @@ export class IntegrityAdapter implements IntegrityScanner {
       violations: allViolations,
       scannedAt: new Date().toISOString(),
       fileCount: files.length,
+      score: Math.max(0, 100 - allViolations.length * 10),
     };
   }
 

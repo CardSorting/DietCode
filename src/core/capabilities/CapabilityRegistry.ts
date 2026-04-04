@@ -46,3 +46,5 @@ export class CapabilityRegistry {
     return this.capabilities.has(name);
   }
 }
+
+export const defaultCapabilityRegistry = new CapabilityRegistry();

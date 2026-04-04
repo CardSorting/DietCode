@@ -24,7 +24,7 @@ parentPort.on(
 
     try {
       if (type === 'FILE' && filePath) {
-        const result = analyzeDependencies(filePath, projectRoot, policy);
+        const result = await analyzeDependencies(filePath, projectRoot, policy);
         parentPort?.postMessage({
           success: true,
           violations: result.violations,

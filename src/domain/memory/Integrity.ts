@@ -16,6 +16,12 @@ export enum ViolationType {
   LAYER_VIOLATION = 'layer_violation',
   CIRCULAR_DEPENDENCY = 'circular_dependency',
   TAG_DRIFT = 'tag_drift',
+  MISSING_HEADER = 'missing_header',
+}
+
+export enum IntegritySeverity {
+  WARN = 'warn',
+  ERROR = 'error',
 }
 
 export interface IntegrityViolation {
@@ -23,7 +29,7 @@ export interface IntegrityViolation {
   type: ViolationType;
   file: string;
   message: string;
-  severity: 'warn' | 'error';
+  severity: IntegritySeverity | 'warn' | 'error';
   timestamp: string;
   metadata?: Record<string, any>;
 }
@@ -31,6 +37,7 @@ export interface IntegrityViolation {
 export interface IntegrityReport {
   violations: IntegrityViolation[];
   scannedAt: string;
+  score: number;
   fileCount?: number;
   renderCount?: number;
 }

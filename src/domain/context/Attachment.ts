@@ -34,6 +34,8 @@ export interface ParsedTag {
 }
 
 export class AttachmentParser {
+  private constructor() {}
+
   /**
    * Identifies markup tags in the format @[path/to/file:start-end].
    * Ported from forge_domain/src/attachment.rs.
@@ -41,35 +43,36 @@ export class AttachmentParser {
   static parseTags(text: string): ParsedTag[] {
     const tags: ParsedTag[] = [];
     const regex = /@\[([^\]]+)\]/g;
-    let match;
-    while ((match = regex.exec(text)) !== null) {
+    let match = regex.exec(text);
+    while (match !== null) {
       const fullPath = match[1];
-      if (!fullPath) continue;
+      if (fullPath) {
+        if (fullPath.includes(':')) {
+          const parts = fullPath.split(':');
+          const path = parts[0];
+          const rangeStr = parts[1];
 
-      if (fullPath.includes(':')) {
-        const parts = fullPath.split(':');
-        const path = parts[0];
-        const rangeStr = parts[1];
-
-        if (path && rangeStr) {
-          const rangeMatch = rangeStr.match(/(\d+)-(\d+)/);
-          if (rangeMatch?.[1] && rangeMatch[2]) {
-            tags.push({
-              path,
-              range: {
-                start: Number.parseInt(rangeMatch[1], 10),
-                end: Number.parseInt(rangeMatch[2], 10),
-              },
-            });
+          if (path && rangeStr) {
+            const rangeMatch = rangeStr.match(/(\d+)-(\d+)/);
+            if (rangeMatch?.[1] && rangeMatch[2]) {
+              tags.push({
+                path,
+                range: {
+                  start: Number.parseInt(rangeMatch[1], 10),
+                  end: Number.parseInt(rangeMatch[2], 10),
+                },
+              });
+            } else {
+              tags.push({ path: fullPath });
+            }
           } else {
             tags.push({ path: fullPath });
           }
         } else {
           tags.push({ path: fullPath });
         }
-      } else {
-        tags.push({ path: fullPath });
       }
+      match = regex.exec(text);
     }
     return tags;
   }

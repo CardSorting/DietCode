@@ -12,6 +12,7 @@ import type { PatternMapping } from '../../domain/prompts/SplitStrategy';
  * Reads and manages extracted patterns from the registry
  */
 export class PatternRepository {
+  private constructor() {}
   /**
    * Get all available patterns from the registry
    */
