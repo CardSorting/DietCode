@@ -1,14 +1,10 @@
-/**
- * [LAYER: INFRASTRUCTURE]
- * Principle: Implementation of visual communication (Terminal) using Node.js APIs.
- * Uses structured logging for production-grade observability.
- */
-
 import * as readline from 'node:readline';
 import { Writable } from 'node:stream';
-import chalk from 'chalk';
 import type { LogService } from '../domain/logging/LogService';
-import type { TerminalInterface } from '../domain/system/TerminalInterface';
+import type { TerminalInterface, HudData } from '../domain/system/TerminalInterface';
+import { BoxRenderer } from '../ui/renderers/BoxRenderer';
+import { HudRenderer } from '../ui/renderers/HudRenderer';
+import { COLORS } from '../ui/design/Theme';
 
 export class NodeTerminalAdapter implements TerminalInterface {
   private rl: readline.Interface;
@@ -17,44 +13,47 @@ export class NodeTerminalAdapter implements TerminalInterface {
     this.rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
+      terminal: true,
     });
   }
 
   logClaude(text: string) {
-    // Hardened rendering: handle potential empty strings and multi-line breaks
     const cleanText = text.trim() ? text : '(No response)';
-    // To properly integrate with LogService, we'd normally emit structured logs
-    // But TerminalInterface methods are presentation-layer contracts
-    // These are kept as console methods for CLI adaptability
-    console.log(chalk.green('\nClaude:'), cleanText);
+    console.log(`\n${BoxRenderer.render('CLAUDE-3.7', cleanText, 'SUCCESS')}\n`);
   }
 
   logToolUse(name: string, input: any) {
-    // presentation method
-    console.log(chalk.yellow(`\nTool Use: ${name}`), JSON.stringify(input, null, 2));
+    const content = JSON.stringify(input, null, 2);
+    console.log(`\n${BoxRenderer.render(`TOOL_USE [${name}]`, content, 'WARNING')}\n`);
+  }
+
+  drawBox(title: string, content: string, color = 'cyan') {
+    console.log(`\n${BoxRenderer.render(title, content, color)}\n`);
+  }
+
+  renderHud(data: HudData) {
+    console.log(`\n${HudRenderer.render(data)}\n`);
   }
 
   logError(message: string) {
-    // presentation method
-    console.error(chalk.red('\nError:'), message);
+    console.error(COLORS.ERROR('\nError:'), message);
   }
 
   logSuccess(message: string) {
-    console.log(chalk.green('\nSuccess:'), message);
+    console.log(COLORS.SUCCESS('\nSuccess:'), message);
   }
 
   logInfo(message: string) {
-    console.log(chalk.cyan('\nInfo:'), message);
+    console.log(COLORS.PRIMARY('\nInfo:'), message);
   }
 
   logUsage(command: string) {
-    // presentation method
     console.log(`Usage: bun run ${command} <prompt>`);
   }
 
   async promptUser(query = '> '): Promise<string> {
     return new Promise((resolve) => {
-      this.rl.question(chalk.blue(`\n${query}`), (answer) => {
+      this.rl.question(COLORS.PRIMARY(`\n${query}`), (answer) => {
         resolve(answer);
       });
     });
@@ -78,7 +77,7 @@ export class NodeTerminalAdapter implements TerminalInterface {
         terminal: true,
       });
 
-      process.stdout.write(chalk.blue(`\n${query}`));
+      process.stdout.write(COLORS.PRIMARY(`\n${query}`));
       (mutableOutput as any).muted = true;
 
       rl.question('', (answer) => {

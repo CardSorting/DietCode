@@ -32,4 +32,9 @@ export interface LLMProvider {
     tools: ToolDefinition[],
     metadata?: { taskId?: string },
   ): Promise<LLMResponse>;
+
+  /**
+   * Performs a minimal task (e.g. 1+1) to verify API key validity.
+   */
+  ping(): Promise<boolean>;
 }

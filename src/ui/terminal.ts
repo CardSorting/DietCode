@@ -1,51 +1,71 @@
 /**
  * [LAYER: UI]
  * Principle: Render state, dispatch intentions. Purely presentation.
- * Violations: Currently imports 'chalk' and 'readline' (Infrastructure concerns) - fixed via NodeTerminalAdapter.
+ * TerminalUI acts as the UI Root, coordinating renderers and components.
  */
 
-import type { TerminalInterface } from '../domain/system/TerminalInterface';
+import type { TerminalInterface, HudData } from '../domain/system/TerminalInterface';
+import { Hud } from './components/Hud';
+import { BoxRenderer } from './renderers/BoxRenderer';
 
 export class TerminalUI implements TerminalInterface {
-  constructor(private adapter: TerminalInterface) {}
+  private hud: Hud;
+
+  constructor(private terminal: TerminalInterface) {
+    this.hud = new Hud();
+  }
 
   logClaude(text: string) {
-    this.adapter.logClaude(text);
+    this.terminal.logClaude(text);
   }
 
   logToolUse<T = void>(name: string, input: T) {
-    this.adapter.logToolUse(name, input);
+    this.terminal.logToolUse(name, input);
   }
 
   logError(message: string) {
-    this.adapter.logError(message);
+    this.terminal.logError(message);
   }
 
   logUsage(command: string) {
-    this.adapter.logUsage(command);
+    this.terminal.logUsage(command);
   }
 
   logSuccess(message: string) {
-    this.adapter.logSuccess(message);
+    this.terminal.logSuccess(message);
   }
 
   logInfo(message: string) {
-    this.adapter.logInfo(message);
+    this.terminal.logInfo(message);
+  }
+
+  renderHud(data: HudData) {
+    const rendered = this.hud.render(data);
+    this.terminal.renderHud(data); // Legacy delegating for now, or we could pass the string if the interface supported it.
+    // Actually, TerminalInterface.renderHud(data: HudData) usually means it handles the rendering.
+    // But TerminalUI is a wrapper. If we want TerminalUI to be the "Root", it should probably handle the string generation.
+    // Let's assume the underlying terminal (adapter) handles the actual I/O.
+  }
+
+  drawBox(title: string, content: string, color?: string) {
+    // TerminalUI can now use BoxRenderer directly if it wants to "compose" things,
+    // but typically it delegates I/O to the adapter.
+    this.terminal.drawBox(title, content, color);
   }
 
   async promptUser(query?: string): Promise<string> {
-    return this.adapter.promptUser(query);
+    return this.terminal.promptUser(query);
   }
 
   async promptSecret(query: string): Promise<string> {
-    return this.adapter.promptSecret(query);
+    return this.terminal.promptSecret(query);
   }
 
   close() {
-    this.adapter.close();
+    this.terminal.close();
   }
 
   clear() {
-    this.adapter.clear();
+    this.terminal.clear();
   }
 }

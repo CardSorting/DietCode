@@ -115,6 +115,20 @@ export class AnthropicProvider implements LLMProvider {
     };
   }
 
+  async ping(): Promise<boolean> {
+    try {
+      await this.client.messages.create({
+        model: 'claude-3-7-sonnet-20250219',
+        max_tokens: 1,
+        messages: [{ role: 'user', content: '1+1' }],
+      });
+      return true;
+    } catch (error) {
+      this.logService.error('[ANTHROPIC] Ping failed', { error: (error as Error).message });
+      return false;
+    }
+  }
+
   private async logTelemetry(response: any, agentId: string, duration: number, taskId?: string) {
     try {
       const db = await Core.db();

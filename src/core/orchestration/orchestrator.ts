@@ -23,13 +23,8 @@ import { EventBus } from './EventBus';
 import type { ExecutionService } from './ExecutionService';
 import type { HandoverService } from './HandoverService';
 import type { SwarmAuditor } from './SwarmAuditor';
+import { ICONS } from '../../ui/theme';
 
-/**
- * Orchestrator method — coordinates the high-level orchestration workflow
- * Pattern: Orchestrator Pattern — unified entry point for system operations
- *
- * Domain-first: Orchestrator aggregates Core layer services for coordinated execution
- */
 export class Orchestrator {
   private eventBus: EventBus;
   private executionService?: ExecutionService;
@@ -51,60 +46,33 @@ export class Orchestrator {
     private ignorer: Ignorer,
     private projectContext?: ProjectContext,
     private memoryService?: MemoryService,
+    private userName = 'Sovereign Administrator',
   ) {
     this.eventBus = EventBus.getInstance();
   }
 
-  /**
-   * Execute single command input (for backward compatibility)
-   *
-   * @param input Command or workflow input
-   */
   async run(input: string): Promise<unknown> {
+    this.updateHud();
     return this.executeWorkflow(input);
   }
 
-  /**
-   * Set up execution service
-   *
-   * @param service ExecutionService instance
-   */
-  setExecutionService(service: ExecutionService): void {
-    this.executionService = service;
+  private updateHud() {
+    this.ui.renderHud({
+      agentId: 'Claude 3.7',
+      projectName: this.projectContext?.repository?.name || 'DietCode',
+      userName: this.userName,
+      health: 0.92,
+      activeTask: 'Analyzing Sovereign Hive',
+    });
   }
 
-  /**
-   * Set up handover service
-   *
-   * @param service HandoverService instance
-   */
-  setHandoverService(service: HandoverService): void {
-    this.handoverService = service;
-  }
-
-  /**
-   * Set up swarm auditor
-   *
-   * @param auditor SwarmAuditor instance
-   */
-  setSwarmAuditor(auditor: SwarmAuditor): void {
-    this.swarmAuditor = auditor;
-  }
-
-  /**
-   * Execute unified orchestration workflow
-   *
-   * @param workflowInput Workflow execution parameters
-   * @returns Promise resolving to orchestration result
-   */
   async executeWorkflow<T>(workflowInput: T): Promise<unknown> {
     const correlationId = globalThis.crypto.randomUUID();
     const startTime = Date.now();
 
-    console.log(`🔧 Executing workflow with correlation ID: ${correlationId}`);
+    this.ui.drawBox(`DIAGNOSTIC - CORRELATION: ${correlationId}`, 'Workflow Execution Initializing...', 'gray');
 
     try {
-      // Phase 1: Initialize workflow
       this.eventBus.publish(
         EventType.THINKING_STARTED,
         {
@@ -114,7 +82,6 @@ export class Orchestrator {
         { correlationId },
       );
 
-      // Phase 2: Execute orchestration logic
       let result: unknown;
       if (this.executionService) {
         result = await this.executeCoreWorkflow(workflowInput);
@@ -122,7 +89,6 @@ export class Orchestrator {
         result = await this.executeFallbackWorkflow(workflowInput);
       }
 
-      // Phase 3: Complete workflow
       const executionTime = Date.now() - startTime;
 
       this.eventBus.publish(
@@ -135,7 +101,7 @@ export class Orchestrator {
         { correlationId },
       );
 
-      console.log(`✅ Workflow completed in ${executionTime}ms`);
+      this.ui.drawBox(`SYSTEM ${ICONS.CHECK}`, `Sovereign Operation Completed in ${executionTime}ms`, 'green');
 
       return result;
     } catch (workflowError: unknown) {
@@ -148,7 +114,7 @@ export class Orchestrator {
         executionTime,
       });
 
-      console.error(`❌ Workflow failed after ${executionTime}ms: ${error.message}`);
+      this.ui.drawBox(`SYSTEM ${ICONS.CROSS}`, `Sovereign Failure after ${executionTime}ms: ${error.message}`, 'red');
       throw workflowError;
     }
   }

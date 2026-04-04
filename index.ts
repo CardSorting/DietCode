@@ -41,6 +41,7 @@ import { createGrepTool } from './src/infrastructure/tools/grep';
 import { createMkdirTool } from './src/infrastructure/tools/mkdir';
 import { TerminalUI } from './src/ui/terminal';
 import { BootstrapService } from './src/core/setup/BootstrapService';
+import chalk from 'chalk';
 
 async function main() {
   // Initialize logger with proper dependency injection
@@ -224,6 +225,9 @@ Follow the JoyZoning architecture for all operations.`,
     projectContext,
     memoryService,
   );
+
+  // Final Activation
+  ui.logSuccess(`Sovereign Hive Active. Ready for command, ${chalk.yellow.bold('Sovereign Administrator')}.`);
 
   const initialInput = process.argv.slice(2).join(' ');
   if (initialInput) {

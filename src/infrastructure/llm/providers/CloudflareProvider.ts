@@ -133,6 +133,20 @@ export class CloudflareProvider implements LLMProvider {
     }
   }
 
+  async ping(): Promise<boolean> {
+    try {
+      await this.client.chat.completions.create({
+        model: this.model,
+        max_tokens: 1,
+        messages: [{ role: 'user', content: '1+1' }],
+      });
+      return true;
+    } catch (error) {
+      this.logService.error('[CLOUDFLARE] Ping failed', { error: (error as Error).message });
+      return false;
+    }
+  }
+
   private mapMessagesToOpenAI(system: string, messages: Message[]): any[] {
     const mapped: any[] = [{ role: 'system', content: system }];
 
