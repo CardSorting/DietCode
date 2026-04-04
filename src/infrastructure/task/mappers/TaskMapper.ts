@@ -1,5 +1,5 @@
 import type { TaskEntity, TaskPriority } from '../../../domain/task/TaskEntity';
-import { TaskState } from '../../../domain/task/TaskEntity';
+import type { TaskState } from '../../../domain/task/TaskEntity';
 import type { DatabaseTaskRow } from '../PersistenceSchema';
 
 /**
@@ -19,7 +19,7 @@ export class TaskMapper {
       acceptanceCriteria: [],
       initialContext: row.initial_context,
       state: row.state as TaskState,
-      priority: parseInt(row.priority) as TaskPriority,
+      priority: Number.parseInt(row.priority) as TaskPriority,
       vitalsHeartbeat: row.vitals_heartbeat ? JSON.parse(row.vitals_heartbeat) : undefined,
       vToken: row.v_token ?? undefined,
       constraintViolations: [],
@@ -28,8 +28,8 @@ export class TaskMapper {
         updatedAt: new Date(row.updated_at),
         startedAt: row.started_at ? new Date(row.started_at) : undefined,
         completedAt: row.completed_at ? new Date(row.completed_at) : undefined,
-        userAgent: row.user_agent
-      }
+        userAgent: row.user_agent,
+      },
     };
   }
 
@@ -54,7 +54,7 @@ export class TaskMapper {
       task.metadata.updatedAt.getTime(),
       task.metadata.startedAt?.getTime() || null,
       task.metadata.completedAt?.getTime() || null,
-      task.metadata.userAgent
+      task.metadata.userAgent,
     ];
   }
 }

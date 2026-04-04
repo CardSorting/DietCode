@@ -10,7 +10,7 @@ export enum PromptCategory {
   MEMORY_CYCLES = 'MEMORY_CYCLES',
   VERIFICATION_CHECKPOINTS = 'VERIFICATION_CHECKPOINTS',
   UTILITY_OPERATIONS = 'UTILITY_OPERATIONS',
-  SECURITY_PATTERNS = 'SECURITY_PATTERNS'
+  SECURITY_PATTERNS = 'SECURITY_PATTERNS',
 }
 
 export interface PromptDefinition {
@@ -38,5 +38,5 @@ export interface PromptCollection {
 export enum MaintenanceTier {
   PREMIUM = 'PREMIUM',
   STANDARD = 'STANDARD',
-  CUSTOM = 'CUSTOM'
+  CUSTOM = 'CUSTOM',
 }

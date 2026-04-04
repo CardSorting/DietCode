@@ -1,13 +1,18 @@
 /**
  * [LAYER: INFRASTRUCTURE]
  * Principle: Cohere embedding provider implementation
- * 
+ *
  * Implements the EmbeddingService interface for Cohere embeddings.
  * Supports multi-lingual and optimized models.
  */
 
 import type { EmbeddingService } from '../../../domain/agent/EmbeddingService';
-import type { LLMAdapter, ModelInfo, ApiStream, Message } from '../../../domain/agent/LLMProviderAdapter';
+import type {
+  ApiStream,
+  LLMAdapter,
+  Message,
+  ModelInfo,
+} from '../../../domain/agent/LLMProviderAdapter';
 import { PromptStrategy } from '../../../domain/agent/LLMProviderAdapter';
 import type { ToolDefinition } from '../../../domain/agent/ToolDefinition';
 
@@ -23,10 +28,10 @@ export interface CohereEmbeddingConfig {
 
 /**
  * Cohere Embedding Adapter
- * 
+ *
  * Generates embeddings using Cohere's embedding models.
  * Supports multi-lingual (english, multilingual) and optimized models.
- * 
+ *
  * Implements both EmbeddingService for RAG and LLMAdapter for the registry.
  */
 export class CohereEmbeddingAdapter implements EmbeddingService, LLMAdapter {
@@ -66,7 +71,7 @@ export class CohereEmbeddingAdapter implements EmbeddingService, LLMAdapter {
       const response = await fetch('https://api.cohere.ai/v1/embed', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -80,7 +85,7 @@ export class CohereEmbeddingAdapter implements EmbeddingService, LLMAdapter {
         throw new Error(`Cohere API error ${response.status}: ${error}`);
       }
 
-      const data = await response.json() as any;
+      const data = (await response.json()) as any;
 
       return data.embeddings[0];
     } catch (error: any) {
@@ -96,8 +101,8 @@ export class CohereEmbeddingAdapter implements EmbeddingService, LLMAdapter {
       return [];
     }
 
-    const cleanedTexts = texts.filter(t => t && t.trim().length > 0);
-    
+    const cleanedTexts = texts.filter((t) => t && t.trim().length > 0);
+
     // Send in batches if it's larger than the limit
     const batches: string[][] = [];
     for (let i = 0; i < cleanedTexts.length; i += this.batchSize) {
@@ -111,7 +116,7 @@ export class CohereEmbeddingAdapter implements EmbeddingService, LLMAdapter {
         const response = await fetch('https://api.cohere.ai/v1/embed', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${this.apiKey}`,
+            Authorization: `Bearer ${this.apiKey}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
@@ -125,7 +130,7 @@ export class CohereEmbeddingAdapter implements EmbeddingService, LLMAdapter {
           throw new Error(`Cohere API error ${response.status}: ${error}`);
         }
 
-        const data = await response.json() as any;
+        const data = (await response.json()) as any;
         allEmbeddings.push(...data.embeddings);
       } catch (error: any) {
         throw new Error(`Cohere batch embedding generation failed: ${error.message}`);
@@ -173,18 +178,14 @@ export class CohereEmbeddingAdapter implements EmbeddingService, LLMAdapter {
       maxTokens: 4096,
       supportsPromptCache: false,
       supportsReasoning: false,
-      supportsStreaming: false
+      supportsStreaming: false,
     };
   }
 
   /**
    * Message creation (not supported)
    */
-  createMessage(
-    _system: string,
-    _messages: Message[],
-    _tools?: ToolDefinition[]
-  ): ApiStream {
+  createMessage(_system: string, _messages: Message[], _tools?: ToolDefinition[]): ApiStream {
     throw new Error('Message creation not supported in embedding adapter');
   }
 

@@ -4,16 +4,16 @@
  * Violations: None
  */
 
-import type { FileReadSource } from "./FileOperation"
+import type { FileReadSource } from './FileOperation';
 
 /**
  * Strategy for reusing file content during optimization
  */
 export enum FileReuseStrategy {
-  FULL_REUSE = "full_reuse",
-  PARTIAL_REUSE = "partial_reuse",
-  TRUNCATED_REUSE = "truncated_reuse",
-  NO_REUSE = "no_reuse"
+  FULL_REUSE = 'full_reuse',
+  PARTIAL_REUSE = 'partial_reuse',
+  TRUNCATED_REUSE = 'truncated_reuse',
+  NO_REUSE = 'no_reuse',
 }
 
 /**

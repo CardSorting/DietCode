@@ -1,31 +1,51 @@
 /**
  * [LAYER: CORE]
  * Principle: Orchestrates axiomatic integrity verification and drift prevention
- * Prework Status: 
+ * Prework Status:
  *   - Step 0: ✅ Dead code cleared
  *   - Verification: ✅ verify_hardening pass
  *   - Dependency Flow: ✅ Native protocols followed
  */
 
-import type { TaskId, TaskEntity } from '../../domain/task/TaskEntity';
-import type { DriftDetectionCriteria, DriftDetectionRecommendation } from '../../domain/task/DriftDetectionCriteria';
-import { getDriftCriteriaForEnvironment, createDefaultDriftCriteria, computeDriftRecommendation } from '../../domain/task/DriftDetectionCriteria';
-import type { ImplementationSnapshot, CheckpointId, DriftVector, AxiomProfile } from '../../domain/task/ImplementationSnapshot';
-import { calculateDriftDelta, IntegrityAxiom, ComplianceState } from '../../domain/task/ImplementationSnapshot';
-import { CheckpointPersistenceAdapter } from '../../infrastructure/task/CheckpointPersistenceAdapter';
-import { SemanticIntegrityAnalyser } from '../../infrastructure/task/SemanticIntegrityAnalyser';
-import type { ProjectIntegrityReport } from '../../domain/task/ProjectIntegrityReport';
-import { TaskConsistencyValidator } from '../../infrastructure/task/TaskConsistencyValidator';
+import * as crypto from 'node:crypto';
 import { LogLevel } from '../../domain/logging/LogLevel';
-import { TaskState } from '../../domain/task/TaskEntity';
-import { CheckpointTrigger, CorrectionType, generateCheckpointId } from '../../domain/task/ImplementationSnapshot';
-import { SovereignSelector } from '../task/SovereignSelector';
-import { OperationalScheduler } from '../task/OperationalScheduler';
-import { MetabolicBrain } from '../brain/MetabolicBrain';
-import { MetabolicMonitor } from '../../infrastructure/monitoring/MetabolicMonitor';
-import { SovereignWorkerProxy } from '../../infrastructure/queue/SovereignWorkerProxy';
 import { JobType } from '../../domain/system/QueueProvider';
-import * as crypto from 'crypto';
+import type {
+  DriftDetectionCriteria,
+  DriftDetectionRecommendation,
+} from '../../domain/task/DriftDetectionCriteria';
+import {
+  computeDriftRecommendation,
+  createDefaultDriftCriteria,
+  getDriftCriteriaForEnvironment,
+} from '../../domain/task/DriftDetectionCriteria';
+import type {
+  AxiomProfile,
+  CheckpointId,
+  DriftVector,
+  ImplementationSnapshot,
+} from '../../domain/task/ImplementationSnapshot';
+import {
+  ComplianceState,
+  IntegrityAxiom,
+  calculateDriftDelta,
+} from '../../domain/task/ImplementationSnapshot';
+import {
+  type CheckpointTrigger,
+  CorrectionType,
+  generateCheckpointId,
+} from '../../domain/task/ImplementationSnapshot';
+import type { ProjectIntegrityReport } from '../../domain/task/ProjectIntegrityReport';
+import type { TaskEntity, TaskId } from '../../domain/task/TaskEntity';
+import { TaskState } from '../../domain/task/TaskEntity';
+import { MetabolicMonitor } from '../../infrastructure/monitoring/MetabolicMonitor';
+import type { SovereignWorkerProxy } from '../../infrastructure/queue/SovereignWorkerProxy';
+import type { CheckpointPersistenceAdapter } from '../../infrastructure/task/CheckpointPersistenceAdapter';
+import type { SemanticIntegrityAnalyser } from '../../infrastructure/task/SemanticIntegrityAnalyser';
+import type { TaskConsistencyValidator } from '../../infrastructure/task/TaskConsistencyValidator';
+import { MetabolicBrain } from '../brain/MetabolicBrain';
+import type { OperationalScheduler } from '../task/OperationalScheduler';
+import type { SovereignSelector } from '../task/SovereignSelector';
 
 /**
  * Coordinates axiomatic verification across task execution
@@ -36,7 +56,7 @@ export class DriftDetectionOrchestrator {
   private semanticAnalyzer: SemanticIntegrityAnalyser;
   private consistencyValidator: TaskConsistencyValidator;
   private entityManager: TaskEntityManager;
-  
+
   private currentCheckpointId: CheckpointId | null = null;
   private currentAxiomProfile: AxiomProfile = {
     status: ComplianceState.CLEARED,
@@ -47,12 +67,12 @@ export class DriftDetectionOrchestrator {
       [IntegrityAxiom.PURITY]: true,
       [IntegrityAxiom.STABILITY]: true,
       [IntegrityAxiom.INTERFACE_INTEGRITY]: true,
-      [IntegrityAxiom.COGNITIVE_SIMPLICITY]: true
-    }
+      [IntegrityAxiom.COGNITIVE_SIMPLICITY]: true,
+    },
   };
   private lastCheckpointTimestamp: Date = new Date();
   private checkpointTokenCount: Map<string, number> = new Map();
-  
+
   private selector: SovereignSelector;
   private scheduler: OperationalScheduler;
   private workerProxy?: SovereignWorkerProxy;
@@ -66,7 +86,7 @@ export class DriftDetectionOrchestrator {
     entityManager: TaskEntityManager,
     selector: SovereignSelector,
     scheduler: OperationalScheduler,
-    workerProxy?: SovereignWorkerProxy
+    workerProxy?: SovereignWorkerProxy,
   ) {
     this.checkpointAdapter = persistenceAdapter;
     this.semanticAnalyzer = semanticAnalyzer;
@@ -88,7 +108,7 @@ export class DriftDetectionOrchestrator {
     const taskValidation = await this.consistencyValidator.validateTask(taskMd);
     const currentTask = await this.entityManager.getCurrentTask();
     const taskId = currentTask?.id || this.entityManager.getTaskId(taskMd);
-    
+
     if (!currentTask) {
       throw new Error('No current task found for initialization');
     }
@@ -97,29 +117,24 @@ export class DriftDetectionOrchestrator {
     const audit = this.selector.evaluate(bundle);
 
     if (!audit.pass) {
-       this.log(LogLevel.ERROR, 'Sovereign Gate: Negative-Audit Failed', { reasons: audit.reasons });
-       await this.entityManager.setCurrentTask({ ...currentTask, state: TaskState.FAILED });
-       throw new Error(`Task rejected by Sovereign Selector: ${audit.reasons.join('; ')}`);
+      this.log(LogLevel.ERROR, 'Sovereign Gate: Negative-Audit Failed', { reasons: audit.reasons });
+      await this.entityManager.setCurrentTask({ ...currentTask, state: TaskState.FAILED });
+      throw new Error(`Task rejected by Sovereign Selector: ${audit.reasons.join('; ')}`);
     }
 
     const readyTask = this.scheduler.transition(currentTask, TaskState.READY);
     await this.entityManager.setCurrentTask(readyTask);
-    
-    const snapshot = await this.createCheckpoint(
-      taskMd,
-      initialCheck,
-      'initialization',
-      {
-        validation: taskValidation,
-        taskId
-      }
-    );
+
+    const snapshot = await this.createCheckpoint(taskMd, initialCheck, 'initialization', {
+      validation: taskValidation,
+      taskId,
+    });
 
     this.monitor.setTaskId(taskId);
     this.monitor.recordVerification(true);
     this.currentCheckpointId = snapshot.checkpointId;
     this.currentAxiomProfile = snapshot.semanticHealth.axiomProfile;
-    
+
     return snapshot;
   }
 
@@ -127,23 +142,23 @@ export class DriftDetectionOrchestrator {
    * Periodic checkpoint persistence
    */
   async checkAndPersistCheckpoints(
-    tokensProcessed: number
+    tokensProcessed: number,
   ): Promise<ImplementationSnapshot | null> {
     const criteria = this.getCurrentCriteria();
-    
-    if (!this.currentCheckpointId || 
-        (tokensProcessed - (this.checkpointTokenCount.get('current') || 0)) >= criteria.checkpointInterval) {
+
+    if (
+      !this.currentCheckpointId ||
+      tokensProcessed - (this.checkpointTokenCount.get('current') || 0) >=
+        criteria.checkpointInterval
+    ) {
       const task = await this.entityManager.getCurrentTask();
-      
+
       if (task) {
         const taskId = task.id ?? '';
-        
-        const updatedSnapshot = await this.createCheckpoint(
-          'periodic-sync',
-          1.0,
-          'demographic',
-          { taskId }
-        );
+
+        const updatedSnapshot = await this.createCheckpoint('periodic-sync', 1.0, 'demographic', {
+          taskId,
+        });
 
         this.checkpointTokenCount.set(String(taskId), 0);
         this.currentCheckpointId = updatedSnapshot.checkpointId;
@@ -151,7 +166,7 @@ export class DriftDetectionOrchestrator {
 
         this.log(LogLevel.INFO, `Checkpoint created at token ${tokensProcessed}`, {
           checkpointId: updatedSnapshot.checkpointId,
-          status: updatedSnapshot.semanticHealth.axiomProfile.status
+          status: updatedSnapshot.semanticHealth.axiomProfile.status,
         });
 
         return updatedSnapshot;
@@ -168,74 +183,81 @@ export class DriftDetectionOrchestrator {
     markdownContent: string,
     validationScore: number,
     trigger: string,
-    context: { validation?: any; taskId?: string } = {}
+    context: { validation?: any; taskId?: string } = {},
   ): Promise<ImplementationSnapshot> {
     const task = await this.entityManager.getCurrentTask();
     if (!task) throw new Error('No active task to checkpoint');
 
     let semanticIntegrity: any;
-    
+
     if (this.workerProxy) {
-        this.log(LogLevel.INFO, 'Offloading Axiomatic Verification to background worker');
-        const result = await this.workerProxy.executeSingle<any, any>(
-            JobType.SEMANTIC_SCORING,
-            { content: markdownContent, tokenHashes: [] }
-        );
-        if (result.success) {
-            semanticIntegrity = result.payload;
-        } else {
-            semanticIntegrity = this.semanticAnalyzer.assessIntegrityAlignment(
-                markdownContent, 
-                [], 
-                { objective: task.objective, layer: task.id?.includes('domain') ? 'domain' : 'unknown' }
-            );
-        }
+      this.log(LogLevel.INFO, 'Offloading Axiomatic Verification to background worker');
+      const result = await this.workerProxy.executeSingle<any, any>(JobType.SEMANTIC_SCORING, {
+        content: markdownContent,
+        tokenHashes: [],
+      });
+      if (result.success) {
+        semanticIntegrity = result.payload;
+      } else {
+        semanticIntegrity = this.semanticAnalyzer.assessIntegrityAlignment(markdownContent, [], {
+          objective: task.objective,
+          layer: task.id?.includes('domain') ? 'domain' : 'unknown',
+        });
+      }
     } else {
-        semanticIntegrity = this.semanticAnalyzer.assessIntegrityAlignment(
-            markdownContent,
-            [],
-            { objective: task.objective, layer: task.id?.includes('domain') ? 'domain' : 'unknown' }
-        );
+      semanticIntegrity = this.semanticAnalyzer.assessIntegrityAlignment(markdownContent, [], {
+        objective: task.objective,
+        layer: task.id?.includes('domain') ? 'domain' : 'unknown',
+      });
     }
 
     const isAxiomCompliant = semanticIntegrity.axiomProfile.status === ComplianceState.CLEARED;
 
     if (task.state === TaskState.SHADOW_SIM || task.state === TaskState.READY) {
-       if (!isAxiomCompliant) {
-          const firstViolation = semanticIntegrity.violations?.[0];
-          const locationDetail = firstViolation?.location 
-            ? ` at Line ${firstViolation.location.lineNumber} (${firstViolation.location.codeSnippet})`
-            : '';
-          
-          this.log(LogLevel.ERROR, `SRP Gate: Axiomatic Coverage Failed${locationDetail}`, { 
-            status: semanticIntegrity.axiomProfile.status,
-            failingAxioms: semanticIntegrity.axiomProfile.failingAxioms
-          });
-          throw new Error(`Axiomatic Compliance Failed: ${firstViolation?.message || 'Unknown violation'}. Refusing entry to SOVEREIGN_DOING.`);
-       }
+      if (!isAxiomCompliant) {
+        const firstViolation = semanticIntegrity.violations?.[0];
+        const locationDetail = firstViolation?.location
+          ? ` at Line ${firstViolation.location.lineNumber} (${firstViolation.location.codeSnippet})`
+          : '';
 
-       task.simAxiomProfile = semanticIntegrity.axiomProfile;
-       const doingTask = this.scheduler.transition(task, TaskState.SOVEREIGN_DOING);
-       await this.entityManager.setCurrentTask(doingTask);
+        this.log(LogLevel.ERROR, `SRP Gate: Axiomatic Coverage Failed${locationDetail}`, {
+          status: semanticIntegrity.axiomProfile.status,
+          failingAxioms: semanticIntegrity.axiomProfile.failingAxioms,
+        });
+        throw new Error(
+          `Axiomatic Compliance Failed: ${firstViolation?.message || 'Unknown violation'}. Refusing entry to SOVEREIGN_DOING.`,
+        );
+      }
+
+      task.simAxiomProfile = semanticIntegrity.axiomProfile;
+      const doingTask = this.scheduler.transition(task, TaskState.SOVEREIGN_DOING);
+      await this.entityManager.setCurrentTask(doingTask);
     }
 
     const heartbeat = this.brain.calculateHeartbeat();
     const selfHealing = this.scheduler.evaluateSelfHealing(heartbeat);
 
     if (selfHealing.action === 'ROLLBACK' && this.currentCheckpointId) {
-        this.log(LogLevel.WARN, 'Self-Healing TRIGGERED: Emergency Rollback', { reason: selfHealing.reason });
-        await this.restoreFromCheckpoint(this.currentCheckpointId, task.id || '');
-        const retryTask = this.scheduler.transition(task, TaskState.SHADOW_SIM);
-        await this.entityManager.setCurrentTask(retryTask);
+      this.log(LogLevel.WARN, 'Self-Healing TRIGGERED: Emergency Rollback', {
+        reason: selfHealing.reason,
+      });
+      await this.restoreFromCheckpoint(this.currentCheckpointId, task.id || '');
+      const retryTask = this.scheduler.transition(task, TaskState.SHADOW_SIM);
+      await this.entityManager.setCurrentTask(retryTask);
     } else if (selfHealing.action === 'SUSPEND') {
-        this.log(LogLevel.ERROR, 'Self-Healing TRIGGERED: Task Suspension', { reason: selfHealing.reason });
-        const failedTask = this.scheduler.transition(task, TaskState.FAILED);
-        await this.entityManager.setCurrentTask(failedTask);
-        throw new Error(`Task suspended by Self-Healing Protocol: ${selfHealing.reason}`);
+      this.log(LogLevel.ERROR, 'Self-Healing TRIGGERED: Task Suspension', {
+        reason: selfHealing.reason,
+      });
+      const failedTask = this.scheduler.transition(task, TaskState.FAILED);
+      await this.entityManager.setCurrentTask(failedTask);
+      throw new Error(`Task suspended by Self-Healing Protocol: ${selfHealing.reason}`);
     }
 
     const spec: any = {
-      checkpointId: (trigger === 'initialization' || trigger === 'demographic') ? generateCheckpointId() : (this.currentCheckpointId || generateCheckpointId()),
+      checkpointId:
+        trigger === 'initialization' || trigger === 'demographic'
+          ? generateCheckpointId()
+          : this.currentCheckpointId || generateCheckpointId(),
       semanticHealth: semanticIntegrity,
       outputHash: markdownContent,
       outputSizeBytes: markdownContent.length,
@@ -243,7 +265,7 @@ export class DriftDetectionOrchestrator {
       tokensProcessed: 0,
       trigger: trigger as CheckpointTrigger,
       previousSnapshotId: this.currentCheckpointId,
-      userConfirmationRequired: false
+      userConfirmationRequired: false,
     };
 
     const taskId = task.id || String(context.taskId ?? '');
@@ -251,7 +273,7 @@ export class DriftDetectionOrchestrator {
 
     await this.monitor.flushToDatabase(taskId);
     this.monitor.recordVerification(true);
-    
+
     this.currentCheckpointId = snapshot.checkpointId;
     this.currentAxiomProfile = snapshot.semanticHealth.axiomProfile;
 
@@ -261,9 +283,7 @@ export class DriftDetectionOrchestrator {
   /**
    * Evaluate compliance state and provide recommendation
    */
-  async evaluateDrift(
-    taskMd: string
-  ): Promise<{
+  async evaluateDrift(taskMd: string): Promise<{
     recommendation: DriftDetectionRecommendation;
     snapshot: ImplementationSnapshot;
   }> {
@@ -271,47 +291,41 @@ export class DriftDetectionOrchestrator {
     const recommendation = computeDriftRecommendation(
       this.currentAxiomProfile,
       criteria,
-      TaskState.SOVEREIGN_DOING
+      TaskState.SOVEREIGN_DOING,
     );
 
     const emojiRating = this.getEmojiForAction(recommendation.correctiveAction);
 
     if (this.currentAxiomProfile.status !== ComplianceState.CLEARED) {
-        const snapshot = await this.createCheckpoint(
-            taskMd,
-            1.0,
-            'demographic',
-            { taskId: (await this.entityManager.getCurrentTask())?.id }
-        );
-        
-        const firstViolation = snapshot.semanticHealth.violations?.[0];
-        const detailedMsg = firstViolation?.location 
-            ? `${recommendation.explanation} (Line ${firstViolation.location.lineNumber}: ${firstViolation.location.codeSnippet})`
-            : recommendation.explanation;
+      const snapshot = await this.createCheckpoint(taskMd, 1.0, 'demographic', {
+        taskId: (await this.entityManager.getCurrentTask())?.id,
+      });
 
-        this.log(LogLevel.WARN, `${emojiRating} Axiomatic Status: ${detailedMsg}`, {
-            status: this.currentAxiomProfile.status,
-            mitigation: recommendation.correctiveAction
-        });
+      const firstViolation = snapshot.semanticHealth.violations?.[0];
+      const detailedMsg = firstViolation?.location
+        ? `${recommendation.explanation} (Line ${firstViolation.location.lineNumber}: ${firstViolation.location.codeSnippet})`
+        : recommendation.explanation;
 
-        return {
-            recommendation,
-            snapshot
-        };
+      this.log(LogLevel.WARN, `${emojiRating} Axiomatic Status: ${detailedMsg}`, {
+        status: this.currentAxiomProfile.status,
+        mitigation: recommendation.correctiveAction,
+      });
+
+      return {
+        recommendation,
+        snapshot,
+      };
     }
 
     this.log(LogLevel.INFO, `${emojiRating} Axiomatic Status: ${recommendation.explanation}`, {
-      status: this.currentAxiomProfile.status
+      status: this.currentAxiomProfile.status,
     });
 
     return {
-        recommendation,
-        snapshot: await this.createCheckpoint(
-            taskMd,
-            1.0,
-            'demographic',
-            { taskId: (await this.entityManager.getCurrentTask())?.id }
-        )
+      recommendation,
+      snapshot: await this.createCheckpoint(taskMd, 1.0, 'demographic', {
+        taskId: (await this.entityManager.getCurrentTask())?.id,
+      }),
     };
   }
 
@@ -321,10 +335,10 @@ export class DriftDetectionOrchestrator {
   async runSovereignAudit(): Promise<ProjectIntegrityReport> {
     this.log(LogLevel.INFO, 'Initiating Project-Wide Sovereign Audit (Axiom 3.0)');
     const report = await this.semanticAnalyzer.runProjectAudit('./src');
-    
+
     this.log(LogLevel.WARN, 'Sovereign Audit Complete', {
-        totalFiles: report.totalFilesScanned,
-        blockedCount: report.blockedFilesCount
+      totalFiles: report.totalFilesScanned,
+      blockedCount: report.blockedFilesCount,
     });
 
     return report;
@@ -335,17 +349,17 @@ export class DriftDetectionOrchestrator {
    */
   async restoreFromCheckpoint(
     checkpointId: CheckpointId,
-    taskId: string
+    taskId: string,
   ): Promise<ImplementationSnapshot> {
     const snapshot = await this.checkpointAdapter.restoreCheckpoint(taskId, checkpointId);
-    
+
     this.currentCheckpointId = checkpointId;
     this.currentAxiomProfile = snapshot.semanticHealth.axiomProfile;
     this.lastCheckpointTimestamp = snapshot.timestamp;
 
     this.log(LogLevel.INFO, `State restored from checkpoint ${checkpointId}`, {
       checkpointId,
-      status: snapshot.semanticHealth.axiomProfile.status
+      status: snapshot.semanticHealth.axiomProfile.status,
     });
 
     return snapshot;
@@ -356,7 +370,7 @@ export class DriftDetectionOrchestrator {
    */
   async compareCheckpoints(
     checkpointId1: CheckpointId,
-    checkpointId2: CheckpointId
+    checkpointId2: CheckpointId,
   ): Promise<{
     delta: DriftVector;
     vector: any;
@@ -383,13 +397,10 @@ export class DriftDetectionOrchestrator {
     const vector = {
       axiomStatus: later.semanticHealth.axiomProfile.status,
       topicDivergence,
-      scopeCreep: delta.scopeCreep
+      scopeCreep: delta.scopeCreep,
     };
-    
-    const organismality = Math.max(
-      delta.topicDivergence,
-      delta.scopeCreep
-    );
+
+    const organismality = Math.max(delta.topicDivergence, delta.scopeCreep);
 
     return { delta, vector, organismality };
   }
@@ -405,10 +416,10 @@ export class DriftDetectionOrchestrator {
     const checkpointStats = await this.checkpointAdapter.getCheckpointAgeMetrics();
     const tasks = await this.checkpointAdapter.listTasks(100);
 
-    const driftHistory: any[] = tasks.map(task => ({
+    const driftHistory: any[] = tasks.map((task) => ({
       task_id: task.task_id,
       title: task.title,
-      updated_at: task.updated_at
+      updated_at: task.updated_at,
     }));
 
     return {
@@ -418,14 +429,16 @@ export class DriftDetectionOrchestrator {
         oldestSnapshot: checkpointStats.oldestSnapshot,
         newestSnapshot: checkpointStats.newestSnapshot,
         totalTasks: checkpointStats.totalTasks,
-        totalCheckpoints: checkpointStats.totalCheckpoints
-      }
+        totalCheckpoints: checkpointStats.totalCheckpoints,
+      },
     };
   }
 
   private getCurrentCriteria(): DriftDetectionCriteria {
     const env = (process.env.NODE_ENV as any) || 'development';
-    return this.cachedCriteria[env] || this.cachedCriteria['development'] || createDefaultDriftCriteria();
+    return (
+      this.cachedCriteria[env] || this.cachedCriteria.development || createDefaultDriftCriteria()
+    );
   }
 
   private cachedCriteria: Record<string, DriftDetectionCriteria> = {
@@ -435,7 +448,7 @@ export class DriftDetectionOrchestrator {
       maxCheckpointCacheSize: 100,
       logDriftPredictions: true,
       enableDriftPrediction: true,
-      enabledAxioms: [IntegrityAxiom.STRUCTURAL, IntegrityAxiom.RESONANCE]
+      enabledAxioms: [IntegrityAxiom.STRUCTURAL, IntegrityAxiom.RESONANCE],
     },
     staging: {
       checkpointInterval: 1000,
@@ -443,7 +456,7 @@ export class DriftDetectionOrchestrator {
       maxCheckpointCacheSize: 50,
       logDriftPredictions: false,
       enableDriftPrediction: true,
-      enabledAxioms: [IntegrityAxiom.STRUCTURAL, IntegrityAxiom.RESONANCE, IntegrityAxiom.PURITY]
+      enabledAxioms: [IntegrityAxiom.STRUCTURAL, IntegrityAxiom.RESONANCE, IntegrityAxiom.PURITY],
     },
     production: {
       checkpointInterval: 2000,
@@ -451,8 +464,13 @@ export class DriftDetectionOrchestrator {
       maxCheckpointCacheSize: 30,
       logDriftPredictions: false,
       enableDriftPrediction: false,
-      enabledAxioms: [IntegrityAxiom.STRUCTURAL, IntegrityAxiom.RESONANCE, IntegrityAxiom.PURITY, IntegrityAxiom.STABILITY]
-    }
+      enabledAxioms: [
+        IntegrityAxiom.STRUCTURAL,
+        IntegrityAxiom.RESONANCE,
+        IntegrityAxiom.PURITY,
+        IntegrityAxiom.STABILITY,
+      ],
+    },
   };
 
   private log(level: LogLevel, message: string, data?: any): void {
@@ -488,6 +506,6 @@ export class TaskEntityManager {
   }
 
   getTaskId(markdown: string): string {
-    return 'task-' + crypto.createHash('md5').update(markdown).digest('hex').slice(0, 8);
+    return `task-${crypto.createHash('md5').update(markdown).digest('hex').slice(0, 8)}`;
   }
 }

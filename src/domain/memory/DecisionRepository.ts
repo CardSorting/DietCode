@@ -13,7 +13,7 @@ export interface DecisionRepository {
     repoPath: string,
     decision: string,
     rationale: string,
-    knowledgeIds?: string[]
+    knowledgeIds?: string[],
   ): Promise<void>;
 
   /**
@@ -23,6 +23,6 @@ export interface DecisionRepository {
     userId: string,
     type: string,
     content: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, any>,
   ): Promise<string>;
 }

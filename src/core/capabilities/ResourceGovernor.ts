@@ -7,7 +7,7 @@
 export enum GovernanceAction {
   PROCEED = 'PROCEED',
   PAUSE = 'PAUSE',
-  BLOCK = 'BLOCK'
+  BLOCK = 'BLOCK',
 }
 
 export interface GovernanceResult {
@@ -31,7 +31,7 @@ export class ResourceGovernor {
   private metrics = {
     toolCallCount: 0,
     consecutiveFailures: 0,
-    totalDurationMs: 0
+    totalDurationMs: 0,
   };
 
   private config: GovernorConfig;
@@ -41,7 +41,7 @@ export class ResourceGovernor {
       maxToolCalls: config?.maxToolCalls ?? 50,
       pauseThreshold: config?.pauseThreshold ?? 20,
       maxConsecutiveFailures: config?.maxConsecutiveFailures ?? 3,
-      maxTotalDurationMs: config?.maxTotalDurationMs ?? 300000 // 5 minutes
+      maxTotalDurationMs: config?.maxTotalDurationMs ?? 300000, // 5 minutes
     };
   }
 
@@ -51,22 +51,34 @@ export class ResourceGovernor {
   shouldProceed(toolName: string): GovernanceResult {
     // 1. Check for absolute block on tool calls
     if (this.metrics.toolCallCount >= this.config.maxToolCalls) {
-      return this.createResult(GovernanceAction.BLOCK, `Maximum tool call limit reached (${this.config.maxToolCalls})`);
+      return this.createResult(
+        GovernanceAction.BLOCK,
+        `Maximum tool call limit reached (${this.config.maxToolCalls})`,
+      );
     }
 
     // 2. Check for consecutive failures (loop detection)
     if (this.metrics.consecutiveFailures >= this.config.maxConsecutiveFailures) {
-      return this.createResult(GovernanceAction.BLOCK, `Too many consecutive failures (${this.metrics.consecutiveFailures}). Potential loop detected.`);
+      return this.createResult(
+        GovernanceAction.BLOCK,
+        `Too many consecutive failures (${this.metrics.consecutiveFailures}). Potential loop detected.`,
+      );
     }
 
     // 3. Check for total duration limit
     if (this.metrics.totalDurationMs >= this.config.maxTotalDurationMs) {
-      return this.createResult(GovernanceAction.BLOCK, `Total execution duration limit reached (${this.metrics.totalDurationMs}ms)`);
+      return this.createResult(
+        GovernanceAction.BLOCK,
+        `Total execution duration limit reached (${this.metrics.totalDurationMs}ms)`,
+      );
     }
 
     // 4. Check for pause threshold (requires user confirmation)
     if (this.metrics.toolCallCount >= this.config.pauseThreshold) {
-      return this.createResult(GovernanceAction.PAUSE, `Pause threshold reached (${this.metrics.toolCallCount} calls). Requesting user confirmation.`);
+      return this.createResult(
+        GovernanceAction.PAUSE,
+        `Pause threshold reached (${this.metrics.toolCallCount} calls). Requesting user confirmation.`,
+      );
     }
 
     return this.createResult(GovernanceAction.PROCEED);
@@ -95,7 +107,7 @@ export class ResourceGovernor {
     return {
       action,
       reason,
-      metrics: { ...this.metrics }
+      metrics: { ...this.metrics },
     };
   }
 
@@ -107,7 +119,7 @@ export class ResourceGovernor {
     this.metrics = {
       toolCallCount: 0,
       consecutiveFailures: 0,
-      totalDurationMs: 0
+      totalDurationMs: 0,
     };
   }
 }

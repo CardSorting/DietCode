@@ -5,14 +5,14 @@
  */
 
 import * as crypto from 'node:crypto';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 import type { Snapshot, SnapshotRepository } from '../../domain/memory/Snapshot';
 import type { Filesystem } from '../../domain/system/Filesystem';
 
 export class SnapshotService {
   constructor(
     private repository: SnapshotRepository,
-    private filesystem: Filesystem
+    private filesystem: Filesystem,
   ) {}
 
   /**
@@ -25,7 +25,7 @@ export class SnapshotService {
     // Fast-check: Mod-time comparison
     const stat = fs.statSync(filePath);
     const mtime = stat.mtimeMs;
-    
+
     const latest = await this.repository.getLatestSnapshot(filePath);
     if (latest && latest.mtime === mtime) {
       return latest.id; // File physically has not changed
@@ -34,7 +34,7 @@ export class SnapshotService {
     // Physical check: Content Hash (Full Read)
     const content = this.filesystem.readFile(filePath);
     const hash = this.generateHash(content);
-    
+
     if (latest && latest.hash === hash) {
       // Content is identical even if mtime changed (e.g. touch)
       // Update the record with new mtime to prevent future full-reads

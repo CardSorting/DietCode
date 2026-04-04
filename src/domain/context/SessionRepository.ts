@@ -3,8 +3,8 @@
  * Principle: Interface for session persistence.
  */
 
-import type { Message, SessionState } from './SessionState';
 import type { ProjectContext } from './ProjectContext';
+import type { Message, SessionState } from './SessionState';
 
 export interface SessionRepository {
   /**

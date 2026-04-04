@@ -1,52 +1,48 @@
 /**
  * [LAYER: CORE]
- * Principle: Capability Awareness — tracks available system tools and environment features.
- * Implementation: Registry of discovered binaries and services.
+ * Principle: Orchestrates domain capabilities and their metadata
  */
 
-export interface Capability {
-  name: string;
+export interface CapabilityMetadata {
   version?: string;
+  author?: string;
+  description?: string;
+  minimumVersion?: string;
+}
+
+export interface CapabilityRegistration {
+  name: string;
   available: boolean;
   path?: string;
-  metadata?: Record<string, any>;
+  metadata?: CapabilityMetadata;
 }
 
 export class CapabilityRegistry {
-  private static instance: CapabilityRegistry;
-  private capabilities = new Map<string, Capability>();
+  private capabilities: Map<string, CapabilityRegistration> = new Map();
 
-  private constructor() {}
-
-  static getInstance(): CapabilityRegistry {
-    if (!CapabilityRegistry.instance) {
-      CapabilityRegistry.instance = new CapabilityRegistry();
-    }
-    return CapabilityRegistry.instance;
-  }
-
-  register(capability: Capability): void {
+  register(capability: CapabilityRegistration): void {
     this.capabilities.set(capability.name, capability);
-    if (capability.available) {
-      console.log(`🚀 [CAPABILITY] Registered: ${capability.name}${capability.version ? ` (${capability.version})` : ''}`);
+
+    const subPaths = capability.path?.toLowerCase().split('/') || [];
+    for (const subPath of subPaths) {
+      if (subPath && !this.capabilities.has(subPath)) {
+        this.capabilities.set(subPath, {
+          name: subPath,
+          available: capability.available,
+        });
+      }
     }
   }
 
-  get(name: string): Capability | undefined {
+  get(name: string): CapabilityRegistration | undefined {
     return this.capabilities.get(name);
   }
 
-  isAvailable(name: string): boolean {
-    return this.capabilities.get(name)?.available ?? false;
-  }
-
-  getAll(): Capability[] {
+  getAll(): CapabilityRegistration[] {
     return Array.from(this.capabilities.values());
   }
 
-  clear(): void {
-    this.capabilities.clear();
+  has(name: string): boolean {
+    return this.capabilities.has(name);
   }
 }
-
-export const defaultCapabilityRegistry = CapabilityRegistry.getInstance();

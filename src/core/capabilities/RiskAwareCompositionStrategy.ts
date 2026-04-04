@@ -4,17 +4,28 @@
  */
 
 import type { PromptDefinition } from '../../domain/prompts/PromptCategory';
-import type { TemplateContext } from '../../domain/prompts/PromptTemplateEngine';
-import { RiskTier, type RiskProfile, SafeguardFactory, type RiskFactor } from '../../domain/prompts/PromptRiskProfile';
-import type { PatternAwareStrategy } from '../../domain/prompts/PromptCompositionStrategy';
 import { PromptCategory } from '../../domain/prompts/PromptCategory';
+import type { PatternAwareStrategy } from '../../domain/prompts/PromptCompositionStrategy';
+import {
+  type RiskFactor,
+  type RiskProfile,
+  RiskTier,
+} from '../../domain/prompts/PromptRiskProfile';
+import type { TemplateContext } from '../../domain/prompts/PromptTemplateEngine';
+
+/**
+ * Safe type for technology arrays from project context
+ */
+interface SafeTechnologyArray {
+  technologies: string[];
+}
 
 /**
  * Strategy that wraps prompts with risk assessment and safety instructions based on dangerLevel
  */
 export class RiskAwareCompositionStrategy implements PatternAwareStrategy {
   readonly name = 'risk-aware-composition';
-  
+
   private patternTemplate: string;
 
   constructor() {
@@ -27,28 +38,28 @@ export class RiskAwareCompositionStrategy implements PatternAwareStrategy {
   }
 
   async apply(
-    prompt: PromptDefinition, 
-    context: Partial<TemplateContext>
+    prompt: PromptDefinition,
+    context: Partial<TemplateContext>,
   ): Promise<{ prompt: string; notes: string[] }> {
     const notes: string[] = [];
 
     // Assess risk level
     const riskProfile = this.assessRisk(prompt, context);
-    
+
     // Select appropriate safeguards
     const safeguards = SafeguardFactory.getSafeguardsForTier(riskProfile.tier);
     const escalationStage = riskProfile.escalation_stage || 'before_tool';
 
     notes.push(`Risk tier: ${riskProfile.tier}`);
-    notes.push(`Safeguards: ${safeguards.map(s => s.type).join(', ')}`);
+    notes.push(`Safeguards: ${safeguards.map((s) => s.type).join(', ')}`);
 
     // Wrap prompt with risk assessment instructions
     const wrappedPrompt = this.wrapPromptWithRiskAssessment(
-      prompt.content, 
+      prompt.content,
       riskProfile,
       safeguards,
       escalationStage,
-      context
+      context,
     );
 
     return { prompt: wrappedPrompt, notes };
@@ -57,22 +68,19 @@ export class RiskAwareCompositionStrategy implements PatternAwareStrategy {
   /**
    * Assess risk based on prompt metadata and context
    */
-  private assessRisk(
-    prompt: PromptDefinition,
-    context: Partial<TemplateContext>
-  ): RiskProfile {
+  private assessRisk(prompt: PromptDefinition, context: Partial<TemplateContext>): RiskProfile {
     const dangerLevel = prompt.dangerLevel || 'low';
-    
+
     // Map danger levels to risk tiers
     const tierMap: Record<string, RiskTier> = {
-      'critical': RiskTier.HIGH,
-      'high': RiskTier.HIGH,
-      'medium': RiskTier.MEDIUM,
-      'low': RiskTier.LOW
+      critical: RiskTier.HIGH,
+      high: RiskTier.HIGH,
+      medium: RiskTier.MEDIUM,
+      low: RiskTier.LOW,
     };
 
     const tier = tierMap[dangerLevel] || RiskTier.MEDIUM;
-    
+
     // Build assumptions list
     const assumptions = this.buildAssumptions(prompt, context);
 
@@ -83,7 +91,7 @@ export class RiskAwareCompositionStrategy implements PatternAwareStrategy {
       factors: this.identifyRiskFactors(prompt, context),
       assumptions,
       escalation_stage: tier === RiskTier.HIGH ? 'before_tool' : 'before_tool',
-      recommended_tools: this.getRecommendedTools(tier)
+      recommended_tools: this.getRecommendedTools(tier),
     };
   }
 
@@ -92,16 +100,16 @@ export class RiskAwareCompositionStrategy implements PatternAwareStrategy {
    */
   private determineEscalationStrategy(): 'before_tool' | 'after_tool' | 'on_failure' {
     const strategies = ['before_tool', 'after_tool', 'on_failure'];
-    return strategies[Math.floor(Math.random() * strategies.length)] as 'before_tool' | 'after_tool' | 'on_failure';
+    return strategies[Math.floor(Math.random() * strategies.length)] as
+      | 'before_tool'
+      | 'after_tool'
+      | 'on_failure';
   }
 
   /**
    * Generate assumptions from prompt context
    */
-  private buildAssumptions(
-    prompt: PromptDefinition,
-    context: Partial<TemplateContext>
-  ): string[] {
+  private buildAssumptions(prompt: PromptDefinition, context: Partial<TemplateContext>): string[] {
     const assumptions: string[] = [];
 
     if (!context.project?.name) {
@@ -112,11 +120,15 @@ export class RiskAwareCompositionStrategy implements PatternAwareStrategy {
       assumptions.push('Session ID not available');
     }
 
-    if (prompt.category === PromptCategory.SYSTEM_CORE || prompt.category === PromptCategory.SECURITY_PATTERNS) {
+    if (
+      prompt.category === PromptCategory.SYSTEM_CORE ||
+      prompt.category === PromptCategory.SECURITY_PATTERNS
+    ) {
       assumptions.push('Production system at risk if error occurs');
     }
 
-    if (!context.project?.technologies || (context.project.technologies as string[]).length === 0) {
+    const project = context.project as SafeTechnologyArray | undefined;
+    if (!project || !project.technologies || project.technologies.length === 0) {
       assumptions.push('Technology stack not detected');
     }
 
@@ -128,35 +140,38 @@ export class RiskAwareCompositionStrategy implements PatternAwareStrategy {
    */
   private identifyRiskFactors(
     prompt: PromptDefinition,
-    context: Partial<TemplateContext>
+    context: Partial<TemplateContext>,
   ): RiskFactor[] {
     const factors: RiskFactor[] = [];
 
     // Build derived risk factors
     const isHighRisk = ['critical', 'high'].includes(prompt.dangerLevel || '');
-    
+
     if (prompt.dangerLevel && isHighRisk) {
       factors.push({
         factor: 'sensitivity',
         value: prompt.dangerLevel,
-        severity: 'high'
+        severity: 'high',
       });
     }
 
-    if (context.project?.technologies) {
-      const techArray = context.project.technologies as any[];
+    const project = context.project as SafeTechnologyArray | undefined;
+    if (project?.technologies) {
       factors.push({
         factor: 'scope',
-        value: `${(techArray as string[]).length} technologies`,
-        severity: 'medium'
+        value: `${project.technologies.length} technologies`,
+        severity: 'medium',
       });
     }
 
-    if (prompt.category === PromptCategory.TOOL_PROTOCOLS || prompt.category === PromptCategory.SECURITY_PATTERNS) {
+    if (
+      prompt.category === PromptCategory.TOOL_PROTOCOLS ||
+      prompt.category === PromptCategory.SECURITY_PATTERNS
+    ) {
       factors.push({
         factor: 'system_impact',
         value: 'system-level changes',
-        severity: 'high'
+        severity: 'high',
       });
     }
 
@@ -164,7 +179,7 @@ export class RiskAwareCompositionStrategy implements PatternAwareStrategy {
       factors.push({
         factor: 'reversibility',
         value: 'destructive operations',
-        severity: 'high'
+        severity: 'high',
       });
     }
 
@@ -188,7 +203,7 @@ export class RiskAwareCompositionStrategy implements PatternAwareStrategy {
   }
 
   /**
-   * Get the risk assessment pattern template from claude-code-prompts
+   * Get the risk assessment pattern template
    */
   private getRiskAssessmentPattern(): string {
     return `---
@@ -245,9 +260,9 @@ OUTPUT REQUIREMENTS
   private wrapPromptWithRiskAssessment(
     promptContent: string,
     riskProfile: RiskProfile,
-    safeguards: any[],
+    safeguards: { type: string; description: string; required: boolean }[],
     escalationStage: string,
-    context: Partial<TemplateContext>
+    context: Partial<TemplateContext>,
   ): string {
     // Template context for this specific wrapping
     const wrapperContext = {
@@ -257,9 +272,9 @@ OUTPUT REQUIREMENTS
         factors: riskProfile.factors,
         safeguarding: safeguards,
         assumptions: riskProfile.assumptions,
-        recommended_tools: riskProfile.recommended_tools
+        recommended_tools: riskProfile.recommended_tools,
       },
-      escalation_stage: escalationStage
+      escalation_stage: escalationStage,
     };
 
     // Merge original prompt with assessment
@@ -281,7 +296,7 @@ ${promptContent}`;
       PromptCategory.SECURITY_PATTERNS,
       PromptCategory.AGENT_ORCHESTRATION,
       PromptCategory.VERIFICATION_CHECKPOINTS,
-      PromptCategory.UTILITY_OPERATIONS
+      PromptCategory.UTILITY_OPERATIONS,
     ];
 
     return HIGH_RISK_CATEGORIES.includes(category as PromptCategory);
@@ -291,7 +306,10 @@ ${promptContent}`;
 // Helper function for tests to bypass safe enum guards
 export function getEscalationStrategy(): 'minimal' | 'standard' | 'aggressive' {
   const strategies = ['minimal', 'standard', 'aggressive'];
-  return strategies[Math.floor(Math.random() * strategies.length)] as 'minimal' | 'standard' | 'aggressive';
+  return strategies[Math.floor(Math.random() * strategies.length)] as
+    | 'minimal'
+    | 'standard'
+    | 'aggressive';
 }
 
 export function getEscalationString(): string {

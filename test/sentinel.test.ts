@@ -1,31 +1,31 @@
 /**
  * SENTINEL ARCHITECTURE TEST SUITE
- * 
+ *
  **Test Coverage:**
  * 1. Guard Blocking: Domain Leak prevention
  * 2. Guard Approval: Safe move operations
  * 3. Score Impact: Score drop blocking
  * 4. worker Pool Performance: Multi-core utilization
  * 5. Integration: RefactorTools harnessing JoySim
- * 
+ *
  **Running Tests:**
  * npm test sentinel
- * 
+ *
  **Pre-flight:**
  * Ensure verify_hardening, verify_healing, verify_memory all pass
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { ConsoleLoggerAdapter } from '../src/infrastructure/ConsoleLoggerAdapter';
-import { LogLevel } from '../src/domain/logging/LogLevel';
-import { IntegrityScanner } from '../src/domain/integrity/IntegrityScanner';
-import { type IntegrityReport } from '../src/domain/memory/Integrity';
-import { WorkerPoolAdapter } from '../src/infrastructure/WorkerPoolAdapter';
-import { RefactorTools } from '../src/infrastructure/tools/RefactorTools';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { ArchitecturalGuardian } from '../src/domain/architecture/ArchitecturalGuardian';
-import { JoySimulator } from '../src/infrastructure/architecture/JoySimulator';
-import { IntegrityAdapter } from '../src/infrastructure/IntegrityAdapter';
+import type { IntegrityScanner } from '../src/domain/integrity/IntegrityScanner';
+import { LogLevel } from '../src/domain/logging/LogLevel';
+import type { IntegrityReport } from '../src/domain/memory/Integrity';
 import { IntegrityPolicy } from '../src/domain/memory/IntegrityPolicy';
+import { ConsoleLoggerAdapter } from '../src/infrastructure/ConsoleLoggerAdapter';
+import { IntegrityAdapter } from '../src/infrastructure/IntegrityAdapter';
+import { WorkerPoolAdapter } from '../src/infrastructure/WorkerPoolAdapter';
+import { JoySimulator } from '../src/infrastructure/architecture/JoySimulator';
+import { RefactorTools } from '../src/infrastructure/tools/RefactorTools';
 
 describe('🛡️ SENTINEL ARCHITECTURE VERIFICATION', () => {
   let integrityScanner: IntegrityScanner;
@@ -53,30 +53,29 @@ describe('🛡️ SENTINEL ARCHITECTURE VERIFICATION', () => {
 
   /**
    * SENTINEL TEST 1: Blocked by Domain Leak
-   * 
- **Scenario:** Attempt to move Infrastructure file into Domain layer
- **Expected:** Operation blocked with DOMAIN_LEAK violation
+   *
+   **Scenario:** Attempt to move Infrastructure file into Domain layer
+   **Expected:** Operation blocked with DOMAIN_LEAK violation
    */
   it('SENTINEL-1: Blocked by Domain Leak (Infrastructure → Domain)', async () => {
     const currentReport = await integrityScanner.scan('/Users/bozoegg/Downloads/DietCode');
-    
+
     const oldPath = 'src/infrastructure/Guard.ts';
     const newPath = 'src/domain/Tool.ts'; // ❌ This is a DOMAIN LEAK
-    
+
     // Run JoySim simulation
-    const simResult = await simulator.simulateGuard(
-      `/${oldPath}`,
-      `/${newPath}`,
-      currentReport
-    );
+    const simResult = await simulator.simulateGuard(`/${oldPath}`, `/${newPath}`, currentReport);
 
     // Assertions
     expect(simResult.isSafe, 'JoySim should predict unsafe move').toBe(false);
-    expect(simResult.violations.some((v) => v.type === 'DOMAIN_LEAK'), 'Should detect DOMAIN_LEAK').toBe(true);
+    expect(
+      simResult.violations.some((v) => v.type === 'DOMAIN_LEAK'),
+      'Should detect DOMAIN_LEAK',
+    ).toBe(true);
 
     // Verify REFLECTIVE BLOCKING in RefactorTools
     const blockResult = await refactorTools.moveAndFixImports(oldPath, newPath, { force: false });
-    
+
     expect(blockResult.blocked, 'RefactorTools should also block this move').toBe(true);
 
     console.log('✅ SENTINEL-1: Domain leak correctly detected and blocked');
@@ -84,13 +83,13 @@ describe('🛡️ SENTINEL ARCHITECTURE VERIFICATION', () => {
 
   /**
    * SENTINEL TEST 2: Approved Safe Move
-   * 
- **Scenario:** Move within same layer (e.g., Core → Core subdirectory)
- **Expected:** Operation approved (no blocking violations)
+   *
+   **Scenario:** Move within same layer (e.g., Core → Core subdirectory)
+   **Expected:** Operation approved (no blocking violations)
    */
   it('SENTINEL-2: Approved Safe Move (Core → Core)', async () => {
     const currentReport = await integrityScanner.scan('/Users/bozoegg/Downloads/DietCode');
-    
+
     const oldPath = 'src/core/SafetyGuard.ts';
     const newPath = 'src/core/SafetyGuard.ts/tabs'; // Valid: Core file moved within Core
 
@@ -104,13 +103,13 @@ describe('🛡️ SENTINEL ARCHITECTURE VERIFICATION', () => {
 
   /**
    * SENTINEL TEST 3: Score Drop Blocking
-   * 
- **Scenario:** Moving file that causes cascade violations affecting score
- **Expected:** Operation blocked if score drop > 10 points
+   *
+   **Scenario:** Moving file that causes cascade violations affecting score
+   **Expected:** Operation blocked if score drop > 10 points
    */
   it('SENTINEL-3: Blocked by Score Drop (>10 points)', async () => {
     const currentReport = await integrityScanner.scan('/Users/bozoegg/Downloads/DietCode');
-    
+
     const oldPath = 'src/infrastructure/FileIntegrityAnalyzer.ts';
     const newPath = 'src/core/IntegrityAnalyzer.ts'; // Might cause cascade violations
 
@@ -149,7 +148,7 @@ describe('🛡️ SENTINEL ARCHITECTURE VERIFICATION', () => {
 
     // Performance assertions
     const metrics = pool.getMetrics();
-    
+
     // Verify strict language: "multiple CPU cores were utilized" if available
     expect(duration, 'Full scan should complete in <5s').toBeLessThan(5000);
     expect(metrics.workerCount, 'Should use multiple workers').toBeGreaterThan(1);
@@ -157,14 +156,16 @@ describe('🛡️ SENTINEL ARCHITECTURE VERIFICATION', () => {
     expect(report.score, 'Score should be between 0-100').toBeGreaterThanOrEqual(0);
     expect(report.score, 'Score should be between 0-100').toBeLessThanOrEqual(100);
 
-    console.log(`✅ SENTINEL-4: ${duration}ms scan, ${metrics.workerCount} cores utilized, ${report.fileCount} files scanned`);
+    console.log(
+      `✅ SENTINEL-4: ${duration}ms scan, ${metrics.workerCount} cores utilized, ${report.fileCount} files scanned`,
+    );
   });
 
   /**
    * SENTINEL TEST 5: ArchitectureGuardian Predictive Logic
-   * 
- **Scenario:** Pure logic test without file system access
- **Expected:** Guardian returns accurate predictions without I/O
+   *
+   **Scenario:** Pure logic test without file system access
+   **Expected:** Guardian returns accurate predictions without I/O
    */
   it('SENTINEL-5: ArchitectureGuardian Predictive Logic (No I/O)', async () => {
     const testCases = [
@@ -173,35 +174,35 @@ describe('🛡️ SENTINEL ARCHITECTURE VERIFICATION', () => {
         oldPath: 'src/infra/Guard.ts',
         newPath: 'src/domain/Tool.ts',
         expectedBlocked: true,
-        violationType: 'DOMAIN_LEAK'
+        violationType: 'DOMAIN_LEAK',
       },
       {
         scenario: 'Move Core within Core',
         oldPath: 'src/core/SafetyGuard.ts',
         newPath: 'src/core/safety/Guard.ts',
         expectedBlocked: false,
-        violationType: undefined
+        violationType: undefined,
       },
       {
         scenario: 'Move from Core to UI (Topology Violation)',
         oldPath: 'src/core/Tool.ts',
         newPath: 'src/ui/Tool.ts',
         expectedBlocked: false, // Only topology (warn), score OK
-        violationType: 'SCORE_DROPPED' // Or warn
-      }
+        violationType: 'SCORE_DROPPED', // Or warn
+      },
     ];
 
     const currentReport: IntegrityReport = {
       score: 95,
       violations: [],
-      scannedAt: new Date().toISOString()
+      scannedAt: new Date().toISOString(),
     };
 
     for (const testCase of testCases) {
       const result = await ArchitecturalGuardian.simulateGuard(
         `/${testCase.oldPath}`,
         `/${testCase.newPath}`,
-        currentReport
+        currentReport,
       );
 
       if (testCase.expectedBlocked) {
@@ -218,31 +219,31 @@ describe('🛡️ SENTINEL ARCHITECTURE VERIFICATION', () => {
 
   /**
    * SENTINEL TEST 6: Parallel Scanning Consistency
-   * 
- **Scenario:** Verify multi-worker scan produces same result as single-threaded (baseline)
- **Expected:** Aggregated score Same, Just different violations order
+   *
+   **Scenario:** Verify multi-worker scan produces same result as single-threaded (baseline)
+   **Expected:** Aggregated score Same, Just different violations order
    */
   it.skip('SENTINEL-6: Parallel Scanning Consistency (Baseline Compare)', async () => {
     // SKIP: This is optional integration test - comparing worker pool to single-threaded
     // Would require careful file exclusion for fair comparison
-    
+
     console.log('⏭️ SENTINEL-6: Skipped (Optional integration test)');
   });
 
   /**
    * SENTINEL TEST 7: Genesis Fail-safe Rollback
-   * 
- **Scenario:** 100% trapped by Guardian (JoySim blocking)
- **Expected:** Attempt move with force=false (auto-block) and force=true (allow) both handled
+   *
+   **Scenario:** 100% trapped by Guardian (JoySim blocking)
+   **Expected:** Attempt move with force=false (auto-block) and force=true (allow) both handled
    */
   it('SENTINEL-7: Genesis Fail-safe Rollback', async () => {
     const currentReport = await integrityScanner.scan('/Users/bozoegg/Downloads/DietCode');
-    
+
     // Test blocked scenario
     const blockResult = await refactorTools.moveAndFixImports(
       'src/infra/Guard.ts',
       'src/domain/Tool.ts',
-      { force: false }
+      { force: false },
     );
 
     expect(blockResult.blocked, 'Force=false should block').toBe(true);
@@ -257,8 +258,8 @@ describe('🛡️ SENTINEL ARCHITECTURE VERIFICATION', () => {
         onEvent: (event) => {
           // Verify event type
           expect(event.type).toBe('FORCE_OVERRIDE');
-        }
-      }
+        },
+      },
     );
 
     expect(forceResult.blocked, 'Force=true should allow for testing').toBe(false);
@@ -267,17 +268,3 @@ describe('🛡️ SENTINEL ARCHITECTURE VERIFICATION', () => {
     console.log('✅ SENTINEL-7: Fail-safe rollback handled correctly');
   });
 });
-
-/**
- * RUNNER COMMANDS
- * 
- * To run all Sentinel tests:
- * npm test sentinel
- * 
- * To run specific test:
- * npm test test/sentinel.test.ts SENTINEL-1
- * npm test test/sentinel.test.ts SENTINEL-4
- */
-
-// Export for mandelbrot tests
-export {};

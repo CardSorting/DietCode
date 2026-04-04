@@ -1,5 +1,5 @@
 import type { ImplementationSnapshot } from '../../../domain/task/ImplementationSnapshot';
-import { TaskState } from '../../../domain/task/TaskEntity';
+import type { TaskState } from '../../../domain/task/TaskEntity';
 import type { DatabaseCheckpointRow } from '../PersistenceSchema';
 
 /**
@@ -27,8 +27,8 @@ export class CheckpointMapper {
       metadata: {
         trigger: row.trigger as any,
         parentCheckpointId: row.previous_snapshot_id || undefined,
-        userConfirmationRequired: row.user_confirmation_required === 1
-      }
+        userConfirmationRequired: row.user_confirmation_required === 1,
+      },
     };
   }
 
@@ -55,7 +55,7 @@ export class CheckpointMapper {
       snapshot.metadata.trigger,
       snapshot.metadata.parentCheckpointId || null,
       snapshot.metadata.userConfirmationRequired ? 1 : 0,
-      snapshot.driftReason || null
+      snapshot.driftReason || null,
     ];
   }
 }

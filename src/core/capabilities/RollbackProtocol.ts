@@ -1,7 +1,7 @@
 /**
  * [LAYER: CORE]
  * Principle: Application orchestration — coordinates Domain and Infrastructure
- * Prework Status: 
+ * Prework Status:
  *   - Step 0: ✅ Dead code cleared
  *   - Verification: ✅ verify_hardening pass
  *   - Dependency Flow: ✅ Native protocols followed
@@ -9,8 +9,8 @@
  *   - [CONSOLIDATE] Imported separately - no conflicts with infrastructure module
  */
 
-import type { 
+import type {
   Backup as DomainBackup,
   RollbackOperation as DomainRollbackOperation,
-  RollbackProtocol as DomainRollbackProtocol
+  RollbackProtocol as DomainRollbackProtocol,
 } from '../../domain/validation/RollbackProtocol';

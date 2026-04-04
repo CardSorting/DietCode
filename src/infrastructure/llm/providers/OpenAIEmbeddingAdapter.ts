@@ -2,14 +2,19 @@
  * [LAYER: INFRASTRUCTURE]
  * Principle: OpenAI embedding provider implementation
  * Prework Status: Not applicable (new file)
- * 
+ *
  * Implements the EmbeddingService interface for OpenAI embeddings.
  * Supports the text-embedding-3-small and text-embedding-3-large models.
  */
 
 import { OpenAI } from 'openai';
 import type { EmbeddingService } from '../../../domain/agent/EmbeddingService';
-import type { LLMAdapter, ModelInfo, ApiStream, Message } from '../../../domain/agent/LLMProviderAdapter';
+import type {
+  ApiStream,
+  LLMAdapter,
+  Message,
+  ModelInfo,
+} from '../../../domain/agent/LLMProviderAdapter';
 import { PromptStrategy } from '../../../domain/agent/LLMProviderAdapter';
 import type { ToolDefinition } from '../../../domain/agent/ToolDefinition';
 
@@ -25,10 +30,10 @@ export interface OpenAIEmbeddingConfig {
 
 /**
  * OpenAI Embedding Adapter
- * 
+ *
  * Generates embeddings using OpenAI's embedding models.
  * Supports batch generation for efficiency and rate limit adherence.
- * 
+ *
  * Implements both EmbeddingService for RAG and LLMAdapter for the registry.
  */
 export class OpenAIEmbeddingAdapter implements EmbeddingService, LLMAdapter {
@@ -100,7 +105,7 @@ export class OpenAIEmbeddingAdapter implements EmbeddingService, LLMAdapter {
       return [await this.generateEmbedding(texts[0])];
     }
 
-    const cleanTexts = texts.filter(t => t && t.trim().length > 0);
+    const cleanTexts = texts.filter((t) => t && t.trim().length > 0);
 
     try {
       const result = await this.client.embeddings.create({
@@ -149,11 +154,7 @@ export class OpenAIEmbeddingAdapter implements EmbeddingService, LLMAdapter {
   /**
    * Stub for message creation (not supported by embedding adapter)
    */
-  createMessage(
-    _system: string,
-    _messages: Message[],
-    _tools?: ToolDefinition[]
-  ): ApiStream {
+  createMessage(_system: string, _messages: Message[], _tools?: ToolDefinition[]): ApiStream {
     throw new Error('OpenAIEmbeddingAdapter does not support message creation');
   }
 
@@ -167,7 +168,7 @@ export class OpenAIEmbeddingAdapter implements EmbeddingService, LLMAdapter {
       maxTokens: 8191,
       supportsPromptCache: false,
       supportsReasoning: false,
-      supportsStreaming: false
+      supportsStreaming: false,
     };
   }
 

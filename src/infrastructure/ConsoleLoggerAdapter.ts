@@ -4,9 +4,9 @@
  * Replaces all console.log calls with proper log level distinction.
  */
 
-import type { LogService } from '../domain/logging/LogService';
-import { LogLevel } from '../domain/logging/LogLevel';
 import type { LogEntry, LogMetadata } from '../domain/logging/LogEntry';
+import { LogLevel } from '../domain/logging/LogLevel';
+import type { LogService } from '../domain/logging/LogService';
 
 export class ConsoleLoggerAdapter implements LogService {
   private minLevel: LogLevel = LogLevel.INFO;

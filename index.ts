@@ -1,40 +1,45 @@
-import { Orchestrator } from './src/core/orchestration/orchestrator';
-import { AnthropicProvider } from './src/infrastructure/llm/providers/AnthropicProvider';
-import { CloudflareProvider } from './src/infrastructure/llm/providers/CloudflareProvider';
-import { TerminalUI } from './src/ui/terminal';
-import { ConsoleLoggerAdapter } from './src/infrastructure/ConsoleLoggerAdapter';
-import { NodeTerminalAdapter } from './src/infrastructure/NodeTerminalAdapter';
-import { ToolManager } from './src/core/capabilities/ToolManager';
-import { CommandProcessor } from './src/core/capabilities/CommandProcessor';
-import { createReadFileTool, createWriteFileTool, createReadRangeTool, createListFilesTool } from './src/infrastructure/tools/fileTools';
-import { createGrepTool } from './src/infrastructure/tools/grep';
-import { createMkdirTool } from './src/infrastructure/tools/mkdir';
-import { FileSystemAdapter } from './src/infrastructure/FileSystemAdapter';
-import { Registry, SERVICES } from './src/core/orchestration/Registry';
-import { SovereignDb } from './src/infrastructure/database/SovereignDb';
-import { SqliteSessionRepository } from './src/infrastructure/database/SqliteSessionRepository';
-import { SqliteDecisionRepository } from './src/infrastructure/database/SqliteDecisionRepository';
-import { SqliteHealingRepository } from './src/infrastructure/database/SqliteHealingRepository';
 import { AgentRegistry } from './src/core/capabilities/AgentRegistry';
-import { QueueWorker } from './src/infrastructure/queue/QueueWorker';
-import { DiscoveryService } from './src/core/context/DiscoveryService';
-import { ContextService } from './src/core/context/ContextService';
-import { AttachmentResolver } from './src/core/context/AttachmentResolver';
+import { CommandProcessor } from './src/core/capabilities/CommandProcessor';
 import { SkillLoader } from './src/core/capabilities/SkillLoader';
-import { SqliteAuditRepository } from './src/infrastructure/database/SqliteAuditRepository';
-import { SqliteKnowledgeRepository } from './src/infrastructure/database/SqliteKnowledgeRepository';
-import { NodeSystemAdapter } from './src/infrastructure/NodeSystemAdapter';
-import { EventBus } from './src/core/orchestration/EventBus';
-import { Ignorer } from './src/core/context/Ignorer';
+import { ToolManager } from './src/core/capabilities/ToolManager';
+import { AttachmentResolver } from './src/core/context/AttachmentResolver';
 import { ContextPruner } from './src/core/context/ContextPruner';
+import { ContextService } from './src/core/context/ContextService';
+import { DiscoveryService } from './src/core/context/DiscoveryService';
+import { Ignorer } from './src/core/context/Ignorer';
 import { IntegrityService } from './src/core/integrity/IntegrityService';
-import { IntegrityAdapter } from './src/infrastructure/IntegrityAdapter';
-import { HandoverService } from './src/core/orchestration/HandoverService';
-import { MemoryService } from './src/core/memory/MemoryService';
 import { SelfHealingService } from './src/core/integrity/SelfHealingService';
-import { IntegrityPolicy } from './src/domain/memory/IntegrityPolicy';
+import { MemoryService } from './src/core/memory/MemoryService';
+import { EventBus } from './src/core/orchestration/EventBus';
+import { HandoverService } from './src/core/orchestration/HandoverService';
+import { Registry, SERVICES } from './src/core/orchestration/Registry';
+import { Orchestrator } from './src/core/orchestration/orchestrator';
 import type { ProjectContext } from './src/domain/context/ProjectContext';
 import { LogLevel } from './src/domain/logging/LogLevel';
+import { IntegrityPolicy } from './src/domain/memory/IntegrityPolicy';
+import { ConsoleLoggerAdapter } from './src/infrastructure/ConsoleLoggerAdapter';
+import { FileSystemAdapter } from './src/infrastructure/FileSystemAdapter';
+import { IntegrityAdapter } from './src/infrastructure/IntegrityAdapter';
+import { NodeSystemAdapter } from './src/infrastructure/NodeSystemAdapter';
+import { NodeTerminalAdapter } from './src/infrastructure/NodeTerminalAdapter';
+import { SovereignDb } from './src/infrastructure/database/SovereignDb';
+import { SqliteAuditRepository } from './src/infrastructure/database/SqliteAuditRepository';
+import { SqliteDecisionRepository } from './src/infrastructure/database/SqliteDecisionRepository';
+import { SqliteHealingRepository } from './src/infrastructure/database/SqliteHealingRepository';
+import { SqliteKnowledgeRepository } from './src/infrastructure/database/SqliteKnowledgeRepository';
+import { SqliteSessionRepository } from './src/infrastructure/database/SqliteSessionRepository';
+import { AnthropicProvider } from './src/infrastructure/llm/providers/AnthropicProvider';
+import { CloudflareProvider } from './src/infrastructure/llm/providers/CloudflareProvider';
+import { QueueWorker } from './src/infrastructure/queue/QueueWorker';
+import {
+  createListFilesTool,
+  createReadFileTool,
+  createReadRangeTool,
+  createWriteFileTool,
+} from './src/infrastructure/tools/fileTools';
+import { createGrepTool } from './src/infrastructure/tools/grep';
+import { createMkdirTool } from './src/infrastructure/tools/mkdir';
+import { TerminalUI } from './src/ui/terminal';
 
 async function main() {
   // Initialize logger with proper dependency injection
@@ -72,14 +77,14 @@ async function main() {
   // LLM Provider
   let provider: any;
   if (cfAccountId && cfApiToken) {
-    console.log(`[CORE] Initializing Cloudflare Workers AI (@cf/moonshotai/kimi-k2.5)`);
+    console.log('[CORE] Initializing Cloudflare Workers AI (@cf/moonshotai/kimi-k2.5)');
     provider = new CloudflareProvider({
       accountId: cfAccountId,
       apiToken: cfApiToken,
       logService: logger,
     });
   } else {
-    console.log(`[CORE] Initializing Anthropic Provider`);
+    console.log('[CORE] Initializing Anthropic Provider');
     provider = new AnthropicProvider(apiKey!, logger);
   }
 
@@ -96,7 +101,7 @@ async function main() {
     selfHealingService,
     agentRegistry,
     provider,
-    logger as any
+    logger as any,
   );
   await worker.start();
 
@@ -143,9 +148,10 @@ async function main() {
   }
 
   // 2. Register default "Swarm Router" agent
-  const specializedAgents = agentRegistry.getAllAgents()
-    .filter(a => a.id !== 'agent-dietcode')
-    .map(a => `- ${a.title} (${a.id}): ${a.def.description ?? ''}`)
+  const specializedAgents = agentRegistry
+    .getAllAgents()
+    .filter((a) => a.id !== 'agent-dietcode')
+    .map((a) => `- ${a.title} (${a.id}): ${a.def.description ?? ''}`)
     .join('\n');
 
   agentRegistry.register({
@@ -209,7 +215,7 @@ Follow the JoyZoning architecture for all operations.`,
     pruner,
     ignorer,
     projectContext,
-    memoryService
+    memoryService,
   );
 
   const initialInput = process.argv.slice(2).join(' ');

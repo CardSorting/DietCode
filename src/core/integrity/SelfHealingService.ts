@@ -4,17 +4,21 @@
  * Uses structured logging for production-grade observability.
  */
 
-import { EventBus } from '../orchestration/EventBus';
 import { EventType } from '../../domain/Event';
-import type { IntegrityReport, IntegrityViolation } from '../../domain/memory/Integrity';
-import { HealingStatus, type HealingProposal, type HealingTask } from '../../domain/healing/Healing';
+import {
+  type HealingProposal,
+  HealingStatus,
+  type HealingTask,
+} from '../../domain/healing/Healing';
 import type { HealingRepository } from '../../domain/healing/HealingRepository';
-import { JobType, type QueueProvider } from '../../domain/system/QueueProvider';
-import type { SnapshotService } from '../memory/SnapshotService';
 import type { VerificationProvider } from '../../domain/healing/VerificationProvider';
 import type { LogService } from '../../domain/logging/LogService';
-import { LockOrchestrator, LockTimeoutStrategy } from '../manager/LockOrchestrator.ts';
+import type { IntegrityReport, IntegrityViolation } from '../../domain/memory/Integrity';
 import type { LockScope } from '../../domain/safety/LockScope';
+import { JobType, type QueueProvider } from '../../domain/system/QueueProvider';
+import { LockOrchestrator, LockTimeoutStrategy } from '../manager/LockOrchestrator.ts';
+import type { SnapshotService } from '../memory/SnapshotService';
+import { EventBus } from '../orchestration/EventBus';
 
 export class SelfHealingService {
   private eventBus: EventBus;
@@ -29,7 +33,7 @@ export class SelfHealingService {
       queue: QueueProvider;
       snapshotService: SnapshotService;
       verificationProvider: VerificationProvider;
-    }
+    },
   ) {
     this.eventBus = EventBus.getInstance(logService);
     if (deps) {
@@ -60,36 +64,42 @@ export class SelfHealingService {
           taskId: 'self-healing',
           operation: `triage_${violation.id}`,
           timeoutMs: 30000,
-          autoRelease: true
+          autoRelease: true,
         };
 
         try {
-          await lockOrchestrator.executeInLock(scope, async () => {
-            const specialistId = this.assignSpecialist(violation);
+          await lockOrchestrator.executeInLock(
+            scope,
+            async () => {
+              const specialistId = this.assignSpecialist(violation);
 
-            if (this.queue && this.snapshotService) {
-              const snapshotId = await this.snapshotService.capture(violation.file);
+              if (this.queue && this.snapshotService) {
+                const snapshotId = await this.snapshotService.capture(violation.file);
 
-              await this.queue.enqueue({
-                type: JobType.CODE_HEAL,
-                payload: {
-                  violationId: violation.id,
-                  violation,
-                  specialistId,
-                  snapshotId,
-                },
-              });
-            }
+                await this.queue.enqueue({
+                  type: JobType.CODE_HEAL,
+                  payload: {
+                    violationId: violation.id,
+                    violation,
+                    specialistId,
+                    snapshotId,
+                  },
+                });
+              }
 
-            tasksEnqueued++;
-            this.logService.info(
-              `Enqueued healing task for ${violation.type} on ${violation.file}`,
-              { violationType: violation.type, file: violation.file },
-              { component: 'SelfHealingService' }
-            );
-          }, LockTimeoutStrategy.BACKOFF);
+              tasksEnqueued++;
+              this.logService.info(
+                `Enqueued healing task for ${violation.type} on ${violation.file}`,
+                { violationType: violation.type, file: violation.file },
+                { component: 'SelfHealingService' },
+              );
+            },
+            LockTimeoutStrategy.BACKOFF,
+          );
         } catch (error) {
-          this.logService.warn(`Lock acquisition failed for violation ${violation.id}. Skipping triage for now.`);
+          this.logService.warn(
+            `Lock acquisition failed for violation ${violation.id}. Skipping triage for now.`,
+          );
         }
       }
     }
@@ -117,9 +127,9 @@ export class SelfHealingService {
     await this.repository.saveProposal(proposal);
 
     this.logService.info(
-      `New proposal generated and persisted for violation`,
+      'New proposal generated and persisted for violation',
       { violationId: proposal.violationId, proposalId: proposal.id },
-      { component: 'SelfHealingService' }
+      { component: 'SelfHealingService' },
     );
 
     this.eventBus.emit(EventType.ERROR_OCCURRED, {
@@ -134,16 +144,16 @@ export class SelfHealingService {
       const result = await this.verificationProvider.verifyResolution(proposal.violationId);
       if (result.isResolved) {
         this.logService.info(
-          `Loop closed! Violation verified as resolved`,
+          'Loop closed! Violation verified as resolved',
           { violationId: proposal.violationId },
-          { component: 'SelfHealingService' }
+          { component: 'SelfHealingService' },
         );
         await this.repository.updateProposalStatus(proposal.id, HealingStatus.APPLIED);
       } else {
         this.logService.warn(
-          `Refactor applied but violation persists. TRIGGERING ATOMIC ROLLBACK.`,
+          'Refactor applied but violation persists. TRIGGERING ATOMIC ROLLBACK.',
           { violationId: proposal.violationId },
-          { component: 'SelfHealingService' }
+          { component: 'SelfHealingService' },
         );
 
         // [HARDENING] Atomic Rollback — restore to previous snapshot
@@ -151,7 +161,7 @@ export class SelfHealingService {
           await this.snapshotService.undo(proposal.violation.file);
           this.logService.info(`Atomic rollback successful for ${proposal.violation.file}`);
         }
-        
+
         await this.repository.updateProposalStatus(proposal.id, HealingStatus.FAILED);
       }
     }

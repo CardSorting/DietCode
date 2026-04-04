@@ -4,10 +4,10 @@
  * Implementation: Automated health checks and infrastructure remediation.
  */
 
+import * as path from 'node:path';
+import { EventType } from '../../domain/Event';
 import type { Filesystem } from '../../domain/system/Filesystem';
 import { EventBus } from '../orchestration/EventBus';
-import { EventType } from '../../domain/Event';
-import * as path from 'path';
 
 export interface HealthStatus {
   healthy: boolean;
@@ -49,18 +49,19 @@ export class SovereignDoctor {
     // 3. Check for workspace configuration
     await this.checkWorkspaceIntegrity(issues);
 
-    const healthy = issues.filter(i => i.severity === 'HIGH' || i.severity === 'CRITICAL').length === 0;
+    const healthy =
+      issues.filter((i) => i.severity === 'HIGH' || i.severity === 'CRITICAL').length === 0;
 
     const status = {
       healthy,
       issues,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     if (!healthy) {
-      this.eventBus.publish(EventType.SYSTEM_ERROR, { 
-        component: 'SovereignDoctor', 
-        message: `System health check failed: ${issues.length} issues detected` 
+      this.eventBus.publish(EventType.SYSTEM_ERROR, {
+        component: 'SovereignDoctor',
+        message: `System health check failed: ${issues.length} issues detected`,
       });
     }
 
@@ -70,7 +71,9 @@ export class SovereignDoctor {
   /**
    * Attempts to remediate detectable issues.
    */
-  async remediate(issues: DiagnosticIssue[]): Promise<{ successCount: number; failureCount: number }> {
+  async remediate(
+    issues: DiagnosticIssue[],
+  ): Promise<{ successCount: number; failureCount: number }> {
     let successCount = 0;
     let failureCount = 0;
 
@@ -98,14 +101,14 @@ export class SovereignDoctor {
           const lockPath = path.join(this.workspaceRoot, entry.name);
           const stats = this.fs.stat(lockPath);
           const ageHours = (Date.now() - stats.mtimeMs) / (1000 * 60 * 60);
-          
+
           if (ageHours > 1) {
             issues.push({
               component: 'Infrastructure/Locks',
               severity: 'MEDIUM',
               message: `Stale lock file detected: ${entry.name} (Age: ${ageHours.toFixed(1)}h)`,
               remediable: true,
-              remediationAction: 'CLEAR_LOCKS'
+              remediationAction: 'CLEAR_LOCKS',
             });
           }
         }
@@ -123,7 +126,7 @@ export class SovereignDoctor {
         component: 'Infrastructure/Filesystem',
         severity: 'CRITICAL',
         message: `Filesystem adapter failure or workspace root inaccessible: ${this.workspaceRoot}`,
-        remediable: false
+        remediable: false,
       });
     }
   }
@@ -137,7 +140,7 @@ export class SovereignDoctor {
           component: 'Workspace/Integrity',
           severity: 'HIGH',
           message: `Critical workspace file missing: ${file}`,
-          remediable: false
+          remediable: false,
         });
       }
     }

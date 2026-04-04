@@ -4,9 +4,9 @@
  * Principle: Refactor Move Engine — Handles atomic IO operations for relocation.
  */
 
-import * as fs from 'fs';
-import { promises as pfs } from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import { promises as pfs } from 'node:fs';
+import * as path from 'node:path';
 
 export class RefactorMoveEngine {
   constructor(private projectRoot: string) {}

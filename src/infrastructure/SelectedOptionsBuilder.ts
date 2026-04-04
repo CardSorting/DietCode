@@ -2,18 +2,18 @@
  * [LAYER: INFRASTRUCTURE]
  * Principle: Infrastructure implementation of interactive tool prompt builders.
  * Provides fzf-based selection and input with fluent API patterns.
- * 
+ *
  * Inspired by: ForgeSelect's SelectBuilder and InputBuilder
  */
- 
+
+import { LogLevel } from '../domain/logging/LogLevel';
 import type { LogService } from '../domain/logging/LogService';
 import { ConsoleLoggerAdapter } from './ConsoleLoggerAdapter';
-import { LogLevel } from '../domain/logging/LogLevel';
 
 /**
  * FZF-based user selection builder.
  * Provides interactive tool selector with fuzzy matching.
- * 
+ *
  * Usage:
  * ```typescript
  * const result = await new SelectBuilder()
@@ -37,7 +37,7 @@ export class SelectBuilder {
   /**
    * Provide initial text for selection.
    * Example: "Enter branch name" or "Select directory to scan"
-   * 
+   *
    * @param text - Initial prompt text
    * @returns This builder for method chaining
    */
@@ -49,7 +49,7 @@ export class SelectBuilder {
   /**
    * Set starting cursor position (0 = first item).
    * Useful for remembering user's last selection.
-   * 
+   *
    * @param cursor - Cursor position (default: 0)
    * @returns This builder for method chaining
    */
@@ -61,7 +61,7 @@ export class SelectBuilder {
   /**
    * Set help message displayed in FZF view.
    * Example: "Use ↑↓ to navigate, Enter to select, Ctrl+C to cancel"
-   * 
+   *
    * @param msg - Help message
    * @returns This builder for method chaining
    */
@@ -73,7 +73,7 @@ export class SelectBuilder {
   /**
    * Set the available options for selection.
    * Can be file names, command options, or any user-provided items.
-   * 
+   *
    * @param options - Array of available options
    * @returns This builder for method chaining
    */
@@ -92,7 +92,7 @@ export class SelectBuilder {
   /**
    * Execute the selection prompt.
    * Returns selected option or null if cancelled.
-   * 
+   *
    * @returns Selected option string or null
    */
   async prompt(): Promise<string | null> {
@@ -101,11 +101,13 @@ export class SelectBuilder {
     }
 
     // Simulated FZF integration (replace with actual FZF library implementation)
-    this.logService.info(`\n${this.helpMessage || 'Use arrow keys to navigate, Enter to select, ESC to cancel'}`);
+    this.logService.info(
+      `\n${this.helpMessage || 'Use arrow keys to navigate, Enter to select, ESC to cancel'}`,
+    );
     this.logService.info(`\nAvailable options (${this.itemCount}):`);
-    
+
     this.selectedItems.forEach((item, index) => {
-      const prefix = (index === (this.startingCursor ?? index)) ? '> ' : '  ';
+      const prefix = index === (this.startingCursor ?? index) ? '> ' : '  ';
       this.logService.info(`${prefix}${item}`);
     });
 
@@ -119,7 +121,7 @@ export class SelectBuilder {
 /**
  * Simple input prompt builder.
  * Provides text input for variable values.
- * 
+ *
  * Usage:
  * ```typescript
  * const result = await new InputBuilder()
@@ -140,7 +142,7 @@ export class InputBuilder {
 
   /**
    * Set the input prompt message.
-   * 
+   *
    * @param msg - Prompt message
    * @returns This builder for method chaining
    */
@@ -152,7 +154,7 @@ export class InputBuilder {
   /**
    * Set a default value for the input.
    * Shown in brackets: `Enter value [default]`
-   * 
+   *
    * @param value - Default value
    * @returns This builder for method chaining
    */
@@ -164,13 +166,11 @@ export class InputBuilder {
   /**
    * Set a custom validator function.
    * Returns true if valid, or error message if invalid.
-   * 
+   *
    * @param validate - Validation function taking single value
    * @returns This builder for method chaining
    */
-  withValidator(
-    validate: (value: string) => boolean | string
-  ): this {
+  withValidator(validate: (value: string) => boolean | string): this {
     this.validator = validate;
     return this;
   }
@@ -178,11 +178,11 @@ export class InputBuilder {
   /**
    * Execute the input prompt.
    * Returns user input string or throws if validation fails.
-   * 
+   *
    * @returns User-provided value
    */
   async prompt(): Promise<string> {
-    const readline = require('readline');
+    const readline = require('node:readline');
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
@@ -195,7 +195,7 @@ export class InputBuilder {
 
       rl.question(promptText, (answer: string) => {
         let value = answer.trim();
-        
+
         // Use default if empty
         if (value.length === 0 && this.defaultValue !== undefined) {
           value = this.defaultValue;
@@ -228,18 +228,18 @@ export class InputBuilder {
 /**
  * Wrapper that creates a ToolHandler from SelectBuilder.
  * Returns a ToolHandler with built-in interactive selection.
- * 
+ *
  * @param selectBuilder - SelectBuilder configuration
  * @param toolName - Tool name for error messages
  * @returns ToolHandler ready for execution
  */
 export function buildSelectToolHandler<TInput, TResult>(
   selectBuilder: SelectBuilder,
-  toolName: string
+  toolName: string,
 ): ToolHandler<TInput, TResult> {
   async function execute(input: TInput): Promise<TResult> {
     const selection = await selectBuilder.prompt();
-    
+
     if (!selection) {
       throw new Error(`${toolName}: Selection cancelled`);
     }

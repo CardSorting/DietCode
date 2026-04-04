@@ -4,8 +4,8 @@
  */
 
 export enum KnowledgeType {
-  PATTERN = 'pattern',   // Repeating code styles or architectural rules
-  FACT = 'fact',         // Project-specific information (e.g., config locations)
+  PATTERN = 'pattern', // Repeating code styles or architectural rules
+  FACT = 'fact', // Project-specific information (e.g., config locations)
   LEARNING = 'learning', // High-level task outcome or cognitive realization
 }
 
@@ -14,7 +14,7 @@ export interface KnowledgeItem {
   key: string;
   value: string;
   type: KnowledgeType;
-  confidence: number;    // 0.0 to 1.0
+  confidence: number; // 0.0 to 1.0
   tags: string[];
   metadata?: Record<string, any>;
   lastAccessed?: string;

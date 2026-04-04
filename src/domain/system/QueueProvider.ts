@@ -13,7 +13,7 @@ export enum JobType {
   SEMANTIC_SCORING = 'SEMANTIC_SCORING',
   IMPACT_SCORING = 'IMPACT_SCORING',
   SHARDED_SCORING = 'SHARDED_SCORING',
-  UNIFIED_SCAN = 'UNIFIED_SCAN'
+  UNIFIED_SCAN = 'UNIFIED_SCAN',
 }
 
 export interface JobDefinition<T = unknown> {

@@ -24,12 +24,12 @@ export interface ProjectIntegrityReport {
   compliantFilesCount: number;
   blockedFilesCount: number;
   flaggedFilesCount: number;
-  
+
   /**
    * Detailed results categorized by layer
    */
   resultsByLayer: Record<string, FileIntegrityResult[]>;
-  
+
   /**
    * Critical remediation tasks derived from audit
    */

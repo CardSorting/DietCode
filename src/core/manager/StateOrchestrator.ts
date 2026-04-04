@@ -2,17 +2,17 @@
  * [LAYER: CORE]
  * Principle: Orchestrate domain state mutations with decoherence management
  * Prework Status: Not applicable (new file)
- * 
+ *
  * Orchestrates state change protocols with validation, debouncing, and caching.
  * Manages observer patterns for reactive state management.
  */
 
 import {
-  type StateChange,
-  type StateChangeResult,
-  StateChangePhase,
-  type StateObserver,
   type RollbackStrategy,
+  type StateChange,
+  StateChangePhase,
+  type StateChangeResult,
+  type StateObserver,
 } from '../../domain/state/StateChangeProtocol';
 
 /**
@@ -49,10 +49,10 @@ export interface StateOrchestratorConfig {
 
 /**
  * StateOrchestrator
- * 
+ *
  * Orchestrates state changes by validating, sanitizing, and applying them.
  * Supports debouncing for writing, caching for model info, and predecessor logic.
- * 
+ *
  * Key responsibilities:
  * - Validate state changes before persistence
  * - Sanitize values (type coercion, padding)
@@ -70,10 +70,7 @@ export class StateOrchestrator<T = unknown> {
   private rollbackStrategy: RollbackStrategy;
   private priorityRules: PrecedenceRule[];
 
-  private constructor(
-    config: StateOrchestratorConfig,
-    rollbackStrategy?: RollbackStrategy
-  ) {
+  private constructor(config: StateOrchestratorConfig, rollbackStrategy?: RollbackStrategy) {
     this.config = {
       defaultDebounceDelay: config.defaultDebounceDelay || 500,
       logChanges: config.logChanges !== false,
@@ -89,12 +86,12 @@ export class StateOrchestrator<T = unknown> {
           timestamp: Date.now(),
           correlationId: change.getCorrelationId(),
           actor: 'system',
-          source: 'automated'
+          source: 'automated',
         },
         originalValue: change.oldValue,
-        sanitizedValue: change.oldValue
+        sanitizedValue: change.oldValue,
       }),
-      canRollback: () => true
+      canRollback: () => true,
     };
     this.priorityRules = [];
   }
@@ -104,7 +101,7 @@ export class StateOrchestrator<T = unknown> {
    */
   static getInstance<T = unknown>(
     config?: StateOrchestratorConfig,
-    rollbackStrategy?: RollbackStrategy
+    rollbackStrategy?: RollbackStrategy,
   ): StateOrchestrator<T> {
     if (!StateOrchestrator.instance) {
       StateOrchestrator.instance = new StateOrchestrator(
@@ -113,7 +110,7 @@ export class StateOrchestrator<T = unknown> {
           logChanges: true,
           maxObservers: 50,
         },
-        rollbackStrategy
+        rollbackStrategy,
       );
     }
     return StateOrchestrator.instance as any;
@@ -148,14 +145,14 @@ export class StateOrchestrator<T = unknown> {
 
   /**
    * Apply a state change with validation, sanitizing, and persistence
-   * 
+   *
    * @param change - The state change to apply
    * @param debounceDelay - Delay before persistent write (0 = immediate)
    * @returns Result of the state change
    */
   async applyChange<T>(
     change: StateChange<T>,
-    debounceDelay?: number
+    debounceDelay?: number,
   ): Promise<StateChangeResult<T>> {
     const delay = debounceDelay ?? this.config.defaultDebounceDelay;
 
@@ -216,33 +213,32 @@ export class StateOrchestrator<T = unknown> {
       if (debounceDelay === 0 || FirestoreConfig.dryRun) {
         // Immediate write
         await this.persistChange(change, sanitizedValue);
-        
+
         await this.notifyObservers(change, result);
-        
+
         return {
           ...result,
           success: true,
           phase: StateChangePhase.COMPLETED,
         };
-      } else {
-        // Debounce the change
-        this.schedulePersist(change, sanitizedValue, delay);
-        
-        return {
-          ...result,
-          success: false, // Pending
-          phase: StateChangePhase.SANITIZED,
-        };
       }
+      // Debounce the change
+      this.schedulePersist(change, sanitizedValue, delay);
+
+      return {
+        ...result,
+        success: false, // Pending
+        phase: StateChangePhase.SANITIZED,
+      };
     } catch (error: any) {
-      console.error(`❌ Failed to persist state change:`, error);
-      
+      console.error('❌ Failed to persist state change:', error);
+
       // Trigger rollback if strategy supports it
       if (this.rollbackStrategy.canRollback(change)) {
         try {
           await this.rollback(change);
         } catch (rollbackError: any) {
-          console.error(`❌ Rollback failed:`, rollbackError);
+          console.error('❌ Rollback failed:', rollbackError);
         }
       }
 
@@ -257,11 +253,7 @@ export class StateOrchestrator<T = unknown> {
   /**
    * Schedule a debounced persist
    */
-  private schedulePersist<T>(
-    change: StateChange<T>,
-    value: T,
-    delay: number
-  ): void {
+  private schedulePersist<T>(change: StateChange<T>, value: T, delay: number): void {
     this.changesQueue.set(change.key, { newValue: value, dirty: true });
 
     if (this.debounceTimeout) {
@@ -298,7 +290,7 @@ export class StateOrchestrator<T = unknown> {
    */
   private async notifyObservers<T>(
     change: StateChange<T>,
-    result: StateChangeResult<T>
+    result: StateChangeResult<T>,
   ): Promise<void> {
     for (const [key, observer] of this.observers) {
       try {
@@ -325,9 +317,9 @@ export class StateOrchestrator<T = unknown> {
    */
   private async rollback<T>(change: StateChange<T>): Promise<void> {
     const rollbackResult = await this.rollbackStrategy.rollback(change);
-    
+
     console.log(`🔄 Rollback completed: ${change.key}`);
-    
+
     // Notify observers on rollback
     await this.notifyObservers(change, rollbackResult);
   }
@@ -370,7 +362,7 @@ export class StateOrchestrator<T = unknown> {
 
 /**
  * Simple Firestore-based storage for prototype
- * 
+ *
  * NOTE: Replace with actual storage implementation in production
  */
 const FirestoreConfig = {

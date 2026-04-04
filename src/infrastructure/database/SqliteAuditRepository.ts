@@ -1,6 +1,6 @@
-import { Core } from './sovereign/Core';
 import type { SystemEvent } from '../../domain/Event';
 import type { AuditProvider, AuditRecord } from '../../domain/system/AuditProvider';
+import { Core } from './sovereign/Core';
 
 /**
  * [LAYER: INFRASTRUCTURE]
@@ -53,4 +53,3 @@ export class SqliteAuditRepository implements AuditProvider {
     });
   }
 }
-

@@ -1,5 +1,5 @@
 import type { Database } from 'better-sqlite3';
-import type { TaskId, TaskEntity } from '../../../domain/task/TaskEntity';
+import type { TaskEntity, TaskId } from '../../../domain/task/TaskEntity';
 import type { DatabaseTaskRow } from '../PersistenceSchema';
 import { TaskMapper } from '../mappers/TaskMapper';
 
@@ -30,7 +30,9 @@ export class SqliteTaskRepository {
    * Retrieves a task by ID.
    */
   findById(taskId: TaskId): TaskEntity | null {
-    const row = this.db.prepare('SELECT * FROM hive_tasks WHERE id = ?').get(taskId) as DatabaseTaskRow | undefined;
+    const row = this.db.prepare('SELECT * FROM hive_tasks WHERE id = ?').get(taskId) as
+      | DatabaseTaskRow
+      | undefined;
     if (!row) return null;
     return TaskMapper.fromRow(row);
   }
@@ -38,23 +40,23 @@ export class SqliteTaskRepository {
   /**
    * Lists recent tasks.
    */
-  list(limit: number = 100): any[] {
-    return this.db.prepare(`
+  list(limit = 100): any[] {
+    return this.db
+      .prepare(`
       SELECT task_id, title, objective, state, priority, updated_at 
       FROM hive_tasks 
       ORDER BY updated_at DESC 
       LIMIT ?
-    `).all(limit);
+    `)
+      .all(limit);
   }
 
   /**
    * Updates task state and timestamp.
    */
   updateState(taskId: TaskId, state: string): void {
-    this.db.prepare('UPDATE hive_tasks SET state = ?, updated_at = ? WHERE id = ?').run(
-      state,
-      Date.now(),
-      taskId
-    );
+    this.db
+      .prepare('UPDATE hive_tasks SET state = ?, updated_at = ? WHERE id = ?')
+      .run(state, Date.now(), taskId);
   }
 }

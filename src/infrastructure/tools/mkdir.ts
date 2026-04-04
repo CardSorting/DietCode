@@ -11,7 +11,7 @@
 
 import type { ToolDefinition, ToolResult } from '../../domain/agent/ToolDefinition';
 import type { Filesystem } from '../../domain/system/Filesystem';
-import { validatePath, normalizePath } from './PathValidator';
+import { normalizePath, validatePath } from './PathValidator';
 
 /** Maximum directory tree depth for mkdir operations */
 const MAX_MKDIR_DEPTH = 15;
@@ -53,7 +53,7 @@ function validateMkdirInput(input: { path: string }): void {
   const segments = cleanPath.split('/').filter(Boolean);
   if (segments.length > MAX_MKDIR_DEPTH) {
     throw new Error(
-      `Directory path depth (${segments.length}) exceeds maximum of ${MAX_MKDIR_DEPTH} levels`
+      `Directory path depth (${segments.length}) exceeds maximum of ${MAX_MKDIR_DEPTH} levels`,
     );
   }
 }
@@ -66,7 +66,8 @@ function validateMkdirInput(input: { path: string }): void {
 export function createMkdirTool(fs: Filesystem): ToolDefinition<{ path: string }> {
   return {
     name: 'mkdir',
-    description: 'Create a new directory at the specified path. Creates parent directories recursively.',
+    description:
+      'Create a new directory at the specified path. Creates parent directories recursively.',
     inputSchema: {
       type: 'object',
       properties: {

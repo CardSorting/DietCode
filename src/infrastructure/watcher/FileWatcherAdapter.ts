@@ -2,12 +2,12 @@
  * [LAYER: INFRASTRUCTURE]
  * Principle: File system monitoring with event notification
  * Prework Status: Not applicable (new file)
- * 
+ *
  * Monitors file system changes and aggregates events for efficient notification.
  * Supports recursive and non-recursive watching with change filtering.
  */
 
-import { watch, FSWatcher as ChokidarWatcher } from 'chokidar';
+import { type FSWatcher as ChokidarWatcher, watch } from 'chokidar';
 import { FileChangeType } from '../../domain/context/FileChange.ts';
 import type { FileChange } from '../../domain/context/FileChange.ts';
 
@@ -124,10 +124,10 @@ export interface FileWatcherResult {
 
 /**
  * FileWatcherAdapter
- * 
+ *
  * Monitors file system changes and aggregates events for efficient notification.
  * Uses Chokidar for efficient file watching with diffing and change aggregation.
- * 
+ *
  * Key responsibilities:
  * - Watch file system for changes
  * - Aggregate events with debouncing
@@ -139,7 +139,7 @@ export class FileWatcherAdapter {
   private eventQueue: FileWatcherEvent[] = [];
   private aggregateTimeout: NodeJS.Timeout | null = null;
   private onFileChangeListeners: Set<(event: FileWatcherEvent) => Promise<void>> = new Set();
-  
+
   protected config: Required<FileWatcherConfig>;
   private watcherOptions: any;
   private recentlyEditedByAgent: Set<string> = new Set();
@@ -173,14 +173,14 @@ export class FileWatcherAdapter {
    */
   async watch(): Promise<void> {
     const paths = Array.isArray(this.config.paths) ? this.config.paths : [this.config.paths];
-    
+
     console.log(`👀 File watcher started: ${paths.join(', ')}`);
-    
+
     for (const path of paths) {
       // Normalize path to absolute
       const absolutePath = path.startsWith('/')
         ? path
-        : require('path').join(process.cwd(), path);
+        : require('node:path').join(process.cwd(), path);
 
       const watcher = watch(absolutePath, this.watcherOptions);
       this.watchers.set(absolutePath, watcher);
@@ -306,7 +306,7 @@ export class FileWatcherAdapter {
     if (this.aggregateTimeout) {
       clearTimeout(this.aggregateTimeout);
     }
-    
+
     this.eventQueue.push(event);
 
     this.aggregateTimeout = setTimeout(() => {
@@ -327,8 +327,8 @@ export class FileWatcherAdapter {
 
     for (const listener of this.onFileChangeListeners) {
       for (const event of events) {
-        listener(event).catch(error => {
-          console.error(`❌ File watcher listener error:`, error);
+        listener(event).catch((error) => {
+          console.error('❌ File watcher listener error:', error);
         });
       }
     }
@@ -363,7 +363,7 @@ export class FileWatcherAdapter {
    */
   private emitError(error: Error): void {
     // Notify listeners (implementation depends on your notification system)
-    console.error(`💥 File watcher error:`, error);
+    console.error('💥 File watcher error:', error);
   }
 
   /**
@@ -372,7 +372,7 @@ export class FileWatcherAdapter {
   reset(): void {
     this.flush();
     this.eventQueue = [];
-    console.log(`🔄 File watcher reset`);
+    console.log('🔄 File watcher reset');
   }
 
   /**
@@ -395,17 +395,15 @@ export class FileWatcherAdapter {
   isWatching(path: string): boolean {
     const absolutePath = path.startsWith('/')
       ? path
-      : require('path').join(process.cwd(), path);
-    
+      : require('node:path').join(process.cwd(), path);
+
     return this.watchers.has(absolutePath);
   }
 
   /**
    * Bind to a specific event type
    */
-  filterEvents(
-    eventFilter: (event: FileWatcherEvent) => Promise<void>
-  ): void {
+  filterEvents(eventFilter: (event: FileWatcherEvent) => Promise<void>): void {
     this.onFileChange(eventFilter);
   }
 }
@@ -421,7 +419,7 @@ export class RoundRobinFileWatcher extends FileWatcherAdapter {
     super(config);
     this.watchedPaths = Array(count).fill(''); // Will be updated by watch()
   }
-  
+
   private subWatchers: Map<string, FileWatcherAdapter> = new Map();
 
   override async watch(): Promise<void> {

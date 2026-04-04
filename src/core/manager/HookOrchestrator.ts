@@ -5,8 +5,13 @@ import type { Hook, PreToolCancellationProtocol } from '../../domain/hooks/HookC
  * Custom error for pre-tool usage cancellation
  */
 export class PreToolCancellationError extends Error {
-  constructor(public toolName: string, public protocol: PreToolCancellationProtocol) {
-    super(`Pre-tool hook cancelled execution of "${toolName}": ${protocol.reason || 'No reason provided'}`);
+  constructor(
+    public toolName: string,
+    public protocol: PreToolCancellationProtocol,
+  ) {
+    super(
+      `Pre-tool hook cancelled execution of "${toolName}": ${protocol.reason || 'No reason provided'}`,
+    );
     this.name = 'PreToolCancellationError';
   }
 }
@@ -32,7 +37,7 @@ export class HookOrchestrator {
 
   /**
    * Execute a hook chain
-   * 
+   *
    * @param toolName - Name of the tool being processed
    * @param input - Input data for the hook chain
    * @param toolResult - Result of the tool execution (for POST_EXECUTION hooks)
@@ -50,11 +55,11 @@ export class HookOrchestrator {
     for (const hook of preHooks) {
       try {
         const result = await hook.execute({ toolName, input });
-        
+
         // Check for cancellation protocol
-        if (result && result.shouldCancel) {
+        if (result?.shouldCancel) {
           console.warn(`⚠️  Pre-tool hook "${hook.name}" triggered cancellation: ${result.reason}`);
-          
+
           // Fail fast - don't execute tool
           throw new PreToolCancellationError(toolName, result);
         }
@@ -76,7 +81,7 @@ export class HookOrchestrator {
     for (const hook of toolHooks) {
       try {
         if (hook.isBackground) {
-          hook.execute({ toolName, input: currentInput }).catch(err => {
+          hook.execute({ toolName, input: currentInput }).catch((err) => {
             console.error(`❌ Background TOOL_EXECUTION hook "${hook.name}" failed:`, err);
           });
         } else {
@@ -99,7 +104,7 @@ export class HookOrchestrator {
     for (const hook of postHooks) {
       try {
         if (hook.isBackground) {
-          hook.execute({ toolName, input, result: currentResult }).catch(err => {
+          hook.execute({ toolName, input, result: currentResult }).catch((err) => {
             console.error(`❌ Background POST_EXECUTION hook "${hook.name}" failed:`, err);
           });
         } else {
@@ -120,7 +125,7 @@ export class HookOrchestrator {
   getDiagnostics(): any {
     const diagnostics: any = {};
     for (const [phase, list] of this.hooks) {
-      diagnostics[phase] = list.map(h => h.name);
+      diagnostics[phase] = list.map((h) => h.name);
     }
     return diagnostics;
   }

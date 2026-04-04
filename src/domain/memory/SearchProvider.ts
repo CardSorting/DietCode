@@ -21,17 +21,17 @@ export interface SearchRepository extends SearchProvider {
    * Index knowledge items for efficient searching.
    */
   index(items: KnowledgeItem[]): Promise<void>;
-  
+
   /**
    * Remove items from the search index.
    */
   remove(items: KnowledgeItem[]): Promise<void>;
-  
+
   /**
    * Load index - used during initialization.
    */
   loadIndex(): Promise<KnowledgeItem[]>;
-  
+
   /**
    * Find the closest match to a query string
    */

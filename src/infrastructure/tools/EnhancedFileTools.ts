@@ -2,7 +2,7 @@
  * [LAYER: INFRASTRUCTURE]
  * Principle: Production file tool wrappers around EnhancedFileSystemAdapter.
  * Provides ForgeFS-inspired file operations with complete metadata tracking.
- * 
+ *
  * Inspired by: ForgeFS complete file operations
  * Violations: None
  * Prework Status:
@@ -12,25 +12,26 @@
  * Triaging:
  *   - [IMPLEMENT] Production file tools with ForgeFS features (binary detection, hashing)
  */
-import * as fs from 'fs/promises';
-import type { Filesystem } from '../../domain/system/Filesystem';
-import type { ReadFileResult, WriteFileResult, FileMetadata } from '../../domain/system/FileMetadata';
+import * as fs from 'node:fs/promises';
 import type { FileErrorContext } from '../../domain/system/FileError';
 import { FileErrorCode } from '../../domain/system/FileError';
+import type {
+  FileMetadata,
+  ReadFileResult,
+  WriteFileResult,
+} from '../../domain/system/FileMetadata';
+import type { Filesystem } from '../../domain/system/Filesystem';
 import { detectBinaryFileType } from '../BinaryFileTypeDetector';
 import { computeContentHash } from '../FileIntegrityAnalyzer';
 
-  /**
-   * Comprehensive file reading with metadata tracking.
- * 
+/**
+ * Comprehensive file reading with metadata tracking.
+ *
  * @param fs - Filesystem adapter
  * @param path - Path to file
  * @returns Read result with content and complete metadata
  */
-export async function readFileWithMetadata(
-  fs: Filesystem,
-  path: string
-): Promise<ReadFileResult> {
+export async function readFileWithMetadata(fs: Filesystem, path: string): Promise<ReadFileResult> {
   try {
     // Binary detection before reading
     const { isBinary, mimeType } = await detectBinaryFileType(path, fs);
@@ -65,7 +66,7 @@ export async function readFileWithMetadata(
 
 /**
  * Read file with error context tracking.
- * 
+ *
  * @param fs - Filesystem adapter
  * @param path - Path to file
  * @param operation - Operation name for error context
@@ -74,7 +75,7 @@ export async function readFileWithMetadata(
 export async function readFileWithErrorContext(
   fs: Filesystem,
   path: string,
-  operation: 'read' | 'read_range' | 'write'
+  operation: 'read' | 'read_range' | 'write',
 ): Promise<ReadFileResult> {
   const errorContext = {
     operation,
@@ -101,7 +102,7 @@ export async function readFileWithErrorContext(
 
 /**
  * Comprehensive file writing with metadata tracking.
- * 
+ *
  * @param fs - Filesystem adapter
  * @param path - Path to file
  * @param content - Content to write
@@ -110,7 +111,7 @@ export async function readFileWithErrorContext(
 export async function writeFileWithMetadata(
   fs: Filesystem,
   path: string,
-  content: string
+  content: string,
 ): Promise<WriteFileResult> {
   try {
     // Write content synchronously (for performance)
@@ -142,15 +143,12 @@ export async function writeFileWithMetadata(
 
 /**
  * Binary file reading (for large files).
- * 
+ *
  * @param fs - Filesystem adapter
  * @param path - Path to file
  * @returns Buffer of raw file data
  */
-export async function readBinaryFile(
-  fs: Filesystem,
-  path: string
-): Promise<Buffer> {
+export async function readBinaryFile(fs: Filesystem, path: string): Promise<Buffer> {
   try {
     return (await fs.readFileBuffer(path)) as Buffer;
   } catch (error) {
@@ -160,7 +158,7 @@ export async function readBinaryFile(
 
 /**
  * Atomically write file using temp file pattern.
- * 
+ *
  * @param fs - Filesystem adapter
  * @param path - Path to file
  * @param content - Content to write
@@ -168,7 +166,7 @@ export async function readBinaryFile(
 export async function atomicWriteFile(
   fs: Filesystem,
   path: string,
-  content: string
+  content: string,
 ): Promise<void> {
   try {
     const tempPath = `${path}.tmp`;
@@ -189,15 +187,12 @@ export async function atomicWriteFile(
 
 /**
  * Calculate file hash efficiently for large files.
- * 
+ *
  * @param fs - Filesystem adapter
  * @param path - Path to file
  * @returns SHA-256 hash in hexadecimal string
  */
-export async function computeFileHash(
-  fs: Filesystem,
-  path: string
-): Promise<string> {
+export async function computeFileHash(fs: Filesystem, path: string): Promise<string> {
   try {
     for await (const hashPart of fs.streamFileHash(path)) {
       return hashPart; // Return first complete hash part
@@ -210,7 +205,7 @@ export async function computeFileHash(
 
 /**
  * Verify file content hasn't changed since last known hash.
- * 
+ *
  * @param fs - Filesystem adapter
  * @param path - Path to file
  * @param expectedHash - Expected hash value
@@ -219,7 +214,7 @@ export async function computeFileHash(
 export async function verifyHash(
   fs: Filesystem,
   path: string,
-  expectedHash: string
+  expectedHash: string,
 ): Promise<boolean> {
   try {
     const actualHash = await computeFileHash(fs, path);
@@ -231,7 +226,7 @@ export async function verifyHash(
 
 /**
  * Read file range with error context.
- * 
+ *
  * @param fs - Filesystem adapter
  * @param path - Path to file
  * @param startLine - Start line number (1-indexed)
@@ -242,15 +237,17 @@ export function readRangeWithErrorContext(
   fs: Filesystem,
   path: string,
   startLine: number,
-  endLine: number
+  endLine: number,
 ): string {
   try {
     const content = fs.readFile(path);
     const lines = content.split('\n');
-    
+
     // Validate
     if (startLine < 1 || endLine < startLine || lines.length < endLine) {
-      const error = new Error(`Invalid line range: ${startLine}-${endLine} from ${lines.length} lines`);
+      const error = new Error(
+        `Invalid line range: ${startLine}-${endLine} from ${lines.length} lines`,
+      );
       (error as any).context = {
         operation: 'read_range',
         path,
@@ -259,7 +256,7 @@ export function readRangeWithErrorContext(
       };
       throw error;
     }
-    
+
     return lines.slice(startLine - 1, endLine).join('\n');
   } catch (error) {
     if (error instanceof Error) {

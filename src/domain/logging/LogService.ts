@@ -5,8 +5,8 @@
  * Allows injection of Console, File, Database, or composite loggers.
  */
 
-import { LogLevel } from './LogLevel';
 import type { LogEntry, LogMetadata } from './LogEntry';
+import type { LogLevel } from './LogLevel';
 
 export interface LogService {
   /**

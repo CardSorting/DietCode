@@ -2,27 +2,35 @@
  * [LAYER: INTEGRATION DEMONSTRATION]
  * Principle: Demonstrates end-to-end drift prevention integration with hardened infrastructure
  * Purpose: Showcasing real SQL-backed checkpoints and semantic integrity analysis
- * 
+ *
  * Run: npx ts-node src/infrastructure/task/integration-demo.ts
  */
 
-import { DriftDetectionOrchestrator, TaskEntityManager } from '../../core/orchestration/DriftDetectionOrchestrator';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import {
+  DriftDetectionOrchestrator,
+  TaskEntityManager,
+} from '../../core/orchestration/DriftDetectionOrchestrator';
+import { OperationalScheduler } from '../../core/task/OperationalScheduler';
+import { SovereignSelector } from '../../core/task/SovereignSelector';
+import { CheckpointTrigger } from '../../domain/task/ImplementationSnapshot';
+import {
+  RequirementType,
+  TaskPriority,
+  TaskState,
+  createTaskEntity,
+} from '../../domain/task/TaskEntity';
+import { ConsoleLoggerAdapter } from '../ConsoleLoggerAdapter';
+import { FileSystemAdapter } from '../FileSystemAdapter';
+import { Core } from '../database/sovereign/Core';
+import { Schema } from '../database/sovereign/Schema';
+import { BroccoliQueueAdapter } from '../queue/BroccoliQueueAdapter';
+import { SovereignWorkerProxy } from '../queue/SovereignWorkerProxy';
+import { JoySimulator } from '../simulation/JoySimulator';
 import { CheckpointPersistenceAdapter } from './CheckpointPersistenceAdapter';
 import { SemanticIntegrityAnalyser } from './SemanticIntegrityAnalyser';
 import { TaskConsistencyValidator } from './TaskConsistencyValidator';
-import { FileSystemAdapter } from '../FileSystemAdapter';
-import { SovereignSelector } from '../../core/task/SovereignSelector';
-import { OperationalScheduler } from '../../core/task/OperationalScheduler';
-import { JoySimulator } from '../simulation/JoySimulator';
-import { TaskState, TaskPriority, RequirementType, createTaskEntity } from '../../domain/task/TaskEntity';
-import { CheckpointTrigger } from '../../domain/task/ImplementationSnapshot';
-import { Core } from '../database/sovereign/Core';
-import { Schema } from '../database/sovereign/Schema';
-import { SovereignWorkerProxy } from '../queue/SovereignWorkerProxy';
-import { BroccoliQueueAdapter } from '../queue/BroccoliQueueAdapter';
-import { ConsoleLoggerAdapter } from '../ConsoleLoggerAdapter';
-import * as path from 'node:path';
-import * as fs from 'node:fs';
 
 async function demonstrateDriftPrevention() {
   console.log('\n');
@@ -32,9 +40,9 @@ async function demonstrateDriftPrevention() {
   // Step 1: Initialize real infrastructure
   const dbPath = path.join(process.cwd(), 'data', 'demo-checkpoints.db');
   const sovereignDbPath = path.join(process.cwd(), 'data', 'demo-sovereign.db');
-  
+
   const cleanup = (p: string) => {
-    [p, `${p}-wal`, `${p}-shm`].forEach(f => {
+    [p, `${p}-wal`, `${p}-shm`].forEach((f) => {
       if (fs.existsSync(f)) fs.unlinkSync(f);
     });
   };
@@ -53,7 +61,7 @@ async function demonstrateDriftPrevention() {
   const selector = new SovereignSelector();
   const simulator = new JoySimulator();
   const scheduler = new OperationalScheduler(simulator);
-  
+
   // Pass 18: Initialize Sovereign Worker Proxy
   const logService = new ConsoleLoggerAdapter();
 
@@ -61,7 +69,7 @@ async function demonstrateDriftPrevention() {
   console.log('🧪 Simulating legacy schema environment...');
   const Database = (await import('better-sqlite3')).default;
   const legacyDb = new Database(sovereignDbPath);
-  
+
   // Create tables WITHOUT 'id' to force patching
   legacyDb.exec(`
     CREATE TABLE queue_settings (key TEXT PRIMARY KEY, value TEXT, updatedAt BIGINT);
@@ -84,7 +92,7 @@ async function demonstrateDriftPrevention() {
     consistencyValidator,
     entityManager,
     selector,
-    scheduler
+    scheduler,
   );
 
   console.log('✅ Hardened Infrastructure Initialized (SQLite Persistence)');
@@ -111,7 +119,7 @@ Implement a production-hardened drift detection system for core infrastructure.
   // Validate the task using real logic
   const taskValidation = await consistencyValidator.validateTask(taskMd);
   console.log(`🔍 Task Validation Status: ${taskValidation.axiomProfile.status}`);
-  
+
   const task = createTaskEntity({
     title: 'Drift Prevention System',
     objective: 'Implement a state-of-the-art drift detection system',
@@ -119,7 +127,7 @@ Implement a production-hardened drift detection system for core infrastructure.
     acceptanceCriteria: taskValidation.acceptanceCriteria,
     initialContext: 'Building DietCode core infrastructure',
     priority: TaskPriority.HIGH,
-    userAgent: 'Antigravity-Harness-Demo'
+    userAgent: 'Antigravity-Harness-Demo',
   });
 
   await entityManager.setCurrentTask(task);
@@ -128,7 +136,7 @@ Implement a production-hardened drift detection system for core infrastructure.
   // Step 3: Initial Checkpoint
   console.log('📝 Phase 2: Initial Checkpoint\n');
   const initialSnapshot = await orchestrator.initializeTask(taskMd, 1.0);
-  
+
   console.log(`📸 Initial Checkpoint: ${initialSnapshot.checkpointId}`);
   console.log(`📊 Axiomatic Status: ${initialSnapshot.semanticHealth.axiomProfile.status}\n`);
 
@@ -142,45 +150,54 @@ Implement a production-hardened drift detection system for core infrastructure.
   if (snapshotAfterWork) {
     console.log(`📸 Auto-Checkpoint Triggered: ${snapshotAfterWork.checkpointId}`);
     console.log(`⚠️  Status: ${snapshotAfterWork.semanticHealth.axiomProfile.status}`);
-    
+
     const evaluation = await orchestrator.evaluateDrift(taskMd);
-    
+
     console.log(`🎯 Evaluation: ${evaluation.recommendation.explanation}`);
     console.log(`🎯 Action: ${evaluation.recommendation.correctiveAction}\n`);
   }
 
   // Step 5: Simulate Severe Drift
   console.log('📝 Phase 4: Simulating Severe Drift\n');
-  const severeEvaluation = await orchestrator.evaluateDrift('Completely unrelated content about baking cakes');
+  const severeEvaluation = await orchestrator.evaluateDrift(
+    'Completely unrelated content about baking cakes',
+  );
 
-  console.log(`🚨 SEVERE DRIFT DETECTED`);
+  console.log('🚨 SEVERE DRIFT DETECTED');
   console.log(`🛑 Action Required: ${severeEvaluation.recommendation.correctiveAction}`);
   console.log(`🛑 Suggested State: ${severeEvaluation.recommendation.suggestedState}\n`);
 
   // Step 6: State Restoration
   console.log('📝 Phase 5: State Restoration demonstration\n');
   console.log(`🔄 Restoring to last safe checkpoint: ${initialSnapshot.checkpointId}...`);
-  const restoredSnapshot = await orchestrator.restoreFromCheckpoint(initialSnapshot.checkpointId, task.id);
-  
+  const restoredSnapshot = await orchestrator.restoreFromCheckpoint(
+    initialSnapshot.checkpointId,
+    task.id,
+  );
+
   console.log(`✅ State Restored. Status: ${restoredSnapshot.semanticHealth.axiomProfile.status}`);
   console.log(`✅ Current Task State: ${restoredSnapshot.state}\n`);
 
   // Step 7: Final Metrics
   console.log('📊 Phase 6: Final Monitoring Metrics\n');
   const metrics = await orchestrator.getMonitoringMetrics();
-  
+
   console.log('📈 System Statistics:');
   console.log(`   Total Checkpoints: ${metrics.checkpointStats.totalCheckpoints}`);
   console.log(`   Total Tasks: ${metrics.checkpointStats.totalTasks}`);
-  console.log(`   Oldest Checkpoint: ${metrics.checkpointStats.oldestSnapshot?.toLocaleTimeString()}`);
-  console.log(`   Newest Checkpoint: ${metrics.checkpointStats.newestSnapshot?.toLocaleTimeString()}\n`);
+  console.log(
+    `   Oldest Checkpoint: ${metrics.checkpointStats.oldestSnapshot?.toLocaleTimeString()}`,
+  );
+  console.log(
+    `   Newest Checkpoint: ${metrics.checkpointStats.newestSnapshot?.toLocaleTimeString()}\n`,
+  );
 
   console.log('===================================================');
   console.log('🎉 HARNESS HARDENING VERIFIED: PRODUCTION READY ✨');
   console.log('===================================================\n');
 }
 
-demonstrateDriftPrevention().catch(err => {
+demonstrateDriftPrevention().catch((err) => {
   console.error('❌ Demonstration failed:', err);
   process.exit(1);
 });

@@ -3,13 +3,16 @@
  * Demonstrates how to use the complete context optimization system
  */
 
-import { ExecutionService } from '../src/core/orchestration/ExecutionService';
-import { ContextOptimizationServiceOrchestrator, createDefaultOrchestrator } from '../src/core/orchestration/ContextOptimizationService';
-import { SignatureDatabase } from '../src/infrastructure/context/SignatureDatabase';
 import { SnapshotService } from '../src/core/memory/SnapshotService';
-import { SqliteSnapshotRepository } from '../src/infrastructure/database/SqliteSnapshotRepository';
+import {
+  ContextOptimizationServiceOrchestrator,
+  createDefaultOrchestrator,
+} from '../src/core/orchestration/ContextOptimizationService';
+import { ExecutionService } from '../src/core/orchestration/ExecutionService';
 import { EnhancedFileSystemAdapter } from '../src/infrastructure/EnhancedFileSystemAdapter';
+import { SignatureDatabase } from '../src/infrastructure/context/SignatureDatabase';
 import { SovereignDb } from '../src/infrastructure/database/SovereignDb';
+import { SqliteSnapshotRepository } from '../src/infrastructure/database/SqliteSnapshotRepository';
 
 async function runIntegrationTest() {
   console.log('🧪 Starting Context Optimization Integration Test...\n');
@@ -45,26 +48,24 @@ async function runIntegrationTest() {
 
   // Step 3: Read files with optimization
   console.log('📖 Step 3: Read files with optimization');
-  const testFiles = [
-    '/path/to/file1.ts',
-    '/path/to/file2.ts',
-    '/path/to/file3.ts'
-  ];
+  const testFiles = ['/path/to/file1.ts', '/path/to/file2.ts', '/path/to/file3.ts'];
 
   for (let i = 0; i < 5; i++) {
     console.log(`\n--- Read iteration ${i + 1} ---`);
-    
+
     for (const filePath of testFiles) {
       const result = await executionService.readFileOptimized(filePath);
-      
+
       console.log(`  File: ${filePath}`);
       console.log(`  Optimized: ${result.wasOptimized}`);
       console.log(`  Checksum: ${result.content.substring(0, 50)}...`);
-      console.log(`  Size: ${result.originalLength} → ${result.optimizedLength} (${result.wasOptimized ? 'TRUNCATED' : 'FULL'})`);
+      console.log(
+        `  Size: ${result.originalLength} → ${result.optimizedLength} (${result.wasOptimized ? 'TRUNCATED' : 'FULL'})`,
+      );
     }
 
     // Wait a bit to simulate real-world delay
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
   }
 
   console.log('\n✅ File reading complete\n');
@@ -84,7 +85,7 @@ async function runIntegrationTest() {
   // Step 5: Generate report
   console.log('📊 Step 5: Generate optimization report');
   const report = await executionService.endOptimizationSession();
-  
+
   if (report) {
     console.log('\nOptimization Report:');
     console.log(`  Score: ${report.metrics.optimizationScore.toFixed(1)}/100`);
@@ -93,7 +94,7 @@ async function runIntegrationTest() {
     console.log(`  Total signatures: ${report.signatureCount}`);
     console.log(`  Context truncated: ${report.contextTruncated}`);
     console.log();
-    
+
     console.log('Recommendations:');
     report.recommendations.slice(0, 3).forEach((rec: string) => {
       console.log(`  - ${rec}`);

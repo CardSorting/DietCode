@@ -2,7 +2,7 @@
  * [LAYER: CORE]
  * Principle: Orchestration, task coordination, prompt assembly
  * Violations: None
- * 
+ *
  * Coordinates fuzzy path resolution operations.
  */
 

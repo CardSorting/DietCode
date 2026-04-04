@@ -3,7 +3,7 @@
  * Principle: Pure business logic for file traversal limit strategies.
  * Defines preset execution strategies and custom configuration options.
  * Infrastructure adapters implement traversal with these constraints.
- * 
+ *
  * Inspired by: ForgeWalker's Walker config with min_all/max_all presets
  * Violations: None
  * Prework Status:
@@ -24,21 +24,21 @@ export enum FileWalkerStrategy {
    * Use case: Large codebases, security scanners, CI pipelines
    */
   MINIMAL = 'minimal',
-  
+
   /**
    * Balanced traversal for day-to-day operations.
    * Config: depth=15, max 10MB file size, lenient binary, 100MB total
    * Use case: Feature development, debugging, code reviews
    */
   MODERATE = 'moderate',
-  
+
   /**
    * Aggressive full-traversal.
    * Config: unlimited depth/size, include all files, skip no content
    * Use case: Indexing, backup tools, exhaustive searches
    */
   MAXIMAL = 'maximal',
-  
+
   /**
    * Custom configuration per invocation.
    * Use case: Ad-hoc scenarios requiring specific limits
@@ -55,38 +55,38 @@ export interface FileWalkerConfig {
    * Overall traversal strategy preset (controls default limits).
    */
   strategy: FileWalkerStrategy;
-  
+
   /**
    * Maximum directory depth to traverse (relative to base path).
    * Prevents infinite recursion on nested symlinks/trash.
    */
   maxDepth?: number;
-  
+
   /**
    * Maximum number of files per directory (breadth limit).
    * Prevents scanning giant directories with 10k files.
    */
   maxBreadth?: number;
-  
+
   /**
    * Maximum size of individual files to process.
    * Prevents reading massive binaries (e.g., AWS logs).
    */
   maxFileSizeBytes?: number;
-  
+
   /**
    * Maximum combined size of all files in traversal.
    * Prevents scanning multi-GB directories without permission.
    */
   maxTotalFileSizeBytes?: number;
-  
+
   /**
    * Whether to skip files that look binary (based on extension).
    * True: skip .exe, .png, .zip (saves time in codebases)
    * False: include all files regardless of type
    */
   skipBinary: boolean;
-  
+
   /**
    * Whether to include dotfiles (files starting with '.').
    * True: includes .gitignore, .env (use with caution)
@@ -127,9 +127,9 @@ export const MODERATE_CONFIG: Partial<FileWalkerConfig> = {
  * Unlimited traversal — use with caution.
  */
 export const MAXIMAL_CONFIG: Partial<FileWalkerConfig> = {
-  maxDepth: Infinity,
-  maxBreadth: Infinity,
-  maxFileSizeBytes: Infinity,
-  maxTotalFileSizeBytes: Infinity,
+  maxDepth: Number.POSITIVE_INFINITY,
+  maxBreadth: Number.POSITIVE_INFINITY,
+  maxFileSizeBytes: Number.POSITIVE_INFINITY,
+  maxTotalFileSizeBytes: Number.POSITIVE_INFINITY,
   skipBinary: false,
 };

@@ -11,7 +11,9 @@ export class CommandProcessor {
 
   registerCommand(command: CommandDefinition) {
     this.commands.set(command.name, command);
-    command.aliases?.forEach(alias => this.commands.set(alias, command));
+    for (const alias of command.aliases || []) {
+      this.commands.set(alias, command);
+    }
   }
 
   isCommand(input: string): boolean {
@@ -32,6 +34,6 @@ export class CommandProcessor {
   }
 
   getAvailableCommands(): string[] {
-    return Array.from(new Set(this.commands.values())).map(c => `/${c.name}`);
+    return Array.from(new Set(this.commands.values())).map((c) => `/${c.name}`);
   }
 }

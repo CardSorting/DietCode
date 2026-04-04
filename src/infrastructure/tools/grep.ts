@@ -12,17 +12,17 @@
  *   - Compiled regex reuse (validated once, used in execute)
  */
 
-import { execSync } from 'child_process';
+import { execSync } from 'node:child_process';
 import type { ToolDefinition, ToolResult } from '../../domain/agent/ToolDefinition';
 import type { Filesystem } from '../../domain/system/Filesystem';
 import {
-  validatePath,
-  shellEscape,
-  isSafeExtension,
-  isSkippedDirectory,
   MAX_FILE_SIZE_BYTES,
   MAX_RECURSION_DEPTH,
   MAX_RESULT_LINES,
+  isSafeExtension,
+  isSkippedDirectory,
+  shellEscape,
+  validatePath,
 } from './PathValidator';
 
 // ─── Regex Safety ────────────────────────────────────────────────────
@@ -140,7 +140,7 @@ function execShellGrep(command: string): string | null {
  */
 function tryRipgrep(safePattern: string, safePath: string): string | null {
   return execShellGrep(
-    `rg -n --max-filesize 10M ${safePattern} ${safePath} | head -n ${MAX_RESULT_LINES}`
+    `rg -n --max-filesize 10M ${safePattern} ${safePath} | head -n ${MAX_RESULT_LINES}`,
   );
 }
 
@@ -148,9 +148,7 @@ function tryRipgrep(safePattern: string, safePath: string): string | null {
  * Try system grep as fallback.
  */
 function trySystemGrep(safePattern: string, safePath: string): string | null {
-  return execShellGrep(
-    `grep -rn ${safePattern} ${safePath} | head -n ${MAX_RESULT_LINES}`
-  );
+  return execShellGrep(`grep -rn ${safePattern} ${safePath} | head -n ${MAX_RESULT_LINES}`);
 }
 
 // ─── Filesystem Fallback Walk ────────────────────────────────────────
@@ -162,7 +160,7 @@ function trySystemGrep(safePattern: string, safePath: string): string | null {
 function filesystemGrep(
   fs: Filesystem,
   targetPath: string,
-  regex: RegExp
+  regex: RegExp,
 ): { results: string[]; durationMs: number } {
   const results: string[] = [];
   const startTime = Date.now();
@@ -185,12 +183,7 @@ function filesystemGrep(
 /**
  * Search a single file for regex matches.
  */
-function searchFile(
-  fs: Filesystem,
-  filePath: string,
-  regex: RegExp,
-  results: string[]
-): void {
+function searchFile(fs: Filesystem, filePath: string, regex: RegExp, results: string[]): void {
   try {
     const content = fs.readFile(filePath);
     if (content.length > MAX_FILE_SIZE_BYTES) return;
@@ -215,7 +208,7 @@ function walkDirectory(
   dir: string,
   regex: RegExp,
   results: string[],
-  depth: number
+  depth: number,
 ): void {
   if (depth > MAX_RECURSION_DEPTH) return;
   if (results.length >= MAX_RESULT_LINES) return;
@@ -226,9 +219,7 @@ function walkDirectory(
     for (const entry of entries) {
       if (results.length >= MAX_RESULT_LINES) break;
 
-      const fullPath = dir.endsWith('/')
-        ? `${dir}${entry.name}`
-        : `${dir}/${entry.name}`;
+      const fullPath = dir.endsWith('/') ? `${dir}${entry.name}` : `${dir}/${entry.name}`;
 
       if (entry.isDirectory) {
         if (!isSkippedDirectory(entry.name)) {
@@ -259,7 +250,8 @@ export function createGrepTool(fs: Filesystem): ToolDefinition<{
 }> {
   return {
     name: 'grep',
-    description: 'Search for a regex pattern in file contents. Uses ripgrep if available, falls back to built-in search.',
+    description:
+      'Search for a regex pattern in file contents. Uses ripgrep if available, falls back to built-in search.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -294,9 +286,10 @@ export function createGrepTool(fs: Filesystem): ToolDefinition<{
         if (rgResult) {
           const lineCount = rgResult.split('\n').length;
           return {
-            content: lineCount >= MAX_RESULT_LINES
-              ? `Found ${lineCount}+ matches (truncated to ${MAX_RESULT_LINES}):\n${rgResult}`
-              : rgResult,
+            content:
+              lineCount >= MAX_RESULT_LINES
+                ? `Found ${lineCount}+ matches (truncated to ${MAX_RESULT_LINES}):\n${rgResult}`
+                : rgResult,
           };
         }
 

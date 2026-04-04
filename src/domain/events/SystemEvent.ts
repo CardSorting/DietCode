@@ -3,7 +3,7 @@
  * Standardized system event data structure for DietCode lifecycle tracking.
  */
 
-import { EventType } from './EventType';
+import type { EventType } from './EventType';
 
 /**
  * Optional metadata for events.

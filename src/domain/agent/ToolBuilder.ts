@@ -3,7 +3,7 @@
  * Principle: Pure interfaces for building complex tools with configuration from execution.
  * Domain contracts that define builder patterns for tool construction, separating
  * configuration from runtime execution.
- * 
+ *
  * Inspired by: ForgeSelect's SelectBuilder pattern
  * Violations: None
  * Prework Status:
@@ -42,19 +42,19 @@ export interface BuildConfig {
    * Enable for critical production operations.
    */
   validate: boolean;
-  
+
   /**
    * Maximum execution time in milliseconds.
    * Defaults to 30 seconds.
    */
   timeout?: number;
-  
+
   /**
    * Number of retry attempts on transient failures.
    * Defaults to 3.
    */
   retryOnFailure?: number;
-  
+
   /**
    * Maximum total wait time for backoff retries.
    * Defaults to 5 minutes.
@@ -84,7 +84,7 @@ export interface ToolHandler<TInput, TResult> {
  */
 export function buildToolHandler<TInput, TResult>(
   tool: ToolDefinition,
-  config: BuildConfig = DEFAULT_BUILD_CONFIG
+  config: BuildConfig = DEFAULT_BUILD_CONFIG,
 ): ToolHandler<TInput, TResult> {
   return {
     async execute(input: TInput): Promise<TResult> {

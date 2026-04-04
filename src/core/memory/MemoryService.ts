@@ -4,23 +4,27 @@
  * Uses structured logging for production-grade observability.
  */
 
-import { KnowledgeType, type KnowledgeItem, type KnowledgeRepository } from '../../domain/memory/Knowledge';
 import type { LLMProvider } from '../../domain/LLMProvider';
-import type { AgentRegistry } from '../capabilities/AgentRegistry';
 import type { LogService } from '../../domain/logging/LogService';
+import {
+  type KnowledgeItem,
+  type KnowledgeRepository,
+  KnowledgeType,
+} from '../../domain/memory/Knowledge';
+import type { AgentRegistry } from '../capabilities/AgentRegistry';
 
 export class MemoryService {
   constructor(
     private repository: KnowledgeRepository,
     private llmProvider: LLMProvider,
     private agentRegistry: AgentRegistry,
-    private logService: LogService
+    private logService: LogService,
   ) {}
 
   /**
    * Recalls relevant knowledge for a given user query or project path.
    */
-  async recall(query: string, limit: number = 5): Promise<KnowledgeItem[]> {
+  async recall(query: string, limit = 5): Promise<KnowledgeItem[]> {
     return this.repository.findRelevant(query, limit);
   }
 
@@ -40,30 +44,37 @@ export class MemoryService {
     this.logService.debug(
       `Starting distillation for task ${taskId}`,
       { approximateLength: outcome.length },
-      { component: 'MemoryService', sessionId: taskId.substring(0, 8) }
+      { component: 'MemoryService', sessionId: taskId.substring(0, 8) },
     );
-    
+
     const distillationAgent = this.agentRegistry.getAgent('agent-distiller');
     if (!distillationAgent) {
       this.logService.error(
         `Specialist agent 'agent-distiller' not found for task ${taskId}`,
         { taskId },
-        { component: 'MemoryService' }
+        { component: 'MemoryService' },
       );
       throw new Error(`[MEMORY] Specialist agent 'agent-distiller' not found.`);
     }
 
     const response = await this.llmProvider.createMessage(
       distillationAgent,
-      [{ role: 'user', content: [{ type: 'text', text: `Task Outcome to Distill:\n${outcome}` }], timestamp: new Date().toISOString() }],
-      []
+      [
+        {
+          role: 'user',
+          content: [{ type: 'text', text: `Task Outcome to Distill:\n${outcome}` }],
+          timestamp: new Date().toISOString(),
+        },
+      ],
+      [],
     );
 
-    const distilledValue = response.content
-      .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
-      .map(c => c.text)
-      .join('\n') || outcome;
-    
+    const distilledValue =
+      response.content
+        .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
+        .map((c) => c.text)
+        .join('\n') || outcome;
+
     const item: KnowledgeItem = {
       id: crypto.randomUUID(),
       key: `learning:${taskId.slice(0, 8)}`,
@@ -78,7 +89,7 @@ export class MemoryService {
     this.logService.debug(
       `Successfully saved distilled knowledge for task ${taskId}`,
       { knowledgeKey: item.key },
-      { component: 'MemoryService', sessionId: taskId.substring(0, 8) }
+      { component: 'MemoryService', sessionId: taskId.substring(0, 8) },
     );
   }
 

@@ -2,16 +2,16 @@
  * [LAYER: CORE]
  * Principle: Orchestrate external sync between local and remote
  * Prework Status: Not applicable (new file)
- * 
+ *
  * Coordinates bidirectional state synchronization with external services.
  * Handles conflicts, conflict resolution, and sync status tracking.
  */
 
 import type {
-  StateChange,
-  StateChangeResult,
-  StateChangePhase,
   RollbackStrategy,
+  StateChange,
+  StateChangePhase,
+  StateChangeResult,
 } from '../../domain/state/StateChangeProtocol';
 import type { BuildInProof } from '../../domain/system/FileMetadata';
 
@@ -69,10 +69,10 @@ export interface ConflictDetails {
 
 /**
  * ExternalSyncAdapter
- * 
+ *
  * Orchestrates bidirectional state synchronization with external services.
  * Handles conflict detection, resolution, and status tracking.
- * 
+ *
  * Key responsibilities:
  * - Sync state changes to external services
  * - Manage state conflicts between local and remote
@@ -89,10 +89,7 @@ export class ExternalSyncAdapter {
   private statusObservers = new Map<string, Set<(status: SyncStatus) => Promise<void>>>();
   private syncStrategy: 'local' | 'remote' | 'auto';
 
-  private constructor(
-    config: ExternalSyncConfig,
-    rollbackStrategy?: RollbackStrategy
-  ) {
+  private constructor(config: ExternalSyncConfig, rollbackStrategy?: RollbackStrategy) {
     this.syncStrategy = config.conflictResolution;
     // rollbackStrategy would be used for conflict rollback
     console.log(`🔌 ExternalSyncAdapter initialized (strategy: ${this.syncStrategy})`);
@@ -107,7 +104,7 @@ export class ExternalSyncAdapter {
         config || {
           services: [],
           conflictResolution: 'auto',
-        }
+        },
       );
     }
     return ExternalSyncAdapter.instance;
@@ -120,7 +117,7 @@ export class ExternalSyncAdapter {
     if (!this.statusObservers.has(key)) {
       this.statusObservers.set(key, new Set());
     }
-    this.statusObservers.get(key)!.add(observer);
+    this.statusObservers.get(key)?.add(observer);
     console.log(`✅ Status observer registered for key: ${key}`);
   }
 
@@ -140,7 +137,7 @@ export class ExternalSyncAdapter {
       try {
         await this.syncChanges([change], 'local');
       } catch (error: any) {
-        console.error(`❌ Local sync failed:`, error);
+        console.error('❌ Local sync failed:', error);
         // Continue anyway
       }
     }
@@ -154,7 +151,7 @@ export class ExternalSyncAdapter {
   async onRemoteChange(change: StateChange): Promise<boolean> {
     // Check for conflicts
     const conflict = await this.checkForConflict(change);
-    
+
     if (conflict) {
       // Handle conflict
       return await this.resolveConflict(conflict);
@@ -169,7 +166,7 @@ export class ExternalSyncAdapter {
    */
   private async syncChanges(
     changes: StateChange[],
-    source: 'local' | 'remote'
+    source: 'local' | 'remote',
   ): Promise<SyncEvent> {
     this.updateStatus(SyncStatus.SYNCING);
 
@@ -213,7 +210,7 @@ export class ExternalSyncAdapter {
   private async checkForConflict(change: StateChange): Promise<ConflictDetails | null> {
     // Check if remote version exists for this key
     const remoteValue = await this.getRemoteValue(change.key);
-    
+
     if (!remoteValue) {
       return null; // No conflict, remote doesn't have this
     }
@@ -228,10 +225,7 @@ export class ExternalSyncAdapter {
     };
 
     // Track conflict
-    this.conflicts.set(change.key, [
-      ...(this.conflicts.get(change.key) || []),
-      conflict,
-    ]);
+    this.conflicts.set(change.key, [...(this.conflicts.get(change.key) || []), conflict]);
 
     return conflict;
   }
@@ -265,7 +259,9 @@ export class ExternalSyncAdapter {
   private async resolveLocalWins(conflict: ConflictDetails): Promise<boolean> {
     console.log(`⏬ Conflict resolution: local wins (${conflict.key})`);
     // Remove conflict reference
-    this.conflicts.get(conflict.key)?.splice(this.conflicts.get(conflict.key)!.indexOf(conflict), 1);
+    this.conflicts
+      .get(conflict.key)
+      ?.splice(this.conflicts.get(conflict.key)?.indexOf(conflict), 1);
     return true;
   }
 
@@ -276,7 +272,9 @@ export class ExternalSyncAdapter {
     console.log(`⏫ Conflict resolution: remote wins (${conflict.key})`);
     // This would apply the remote value
     // Remove conflict reference
-    this.conflicts.get(conflict.key)?.splice(this.conflicts.get(conflict.key)!.indexOf(conflict), 1);
+    this.conflicts
+      .get(conflict.key)
+      ?.splice(this.conflicts.get(conflict.key)?.indexOf(conflict), 1);
     return true;
   }
 
@@ -288,13 +286,19 @@ export class ExternalSyncAdapter {
     const localIsNewer = Date.now() > this.getTimestamp(conflict.localValue);
     const remoteIsNewer = Date.now() > this.getTimestamp(conflict.remoteValue);
 
-    console.log(`⚖️  Auto resolution: ${conflict.key} (local: ${localIsNewer}, remote: ${remoteIsNewer})`);
+    console.log(
+      `⚖️  Auto resolution: ${conflict.key} (local: ${localIsNewer}, remote: ${remoteIsNewer})`,
+    );
 
     // Accept newer change
     if (localIsNewer) {
-      this.conflicts.get(conflict.key)?.splice(this.conflicts.get(conflict.key)!.indexOf(conflict), 1);
+      this.conflicts
+        .get(conflict.key)
+        ?.splice(this.conflicts.get(conflict.key)?.indexOf(conflict), 1);
     } else {
-      this.conflicts.get(conflict.key)?.splice(this.conflicts.get(conflict.key)!.indexOf(conflict), 1);
+      this.conflicts
+        .get(conflict.key)
+        ?.splice(this.conflicts.get(conflict.key)?.indexOf(conflict), 1);
       // Apply remote value
     }
 
@@ -338,7 +342,7 @@ export class ExternalSyncAdapter {
         try {
           await observer(newStatus);
         } catch (error: any) {
-          console.error(`❌ Status observer error:`, error);
+          console.error('❌ Status observer error:', error);
         }
       }
     }

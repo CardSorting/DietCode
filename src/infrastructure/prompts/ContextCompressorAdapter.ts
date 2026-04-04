@@ -4,8 +4,8 @@
  */
 
 import type { ContextCompressionStrategy } from '../../domain/prompts/ContextCompressionStrategy';
-import type { SessionContext } from '../../domain/prompts/ContextTypes';
 import type { CompressionOptions } from '../../domain/prompts/ContextCompressionStrategy';
+import type { SessionContext } from '../../domain/prompts/ContextTypes';
 
 export class ContextCompressorAdapter implements ContextCompressionStrategy {
   private settings: CompressionOptions;
@@ -22,18 +22,15 @@ export class ContextCompressorAdapter implements ContextCompressionStrategy {
         errors: true,
         patterns: true,
         files: true,
-        actions: true
+        actions: true,
       },
-      ...options
+      ...options,
     };
   }
 
-  async compress(
-    context: SessionContext[],
-    options?: Partial<CompressionOptions>
-  ): Promise<any> {
+  async compress(context: SessionContext[], options?: Partial<CompressionOptions>): Promise<any> {
     const startTime = Date.now();
-    
+
     const fields: CompressionOptions['fields'] = options?.fields || {
       intent: true,
       decisions: true,
@@ -41,7 +38,7 @@ export class ContextCompressorAdapter implements ContextCompressionStrategy {
       errors: true,
       patterns: true,
       files: true,
-      actions: true
+      actions: true,
     };
 
     // Extract sections based on options
@@ -52,10 +49,10 @@ export class ContextCompressorAdapter implements ContextCompressionStrategy {
     const patterns: string[] = [];
     const fileChanges: string[] = [];
     const discreteActions: string[] = [];
-    
+
     // Collect content from all messages
-    const allMessages = context.flatMap(session => 
-      session.messages.map(msg => ({ role: msg.role, content: msg.content || '' }))
+    const allMessages = context.flatMap((session) =>
+      session.messages.map((msg) => ({ role: msg.role, content: msg.content || '' })),
     );
 
     // Simple extraction - in production would use proper NLP
@@ -67,13 +64,19 @@ export class ContextCompressorAdapter implements ContextCompressionStrategy {
     let filesIdx = 0;
 
     for (const msg of allMessages) {
-      if (msg.content.toLowerCase().includes('intent') || msg.role === 'user' && msg.content.length < 200) {
+      if (
+        msg.content.toLowerCase().includes('intent') ||
+        (msg.role === 'user' && msg.content.length < 200)
+      ) {
         if (fields.intent && intentIdx < 1) {
           intent.push(msg.content.slice(0, 500));
           intentIdx++;
         }
       }
-      if (msg.content.toLowerCase().includes('decision') || msg.content.toLowerCase().includes('i will')) {
+      if (
+        msg.content.toLowerCase().includes('decision') ||
+        msg.content.toLowerCase().includes('i will')
+      ) {
         if (fields.decisions && decisionsIdx < 1) {
           keyDecisions.push(msg.content.slice(0, 500));
           decisionsIdx++;
@@ -85,7 +88,10 @@ export class ContextCompressorAdapter implements ContextCompressionStrategy {
           nextIdx++;
         }
       }
-      if (msg.content.toLowerCase().includes('error') || msg.content.toLowerCase().includes('exception')) {
+      if (
+        msg.content.toLowerCase().includes('error') ||
+        msg.content.toLowerCase().includes('exception')
+      ) {
         if (fields.errors && errorsIdx < 1) {
           errorTriage.push(msg.content.slice(0, 500));
           errorsIdx++;
@@ -106,15 +112,16 @@ export class ContextCompressorAdapter implements ContextCompressionStrategy {
     }
 
     const remainingContent = allMessages
-      .filter(msg => 
-        !intent.join('').includes(msg.content) &&
-        !keyDecisions.join('').includes(msg.content) &&
-        !nextSteps.join('').includes(msg.content) &&
-        !errorTriage.join('').includes(msg.content) &&
-        !patterns.join('').includes(msg.content) &&
-        !fileChanges.join('').includes(msg.content)
+      .filter(
+        (msg) =>
+          !intent.join('').includes(msg.content) &&
+          !keyDecisions.join('').includes(msg.content) &&
+          !nextSteps.join('').includes(msg.content) &&
+          !errorTriage.join('').includes(msg.content) &&
+          !patterns.join('').includes(msg.content) &&
+          !fileChanges.join('').includes(msg.content),
       )
-      .map(msg => msg.content)
+      .map((msg) => msg.content)
       .filter(Boolean);
 
     if (fields.actions && remainingContent) {
@@ -124,7 +131,7 @@ export class ContextCompressorAdapter implements ContextCompressionStrategy {
     const originalLength = allMessages.reduce((sum, msg) => sum + msg.content.length, 0);
     const targetRatio = options?.compressThreshold || 70;
     const compressedLength = Math.ceil(originalLength * (targetRatio / 100));
-    
+
     const compressedSections = [
       { section: 'intent', size: intent.reduce((a, b) => a + b.length, 0) },
       { section: 'decisions', size: keyDecisions.reduce((a, b) => a + b.length, 0) },
@@ -132,8 +139,8 @@ export class ContextCompressorAdapter implements ContextCompressionStrategy {
       { section: 'errors', size: errorTriage.reduce((a, b) => a + b.length, 0) },
       { section: 'patterns', size: patterns.reduce((a, b) => a + b.length, 0) },
       { section: 'files', size: fileChanges.reduce((a, b) => a + b.length, 0) },
-      { section: 'actions', size: discreteActions.reduce((a, b) => a + b.length, 0) }
-    ].filter(s => s.size > 0);
+      { section: 'actions', size: discreteActions.reduce((a, b) => a + b.length, 0) },
+    ].filter((s) => s.size > 0);
 
     return {
       intent: intent.length > 0 ? intent[0] : '',
@@ -149,8 +156,8 @@ export class ContextCompressorAdapter implements ContextCompressionStrategy {
         sessionId: context[0]?.sessionId || 'unknown',
         timestamp: new Date(startTime),
         originalLength,
-        compressedSections
-      }
+        compressedSections,
+      },
     };
   }
 
@@ -160,28 +167,31 @@ export class ContextCompressorAdapter implements ContextCompressionStrategy {
     compressionRatio: number;
     fieldsWithContent: number;
   }> {
-    const allMessages = context.flatMap(session => 
-      session.messages.map(msg => ({
+    const allMessages = context.flatMap((session) =>
+      session.messages.map((msg) => ({
         role: msg.role,
-        content: msg.content || ''
-      }))
+        content: msg.content || '',
+      })),
     );
 
     const originalLength = allMessages.reduce((sum, msg) => sum + msg.content.length, 0);
     const targetRatio = 0.7;
     const estimatedCompressedLength = Math.ceil(originalLength * targetRatio);
     const compressionRatio = originalLength > 0 ? targetRatio : 0;
-    
-    const fieldsWithContent = [false, false, false, false, false, false, false].reduce((count, hasContent) => {
-      count += hasContent ? 1 : 0;
-      return count;
-    }, 0);
+
+    const fieldsWithContent = [false, false, false, false, false, false, false].reduce(
+      (count, hasContent) => {
+        count += hasContent ? 1 : 0;
+        return count;
+      },
+      0,
+    );
 
     return {
       originalLength,
       estimatedCompressedLength,
       compressionRatio,
-      fieldsWithContent
+      fieldsWithContent,
     };
   }
 
@@ -210,8 +220,8 @@ export class ContextCompressorAdapter implements ContextCompressionStrategy {
         errors: true,
         patterns: true,
         files: true,
-        actions: true
-      }
+        actions: true,
+      },
     };
   }
 }

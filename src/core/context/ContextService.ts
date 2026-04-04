@@ -1,6 +1,6 @@
-import * as path from 'path';
-import type { SystemContext, ExtensionStat } from '../../domain/context/SystemContext';
+import * as path from 'node:path';
 import type { ProjectContext } from '../../domain/context/ProjectContext';
+import type { ExtensionStat, SystemContext } from '../../domain/context/SystemContext';
 import type { Filesystem } from '../../domain/system/Filesystem';
 
 /**
@@ -18,7 +18,7 @@ export class ContextService {
     const root = project.repository.path as string;
     const stats = this.getFileStats(root);
     const activeBranch = this.filesystem.getBranch(root);
-    
+
     return {
       cwd: root,
       filesSummary: {
@@ -31,7 +31,7 @@ export class ContextService {
     };
   }
 
-    private getFileStats(root: string): { extensionStats: ExtensionStat[], totalFiles: number } {
+  private getFileStats(root: string): { extensionStats: ExtensionStat[]; totalFiles: number } {
     const counts: Record<string, number> = {};
     const files = this.filesystem.walk(root);
     const totalFiles = files.length;

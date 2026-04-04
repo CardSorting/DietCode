@@ -56,7 +56,7 @@ export interface ToolExecutor<TInput = any, TOutput = string> {
   execute(
     tool: ToolDefinition<TInput, TOutput>,
     input: TInput,
-    context: ToolExecutionContext
+    context: ToolExecutionContext,
   ): Promise<ToolExecutionResult<TOutput>>;
 }
 
@@ -78,7 +78,7 @@ export interface BatchToolExecutor {
     options: {
       maxConcurrent?: number;
       enableParallel?: boolean;
-    }
+    },
   ): Promise<ToolExecutionResult<string>[]>;
 }
 
@@ -99,21 +99,18 @@ export interface SimpleToolExecutor<TInput = any, TOutput = string> {
  */
 export function isToolExecutor(value: unknown, inputType?: any): value is ToolExecutor {
   if (typeof value !== 'object' || value === null) return false;
-  
-  return (
-    'execute' in value &&
-    typeof (value as ToolExecutor).execute === 'function'
-  );
+
+  return 'execute' in value && typeof (value as ToolExecutor).execute === 'function';
 }
 
 /**
  * Type guard for checking if a value implements SimpleToolExecutor.
  */
 export function isSimpleToolExecutor<TInput = any, TOutput = string>(
-  value: unknown
+  value: unknown,
 ): value is SimpleToolExecutor<TInput, TOutput> {
   if (typeof value !== 'object' || value === null) return false;
-  
+
   return (
     'execute' in value &&
     typeof (value as SimpleToolExecutor<TInput, TOutput>).execute === 'function'

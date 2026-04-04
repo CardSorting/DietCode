@@ -4,9 +4,19 @@
  * Delegates to Infrastructure adapters for actual construction.
  */
 
-import type { ToolFactory } from '../../domain/agent/ToolFactory';
 import type { ToolDefinition, ToolResult } from '../../domain/agent/ToolDefinition';
 import type { SimpleToolExecutor } from '../../domain/agent/ToolExecutor';
+import type { ToolFactory } from '../../domain/agent/ToolFactory';
+
+/**
+ * Schema for tool input schema definitions (simplified JSON Schema common type)
+ */
+type JSONSchema7 = Record<string, unknown> & {
+  type?: string | string[];
+  properties?: Record<string, JSONSchema7>;
+  required?: string[];
+  [key: string]: unknown;
+};
 
 /**
  * Default implementation of ToolFactory.
@@ -17,10 +27,10 @@ export class DefaultToolFactory implements ToolFactory {
    * Create a tool instance with validation.
    * Pure factory operation with no side effects.
    */
-  createTool<Input = any, Output = string>(config: {
+  createTool<Input = unknown, Output = string>(config: {
     name: string;
     description: string;
-    inputSchema: any;
+    inputSchema: JSONSchema7;
     validate?: (input: Input) => void;
     execute: (input: Input) => Promise<ToolResult<Output>>;
   }): ToolDefinition<Input, Output> {
@@ -28,7 +38,11 @@ export class DefaultToolFactory implements ToolFactory {
       throw new Error('Tool name is required and must be a non-empty string');
     }
 
-    if (!config.description || typeof config.description !== 'string' || config.description.trim().length === 0) {
+    if (
+      !config.description ||
+      typeof config.description !== 'string' ||
+      config.description.trim().length === 0
+    ) {
       throw new Error('Tool description is required and must be a non-empty string');
     }
 
@@ -61,7 +75,8 @@ export class DefaultToolFactory implements ToolFactory {
           } catch (error) {
             // Cast error content to Output to satisfy generic constraint
             return {
-              content: `Validation error: ${error instanceof Error ? error.message : String(error)}` as unknown as Output,
+              content:
+                `Validation error: ${error instanceof Error ? error.message : String(error)}` as unknown as Output,
               isError: true,
             };
           }
@@ -72,7 +87,8 @@ export class DefaultToolFactory implements ToolFactory {
           return await configExecute(input);
         } catch (executionError: unknown) {
           return {
-            content: `Execution error: ${executionError instanceof Error ? executionError.message : String(executionError)}` as unknown as Output,
+            content:
+              `Execution error: ${executionError instanceof Error ? executionError.message : String(executionError)}` as unknown as Output,
             isError: true,
           };
         }
@@ -105,10 +121,10 @@ export class SimpleToolExecutorFactory implements ToolFactory {
     this.delegate = new DefaultToolFactory();
   }
 
-  createTool<Input = any, Output = string>(config: {
+  createTool<Input = unknown, Output = string>(config: {
     name: string;
     description: string;
-    inputSchema: any;
+    inputSchema: JSONSchema7;
     validate?: (input: Input) => void;
     execute: (input: Input) => Promise<ToolResult<Output>>;
   }): ToolDefinition<Input, Output> {

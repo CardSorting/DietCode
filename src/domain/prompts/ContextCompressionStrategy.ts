@@ -1,13 +1,13 @@
 /**
  * [LAYER: DOMAIN]
  * Principle: Pure business logic, contracts, and rules — testable in isolation
- * Prework Status: 
+ * Prework Status:
  *   - Step 0: ✅ Dead code cleared
  *   - Verification: ✅ verify_hardening pass
  *   - Dependency Flow: ✅ Native protocols followed
  * Triaging:
  *   - None
- * 
+ *
  * Domain contracts for context compression functionality.
  * Defines the interface that infrastructure adapters must implement.
  */
@@ -56,7 +56,7 @@ export interface CompressionOptions {
 /**
  * Domain interface for context compression strategy
  * Infrastructure adapters must implement this interface
- * 
+ *
  * @example
  * ```typescript
  * class ContextCompressorAdapter implements ContextCompressionStrategy {
@@ -69,11 +69,11 @@ export interface CompressionOptions {
 export interface ContextCompressionStrategy {
   /**
    * Compresses session context using 9-section template
-   * 
+   *
    * @param context - Session history to compress
    * @param options - Compression configuration options
    * @returns Promise resolving to compressed context
-   * 
+   *
    * @description
    * Applies the 9-section compression algorithm:
    * 1. Intent: Extract user goal from first message
@@ -86,12 +86,12 @@ export interface ContextCompressionStrategy {
    */
   compress(
     context: SessionContext[],
-    options?: Partial<CompressionOptions>
+    options?: Partial<CompressionOptions>,
   ): Promise<CompressedContext>;
 
   /**
    * Estimates compression effectiveness for a context batch
-   * 
+   *
    * @param context - Session history to analyze
    * @returns Promise resolving to compression estimate
    */
@@ -104,7 +104,7 @@ export interface ContextCompressionStrategy {
 
   /**
    * Validates compression quality
-   * 
+   *
    * @param compressed - Compressed context result
    * @returns Promise resolving to validation status
    */
@@ -122,7 +122,7 @@ export interface ContextCompressionStrategy {
 export class ContextCompressionFactory {
   /**
    * Creates a new context compression instance
-   * 
+   *
    * @param adapter - Infrastructure implementation of ContextCompressionStrategy
    * @returns Domain-provided compression strategy wrapper
    */
@@ -130,7 +130,7 @@ export class ContextCompressionFactory {
     return {
       async compress(
         context: SessionContext[],
-        options?: Partial<CompressionOptions>
+        options?: Partial<CompressionOptions>,
       ): Promise<CompressedContext> {
         return adapter.compress(context, options);
       },
@@ -140,7 +140,9 @@ export class ContextCompressionFactory {
       async validate(compressed: CompressedContext) {
         return adapter.validate(compressed);
       },
-      getSettings() { return adapter.getSettings(); }
+      getSettings() {
+        return adapter.getSettings();
+      },
     };
   }
 
@@ -159,8 +161,8 @@ export class ContextCompressionFactory {
         errors: true,
         patterns: true,
         files: true,
-        actions: true
-      }
+        actions: true,
+      },
     };
   }
 }

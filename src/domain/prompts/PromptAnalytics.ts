@@ -105,7 +105,7 @@ export class PromptAnalyticsEngine {
       templateSizeKb: number;
       variableCount: number;
       timestamp?: string;
-    }
+    },
   ): void {
     // Initialize metrics if not exists
     if (!this.metrics.has(promptId)) {
@@ -122,7 +122,7 @@ export class PromptAnalyticsEngine {
         avgExecutionTimeMs: 0,
         dangerLevel: 'medium',
         averageSizeKb: 0,
-        featureMapping: []
+        featureMapping: [],
       });
     }
 
@@ -154,7 +154,7 @@ export class PromptAnalyticsEngine {
       promptId,
       success: context.success,
       renderTimeMs: context.renderTimeMs,
-      executionTimeMs: context.executionTimeMs
+      executionTimeMs: context.executionTimeMs,
     });
 
     // Keep only last 1000 events for performance
@@ -170,21 +170,21 @@ export class PromptAnalyticsEngine {
     const metrics = this.metrics.get(promptId);
     if (!metrics) return null;
 
-    const events = this.executionEvents.filter(e => e.promptId === promptId);
+    const events = this.executionEvents.filter((e) => e.promptId === promptId);
 
     if (events.length === 0) return null;
 
     // Calculate benchmarks
     const benchmarks = {
-      initialRenderTimeMs: Math.min(...events.map(e => e.renderTimeMs)),
-      cachedRenderTimeMs: this.calculateAvg(events.map(e => e.renderTimeMs)),
+      initialRenderTimeMs: Math.min(...events.map((e) => e.renderTimeMs)),
+      cachedRenderTimeMs: this.calculateAvg(events.map((e) => e.renderTimeMs)),
       templateParsingTimeMs: metrics.averageRenderTimeMs * 0.3,
-      variableResolutionTimeMs: metrics.averageRenderTimeMs * 0.6
+      variableResolutionTimeMs: metrics.averageRenderTimeMs * 0.6,
     };
 
     // Calculate concurrency
     const timeWindowStart = new Date(Date.now() - 60000).toISOString();
-    const recentEvents = events.filter(e => e.timestamp >= timeWindowStart);
+    const recentEvents = events.filter((e) => e.timestamp >= timeWindowStart);
     const requestsPerSecond = recentEvents.length / 60;
 
     // Calculate error rate
@@ -192,7 +192,7 @@ export class PromptAnalyticsEngine {
       totalErrors: events.length - this.getExecutionCountBySuccess(promptId, true),
       missingVariableErrors: 0, // Would need detailed error tracking
       syntaxErrors: 0, // Would need detailed error tracking
-      otherErrors: 0
+      otherErrors: 0,
     };
 
     // Calculate heatmap
@@ -205,21 +205,18 @@ export class PromptAnalyticsEngine {
       benchmarks,
       concurrency: {
         averageRequestsPerSecond: 0, // Simplified
-        peakRequestsPerSecond: Math.max(...events.map(e => 10)), // Placeholder
-        avgTimeInQueueMs: 0
+        peakRequestsPerSecond: Math.max(...events.map((e) => 10)), // Placeholder
+        avgTimeInQueueMs: 0,
       },
       errorRate,
-      heatmap
+      heatmap,
     };
   }
 
   /**
    * Generates usage-based recommendations
    */
-  generateRecommendations(
-    promptId?: string,
-    maxRecommendations: number = 10
-  ): PromptRecommendation[] {
+  generateRecommendations(promptId?: string, maxRecommendations = 10): PromptRecommendation[] {
     const recommendations: PromptRecommendation[] = [];
 
     // If promptId is provided, generate single-prompt recommendations
@@ -230,31 +227,33 @@ export class PromptAnalyticsEngine {
       // Example: Low success rate = safety warning
       if (metrics.successRate < 50) {
         recommendations.push({
-          id: `{$}`,
+          id: '{$}',
           promptId,
           type: 'SAFETY_WARNING',
           priority: 'high',
           title: 'Unstable Execution Rate Detected',
-          description: 'This prompt has a success rate below 50%, which may indicate template issues or unsafe operations.',
+          description:
+            'This prompt has a success rate below 50%, which may indicate template issues or unsafe operations.',
           metrics: {
             current: metrics.successRate,
             target: 80,
-            gap: 80 - metrics.successRate
+            gap: 80 - metrics.successRate,
           },
-          suggestedAction: 'Review template syntax, validate variable references, and reduce conditional complexity.',
+          suggestedAction:
+            'Review template syntax, validate variable references, and reduce conditional complexity.',
           impactedPhases: ['pre_execution', 'during_execution'],
           estimatedImpact: 'Improve reliability by reducing unexpected failures',
           metadata: {
             confidence: 0.9,
-            timeframe: 'Immediate review recommended'
-          }
+            timeframe: 'Immediate review recommended',
+          },
         });
       }
 
       // Example: High execution time = performance improvement
       if (metrics.averageRenderTimeMs > 100) {
         recommendations.push({
-          id: `hh`,
+          id: 'hh',
           promptId,
           type: 'PERFORMANCE_IMPROVEMENT',
           priority: 'medium',
@@ -263,21 +262,20 @@ export class PromptAnalyticsEngine {
           metrics: {
             current: metrics.averageRenderTimeMs,
             target: 50,
-            gap: metrics.averageRenderTimeMs - 50
+            gap: metrics.averageRenderTimeMs - 50,
           },
           suggestedAction: 'Pre-compile template AST and cache variable resolution results.',
           impactedPhases: ['during_execution'],
           estimatedImpact: 'Reduce render time by 50% through AST caching',
           metadata: {
             confidence: 0.85,
-            timeframe: 'Next deployment cycle'
-          }
+            timeframe: 'Next deployment cycle',
+          },
         });
       }
     } else {
       // Global recommendations
-      const allPrompts = Array.from(this.metrics.values())
-        .filter(m => m.usageCount > 10); // Only consider frequently used prompts
+      const allPrompts = Array.from(this.metrics.values()).filter((m) => m.usageCount > 10); // Only consider frequently used prompts
 
       // Find worst performers
       const slowPrompts = allPrompts
@@ -286,7 +284,7 @@ export class PromptAnalyticsEngine {
 
       slowPrompts.forEach((prompt, index) => {
         recommendations.push({
-          id: `ss`,
+          id: 'ss',
           promptId: prompt.promptId,
           type: 'PERFORMANCE_IMPROVEMENT',
           priority: index === 0 ? 'high' : 'low',
@@ -295,15 +293,15 @@ export class PromptAnalyticsEngine {
           metrics: {
             current: prompt.averageRenderTimeMs,
             target: 50,
-            gap: prompt.averageRenderTimeMs - 50
+            gap: prompt.averageRenderTimeMs - 50,
           },
           suggestedAction: 'Pre-compile template AST and reduce variable resolution overhead.',
           impactedPhases: ['during_execution'],
-          estimatedImpact: `Reduce render time by ${((prompt.averageRenderTimeMs - 50) / prompt.averageRenderTimeMs * 100).toFixed(0)}%`,
+          estimatedImpact: `Reduce render time by ${(((prompt.averageRenderTimeMs - 50) / prompt.averageRenderTimeMs) * 100).toFixed(0)}%`,
           metadata: {
             confidence: 0.9,
-            timeframe: 'Next deployment cycle'
-          }
+            timeframe: 'Next deployment cycle',
+          },
         });
       });
     }
@@ -314,12 +312,10 @@ export class PromptAnalyticsEngine {
   /**
    * Search for prompts based on criteria
    */
-  searchPrompts(
-    criteria: PromptSearchCriteria
-  ): PromptMetrics[] {
+  searchPrompts(criteria: PromptSearchCriteria): PromptMetrics[] {
     const allMetrics = Array.from(this.metrics.values());
 
-    let results = allMetrics.filter(metrics => {
+    const results = allMetrics.filter((metrics) => {
       // Category filter
       if (criteria.category && metrics.category !== criteria.category) return false;
 
@@ -332,7 +328,7 @@ export class PromptAnalyticsEngine {
 
       // Feature mapping filter
       if (criteria.featureMappings && criteria.featureMappings.length > 0) {
-        const hasFeature = criteria.featureMappings.some(f => metrics.featureMapping.includes(f));
+        const hasFeature = criteria.featureMappings.some((f) => metrics.featureMapping.includes(f));
         if (!hasFeature) return false;
       }
 
@@ -349,13 +345,25 @@ export class PromptAnalyticsEngine {
         let valueB = 0;
 
         switch (criteria.sortBy) {
-          case 'usage': valueA = a.usageCount; valueB = b.usageCount; break;
-          case 'successRate': valueA = a.successRate; valueB = b.successRate; break;
-          case 'renderTime': valueA = a.averageRenderTimeMs; valueB = b.averageRenderTimeMs; break;
-          case 'dangerLevel': valueA = this.getDangerLevelScore(a.dangerLevel); valueB = this.getDangerLevelScore(b.dangerLevel); break;
+          case 'usage':
+            valueA = a.usageCount;
+            valueB = b.usageCount;
+            break;
+          case 'successRate':
+            valueA = a.successRate;
+            valueB = b.successRate;
+            break;
+          case 'renderTime':
+            valueA = a.averageRenderTimeMs;
+            valueB = b.averageRenderTimeMs;
+            break;
+          case 'dangerLevel':
+            valueA = this.getDangerLevelScore(a.dangerLevel);
+            valueB = this.getDangerLevelScore(b.dangerLevel);
+            break;
         }
 
-        return criteria.order === 'desc' ? (valueB - valueA) : (valueA - valueB);
+        return criteria.order === 'desc' ? valueB - valueA : valueA - valueB;
       });
     }
 
@@ -379,11 +387,11 @@ export class PromptAnalyticsEngine {
         avgRenderTimeMs: metrics?.averageRenderTimeMs?.toFixed(2) || '0.00',
         avgExecutionTimeMs: metrics?.avgExecutionTimeMs?.toFixed(2) || '0.00',
         dangerLevel: metrics?.dangerLevel || 'unknown',
-        averageSizeKb: metrics?.averageSizeKb?.toFixed(2) || '0.00'
+        averageSizeKb: metrics?.averageSizeKb?.toFixed(2) || '0.00',
       },
       performance: profile,
       recommendations,
-      timeline: this.executionEvents.filter(e => e.promptId === promptId).slice(-10)
+      timeline: this.executionEvents.filter((e) => e.promptId === promptId).slice(-10),
     };
   }
 
@@ -392,20 +400,20 @@ export class PromptAnalyticsEngine {
    */
   getPerformanceTrend(
     promptId: string,
-    hours: number = 24
+    hours = 24,
   ): { timestamp: string; renderTimeMs: number; success: boolean }[] {
     const now = Date.now();
-    const cutoff = now - (hours * 60 * 60 * 1000);
+    const cutoff = now - hours * 60 * 60 * 1000;
 
     return this.executionEvents
-      .filter(e => {
+      .filter((e) => {
         const eventTime = new Date(e.timestamp).getTime();
         return e.promptId === promptId && eventTime >= cutoff;
       })
-      .map(e => ({
+      .map((e) => ({
         timestamp: e.timestamp,
         renderTimeMs: e.renderTimeMs,
-        success: e.success
+        success: e.success,
       }));
   }
 
@@ -414,12 +422,12 @@ export class PromptAnalyticsEngine {
    */
   reweighPrompts() {
     const highPriorityPrompts = Array.from(this.metrics.values())
-      .filter(m => m.successRate > 80 && m.usageCount > 20)
+      .filter((m) => m.successRate > 80 && m.usageCount > 20)
       .sort((a, b) => b.successRate - a.successRate)
       .slice(0, 10);
 
     // Logging replaced with state update for purity
-    highPriorityPrompts.forEach(prompt => {
+    highPriorityPrompts.forEach((prompt) => {
       const existing = this.metrics.get(prompt.promptId);
       if (existing) {
         existing.featureMapping.push('reinforced');
@@ -429,12 +437,8 @@ export class PromptAnalyticsEngine {
 
   // Private helper methods
 
-  private getExecutionCountBySuccess(
-    promptId: string,
-    success: boolean
-  ): number {
-    return this.executionEvents
-      .filter(e => e.promptId === promptId && e.success === success)
+  private getExecutionCountBySuccess(promptId: string, success: boolean): number {
+    return this.executionEvents.filter((e) => e.promptId === promptId && e.success === success)
       .length;
   }
 
@@ -443,37 +447,44 @@ export class PromptAnalyticsEngine {
     return values.reduce((a, b) => a + b, 0) / values.length;
   }
 
-  private generateHeatmap(events: Array<{ renderTimeMs: number; timestamp: string }>): PromptHeatmapEntry[] {
+  private generateHeatmap(
+    events: Array<{ renderTimeMs: number; timestamp: string }>,
+  ): PromptHeatmapEntry[] {
     // Simplified heatmap - in production would analyze event phases
     return [
       {
         phase: 'pre_execution',
         eventsPerPhase: events.length * 0.25, // Approximate
         avgLatencyPhase: 50,
-        dependencies: ['validation', 'context']
+        dependencies: ['validation', 'context'],
       },
       {
         phase: 'during_execution',
         eventsPerPhase: events.length * 0.5,
         avgLatencyPhase: 100,
-        dependencies: ['template', 'variables', 'tools']
+        dependencies: ['template', 'variables', 'tools'],
       },
       {
         phase: 'post_execution',
         eventsPerPhase: events.length * 0.25, // Approximate
         avgLatencyPhase: 30,
-        dependencies: ['logging', 'analytics']
-      }
+        dependencies: ['logging', 'analytics'],
+      },
     ];
   }
 
   private getDangerLevelScore(level: string): number {
     switch (level) {
-      case 'critical': return 4;
-      case 'high': return 3;
-      case 'medium': return 2;
-      case 'low': return 1;
-      default: return 0;
+      case 'critical':
+        return 4;
+      case 'high':
+        return 3;
+      case 'medium':
+        return 2;
+      case 'low':
+        return 1;
+      default:
+        return 0;
     }
   }
 
@@ -484,17 +495,21 @@ export class PromptAnalyticsEngine {
     return {
       totalPrompts: this.metrics.size,
       totalExecutions: Array.from(this.metrics.values()).reduce((sum, m) => sum + m.usageCount, 0),
-      averageSuccessRate: Array.from(this.metrics.values())
-        .reduce((sum, m) => sum + m.successRate, 0) / this.metrics.size,
-      averageRenderTimeMs: Array.from(this.metrics.values())
-        .reduce((sum, m) => sum + m.averageRenderTimeMs, 0) / this.metrics.size,
-      topDangertPrompts: this.getTopDangertPrompts(5)
+      averageSuccessRate:
+        Array.from(this.metrics.values()).reduce((sum, m) => sum + m.successRate, 0) /
+        this.metrics.size,
+      averageRenderTimeMs:
+        Array.from(this.metrics.values()).reduce((sum, m) => sum + m.averageRenderTimeMs, 0) /
+        this.metrics.size,
+      topDangertPrompts: this.getTopDangertPrompts(5),
     };
   }
 
-  private getTopDangertPrompts(limit: number = 5) {
+  private getTopDangertPrompts(limit = 5) {
     return Array.from(this.metrics.values())
-      .sort((a, b) => this.getDangerLevelScore(b.dangerLevel) - this.getDangerLevelScore(a.dangerLevel))
+      .sort(
+        (a, b) => this.getDangerLevelScore(b.dangerLevel) - this.getDangerLevelScore(a.dangerLevel),
+      )
       .slice(0, limit);
   }
 }
@@ -511,14 +526,14 @@ export class ImmutablePromptAnalytics {
   constructor(private readonly engine: PromptAnalyticsEngine) {}
 
   getMetrics(promptId: string) {
-    return this.engine['metrics'].get(promptId) || null;
+    return this.engine.metrics.get(promptId) || null;
   }
 
   getSystemMetrics() {
     return this.engine.getSystemMetrics();
   }
 
-  getPerformanceTrend(promptId: string, hours: number = 24) {
+  getPerformanceTrend(promptId: string, hours = 24) {
     return this.engine.getPerformanceTrend(promptId, hours);
   }
 

@@ -4,14 +4,14 @@
  * Pass 13: Autonomous Self-Healing Integration.
  */
 
-import { IntegrityService } from './IntegrityService';
-import { WorkerIntegrityAdapter } from '../../infrastructure/WorkerIntegrityAdapter';
+import { HealingStatus } from '../../domain/healing/Healing';
+import type { HealingRepository } from '../../domain/healing/HealingRepository';
+import { type Hook, HookPhase } from '../../domain/hooks/HookContract';
+import type { WorkerIntegrityAdapter } from '../../infrastructure/WorkerIntegrityAdapter';
 import { RefactorTools } from '../../infrastructure/tools/RefactorTools';
 import { JoyMapGenerator } from '../../infrastructure/tools/generate_joy_map';
-import { HealingService } from './HealingService';
-import type { HealingRepository } from '../../domain/healing/HealingRepository';
-import { HealingStatus } from '../../domain/healing/Healing';
-import { type Hook, HookPhase } from '../../domain/hooks/HookContract';
+import type { HealingService } from './HealingService';
+import type { IntegrityService } from './IntegrityService';
 
 export class JoyZoningHook implements Hook {
   public readonly name = 'JoyZoningGuard';
@@ -28,7 +28,7 @@ export class JoyZoningHook implements Hook {
     private workerAdapter: WorkerIntegrityAdapter,
     private healingService: HealingService,
     private healingRepository: HealingRepository,
-    private projectRoot: string
+    private projectRoot: string,
   ) {
     this.refactorTools = new RefactorTools(this.integrityService);
     this.joyMap = new JoyMapGenerator();
@@ -52,26 +52,26 @@ export class JoyZoningHook implements Hook {
     const batch = Array.from(this.auditQueue);
     this.auditQueue.clear();
     try {
-        for (const filePath of batch) {
-            const report = await this.integrityService.scanFile(filePath, this.projectRoot);
-            if (report.violations.length > 0) {
-                const violationId = report.violations[0]?.id;
-                if (violationId) {
-                    const proposals = await this.healingRepository.getProposalsForViolation(violationId);
-                    for (const proposal of proposals) {
-                        if (proposal.confidence === 1.0 && proposal.status === HealingStatus.PENDING) {
-                            await this.healingService.applyProposal(proposal.id);
-                        }
-                    }
-                }
+      for (const filePath of batch) {
+        const report = await this.integrityService.scanFile(filePath, this.projectRoot);
+        if (report.violations.length > 0) {
+          const violationId = report.violations[0]?.id;
+          if (violationId) {
+            const proposals = await this.healingRepository.getProposalsForViolation(violationId);
+            for (const proposal of proposals) {
+              if (proposal.confidence === 1.0 && proposal.status === HealingStatus.PENDING) {
+                await this.healingService.applyProposal(proposal.id);
+              }
             }
-            await this.integrityService.reportViolationsThroughput(report);
+          }
         }
-        await this.joyMap.generate(this.projectRoot);
+        await this.integrityService.reportViolationsThroughput(report);
+      }
+      await this.joyMap.generate(this.projectRoot);
     } catch (err) {
-        console.error('❌ [JoyZoning] Audit batch failed:', err);
+      console.error('❌ [JoyZoning] Audit batch failed:', err);
     } finally {
-        JoyZoningHook.isAuditing = false;
+      JoyZoningHook.isAuditing = false;
     }
   }
 }

@@ -1,5 +1,5 @@
-import { promises as fs } from 'fs';
-import path from 'path';
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
 import type {
   PromptTemplate,
   PromptTemplateConfig,
@@ -51,7 +51,7 @@ export class PromptTemplateLoader {
 
   async loadTemplate(
     name: string,
-    config?: Partial<PromptTemplateConfig>
+    config?: Partial<PromptTemplateConfig>,
   ): Promise<PromptTemplateLoadResult> {
     const startTime = Date.now();
     const cacheKey = this.cacheKey(name);
@@ -65,10 +65,7 @@ export class PromptTemplateLoader {
       };
     }
 
-    const templateContent = await fs.readFile(
-      this.templatePath(name),
-      'utf-8'
-    );
+    const templateContent = await fs.readFile(this.templatePath(name), 'utf-8');
 
     const template = this.parseTemplate(templateContent, name);
 
@@ -91,16 +88,13 @@ export class PromptTemplateLoader {
   async renderTemplate(
     name: string,
     variables?: PromptVariables,
-    config?: Partial<PromptTemplateConfig>
+    config?: Partial<PromptTemplateConfig>,
   ): Promise<string> {
     const result = await this.loadTemplate(name, config);
     return this.render(result.template, variables || {});
   }
 
-  render(
-    template: PromptTemplate,
-    variables: PromptVariables
-  ): string {
+  render(template: PromptTemplate, variables: PromptVariables): string {
     let rendered = template.content;
 
     for (const [key, value] of Object.entries(variables)) {
@@ -114,8 +108,8 @@ export class PromptTemplateLoader {
 
   private parseTemplate(content: string, name: string): PromptTemplate {
     const lines = content.split('\n');
-    let contentLines: string[] = [];
-    let metadata: Record<string, string> = {};
+    const contentLines: string[] = [];
+    const metadata: Record<string, string> = {};
 
     for (const line of lines) {
       if (line.trim().startsWith('#')) {
@@ -132,11 +126,11 @@ export class PromptTemplateLoader {
       name,
       description: metadata.description || name,
       version: metadata.version || '1.0.0',
-      tags: metadata.tags?.split(',').map(t => t.trim()) || [],
+      tags: metadata.tags?.split(',').map((t) => t.trim()) || [],
       systemPrompt: metadata.systemPrompt || '',
       userPrompt: metadata.userPrompt || '',
       content: contentLines.join('\n'),
-      variables: metadata.variables?.split(',').map(v => v.trim()) || [],
+      variables: metadata.variables?.split(',').map((v) => v.trim()) || [],
       enabled: metadata.enabled !== 'false',
     };
   }
@@ -174,20 +168,20 @@ export class PromptTemplateLoader {
  */
 export function createLazyPromptTemplateLoader(
   basePath: string,
-  setName: string
+  setName: string,
 ): PromptTemplateLoader {
   let loader: PromptTemplateLoader | null = null;
 
   return new Proxy({} as PromptTemplateLoader, {
     get(target, prop: string) {
       if (prop.startsWith('get')) {
-        return () => loader!.loadTemplate((prop as string).replace('get', ''));
+        return () => loader?.loadTemplate((prop as string).replace('get', ''));
       }
       if (prop.startsWith('render')) {
-        return (name: string, vars?: PromptVariables) => loader!.renderTemplate(name, vars);
+        return (name: string, vars?: PromptVariables) => loader?.renderTemplate(name, vars);
       }
       if (prop === 'refresh') {
-        return () => loader!.hotReload();
+        return () => loader?.hotReload();
       }
       if (loader) {
         return (loader as any)[prop];
@@ -199,6 +193,6 @@ export function createLazyPromptTemplateLoader(
         hotReload: true,
       });
       return (loader as any)[prop];
-    }
+    },
   });
 }

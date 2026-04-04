@@ -1,7 +1,7 @@
 /**
  * [LAYER: DOMAIN]
  * Standardized system event types for DietCode lifecycle tracking.
- * 
+ *
  * This module re-exports component types that exist elsewhere in the codebase.
  * All event-specific implementation details are in src/domain/events/.
  */

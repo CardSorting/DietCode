@@ -1,8 +1,9 @@
+import { execSync } from 'node:child_process';
 /**
  * [LAYER: INFRASTRUCTURE]
  * Principle: Production-grade filesystem adapter implementing Domain Filesystem contract.
  * Provides binary detection, streaming I/O, and complete metadata operations.
- * 
+ *
  * Inspired by: ForgeFS complete filesystem implementation
  * Violations: None
  * Prework Status:
@@ -12,21 +13,20 @@
  * Triaging:
  *   - [IMPLEMENT] Production FileSystem implementation with ForgeFS features
  */
-import * as fs from 'fs';
-import * as promises from 'fs/promises';
-import * as path from 'path';
-import { execSync } from 'child_process';
+import * as fs from 'node:fs';
+import * as promises from 'node:fs/promises';
+import * as path from 'node:path';
+import type { FileErrorCode, FileErrorContext } from '../domain/system/FileError';
+import type { FileMetadata, ReadFileError, ReadFileResult } from '../domain/system/FileMetadata';
 import type { Filesystem } from '../domain/system/Filesystem';
-import type { FileMetadata, ReadFileResult, ReadFileError } from '../domain/system/FileMetadata';
-import type { FileErrorContext, FileErrorCode } from '../domain/system/FileError';
-import type { BinaryDetectionResult } from './FileTypes';
 import { detectBinaryFileType } from './BinaryFileTypeDetector';
+import type { BinaryDetectionResult } from './FileTypes';
 import { PathValidator } from './validation/PathValidator';
 
 /**
  * Enhanced filesystem adapter with binary detection and streaming support.
  * Bridges the gap between Domain interfaces and Node.js file operations.
- * 
+ *
  * Implements ForgeFS-inspired complete metadata tracking and binary detection.
  */
 export class EnhancedFileSystemAdapter implements Filesystem {
@@ -57,12 +57,12 @@ export class EnhancedFileSystemAdapter implements Filesystem {
   readRange(path: string, startLine: number, endLine: number): string {
     const content = this.readFile(path);
     const lines = content.split('\n');
-    
+
     // Validate line range
     if (startLine < 1 || endLine < startLine || lines.length < endLine) {
       throw new Error(`Invalid line range: ${startLine}-${endLine} from ${lines.length} lines`);
     }
-    
+
     return lines.slice(startLine - 1, endLine).join('\n');
   }
 
@@ -138,7 +138,7 @@ export class EnhancedFileSystemAdapter implements Filesystem {
 
   match(pattern: string, path: string): boolean {
     try {
-      const regex = new RegExp('^' + pattern.replace(/\*/g, '.*').replace(/\?/g, '.'));
+      const regex = new RegExp(`^${pattern.replace(/\*/g, '.*').replace(/\?/g, '.')}`);
       return regex.test(path);
     } catch {
       return false;
@@ -195,11 +195,12 @@ export class EnhancedFileSystemAdapter implements Filesystem {
     const validatedPath = this.validator.validate(filePath);
     const readable = fs.createReadStream(validatedPath);
     const hash = Buffer.alloc(0);
-    
+
     try {
       for await (const chunk of readable) {
         const updatedHash = Buffer.concat([hash, chunk as Buffer]);
-        if (updatedHash.length >= 64) { // Every 64 bytes, compute partial hash
+        if (updatedHash.length >= 64) {
+          // Every 64 bytes, compute partial hash
           yield updatedHash.slice(0, 32).toString('hex');
         }
       }
@@ -214,19 +215,14 @@ export class EnhancedFileSystemAdapter implements Filesystem {
   /**
    * Promisify async generator - useful for simple patterns.
    */
-  then<T>(
-    onFulfilled: (data: any) => T,
-    onRejected?: (error: any) => T
-  ): Promise<T> {
+  then<T>(onFulfilled: (data: any) => T, onRejected?: (error: any) => T): Promise<T> {
     return Promise.resolve(onFulfilled(this));
   }
 
   /**
    * Pipe stream to async generator.
    */
-  pipe<T>(
-    generator: AsyncGenerator<T, void, unknown>
-  ): void {
+  pipe<T>(generator: AsyncGenerator<T, void, unknown>): void {
     // Async generator iteration logic
   }
 
@@ -235,10 +231,7 @@ export class EnhancedFileSystemAdapter implements Filesystem {
    * Returns flat array of all files and directories.
    * Matches the Filesystem domain interface contract.
    */
-  walk(
-    dir: string,
-    ignorer?: { isIgnored(path: string): boolean }
-  ): Array<{ path: string }> {
+  walk(dir: string, ignorer?: { isIgnored(path: string): boolean }): Array<{ path: string }> {
     const results: Array<{ path: string }> = [];
 
     const traverse = (currentPath: string): void => {
@@ -247,7 +240,7 @@ export class EnhancedFileSystemAdapter implements Filesystem {
       try {
         const entries = this.readdir(currentPath);
         for (const entry of entries) {
-          const fullPath = require('path').join(currentPath, entry.name);
+          const fullPath = require('node:path').join(currentPath, entry.name);
           if (ignorer?.isIgnored(fullPath)) continue;
           results.push({ path: fullPath });
           if (entry.isDirectory) {

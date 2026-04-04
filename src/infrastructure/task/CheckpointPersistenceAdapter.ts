@@ -6,18 +6,29 @@
  *   - [HARDENED] Separation of concerns (Mappers, Repositories, Schema)
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import Database from 'better-sqlite3';
-import type { TaskId, TaskEntity, Requirement } from '../../domain/task/TaskEntity';
-import { TaskState } from '../../domain/task/TaskEntity';
-import type { ImplementationSnapshot, CheckpointId, CheckpointTrigger, Violation, AxiomProfile } from '../../domain/task/ImplementationSnapshot';
-import { IntegrityAxiom, createImplementationSnapshot, generateCheckpointId, ComplianceState } from '../../domain/task/ImplementationSnapshot';
+import type {
+  AxiomProfile,
+  CheckpointId,
+  CheckpointTrigger,
+  ImplementationSnapshot,
+  Violation,
+} from '../../domain/task/ImplementationSnapshot';
+import {
+  ComplianceState,
+  IntegrityAxiom,
+  createImplementationSnapshot,
+  generateCheckpointId,
+} from '../../domain/task/ImplementationSnapshot';
 import type { IPersistenceAdapter } from '../../domain/task/SovereignAdapters';
+import type { Requirement, TaskEntity, TaskId } from '../../domain/task/TaskEntity';
+import { TaskState } from '../../domain/task/TaskEntity';
 
 import { INITIAL_SCHEMA } from './PersistenceSchema';
-import { SqliteTaskRepository } from './repositories/SqliteTaskRepository';
 import { SqliteCheckpointRepository } from './repositories/SqliteCheckpointRepository';
+import { SqliteTaskRepository } from './repositories/SqliteTaskRepository';
 
 /**
  * SQLite-backed checkpoint persistence adapter
@@ -29,9 +40,9 @@ export class CheckpointPersistenceAdapter implements IPersistenceAdapter {
   private checkpointRepo: SqliteCheckpointRepository;
   private verbose: boolean;
 
-  constructor(dbPath: string = './data/diet-code-checkpoints.db', verbose: boolean = true) {
+  constructor(dbPath = './data/diet-code-checkpoints.db', verbose = true) {
     this.verbose = verbose;
-    
+
     // Ensure directory exists
     const dir = path.dirname(dbPath);
     if (!fs.existsSync(dir)) {
@@ -43,7 +54,7 @@ export class CheckpointPersistenceAdapter implements IPersistenceAdapter {
 
     this.taskRepo = new SqliteTaskRepository(this.db);
     this.checkpointRepo = new SqliteCheckpointRepository(this.db);
-    
+
     if (this.verbose) {
       console.log(`[INFO] CheckpointPersistenceAdapter initialized with DB: ${dbPath}`);
     }
@@ -76,13 +87,13 @@ export class CheckpointPersistenceAdapter implements IPersistenceAdapter {
   async createCheckpoint(
     taskId: TaskId,
     spec: CheckpointSpec,
-    allRequirements: Requirement[] = []
+    allRequirements: Requirement[] = [],
   ): Promise<ImplementationSnapshot> {
     const checkpointId = spec.checkpointId || generateCheckpointId();
 
     // Calculate pending requirements if not provided
-    const completedIds = new Set(spec.completedRequirements?.map(r => r.uniqueId) || []);
-    const pendingRequirements = allRequirements.filter(r => !completedIds.has(r.uniqueId));
+    const completedIds = new Set(spec.completedRequirements?.map((r) => r.uniqueId) || []);
+    const pendingRequirements = allRequirements.filter((r) => !completedIds.has(r.uniqueId));
 
     const snapshot = createImplementationSnapshot({
       checkpointId,
@@ -91,8 +102,8 @@ export class CheckpointPersistenceAdapter implements IPersistenceAdapter {
       pendingRequirements,
       totalRequirements: allRequirements.length,
       semanticHealth: {
-        axiomProfile: spec.axiomProfile || { 
-          status: ComplianceState.CLEARED, 
+        axiomProfile: spec.axiomProfile || {
+          status: ComplianceState.CLEARED,
           failingAxioms: [],
           axiomResults: {
             [IntegrityAxiom.STRUCTURAL]: true,
@@ -100,11 +111,11 @@ export class CheckpointPersistenceAdapter implements IPersistenceAdapter {
             [IntegrityAxiom.PURITY]: true,
             [IntegrityAxiom.STABILITY]: true,
             [IntegrityAxiom.INTERFACE_INTEGRITY]: true,
-            [IntegrityAxiom.COGNITIVE_SIMPLICITY]: true
-          }
+            [IntegrityAxiom.COGNITIVE_SIMPLICITY]: true,
+          },
         },
         violations: spec.semanticHealth?.violations || [],
-        warnings: spec.semanticHealth?.warnings || []
+        warnings: spec.semanticHealth?.warnings || [],
       },
       outputHash: spec.outputHash,
       outputSizeBytes: spec.outputSizeBytes || 0,
@@ -112,7 +123,7 @@ export class CheckpointPersistenceAdapter implements IPersistenceAdapter {
       tokensProcessed: spec.tokensProcessed || 0,
       trigger: spec.trigger as any,
       parentCheckpointId: spec.previousSnapshotId,
-      userConfirmationRequired: spec.userConfirmationRequired
+      userConfirmationRequired: spec.userConfirmationRequired,
     });
 
     this.checkpointRepo.save(snapshot);
@@ -122,7 +133,10 @@ export class CheckpointPersistenceAdapter implements IPersistenceAdapter {
   /**
    * Restores the task state from a previous checkpoint
    */
-  async restoreCheckpoint(taskId: TaskId, checkpointId: CheckpointId): Promise<ImplementationSnapshot> {
+  async restoreCheckpoint(
+    taskId: TaskId,
+    checkpointId: CheckpointId,
+  ): Promise<ImplementationSnapshot> {
     const snapshot = this.checkpointRepo.findById(taskId, checkpointId);
     if (!snapshot) {
       throw new Error(`Checkpoint ${checkpointId} not found for task ${taskId}`);
@@ -135,7 +149,7 @@ export class CheckpointPersistenceAdapter implements IPersistenceAdapter {
   /**
    * Retrieves the most recent N checkpoints
    */
-  getLastCheckpoints(taskId: TaskId, limit: number = 5): ImplementationSnapshot[] {
+  getLastCheckpoints(taskId: TaskId, limit = 5): ImplementationSnapshot[] {
     return this.checkpointRepo.findByTaskId(taskId, limit);
   }
 
@@ -150,14 +164,16 @@ export class CheckpointPersistenceAdapter implements IPersistenceAdapter {
       newestSnapshot: stats.newest_timestamp ? new Date(stats.newest_timestamp) : null,
       totalTasks: stats.task_count || 0,
       totalCheckpoints: stats.checkpoint_count || 0,
-      dataAgeDays: stats.newest_timestamp ? (Date.now() - stats.newest_timestamp) / (1000 * 60 * 60 * 24) : 0
+      dataAgeDays: stats.newest_timestamp
+        ? (Date.now() - stats.newest_timestamp) / (1000 * 60 * 60 * 24)
+        : 0,
     };
   }
 
   /**
    * Lists tasks
    */
-  listTasks(limit: number = 100): any[] {
+  listTasks(limit = 100): any[] {
     return this.taskRepo.list(limit);
   }
 }

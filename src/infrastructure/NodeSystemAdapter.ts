@@ -2,20 +2,23 @@
  * [LAYER: INFRASTRUCTURE]
  * Concrete implementation of SystemAdapter using Node.js APIs and shell commands.
  * Uses structured logging for production-grade observability.
- * 
+ *
  * Implements ForgeFS-inspired binary detection support through enhanced Filesystem adapter.
  */
 
-import * as os from 'os';
-import * as path from 'path';
-import { execSync } from 'child_process';
-import type { SystemAdapter } from '../domain/system/SystemAdapter';
-import type { SystemInfo, RepoContext } from '../domain/context/SystemContext';
-import type { Filesystem } from '../domain/system/Filesystem';
+import { execSync } from 'node:child_process';
+import * as os from 'node:os';
+import * as path from 'node:path';
+import type { RepoContext, SystemInfo } from '../domain/context/SystemContext';
 import type { LogService } from '../domain/logging/LogService';
+import type { Filesystem } from '../domain/system/Filesystem';
+import type { SystemAdapter } from '../domain/system/SystemAdapter';
 
 export class NodeSystemAdapter implements SystemAdapter {
-  constructor(private filesystem: Filesystem, private logService: LogService) {}
+  constructor(
+    private filesystem: Filesystem,
+    private logService: LogService,
+  ) {}
 
   // ─── System Information ─────────────────────────────────────────────
 
@@ -41,10 +44,13 @@ export class NodeSystemAdapter implements SystemAdapter {
 
     try {
       if (this.filesystem.exists(path.join(projectRoot, '.git'))) {
-        const branch = execSync('git rev-parse --abbrev-ref HEAD', { cwd: projectRoot }).toString().trim();
-        const dirty = execSync('git status --porcelain', { cwd: projectRoot }).toString().trim().length > 0;
+        const branch = execSync('git rev-parse --abbrev-ref HEAD', { cwd: projectRoot })
+          .toString()
+          .trim();
+        const dirty =
+          execSync('git status --porcelain', { cwd: projectRoot }).toString().trim().length > 0;
         const hash = execSync('git rev-parse HEAD', { cwd: projectRoot }).toString().trim();
-        
+
         git = { branch, dirty, lastCommitHash: hash };
       }
     } catch (e) {
@@ -58,7 +64,9 @@ export class NodeSystemAdapter implements SystemAdapter {
         const pkg = JSON.parse(this.filesystem.readFile(pkgPath));
         dependencies = { ...pkg.dependencies, ...pkg.devDependencies };
       } catch (e) {
-        this.logService.error('Failed to parse package.json', e, { component: 'NodeSystemAdapter' });
+        this.logService.error('Failed to parse package.json', e, {
+          component: 'NodeSystemAdapter',
+        });
       }
     }
 
@@ -69,7 +77,10 @@ export class NodeSystemAdapter implements SystemAdapter {
     };
   }
 
-  async detectCapability(name: string, checkCommand: string): Promise<{ available: boolean; version?: string }> {
+  async detectCapability(
+    name: string,
+    checkCommand: string,
+  ): Promise<{ available: boolean; version?: string }> {
     try {
       const output = execSync(checkCommand).toString().trim();
       return { available: true, version: output };
@@ -84,7 +95,7 @@ export class NodeSystemAdapter implements SystemAdapter {
    * Read first N bytes as Uint8Array.
    * For binary detection and magic byte checks.
    */
-  async readFileBuffer(path: string, length: number = 1024): Promise<Uint8Array> {
+  async readFileBuffer(path: string, length = 1024): Promise<Uint8Array> {
     return this.filesystem.readFileBuffer(path, length);
   }
 
@@ -102,7 +113,7 @@ export class NodeSystemAdapter implements SystemAdapter {
     this.logService.error(
       'Filesystem operation failed',
       { message: err.message, path: err.path },
-      { component: 'NodeSystemAdapter' }
+      { component: 'NodeSystemAdapter' },
     );
   }
 }

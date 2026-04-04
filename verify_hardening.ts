@@ -3,18 +3,18 @@
  * Checks PathValidator, FileSystem hardening, Governance, and Sovereign Doctor.
  */
 
-import { FileSystemAdapter } from './src/infrastructure/FileSystemAdapter';
-import { EnhancedFileSystemAdapter } from './src/infrastructure/EnhancedFileSystemAdapter';
-import { PathValidator } from './src/infrastructure/validation/PathValidator';
-import { ResourceGovernor, GovernanceAction } from './src/core/capabilities/ResourceGovernor';
+import * as path from 'node:path';
+import { GovernanceAction, ResourceGovernor } from './src/core/capabilities/ResourceGovernor';
 import { SovereignDoctor } from './src/core/integrity/SovereignDoctor';
 import { EventBus } from './src/core/orchestration/EventBus';
 import { EventType } from './src/domain/Event';
-import * as path from 'path';
+import { EnhancedFileSystemAdapter } from './src/infrastructure/EnhancedFileSystemAdapter';
+import { FileSystemAdapter } from './src/infrastructure/FileSystemAdapter';
+import { PathValidator } from './src/infrastructure/validation/PathValidator';
 
 async function verify() {
   console.log('--- DIETCODE INFRASTRUCTURE HARDENING VERIFICATION ---');
-  
+
   const workspaceRoot = process.cwd();
   const validator = new PathValidator(workspaceRoot);
   const fs = new FileSystemAdapter(validator);
@@ -50,7 +50,7 @@ async function verify() {
   governor.recordResult('test', true, 10);
   governor.recordInvocation('test');
   governor.recordResult('test', true, 10);
-  
+
   const govResult = governor.shouldProceed('test');
   if (govResult.action === GovernanceAction.BLOCK) {
     console.log(`✅ PASS: ResourceGovernor blocked calls exceeding limit: ${govResult.reason}`);
@@ -81,7 +81,7 @@ async function verify() {
   }
 }
 
-verify().catch(err => {
+verify().catch((err) => {
   console.error('💥 VERIFICATION CRASHED:', err);
   process.exit(1);
 });

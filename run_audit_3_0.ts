@@ -1,11 +1,11 @@
+import * as fs from 'node:fs';
 import { SemanticIntegrityAnalyser } from './src/infrastructure/task/SemanticIntegrityAnalyser';
-import * as fs from 'fs';
 
 async function main() {
   const analyser = new SemanticIntegrityAnalyser();
   console.log('--- STARTING SOVEREIGN AUDIT (3.0) ---');
   const report = await analyser.runProjectAudit('./src');
-  
+
   const markdown = `
 # Project-Wide Integrity Audit (Axiom 3.0)
 
@@ -21,21 +21,23 @@ async function main() {
 
 ## Remediation Plan
 
-${report.remediationPlan.map(p => `- ${p}`).join('\n')}
+${report.remediationPlan.map((p) => `- ${p}`).join('\n')}
 
 ## Layer Breakdown
 
-### Domain Layer (${report.resultsByLayer.domain!.length} files)
-${report.resultsByLayer.domain!.map(r => `- [${r.axiomProfile.status}] ${r.filePath} (${r.violations.length} violations)`).join('\n')}
+### Domain Layer (${report.resultsByLayer.domain?.length} files)
+${report.resultsByLayer.domain?.map((r) => `- [${r.axiomProfile.status}] ${r.filePath} (${r.violations.length} violations)`).join('\n')}
 
-### Infrastructure Layer (${report.resultsByLayer.infrastructure!.length} files)
-${report.resultsByLayer.infrastructure!.map(r => {
-    const ghost = r.violations.some(v => v.message.includes('Ghost')) ? ' [GHOST]' : '';
+### Infrastructure Layer (${report.resultsByLayer.infrastructure?.length} files)
+${report.resultsByLayer.infrastructure
+  ?.map((r) => {
+    const ghost = r.violations.some((v) => v.message.includes('Ghost')) ? ' [GHOST]' : '';
     return `- [${r.axiomProfile.status}] ${r.filePath}${ghost}`;
-}).join('\n')}
+  })
+  .join('\n')}
 
-### Core Layer (${report.resultsByLayer.core!.length} files)
-${report.resultsByLayer.core!.map(r => `- [${r.axiomProfile.status}] ${r.filePath}`).join('\n')}
+### Core Layer (${report.resultsByLayer.core?.length} files)
+${report.resultsByLayer.core?.map((r) => `- [${r.axiomProfile.status}] ${r.filePath}`).join('\n')}
   `;
 
   fs.writeFileSync('./integrity_audit.md', markdown);

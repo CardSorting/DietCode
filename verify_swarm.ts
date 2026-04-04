@@ -3,20 +3,20 @@
  * Tests SwarmAuditor and distributed coordination features.
  */
 
-import { LogLevel } from './src/domain/logging/LogLevel';
-import { ConsoleLoggerAdapter } from './src/infrastructure/ConsoleLoggerAdapter';
 import { EventBus } from './src/core/orchestration/EventBus';
-import { EventType } from './src/domain/events/EventType';
 import { SwarmAuditor } from './src/core/orchestration/SwarmAuditor';
 import type { SessionRepository } from './src/domain/context/SessionRepository';
+import { EventType } from './src/domain/events/EventType';
+import { LogLevel } from './src/domain/logging/LogLevel';
 import type { LogService } from './src/domain/logging/LogService';
+import { ConsoleLoggerAdapter } from './src/infrastructure/ConsoleLoggerAdapter';
 
 // Mock SessionRepository
 class MockSessionRepository implements SessionRepository {
   private sessions: Map<string, any> = new Map();
 
   async ensureProject(context: any, userId: string): Promise<void> {}
-  
+
   async createSession(userId: string, agentId: string, description: string): Promise<string> {
     const sessionId = `session-${Date.now()}`;
     this.sessions.set(sessionId, {
@@ -25,11 +25,11 @@ class MockSessionRepository implements SessionRepository {
       agentId,
       status: 'active',
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     });
     return sessionId;
   }
-  
+
   async appendMessage(sessionId: string, message: any): Promise<void> {
     const session = this.sessions.get(sessionId);
     if (session) {
@@ -38,11 +38,11 @@ class MockSessionRepository implements SessionRepository {
       this.sessions.set(sessionId, session);
     }
   }
-  
+
   async loadSession(sessionId: string): Promise<any> {
     return this.sessions.get(sessionId) || null;
   }
-  
+
   async updateSessionStatus(sessionId: string, status: string, result?: any): Promise<void> {
     const session = this.sessions.get(sessionId);
     if (session) {
@@ -52,7 +52,7 @@ class MockSessionRepository implements SessionRepository {
       this.sessions.set(sessionId, session);
     }
   }
-  
+
   async updateSessionAgent(sessionId: string, agentId: string): Promise<void> {
     const session = this.sessions.get(sessionId);
     if (session) {
@@ -61,7 +61,7 @@ class MockSessionRepository implements SessionRepository {
       this.sessions.set(sessionId, session);
     }
   }
-  
+
   async getSession(sessionId: string): Promise<any> {
     return this.sessions.get(sessionId) || null;
   }
@@ -83,7 +83,7 @@ async function verify() {
   console.log('\n--- ALL SWARM VERIFICATIONS PASSED ---');
 }
 
-verify().catch(err => {
+verify().catch((err) => {
   console.error('--- VERIFICATION FAILED ---');
   console.error(err);
   process.exit(1);

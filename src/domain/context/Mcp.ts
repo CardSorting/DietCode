@@ -19,7 +19,7 @@ export interface McpHttpServer {
   disable?: boolean;
 }
 
-export type McpServerConfig = 
+export type McpServerConfig =
   | { type: 'stdio'; config: McpStdioServer }
   | { type: 'http'; config: McpHttpServer };
 

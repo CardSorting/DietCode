@@ -1,157 +1,226 @@
 /**
  * [LAYER: CORE]
- * Principle: Resilience & Resiliency — ensures reliable tool execution.
- * Implementation: Concurrency control, exponential backoff, and circuit breaker.
+ * Principle: Executors task execution with automatic retry logic
  */
 
-import { EventBus } from '../orchestration/EventBus';
-import { EventType } from '../../domain/Event';
+import type { TaskDefinition } from '../../domain/task/TaskDefinition';
 
-export interface ExecutionOptions {
-  timeoutMs?: number;
-  maxRetries?: number;
-  backoffMs?: number;
-  concurrencyGroup?: string;
+/**
+ * Custom error type for retryable task execution failures
+ */
+export class ExecutionError extends Error {
+  constructor(
+    message: string,
+    public readonly retryable: boolean = false,
+  ) {
+    super(message);
+    this.name = 'ExecutionError';
+  }
 }
 
+/**
+ * Configuration for execution governor behavior
+ */
+export interface ExecutionGovernorConfig {
+  maxRetries: number;
+  retryableErrors: string[];
+  timeoutMs: number;
+}
+
+export interface TaskExecutionRequest {
+  task: TaskDefinition;
+  groupId?: string;
+  priority?: number;
+}
+
+/**
+ * Execution status tracking
+ */
+export interface TaskStatus {
+  taskId: string;
+  status: 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
+  attempts: number;
+  result?: unknown;
+  error?: ExecutionError;
+  startTime?: number;
+  endTime?: number;
+}
+
+// Registry for task queues by execution group
+const executionQueues = new Map<string, TaskExecutionRequest[]>();
+
+function addTaskToQueue(task: TaskExecutionRequest): void {
+  const group = task.groupId || 'default';
+  const groupQueue = executionQueues.get(group);
+
+  if (groupQueue) {
+    const updatedQueue: TaskExecutionRequest[] = [];
+    const taskPriority = task.priority;
+
+    // Filter to get items with lower priority
+    const itemsWithLowerPriority = groupQueue.filter(
+      (t) => t.priority !== undefined && taskPriority !== undefined && t.priority < taskPriority,
+    );
+
+    // Filter to get items with higher or equal priority
+    const itemsWithHigherOrEqualPriority = groupQueue.filter(
+      (t) => !(t.priority !== undefined && taskPriority !== undefined && t.priority < taskPriority),
+    );
+
+    // Add new task after lower priority items, before higher or equal priority items
+    itemsWithLowerPriority.push(task);
+    updatedQueue.push(...itemsWithHigherOrEqualPriority);
+
+    executionQueues.set(group, updatedQueue);
+  } else {
+    executionQueues.set(group, [{ ...task, attempts: 0 }]);
+  }
+}
+
+function dequeueTask(group: string): TaskExecutionRequest | undefined {
+  const queue = executionQueues.get(group);
+  if (!queue || queue.length === 0) {
+    return undefined;
+  }
+  const [next] = queue;
+  executionQueues.delete(group);
+  return next;
+}
+
+// Configuration for execution governor behavior
+const defaultExecutionGovernorConfig: ExecutionGovernorConfig = {
+  maxRetries: 3,
+  retryableErrors: ['NetworkError', 'TimeoutError', 'ConnectionError'],
+  timeoutMs: 30000,
+};
+
+// Execution status tracking
+const runningTasks = new Set<string>();
+const statusRegistry = new Map<string, TaskStatus>();
+
+/**
+ * Governor that coordinates task execution with automatic retry logic
+ */
 export class ExecutionGovernor {
-  private static activeOperations = new Map<string, number>();
-  private static queues = new Map<string, (() => void)[]>();
-  
-  private static config = {
-    MAX_CONCURRENCY: 5,
-    CIRCUIT_OPEN_THRESHOLD: 10,
-    CIRCUIT_RESET_MS: 30000,
-    DEFAULT_TIMEOUT: 60000,
-  };
+  private static config: ExecutionGovernorConfig = defaultExecutionGovernorConfig;
 
-  private failuresInWindow = 0;
-  private lastFailureTime = 0;
-  private eventBus: EventBus;
+  /**
+   * Configure execution governor behavior
+   */
+  static configure(config: Partial<ExecutionGovernorConfig>): void {
+    ExecutionGovernor.config = { ...ExecutionGovernor.config, ...config };
+  }
 
-  constructor() {
-    this.eventBus = EventBus.getInstance();
+/**
+ * Queue manager for task queue operations
+ */
+const queueManager = {
+  addTaskToQueue,
+  dequeueTask,
+};
+
+  /**
+   * Execute a task with automatic retry logic
+   */
+  static async execute(request: TaskExecutionRequest): Promise<unknown> {
+    if (runningTasks.has(request.task.id)) {
+      throw new ExecutionError(`Task ${request.task.id} is already running`);
+    }
+
+    const task = statusRegistry.get(request.task.id);
+
+    if (task) {
+      task.status = 'running';
+      task.startTime = Date.now();
+      runningTasks.add(request.task.id);
+    }
+
+    try {
+      const result = await ExecutionGovernor.executeWithRetry(request);
+      return result;
+    } finally {
+      if (task) {
+        task.endTime = Date.now();
+        task.status = 'failed';
+        runningTasks.delete(request.task.id);
+      }
+    }
   }
 
   /**
-   * Execute an operation with resiliency patterns.
+   * Execute a single attempt with retry logic
    */
-  async execute<T>(
-    operationId: string,
-    operation: () => Promise<T>,
-    options: ExecutionOptions = {}
-  ): Promise<T> {
-    const {
-      timeoutMs = ExecutionGovernor.config.DEFAULT_TIMEOUT,
-      maxRetries = 3,
-      backoffMs = 500,
-      concurrencyGroup = 'default'
-    } = options;
+  private static async executeWithRetry(
+    request: TaskExecutionRequest,
+    attempts = 0,
+  ): Promise<unknown> {
+    const timeoutMs = ExecutionGovernor.config.timeoutMs;
+    const error = new Error('Unknown error');
+    let currentAttempts = attempts;
 
-    let attempts = 0;
-
-    while (attempts < maxRetries) {
-      if (this.isCircuitOpen()) {
-        const errorMsg = `🛑 [RESILIENCY] Circuit is OPEN. Operation ${operationId} rejected.`;
-        console.error(errorMsg);
-        throw new Error(errorMsg);
-      }
-
+    while (currentAttempts <= ExecutionGovernor.config.maxRetries) {
       try {
-        const result = await this.withConcurrency(concurrencyGroup, () =>
-          this.withTimeout(operationId, operation(), timeoutMs)
-        );
-        this.onSuccess();
+        const result = await Promise.race([
+          request.task.execute(),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('TimeoutError')), timeoutMs),
+          ),
+        ]);
+
         return result;
-      } catch (err: any) {
-        attempts++;
-        if (attempts >= maxRetries || !this.isRetryableError(err)) {
-          this.onFailure();
-          console.error(`❌ [RESILIENCY] Operation ${operationId} failed after ${attempts} attempts:`, err);
-          throw err;
+      } catch (err: unknown) {
+        const errObj = err instanceof Error ? err : new Error(String(err));
+        error.message = errObj.message;
+
+        if (!ExecutionGovernor.isRetryableError(error)) {
+          throw new ExecutionError(error.message, false);
         }
 
-        const delay = backoffMs * Math.pow(2, attempts - 1);
-        console.warn(`⏳ [RESILIENCY] Operation ${operationId} retrying (${attempts}/${maxRetries}) in ${delay}ms...`);
-        this.eventBus.emit(EventType.SYSTEM_ERROR, { 
-          component: 'ExecutionGovernor', 
-          message: `Retrying ${operationId} after error: ${err.message}` 
-        });
-        await new Promise(r => setTimeout(r, delay));
+        // Wait before retrying (exponential backoff)
+        await new Promise((resolve) => setTimeout(resolve, currentAttempts * 1000));
+        currentAttempts++;
       }
     }
 
-    throw new Error(`[RESILIENCY] Operation ${operationId} failed after max retries`);
+    throw new ExecutionError('Max retries reached', true);
   }
 
-  private async withConcurrency<T>(group: string, op: () => Promise<T>): Promise<T> {
-    const active = ExecutionGovernor.activeOperations.get(group) || 0;
-
-    if (active >= ExecutionGovernor.config.MAX_CONCURRENCY) {
-      await new Promise<void>(resolve => {
-        const queue = ExecutionGovernor.queues.get(group) || [];
-        queue.push(resolve);
-        ExecutionGovernor.queues.set(group, queue);
-      });
-    }
-
-    ExecutionGovernor.activeOperations.set(group, (ExecutionGovernor.activeOperations.get(group) || 0) + 1);
-
-    try {
-      return await op();
-    } finally {
-      const remaining = (ExecutionGovernor.activeOperations.get(group) || 1) - 1;
-      ExecutionGovernor.activeOperations.set(group, remaining);
-
-      const queue = ExecutionGovernor.queues.get(group);
-      if (queue && queue.length > 0) {
-        const next = queue.shift()!;
-        if (queue.length === 0) {
-          ExecutionGovernor.queues.delete(group);
-        }
-        next();
-      }
-    }
-  }
-
-  private async withTimeout<T>(id: string, promise: Promise<T>, ms: number): Promise<T> {
-    const timeout = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error(`🛑 [RESILIENCY] Operation ${id} timed out after ${ms}ms`)), ms);
-    });
-    return Promise.race([promise, timeout]);
-  }
-
-  private isRetryableError(err: any): boolean {
-    const msg = (err.message || String(err)).toUpperCase();
-    return (
-      msg.includes('SQLITE_BUSY') ||
-      msg.includes('SQLITE_LOCKED') ||
-      msg.includes('EBUSY') ||
-      msg.includes('TIMEOUT') ||
-      msg.includes('ETIMEDOUT') ||
-      msg.includes('RATELIMIT') ||
-      msg.includes('UNAVAILABLE')
+  /**
+   * Determine if an error should trigger retry
+   */
+  private static isRetryableError(error: Error): boolean {
+    return ExecutionGovernor.config.retryableErrors.some((retryable) =>
+      error.message.includes(retryable),
     );
   }
 
-  private isCircuitOpen(): boolean {
-    if (this.failuresInWindow >= ExecutionGovernor.config.CIRCUIT_OPEN_THRESHOLD) {
-      if (Date.now() - this.lastFailureTime < ExecutionGovernor.config.CIRCUIT_RESET_MS) {
-        return true;
-      }
-      this.failuresInWindow = 0; // Reset after window
-    }
-    return false;
+  /**
+   * Check execution status of a task
+   */
+  static getStatus(taskId: string): TaskStatus | undefined {
+    return statusRegistry.get(taskId);
   }
 
-  private onSuccess() {
-    if (this.failuresInWindow > 0) {
-      this.failuresInWindow = Math.max(0, this.failuresInWindow - 1);
+  /**
+   * Cancel a running task
+   */
+  static cancel(taskId: string): boolean {
+    if (!runningTasks.has(taskId)) {
+      return false;
     }
+
+    const status = statusRegistry.get(taskId);
+    if (status) {
+      status.status = 'cancelled';
+      runningTasks.delete(taskId);
+    }
+    return true;
   }
 
-  private onFailure() {
-    this.failuresInWindow++;
-    this.lastFailureTime = Date.now();
+  /**
+   * Get all running tasks
+   */
+  static getRunningTasks(): string[] {
+    return Array.from(runningTasks);
   }
 }

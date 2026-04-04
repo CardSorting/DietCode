@@ -1,7 +1,7 @@
 /**
  * [LAYER: INFRASTRUCTURE]
  * Principle: Shared infrastructure type definitions for binary file detection.
- * 
+ *
  * Inspired by: ForgeFS type system
  * Violations: None
  * Prework Status:
@@ -20,13 +20,13 @@ export interface BinaryDetectionResult {
    * Whether the file is binary.
    */
   isBinary: boolean;
-  
+
   /**
    * MIME type from file command (if available).
    * Example: "application/octet-stream", "image/png"
    */
   mimeType?: string;
-  
+
   /**
    * Human-readable binary type description.
    * Example: "PE executable (Microsoft)"

@@ -13,7 +13,7 @@ export class TerminalUI implements TerminalInterface {
     this.adapter.logClaude(text);
   }
 
-  logToolUse(name: string, input: any) {
+  logToolUse<T = void>(name: string, input: T) {
     this.adapter.logToolUse(name, input);
   }
 

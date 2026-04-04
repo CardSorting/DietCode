@@ -4,7 +4,13 @@
  * Violations: None
  */
 
-import type { ToolRouter, UserIntention, ToolDefinition, ToolSelectionPolicy, ToolRoutingResult } from '../../domain/capabilities/ToolRouter';
+import type {
+  ToolDefinition,
+  ToolRouter,
+  ToolRoutingResult,
+  ToolSelectionPolicy,
+  UserIntention,
+} from '../../domain/capabilities/ToolRouter';
 
 /**
  * Infrastructure implementation of Tool-Routing pattern
@@ -17,7 +23,7 @@ export class ToolRouterAdapter implements ToolRouter {
   constructor(availableTools: ToolDefinition[] = []) {
     // Convert Infrastructure tool definitions to Domain contracts
     this.toolDefinitions = new Map(
-      availableTools.map(tool => [
+      availableTools.map((tool) => [
         tool.name,
         {
           id: tool.id,
@@ -25,15 +31,15 @@ export class ToolRouterAdapter implements ToolRouter {
           operationType: this.mapOperationType(tool.operationType),
           soloUseOnly: tool.soloUseOnly,
           parallelizable: tool.parallelizable,
-          provenance: 'builtin'
-        }
-      ])
+          provenance: 'builtin',
+        },
+      ]),
     );
 
     this.selectionPolicy = {
       canUseSolo: (tool: ToolDefinition) => tool.soloUseOnly,
       canUseParallel: (tool: ToolDefinition) => tool.parallelizable,
-      getMaxParallelLimit: (operationType: string) => operationType === 'EXECUTE_SHELL' ? 1 : 10
+      getMaxParallelLimit: (operationType: string) => (operationType === 'EXECUTE_SHELL' ? 1 : 10),
     };
   }
 
@@ -47,7 +53,7 @@ export class ToolRouterAdapter implements ToolRouter {
 
     // Find tool that matches the operation type
     const tool = Array.from(this.toolDefinitions.values()).find(
-      tool => tool.operationType === normalizedOp
+      (tool) => tool.operationType === normalizedOp,
     );
 
     if (!tool) {
@@ -57,7 +63,7 @@ export class ToolRouterAdapter implements ToolRouter {
     return {
       tool,
       matchesCriteria: true,
-      overrideShell: this.shouldOverrideShell(intention.operationType)
+      overrideShell: this.shouldOverrideShell(intention.operationType),
     };
   }
 
@@ -80,20 +86,20 @@ export class ToolRouterAdapter implements ToolRouter {
    */
   private mapOperationType(ops: string): string {
     const typeMap: Record<string, string> = {
-      'READ_FILE': 'READ',
-      'WRITE_FILE': 'WRITE',
-      'EDIT_FILE': 'EDIT',
-      'DELETE_FILE': 'DELETE',
-      'EXECUTE_SHELL': 'EXECUTE',
-      'COMMAND': 'EXECUTE',
-      'debug': 'EXECUTE',
-      'test': 'EXECUTE',
-      'build': 'EXECUTE',
-      'grep_search': 'SEARCH_GREP',
-      'glob_find': 'SEARCH_GLOB',
-      'find_file': 'SEARCH_GLOB',
-      'search': 'SEARCH_GREP',
-      'file_info': 'INFO'
+      READ_FILE: 'READ',
+      WRITE_FILE: 'WRITE',
+      EDIT_FILE: 'EDIT',
+      DELETE_FILE: 'DELETE',
+      EXECUTE_SHELL: 'EXECUTE',
+      COMMAND: 'EXECUTE',
+      debug: 'EXECUTE',
+      test: 'EXECUTE',
+      build: 'EXECUTE',
+      grep_search: 'SEARCH_GREP',
+      glob_find: 'SEARCH_GLOB',
+      find_file: 'SEARCH_GLOB',
+      search: 'SEARCH_GREP',
+      file_info: 'INFO',
     };
 
     return typeMap[ops] || 'GENERIC';
@@ -104,11 +110,7 @@ export class ToolRouterAdapter implements ToolRouter {
    */
   private normalizeOperationType(op: string): string {
     // Capitalize and handle aliases
-    return op
-      .toUpperCase()
-      .replace(/_/g, '_')
-      .replace(/-/g, '_')
-      .trim();
+    return op.toUpperCase().replace(/_/g, '_').replace(/-/g, '_').trim();
   }
 
   /**
@@ -132,7 +134,11 @@ export class ToolRouterAdapter implements ToolRouter {
     }
 
     // Return true for critical operations that should be audited
-    if (['INFRASTRUCTURE_CONFIG', 'DEPLOY', 'BACKUP', 'RESTORE'].includes(this.mapOperationType(operationType))) {
+    if (
+      ['INFRASTRUCTURE_CONFIG', 'DEPLOY', 'BACKUP', 'RESTORE'].includes(
+        this.mapOperationType(operationType),
+      )
+    ) {
       return true;
     }
 
@@ -158,17 +164,19 @@ export class ToolRouterAdapter implements ToolRouter {
    */
   validateRouteDecision(decision: ToolRoutingResult): boolean {
     if (!decision.tool) return false;
-    
+
     const policy = this.selectionPolicy;
-    
+
     // Never recommend shell for file operations
-    if (decision.tool.operationType === 'READ' || 
-        decision.tool.operationType === 'WRITE' || 
-        decision.tool.operationType === 'EDIT' ||
-        decision.tool.operationType === 'DELETE') {
+    if (
+      decision.tool.operationType === 'READ' ||
+      decision.tool.operationType === 'WRITE' ||
+      decision.tool.operationType === 'EDIT' ||
+      decision.tool.operationType === 'DELETE'
+    ) {
       return decision.overrideShell === true;
     }
-    
+
     // Check parallelizability based on policy
     return policy.canUseParallel(decision.tool) || policy.canUseSolo(decision.tool);
   }

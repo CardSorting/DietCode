@@ -4,10 +4,10 @@
  * Uses structured logging for production-grade observability.
  */
 
+import * as readline from 'node:readline';
 import chalk from 'chalk';
-import * as readline from 'readline';
-import type { TerminalInterface } from '../domain/system/TerminalInterface';
 import type { LogService } from '../domain/logging/LogService';
+import type { TerminalInterface } from '../domain/system/TerminalInterface';
 
 export class NodeTerminalAdapter implements TerminalInterface {
   private rl: readline.Interface;

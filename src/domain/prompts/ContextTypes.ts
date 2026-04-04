@@ -2,7 +2,7 @@
  * [LAYER: DOMAIN]
  * Principle: Pure business logic, domain models, value objects
  * Violations: None
- * 
+ *
  * Shared domain types for context compression functionality.
  */
 

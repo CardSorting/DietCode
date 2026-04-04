@@ -13,7 +13,10 @@ import type { TemplateContext } from './PromptTemplateEngine';
 export interface ContextAwareStrategy {
   name: string;
   canApply(prompt: PromptDefinition, context: Partial<TemplateContext>): boolean;
-  apply(prompt: PromptDefinition, context: Partial<TemplateContext>): Promise<{ context: Partial<TemplateContext>; notes: string[] }>;
+  apply(
+    prompt: PromptDefinition,
+    context: Partial<TemplateContext>,
+  ): Promise<{ context: Partial<TemplateContext>; notes: string[] }>;
 }
 
 /**
@@ -23,8 +26,11 @@ export interface ContextAwareStrategy {
 export interface PatternAwareStrategy {
   name: string;
   canApply(prompt: PromptDefinition, context: Partial<TemplateContext>): boolean;
-  apply(prompt: PromptDefinition, context: Partial<TemplateContext>): Promise<{ prompt: string; notes: string[] }>;
-} 
+  apply(
+    prompt: PromptDefinition,
+    context: Partial<TemplateContext>,
+  ): Promise<{ prompt: string; notes: string[] }>;
+}
 
 /**
  * Strategy interface for wrapping with verification steps
@@ -43,16 +49,27 @@ export interface VerificationAwareStrategy {
 export interface SkillAwareStrategy {
   name: string;
   canApply(prompt: PromptDefinition, skills?: string[]): boolean;
-  apply(prompt: PromptDefinition, skills?: string[]): Promise<{ wrapper: string; prepend?: string }>;
+  apply(
+    prompt: PromptDefinition,
+    skills?: string[],
+  ): Promise<{ wrapper: string; prepend?: string }>;
 }
 
 /**
  * Composite strategy that applies multiple strategies in sequence
  */
 export interface CompositeCompositionStrategy {
-  strategies: (ContextAwareStrategy | PatternAwareStrategy | VerificationAwareStrategy | SkillAwareStrategy)[];
-  
-  compose(prompt: PromptDefinition, context: Partial<TemplateContext>): Promise<{
+  strategies: (
+    | ContextAwareStrategy
+    | PatternAwareStrategy
+    | VerificationAwareStrategy
+    | SkillAwareStrategy
+  )[];
+
+  compose(
+    prompt: PromptDefinition,
+    context: Partial<TemplateContext>,
+  ): Promise<{
     finalPrompt: string;
     appliedStrategies: string[];
     allNotes: string[];

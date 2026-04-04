@@ -1,11 +1,11 @@
 /**
  * [LAYER: DOMAIN]
  * Principle: Pure Business Logic — Predictive purity rules without external I/O
- * Prework Status: 
+ * Prework Status:
  *   - Step 0: ✅ Dead code cleared
  *   - Verification: ✅ Type-safe; no external dependencies
  *   - Dependency Flow: ✅ Pure Domain, chain-based
- * Triaging: 
+ * Triaging:
  *   - [CONSOLIDATE] PatternRegistry reflection still needed for complete rules coverage
  *   - [FINALIZE] Cross-layer blocking logic requires Infrastructure integration
  */
@@ -25,7 +25,7 @@ export interface SimulatedReport {
  * Architectural violation detected during simulation
  */
 export interface ArchitecturalViolation {
-  type: 
+  type:
     | 'DOMAIN_LEAK'
     | 'SCORE_DROPPED'
     | 'CROSS_LAYER_IMPORT'
@@ -41,7 +41,7 @@ export interface ArchitecturalViolation {
 /**
  * ArchitectureGuardian: Pure logic for predicting whether a file move
  * will maintain architectural integrity. No I/O, no side effects.
- * 
+ *
  **Guarding Rules:**
  * 1. DOMAIN LEAK: Infrastructure files cannot move into Domain
  * 2. SCORE DROP: Score must not decrease >10 points
@@ -51,21 +51,21 @@ export interface ArchitecturalViolation {
 export class ArchitecturalGuardian {
   /**
    * SimulateGuard: Predicts if moving a file will maintain architecture
-   * 
- **Complexity:**
+   *
+   **Complexity:**
    * - Linear scan of violations
    * - Cascade analysis
    * - No external I/O
-  **Performance:**
+   **Performance:**
    * ~50-100ms per simulation (~500μs per file)
    */
   static async simulateGuard(
     currentPath: string,
     targetPath: string,
-    currentReport: { score: number; violations: { type: string }[] }
+    currentReport: { score: number; violations: { type: string }[] },
   ): Promise<SimulatedReport> {
     // 1. Analyze from directories
-    if (this.isDomainLeak(currentPath, targetPath)) {
+    if (ArchitecturalGuardian.isDomainLeak(currentPath, targetPath)) {
       return {
         isSafe: false,
         score: Math.max(0, currentReport.score - 35), // Large penalty for domain leak
@@ -73,14 +73,14 @@ export class ArchitecturalGuardian {
           {
             type: 'DOMAIN_LEAK',
             message: `Cannot move ${currentPath} to ${targetPath}. Infrastructure cannot enter Domain.`,
-            severity: 'error'
-          }
-        ]
+            severity: 'error',
+          },
+        ],
       };
     }
 
     // 2. Analyze for score drop
-    if (this.wouldScoreDrop(currentReport.score, 10)) {
+    if (ArchitecturalGuardian.wouldScoreDrop(currentReport.score, 10)) {
       return {
         isSafe: false,
         score: Math.max(0, currentReport.score - 10),
@@ -88,51 +88,51 @@ export class ArchitecturalGuardian {
           {
             type: 'SCORE_DROPPED',
             message: `Score would drop ${currentReport.score} → ${currentReport.score - 10}. Check for violations.`,
-            severity: 'error'
-          }
-        ]
+            severity: 'error',
+          },
+        ],
       };
     }
 
     // 3. Analyze for topology violations
-    if (this.isTopologyViolation(currentPath, targetPath)) {
+    if (ArchitecturalGuardian.isTopologyViolation(currentPath, targetPath)) {
       return {
         isSafe: true,
         score: currentReport.score,
         violations: [
           {
             type: 'CROSS_LAYER_IMPORT',
-            message: `Move from ${this.getLayer(currentPath)} → ${this.getLayer(targetPath)}. This affects topology.`,
-            severity: 'warn'
-          }
-        ]
+            message: `Move from ${ArchitecturalGuardian.getLayer(currentPath)} → ${ArchitecturalGuardian.getLayer(targetPath)}. This affects topology.`,
+            severity: 'warn',
+          },
+        ],
       };
     }
 
     // 4. Analyze for missing sub-zones (Functional Clusters)
-    if (this.isSubZoneMissing(targetPath)) {
-      const suggestion = this.getSuggestedCluster(targetPath);
-      const msg = suggestion 
+    if (ArchitecturalGuardian.isSubZoneMissing(targetPath)) {
+      const suggestion = ArchitecturalGuardian.getSuggestedCluster(targetPath);
+      const msg = suggestion
         ? `Organizational Alignment Required: ${targetPath} is in a layer root. 💡 PRO-TIP: We suggest moving to: ${suggestion}`
         : `Organizational Alignment Required: ${targetPath} is in a layer root. Move to a functional sub-zone (e.g., src/infra/storage/).`;
-        
+
       return {
-        isSafe: true, 
+        isSafe: true,
         requiresHealing: true, // Pass 18: Flow Protocol
         score: currentReport.score,
         violations: [
           {
             type: 'SUBZONE_MISSING',
             message: msg,
-            severity: 'warn'
-          }
-        ]
+            severity: 'warn',
+          },
+        ],
       };
     }
 
     // 5. Analyze for Cluster Entanglement (Horizontal dependencies)
     // Pass 17: Topology Purity
-    if (this.isClusterEntanglement(currentPath, targetPath)) {
+    if (ArchitecturalGuardian.isClusterEntanglement(currentPath, targetPath)) {
       return {
         isSafe: true, // Pass 18: Flow Protocol (Non-blocking)
         requiresHealing: true,
@@ -140,10 +140,10 @@ export class ArchitecturalGuardian {
         violations: [
           {
             type: 'CLUSTER_ENTANGLEMENT',
-            message: `Topology Purity Breach (Deferred): Cluster ${this.getCluster(currentPath)} cannot import from ${this.getCluster(targetPath)}.`,
-            severity: 'warn'
-          }
-        ]
+            message: `Topology Purity Breach (Deferred): Cluster ${ArchitecturalGuardian.getCluster(currentPath)} cannot import from ${ArchitecturalGuardian.getCluster(targetPath)}.`,
+            severity: 'warn',
+          },
+        ],
       };
     }
 
@@ -151,7 +151,7 @@ export class ArchitecturalGuardian {
     return {
       isSafe: true,
       score: currentReport.score,
-      violations: []
+      violations: [],
     };
   }
 
@@ -177,8 +177,8 @@ export class ArchitecturalGuardian {
    * Predict if this move creates topology violations
    */
   private static isTopologyViolation(currentPath: string, targetPath: string): boolean {
-    const currentLayer = this.getLayer(currentPath);
-    const targetLayer = this.getLayer(targetPath);
+    const currentLayer = ArchitecturalGuardian.getLayer(currentPath);
+    const targetLayer = ArchitecturalGuardian.getLayer(targetPath);
 
     if (!currentLayer || !targetLayer) return false;
 
@@ -202,13 +202,24 @@ export class ArchitecturalGuardian {
    * Predict if this move places a file in a layer root (missing sub-zone)
    */
   public static isSubZoneMissing(targetPath: string): boolean {
-    const layers = ['src/domain', 'src/core', 'src/infrastructure', 'src/ui', 'src/utils', 'src/plumbing'];
-    
+    const layers = [
+      'src/domain',
+      'src/core',
+      'src/infrastructure',
+      'src/ui',
+      'src/utils',
+      'src/plumbing',
+    ];
+
     for (const layer of layers) {
-      if (targetPath.startsWith(layer + '/')) {
+      if (targetPath.startsWith(`${layer}/`)) {
         const relativeToLayer = targetPath.substring(layer.length + 1);
         // If there's no further slash, it's in the root of the layer
-        if (!relativeToLayer.includes('/') && !targetPath.endsWith('index.ts') && !targetPath.endsWith('types.ts')) {
+        if (
+          !relativeToLayer.includes('/') &&
+          !targetPath.endsWith('index.ts') &&
+          !targetPath.endsWith('types.ts')
+        ) {
           return true;
         }
       }
@@ -220,7 +231,7 @@ export class ArchitecturalGuardian {
    * Smart Suggestion Engine: Predicts the best functional cluster based on filename
    */
   public static getSuggestedCluster(targetPath: string): string | null {
-    const layer = this.getLayer(targetPath);
+    const layer = ArchitecturalGuardian.getLayer(targetPath);
     if (!layer || layer === 'PLUMBING') return null;
 
     const filename = targetPath.split('/').pop()?.toLowerCase() || '';
@@ -228,40 +239,40 @@ export class ArchitecturalGuardian {
     const domainPath = 'src/domain';
 
     const infraMap: Record<string, string> = {
-      'filesystem': 'storage/filesystem',
-      'file': 'storage/filesystem',
-      'walker': 'storage/filesystem',
-      'storage': 'storage/filesystem',
-      'integrity': 'integrity',
-      'verify': 'integrity',
-      'analyzer': 'integrity',
-      'prompt': 'prompts',
-      'adapter': 'adapters',
-      'system': 'adapters',
-      'terminal': 'adapters',
-      'database': 'database',
-      'repository': 'database',
-      'transaction': 'database',
-      'logger': 'logging',
-      'console': 'logging'
+      filesystem: 'storage/filesystem',
+      file: 'storage/filesystem',
+      walker: 'storage/filesystem',
+      storage: 'storage/filesystem',
+      integrity: 'integrity',
+      verify: 'integrity',
+      analyzer: 'integrity',
+      prompt: 'prompts',
+      adapter: 'adapters',
+      system: 'adapters',
+      terminal: 'adapters',
+      database: 'database',
+      repository: 'database',
+      transaction: 'database',
+      logger: 'logging',
+      console: 'logging',
     };
 
     const domainMap: Record<string, string> = {
-      'error': 'common/errors',
-      'exception': 'common/errors',
-      'event': 'events',
-      'validation': 'validation'
+      error: 'common/errors',
+      exception: 'common/errors',
+      event: 'events',
+      validation: 'validation',
     };
 
     const fileName = targetPath.split('/').pop() || '';
 
     if (layer === 'INFRASTRUCTURE') {
-      const cluster = Object.keys(infraMap).find(key => filename.includes(key));
+      const cluster = Object.keys(infraMap).find((key) => filename.includes(key));
       return cluster ? `${infraPath}/${infraMap[cluster]}/${fileName}` : null;
     }
 
     if (layer === 'DOMAIN') {
-      const cluster = Object.keys(domainMap).find(key => filename.includes(key));
+      const cluster = Object.keys(domainMap).find((key) => filename.includes(key));
       return cluster ? `${domainPath}/${domainMap[cluster]}/${fileName}` : null;
     }
 
@@ -272,22 +283,22 @@ export class ArchitecturalGuardian {
    * Predict if this move creates Cluster Entanglement (Invalid Horizontal Dependency)
    */
   private static isClusterEntanglement(currentPath: string, targetPath: string): boolean {
-    const sourceCluster = this.getCluster(currentPath);
-    const targetCluster = this.getCluster(targetPath);
+    const sourceCluster = ArchitecturalGuardian.getCluster(currentPath);
+    const targetCluster = ArchitecturalGuardian.getCluster(targetPath);
 
     if (!sourceCluster || !targetCluster || sourceCluster === targetCluster) return false;
 
     // Pass 17: Strict Topology Rules
     const TOPO_RULES: Record<string, string[]> = {
-      'storage': [], // Foundational, depends on nothing
-      'integrity': ['storage'], // Depends on storage
-      'prompts': ['storage'],
-      'tools': ['storage', 'integrity', 'prompts'],
-      'orchestration': ['storage', 'integrity', 'prompts', 'tools']
+      storage: [], // Foundational, depends on nothing
+      integrity: ['storage'], // Depends on storage
+      prompts: ['storage'],
+      tools: ['storage', 'integrity', 'prompts'],
+      orchestration: ['storage', 'integrity', 'prompts', 'tools'],
     };
 
     const allowed = TOPO_RULES[sourceCluster.toLowerCase()] || [];
-    return !allowed.some(a => targetCluster.toLowerCase().includes(a));
+    return !allowed.some((a) => targetCluster.toLowerCase().includes(a));
   }
 
   /**

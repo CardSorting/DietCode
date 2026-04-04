@@ -2,24 +2,24 @@
  * [LAYER: CORE]
  * Principle: Orchestrate domain and infrastructure adapters
  * Prework Status: Not applicable (new file)
- * 
+ *
  * Central registry for LLM provider adapters, managing 40+ provider support
  * with dynamic model discovery, caching, and provider-specific strategies.
  */
 
 import type {
-  LLMAdapter,
   AdapterConfig,
+  ApiStream,
+  LLMAdapter,
+  Message,
   ModelInfo,
   PromptStrategy,
-  Message,
-  ApiStream,
 } from '../../domain/agent/LLMProviderAdapter';
-import type { ToolDefinition } from '../../domain/agent/ToolDefinition';
 import { PromptStrategy as EnumPromptStrategy } from '../../domain/agent/LLMProviderAdapter';
-import { OpenAIEmbeddingAdapter } from '../../infrastructure/llm/providers/OpenAIEmbeddingAdapter';
-import { CloudflareAdapter } from '../../infrastructure/llm/providers/CloudflareProvider';
+import type { ToolDefinition } from '../../domain/agent/ToolDefinition';
 import type { LogService } from '../../domain/logging/LogService';
+import { CloudflareAdapter } from '../../infrastructure/llm/providers/CloudflareProvider';
+import { OpenAIEmbeddingAdapter } from '../../infrastructure/llm/providers/OpenAIEmbeddingAdapter';
 
 /**
  * Provider information interface
@@ -46,7 +46,7 @@ interface ModelCacheEntry {
 
 /**
  * LLMProviderRegistry
- * 
+ *
  * Manages LLM provider adapters, model information caching, and provider orchestration.
  * Provides a unified interface for DietCode to work with multiple LLM providers.
  */
@@ -59,7 +59,7 @@ export class LLMProviderRegistry {
   private providerInfos = new Map<string, ProviderInfo>();
   private isLoadingModels = new Set<string>();
 
-  private constructor() { }
+  private constructor() {}
 
   /**
    * Get singleton instance
@@ -110,10 +110,7 @@ export class LLMProviderRegistry {
   /**
    * Get model info with caching
    */
-  async getModelInfo(
-    providerId: string,
-    modelId: string
-  ): Promise<ModelInfo | undefined> {
+  async getModelInfo(providerId: string, modelId: string): Promise<ModelInfo | undefined> {
     const cacheKey = `${providerId}_${modelId}`;
     const cached = this.models.get(cacheKey);
 
@@ -174,23 +171,26 @@ export class LLMProviderRegistry {
   /**
    * Create an adapter from configuration
    */
-  async createProviderFromConfig(
-    providerId: string,
-    config: AdapterConfig
-  ): Promise<LLMAdapter> {
+  async createProviderFromConfig(providerId: string, config: AdapterConfig): Promise<LLMAdapter> {
     switch (providerId.toLowerCase()) {
       case 'openai':
         // Note: This would require OpenAIAdapter implementation
         // For now, returning stub
-        throw new Error(`OpenAI adapter not implemented yet. Please implement src/infrastructure/llm/OpenAIAdapter.ts`);
+        throw new Error(
+          'OpenAI adapter not implemented yet. Please implement src/infrastructure/llm/OpenAIAdapter.ts',
+        );
 
       case 'anthropic':
         // Note: Would require AnthropicAdapter implementation
-        throw new Error(`Anthropic adapter not implemented yet. Please implement src/infrastructure/llm/AnthropicAdapter.ts`);
+        throw new Error(
+          'Anthropic adapter not implemented yet. Please implement src/infrastructure/llm/AnthropicAdapter.ts',
+        );
 
       case 'openrouter':
         // Note: Would require OpenRouterAdapter implementation
-        throw new Error(`OpenRouter adapter not implemented yet. Please implement src/infrastructure/llm/OpenRouterAdapter.ts`);
+        throw new Error(
+          'OpenRouter adapter not implemented yet. Please implement src/infrastructure/llm/OpenRouterAdapter.ts',
+        );
 
       case 'cloudflare':
         if (!config.apiKey && !(config as any).apiToken) {
@@ -268,12 +268,12 @@ export class LLMProviderRegistry {
   createCompositeAdapter(
     primaryProviders: string[],
     fallbackProviders: string[],
-    config: AdapterConfig
+    config: AdapterConfig,
   ): CompositeLLMAdapter {
     return new CompositeLLMAdapter(
-      primaryProviders.map(id => this.getAdapter(id)!),
-      fallbackProviders.map(id => this.getAdapter(id)!),
-      config
+      primaryProviders.map((id) => this.getAdapter(id)!),
+      fallbackProviders.map((id) => this.getAdapter(id)!),
+      config,
     );
   }
 }
@@ -286,21 +286,13 @@ class CompositeLLMAdapter implements LLMAdapter {
   private fallbackChain: LLMAdapter[];
   private config: AdapterConfig;
 
-  constructor(
-    primaryChain: LLMAdapter[],
-    fallbackChain: LLMAdapter[],
-    config: AdapterConfig
-  ) {
+  constructor(primaryChain: LLMAdapter[], fallbackChain: LLMAdapter[], config: AdapterConfig) {
     this.primaryChain = primaryChain;
     this.fallbackChain = fallbackChain;
     this.config = config;
   }
 
-  createMessage(
-    system: string,
-    messages: Message[],
-    tools?: ToolDefinition[]
-  ): ApiStream {
+  createMessage(system: string, messages: Message[], tools?: ToolDefinition[]): ApiStream {
     const primaryChain = this.primaryChain;
     const fallbackChain = this.fallbackChain;
 
@@ -315,7 +307,9 @@ class CompositeLLMAdapter implements LLMAdapter {
             }
             return;
           } catch (error: any) {
-            console.warn(`⚠️  Primary adapter failed (${adapter.constructor.name}): ${error.message}`);
+            console.warn(
+              `⚠️  Primary adapter failed (${adapter.constructor.name}): ${error.message}`,
+            );
           }
         }
 
@@ -329,12 +323,14 @@ class CompositeLLMAdapter implements LLMAdapter {
             }
             return;
           } catch (error: any) {
-            console.warn(`❌  Fallback adapter failed (${adapter.constructor.name}): ${error.message}`);
+            console.warn(
+              `❌  Fallback adapter failed (${adapter.constructor.name}): ${error.message}`,
+            );
           }
         }
 
         throw new Error('All provider adapters failed');
-      }
+      },
     };
   }
 
@@ -342,7 +338,7 @@ class CompositeLLMAdapter implements LLMAdapter {
     if (this.primaryChain.length === 0) {
       throw new Error('No primary adapters configured');
     }
-    return this.primaryChain[0]!.getModelInfo();
+    return this.primaryChain[0]?.getModelInfo();
   }
 
   async embedText?(text: string): Promise<number[]> {
@@ -363,12 +359,12 @@ class CompositeLLMAdapter implements LLMAdapter {
 
   getThinkingBudgetTokenLimit(): number {
     if (this.primaryChain.length === 0) return 0;
-    return this.primaryChain[0]!.getThinkingBudgetTokenLimit();
+    return this.primaryChain[0]?.getThinkingBudgetTokenLimit();
   }
 
   getPromptStrategy(): PromptStrategy {
     if (this.primaryChain.length === 0) return EnumPromptStrategy.NATIVE;
-    return this.primaryChain[0]!.getPromptStrategy();
+    return this.primaryChain[0]?.getPromptStrategy();
   }
 }
 
@@ -392,7 +388,7 @@ export function initializeOpenAIEmbeddings(apiKey: string) {
       supportsReasoning: true,
       supportsEmbeddings: true,
     },
-    defaultModel: 'gpt-4o'
+    defaultModel: 'gpt-4o',
   });
 
   console.log('✅ OpenAI embeddings auto-registered');
@@ -419,7 +415,7 @@ export function initializeCloudflare(accountId: string, apiToken: string) {
       supportsReasoning: true,
       supportsEmbeddings: false,
     },
-    defaultModel: '@cf/moonshotai/kimi-k2.5'
+    defaultModel: '@cf/moonshotai/kimi-k2.5',
   });
 
   console.log('✅ Cloudflare AI auto-registered');

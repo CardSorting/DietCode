@@ -4,13 +4,13 @@
  * Inspired by Cline's Context Tracking (production hardening).
  */
 
-export type FileState = "active" | "stale" | "modified_externally" | "deleted";
+export type FileState = 'active' | 'stale' | 'modified_externally' | 'deleted';
 
-export type FileOperationSource = 
-  | "read_tool"
-  | "user_edited"
-  | "codemarie_edited"
-  | "file_mentioned";
+export type FileOperationSource =
+  | 'read_tool'
+  | 'user_edited'
+  | 'codemarie_edited'
+  | 'file_mentioned';
 
 export interface FileMetadataEntry {
   path: string;

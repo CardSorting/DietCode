@@ -2,18 +2,18 @@
  * [LAYER: INFRASTRUCTURE]
  * Principle: Reactive state subscription with change notification
  * Prework Status: Not applicable (new file)
- * 
+ *
  * Subscribes to state changes from StateOrchestrator and notifies observers.
  * Aggregates change events for efficient batch processing.
  */
 
+import type { GlobalState } from '../../domain/LLMProvider';
 import {
-  type StateObserver,
+  type StateChange,
   StateChangePhase,
   type StateChangeResult,
-  type StateChange,
+  type StateObserver,
 } from '../../domain/state/StateChangeProtocol';
-import type { GlobalState } from '../../domain/LLMProvider';
 
 /**
  * State subscriber configuration
@@ -127,10 +127,10 @@ export interface StateBatchEvent {
 
 /**
  * StateSubscriber
- * 
+ *
  * Subscribes to state changes from StateOrchestrator and notifies observers.
  * Supports change diffing, batch processing, and scope filtering.
- * 
+ *
  * Key responsibilities:
  * - Subscribe to specific state keys/phases
  * - Receive state change events
@@ -151,7 +151,7 @@ export class StateSubscriber {
 
   constructor(config: StateSubscriberConfig) {
     const scopeArray = Array.isArray(config.scope) ? config.scope : [config.scope];
-    
+
     this.config = {
       scope: scopeArray,
       phases: config.phases || [StateChangePhase.SANITIZED, StateChangePhase.COMPLETED],
@@ -167,30 +167,26 @@ export class StateSubscriber {
   /**
    * Subscribe to a state key
    */
-  subscribe(
-    key: string,
-    observer: StateObserver,
-    phases?: StateChangePhase[]
-  ): void {
+  subscribe(key: string, observer: StateObserver, phases?: StateChangePhase[]): void {
     const scope = this.getScopeFromKey(key);
-    
+
     if (!this.listeners.has(key)) {
       this.listeners.set(key, new Set());
     }
-    this.listeners.get(key)!.add(observer);
+    this.listeners.get(key)?.add(observer);
 
     if (!this.subscriptions.has(scope)) {
       this.subscriptions.set(scope, new Set());
     }
-    this.subscriptions.get(scope)!.add(key);
+    this.subscriptions.get(scope)?.add(key);
 
     // Track by scope for aggregated listeners
     if (!this.listenersByScope.has(scope)) {
       this.listenersByScope.set(scope, new Set());
     }
-    
+
     // Add a merged observer that aggregates changes for this scope
-    this.listenersByScope.get(scope)!.add({
+    this.listenersByScope.get(scope)?.add({
       onChange: async (result) => {
         // Aggregate and notify all scope listeners
         const observers = this.listenersByScope.get(scope);
@@ -253,7 +249,7 @@ export class StateSubscriber {
     newValue: unknown,
     phase: StateChangePhase,
     correlationId?: string,
-    source?: string
+    source?: string,
   ): Promise<void> {
     // Check if this phase is of interest
     if (!this.config.phases.includes(phase)) {
@@ -290,11 +286,11 @@ export class StateSubscriber {
     if (!this.eventQueue.has(key)) {
       this.eventQueue.set(key, []);
     }
-    this.eventQueue.get(key)!.push(newValue);
+    this.eventQueue.get(key)?.push(newValue);
 
     // Acknowledge event in queue (diffing cleanup)
-    if (this.eventQueue.get(key)!.length > 10) {
-      this.eventQueue.get(key)!.shift();
+    if (this.eventQueue.get(key)?.length > 10) {
+      this.eventQueue.get(key)?.shift();
     }
 
     // Notify all listeners for this key
@@ -307,7 +303,7 @@ export class StateSubscriber {
         stateSet: {} as GlobalState,
         validate: () => true,
         sanitize: () => newValue,
-        getCorrelationId: () => correlationId || 'unknown'
+        getCorrelationId: () => correlationId || 'unknown',
       },
       success: phase === StateChangePhase.COMPLETED,
       phase,
@@ -315,10 +311,10 @@ export class StateSubscriber {
         timestamp: Date.now(),
         correlationId: correlationId || 'unknown',
         actor: 'system',
-        source: (source as any) || 'automated'
+        source: (source as any) || 'automated',
       },
       originalValue: oldValue,
-      sanitizedValue: newValue as any
+      sanitizedValue: newValue as any,
     };
 
     for (const observer of keyObservers) {
@@ -350,7 +346,7 @@ export class StateSubscriber {
             stateSet: {} as GlobalState,
             validate: () => true,
             sanitize: () => ({ type: 'rebuild', observers: scopeObservers.size }),
-            getCorrelationId: () => 'rebuild'
+            getCorrelationId: () => 'rebuild',
           },
           success: true,
           phase: StateChangePhase.COMPLETED,
@@ -358,10 +354,10 @@ export class StateSubscriber {
             timestamp: Date.now(),
             correlationId: 'rebuild',
             actor: 'system',
-            source: 'automated'
+            source: 'automated',
           },
           originalValue: undefined,
-          sanitizedValue: { type: 'rebuild', observers: scopeObservers.size }
+          sanitizedValue: { type: 'rebuild', observers: scopeObservers.size },
         };
         await observer.onChange(result);
       }
@@ -411,17 +407,14 @@ export class StateSubscriber {
   /**
    * Register generic listener for multiple keys
    */
-  registerListener(
-    keys: string[],
-    listener: StateObserver
-  ): () => void {
-    keys.forEach(key => {
+  registerListener(keys: string[], listener: StateObserver): () => void {
+    keys.forEach((key) => {
       this.subscribe(key, listener);
     });
 
     // Return unsubscribe function
     return () => {
-      keys.forEach(key => {
+      keys.forEach((key) => {
         this.unsubscribe(key, listener);
       });
     };

@@ -5,8 +5,8 @@
  */
 
 import type { LLMProvider } from '../../domain/LLMProvider';
-import type { TerminalInterface } from '../../domain/system/TerminalInterface';
 import type { Filesystem } from '../../domain/system/Filesystem';
+import type { TerminalInterface } from '../../domain/system/TerminalInterface';
 
 export class Registry {
   private static instance: Registry;

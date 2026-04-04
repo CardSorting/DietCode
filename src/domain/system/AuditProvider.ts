@@ -3,8 +3,8 @@
  * Principle: Pure business logic — the heart of the application.
  */
 
-import type { Reasoning } from '../memory/Reasoning';
 import type { SystemEvent } from '../Event';
+import type { Reasoning } from '../memory/Reasoning';
 
 export interface AuditRecord {
   sessionId: string;

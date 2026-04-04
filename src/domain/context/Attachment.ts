@@ -15,7 +15,7 @@ export interface FileInfo {
   totalLines: number;
 }
 
-export type AttachmentContent = 
+export type AttachmentContent =
   | { type: 'image'; data: string; mimeType: string }
   | { type: 'file_content'; content: string; info: FileInfo }
   | { type: 'directory_listing'; entries: Array<{ path: string; isDir: boolean }> }
@@ -48,13 +48,16 @@ export class AttachmentParser {
         const parts = fullPath.split(':');
         const path = parts[0];
         const rangeStr = parts[1];
-        
+
         if (path && rangeStr) {
           const rangeMatch = rangeStr.match(/(\d+)-(\d+)/);
-          if (rangeMatch && rangeMatch[1] && rangeMatch[2]) {
+          if (rangeMatch?.[1] && rangeMatch[2]) {
             tags.push({
-               path,
-               range: { start: parseInt(rangeMatch[1], 10), end: parseInt(rangeMatch[2], 10) }
+              path,
+              range: {
+                start: Number.parseInt(rangeMatch[1], 10),
+                end: Number.parseInt(rangeMatch[2], 10),
+              },
             });
           } else {
             tags.push({ path: fullPath });

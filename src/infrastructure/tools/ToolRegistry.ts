@@ -11,14 +11,14 @@
  *   - getStats delegates to getAllMetadata (single iteration)
  */
 
-import type {
-  ToolRegistry,
-  ToolMetadata,
-  ToolSearchResult,
-  ToolDiscoveryResult,
-  RegistryConfig,
-} from '../../domain/agent/ToolRegistry';
 import type { ToolDefinition } from '../../domain/agent/ToolDefinition';
+import type {
+  RegistryConfig,
+  ToolDiscoveryResult,
+  ToolMetadata,
+  ToolRegistry,
+  ToolSearchResult,
+} from '../../domain/agent/ToolRegistry';
 
 /**
  * Operation type classification rules.
@@ -60,14 +60,24 @@ const OP_TYPE_RULES: ReadonlyArray<readonly [string, string]> = [
  * Operations that must execute solo (not in parallel).
  */
 const SOLO_USE_OPERATIONS: ReadonlySet<string> = new Set([
-  'WRITE', 'DELETE', 'EXECUTE', 'CREATE_DIR',
+  'WRITE',
+  'DELETE',
+  'EXECUTE',
+  'CREATE_DIR',
 ]);
 
 /**
  * Words excluded from tag extraction.
  */
 const TAG_NOISE_WORDS: ReadonlySet<string> = new Set([
-  'a', 'an', 'the', 'to', 'in', 'of', 'for', 'with',
+  'a',
+  'an',
+  'the',
+  'to',
+  'in',
+  'of',
+  'for',
+  'with',
 ]);
 
 /**
@@ -119,7 +129,7 @@ export class ToolRegistryImpl implements ToolRegistry {
     if (this.tools.size >= this.config.maxTools && !this.tools.has(tool.name)) {
       throw new Error(
         `Registry full (${this.config.maxTools} tools). ` +
-        `Unregister an existing tool before adding '${tool.name}'.`
+          `Unregister an existing tool before adding '${tool.name}'.`,
       );
     }
 
@@ -207,9 +217,10 @@ export class ToolRegistryImpl implements ToolRegistry {
       matches.push(tool);
     }
 
-    const isExactSearch = criteria.name !== undefined
-      && criteria.tags === undefined
-      && criteria.operationType === undefined;
+    const isExactSearch =
+      criteria.name !== undefined &&
+      criteria.tags === undefined &&
+      criteria.operationType === undefined;
 
     return {
       matches,
@@ -240,7 +251,10 @@ export class ToolRegistryImpl implements ToolRegistry {
         passed = false;
       }
 
-      if (criteria.parallelizable !== undefined && meta.parallelizable !== criteria.parallelizable) {
+      if (
+        criteria.parallelizable !== undefined &&
+        meta.parallelizable !== criteria.parallelizable
+      ) {
         passed = false;
       }
 
@@ -276,7 +290,7 @@ export class ToolRegistryImpl implements ToolRegistry {
       const meta = this.getCachedMetadata(tool.name);
       if (!meta) continue;
 
-      const matchesSource = sources.some(source => {
+      const matchesSource = sources.some((source) => {
         const srcLower = source.toLowerCase();
         return (
           meta.name.toLowerCase().includes(srcLower) ||
@@ -374,7 +388,7 @@ export class ToolRegistryImpl implements ToolRegistry {
       operationType?: string;
       tags?: string[];
       metadata?: Partial<ToolMetadata>;
-    }
+    },
   ): boolean {
     if (criteria.name && meta.name !== criteria.name) {
       return false;
@@ -388,7 +402,7 @@ export class ToolRegistryImpl implements ToolRegistry {
 
     if (criteria.tags?.length) {
       // Uses pre-computed _tagSet — no per-call Set allocation
-      const hasMatch = criteria.tags.some(tag => meta._tagSet.has(tag.toLowerCase()));
+      const hasMatch = criteria.tags.some((tag) => meta._tagSet.has(tag.toLowerCase()));
       if (!hasMatch) return false;
     }
 
@@ -396,10 +410,16 @@ export class ToolRegistryImpl implements ToolRegistry {
       if (criteria.metadata.provenance && meta.provenance !== criteria.metadata.provenance) {
         return false;
       }
-      if (criteria.metadata.soloUseOnly !== undefined && meta.soloUseOnly !== criteria.metadata.soloUseOnly) {
+      if (
+        criteria.metadata.soloUseOnly !== undefined &&
+        meta.soloUseOnly !== criteria.metadata.soloUseOnly
+      ) {
         return false;
       }
-      if (criteria.metadata.parallelizable !== undefined && meta.parallelizable !== criteria.metadata.parallelizable) {
+      if (
+        criteria.metadata.parallelizable !== undefined &&
+        meta.parallelizable !== criteria.metadata.parallelizable
+      ) {
         return false;
       }
     }
@@ -424,7 +444,7 @@ export class ToolRegistryImpl implements ToolRegistry {
       provenance: 'builtin' as const,
       tags,
       // Pre-computed tag set for O(1) search matching
-      _tagSet: new Set(tags.map(t => t.toLowerCase())),
+      _tagSet: new Set(tags.map((t) => t.toLowerCase())),
     };
 
     if (this.config.cacheResults) {
@@ -454,7 +474,7 @@ export class ToolRegistryImpl implements ToolRegistry {
   private static extractTags(name: string): string[] {
     return name
       .split(/[-_\s]+/)
-      .map(t => t.toLowerCase().trim())
-      .filter(t => t.length > 1 && !TAG_NOISE_WORDS.has(t));
+      .map((t) => t.toLowerCase().trim())
+      .filter((t) => t.length > 1 && !TAG_NOISE_WORDS.has(t));
   }
 }

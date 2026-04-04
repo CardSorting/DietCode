@@ -4,10 +4,10 @@
  * No external API dependencies.
  */
 
-import type { Reasoning } from './memory/Reasoning';
-import type { Message, MessageBlock } from './context/SessionState';
-import type { ToolDefinition } from './agent/ToolDefinition';
 import type { Agent } from './agent/Agent';
+import type { ToolDefinition } from './agent/ToolDefinition';
+import type { Message, MessageBlock } from './context/SessionState';
+import type { Reasoning } from './memory/Reasoning';
 
 export interface LLMResponse {
   content: MessageBlock[];
@@ -30,6 +30,6 @@ export interface LLMProvider {
     agent: Agent,
     messages: Message[],
     tools: ToolDefinition[],
-    metadata?: { taskId?: string }
+    metadata?: { taskId?: string },
   ): Promise<LLMResponse>;
 }

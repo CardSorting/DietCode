@@ -3,9 +3,9 @@
  * Principle: Pure business logic for template rendering and variable substitution.
  */
 
+import type { KnowledgeItem } from '../memory/Knowledge';
 import { PromptCategory } from './PromptCategory';
 import type { PromptDefinition } from './PromptCategory';
-import type { KnowledgeItem } from '../memory/Knowledge';
 
 export interface TemplateContext {
   sessionId: string;
@@ -71,7 +71,7 @@ export enum TemplateErrorType {
   MISSING_COMPONENT = 'MISSING_COMPONENT',
   SYNTAX_ERROR = 'SYNTAX_ERROR',
   CIRCULAR_REFERENCE = 'CIRCULAR_REFERENCE',
-  TYPE_MISMATCH = 'TYPE_MISMATCH'
+  TYPE_MISMATCH = 'TYPE_MISMATCH',
 }
 
 export interface TemplateError {
@@ -90,36 +90,35 @@ export class TemplateEngine {
   /**
    * Renders a prompt with context variable substitution
    */
-  render(
-    prompt: string,
-    context: TemplateContext,
-    options: TemplateRenderOptions = {}
-  ): string {
+  render(prompt: string, context: TemplateContext, options: TemplateRenderOptions = {}): string {
     const { strict = true, defaultValues = {}, trace = false } = options;
-    
+
     if (trace) {
       // Trace logging - allowed in Core layer, but keeping it minimal
     }
 
     // Parse template into AST
     const ast = this.parseTemplate(prompt);
-    
+
     // Root context: merge system defaults with provided context
-    const fullContext = this.mergeContexts({
-      sessionId: context.sessionId,
-      timestamp: context.timestamp,
-      user: context.user || defaultValues.user,
-      project: context.project || defaultValues.project,
-      event: context.event || defaultValues.event,
-      memory: context.memory || defaultValues.memory,
-      tool: context.tool || defaultValues.tool
-    }, defaultValues);
+    const fullContext = this.mergeContexts(
+      {
+        sessionId: context.sessionId,
+        timestamp: context.timestamp,
+        user: context.user || defaultValues.user,
+        project: context.project || defaultValues.project,
+        event: context.event || defaultValues.event,
+        memory: context.memory || defaultValues.memory,
+        tool: context.tool || defaultValues.tool,
+      },
+      defaultValues,
+    );
 
     // Render AST
     const result = this.renderAST(ast, fullContext, {
       strict,
       trace,
-      visited: new Set<string>()
+      visited: new Set<string>(),
     });
 
     // Clean up
@@ -157,14 +156,14 @@ export class TemplateEngine {
           inVariable = true;
           continue;
         }
-        
+
         if (char === '{' && nextChar === '%') {
           inBlock = true;
           blockType = 'control';
           currentToken += char;
           continue;
         }
-        
+
         if (char === '{' && nextChar === '#') {
           inBlock = true;
           blockType = 'component';
@@ -182,30 +181,25 @@ export class TemplateEngine {
         } else {
           currentToken += char;
         }
-      } 
-      else if (inVariable) {
+      } else if (inVariable) {
         if (char === '}' && nextChar === '}') {
           tokens.push({ type: 'variable', name: currentToken });
           currentToken = '';
           inVariable = false;
-          continue;
         } else {
           currentToken += char;
         }
-      }
-      else if (inBlock) {
+      } else if (inBlock) {
         if (char === '}' && nextChar === '%') {
           tokens.push({ type: 'control', content: currentToken });
           currentToken = '';
           inBlock = false;
           blockType = null;
-          continue;
         } else if (char === '}' && nextChar === '#') {
           tokens.push({ type: 'component', content: currentToken });
           currentToken = '';
           inBlock = false;
           blockType = null;
-          continue;
         } else {
           currentToken += char;
         }
@@ -246,42 +240,40 @@ export class TemplateEngine {
         const textNode: TemplateNode = {
           type: 'text',
           content: token.content || '',
-          children: []
+          children: [],
         };
         const parent = stack[stack.length - 1];
-        if (parent && parent.children) {
+        if (parent?.children) {
           parent.children.push(textNode);
           deepest = textNode;
         }
-      }
-      else if (token.type === 'variable') {
+      } else if (token.type === 'variable') {
         const variableNode: TemplateNode = {
           type: 'variable',
           variableName: token.name || '',
           content: '',
-          children: []
+          children: [],
         };
         const parent = stack[stack.length - 1];
-        if (parent && parent.children) {
+        if (parent?.children) {
           parent.children.push(variableNode);
           deepest = variableNode;
         }
-      }
-      else if (token.type === 'control') {
+      } else if (token.type === 'control') {
         const command = (token.content || '').trim().split(/\s+/)[0];
-        
+
         const normalizedCommand = command as 'if' | 'for';
-        
+
         if (normalizedCommand === 'if' || normalizedCommand === 'for') {
           const args = (token.content || '').trim().split(/\s+/).slice(1).join(' ');
           const newNode: TemplateNode = {
             type: normalizedCommand,
-          content: '',
-          children: [],
-          testCondition: this.parseCondition(args) ?? undefined
-        };
+            content: '',
+            children: [],
+            testCondition: this.parseCondition(args) ?? undefined,
+          };
           const parent = stack[stack.length - 1];
-          if (parent && parent.children) {
+          if (parent?.children) {
             parent.children.push(newNode);
             stack.push(newNode);
             deepest = newNode;
@@ -298,23 +290,23 @@ export class TemplateEngine {
    */
   private parseCondition(condition: string): TemplateCondition | null {
     const inMatch = condition.match(/(\w+)\s+in\s+(.+)/);
-    if (inMatch && inMatch[1] && inMatch[2]) {
+    if (inMatch?.[1] && inMatch[2]) {
       return {
         variable: inMatch[1].trim(),
         operator: 'in',
-        value: inMatch[2].trim()
+        value: inMatch[2].trim(),
       };
     }
-    
+
     const match = condition.match(/(\w+)\s*(==|!=|>=|>|<=|<)\s*(.+)/);
-    if (match && match[1] && match[2] && match[3]) {
+    if (match?.[1] && match[2] && match[3]) {
       return {
         variable: match[1].trim(),
         operator: match[2] as 'eq' | 'ne' | 'gt' | 'lt',
-        value: this.parseValue(match[3].trim())
+        value: this.parseValue(match[3].trim()),
       };
     }
-    
+
     return null;
   }
 
@@ -326,14 +318,14 @@ export class TemplateEngine {
     if (value === 'true') return true;
     if (value === 'false') return false;
     if (value === 'null') return null;
-    if (!isNaN(Number(value))) return Number(value);
+    if (!Number.isNaN(Number(value))) return Number(value);
     return value;
   }
 
   private renderAST(
     node: TemplateNode,
     context: TemplateContext,
-    options: TemplateRenderOptions & { visited: Set<string>; }
+    options: TemplateRenderOptions & { visited: Set<string> },
   ): string {
     switch (node.type) {
       case 'text':
@@ -343,13 +335,15 @@ export class TemplateEngine {
         if (!node.variableName) return '';
         return this.resolveVariable(node.variableName, context, options);
 
-      case 'if':
+      case 'if': {
         const ifResult = this.renderIf(node, context, options);
         return ifResult;
+      }
 
-      case 'for':
+      case 'for': {
         const forResult = this.renderFor(node, context, options);
         return forResult;
+      }
 
       case 'literal':
         return node.content;
@@ -362,7 +356,7 @@ export class TemplateEngine {
   private resolveVariable(
     name: string,
     context: TemplateContext,
-    options: TemplateRenderOptions
+    options: TemplateRenderOptions,
   ): string {
     const [parent, ...keys] = name.split('.');
 
@@ -375,15 +369,17 @@ export class TemplateEngine {
     let value: any = context[parent as keyof TemplateContext];
 
     for (const key of keys) {
-      if (value && typeof value === 'object' && (value as Record<string, any>)[key as string] !== undefined) {
+      if (
+        value &&
+        typeof value === 'object' &&
+        (value as Record<string, any>)[key as string] !== undefined
+      ) {
         value = (value as Record<string, any>)[key as string];
       } else {
         visitedSet.delete(name);
 
         const defaultValuesRecord = options.defaultValues as Record<string, any>;
-        return options.strict ? 
-          `{{${name}}}` : 
-          defaultValuesRecord?.[name] || '';
+        return options.strict ? `{{${name}}}` : defaultValuesRecord?.[name] || '';
       }
     }
 
@@ -399,23 +395,23 @@ export class TemplateEngine {
   private renderIf(
     node: TemplateNode,
     context: TemplateContext,
-    options: TemplateRenderOptions
+    options: TemplateRenderOptions,
   ): string {
     if (!node.testCondition) return '';
-    
+
     const result = this.testCondition(node.testCondition, context);
     if (!result) return '';
-    
+
     const childrenArr = node.children;
     if (!childrenArr) return '';
-    
-    const safeOptions: TemplateRenderOptions & { visited: Set<string> } = options 
+
+    const safeOptions: TemplateRenderOptions & { visited: Set<string> } = options
       ? { ...options, visited: options.visited || new Set<string>() }
       : { strict: true, visited: new Set<string>(), context: {} };
-    const rendered = childrenArr.map(child =>
-      this.renderAST(child, context, safeOptions)
-    ).join('');
-    
+    const rendered = childrenArr
+      .map((child) => this.renderAST(child, context, safeOptions))
+      .join('');
+
     return rendered || '';
   }
 
@@ -428,7 +424,11 @@ export class TemplateEngine {
     let varValue: any = context[parent as keyof TemplateContext];
 
     for (const key of keys) {
-      if (varValue && typeof varValue === 'object' && (varValue as Record<string, any>)[key as string] !== undefined) {
+      if (
+        varValue &&
+        typeof varValue === 'object' &&
+        (varValue as Record<string, any>)[key as string] !== undefined
+      ) {
         varValue = (varValue as Record<string, any>)[key as string];
       } else {
         return false;
@@ -436,23 +436,28 @@ export class TemplateEngine {
     }
 
     switch (operator) {
-      case 'eq': return varValue == value;
-      case 'ne': return varValue != value;
-      case 'gt': return Number(varValue) > Number(value);
-      case 'lt': return Number(varValue) < Number(value);
-      default: return false;
+      case 'eq':
+        return varValue === value;
+      case 'ne':
+        return varValue !== value;
+      case 'gt':
+        return Number(varValue) > Number(value);
+      case 'lt':
+        return Number(varValue) < Number(value);
+      default:
+        return false;
     }
   }
 
   private renderFor(
     node: TemplateNode,
     context: TemplateContext,
-    options: TemplateRenderOptions
+    options: TemplateRenderOptions,
   ): string {
     if (!node.testCondition || !node.children) return '';
 
     const { variable, operator } = node.testCondition;
-    
+
     if (operator !== 'in') return '';
 
     const parts = variable.split(' in ');
@@ -463,12 +468,16 @@ export class TemplateEngine {
     const keys = sourceVar.split('.');
     const firstKey = keys[0];
     if (!firstKey) return '';
-    
+
     let items: any = context[firstKey as keyof TemplateContext];
     if (!items) return '';
-    
+
     for (let i = 1; i < keys.length; i++) {
-      if (items && typeof items === 'object' && (items as Record<string, any>)[keys[i] as string] !== undefined) {
+      if (
+        items &&
+        typeof items === 'object' &&
+        (items as Record<string, any>)[keys[i] as string] !== undefined
+      ) {
         items = (items as Record<string, any>)[keys[i] as string];
       }
     }
@@ -477,31 +486,35 @@ export class TemplateEngine {
       return '';
     }
 
-      return items.map((item: any | undefined, index: number) => {
-      const visitedSet = options.visited || new Set<string>();
-      const contextWithItem: TemplateContext = {
-        sessionId: context.sessionId,
-        timestamp: context.timestamp,
-        user: context.user,
-        project: context.project,
-        event: context.event,
-        memory: context.memory,
-        tool: context.tool,
-        [sourceVar]: items
-      };
+    return items
+      .map((item: any | undefined, index: number) => {
+        const visitedSet = options.visited || new Set<string>();
+        const contextWithItem: TemplateContext = {
+          sessionId: context.sessionId,
+          timestamp: context.timestamp,
+          user: context.user,
+          project: context.project,
+          event: context.event,
+          memory: context.memory,
+          tool: context.tool,
+          [sourceVar]: items,
+        };
 
-      const childrenArr = node.children;
-      if (!childrenArr) return '';
-      
-      return childrenArr.map(child => 
-        this.renderAST(child, contextWithItem, { ...options, visited: visitedSet })
-      ).join('\n');
-    }).join('\n');
+        const childrenArr = node.children;
+        if (!childrenArr) return '';
+
+        return childrenArr
+          .map((child) =>
+            this.renderAST(child, contextWithItem, { ...options, visited: visitedSet }),
+          )
+          .join('\n');
+      })
+      .join('\n');
   }
 
   validateTemplate(template: string): { valid: boolean; errors: TemplateError[] } {
     const errors: TemplateError[] = [];
-    
+
     try {
       const ast = this.parseTemplate(template);
       this.validateAST(ast, template, errors, 0);
@@ -509,7 +522,7 @@ export class TemplateEngine {
       errors.push({
         type: TemplateErrorType.SYNTAX_ERROR,
         message: error instanceof Error ? error.message : 'Unknown error',
-        originalTemplate: template
+        originalTemplate: template,
       });
     }
 
@@ -520,7 +533,7 @@ export class TemplateEngine {
     node: TemplateNode,
     template: string,
     errors: TemplateError[],
-    line: number
+    line: number,
   ): void {
     if (node.testCondition) {
       if (!node.testCondition.variable) {
@@ -528,7 +541,7 @@ export class TemplateEngine {
           type: TemplateErrorType.INVALID_CONDITION,
           message: 'Empty if condition',
           location: { line, column: this.getColumn(template, line) },
-          originalTemplate: template
+          originalTemplate: template,
         });
       }
     }
@@ -563,19 +576,23 @@ export class TemplateEngine {
     return this.parseTemplate(template);
   }
 
-  renderCompiled(ast: TemplateNode, context: TemplateContext, options?: Omit<TemplateRenderOptions, 'visited'> & { visited: Set<string> }): string {
+  renderCompiled(
+    ast: TemplateNode,
+    context: TemplateContext,
+    options?: Omit<TemplateRenderOptions, 'visited'> & { visited: Set<string> },
+  ): string {
     const visitedSet = options?.visited || new Set<string>();
     return this.renderAST(ast, context, {
       strict: options?.strict,
       defaultValues: options?.defaultValues,
       trace: options?.trace,
-      visited: visitedSet
+      visited: visitedSet,
     } as TemplateRenderOptions & { visited: Set<string> });
   }
 
   private mergeContexts(
     priorityContext: Partial<TemplateContext>,
-    defaultValues: Record<string, any>
+    defaultValues: Record<string, any>,
   ): TemplateContext {
     const merged: TemplateContext = {
       sessionId: priorityContext.sessionId || defaultValues.sessionId || 'unknown',
@@ -584,9 +601,9 @@ export class TemplateEngine {
       project: { ...defaultValues.project, ...priorityContext.project },
       event: { ...defaultValues.event, ...priorityContext.event },
       memory: defaultValues.memory || priorityContext.memory,
-      tool: defaultValues.tool || priorityContext.tool
+      tool: defaultValues.tool || priorityContext.tool,
     };
-    
+
     return merged;
   }
 }
@@ -601,6 +618,6 @@ export function createTemplateContext(): TemplateContext {
   return {
     sessionId: '',
     timestamp: new Date().toISOString(),
-    user: { name: 'unknown', role: 'developer' }
+    user: { name: 'unknown', role: 'developer' },
   };
 }

@@ -4,7 +4,7 @@
  * Monitors the "Heat" and "Decay" of the implementation process.
  */
 
-import type { VitalsHeartbeat, TaskEntity } from '../../domain/task/TaskEntity';
+import type { TaskEntity, VitalsHeartbeat } from '../../domain/task/TaskEntity';
 import { MetabolicMonitor } from '../../infrastructure/monitoring/MetabolicMonitor';
 
 export class MetabolicBrain {
@@ -29,7 +29,7 @@ export class MetabolicBrain {
       cognitiveHeat,
       architecturalDecay,
       doubtSignal,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
   }
 

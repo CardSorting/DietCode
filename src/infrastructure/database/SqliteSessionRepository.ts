@@ -1,7 +1,7 @@
-import { Core } from './sovereign/Core';
+import type { ProjectContext } from '../../domain/context/ProjectContext';
 import type { SessionRepository } from '../../domain/context/SessionRepository';
 import type { Message, SessionState } from '../../domain/context/SessionState';
-import type { ProjectContext } from '../../domain/context/ProjectContext';
+import { Core } from './sovereign/Core';
 
 /**
  * [LAYER: INFRASTRUCTURE]
@@ -41,7 +41,7 @@ export class SqliteSessionRepository implements SessionRepository {
       },
       conflictTarget: 'id',
     });
-    
+
     await Core.flush();
   }
 
@@ -60,13 +60,13 @@ export class SqliteSessionRepository implements SessionRepository {
     await Core.push({
       type: 'insert',
       table: 'agents',
-      values: { 
-        id: agentId, 
-        userId: userId, 
-        name: 'DietCode', 
+      values: {
+        id: agentId,
+        userId: userId,
+        name: 'DietCode',
         role: 'Assistant',
         createdAt: now,
-        lastActive: now 
+        lastActive: now,
       },
       conflictTarget: 'id',
     });
@@ -82,7 +82,7 @@ export class SqliteSessionRepository implements SessionRepository {
         description: description,
         createdAt: now,
         updatedAt: now,
-      }
+      },
     });
 
     await Core.flush();
@@ -93,9 +93,10 @@ export class SqliteSessionRepository implements SessionRepository {
     const now = Date.now();
 
     // Fluid Read: Get session context
-    const results = await Core.selectWhere('tasks', 
+    const results = await Core.selectWhere(
+      'tasks',
       { column: 'id', operator: '=', value: sessionId },
-      { limit: 1 }
+      { limit: 1 },
     );
     const session = results[0] as any;
 
@@ -111,12 +112,12 @@ export class SqliteSessionRepository implements SessionRepository {
         type: 'session_message',
         data: JSON.stringify({
           taskId: sessionId,
-          message: message
+          message: message,
         }),
         createdAt: now,
-      }
+      },
     });
-      
+
     await Core.push({
       type: 'update',
       table: 'tasks',
@@ -127,19 +128,24 @@ export class SqliteSessionRepository implements SessionRepository {
 
   async loadSession(sessionId: string): Promise<SessionState | null> {
     // 1. Get task state
-    const taskResults = await Core.selectWhere('tasks', 
+    const taskResults = await Core.selectWhere(
+      'tasks',
       { column: 'id', operator: '=', value: sessionId },
-      { limit: 1 }
+      { limit: 1 },
     );
     const task = taskResults[0] as any;
 
     if (!task) return null;
 
     // 2. Get session messages from audit events
-    const eventResults = await Core.selectWhere('audit_events', [
-      { column: 'type', operator: '=', value: 'session_message' },
-      { column: 'data', operator: 'LIKE', value: `%${sessionId}%` }
-    ], { orderBy: { column: 'createdAt', direction: 'asc' } });
+    const eventResults = await Core.selectWhere(
+      'audit_events',
+      [
+        { column: 'type', operator: '=', value: 'session_message' },
+        { column: 'data', operator: 'LIKE', value: `%${sessionId}%` },
+      ],
+      { orderBy: { column: 'createdAt', direction: 'asc' } },
+    );
 
     const messages: Message[] = [];
     for (const event of eventResults as any[]) {
@@ -163,10 +169,10 @@ export class SqliteSessionRepository implements SessionRepository {
     await Core.push({
       type: 'update',
       table: 'tasks',
-      values: { 
-        status, 
+      values: {
+        status,
         result: result ? JSON.stringify(result) : null,
-        updatedAt: now 
+        updatedAt: now,
       },
       where: { column: 'id', operator: '=', value: sessionId },
     });
@@ -182,14 +188,13 @@ export class SqliteSessionRepository implements SessionRepository {
     await Core.push({
       type: 'update',
       table: 'tasks',
-      values: { 
-        agentId, 
-        updatedAt: now 
+      values: {
+        agentId,
+        updatedAt: now,
       },
       where: { column: 'id', operator: '=', value: sessionId },
     });
-    
+
     await Core.flush();
   }
 }
-

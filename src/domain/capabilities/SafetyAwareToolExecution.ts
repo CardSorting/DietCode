@@ -4,7 +4,7 @@
  * Violations: None
  */
 
-import { RiskLevel } from '../validation/RiskLevel';
+import type { RiskLevel } from '../validation/RiskLevel';
 
 /**
  * Context for tool execution that includes safety information
@@ -27,7 +27,7 @@ export type SafetyAwareToolContext = {
     endTime: number;
     durationMs: number;
   };
-}
+};
 
 /**
  * Options for safety-aware tool execution
@@ -39,7 +39,7 @@ export type SafetyAwareToolOptions = {
   backupBeforeModification?: boolean;
   enforceParallelSafety?: boolean;
   targetPath?: string;
-}
+};
 
 /**
  * Safety-aware tool execution contract
@@ -53,6 +53,6 @@ export interface SafetyAwareToolExecutor {
   executeWithSafety(
     toolName: string,
     parameters: Record<string, any>,
-    options?: SafetyAwareToolOptions
+    options?: SafetyAwareToolOptions,
   ): Promise<SafetyAwareToolContext>;
 }

@@ -1,31 +1,35 @@
 /**
  * [LAYER: INFRASTRUCTURE]
  * Principle: Pre-flight Sentinel — Predicts architecture changes before they happen
- * 
+ *
  **Pass 16: JoySim Integration**
  * - Connects ArchitecturalGuardian (Domain) to RefactorTools (Infrastructure)
  * - Runs at ~50-100ms BEFORE file moves
  * - Blocks dangerous operations (Domains leaks, score drops)
- * 
+ *
  **Performance:**
  * - OperatingSystem: os.cpus() scaling
  * - Memory: ~10MB (pure state machine)
  * - CPU: <5% (async simulation)
  */
 
-import { ArchitecturalGuardian, type SimulatedReport, type ArchitecturalViolation } from '../../domain/architecture/ArchitecturalGuardian';
-import * as path from 'path';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import {
+  ArchitecturalGuardian,
+  type ArchitecturalViolation,
+  type SimulatedReport,
+} from '../../domain/architecture/ArchitecturalGuardian';
 
 export interface SimulatorConfig {
   threshold: number; // Score drop threshold to trigger block (default: 10)
-  timeout: number;   // Maximum simulation time (default: 100ms)
+  timeout: number; // Maximum simulation time (default: 100ms)
   aggressive: boolean; // Block on topology violations (default: true)
 }
 
 /**
  * JoySimulator: Pre-flight architecture simulation engine
- * 
+ *
  **Guarding Strategy:**
  * - 1. Fast check: Would this move create a DOMAIN_LEAK?
  *   → Block immediately if yes
@@ -33,7 +37,7 @@ export interface SimulatorConfig {
  *   → Warn if non-trivial
  * - 3. Load check: Would this drop overall score?
  *   → Block if > threshold
- * 
+ *
  **Integration:**
  * - Called by RefactorTools before actual move
  * - Returns quickly (no I/O, no file system access)
@@ -47,50 +51,54 @@ export class JoySimulator {
     this.config = {
       threshold: config.threshold ?? 10,
       timeout: config.timeout ?? 100,
-      aggressive: config.aggressive ?? true
+      aggressive: config.aggressive ?? true,
     };
     this.guardian = new ArchitecturalGuardian();
   }
 
   /**
    * SimulateGuard: The core guarding logic
-   * 
- **Flow:**
+   *
+   **Flow:**
    * 1. Get current integrity scan (IntegrityReport)
    * 2. Run predictive rules (ArchitecturalGuardian.simulateGuard)
    * 3. Analyze cascade violations
    * 4. Return safety result
- **Performance:**
+   **Performance:**
    * ~45ms per simulation (computationally cheap ~5-10 operations)
    */
   async simulateGuard(
     oldPath: string,
     newPath: string,
-    integrityReport: { score: number; violations: { type: string }[] }
+    integrityReport: { score: number; violations: { type: string }[] },
   ): Promise<SimulatedReport> {
-    const guardResult = await ArchitecturalGuardian.simulateGuard(oldPath, newPath, integrityReport);
-    
+    const guardResult = await ArchitecturalGuardian.simulateGuard(
+      oldPath,
+      newPath,
+      integrityReport,
+    );
+
     // Analyze cascade violations
     const cascadeViolations = await this.analyzeCascadeViolations(
       oldPath,
       newPath,
-      guardResult.violations
+      guardResult.violations,
     );
 
     return {
       ...guardResult,
-      cascadeViolations
+      cascadeViolations,
     };
   }
 
   /**
    * Analyze cascade violations: Predict impact on downstream files
-   * 
- **Strategy:**
+   *
+   **Strategy:**
    * - If tag changes, assume sister imports affected
    * - If REFACTOR_MOVE, assume imports broken
    * - Score degradation predicted
- **Complexity:**
+   **Complexity:**
    * - Linear cascade analysis
    * - Depends on violation types
    * - ~10-20 cascade checks per simulation
@@ -98,24 +106,24 @@ export class JoySimulator {
   private async analyzeCascadeViolations(
     oldPath: string,
     newPath: string,
-    currentViolations: ArchitecturalViolation[]
+    currentViolations: ArchitecturalViolation[],
   ): Promise<ArchitecturalViolation[]> {
     const cascade: ArchitecturalViolation[] = [];
 
-    currentViolations.forEach(v => {
+    currentViolations.forEach((v) => {
       if (v.type === 'DOMAIN_LEAK') {
         cascade.push({
           type: 'CROSS_LAYER_IMPORT',
           message: `Domain leak in ${newPath} affects ${this.getSisterFiles(oldPath).length} sister files`,
-          severity: 'error'
+          severity: 'error',
         });
       }
-      
+
       if (v.type === 'MISSING_LAYER_TAG') {
         cascade.push({
           type: 'SCORE_DROPPED',
           message: `Score degradation for ${newPath}. Expected: +5 points.`,
-          severity: 'warn'
+          severity: 'warn',
         });
       }
     });
@@ -130,16 +138,17 @@ export class JoySimulator {
     const absPath = path.resolve(process.cwd(), filePath);
     const dir = path.dirname(absPath);
     if (!fs.existsSync(dir)) return [];
-    
-    return fs.readdirSync(dir)
-      .filter(file => file.endsWith('.ts') || file.endsWith('.tsx'))
-      .map(file => path.join(path.dirname(filePath), file));
+
+    return fs
+      .readdirSync(dir)
+      .filter((file) => file.endsWith('.ts') || file.endsWith('.tsx'))
+      .map((file) => path.join(path.dirname(filePath), file));
   }
 
   /**
    * getLayer: Extract layer from path (for debugging)
    */
   getLayer(filePath: string): string | null {
-    return ArchitecturalGuardian['getLayer'](filePath);
+    return ArchitecturalGuardian.getLayer(filePath);
   }
 }

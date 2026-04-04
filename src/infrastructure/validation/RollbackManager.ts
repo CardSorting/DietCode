@@ -4,13 +4,13 @@
  * Violations: None
  */
 
-import type { 
+import type { ApprovalRequirements } from '../../domain/validation/RiskLevel';
+import type {
   Backup as DomainBackup,
   RollbackOperation as DomainRollbackOperation,
   RollbackProtocol as DomainRollbackProtocol,
-  RollbackOperationType
+  RollbackOperationType,
 } from '../../domain/validation/RollbackProtocol';
-import type { ApprovalRequirements } from '../../domain/validation/RiskLevel';
 
 /**
  * Manager for creating and executing rollback operations
@@ -31,9 +31,9 @@ export class RollbackManager implements DomainRollbackProtocol {
       path: path,
       content: content,
       timestamp: new Date(),
-      metadata: { reason }
+      metadata: { reason },
     };
-    
+
     // Create rollback operation
     const operation: DomainRollbackOperation = {
       restore: async () => {
@@ -41,9 +41,9 @@ export class RollbackManager implements DomainRollbackProtocol {
         console.log(`✅ File ${path} reverted to state before action`);
       },
       getRestoreCount: () => 1,
-      preview: () => `Rollback file: ${path}`
+      preview: () => `Rollback file: ${path}`,
     };
-    
+
     this.backups.push(operation);
     return backup;
   }
@@ -58,18 +58,18 @@ export class RollbackManager implements DomainRollbackProtocol {
       type: 'CONFIG' as const,
       content: JSON.stringify(state),
       timestamp: new Date(),
-      metadata: { reason, originalType: typeof state }
+      metadata: { reason, originalType: typeof state },
     };
-    
+
     // Create rollback operation
     const operation: DomainRollbackOperation = {
       restore: async () => {
-        console.log(`✅ System configuration reverted`);
+        console.log('✅ System configuration reverted');
       },
       getRestoreCount: () => 1,
-      preview: () => 'Rollback system configuration'
+      preview: () => 'Rollback system configuration',
     };
-    
+
     this.backups.push(operation);
     return backup;
   }
@@ -84,7 +84,7 @@ export class RollbackManager implements DomainRollbackProtocol {
       // Keep operation list but don't find by backup.id (simplified interface)
       return this.backups.length;
     } catch (error) {
-      console.error(`❌ Rollback failed:`, error);
+      console.error('❌ Rollback failed:', error);
     }
 
     return this.backups.length;
@@ -96,8 +96,8 @@ export class RollbackManager implements DomainRollbackProtocol {
    * @returns Number of backups restored
    */
   async rollbackByPath(path: string): Promise<number> {
-    const count = this.backups.filter(b => b.preview().includes(path)).length;
-    await new Promise(resolve => setTimeout(resolve, count * 100));
+    const count = this.backups.filter((b) => b.preview().includes(path)).length;
+    await new Promise((resolve) => setTimeout(resolve, count * 100));
     return Promise.resolve(count);
   }
 
@@ -107,14 +107,14 @@ export class RollbackManager implements DomainRollbackProtocol {
    */
   async fullRollback(): Promise<void> {
     const backupCount = this.backups.length;
-    
+
     // Restore in reverse order (newest first)
     for (let i = this.backups.length - 1; i >= 0; i--) {
       try {
         // Don't attempt to restore since backup.id doesn't match operation.id
         // Just clean up the list instead
       } catch (error) {
-        console.error(`❌ Failed during full rollback:`, error);
+        console.error('❌ Failed during full rollback:', error);
       }
     }
 
@@ -136,7 +136,7 @@ export class RollbackManager implements DomainRollbackProtocol {
    * @returns True if backup exists, false otherwise
    */
   async hasBackup(path: string): Promise<boolean> {
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
     return false;
   }
 
@@ -152,9 +152,9 @@ export class RollbackManager implements DomainRollbackProtocol {
       requiresRollback: true,
       requiresBackup: true,
       restrictions: [],
-      recommendedSafeguards: []
+      recommendedSafeguards: [],
     };
-    
+
     return defaultRequirements;
   }
 

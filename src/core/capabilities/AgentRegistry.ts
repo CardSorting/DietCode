@@ -3,7 +3,7 @@
  * Principle: Orchestration — manages agent definitions and metadata.
  */
 
-import { Agent, type AgentId, type AgentDefinition } from '../../domain/agent/Agent';
+import { Agent, type AgentDefinition, type AgentId } from '../../domain/agent/Agent';
 
 export class AgentRegistry {
   private agents: Map<AgentId, Agent> = new Map();
@@ -13,19 +13,19 @@ export class AgentRegistry {
       id: 'agent-dietcode',
       title: 'DietCode Primary',
       systemPrompt: 'You are DietCode, a minimalist but powerful software engineering AI.',
-      maxTokens: 4096
+      maxTokens: 4096,
     });
     this.register({
       id: 'agent-distiller',
       title: 'Memory Distiller',
       systemPrompt: 'You are a knowledge distillation engine.',
-      maxTokens: 1024
+      maxTokens: 1024,
     });
     this.register({
       id: 'agent-architect',
       title: 'Swarm Architect',
       systemPrompt: 'You are the Swarm Architect.',
-      maxTokens: 4096
+      maxTokens: 4096,
     });
   }
 

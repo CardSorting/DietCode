@@ -1,16 +1,16 @@
+import * as crypto from 'node:crypto';
 /**
  * [LAYER: DOMAIN]
  * Principle: Pure value objects for immutable execution state tracking
- * Prework Status: 
+ * Prework Status:
  *   - Step 0: ✅ Dead code cleared
  *   - Verification: ✅ verify_hardening pass
  *   - Dependency Flow: ✅ Native protocols followed
  * Triaging:
  *   - [NEW] Implements ImplementationSnapshot for checkpoint tracking and drift detection
  */
-import { TaskState } from '../../domain/task/TaskEntity';
-import type { TaskId, TaskEntity, Requirement } from '../../domain/task/TaskEntity';
-import * as crypto from 'crypto';
+import type { TaskState } from '../../domain/task/TaskEntity';
+import type { Requirement, TaskEntity, TaskId } from '../../domain/task/TaskEntity';
 export type CheckpointId = string;
 
 /**
@@ -31,63 +31,63 @@ export interface ImplementationSnapshot {
    * Unique identifier for this checkpoint
    */
   checkpointId: CheckpointId;
-  
+
   /**
    * ID of the task this checkpoint belongs to
    */
   taskId: string;
-  
+
   /**
    * Timestamp when this snapshot was created
    */
   timestamp: Date;
-  
+
   /**
    * Total number of completed requirements at this checkpoint
    */
   completedRequirements: Requirement[];
-  
+
   /**
    * Requirements still pending at this checkpoint
    */
   pendingRequirements: Requirement[];
-  
+
   /**
    * Total count of requirement types tracked
    */
   totalRequirements: number;
-  
+
   /**
    * Human-readable explanation of detected drift
    */
   driftReason?: string;
-  
+
   /**
    * Semantic health of the implementation
    * Indicates adherence to safety and quality standards
    */
   semanticHealth: SemanticHealth;
-  
+
   /**
    * SHA-256 hash of the agent's output content
    */
   outputHash: string;
-  
+
   /**
    * Size of output in bytes
    */
   outputSizeBytes: number;
-  
+
   /**
    * Current state of the task at this checkpoint
    */
   state: TaskState;
-  
+
   /**
    * Number of tokens processed up to this checkpoint
    */
   tokensProcessed: number;
-  
+
   /**
    * Tracking metadata for this checkpoint
    */
@@ -102,12 +102,12 @@ export interface SemanticHealth {
    * Multi-tiered axiomatic verification results
    */
   axiomProfile: AxiomProfile;
-  
+
   /**
    * List of violations detected in this snapshot
    */
   violations: Violation[];
-  
+
   /**
    * List of warnings that didn't block execution but were logged
    */
@@ -122,22 +122,22 @@ export interface Violation {
    * Unique violation identifier for this instance
    */
   id: string;
-  
+
   /**
    * Type of violation detected
    */
   type: ViolationType;
-  
+
   /**
    * Human-readable description of the violation
    */
   message: string;
-  
+
   /**
    * Severity of this violation
    */
   severity: 'error' | 'warning' | 'info';
-  
+
   /**
    * Location information if available
    */
@@ -146,7 +146,7 @@ export interface Violation {
     lineNumber?: number;
     codeSnippet?: string;
   };
-  
+
   /**
    * When this violation was detected
    */
@@ -160,7 +160,7 @@ export enum ContextualAxiom {
   CORE_STABILITY = 'core_stability',
   DOMAIN_PURITY = 'domain_purity',
   INFRA_HARDENING = 'infra_hardening',
-  TEST_COVERAGE = 'test_coverage'
+  TEST_COVERAGE = 'test_coverage',
 }
 
 /**
@@ -175,7 +175,7 @@ export enum ViolationType {
   TASK_MISALIGNMENT = 'task_misalignment',
   ROLLBACK_REQUIRED = 'rollback_required',
   AXIOM_VIOLATION = 'axiom_violation',
-  HIGH_COMPLEXITY = 'high_complexity'
+  HIGH_COMPLEXITY = 'high_complexity',
 }
 
 /**
@@ -183,20 +183,20 @@ export enum ViolationType {
  */
 export enum IntegrityAxiom {
   STRUCTURAL = 'structural', // File/Markdown structure integrity
-  RESONANCE = 'resonance',   // Semantic objective alignment
-  PURITY = 'purity',         // Architectural layer separation
-  STABILITY = 'stability',    // Drift constraint compliance
+  RESONANCE = 'resonance', // Semantic objective alignment
+  PURITY = 'purity', // Architectural layer separation
+  STABILITY = 'stability', // Drift constraint compliance
   INTERFACE_INTEGRITY = 'interface_integrity', // Ghost implementation check
-  COGNITIVE_SIMPLICITY = 'cognitive_simplicity' // Maintenance guard
+  COGNITIVE_SIMPLICITY = 'cognitive_simplicity', // Maintenance guard
 }
 
 /**
  * Compliance state derived from axiom verification
  */
 export enum ComplianceState {
-  CLEARED = 'CLEARED',   // All critical axioms passing
-  FLAGGED = 'FLAGGED',   // Minor structural warnings
-  BLOCKED = 'BLOCKED'    // Critical axiom violation
+  CLEARED = 'CLEARED', // All critical axioms passing
+  FLAGGED = 'FLAGGED', // Minor structural warnings
+  BLOCKED = 'BLOCKED', // Critical axiom violation
 }
 
 /**
@@ -216,22 +216,22 @@ export interface SnapshotMetadata {
    * Trigger that caused this checkpoint creation
    */
   trigger: CheckpointTrigger;
-  
+
   /**
    * Checkpoint ID that was validated (if applicable)
    */
   validatedBy?: CheckpointId;
-  
+
   /**
    * ID of the parent checkpoint (for chaining snapshots)
    */
   parentCheckpointId?: CheckpointId;
-  
+
   /**
    * Indicates if user confirmation was required before proceeding
    */
   userConfirmationRequired?: boolean;
-  
+
   /**
    * Drift assessment result if this was created after processing
    */
@@ -246,31 +246,31 @@ export enum CheckpointTrigger {
    * Checkpoint created automatically at task initialization
    */
   INITIALIZATION = 'initialization',
-  
+
   /**
    * Checkpoint created automatically after agent processing
    */
   DEMOGRAPHIC = 'demographic',
-  
+
   /**
    * Explicit manual checkpoint command
    */
   MANUAL = 'manual',
-  
+
   /**
    * Checkpoint created after safety violation
    */
   SAFETY_VIOLATION = 'safety_violation',
-  
+
   /**
    * Checkpoint created to restore state
    */
   RESTORE = 'restore',
-  
+
   /**
    * Checkpoint created after validation
    */
-  VALIDATION = 'validation'
+  VALIDATION = 'validation',
 }
 
 /**
@@ -281,27 +281,27 @@ export interface DriftAssessment {
    * Axiomatic compliance status
    */
   status: ComplianceState;
-  
+
   /**
    * Explains why drift is happening
    */
   driftExplanation: string;
-  
+
   /**
    * Semantic distance between outputs
    */
   semanticDistance: number;
-  
+
   /**
    * Recommended corrective actions
    */
   recommendations: CorrectionProtocol[];
-  
+
   /**
    * Whether agent action must be flagged for user approval
    */
   requiresApproval: boolean;
-  
+
   /**
    * Suggested task state after drift assessment
    */
@@ -316,21 +316,21 @@ export enum DriftSeverity {
    * Minimal deviation — within acceptable bounds
    */
   MINIMAL = 'MINIMAL',
-  
+
   /**
    * Moderate deviation — requires awareness
    */
   MODERATE = 'MODERATE',
-  
+
   /**
    * Critical deviation — must be corrected
    */
   CRITICAL = 'CRITICAL',
-  
+
   /**
    * System failure — complete deviation beyond recovery
    */
-  SYSTEM_FAILURE = 'SYSTEM_FAILURE'
+  SYSTEM_FAILURE = 'SYSTEM_FAILURE',
 }
 
 /**
@@ -341,17 +341,17 @@ export interface CorrectionProtocol {
    * Type of corrective action to take
    */
   type: CorrectionType;
-  
+
   /**
    * Detailed command to execute
    */
   command: string;
-  
+
   /**
    * Reasoning behind this correction
    */
   reasoning: string;
-  
+
   /**
    * Additional parameters if needed
    */
@@ -366,26 +366,26 @@ export enum CorrectionType {
    * Reinforce objective reminder to re-anchor agent
    */
   REINFORCE_OBJECTIVE = 'reinforce_objective',
-  
+
   /**
    * Apply drift correction based on similarity detection
    */
   DRIFT_CORRECTION = 'drift_correction',
-  
+
   /**
    * Reset execution state to previous checkpoint
    */
   STATE_RESET = 'state_reset',
-  
+
   /**
    * Continue with explicit user confirmation required
    */
   CONTINUE_WITH_CONFIRMATION = 'continue_with_confirmation',
-  
+
   /**
    * Pause execution and request manual review
    */
-  PAUSE_FOR_REVIEW = 'pause_for_review'
+  PAUSE_FOR_REVIEW = 'pause_for_review',
 }
 
 /**
@@ -396,7 +396,7 @@ export interface DriftVector {
    * Topic divergence metric (0.0-1.0) — how far content is from original intent
    */
   topicDivergence: number;
-  
+
   /**
    * Scope creep metric (0.0-1.0) — unexpected features added
    */
@@ -408,7 +408,7 @@ export interface DriftVector {
  * Validates snapshot contract before creation
  */
 export function createImplementationSnapshot(
-  spec: ImplementationSnapshotCreationSpec
+  spec: ImplementationSnapshotCreationSpec,
 ): ImplementationSnapshot {
   const snapshot: ImplementationSnapshot = {
     checkpointId: spec.checkpointId || generateCheckpointId(),
@@ -427,8 +427,8 @@ export function createImplementationSnapshot(
       validatedBy: spec.validatedBy,
       parentCheckpointId: spec.parentCheckpointId,
       userConfirmationRequired: spec.userConfirmationRequired,
-      driftAssessment: spec.driftAssessment
-    }
+      driftAssessment: spec.driftAssessment,
+    },
   };
 
   validateImplementationSnapshot(snapshot);
@@ -449,11 +449,11 @@ function createDefaultSemanticHealth(): SemanticHealth {
         [IntegrityAxiom.PURITY]: false,
         [IntegrityAxiom.STABILITY]: false,
         [IntegrityAxiom.INTERFACE_INTEGRITY]: false,
-        [IntegrityAxiom.COGNITIVE_SIMPLICITY]: false
-      }
+        [IntegrityAxiom.COGNITIVE_SIMPLICITY]: false,
+      },
     },
     violations: [],
-    warnings: []
+    warnings: [],
   };
 }
 
@@ -513,7 +513,7 @@ export function createViolation(spec: ViolationCreationSpec): Violation {
     message: spec.message,
     severity: spec.severity,
     location: spec.location,
-    timestamp: spec.timestamp || new Date()
+    timestamp: spec.timestamp || new Date(),
   };
 }
 
@@ -525,7 +525,7 @@ export function createCorrection(spec: CorrectionCreationSpec): CorrectionProtoc
     type: spec.type,
     command: spec.command,
     reasoning: spec.reasoning,
-    params: spec.params
+    params: spec.params,
   };
 }
 
@@ -584,14 +584,11 @@ export function computeCheckpointHash(
   taskId: string,
   checkpointId: CheckpointId,
   drivenTasks?: number,
-  outputContent?: string
+  outputContent?: string,
 ): string {
-  const data = [
-    taskId,
-    checkpointId,
-    drivenTasks?.toString() || '0',
-    outputContent || ''
-  ].join('|');
+  const data = [taskId, checkpointId, drivenTasks?.toString() || '0', outputContent || ''].join(
+    '|',
+  );
 
   return crypto.createHash('sha-256').update(data).digest('hex');
 }
@@ -601,12 +598,15 @@ export function computeCheckpointHash(
  */
 export function calculateDriftDelta(
   before: ImplementationSnapshot,
-  after: ImplementationSnapshot
+  after: ImplementationSnapshot,
 ): DriftVector {
   const isAxiomCompliant = after.semanticHealth.axiomProfile.status === ComplianceState.CLEARED;
   return {
     topicDivergence: isAxiomCompliant ? 0.0 : 1.0,
-    scopeCreep: after.totalRequirements > before.totalRequirements ? (after.totalRequirements - before.totalRequirements) / before.totalRequirements : 0.0
+    scopeCreep:
+      after.totalRequirements > before.totalRequirements
+        ? (after.totalRequirements - before.totalRequirements) / before.totalRequirements
+        : 0.0,
   };
 }
 

@@ -4,15 +4,15 @@
  * Implements the Domain Filesystem interface.
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
+import { execSync } from 'node:child_process';
 import * as crypto from 'node:crypto';
-import { execSync } from 'child_process';
-import { type Filesystem, type GitStatus } from '../domain/system/Filesystem';
-import { PathValidator } from './validation/PathValidator';
-import { MetabolicMonitor } from './monitoring/MetabolicMonitor';
-import { ActiveIntegrityScanner } from './monitoring/ActiveIntegrityScanner';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { FocusShield } from '../core/task/FocusShield';
+import type { Filesystem, GitStatus } from '../domain/system/Filesystem';
+import { ActiveIntegrityScanner } from './monitoring/ActiveIntegrityScanner';
+import { MetabolicMonitor } from './monitoring/MetabolicMonitor';
+import { PathValidator } from './validation/PathValidator';
 
 export class FileSystemAdapter implements Filesystem {
   private validator: PathValidator;
@@ -26,7 +26,9 @@ export class FileSystemAdapter implements Filesystem {
 
   private checkFocus(filePath: string): void {
     if (!this.focusShield.isAllowed(filePath)) {
-      throw new Error(`Sovereign Scope Violation: File "${filePath}" is outside the current Focus Bundle.`);
+      throw new Error(
+        `Sovereign Scope Violation: File "${filePath}" is outside the current Focus Bundle.`,
+      );
     }
   }
 
@@ -173,10 +175,10 @@ export class FileSystemAdapter implements Filesystem {
     const entries = fs.readdirSync(validatedPath, { withFileTypes: true });
 
     return entries
-      .filter(e => this.focusShield.isAllowed(path.join(dirPath, e.name)))
-      .map(e => ({
+      .filter((e) => this.focusShield.isAllowed(path.join(dirPath, e.name)))
+      .map((e) => ({
         name: e.name,
-        isDirectory: e.isDirectory()
+        isDirectory: e.isDirectory(),
       }));
   }
 

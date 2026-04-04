@@ -2,17 +2,17 @@
  * [TEST] 🛡️ Focus Shield (Context Lockdown) Verification
  */
 
-import { FileSystemAdapter } from './src/infrastructure/FileSystemAdapter';
-import { FocusShield } from './src/core/task/FocusShield';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { FocusShield } from './src/core/task/FocusShield';
+import { FileSystemAdapter } from './src/infrastructure/FileSystemAdapter';
 
 async function testFocusShield() {
   console.log('🛡️ Starting Focus Shield Protocol Verification...');
 
   const adapter = new FileSystemAdapter();
   const shield = FocusShield.getInstance();
-  
+
   const testFileAllowed = path.resolve(process.cwd(), 'allowed_file.ts');
   const testFileBlocked = path.resolve(process.cwd(), 'blocked_file.ts');
 
@@ -28,7 +28,7 @@ async function testFocusShield() {
     // 2. Activate shield with only the allowed file
     console.log('\n[2] Activating Focus Shield with "allowed_file.ts"...');
     shield.activate([testFileAllowed]);
-    
+
     // 3. Test allowed access
     console.log('[3] Verifying access to allowed file...');
     const content = adapter.readFile(testFileAllowed);
@@ -53,17 +53,20 @@ async function testFocusShield() {
     shield.deactivate();
     adapter.readFile(testFileBlocked);
     console.log('✅ Access restored: PASS');
-
   } finally {
     // Cleanup
-    try { fs.unlinkSync(testFileAllowed); } catch(e) {}
-    try { fs.unlinkSync(testFileBlocked); } catch(e) {}
+    try {
+      fs.unlinkSync(testFileAllowed);
+    } catch (e) {}
+    try {
+      fs.unlinkSync(testFileBlocked);
+    } catch (e) {}
   }
 
   console.log('\n✨ FOCUS SHIELD PROTOCOL VERIFIED ✨');
 }
 
-testFocusShield().catch(err => {
+testFocusShield().catch((err) => {
   console.error('\n❌ FOCUS SHIELD VERIFICATION FAILED');
   console.error(err);
   process.exit(1);

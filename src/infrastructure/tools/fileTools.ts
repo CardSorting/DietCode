@@ -12,22 +12,51 @@
 
 import type { ToolDefinition, ToolResult } from '../../domain/agent/ToolDefinition';
 import type { Filesystem } from '../../domain/system/Filesystem';
-import { validatePath, MAX_FILE_SIZE_BYTES, MAX_RESULT_LINES } from './PathValidator';
+import { MAX_FILE_SIZE_BYTES, MAX_RESULT_LINES, validatePath } from './PathValidator';
 
 /**
  * Allowed extensions for read operations.
  * Write operations are unrestricted (the agent may need to create any file type).
  */
 const READABLE_EXTENSIONS: ReadonlySet<string> = new Set([
-  '.ts', '.tsx', '.js', '.jsx', '.json',
-  '.md', '.txt', '.sql',
-  '.yaml', '.yml',
-  '.css', '.scss', '.html', '.xml',
-  '.log', '.env', '.toml', '.ini', '.cfg',
-  '.sh', '.bash', '.zsh', '.py', '.go', '.rs',
-  '.java', '.kt', '.swift', '.c', '.cpp', '.h',
-  '.hpp', '.cs', '.rb', '.php', '.lua',
-  '.dockerfile', '.makefile',
+  '.ts',
+  '.tsx',
+  '.js',
+  '.jsx',
+  '.json',
+  '.md',
+  '.txt',
+  '.sql',
+  '.yaml',
+  '.yml',
+  '.css',
+  '.scss',
+  '.html',
+  '.xml',
+  '.log',
+  '.env',
+  '.toml',
+  '.ini',
+  '.cfg',
+  '.sh',
+  '.bash',
+  '.zsh',
+  '.py',
+  '.go',
+  '.rs',
+  '.java',
+  '.kt',
+  '.swift',
+  '.c',
+  '.cpp',
+  '.h',
+  '.hpp',
+  '.cs',
+  '.rb',
+  '.php',
+  '.lua',
+  '.dockerfile',
+  '.makefile',
 ]);
 
 /**
@@ -90,7 +119,9 @@ function validateReadRangeInput(input: { path: string; startLine: number; endLin
     throw new Error('endLine must be a positive integer');
   }
   if (input.startLine > input.endLine) {
-    throw new Error(`startLine (${input.startLine}) cannot be greater than endLine (${input.endLine})`);
+    throw new Error(
+      `startLine (${input.startLine}) cannot be greater than endLine (${input.endLine})`,
+    );
   }
 
   const MAX_RANGE = 1000;
@@ -158,10 +189,13 @@ export function createReadFileTool(fs: Filesystem): ToolDefinition<{ path: strin
 /**
  * Create a write_file tool bound to a Filesystem instance.
  */
-export function createWriteFileTool(fs: Filesystem): ToolDefinition<{ path: string; content: string }> {
+export function createWriteFileTool(
+  fs: Filesystem,
+): ToolDefinition<{ path: string; content: string }> {
   return {
     name: 'write_file',
-    description: 'Write content to a file at the specified path. Creates parent directories if needed.',
+    description:
+      'Write content to a file at the specified path. Creates parent directories if needed.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -200,7 +234,8 @@ export function createReadRangeTool(fs: Filesystem): ToolDefinition<{
 }> {
   return {
     name: 'read_range',
-    description: 'Read a specific line range from a file. Useful for inspecting large files without reading them entirely.',
+    description:
+      'Read a specific line range from a file. Useful for inspecting large files without reading them entirely.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -251,12 +286,16 @@ export function createListFilesTool(fs: Filesystem): ToolDefinition<{
 }> {
   return {
     name: 'list_files',
-    description: 'List files and directories at the specified path. Set recursive to true for a full tree listing.',
+    description:
+      'List files and directories at the specified path. Set recursive to true for a full tree listing.',
     inputSchema: {
       type: 'object',
       properties: {
         path: { type: 'string', description: 'Directory path to list.' },
-        recursive: { type: 'boolean', description: 'If true, list files recursively. Defaults to false.' },
+        recursive: {
+          type: 'boolean',
+          description: 'If true, list files recursively. Defaults to false.',
+        },
       },
       required: ['path'],
     },
@@ -283,9 +322,9 @@ export function createListFilesTool(fs: Filesystem): ToolDefinition<{
           for await (const entry of fs.walk(input.path)) {
             fileRecords.push({ path: entry.path });
           }
-          
+
           const truncated = fileRecords.length > MAX_RESULT_LINES;
-          const listing = fileRecords.slice(0, MAX_RESULT_LINES).map(e => `📄 ${e.path}`);
+          const listing = fileRecords.slice(0, MAX_RESULT_LINES).map((e) => `📄 ${e.path}`);
 
           let output = `${input.path}/ (${fileRecords.length} files${truncated ? ', truncated' : ''}):\n`;
           output += listing.join('\n');
@@ -295,8 +334,8 @@ export function createListFilesTool(fs: Filesystem): ToolDefinition<{
 
         // Shallow listing via Domain contract
         const entries = fs.readdir(input.path);
-        const dirs = entries.filter(e => e.isDirectory).map(e => `📁 ${e.name}/`);
-        const files = entries.filter(e => !e.isDirectory).map(e => `📄 ${e.name}`);
+        const dirs = entries.filter((e) => e.isDirectory).map((e) => `📁 ${e.name}/`);
+        const files = entries.filter((e) => !e.isDirectory).map((e) => `📄 ${e.name}`);
 
         let output = `${input.path}/ (${dirs.length} dirs, ${files.length} files):\n`;
         output += [...dirs, ...files].join('\n');

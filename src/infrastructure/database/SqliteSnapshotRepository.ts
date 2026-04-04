@@ -1,5 +1,5 @@
-import { Core } from './sovereign/Core';
 import type { Snapshot, SnapshotRepository } from '../../domain/memory/Snapshot';
+import { Core } from './sovereign/Core';
 
 /**
  * [LAYER: INFRASTRUCTURE]
@@ -18,16 +18,17 @@ export class SqliteSnapshotRepository implements SnapshotRepository {
         timestamp: snapshot.timestamp,
         hash: snapshot.hash,
         mtime: snapshot.mtime,
-      }
+      },
     });
 
     await Core.flush();
   }
 
   async getLatestSnapshot(filePath: string): Promise<Snapshot | null> {
-    const results = await Core.selectWhere('snapshots', 
+    const results = await Core.selectWhere(
+      'snapshots',
       { column: 'path', operator: '=', value: filePath },
-      { orderBy: { column: 'timestamp', direction: 'desc' }, limit: 1 }
+      { orderBy: { column: 'timestamp', direction: 'desc' }, limit: 1 },
     );
     const result = results[0] as any;
 
@@ -44,9 +45,10 @@ export class SqliteSnapshotRepository implements SnapshotRepository {
   }
 
   async getSnapshotById(id: string): Promise<Snapshot | null> {
-    const results = await Core.selectWhere('snapshots', 
+    const results = await Core.selectWhere(
+      'snapshots',
       { column: 'id', operator: '=', value: id },
-      { limit: 1 }
+      { limit: 1 },
     );
     const result = results[0] as any;
 
@@ -70,10 +72,9 @@ export class SqliteSnapshotRepository implements SnapshotRepository {
         column: 'timestamp',
         operator: '<',
         value: beforeTimestamp,
-      }
+      },
     });
 
     await Core.flush();
   }
 }
-

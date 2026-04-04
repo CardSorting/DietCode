@@ -4,9 +4,9 @@
  * Violations: None - implements domain interfaces through specialized adapters
  */
 
-import { ContextOptimizationService } from "../../core/context/ContextOptimizationService"
-import type { FileReadResult, FileReadSource } from "../../domain/context/FileOperation"
-import { EnhancedFileSystemAdapter } from "../EnhancedFileSystemAdapter"
+import { ContextOptimizationService } from '../../core/context/ContextOptimizationService';
+import type { FileReadResult, FileReadSource } from '../../domain/context/FileOperation';
+import { EnhancedFileSystemAdapter } from '../EnhancedFileSystemAdapter';
 
 /**
  * VimFileReader adapter that integrates file reading with context optimization
@@ -14,92 +14,83 @@ import { EnhancedFileSystemAdapter } from "../EnhancedFileSystemAdapter"
  */
 export class VimFileReader {
   // The optimization service to use
-  private optimizationService: ContextOptimizationService
-  
+  private optimizationService: ContextOptimizationService;
+
   constructor(optimizationService?: ContextOptimizationService) {
-    this.optimizationService = optimizationService || this.createDefaultOptimizationService()
+    this.optimizationService = optimizationService || this.createDefaultOptimizationService();
   }
-  
-  async readFile(
-    filePath: string,
-    rowCount?: number,
-    offset?: number
-  ): Promise<FileReadResult> {
+
+  async readFile(filePath: string, rowCount?: number, offset?: number): Promise<FileReadResult> {
     try {
       // Read the file content
-      const content = await this.readViaVim(filePath, rowCount, offset)
-      
+      const content = await this.readViaVim(filePath, rowCount, offset);
+
       // Record the read with optimization
-      return await this.optimizationService.recordRead(filePath, content, "tool_execute")
-      
+      return await this.optimizationService.recordRead(filePath, content, 'tool_execute');
     } catch (error) {
-      throw this.handleReadError(error, filePath)
+      throw this.handleReadError(error, filePath);
     }
   }
-  
+
   /**
    * Read multiple files at once
    */
   async readMultipleFiles(
     filePaths: string[],
     rowCount?: number,
-    offset?: number
+    offset?: number,
   ): Promise<FileReadResult[]> {
-    const results: FileReadResult[] = []
-    
+    const results: FileReadResult[] = [];
+
     for (const filePath of filePaths) {
       try {
-        const result = await this.readFile(filePath, rowCount, offset)
-        results.push(result)
+        const result = await this.readFile(filePath, rowCount, offset);
+        results.push(result);
       } catch (error: any) {
-        results.push(this.createErrorResult(filePath, error))
+        results.push(this.createErrorResult(filePath, error));
       }
     }
-    
-    return results
+
+    return results;
   }
-  
+
   /**
    * Check if a file has been recently read (within optimization window)
    */
   async hasRecentRead(filePath: string): Promise<boolean> {
-    if (!this.optimizationService) return false
-    
-    const stats = this.optimizationService.getStats()
-    return stats.applicableFiles.includes(filePath)
+    if (!this.optimizationService) return false;
+
+    const stats = this.optimizationService.getStats();
+    return stats.applicableFiles.includes(filePath);
   }
-  
+
   /**
    * Read file via Vim protocol
    * This method would interface with a Vim extension or adapter
    */
-  private async readViaVim(
-    filePath: string,
-    rowCount?: number,
-    offset?: number
-  ): Promise<string> {
-    const fsAdapter = new EnhancedFileSystemAdapter()
-    
+  private async readViaVim(filePath: string, rowCount?: number, offset?: number): Promise<string> {
+    const fsAdapter = new EnhancedFileSystemAdapter();
+
     if (rowCount !== undefined && offset !== undefined) {
-      return fsAdapter.readRange(filePath, offset, offset + rowCount - 1)
+      return fsAdapter.readRange(filePath, offset, offset + rowCount - 1);
     }
-    
-    return fsAdapter.readFile(filePath)
+
+    return fsAdapter.readFile(filePath);
   }
-  
+
   /**
    * Get file timestamp using fs.stat
    */
   private async getFileTimestamp(filePath: string): Promise<number> {
     try {
-      const fsAdapter = new EnhancedFileSystemAdapter()
-      const stats = fsAdapter.stat(filePath)
-      return stats.mtimeMs
+      const fsAdapter = new EnhancedFileSystemAdapter();
+      const stats = fsAdapter.stat(filePath);
+      return stats.mtimeMs;
     } catch {
-      return Date.now()
+      return Date.now();
     }
   }
-  
+
   /**
    * Create a basic file result
    */
@@ -108,15 +99,15 @@ export class VimFileReader {
       filePath,
       content: content,
       timestamp: Date.now(),
-      source: "vim_file_reader",
+      source: 'vim_file_reader',
       originalLength: content.length,
       optimizedLength: content.length,
       wasOptimized: false,
-      hash: "vim-" + Date.now(),
-      sizeBytes: content.length
-    }
+      hash: `vim-${Date.now()}`,
+      sizeBytes: content.length,
+    };
   }
-  
+
   /**
    * Create an error result
    */
@@ -125,38 +116,38 @@ export class VimFileReader {
       filePath,
       content: error.message,
       timestamp: Date.now(),
-      source: "search_result", // Best match for error result
+      source: 'search_result', // Best match for error result
       originalLength: error.message.length,
       optimizedLength: error.message.length,
       wasOptimized: false,
-      hash: "error-" + Date.now(),
-      sizeBytes: error.message.length
-    }
+      hash: `error-${Date.now()}`,
+      sizeBytes: error.message.length,
+    };
   }
-  
+
   /**
    * Handle read errors
    */
   private handleReadError(error: unknown, filePath: string): Error {
     if (error instanceof Error) {
-      return new Error(`Failed to read file ${filePath}: ${error.message}`)
+      return new Error(`Failed to read file ${filePath}: ${error.message}`);
     }
-    
-    return new Error(`Failed to read file ${filePath}: Unknown error`)
+
+    return new Error(`Failed to read file ${filePath}: Unknown error`);
   }
-  
+
   /**
    * Create a default optimization service
    */
   private createDefaultOptimizationService(): ContextOptimizationService {
-    return new ContextOptimizationService()
+    return new ContextOptimizationService();
   }
-  
+
   /**
    * Get optimization service
    */
   getOptimizationService(): ContextOptimizationService {
-    return this.optimizationService
+    return this.optimizationService;
   }
 }
 
@@ -170,31 +161,31 @@ export const VimFileReaderUtils = {
   parseVimCommand(command: string): { filePath: string; rowCount?: number; offset?: number } {
     // Example command format: "vim:read path/to/file:10:5"
     // Or could be integrated with a proper syntax checker
-    
+
     // Placeholder - would parse proper syntax
-    const match = command.match(/(?:vim|read)?:([^:]+)(?::(\d+))?(?::(\d+))?/i)
-    
+    const match = command.match(/(?:vim|read)?:([^:]+)(?::(\d+))?(?::(\d+))?/i);
+
     if (!match) {
-      return { filePath: command }
+      return { filePath: command };
     }
-    
+
     return {
       filePath: match[1] ?? command,
-      rowCount: match[2] ? parseInt(match[2] as string, 10) : undefined,
-      offset: match[3] ? parseInt(match[3] as string, 10) : undefined
-    }
+      rowCount: match[2] ? Number.parseInt(match[2] as string, 10) : undefined,
+      offset: match[3] ? Number.parseInt(match[3] as string, 10) : undefined,
+    };
   },
-  
+
   /**
    * Format a file path for Vim protocol
    */
   formatForVimProtocol(filePath: string, rowCount?: number): string {
-    let result = filePath
-    
+    let result = filePath;
+
     if (rowCount !== undefined) {
-      result += `:${rowCount}`
+      result += `:${rowCount}`;
     }
-    
-    return result
-  }
-}
+
+    return result;
+  },
+};

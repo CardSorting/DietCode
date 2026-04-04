@@ -4,9 +4,9 @@
  * Implementation: LogService adapter.
  */
 
-import type { LogService } from '../../domain/logging/LogService';
 import type { LogEntry, LogMetadata } from '../../domain/logging/LogEntry';
 import { LogLevel } from '../../domain/logging/LogLevel';
+import type { LogService } from '../../domain/logging/LogService';
 import { Core } from '../database/sovereign/Core';
 
 export class SovereignLogAdapter implements LogService {
@@ -48,19 +48,25 @@ export class SovereignLogAdapter implements LogService {
     void this.persistAuditLog(level, message, data, metadata);
   }
 
-  private async persistAuditLog(level: LogLevel, message: string, data?: unknown, metadata?: LogMetadata): Promise<void> {
+  private async persistAuditLog(
+    level: LogLevel,
+    message: string,
+    data?: unknown,
+    metadata?: LogMetadata,
+  ): Promise<void> {
     try {
       const db = await Core.db();
       const id = globalThis.crypto.randomUUID();
-      
-      await (db as any).insertInto('audit_log' as any)
+
+      await (db as any)
+        .insertInto('audit_log' as any)
         .values({
           id,
           sessionId: this.currentSessionId,
           type: level,
           message,
           data: data ? JSON.stringify(data) : null,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         })
         .execute();
     } catch (error) {
@@ -81,4 +87,3 @@ export class SovereignLogAdapter implements LogService {
     return this.minLevel;
   }
 }
-

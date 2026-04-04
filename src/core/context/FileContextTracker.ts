@@ -2,40 +2,56 @@
  * [LAYER: CORE]
  * Principle: Centralized tracking of file context, state, and optimization.
  * Combined logic: Migration from Capabilities + Cline-inspired State Tracking.
- * 
- * Orchestrates file watching, state management, stale detection, 
+ *
+ * Orchestrates file watching, state management, stale detection,
  * and duplicate read optimization (Two-Finger Pattern).
  */
 
-import { 
-  type FileMetadataEntry as StateMetadata, 
-  type FileOperationSource, 
-  type FileState 
-} from '../../domain/context/FileContextContract';
-import type { LivePathContext, ToolIntent, RuleEvaluationContext } from '../../domain/context/RuleContextContract';
-import { FileWatcherAdapter, type FileWatcherEvent } from '../../infrastructure/watcher/FileWatcherAdapter';
+import { EventBus } from '../../core/orchestration/EventBus';
+import { EventType } from '../../domain/Event';
+import type { OptimizationConfig } from '../../domain/context/ContextOptimizationPolicy';
+import { defaultOptimizationConfig } from '../../domain/context/ContextOptimizationPolicy';
 import { FileChangeType } from '../../domain/context/FileChange';
-import type { FileReadResult, FileReadSource } from "../../domain/context/FileOperation";
 import type {
-  ReadEntry,
+  FileOperationSource,
+  FileState,
+  FileMetadataEntry as StateMetadata,
+} from '../../domain/context/FileContextContract';
+import type {
   DuplicateReadMetadata,
   FileOptimizationDecision,
-  OptimizationSessionStats
-} from "../../domain/context/FileMetadata";
-import { 
-  isReadDuplicate,
-  aggregateReadMetadata 
-} from "../../domain/context/FileMetadata";
-import type { OptimizationConfig } from "../../domain/context/ContextOptimizationPolicy";
-import { defaultOptimizationConfig } from "../../domain/context/ContextOptimizationPolicy";
-import { EventType } from "../../domain/Event";
-import { EventBus } from "../../core/orchestration/EventBus";
-import { Core } from "../../infrastructure/database/sovereign/Core";
+  OptimizationSessionStats,
+  ReadEntry,
+} from '../../domain/context/FileMetadata';
+import { aggregateReadMetadata, isReadDuplicate } from '../../domain/context/FileMetadata';
+import type { FileReadResult, FileReadSource } from '../../domain/context/FileOperation';
+import type {
+  LivePathContext,
+  RuleEvaluationContext,
+  ToolIntent,
+} from '../../domain/context/RuleContextContract';
+import { Core } from '../../infrastructure/database/sovereign/Core';
+import type {
+  FileWatcherAdapter,
+  FileWatcherEvent,
+} from '../../infrastructure/watcher/FileWatcherAdapter';
 
+/**
+ * Type definition for the file_context table in the Sovereign DB
+ */
+type FileContextRow = {
+  path: string;
+  state: string;
+  source: string;
+  lastReadDate: number | null;
+  lastEditDate: number | null;
+  signature: string | null;
+  externalEditDetected: number | null;
+};
 
 export class FileContextTracker {
   private static instance: FileContextTracker | null = null;
-  
+
   // --- State Tracking (Cline-inspired) ---
   private stateMetadata: Map<string, StateMetadata> = new Map();
   private watcher: FileWatcherAdapter | null = null;
@@ -50,7 +66,7 @@ export class FileContextTracker {
   constructor(config?: Partial<OptimizationConfig>) {
     this.config = {
       ...defaultOptimizationConfig,
-      ...config
+      ...config,
     };
     this.sessionStartTimestamp = Date.now();
   }
@@ -70,7 +86,7 @@ export class FileContextTracker {
   async setWatcher(watcher: FileWatcherAdapter): Promise<void> {
     this.watcher = watcher;
     this.watcher.onFileChange(async (event) => this.handleFileChangeEvent(event));
-    
+
     // Initial sync from DB
     await this.sync();
   }
@@ -80,11 +96,9 @@ export class FileContextTracker {
    */
   async sync(): Promise<void> {
     const db = await Core.db();
-    const rows = await (db as any).selectFrom('file_context' as any)
-      .selectAll()
-      .execute();
+    const rows = await db.selectFrom('file_context').selectAll<FileContextRow>().execute();
 
-    for (const row of rows as any[]) {
+    for (const row of rows) {
       this.stateMetadata.set(row.path, {
         path: row.path,
         state: row.state as FileState,
@@ -92,7 +106,7 @@ export class FileContextTracker {
         lastReadDate: row.lastReadDate,
         lastEditDate: row.lastEditDate,
         signature: row.signature,
-        externalEditDetected: Boolean(row.externalEditDetected)
+        externalEditDetected: Boolean(row.externalEditDetected),
       });
     }
     console.log(`📡 [ContextTracker] Synced ${rows.length} files from SovereignDb`);
@@ -110,10 +124,10 @@ export class FileContextTracker {
       existing.state = 'modified_externally';
       existing.externalEditDetected = true;
       existing.lastEditDate = event.timestamp;
-      
+
       // Persist the staleness immediately
       await this.persistState(existing);
-      
+
       console.warn(`⚠️ External modification detected on ${event.path}. Context is now STALE.`);
     } else if (event.type === FileChangeType.DELETED) {
       existing.state = 'deleted';
@@ -133,19 +147,23 @@ export class FileContextTracker {
    * Record a file read operation with optimization
    * @returns The optimized file read result
    */
-  async recordRead(filePath: string, content: string, source: FileReadSource): Promise<FileReadResult> {
+  async recordRead(
+    filePath: string,
+    content: string,
+    source: FileReadSource,
+  ): Promise<FileReadResult> {
     const entry: ReadEntry = {
       filePath,
       content,
       timestamp: Date.now(),
       contentHash: await this.calculateHash(content),
       source,
-      originalLength: content.length
+      originalLength: content.length,
     };
 
     // Update State Tracking
     await this.recordState(filePath, 'read_tool', 'read', entry.contentHash);
-    
+
     return this.processReadEntry(entry);
   }
 
@@ -155,13 +173,13 @@ export class FileContextTracker {
   private processReadEntry(entry: ReadEntry): FileReadResult {
     const duplicateMetadata = this.getFileDuplicateMetadata(entry.filePath);
     const isDuplicate = this.detectDuplicateRead(entry, duplicateMetadata);
-    
+
     let result: FileReadResult;
-    
+
     if (isDuplicate) {
       if (this.config.enableTwoFinger) {
         result = this.applyTwoFingerPattern(entry.filePath);
-        
+
         if (this.optimizationCallback) {
           this.optimizationCallback({
             filePath: entry.filePath,
@@ -171,9 +189,9 @@ export class FileContextTracker {
             savingsThreshold: this.config.savingsThreshold,
             calculatedSavings: this.calculateSavingsPercentage(
               duplicateMetadata.firstReadContentHash.length,
-              43 
+              43,
             ),
-            reason: `duplicate_within_${this.config.duplicateWindowMs}ms_window`
+            reason: `duplicate_within_${this.config.duplicateWindowMs}ms_window`,
           });
         }
       } else {
@@ -182,7 +200,7 @@ export class FileContextTracker {
           optimizedLength: entry.originalLength,
           wasOptimized: false,
           hash: entry.contentHash,
-          sizeBytes: entry.originalLength
+          sizeBytes: entry.originalLength,
         };
       }
       this.updateOptimizationMetadata(entry.filePath, entry.timestamp, duplicateMetadata);
@@ -192,20 +210,20 @@ export class FileContextTracker {
         optimizedLength: entry.originalLength,
         wasOptimized: false,
         hash: entry.contentHash,
-        sizeBytes: entry.originalLength
+        sizeBytes: entry.originalLength,
       };
-      
+
       this.readBuffer.push(entry);
-      
+
       duplicateMetadata.firstReadTimestamp = entry.timestamp;
       duplicateMetadata.firstReadContentHash = entry.contentHash;
       duplicateMetadata.duplicateCount = 1;
       duplicateMetadata.subsequentReadTimestamps = [];
       duplicateMetadata.isDuplicate = false;
-      
+
       this.optimizationMetadata.set(entry.filePath, duplicateMetadata);
     }
-    
+
     return result;
   }
 
@@ -215,10 +233,10 @@ export class FileContextTracker {
    * Record a state change (Record of Truth)
    */
   async recordState(
-    path: string, 
-    source: FileOperationSource, 
+    path: string,
+    source: FileOperationSource,
     type: 'read' | 'edit' | 'delete',
-    signature?: string
+    signature?: string,
   ): Promise<void> {
     const existing = this.stateMetadata.get(path);
     const now = Date.now();
@@ -227,15 +245,15 @@ export class FileContextTracker {
       path,
       state: type === 'delete' ? 'deleted' : 'active',
       source,
-      lastReadDate: type === 'read' ? now : (existing?.lastReadDate || null),
-      lastEditDate: type === 'edit' ? now : (existing?.lastEditDate || null),
+      lastReadDate: type === 'read' ? now : existing?.lastReadDate || null,
+      lastEditDate: type === 'edit' ? now : existing?.lastEditDate || null,
       externalEditDetected: false,
-      signature: signature || existing?.signature
+      signature: signature || existing?.signature,
     };
 
     this.stateMetadata.set(path, entry);
     await this.persistState(entry);
-    
+
     if (type === 'edit' && source === 'codemarie_edited' && this.watcher) {
       this.watcher.markAsEditedByAgent(path);
     }
@@ -246,26 +264,30 @@ export class FileContextTracker {
    */
   private async persistState(entry: StateMetadata): Promise<void> {
     const db = await Core.db();
-    
+
     // Check if exists first for upsert simulation in broccoliq (Kysely)
-    const existing = await (db as any).selectFrom('file_context' as any)
+    const existing = await db
+      .selectFrom('file_context')
       .where('path', '=', entry.path)
+      .selectAll<FileContextRow>()
       .executeTakeFirst();
 
     if (existing) {
-      await (db as any).updateTable('file_context' as any)
+      await db
+        .updateTable('file_context')
         .set({
           state: entry.state,
           source: entry.source,
           lastReadDate: entry.lastReadDate,
           lastEditDate: entry.lastEditDate,
           signature: entry.signature,
-          externalEditDetected: entry.externalEditDetected ? 1 : 0
+          externalEditDetected: entry.externalEditDetected ? 1 : 0,
         })
         .where('path', '=', entry.path)
         .execute();
     } else {
-      await (db as any).insertInto('file_context' as any)
+      await db
+        .insertInto('file_context')
         .values({
           path: entry.path,
           state: entry.state,
@@ -273,7 +295,7 @@ export class FileContextTracker {
           lastReadDate: entry.lastReadDate,
           lastEditDate: entry.lastEditDate,
           signature: entry.signature,
-          externalEditDetected: entry.externalEditDetected ? 1 : 0
+          externalEditDetected: entry.externalEditDetected ? 1 : 0,
         })
         .execute();
     }
@@ -291,21 +313,25 @@ export class FileContextTracker {
    */
   isStale(path: string): boolean {
     const metadata = this.stateMetadata.get(path);
-    return metadata ? metadata.state === 'modified_externally' || metadata.state === 'stale' : false;
+    return metadata
+      ? metadata.state === 'modified_externally' || metadata.state === 'stale'
+      : false;
   }
 
   // === HELPERS ===
 
   private getFileDuplicateMetadata(filePath: string): DuplicateReadMetadata {
     const existing = this.optimizationMetadata.get(filePath);
-    return existing || {
-      filePath,
-      firstReadTimestamp: 0,
-      subsequentReadTimestamps: [],
-      firstReadContentHash: "",
-      duplicateCount: 0,
-      isDuplicate: false
-    };
+    return (
+      existing || {
+        filePath,
+        firstReadTimestamp: 0,
+        subsequentReadTimestamps: [],
+        firstReadContentHash: '',
+        duplicateCount: 0,
+        isDuplicate: false,
+      }
+    );
   }
 
   private detectDuplicateRead(entry: ReadEntry, metadata: DuplicateReadMetadata): boolean {
@@ -315,7 +341,11 @@ export class FileContextTracker {
     return !timeWindowExceeded && entry.contentHash === metadata.firstReadContentHash;
   }
 
-  private updateOptimizationMetadata(filePath: string, timestamp: number, metadata: DuplicateReadMetadata): void {
+  private updateOptimizationMetadata(
+    filePath: string,
+    timestamp: number,
+    metadata: DuplicateReadMetadata,
+  ): void {
     metadata.lastReadTimestamp = timestamp;
     metadata.duplicateCount++;
     metadata.subsequentReadTimestamps.push(timestamp);
@@ -329,15 +359,17 @@ export class FileContextTracker {
   private applyTwoFingerPattern(filePath: string): FileReadResult {
     return {
       filePath,
-      content: "Duplicate file read notice",
+      content: 'Duplicate file read notice',
       timestamp: Date.now(),
-      source: "context_optimization",
-      originalLength: this.optimizationMetadata.get(filePath)?.firstReadContentHash.length || filePath.length + 43,
+      source: 'context_optimization',
+      originalLength:
+        this.optimizationMetadata.get(filePath)?.firstReadContentHash.length ||
+        filePath.length + 43,
       optimizedLength: 43,
       wasOptimized: true,
-      optimizationReason: "two_finger_pattern",
-      hash: "duplicate-notice-" + Date.now(),
-      sizeBytes: 43
+      optimizationReason: 'two_finger_pattern',
+      hash: `duplicate-notice-${Date.now()}`,
+      sizeBytes: 43,
     };
   }
 
@@ -352,11 +384,11 @@ export class FileContextTracker {
       const data = encoder.encode(content);
       const hashBuffer = await globalThis.crypto.subtle.digest('SHA-256', data);
       const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
     } catch (error) {
       let hash = 0;
       for (let i = 0; i < content.length; i++) {
-        hash = ((hash << 5) - hash) + content.charCodeAt(i);
+        hash = (hash << 5) - hash + content.charCodeAt(i);
         hash = (hash & hash) >>> 0;
       }
       return hash.toString(36);
@@ -370,17 +402,17 @@ export class FileContextTracker {
     const { duplicateMetadata } = aggregateReadMetadata(this.readBuffer);
     const applicableFiles = Array.from(duplicateMetadata.keys());
     const totalOriginalBytes = this.readBuffer.reduce((sum, e) => sum + e.originalLength, 0);
-    
+
     return {
       totalReads: this.readBuffer.length,
       duplicateReads: applicableFiles.length,
       totalOriginalBytes,
-      totalOptimizedBytes: totalOriginalBytes, 
+      totalOptimizedBytes: totalOriginalBytes,
       bytesSaved: 0,
       percentageSaved: 0,
       applicableFiles,
       duplicatesProcessed: 0,
-      sessionStartTime: this.sessionStartTimestamp
+      sessionStartTime: this.sessionStartTimestamp,
     };
   }
 

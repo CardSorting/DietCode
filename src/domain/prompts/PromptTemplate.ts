@@ -8,14 +8,14 @@
  * Metadata for a template
  */
 export interface PromptTemplateMetadata {
-  id: string
-  name: string
-  description?: string
-  tags: string[]
-  version: string
-  author?: string
-  createdAt: number
-  updatedAt: number
+  id: string;
+  name: string;
+  description?: string;
+  tags: string[];
+  version: string;
+  author?: string;
+  createdAt: number;
+  updatedAt: number;
 }
 
 /**
@@ -55,25 +55,25 @@ export interface PromptTemplateManager {
   /**
    * Retrieve a template by ID
    */
-  getTemplate(id: string): PromptTemplate | null
+  getTemplate(id: string): PromptTemplate | null;
 
   /**
    * List all templates with optional tag filtering
    */
-  listTemplates(tag?: string): PromptTemplate[]
+  listTemplates(tag?: string): PromptTemplate[];
 
   /**
    * Save or update a template
    */
-  saveTemplate(template: PromptTemplate): void
+  saveTemplate(template: PromptTemplate): void;
 
   /**
    * Delete a template
    */
-  deleteTemplate(id: string): void
+  deleteTemplate(id: string): void;
 
   /**
    * Format a template by replacing placeholders
    */
-  format(id: string, values: Record<string, string>): string
+  format(id: string, values: Record<string, string>): string;
 }

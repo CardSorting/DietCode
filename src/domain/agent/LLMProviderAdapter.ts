@@ -2,7 +2,7 @@
  * [LAYER: DOMAIN]
  * Principle: Pure business logic, no external I/O
  * Prework Status: Not applicable (new file, > 300 LOC)
- * 
+ *
  * Defines the domain contract for LLM provider adapters.
  * Supports dialect-specific behavior, thinking budgets, and caching.
  */
@@ -60,7 +60,7 @@ export interface ModelInfo {
 
 /**
  * LLM Provider Protocol
- * 
+ *
  * Defines the abstract contract that all LLM adapters must implement.
  * This allows DietCode to support 40+ providers (Anthropic, OpenAI, OpenRouter, etc.)
  * through provider-specific implementations.
@@ -68,17 +68,13 @@ export interface ModelInfo {
 export interface LLMAdapter {
   /**
    * Create a message stream for the LLM
-   * 
+   *
    * @param system - System prompt and policy constraints
    * @param messages - Conversation history including user/assistant/tool calls
    * @param tools - Optional tools available to the LLM
    * @returns Async stream of text chunks
    */
-  createMessage(
-    system: string,
-    messages: Message[],
-    tools?: ToolDefinition[]
-  ): ApiStream;
+  createMessage(system: string, messages: Message[], tools?: ToolDefinition[]): ApiStream;
 
   /**
    * Get metadata about this LLM model
@@ -87,7 +83,7 @@ export interface LLMAdapter {
 
   /**
    * Generate embeddings for semantic search (RAG support)
-   * 
+   *
    * @param text - Text to embed
    * @returns Vector array [dimension1, dimension2, ...]
    * @throws Error if provider doesn't support embeddings
@@ -96,14 +92,14 @@ export interface LLMAdapter {
 
   /**
    * Get maximum thinking budget (unused token allocation)
-   * 
+   *
    * @returns Maximum number of tokens for reasoning/thinking steps
    */
   getThinkingBudgetTokenLimit(): number;
 
   /**
    * Get provider-specific prompt formatting strategy
-   * 
+   *
    * Some providers require special formatting for tools, system prompts, etc.
    */
   getPromptStrategy(): PromptStrategy;

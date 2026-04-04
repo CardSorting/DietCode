@@ -1,7 +1,7 @@
 /**
  * [LAYER: INFRASTRUCTURE]
  * Principle: Production-grade content validation and integrity verification
- * Prework Status: 
+ * Prework Status:
  *   - Step 0: ✅ Dead code cleared
  *   - Verification: ✅ verify_hardening pass
  *   - Dependency Flow: ✅ Native protocols followed
@@ -10,13 +10,13 @@
  *   - [HARDENED] Robust requirement and section extraction
  */
 
-import * as crypto from 'crypto';
-import type { TaskValidation, ConsistencyReport, Requirement } from '../../domain/task/TaskEntity';
-import { RequirementType, TaskPriority } from '../../domain/task/TaskEntity';
-import { SemanticIntegrityAnalyser } from './SemanticIntegrityAnalyser';
+import * as crypto from 'node:crypto';
 import type { AxiomProfile } from '../../domain/task/ImplementationSnapshot';
 import { ComplianceState, IntegrityAxiom } from '../../domain/task/ImplementationSnapshot';
-import { FileSystemAdapter } from '../FileSystemAdapter';
+import type { ConsistencyReport, Requirement, TaskValidation } from '../../domain/task/TaskEntity';
+import { RequirementType, TaskPriority } from '../../domain/task/TaskEntity';
+import type { FileSystemAdapter } from '../FileSystemAdapter';
+import type { SemanticIntegrityAnalyser } from './SemanticIntegrityAnalyser';
 
 /**
  * Production-grade comprehensive validation for task.md and implementation.md
@@ -24,7 +24,7 @@ import { FileSystemAdapter } from '../FileSystemAdapter';
 export class TaskConsistencyValidator {
   constructor(
     private fileSystem: FileSystemAdapter,
-    private semanticAnalyzer: SemanticIntegrityAnalyser
+    private semanticAnalyzer: SemanticIntegrityAnalyser,
   ) {}
 
   /**
@@ -34,12 +34,12 @@ export class TaskConsistencyValidator {
     const errors: string[] = [];
     const warnings: string[] = [];
     if (!content || content.trim().length === 0) {
-      return { 
-        isValid: false, 
-        errors: ['Content is empty'], 
-        warnings: [], 
-        requirements: [], 
-        objectives: [], 
+      return {
+        isValid: false,
+        errors: ['Content is empty'],
+        warnings: [],
+        requirements: [],
+        objectives: [],
         acceptanceCriteria: [],
         axiomProfile: {
           status: ComplianceState.FLAGGED,
@@ -50,9 +50,9 @@ export class TaskConsistencyValidator {
             [IntegrityAxiom.PURITY]: false,
             [IntegrityAxiom.STABILITY]: false,
             [IntegrityAxiom.INTERFACE_INTEGRITY]: false,
-            [IntegrityAxiom.COGNITIVE_SIMPLICITY]: false
-          }
-        }
+            [IntegrityAxiom.COGNITIVE_SIMPLICITY]: false,
+          },
+        },
       };
     }
 
@@ -67,7 +67,9 @@ export class TaskConsistencyValidator {
       errors.push('No requirements defined in task.md');
     }
 
-    const health = this.semanticAnalyzer.assessIntegrityAlignment(content, [], { objective: sections.objectives[0] || sections.mission });
+    const health = this.semanticAnalyzer.assessIntegrityAlignment(content, [], {
+      objective: sections.objectives[0] || sections.mission,
+    });
 
     return {
       isValid: errors.length === 0 && health.axiomProfile.status !== ComplianceState.BLOCKED,
@@ -76,7 +78,7 @@ export class TaskConsistencyValidator {
       requirements,
       objectives: sections.objectives.length ? sections.objectives : [sections.mission || ''],
       acceptanceCriteria: sections.acceptanceCriteria,
-      axiomProfile: health.axiomProfile
+      axiomProfile: health.axiomProfile,
     };
   }
 
@@ -87,12 +89,12 @@ export class TaskConsistencyValidator {
     const errors: string[] = [];
     const warnings: string[] = [];
     if (!content || content.trim().length === 0) {
-      return { 
-        isValid: false, 
-        errors: ['Content is empty'], 
-        warnings: [], 
-        requirements: [], 
-        objectives: [], 
+      return {
+        isValid: false,
+        errors: ['Content is empty'],
+        warnings: [],
+        requirements: [],
+        objectives: [],
         acceptanceCriteria: [],
         axiomProfile: {
           status: ComplianceState.FLAGGED,
@@ -103,9 +105,9 @@ export class TaskConsistencyValidator {
             [IntegrityAxiom.PURITY]: false,
             [IntegrityAxiom.STABILITY]: false,
             [IntegrityAxiom.INTERFACE_INTEGRITY]: false,
-            [IntegrityAxiom.COGNITIVE_SIMPLICITY]: false
-          }
-        }
+            [IntegrityAxiom.COGNITIVE_SIMPLICITY]: false,
+          },
+        },
       };
     }
 
@@ -124,31 +126,28 @@ export class TaskConsistencyValidator {
         status: errors.length === 0 ? ComplianceState.CLEARED : ComplianceState.FLAGGED,
         failingAxioms: [],
         axiomResults: {
-            [IntegrityAxiom.STRUCTURAL]: true,
-            [IntegrityAxiom.RESONANCE]: true,
-            [IntegrityAxiom.PURITY]: true,
-            [IntegrityAxiom.STABILITY]: true,
-            [IntegrityAxiom.INTERFACE_INTEGRITY]: true,
-            [IntegrityAxiom.COGNITIVE_SIMPLICITY]: true
-        }
-      }
+          [IntegrityAxiom.STRUCTURAL]: true,
+          [IntegrityAxiom.RESONANCE]: true,
+          [IntegrityAxiom.PURITY]: true,
+          [IntegrityAxiom.STABILITY]: true,
+          [IntegrityAxiom.INTERFACE_INTEGRITY]: true,
+          [IntegrityAxiom.COGNITIVE_SIMPLICITY]: true,
+        },
+      },
     };
   }
 
   /**
    * Validates consistency between task.md and implementation.md
    */
-  async validateConsistency(
-    taskMd: string,
-    implementationMd: string
-  ): Promise<ConsistencyReport> {
+  async validateConsistency(taskMd: string, implementationMd: string): Promise<ConsistencyReport> {
     const taskValidation = await this.validateTask(taskMd);
     const implValidation = await this.validateImplementation(implementationMd);
-    
+
     const gaps: Gap[] = this.analyzeGaps(taskValidation, implValidation, taskMd, implementationMd);
     const recommendations: string[] = [];
 
-    if (gaps.some(g => g.gapType === 'intent-mismatch')) {
+    if (gaps.some((g) => g.gapType === 'intent-mismatch')) {
       recommendations.push('Improve mission alignment between task and implementation');
     }
 
@@ -156,7 +155,7 @@ export class TaskConsistencyValidator {
       taskMd: taskValidation,
       implementationMd: implValidation,
       gapAnalysis: gaps,
-      recommendations
+      recommendations,
     };
   }
 
@@ -164,18 +163,20 @@ export class TaskConsistencyValidator {
     taskVal: TaskValidation,
     _implVal: TaskValidation,
     taskMd: string,
-    implMd: string
+    implMd: string,
   ): Gap[] {
     const gaps: Gap[] = [];
     // Using axiomatic assessment instead of linear distance scoring
-    const health = this.semanticAnalyzer.assessIntegrityAlignment(implMd, [], { objective: taskVal.objectives[0] });
-    
-    if (health.axiomProfile.status === 'BLOCKED' || !health.axiomProfile.axiomResults['resonance']) {
+    const health = this.semanticAnalyzer.assessIntegrityAlignment(implMd, [], {
+      objective: taskVal.objectives[0],
+    });
+
+    if (health.axiomProfile.status === 'BLOCKED' || !health.axiomProfile.axiomResults.resonance) {
       gaps.push({
         gapType: 'intent-mismatch',
         threshold: 0,
         current: 1,
-        message: `Semantic divergence detected: Resonace Axiom failure.`
+        message: 'Semantic divergence detected: Resonace Axiom failure.',
       });
     }
 
@@ -195,17 +196,22 @@ export class TaskConsistencyValidator {
       const lower = trimmed.toLowerCase();
 
       if (lower.startsWith('# mission statement') || lower.startsWith('# mission')) {
-        currentSection = 'mission'; continue;
-      } else if (lower.startsWith('## objective')) {
-        currentSection = 'objective'; continue;
-      } else if (lower.startsWith('## acceptance criteria')) {
-        currentSection = 'acceptance'; continue;
+        currentSection = 'mission';
+        continue;
+      }
+      if (lower.startsWith('## objective')) {
+        currentSection = 'objective';
+        continue;
+      }
+      if (lower.startsWith('## acceptance criteria')) {
+        currentSection = 'acceptance';
+        continue;
       }
 
       if (trimmed === '') continue;
 
       if (currentSection === 'mission' && !trimmed.startsWith('#')) {
-        mission += trimmed + ' ';
+        mission += `${trimmed} `;
       } else if (currentSection === 'objective' && trimmed.startsWith('-')) {
         objectives.push(trimmed.substring(1).trim());
       } else if (currentSection === 'acceptance' && trimmed.startsWith('-')) {
@@ -224,13 +230,13 @@ export class TaskConsistencyValidator {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       if (line === undefined) continue;
-      
+
       const match = line.match(reqPattern);
-      
-      if (match && match[1]) {
+
+      if (match?.[1]) {
         const description = match[1].trim();
         const verificationCriteria: string[] = [];
-        
+
         // Look ahead for verification criteria (nested bullets)
         let j = i + 1;
         while (j < lines.length) {
@@ -239,19 +245,18 @@ export class TaskConsistencyValidator {
             j++;
             continue;
           }
-          
+
           const vMatch = nextLine.match(/^\s{4,}-\s+(.+)$/); // Indented bullet
-          if (vMatch && vMatch[1]) {
+          if (vMatch?.[1]) {
             verificationCriteria.push(vMatch[1].trim());
             j++;
           } else if (nextLine.trim() === '') {
             j++;
-            continue;
           } else {
             break;
           }
         }
-        
+
         requirements.push({
           uniqueId: `req-${crypto.createHash('md5').update(description).digest('hex').substring(0, 8)}`,
           description,
@@ -259,9 +264,9 @@ export class TaskConsistencyValidator {
           priority: TaskPriority.MEDIUM,
           isCritical: description.toLowerCase().includes('must'),
           section: 'Requirements',
-          verificationCriteria: verificationCriteria.length > 0 ? verificationCriteria : undefined
+          verificationCriteria: verificationCriteria.length > 0 ? verificationCriteria : undefined,
         });
-        
+
         i = j - 1; // Skip the lines we consumed
       }
     }

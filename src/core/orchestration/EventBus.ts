@@ -4,10 +4,10 @@
  * Uses structured logging for production-grade observability.
  */
 
-import { EventEmitter } from 'events';
-import type { SystemEvent, EventType } from '../../domain/Event';
-import type { LogService } from '../../domain/logging/LogService';
+import { EventEmitter } from 'node:events';
+import type { EventType, SystemEvent } from '../../domain/Event';
 import { LogLevel } from '../../domain/logging/LogLevel';
+import type { LogService } from '../../domain/logging/LogService';
 
 export class EventBus {
   private static instance?: EventBus;
@@ -23,9 +23,12 @@ export class EventBus {
   static getInstance(): EventBus;
   static getInstance(logService?: LogService): EventBus {
     if (!EventBus.instance) {
-      EventBus.instance = new EventBus(logService || new Proxy({} as any, {
-        get: () => () => {}
-      }));
+      EventBus.instance = new EventBus(
+        logService ||
+          new Proxy({} as any, {
+            get: () => () => {},
+          }),
+      );
     }
     return EventBus.instance;
   }
@@ -43,7 +46,11 @@ export class EventBus {
    * Dispatches an event to all listeners.
    * Logs structured event data for observability.
    */
-  emit(type: EventType, data: Record<string, any> = {}, metadata: SystemEvent['metadata'] = {}): void {
+  emit(
+    type: EventType,
+    data: Record<string, any> = {},
+    metadata: SystemEvent['metadata'] = {},
+  ): void {
     const event: SystemEvent = {
       id: globalThis.crypto.randomUUID(),
       type,
@@ -51,7 +58,7 @@ export class EventBus {
       data,
       metadata,
     };
-    
+
     // Emit event to listeners
     this.emitter.emit(type, event);
     this.emitter.emit('*', event);
@@ -60,7 +67,11 @@ export class EventBus {
     this.logService.info(
       `${type} event emitted`,
       { id: event.id, data },
-      { component: 'EventBus', correlationId: metadata?.correlationId, sessionId: metadata?.sessionId }
+      {
+        component: 'EventBus',
+        correlationId: metadata?.correlationId,
+        sessionId: metadata?.sessionId,
+      },
     );
   }
 
@@ -82,16 +93,16 @@ export class EventBus {
    * Internal method to emit temporary event for logging without triggering all listeners.
    */
   private temporaryEmit(type: EventType, data: Record<string, any>): void {
-    this.logService.debug(
-      `${type} event received (temporary)`,
-      data,
-      { component: 'EventBus' }
-    );
+    this.logService.debug(`${type} event received (temporary)`, data, { component: 'EventBus' });
   }
   /**
    * Alias for emit for backward compatibility.
    */
-  publish(type: EventType, data: Record<string, any> = {}, metadata: SystemEvent['metadata'] = {}): void {
+  publish(
+    type: EventType,
+    data: Record<string, any> = {},
+    metadata: SystemEvent['metadata'] = {},
+  ): void {
     this.emit(type, data, metadata);
   }
 }

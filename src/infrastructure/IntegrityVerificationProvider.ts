@@ -3,15 +3,18 @@
  * Principle: Concrete implementation of VerificationProvider using IntegrityScanner.
  */
 
-import type { VerificationProvider, VerificationResult } from '../domain/healing/VerificationProvider';
-import type { IntegrityScanner } from '../domain/integrity/IntegrityScanner';
 import type { HealingRepository } from '../domain/healing/HealingRepository';
+import type {
+  VerificationProvider,
+  VerificationResult,
+} from '../domain/healing/VerificationProvider';
+import type { IntegrityScanner } from '../domain/integrity/IntegrityScanner';
 
 export class IntegrityVerificationProvider implements VerificationProvider {
   constructor(
     private scanner: IntegrityScanner,
     private repository: HealingRepository,
-    private projectRoot: string
+    private projectRoot: string,
   ) {}
 
   /**
@@ -25,14 +28,14 @@ export class IntegrityVerificationProvider implements VerificationProvider {
       return {
         isResolved: true,
         message: 'Violation no longer detected in codebase.',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     }
 
     return {
       isResolved: false,
       message: `Violation still present: ${violation.message}`,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 }

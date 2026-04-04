@@ -1,11 +1,11 @@
-import * as path from 'path';
-import type { ProjectContext } from '../../domain/context/ProjectContext';
-import type { Filesystem } from '../../domain/system/Filesystem';
-import type { LogService } from '../../domain/logging/LogService';
-import type { SystemAdapter } from '../../domain/system/SystemAdapter';
-import { EventBus } from '../orchestration/EventBus';
+import * as path from 'node:path';
 import { EventType } from '../../domain/Event';
+import type { ProjectContext } from '../../domain/context/ProjectContext';
+import type { LogService } from '../../domain/logging/LogService';
+import type { Filesystem } from '../../domain/system/Filesystem';
+import type { SystemAdapter } from '../../domain/system/SystemAdapter';
 import { defaultCapabilityRegistry } from '../capabilities/CapabilityRegistry';
+import { EventBus } from '../orchestration/EventBus';
 
 /**
  * [LAYER: CORE]
@@ -18,7 +18,7 @@ export class DiscoveryService {
   constructor(
     private filesystem: Filesystem,
     private systemAdapter: SystemAdapter,
-    logService: LogService
+    logService: LogService,
   ) {
     this.eventBus = EventBus.getInstance(logService);
   }
@@ -29,13 +29,13 @@ export class DiscoveryService {
   async discover(startDir: string): Promise<ProjectContext> {
     const root = this.findRepoRoot(startDir);
     const name = path.basename(root);
-    
+
     const systemInfo = await this.systemAdapter.getSystemInfo();
     const repoContext = await this.systemAdapter.getRepoContext(root);
 
-    this.eventBus.emit(EventType.SYSTEM_INFO_GATHERED, { 
+    this.eventBus.emit(EventType.SYSTEM_INFO_GATHERED, {
       platform: systemInfo.os.platform,
-      branch: repoContext.git?.branch 
+      branch: repoContext.git?.branch,
     });
 
     await this.performDeepDiscovery();
@@ -57,14 +57,17 @@ export class DiscoveryService {
       detailedContext: {
         system: systemInfo,
         repo: repoContext,
-      }
+      },
     };
   }
 
   private findRepoRoot(currentDir: string): string {
     let current = path.resolve(currentDir);
     while (current !== path.parse(current).root) {
-      if (this.filesystem.exists(path.join(current, '.git')) || this.filesystem.exists(path.join(current, 'package.json'))) {
+      if (
+        this.filesystem.exists(path.join(current, '.git')) ||
+        this.filesystem.exists(path.join(current, 'package.json'))
+      ) {
         return current;
       }
       current = path.dirname(current);
@@ -87,13 +90,13 @@ export class DiscoveryService {
       registry.register({
         name: cap.name,
         available: result.available,
-        version: result.version
+        version: result.version,
       });
     }
 
     this.eventBus.emit(EventType.SYSTEM_INFO_GATHERED, {
       component: 'DiscoveryService',
-      message: `Deep discovery complete: ${registry.getAll().filter(c => c.available).length} capabilities found`
+      message: `Deep discovery complete: ${registry.getAll().filter((c) => c.available).length} capabilities found`,
     });
   }
 }

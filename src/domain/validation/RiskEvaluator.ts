@@ -1,7 +1,7 @@
 /**
  * [LAYER: DOMAIN]
  * Principle: Pure business logic and types — testable in isolation
- * Prework Status: 
+ * Prework Status:
  *   - Step 0: ✅ Dead code cleared
  *   - Verification: ✅ verify_hardening pass
  *   - Dependency Flow: ✅ Native protocols followed
@@ -9,7 +9,7 @@
  *   - None
  */
 
-import type { RiskLevel, ApprovalRequirements } from './RiskLevel';
+import type { ApprovalRequirements, RiskLevel } from './RiskLevel';
 
 /**
  * Interface contract for evaluating risk levels of system actions
@@ -34,7 +34,6 @@ export interface RiskEvaluator {
    */
   getApprovalRequirements(criteria: ActionCriteria): Promise<ApprovalRequirements>;
 }
-
 
 /**
  * Action criteria for risk evaluation

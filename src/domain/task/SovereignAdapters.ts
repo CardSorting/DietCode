@@ -5,7 +5,11 @@
 import type { ImplementationSnapshot } from './ImplementationSnapshot';
 
 export interface IPersistenceAdapter {
-  createCheckpoint(taskId: string, spec: any, allRequirements?: any[]): Promise<ImplementationSnapshot>;
+  createCheckpoint(
+    taskId: string,
+    spec: any,
+    allRequirements?: any[],
+  ): Promise<ImplementationSnapshot>;
   restoreCheckpoint(taskId: string, checkpointId: string): Promise<ImplementationSnapshot>;
   getLastCheckpoints(taskId: string, limit?: number): ImplementationSnapshot[];
 }

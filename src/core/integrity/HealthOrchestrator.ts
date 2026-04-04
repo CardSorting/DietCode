@@ -4,9 +4,9 @@
  * Implementation: Coordination of Tracker, Lock, and DB health checks.
  */
 
+import { Core } from '../../infrastructure/database/sovereign/Core';
 import { FileContextTracker } from '../context/FileContextTracker';
 import { LockOrchestrator } from '../manager/LockOrchestrator';
-import { Core } from '../../infrastructure/database/sovereign/Core';
 
 export interface SystemHealthReport {
   timestamp: number;
@@ -35,7 +35,7 @@ export class HealthOrchestrator {
    */
   async generateReport(): Promise<SystemHealthReport> {
     const db = await Core.db();
-    
+
     // 1. Check Database & Queue
     let dbStatus = 'healthy';
     let queueCount = 0;
@@ -50,8 +50,8 @@ export class HealthOrchestrator {
     // 2. Check Context Tracker
     const stats = this.tracker.getSessionStats();
     const staleCount = Array.from({ length: stats.totalReads }).filter((_, i) => {
-        // This is a simplified proxy since getSessionStats doesn't return stale count directly
-        return false; 
+      // This is a simplified proxy since getSessionStats doesn't return stale count directly
+      return false;
     }).length;
 
     // 3. Check Locks
@@ -71,13 +71,12 @@ export class HealthOrchestrator {
         },
         locks: {
           activeLockCount: lockCount,
-        }
-      }
+        },
+      },
     };
 
     return report;
   }
-
 
   /**
    * Outputs a human-readable health summary.

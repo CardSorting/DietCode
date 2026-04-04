@@ -4,10 +4,10 @@
  * Implementation: Transactional staging with rollback support.
  */
 
-import type { Filesystem } from '../domain/system/Filesystem';
-import { RollbackManager } from './validation/RollbackManager';
-import * as path from 'path';
+import * as path from 'node:path';
 import type { LogService } from '../domain/logging/LogService';
+import type { Filesystem } from '../domain/system/Filesystem';
+import type { RollbackManager } from './validation/RollbackManager';
 
 export type TransactionChangeType = 'WRITE' | 'DELETE' | 'RENAME';
 
@@ -21,12 +21,12 @@ export interface TransactionChange {
 
 export class TransactionManager {
   private activeTransaction: TransactionChange[] = [];
-  private isTransactionActive: boolean = false;
+  private isTransactionActive = false;
 
   constructor(
     private filesystem: Filesystem,
     private rollbackManager: RollbackManager,
-    private logService: LogService
+    private logService: LogService,
   ) {}
 
   /**
@@ -46,7 +46,7 @@ export class TransactionManager {
    */
   async stageWrite(filePath: string, content: string): Promise<void> {
     this.ensureTransaction();
-    
+
     let previousContent: string | undefined;
     if (this.filesystem.exists(filePath)) {
       previousContent = this.filesystem.readFile(filePath);
@@ -57,7 +57,7 @@ export class TransactionManager {
       type: 'WRITE',
       path: filePath,
       previousContent,
-      newContent: content
+      newContent: content,
     });
   }
 
@@ -69,12 +69,16 @@ export class TransactionManager {
 
     if (this.filesystem.exists(filePath)) {
       const previousContent = this.filesystem.readFile(filePath);
-      await this.rollbackManager.backupFile(filePath, previousContent, 'Transaction backup before delete');
-      
+      await this.rollbackManager.backupFile(
+        filePath,
+        previousContent,
+        'Transaction backup before delete',
+      );
+
       this.activeTransaction.push({
         type: 'DELETE',
         path: filePath,
-        previousContent
+        previousContent,
       });
     }
   }
@@ -85,8 +89,12 @@ export class TransactionManager {
   async commit(): Promise<void> {
     this.ensureTransaction();
 
-    this.logService.info(`[TRANSACTION] Committing ${this.activeTransaction.length} changes...`, { count: this.activeTransaction.length }, { component: 'TransactionManager' });
-    
+    this.logService.info(
+      `[TRANSACTION] Committing ${this.activeTransaction.length} changes...`,
+      { count: this.activeTransaction.length },
+      { component: 'TransactionManager' },
+    );
+
     try {
       for (const change of this.activeTransaction) {
         if (change.type === 'WRITE') {
@@ -95,9 +103,17 @@ export class TransactionManager {
           await this.filesystem.unlink(change.path);
         }
       }
-      this.logService.info('[TRANSACTION] Committed successfully', {}, { component: 'TransactionManager' });
+      this.logService.info(
+        '[TRANSACTION] Committed successfully',
+        {},
+        { component: 'TransactionManager' },
+      );
     } catch (error: any) {
-      this.logService.error(`[TRANSACTION] Commit failed: ${error.message}. Rolling back...`, error, { component: 'TransactionManager' });
+      this.logService.error(
+        `[TRANSACTION] Commit failed: ${error.message}. Rolling back...`,
+        error,
+        { component: 'TransactionManager' },
+      );
       await this.rollback();
       throw error;
     } finally {

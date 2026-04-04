@@ -2,7 +2,7 @@
  * [LAYER: DOMAIN]
  * Principle: Pure presentation contract, UI handles rendering
  * Prework Status: Not applicable (new file)
- * 
+ *
  * Defines type-safe webview communication protocol.
  * Separates UI concerns from core orchestration.
  */
@@ -64,7 +64,7 @@ export interface HookEvent {
 
 /**
  * WebView message interface
- * 
+ *
  * Unified interface for all webview communication.
  * Direction: Application → WebView
  */
@@ -116,7 +116,7 @@ export type WebViewMessagePayload =
 
 /**
  * WebView request interface
- * 
+ *
  * Direction: WebView → Application
  */
 export interface WebViewRequest {
@@ -133,7 +133,7 @@ export interface WebViewRequest {
   /**
    * Request payload
    */
-  payload:unknown;
+  payload: unknown;
 
   /**
    * Request metadata
@@ -161,7 +161,7 @@ export enum WebViewRequestType {
 
 /**
  * WebView response interface
- * 
+ *
  * Direction: Application → WebView (for WebviewRequest matching)
  */
 export interface WebViewResponse {

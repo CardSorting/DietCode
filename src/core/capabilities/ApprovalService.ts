@@ -35,14 +35,14 @@ export class ApprovalService {
   async requestApproval(
     actionType: string,
     targetPath: string,
-    requirements: ApprovalRequirements
+    requirements: ApprovalRequirements,
   ): Promise<ApprovalDecision> {
     // If no approval required, automatically approve
     if (!requirements.requiresConfirmation) {
       return {
         approved: true,
         safeguardsPrepared: [],
-        requiresConfirmation: false
+        requiresConfirmation: false,
       };
     }
 
@@ -50,12 +50,12 @@ export class ApprovalService {
     if (requirements.requiresRollback) {
       console.warn(`⚠️  ACTION RISK WARNING: ${actionType}`);
       console.warn(`   Target: ${targetPath}`);
-      console.warn(`   ⛔️  This action is irreversible or affects shared systems.`);
-      console.warn(`   ✅  Recommended safeguards:`);
-      
-      requirements.recommendedSafeguards.forEach(guard => {
+      console.warn('   ⛔️  This action is irreversible or affects shared systems.');
+      console.warn('   ✅  Recommended safeguards:');
+
+      for (const guard of requirements.recommendedSafeguards) {
         console.warn(`      - ${guard}`);
-      });
+      }
     }
 
     // Prompt user (in a real implementation, this would show a modal)
@@ -68,7 +68,7 @@ export class ApprovalService {
       approved: true,
       reason: 'Simulated user approval',
       safeguardsPrepared: requirements.recommendedSafeguards,
-      requiresConfirmation: true
+      requiresConfirmation: true,
     };
   }
 
@@ -78,7 +78,7 @@ export class ApprovalService {
    */
   async preFlightCheck(
     actionType: string,
-    criteria: any
+    criteria: Parameters<RiskEvaluator['getApprovalRequirements']>[0],
   ): Promise<ApprovalDecision> {
     const requirements = await this.riskEvaluator.getApprovalRequirements(criteria);
     return await this.requestApproval(actionType, criteria.targetPath || 'unknown', requirements);
@@ -87,10 +87,7 @@ export class ApprovalService {
   /**
    * Validate action approval against original requirements
    */
-  validateApproval(
-    decision: ApprovalDecision,
-    requirements: ApprovalRequirements
-  ): boolean {
+  validateApproval(decision: ApprovalDecision, requirements: ApprovalRequirements): boolean {
     if (!decision.approved) {
       return false;
     }

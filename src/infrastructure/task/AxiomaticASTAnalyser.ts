@@ -28,8 +28,14 @@ export class AxiomaticASTAnalyser {
       // 1. Check Import Declarations
       if (ts.isImportDeclaration(node)) {
         const moduleSpecifier = node.moduleSpecifier.getText(sourceFile).replace(/['"]/g, '');
-        if (prohibitedModules.some(pkg => moduleSpecifier === pkg || moduleSpecifier.startsWith(`${pkg}/`))) {
-          violations.push(this.createViolation(sourceFile, node, `Prohibited import: '${moduleSpecifier}'`));
+        if (
+          prohibitedModules.some(
+            (pkg) => moduleSpecifier === pkg || moduleSpecifier.startsWith(`${pkg}/`),
+          )
+        ) {
+          violations.push(
+            this.createViolation(sourceFile, node, `Prohibited import: '${moduleSpecifier}'`),
+          );
         }
       }
 
@@ -38,8 +44,14 @@ export class AxiomaticASTAnalyser {
         const arg = node.arguments[0];
         if (arg && ts.isStringLiteral(arg)) {
           const moduleSpecifier = arg.text;
-          if (prohibitedModules.some(pkg => moduleSpecifier === pkg || moduleSpecifier.startsWith(`${pkg}/`))) {
-            violations.push(this.createViolation(sourceFile, node, `Prohibited require: '${moduleSpecifier}'`));
+          if (
+            prohibitedModules.some(
+              (pkg) => moduleSpecifier === pkg || moduleSpecifier.startsWith(`${pkg}/`),
+            )
+          ) {
+            violations.push(
+              this.createViolation(sourceFile, node, `Prohibited require: '${moduleSpecifier}'`),
+            );
           }
         }
       }
@@ -61,8 +73,10 @@ export class AxiomaticASTAnalyser {
     const visitor = (node: ts.Node) => {
       if (ts.isCallExpression(node)) {
         const callText = node.expression.getText(sourceFile);
-        if (prohibitedGlobals.some(g => callText === g || callText.startsWith(`${g}.`))) {
-          violations.push(this.createViolation(sourceFile, node, `Prohibited global call: '${callText}'`));
+        if (prohibitedGlobals.some((g) => callText === g || callText.startsWith(`${g}.`))) {
+          violations.push(
+            this.createViolation(sourceFile, node, `Prohibited global call: '${callText}'`),
+          );
         }
       }
 
@@ -83,10 +97,18 @@ export class AxiomaticASTAnalyser {
 
     const visitor = (node: ts.Node) => {
       if (ts.isClassDeclaration(node)) {
-        const hasImplements = node.heritageClauses?.some(hc => hc.token === ts.SyntaxKind.ImplementsKeyword);
+        const hasImplements = node.heritageClauses?.some(
+          (hc) => hc.token === ts.SyntaxKind.ImplementsKeyword,
+        );
         if (!hasImplements) {
           const className = node.name?.getText(sourceFile) || 'AnonymousClass';
-          violations.push(this.createViolation(sourceFile, node, `Ghost Implementation: Class '${className}' lacks domain interface mapping.`));
+          violations.push(
+            this.createViolation(
+              sourceFile,
+              node,
+              `Ghost Implementation: Class '${className}' lacks domain interface mapping.`,
+            ),
+          );
         }
       }
       ts.forEachChild(node, visitor);
@@ -100,25 +122,33 @@ export class AxiomaticASTAnalyser {
    * Axiom 3.0: Calculates Cyclomatic Complexity of functions
    * Flags those exceeding the simplicity threshold.
    */
-  detectHighComplexity(content: string, threshold: number = 10): ASTViolation[] {
+  detectHighComplexity(content: string, threshold = 10): ASTViolation[] {
     const sourceFile = ts.createSourceFile('temp.ts', content, ts.ScriptTarget.Latest, true);
     const violations: ASTViolation[] = [];
 
     const visitor = (node: ts.Node) => {
-      if (ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node) || ts.isArrowFunction(node)) {
+      if (
+        ts.isFunctionDeclaration(node) ||
+        ts.isMethodDeclaration(node) ||
+        ts.isArrowFunction(node)
+      ) {
         let complexity = 1;
 
         const countBranches = (child: ts.Node) => {
-          if (ts.isIfStatement(child) || 
-              ts.isBinaryExpression(child) && (child.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken || child.operatorToken.kind === ts.SyntaxKind.BarBarToken) ||
-              ts.isConditionalExpression(child) ||
-              ts.isCaseClause(child) ||
-              ts.isForStatement(child) ||
-              ts.isForInStatement(child) ||
-              ts.isForOfStatement(child) ||
-              ts.isWhileStatement(child) ||
-              ts.isDoStatement(child) ||
-              ts.isCatchClause(child)) {
+          if (
+            ts.isIfStatement(child) ||
+            (ts.isBinaryExpression(child) &&
+              (child.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken ||
+                child.operatorToken.kind === ts.SyntaxKind.BarBarToken)) ||
+            ts.isConditionalExpression(child) ||
+            ts.isCaseClause(child) ||
+            ts.isForStatement(child) ||
+            ts.isForInStatement(child) ||
+            ts.isForOfStatement(child) ||
+            ts.isWhileStatement(child) ||
+            ts.isDoStatement(child) ||
+            ts.isCatchClause(child)
+          ) {
             complexity++;
           }
           ts.forEachChild(child, countBranches);
@@ -128,7 +158,13 @@ export class AxiomaticASTAnalyser {
 
         if (complexity > threshold) {
           const funcName = (node as any).name?.getText(sourceFile) || 'anonymous';
-          violations.push(this.createViolation(sourceFile, node, `Gravity Bloat: Function '${funcName}' complexity is ${complexity} (Max: ${threshold}).`));
+          violations.push(
+            this.createViolation(
+              sourceFile,
+              node,
+              `Gravity Bloat: Function '${funcName}' complexity is ${complexity} (Max: ${threshold}).`,
+            ),
+          );
         }
       }
       ts.forEachChild(node, visitor);
@@ -143,7 +179,7 @@ export class AxiomaticASTAnalyser {
     return {
       lineNumber: line + 1,
       snippet: (node.getText(sourceFile).split('\n')[0] || '').trim(),
-      message
+      message,
     };
   }
 }

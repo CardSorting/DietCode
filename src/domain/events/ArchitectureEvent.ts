@@ -1,15 +1,15 @@
 /**
  * [LAYER: DOMAIN]
  * Principle: Pure Business Logic — Event payload contracts for architecture changes
- * Prework Status: 
+ * Prework Status:
  *   - Step 0: ✅ Dead code cleared
  *   - Verification: ✅ Type-safe; no external dependencies
  *   - Dependency Flow: ✅ Pure Domain, chain-based
- * Triaging: 
+ * Triaging:
  *   - [FINALIZE] Integration in Core Orchestrator relies on these types
  */
 
-export type ArchitecturalEventType = 
+export type ArchitecturalEventType =
   | 'BLOCKED_BY_LEAK'
   | 'APPROVED_MOVE'
   | 'FORCE_OVERRIDE'

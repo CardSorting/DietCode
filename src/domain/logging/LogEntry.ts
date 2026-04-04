@@ -4,7 +4,7 @@
  * No implementation details, only contract for log data structure.
  */
 
-import { LogLevel } from './LogLevel';
+import type { LogLevel } from './LogLevel';
 
 export interface LogMetadata {
   correlationId?: string;
@@ -30,7 +30,7 @@ export function createLogEntry(
   level: LogLevel,
   message: string,
   data?: unknown,
-  metadata: LogMetadata = {}
+  metadata: LogMetadata = {},
 ): LogEntry {
   return {
     level,

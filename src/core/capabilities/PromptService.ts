@@ -3,9 +3,9 @@
  * Principle: Orchestration — assembles pure domain context into LLM prompts.
  */
 
-import type { SystemContext } from '../../domain/context/SystemContext';
 import type { Skill } from '../../domain/agent/Skill';
 import type { Attachment } from '../../domain/context/Attachment';
+import type { SystemContext } from '../../domain/context/SystemContext';
 
 export class PromptService {
   /**
@@ -24,7 +24,7 @@ export class PromptService {
   }
 
   private getIdentityHeader(): string {
-    return `You are **DietCode**, a powerful, minimalist coding assistant. You excel at rapid, high-quality development with zero fluff. You are pair programming with a developer in their terminal environment.`;
+    return 'You are **DietCode**, a powerful, minimalist coding assistant. You excel at rapid, high-quality development with zero fluff. You are pair programming with a developer in their terminal environment.';
   }
 
   private getContextSection(context: SystemContext): string {
@@ -36,7 +36,10 @@ export class PromptService {
     return `### SYSTEM CONTEXT
 Working Directory: ${context.cwd}${gitInfo}
 File Statistics:
-${context.filesSummary.stats.slice(0, 5).map(s => `- ${s.extension}: ${s.count} (${s.percentage}%)`).join('\n')}
+${context.filesSummary.stats
+  .slice(0, 5)
+  .map((s) => `- ${s.extension}: ${s.count} (${s.percentage}%)`)
+  .join('\n')}
 Total Files: ${context.filesSummary.totalFiles}
 Tools Enabled: ${context.toolsEnabled ? 'YES' : 'NO'}`;
   }
@@ -44,27 +47,31 @@ Tools Enabled: ${context.toolsEnabled ? 'YES' : 'NO'}`;
   private getSkillsSection(skills: Skill[]): string {
     if (skills.length === 0) return '';
     return `### AVAILABLE SKILLS
-${skills.map(s => `- **${s.name}**: ${s.description}`).join('\n')}`;
+${skills.map((s) => `- **${s.name}**: ${s.description}`).join('\n')}`;
   }
 
   private getAttachmentsSection(attachments: Attachment[]): string {
     if (attachments.length === 0) return '';
-    
-    const listing = attachments.map(a => {
+
+    const listing = attachments
+      .map((a) => {
         if (a.content.type === 'file_content') {
-            return `#### [ATTACHMENT: ${a.path} (Lines ${a.content.info.startLine}-${a.content.info.endLine})]
+          return `#### [ATTACHMENT: ${a.path} (Lines ${a.content.info.startLine}-${a.content.info.endLine})]
 \`\`\`
 ${a.content.content}
 \`\`\``;
-        } else if (a.content.type === 'directory_listing') {
-            return `#### [DIRECTORY: ${a.path}]
-${a.content.entries.map(e => (e.isDir ? '📁 ' : '📄 ') + e.path).join('\n')}`;
-        } else if (a.content.type === 'error') {
-            return `#### [ERROR: ${a.path}]
+        }
+        if (a.content.type === 'directory_listing') {
+          return `#### [DIRECTORY: ${a.path}]
+${a.content.entries.map((e) => (e.isDir ? '📁 ' : '📄 ') + e.path).join('\n')}`;
+        }
+        if (a.content.type === 'error') {
+          return `#### [ERROR: ${a.path}]
 ${a.content.message}`;
         }
         return '';
-    }).join('\n\n');
+      })
+      .join('\n\n');
 
     return `### ATTACHED CONTEXT\n${listing}`;
   }

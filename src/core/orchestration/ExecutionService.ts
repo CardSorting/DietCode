@@ -3,18 +3,21 @@
  * Principle: Orchestration — coordinates the tool execution lifecycle.
  */
 
-import { EventBus } from './EventBus';
-import { SnapshotService } from '../memory/SnapshotService';
 import { EventType } from '../../domain/Event';
-import { SafetyGuard } from '../capabilities/SafetyGuard';
-import type { RollbackProtocol } from '../../domain/validation/RollbackProtocol';
-import type { SafetyAwareToolContext, SafetyAwareToolOptions } from '../../domain/capabilities/SafetyAwareToolExecution';
-import type { ToolManager } from '../capabilities/ToolManager';
+import type {
+  SafetyAwareToolContext,
+  SafetyAwareToolOptions,
+} from '../../domain/capabilities/SafetyAwareToolExecution';
 import type { ToolRouter } from '../../domain/capabilities/ToolRouter';
+import type { FileReadResult } from '../../domain/context/FileOperation';
 import type { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
 import { RiskLevel } from '../../domain/validation/RiskLevel';
+import type { RollbackProtocol } from '../../domain/validation/RollbackProtocol';
+import { SafetyGuard } from '../capabilities/SafetyGuard';
+import type { ToolManager } from '../capabilities/ToolManager';
+import type { SnapshotService } from '../memory/SnapshotService';
 import type { ContextOptimizationServiceOrchestrator } from './ContextOptimizationService';
-import type { FileReadResult } from '../../domain/context/FileOperation';
+import { EventBus } from './EventBus';
 
 /**
  * Safe tool execution options
@@ -63,14 +66,11 @@ export class ExecutionService {
    * @param snapshotService Snapshot service for pre-execution capture
    * @param executionOptions Execution configuration options
    */
-  constructor(
-    snapshotService: SnapshotService,
-    executionOptions?: SafeExecutionOptions
-  ) {
+  constructor(snapshotService: SnapshotService, executionOptions?: SafeExecutionOptions) {
     this.snapshotService = snapshotService;
     this.eventBus = EventBus.getInstance();
     this.eventData = executionOptions as { sessionId?: string; timestamp?: string } | undefined;
-    
+
     // Apply options if provided
     if (executionOptions?.preserveSnapshots) {
       console.log('📦 Snapshots enabled for tool execution');
@@ -80,7 +80,7 @@ export class ExecutionService {
   /**
    * Enable context optimization service
    * Integrates the two-finger pattern context optimization system
-   * 
+   *
    * @param orchestrator Context optimization orchestrator
    */
   enableContextOptimization(orchestrator: ContextOptimizationServiceOrchestrator): void {
@@ -91,7 +91,7 @@ export class ExecutionService {
   /**
    * Read a file with context optimization
    * Automatically applies the two-finger pattern for duplicate file reads
-   * 
+   *
    * @param filePath Path to the file to read
    * @returns Promise resolving to optimized file read result
    */
@@ -107,8 +107,8 @@ export class ExecutionService {
         originalLength: filePath.length,
         optimizedLength: filePath.length,
         wasOptimized: false,
-        hash: 'fallback-' + Date.now(),
-        sizeBytes: filePath.length
+        hash: `fallback-${Date.now()}`,
+        sizeBytes: filePath.length,
       };
     }
 
@@ -116,11 +116,15 @@ export class ExecutionService {
 
     if (result.wasOptimized) {
       console.log(`⚡ Optimized read: ${filePath} (${result.optimizationReason})`);
-      this.eventBus.publish(EventType.CONTEXT_OPTIMIZATION, {
-        filePath,
-        wasOptimized: true,
-        reason: result.optimizationReason
-      }, { sessionId: this.eventData?.sessionId });
+      this.eventBus.publish(
+        EventType.CONTEXT_OPTIMIZATION,
+        {
+          filePath,
+          wasOptimized: true,
+          reason: result.optimizationReason,
+        },
+        { sessionId: this.eventData?.sessionId },
+      );
     }
 
     return result.result;
@@ -129,7 +133,7 @@ export class ExecutionService {
   /**
    * Start a context optimization session
    * Should be called at the beginning of a tool execution session
-   * 
+   *
    * @param sessionId Unique session identifier
    */
   startOptimizationSession(sessionId: string): void {
@@ -142,7 +146,7 @@ export class ExecutionService {
   /**
    * End a context optimization session and generate report
    * Should be called at the end of a tool execution session
-   * 
+   *
    * @returns Optimization report (optional)
    */
   async endOptimizationSession(): Promise<any> {
@@ -151,16 +155,16 @@ export class ExecutionService {
     }
 
     const report = await this.contextOptimization.generateReport();
-    
+
     if (report.contextTruncated) {
       console.log('⚠️  Context optimization triggered truncation');
     }
 
-    console.log(`📊 Optimization session completed:`, {
+    console.log('📊 Optimization session completed:', {
       efficiency: report.metrics.efficiencyRating,
-      savings: report.metrics.percentageSaved.toFixed(1) + '%',
+      savings: `${report.metrics.percentageSaved.toFixed(1)}%`,
       signatures: report.signatureCount,
-      messages: report.recommendations.slice(0, 2)
+      messages: report.recommendations.slice(0, 2),
     });
 
     return report;
@@ -168,7 +172,7 @@ export class ExecutionService {
 
   /**
    * Get context optimization summary for diagnostics
-   * 
+   *
    * @returns Context summary or null if optimization not enabled
    */
   getContextSummary() {
@@ -181,7 +185,7 @@ export class ExecutionService {
   /**
    * Enable unified SafetyGuard and ToolManager integration
    * Pattern: Gatekeeper Pattern - all tool executions pass through SafetyGuard
-   * 
+   *
    * @param riskEvaluator Risk evaluation engine from Domain
    * @param rollbackManager Backup/rollback manager (implements RollbackProtocol)
    * @param toolManager Tool manager for tool execution
@@ -191,7 +195,7 @@ export class ExecutionService {
     riskEvaluator: RiskEvaluator,
     rollbackManager: RollbackProtocol,
     toolManager: ToolManager,
-    toolRouter?: ToolRouter
+    toolRouter?: ToolRouter,
   ): void {
     this.toolManager = toolManager;
     this.toolRouter = toolRouter;
@@ -206,7 +210,7 @@ export class ExecutionService {
   /**
    * Execute a tool with unified safety envelope
    * Pattern: Safety-Instrumented Execution - wraps tool execution with full safety envelope
-   * 
+   *
    * @param executionOptions Safety configuration options
    * @param toolName Optional tool name
    * @param input Optional input parameters
@@ -215,20 +219,24 @@ export class ExecutionService {
   async executeWithUnifiedSafety(
     executionOptions?: SafeExecutionOptions,
     toolName?: string,
-    input?: Record<string, any>
+    input?: Record<string, any>,
   ): Promise<UnifiedToolExecutionResult> {
     const startTime = Date.now();
     const correlationId = globalThis.crypto.randomUUID();
-    
+
     // Phase 1: Setup and Validation
-    this.eventBus.publish(EventType.TOOL_CALL_START, { 
-      toolName: toolName || 'default-tool', 
-      input 
-    }, { correlationId, sessionId: this.eventData?.sessionId });
+    this.eventBus.publish(
+      EventType.TOOL_CALL_START,
+      {
+        toolName: toolName || 'default-tool',
+        input,
+      },
+      { correlationId, sessionId: this.eventData?.sessionId },
+    );
 
     if (!this.safetyGuard || !this.toolManager) {
       throw new Error(
-        'Unified safety integration not enabled. Call enableUnifiedSafetyIntegration() first.'
+        'Unified safety integration not enabled. Call enableUnifiedSafetyIntegration() first.',
       );
     }
 
@@ -240,13 +248,13 @@ export class ExecutionService {
         const routeResult = await this.toolRouter.route({
           operationType: toolName || 'default-tool',
           target: executionOptions?.targetPath,
-          parameters: input
+          parameters: input,
         });
 
         if (routeResult.matchesCriteria) {
           toolRouteInfo = {
             toolName: routeResult.tool.name,
-            matchesCriteria: routeResult.matchesCriteria
+            matchesCriteria: routeResult.matchesCriteria,
           };
           console.log(`🧭 Tool routed: ${toolName || 'default-tool'} → ${routeResult.tool.name}`);
         }
@@ -261,37 +269,32 @@ export class ExecutionService {
       toolResult = await this.toolManager.executeWithSafety(
         toolName || 'default-tool',
         input,
-        executionOptions
-      );
-      
-      this.eventBus.publish(
-        toolResult.success ? EventType.TOOL_CALL_SUCCESS : EventType.TOOL_CALL_FAILURE,
-        { 
-          toolName: toolName || 'default-tool',
-          result: toolResult,
-          safetyCheck: toolResult.safetyCheck
-        },
-        { correlationId, sessionId: this.eventData?.sessionId }
-      );
-      
-      return this.buildUnifiedResult(
-        toolResult,
-        toolRouteInfo,
-        startTime
+        executionOptions,
       );
 
+      this.eventBus.publish(
+        toolResult.success ? EventType.TOOL_CALL_SUCCESS : EventType.TOOL_CALL_FAILURE,
+        {
+          toolName: toolName || 'default-tool',
+          result: toolResult,
+          safetyCheck: toolResult.safetyCheck,
+        },
+        { correlationId, sessionId: this.eventData?.sessionId },
+      );
+
+      return this.buildUnifiedResult(toolResult, toolRouteInfo, startTime);
     } catch (toolExecutionError: any) {
       const executionTime = Date.now() - startTime;
-      
+
       // Phase 4: Error handling with safety envelope
       console.error(`❌ Tool execution failed: ${toolExecutionError.message}`);
       this.eventBus.publish(
         EventType.TOOL_CALL_FAILURE,
-        { 
-          toolName: toolName || 'default-tool', 
-          error: toolExecutionError.message 
+        {
+          toolName: toolName || 'default-tool',
+          error: toolExecutionError.message,
         },
-        { correlationId }
+        { correlationId },
       );
 
       // Attempt rollback if safety guard was configured
@@ -299,7 +302,7 @@ export class ExecutionService {
         console.log(`♻️  Attempting rollback for ${executionOptions.targetPath}...`);
         try {
           await (this.rollbackManager as any).rollbackByPath(executionOptions.targetPath);
-          console.log(`✅ Rollback completed`);
+          console.log('✅ Rollback completed');
         } catch (rollbackError) {
           console.error(`💥 Rollback failed: ${rollbackError}`);
         }
@@ -310,7 +313,7 @@ export class ExecutionService {
           toolName: toolName || 'default-tool',
           toolResult: {
             content: `Tool execution failed: ${toolExecutionError.message}`,
-            isError: true
+            isError: true,
           },
           success: false,
           safetyCheck: {
@@ -319,23 +322,23 @@ export class ExecutionService {
             approved: false,
             requiresConfirmation: false,
             rollbackPrepared: false,
-            safeguardsApplied: ['Tool execution failed', `Error: ${toolExecutionError.message}`]
+            safeguardsApplied: ['Tool execution failed', `Error: ${toolExecutionError.message}`],
           },
           execution: {
             startTime,
             endTime: Date.now(),
-            durationMs: Date.now() - startTime
-          }
+            durationMs: Date.now() - startTime,
+          },
         },
         toolRouteInfo,
-        startTime
+        startTime,
       );
     }
   }
 
   /**
    * Build unified execution result from tool context
-   * 
+   *
    * @param toolResult Tool execution result from SafetyGuard
    * @param toolRouteInfo Optional routing information
    * @param startTime Execution start time
@@ -344,7 +347,7 @@ export class ExecutionService {
   private buildUnifiedResult(
     toolResult: SafetyAwareToolContext,
     toolRouteInfo?: UnifiedToolExecutionResult['metadata']['toolRoute'],
-    startTime: number = Date.now()
+    startTime: number = Date.now(),
   ): UnifiedToolExecutionResult {
     const executionTime = Date.now() - startTime;
 
@@ -357,13 +360,15 @@ export class ExecutionService {
       safeguardsApplied: toolResult.safetyCheck.safeguardsApplied,
       executionTime,
       metadata: {
-        toolRoute: toolRouteInfo
-      }
+        toolRoute: toolRouteInfo,
+      },
     };
 
     // Log result summary
     console.log(`✅ Tool execution completed in ${executionTime}ms`);
-    console.log(`📊 Safety: ${toolResult.safetyCheck.riskLevel} - Approved: ${toolResult.safetyCheck.approved}`);
+    console.log(
+      `📊 Safety: ${toolResult.safetyCheck.riskLevel} - Approved: ${toolResult.safetyCheck.approved}`,
+    );
     if (toolResult.safetyCheck.requiresConfirmation) {
       console.log(`⚠️  Requires user confirmation: ${toolResult.safetyCheck.requiresConfirmation}`);
     }
@@ -375,14 +380,16 @@ export class ExecutionService {
    * Check if unified safety integration is enabled
    */
   isSafetyIntegrationEnabled(): boolean {
-    return this.safetyGuard !== undefined && 
-           this.toolManager !== undefined &&
-           this.rollbackManager !== undefined;
+    return (
+      this.safetyGuard !== undefined &&
+      this.toolManager !== undefined &&
+      this.rollbackManager !== undefined
+    );
   }
 
   /**
    * Safety integration diagnostics
-   * 
+   *
    * @param overrideShell Internal parameter for shell-specific behavior (not exposed externally)
    */
   getDiagnostics(overrideShell?: never): any {
@@ -391,7 +398,7 @@ export class ExecutionService {
       toolManagerEnabled: this.toolManager !== undefined,
       toolRouterEnabled: this.toolRouter !== undefined,
       rollbackManagerEnabled: this.rollbackManager !== undefined,
-      isFullyIntegrated: this.isSafetyIntegrationEnabled()
+      isFullyIntegrated: this.isSafetyIntegrationEnabled(),
     };
   }
 
@@ -403,15 +410,17 @@ export class ExecutionService {
     return {
       safetyIntegration: this.isSafetyIntegrationEnabled() ? 'enabled' : 'disabled',
       safetyIntegrations: this.getDiagnostics(),
-      contextOptimization: this.contextOptimization ? {
-        enabled: true,
-        summary: this.getContextSummary()
-      } : {
-        enabled: false
-      },
+      contextOptimization: this.contextOptimization
+        ? {
+            enabled: true,
+            summary: this.getContextSummary(),
+          }
+        : {
+            enabled: false,
+          },
       systemStatus: {
-        fullyIntegrated: this.isSafetyIntegrationEnabled() && !!this.contextOptimization
-      }
+        fullyIntegrated: this.isSafetyIntegrationEnabled() && !!this.contextOptimization,
+      },
     };
   }
 }

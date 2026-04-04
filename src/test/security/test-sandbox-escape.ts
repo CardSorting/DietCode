@@ -1,6 +1,6 @@
+import * as path from 'node:path';
 import { FileSystemAdapter } from '../../infrastructure/FileSystemAdapter';
 import { PathValidator } from '../../infrastructure/validation/PathValidator';
-import * as path from 'path';
 
 async function testSandboxEscape() {
   console.log('🧪 Running Sandbox Escape Security Tests...');
@@ -14,7 +14,7 @@ async function testSandboxEscape() {
     '/etc/hosts',
     'C:\\Windows\\System32\\drivers\\etc\\hosts',
     '..\\..\\..\\Windows\\System32\\cmd.exe',
-    'subfolder/../../../secret.txt'
+    'subfolder/../../../secret.txt',
   ];
 
   for (const attack of attacks) {
@@ -33,7 +33,7 @@ async function testSandboxEscape() {
   console.log('\n✨ SANDBOX ESCAPE PROTECTION VERIFIED! ✨');
 }
 
-testSandboxEscape().catch(err => {
+testSandboxEscape().catch((err) => {
   console.error('💥 Error during test:', err);
   process.exit(1);
 });

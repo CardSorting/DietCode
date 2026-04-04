@@ -8,7 +8,7 @@ import type { Reasoning } from '../memory/Reasoning';
 
 export type Role = 'user' | 'assistant' | 'system';
 
-export type MessageBlock = 
+export type MessageBlock =
   | { type: 'text'; text: string }
   | { type: 'image'; image: string; mimeType: string }
   | { type: 'tool_use'; id: string; name: string; input: any }

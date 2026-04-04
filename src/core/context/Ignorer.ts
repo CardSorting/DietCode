@@ -4,8 +4,8 @@
  * Handles .gitignore and .dietcodeignore patterns.
  */
 
-import type { Filesystem } from '../../domain/system/Filesystem';
 import type { LogService } from '../../domain/logging/LogService';
+import type { Filesystem } from '../../domain/system/Filesystem';
 import { EventBus } from '../orchestration/EventBus';
 
 export class Ignorer {
@@ -15,7 +15,7 @@ export class Ignorer {
   constructor(
     private filesystem: Filesystem,
     private projectRoot: string,
-    logService: LogService
+    logService: LogService,
   ) {
     this.eventBus = EventBus.getInstance(logService);
     this.loadPatterns();
@@ -23,14 +23,7 @@ export class Ignorer {
 
   private loadPatterns() {
     // Default ignore patterns
-    this.patterns = [
-      '.git',
-      'node_modules',
-      'dist',
-      'build',
-      '.gemini',
-      '.DS_Store',
-    ];
+    this.patterns = ['.git', 'node_modules', 'dist', 'build', '.gemini', '.DS_Store'];
 
     // Load .gitignore
     const gitignorePath = `${this.projectRoot}/.gitignore`;
@@ -48,10 +41,11 @@ export class Ignorer {
   }
 
   private addPatterns(content: string) {
-    const lines = content.split('\n')
-      .map(l => l.trim())
-      .filter(l => l && !l.startsWith('#'));
-    
+    const lines = content
+      .split('\n')
+      .map((l) => l.trim())
+      .filter((l) => l && !l.startsWith('#'));
+
     this.patterns.push(...lines);
   }
 

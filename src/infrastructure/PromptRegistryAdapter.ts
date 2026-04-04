@@ -3,27 +3,30 @@
  * Principle: Adapters and integrations — orchestrates multi-source prompt loading and merging.
  */
 
-import * as path from 'path';
-import { PromptSource, PromptSource as PromptSourceEnum } from '../domain/prompts/PromptIndex';
-import { PromptCategory } from '../domain/prompts/PromptCategory';
-import type { PromptIndex, PromptSourceConfig } from '../domain/prompts/PromptIndex';
-import type { PromptDefinition, PromptCollection } from '../domain/prompts/PromptCategory';
-import type { PromptAudit, ConflictResolution } from '../domain/prompts/PromptAudit';
-import { ConflictResolutionStrategy, ConflictType } from '../domain/prompts/PromptAudit';
-import { EventBus } from '../core/orchestration/EventBus';
-import type { SystemEvent } from '../domain/Event';
-import type { KnowledgeItem } from '../domain/memory/Knowledge';
-import { EventType } from '../domain/Event';
-import type { Filesystem } from '../domain/system/Filesystem';
-import type { MemoryService } from '../core/memory/MemoryService';
-import type { ContextService } from '../core/context/ContextService';
+import * as path from 'node:path';
 import { ContextProviderEngine } from '../core/capabilities/ContextProviderEngine';
 import { RiskAwareCompositionStrategy } from '../core/capabilities/RiskAwareCompositionStrategy';
-import { TemplateEngine } from '../domain/prompts/PromptTemplateEngine';
-import { PromptLoader } from './PromptLoader';
-import type { TemplateContext, TemplateRenderOptions } from '../domain/prompts/PromptTemplateEngine';
-import { RiskTier } from '../domain/prompts/PromptRiskProfile';
+import type { ContextService } from '../core/context/ContextService';
+import type { MemoryService } from '../core/memory/MemoryService';
+import type { EventBus } from '../core/orchestration/EventBus';
+import type { SystemEvent } from '../domain/Event';
+import { EventType } from '../domain/Event';
 import type { LogService } from '../domain/logging/LogService';
+import type { KnowledgeItem } from '../domain/memory/Knowledge';
+import type { ConflictResolution, PromptAudit } from '../domain/prompts/PromptAudit';
+import { ConflictResolutionStrategy, ConflictType } from '../domain/prompts/PromptAudit';
+import { PromptCategory } from '../domain/prompts/PromptCategory';
+import type { PromptCollection, PromptDefinition } from '../domain/prompts/PromptCategory';
+import { PromptSource, PromptSource as PromptSourceEnum } from '../domain/prompts/PromptIndex';
+import type { PromptIndex, PromptSourceConfig } from '../domain/prompts/PromptIndex';
+import { RiskTier } from '../domain/prompts/PromptRiskProfile';
+import { TemplateEngine } from '../domain/prompts/PromptTemplateEngine';
+import type {
+  TemplateContext,
+  TemplateRenderOptions,
+} from '../domain/prompts/PromptTemplateEngine';
+import type { Filesystem } from '../domain/system/Filesystem';
+import type { PromptLoader } from './PromptLoader';
 
 export class PromptRegistryAdapter {
   private currentIndex: PromptIndex;
@@ -40,25 +43,25 @@ export class PromptRegistryAdapter {
     private promptLoader: PromptLoader,
     private listSources: ListPromptsSourcesFunction,
     private loadSource: LoadPromptSourceFunction,
-    private logService: LogService
+    private logService: LogService,
   ) {
     this.currentIndex = {
       version: '1.0.0',
       lastUpdated: new Date().toISOString(),
       rootSources: [],
       collections: [],
-      auditTrail: []
+      auditTrail: [],
     };
-    
+
     // Initialize context provider engine
     this.contextProvider = new ContextProviderEngine(memoryService, contextService);
-    
+
     // Initialize risk-aware composition strategy
     this.riskStrategy = new RiskAwareCompositionStrategy();
-    
+
     // Register risk strategy with context provider (broad type to avoid inference issues)
     (this.contextProvider as any).registerStrategy(this.riskStrategy);
-    
+
     this.conflictLogger = new ConflictLogger(this.eventBus);
   }
 
@@ -71,25 +74,29 @@ export class PromptRegistryAdapter {
    */
   async acquireAll(context: SystemContext): Promise<PromptIndex> {
     const sources = await this.discoverSources();
-    
+
     // Mark each source with priority
     const storedSources: PromptSourceConfig[] = sources.map((source, index) => ({
       origin: source.origin,
       path: source.path,
       priority: index + 1,
-      loadedAt: new Date().toISOString()
+      loadedAt: new Date().toISOString(),
     }));
 
     // Merge all sources
     const merged = await this.mergeIndexedSets(storedSources);
-    this.currentIndex.rootSources = storedSources.map(s => s.origin);
+    this.currentIndex.rootSources = storedSources.map((s) => s.origin);
     this.currentIndex.collections = merged.collections;
     this.currentIndex.lastUpdated = new Date().toISOString();
 
     // Emit event indicating successful load
-    this.eventBus.publish(EventType.PROMPT_REGISTERED, {
-      promptCount: merged.collections.reduce((sum, c) => sum + c.promptDefinitions.length, 0)
-    }, { sessionId: context.sessionId });
+    this.eventBus.publish(
+      EventType.PROMPT_REGISTERED,
+      {
+        promptCount: merged.collections.reduce((sum, c) => sum + c.promptDefinitions.length, 0),
+      },
+      { sessionId: context.sessionId },
+    );
 
     return this.currentIndex;
   }
@@ -101,12 +108,12 @@ export class PromptRegistryAdapter {
     const paths = [
       { origin: PromptSourceEnum.LOCAL_OVERRIDE, path: process.cwd() },
       { origin: PromptSourceEnum.USER_DEFINED, path: process.env.HOME || '/Users/dietcode' },
-      { origin: PromptSourceEnum.REPOSITORY_BASE, path: process.cwd() }
+      { origin: PromptSourceEnum.REPOSITORY_BASE, path: process.cwd() },
     ];
 
     for (const { origin, path: basePath } of paths) {
       const promptPath = path.join(basePath, '.claude-code-prompts');
-      
+
       try {
         const stats = this.filesystem.stat(promptPath);
         if (stats.isDirectory) {
@@ -129,12 +136,14 @@ export class PromptRegistryAdapter {
 
     for (const source of sources) {
       // Load chain for this source
-      const loadChain: PromptAudit['loadChain'] = [{
-        stepNumber: 1,
-        sourcePath: source.path,
-        action: 'MERGE',
-        timestamp: new Date().toISOString()
-      }];
+      const loadChain: PromptAudit['loadChain'] = [
+        {
+          stepNumber: 1,
+          sourcePath: source.path,
+          action: 'MERGE',
+          timestamp: new Date().toISOString(),
+        },
+      ];
 
       try {
         // Discover prompts in this source
@@ -142,7 +151,7 @@ export class PromptRegistryAdapter {
 
         for (const promptPath of promptPaths) {
           const prompt = await this.loadSource(promptPath);
-          
+
           // Initialize audit
           const promptAudit: PromptAudit = {
             promptId: prompt.id,
@@ -153,12 +162,12 @@ export class PromptRegistryAdapter {
                 stepNumber: 2,
                 sourcePath: promptPath,
                 action: 'NEW_PROMPT',
-                timestamp: new Date().toISOString()
-              }
+                timestamp: new Date().toISOString(),
+              },
             ],
             conflictHistory: [],
             integrityHash: this.calculateIntegrityHash(prompt),
-            compliance: this.validateCompliance(prompt)
+            compliance: this.validateCompliance(prompt),
           };
 
           const existing = mergedCollections.get(prompt.id);
@@ -170,28 +179,24 @@ export class PromptRegistryAdapter {
             auditTrail.push(promptAudit);
           } else {
             // Conflict detected — apply resolution strategy
-            const resolution = this.resolvePromptConflict(
-              existing,
-              prompt,
-              source.priority
-            );
+            const resolution = this.resolvePromptConflict(existing, prompt, source.priority);
 
             if (resolution.action === ConflictResolutionStrategy.OVERRIDE) {
               // Replace existing with incoming
               const overrideCollection = this.createCollectionWithPrompt(source.path, prompt);
               mergedCollections.set(prompt.id, overrideCollection);
-              
+
               promptAudit.loadChain.push({
                 stepNumber: 3,
                 sourcePath: promptPath,
                 action: 'OVERRIDE',
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
               });
             } else {
               // Annotate existing with conflicting source metadata
               const annotated = this.annotatePrompt(existing, prompt, resolution);
               mergedCollections.set(prompt.id, annotated);
-              
+
               // Track as conflict (but don't change the prompt)
               promptAudit.conflictHistory.push({
                 id: crypto.randomUUID(),
@@ -199,7 +204,7 @@ export class PromptRegistryAdapter {
                 type: ConflictType.PRIORITY_VIOLATION,
                 resolution: resolution.action,
                 affectedPrompts: [prompt.id],
-                metadata: { incomingSource: source.origin, existingPriority: source.priority }
+                metadata: { incomingSource: source.origin, existingPriority: source.priority },
               });
             }
 
@@ -207,10 +212,12 @@ export class PromptRegistryAdapter {
           }
         }
       } catch (error) {
-        this.logService.error(`Failed to load prompts from ${source.path}:`, error, { component: 'PromptRegistryAdapter' });
+        this.logService.error(`Failed to load prompts from ${source.path}:`, error, {
+          component: 'PromptRegistryAdapter',
+        });
         this.eventBus.publish(EventType.PROMPT_LOAD_ERROR, {
           path: source.path,
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: error instanceof Error ? error.message : 'Unknown error',
         });
       }
     }
@@ -218,9 +225,9 @@ export class PromptRegistryAdapter {
     return {
       version: '1.0.0',
       lastUpdated: new Date().toISOString(),
-      rootSources: sources.map(s => s.origin),
+      rootSources: sources.map((s) => s.origin),
       collections: Array.from(mergedCollections.values()),
-      auditTrail
+      auditTrail,
     };
   }
 
@@ -235,20 +242,24 @@ export class PromptRegistryAdapter {
   private resolvePromptConflict(
     existing: PromptCollection,
     incoming: PromptDefinition,
-    incomingPriority: number
+    incomingPriority: number,
   ): RoundResolutionResponse {
     // Lower priority number = higher priority
-    const strategy = incomingPriority === 1
-      ? ConflictResolutionStrategy.OVERRIDE
-      : ConflictResolutionStrategy.KEEP_EXISTING;
+    const strategy =
+      incomingPriority === 1
+        ? ConflictResolutionStrategy.OVERRIDE
+        : ConflictResolutionStrategy.KEEP_EXISTING;
 
     return {
       action: strategy,
-      reason: this.getResolutionReason(strategy, incomingPriority)
+      reason: this.getResolutionReason(strategy, incomingPriority),
     };
   }
 
-  private createCollectionWithPrompt(sourcePath: string, prompt: PromptDefinition): PromptCollection {
+  private createCollectionWithPrompt(
+    sourcePath: string,
+    prompt: PromptDefinition,
+  ): PromptCollection {
     return {
       id: crypto.randomUUID(),
       category: prompt.category,
@@ -257,24 +268,29 @@ export class PromptRegistryAdapter {
       publisher: 'claude-code-prompts',
       licensing: 'Apache-2.0',
       subcollections: [sourcePath],
-      promptDefinitions: [prompt]
+      promptDefinitions: [prompt],
     };
   }
 
   private annotatePrompt(
     existing: PromptCollection,
     incoming: PromptDefinition,
-    resolution: RoundResolutionResponse
+    resolution: RoundResolutionResponse,
   ): PromptCollection {
     return {
       ...existing,
-      promptDefinitions: existing.promptDefinitions.map(p => 
-        p.id === incoming.id ? { ...p, metadata: { 
-          ...(p.metadata ?? {}), 
-          conflicts: (p.metadata?.conflicts) ?? {},
-          lastConflictResolution: resolution.action
-        }} : p
-      )
+      promptDefinitions: existing.promptDefinitions.map((p) =>
+        p.id === incoming.id
+          ? {
+              ...p,
+              metadata: {
+                ...(p.metadata ?? {}),
+                conflicts: p.metadata?.conflicts ?? {},
+                lastConflictResolution: resolution.action,
+              },
+            }
+          : p,
+      ),
     };
   }
 
@@ -302,8 +318,9 @@ export class PromptRegistryAdapter {
       valid,
       violations,
       category: prompt.category,
-      hasInteractiveElements: prompt.content.includes('<button') || prompt.content.includes('<input'),
-      exceedsSizeLimit: prompt.content.length > 100000
+      hasInteractiveElements:
+        prompt.content.includes('<button') || prompt.content.includes('<input'),
+      exceedsSizeLimit: prompt.content.length > 100000,
     };
   }
 
@@ -322,7 +339,7 @@ export class PromptRegistryAdapter {
 
   private findPromptById(promptId: string): PromptDefinition | null {
     for (const collection of this.currentIndex.collections) {
-      const found = collection.promptDefinitions.find(p => p.id === promptId);
+      const found = collection.promptDefinitions.find((p) => p.id === promptId);
       if (found) return found;
     }
     return null;
@@ -342,14 +359,14 @@ export class PromptRegistryAdapter {
           action: 'FETCH_CONSOLIDATED',
           targetScope: 'codebase',
           maxEntries: prompt.metadata?.recommendedMemoryDepth ?? 20,
-          priority: 'critical'
+          priority: 'critical',
         };
       case 'CONTEXT_PROTOCOL':
         return {
           action: 'FETCH_RECENT',
           targetScope: 'project',
           maxEntries: 10,
-          priority: 'medium'
+          priority: 'medium',
         };
       default:
         return null;
@@ -370,20 +387,21 @@ export class PromptRegistryAdapter {
       checkType: permissionTier,
       requiresSnapshot: prompt.dangerLevel !== 'low',
       verificationService: 'ValidationService',
-      escalationStage: 'before_tool'
+      escalationStage: 'before_tool',
     };
   }
 
-  private determinePermissionTier(dangerLevel: string): 'permission_tier_1' | 'permission_tier_2' | 'permission_tier_3' | 'permission_tier_4' {
+  private determinePermissionTier(
+    dangerLevel: string,
+  ): 'permission_tier_1' | 'permission_tier_2' | 'permission_tier_3' | 'permission_tier_4' {
     const level = dangerLevel.toLowerCase();
-    
+
     switch (level) {
       case 'critical':
         return 'permission_tier_4';
       case 'high':
       case 'medium':
         return 'permission_tier_3';
-      case 'low':
       default:
         return 'permission_tier_1';
     }
@@ -394,10 +412,10 @@ export class PromptRegistryAdapter {
    */
   async renderPrompt(
     promptId: string,
-    sessionContext: Partial<TemplateContext>
+    sessionContext: Partial<TemplateContext>,
   ): Promise<{ rendered: string; template: PromptDefinition | null; metadata: any }> {
     const prompt = this.findPromptById(promptId);
-    
+
     if (!prompt) {
       return { rendered: '', template: null, metadata: { error: 'Prompt not found' } };
     }
@@ -406,17 +424,17 @@ export class PromptRegistryAdapter {
 
     // Step 1: Prepare enhanced context using ContextProviderEngine
     const enhancedContext = await this.contextProvider.prepareContext(prompt, sessionContext);
-    
+
     // Step 2: Apply risk-aware composition strategy if applicable
     const riskNotes: string[] = [];
     if (this.riskStrategy.canApply(prompt, enhancedContext)) {
       const compositionResult = await this.riskStrategy.apply(prompt, enhancedContext);
       riskNotes.push(...compositionResult.notes);
     }
-    
+
     // Step 2.5: Ensure risk assessment is available (for PromptRegistryAdapter usage)
-    if ((this.riskStrategy as any)['assessRisk']) {
-      const promptRisk = (this.riskStrategy as any)['assessRisk'](prompt, enhancedContext);
+    if ((this.riskStrategy as any).assessRisk) {
+      const promptRisk = (this.riskStrategy as any).assessRisk(prompt, enhancedContext);
       // Use the assessment for other purposes if needed
     }
 
@@ -427,8 +445,8 @@ export class PromptRegistryAdapter {
       strict: true,
       defaultValues: {
         sessionId: enhancedContext.sessionId ?? '',
-        timestamp: enhancedContext.timestamp ?? new Date().toISOString()
-      }
+        timestamp: enhancedContext.timestamp ?? new Date().toISOString(),
+      },
     };
 
     const promptContent = prompt.content;
@@ -446,8 +464,8 @@ export class PromptRegistryAdapter {
         renderTimeMs,
         enabledStrategies: ['context-provider', 'risk-aware-composition'],
         strategyNotes: riskNotes,
-        memoryItemsLoaded: (enhancedContext.memory?.items.length) ?? 0
-      }
+        memoryItemsLoaded: enhancedContext.memory?.items.length ?? 0,
+      },
     };
   }
 
@@ -459,39 +477,40 @@ export class PromptRegistryAdapter {
     recommendations: string[];
   }> {
     const prompt = this.findPromptById(promptId);
-    
+
     if (!prompt) {
       return {
         profile: null,
-        recommendations: ['Prompt not found, cannot assess risk']
+        recommendations: ['Prompt not found, cannot assess risk'],
       };
     }
 
     const context = await this.contextProvider.prepareContext(prompt, {});
-    const riskProfile = (this.riskStrategy as any)['assessRisk'](prompt, context);
+    const riskProfile = (this.riskStrategy as any).assessRisk(prompt, context);
 
-    const recommendations = riskProfile.tier === RiskTier.HIGH 
-      ? [
-          'Request explicit user approval before proceeding',
-          'Prepare backup strategy',
-          'Run tests in isolation environment',
-          'Document rollback procedure'
-        ]
-      : riskProfile.tier === RiskTier.MEDIUM
-      ? [
-          'Test thoroughly before merging',
-          'Prepare rollback script',
-          'Communicate expected impact'
-        ]
-      : [
-          'Standard testing applies',
-          'Document any unexpected behavior',
-          'Monitor commit history'
-        ];
+    const recommendations =
+      riskProfile.tier === RiskTier.HIGH
+        ? [
+            'Request explicit user approval before proceeding',
+            'Prepare backup strategy',
+            'Run tests in isolation environment',
+            'Document rollback procedure',
+          ]
+        : riskProfile.tier === RiskTier.MEDIUM
+          ? [
+              'Test thoroughly before merging',
+              'Prepare rollback script',
+              'Communicate expected impact',
+            ]
+          : [
+              'Standard testing applies',
+              'Document any unexpected behavior',
+              'Monitor commit history',
+            ];
 
     return {
       profile: riskProfile,
-      recommendations
+      recommendations,
     };
   }
 
@@ -501,7 +520,7 @@ export class PromptRegistryAdapter {
   findPromptsByCategory(category: PromptCategory): PromptDefinition[] {
     const results: PromptDefinition[] = [];
     for (const collection of this.currentIndex.collections) {
-      results.push(...collection.promptDefinitions.filter(p => p.category === category));
+      results.push(...collection.promptDefinitions.filter((p) => p.category === category));
     }
     return results;
   }
@@ -553,7 +572,7 @@ class ConflictLogger {
     this.eventBus.publish(EventType.PROMPT_CONFLICT_RESOLVED, {
       conflictType: conflict.type,
       resolution: conflict.resolution,
-      affectedPrompt: conflict.affectedPrompts[0]
+      affectedPrompt: conflict.affectedPrompts[0],
     });
   }
 }

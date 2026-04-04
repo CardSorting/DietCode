@@ -20,7 +20,7 @@ export enum HookPhase {
   /**
    * After tool execution completes
    */
-  POST_EXECUTION = 'post_execution'
+  POST_EXECUTION = 'post_execution',
 }
 
 /**

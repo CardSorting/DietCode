@@ -88,14 +88,12 @@ export interface ToolRegistry {
    * Search for tools by name and metadata.
    * Pure domain-level operation.
    */
-  search(
-    criteria: {
-      name?: string;
-      operationType?: string;
-      tags?: string[];
-      metadata?: Partial<ToolMetadata>;
-    }
-  ): ToolSearchResult;
+  search(criteria: {
+    name?: string;
+    operationType?: string;
+    tags?: string[];
+    metadata?: Partial<ToolMetadata>;
+  }): ToolSearchResult;
 
   /**
    * Discover tools from multiple sources.

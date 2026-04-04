@@ -1,14 +1,14 @@
 /**
  * [LAYER: DOMAIN]
  * Principle: Pure business logic and types — testable in isolation
- * Prework Status: 
+ * Prework Status:
  *   - Step 0: ✅ Dead code cleared
  *   - Verification: ✅ verify_hardening pass
  *   - Dependency Flow: ✅ Native protocols followed
  * Triaging:
  *   - [NEW] Implements TaskEntity, TaskState, TaskPriority for task scaffolding system
  */
-import * as crypto from 'crypto';
+import * as crypto from 'node:crypto';
 import { ComplianceState, IntegrityAxiom } from './ImplementationSnapshot';
 import type { AxiomProfile } from './ImplementationSnapshot';
 
@@ -35,7 +35,7 @@ export enum TaskState {
   /** Successfully completed and verified */
   DONE = 'DONE',
   /** Execution failed beyond recovery */
-  FAILED = 'FAILED'
+  FAILED = 'FAILED',
 }
 
 /**
@@ -47,7 +47,7 @@ export enum TaskPriority {
   HIGH = 1,
   MEDIUM = 2,
   LOW = 3,
-  PENDING = 4
+  PENDING = 4,
 }
 
 /**
@@ -59,7 +59,7 @@ export enum RequirementType {
   FIX = 'fix',
   REFACTOR = 'refactor',
   DOCUMENTATION = 'documentation',
-  TEST = 'test'
+  TEST = 'test',
 }
 
 /**
@@ -72,34 +72,34 @@ export interface Requirement {
    * Must be globally unique within the task
    */
   uniqueId: string;
-  
+
   /**
    * Human-readable description of what must be implemented
    */
   description: string;
-  
+
   /**
    * Category of this requirement for organizational purposes
    */
   type: RequirementType;
-  
+
   /**
    * Priority level (0=CRITICAL, ... 4=PENDING)
    */
   priority: TaskPriority;
-  
+
   /**
    * Whether this requirement is critically important
    * Critical requirements trigger safetyAlert enforcement
    */
   isCritical: boolean;
-  
+
   /**
    * Section in task.md where this requirement appears
    * Helps match implementation tracking back to source
    */
   section: string;
-  
+
   /**
    * Priority weight (0.0 - 1.0) for complex sorting scenarios
    * Higher priority requirements merged first
@@ -122,67 +122,67 @@ export interface TaskEntity {
    * Unique identifier for this task
    */
   id: TaskId;
-  
+
   /**
    * Human-readable title of the task
    */
   title: string;
-  
+
   /**
    * One-sentence mission statement
    * This is the primary anchor point for drift prevention
    * Required objective compression field
    */
   objective: string;
-  
+
   /**
    * All requirements extracted from task.md
    * Immutable snapshot at task creation time
    */
   requirements: Requirement[];
-  
+
   /**
    * Acceptance criteria for task completion
    * What constitutes success according to task specification
    */
   acceptanceCriteria: string[];
-  
+
   /**
    * Initial context provided when task was created
    * Available to agent for task understanding
    */
   initialContext: string;
-  
+
   /**
    * Current lifecycle state of the task
    */
   state: TaskState;
-  
+
   /**
    * Priority level (guides agent selection and execution order)
    */
   priority: TaskPriority;
-  
+
   /**
    * Axiomatic compliance profile from SHADOW_SIM (Post-Scoring)
    */
   simAxiomProfile?: AxiomProfile;
-  
+
   /**
    * Real-time metabolic telemetry metrics
    */
   vitalsHeartbeat?: VitalsHeartbeat;
-  
+
   /**
    * Final cryptographic verification signature
    */
   vToken?: string;
-  
+
   /**
    * List of constraint violations detected during execution
    */
   constraintViolations: string[];
-  
+
   /**
    * Metadata about task creation and lifecycle events
    */
@@ -274,8 +274,8 @@ export function createTaskEntity(spec: TaskEntityCreationSpec): TaskEntity {
     metadata: {
       createdAt: new Date(),
       updatedAt: new Date(),
-      userAgent: spec.userAgent
-    }
+      userAgent: spec.userAgent,
+    },
   };
 
   validateTaskEntity(entity);
@@ -311,7 +311,7 @@ export function validateTaskEntity(entity: TaskEntity): void {
   // Validate requirement format
   for (const req of entity.requirements) {
     if (!req.uniqueId || req.uniqueId.trim().length === 0) {
-      throw new ValidationError(`Requirement missing uniqueId`);
+      throw new ValidationError('Requirement missing uniqueId');
     }
 
     if (!req.description || req.description.trim().length < 10) {
@@ -375,7 +375,7 @@ const validTaskStates = [
   TaskState.SOVEREIGN_DOING,
   TaskState.VERIFYING,
   TaskState.DONE,
-  TaskState.FAILED
+  TaskState.FAILED,
 ];
 
 /**
@@ -388,13 +388,13 @@ export const EntityState = {
   isState: (state: any): state is TaskState => {
     return validTaskStates.includes(state);
   },
-  
+
   /**
    * Gets valid state values programmatically
    */
   getValidStates: (): TaskState[] => {
     return [...validTaskStates];
-  }
+  },
 };
 
 /**

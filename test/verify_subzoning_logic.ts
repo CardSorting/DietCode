@@ -2,15 +2,15 @@ import { ArchitecturalGuardian } from '../src/domain/architecture/ArchitecturalG
 
 async function test() {
   const currentReport = { score: 100, violations: [] };
-  
+
   // Test 1: Move to layer root (should warn)
   const result1 = await ArchitecturalGuardian.simulateGuard(
     'src/infrastructure/tools/RefactorTools.ts',
     'src/infrastructure/MyNewTool.ts',
-    currentReport
+    currentReport,
   );
   console.log('Test 1 (Root Move):', JSON.stringify(result1, null, 2));
-  if (result1.violations.some(v => v.type === 'SUBZONE_MISSING')) {
+  if (result1.violations.some((v) => v.type === 'SUBZONE_MISSING')) {
     console.log('✅ Test 1 Passed: SUBZONE_MISSING detected.');
   } else {
     console.log('❌ Test 1 Failed: SUBZONE_MISSING not detected.');
@@ -20,7 +20,7 @@ async function test() {
   const result2 = await ArchitecturalGuardian.simulateGuard(
     'src/infrastructure/tools/RefactorTools.ts',
     'src/infrastructure/tools/MyNewTool.ts',
-    currentReport
+    currentReport,
   );
   console.log('Test 2 (Sub-Zone Move):', JSON.stringify(result2, null, 2));
   if (result2.violations.length === 0) {
@@ -33,7 +33,7 @@ async function test() {
   const result3 = await ArchitecturalGuardian.simulateGuard(
     'src/infrastructure/tools/index.ts',
     'src/infrastructure/index.ts',
-    currentReport
+    currentReport,
   );
   if (result3.violations.length === 0) {
     console.log('✅ Test 3 Passed: index.ts allowed in root.');

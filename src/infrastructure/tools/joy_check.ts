@@ -4,50 +4,50 @@
  * Pass 15: JoyCheck CLI — enforces structural integrity thresholds.
  */
 
+import * as path from 'node:path';
 import { IntegrityService } from '../../core/integrity/IntegrityService';
-import { IntegrityAdapter } from '../IntegrityAdapter';
 import { IntegrityPolicy } from '../../domain/memory/IntegrityPolicy';
 import { ConsoleLoggerAdapter } from '../ConsoleLoggerAdapter';
-import * as path from 'path';
+import { IntegrityAdapter } from '../IntegrityAdapter';
 
 async function runAudit() {
-    const projectRoot = process.cwd();
-    const logger = new ConsoleLoggerAdapter();
-    const policy = new IntegrityPolicy();
-    const adapter = new IntegrityAdapter(policy, logger);
-    const service = new IntegrityService(adapter);
+  const projectRoot = process.cwd();
+  const logger = new ConsoleLoggerAdapter();
+  const policy = new IntegrityPolicy();
+  const adapter = new IntegrityAdapter(policy, logger);
+  const service = new IntegrityService(adapter);
 
-    console.log('🛡️  JoyZoning Audit: Starting project-wide scan...');
-    const startTime = Date.now();
-    
-    const report = await service.scan(projectRoot);
-    const duration = Date.now() - startTime;
+  console.log('🛡️  JoyZoning Audit: Starting project-wide scan...');
+  const startTime = Date.now();
 
-    console.log(`\n📊 Audit Results (Completed in ${duration}ms):`);
-    console.log(`-------------------------------------------`);
-    console.log(`Score:       ${report.score >= 90 ? '✅' : '❌'} ${report.score}/100`);
-    console.log(`Files:       ${report.fileCount}`);
-    console.log(`Violations:  ${report.violations.length}`);
-    console.log(`-------------------------------------------\n`);
+  const report = await service.scan(projectRoot);
+  const duration = Date.now() - startTime;
 
-    if (report.violations.length > 0) {
-        console.log('⚠️  Violations Detected:');
-        report.violations.forEach((v, i) => {
-            console.log(`${i + 1}. [${v.severity.toUpperCase()}] ${v.file}: ${v.message}`);
-        });
-    } else {
-        console.log('✨ No architectural violations detected. Codebase is Joyfull.');
-    }
+  console.log(`\n📊 Audit Results (Completed in ${duration}ms):`);
+  console.log('-------------------------------------------');
+  console.log(`Score:       ${report.score >= 90 ? '✅' : '❌'} ${report.score}/100`);
+  console.log(`Files:       ${report.fileCount}`);
+  console.log(`Violations:  ${report.violations.length}`);
+  console.log('-------------------------------------------\n');
 
-    if (report.score < 90) {
-        console.error('\n🚨 ARCHITECTURAL GATE FAILED: Health score is below the 90% threshold.');
-        process.exit(1);
-    }
+  if (report.violations.length > 0) {
+    console.log('⚠️  Violations Detected:');
+    report.violations.forEach((v, i) => {
+      console.log(`${i + 1}. [${v.severity.toUpperCase()}] ${v.file}: ${v.message}`);
+    });
+  } else {
+    console.log('✨ No architectural violations detected. Codebase is Joyfull.');
+  }
 
-    process.exit(0);
+  if (report.score < 90) {
+    console.error('\n🚨 ARCHITECTURAL GATE FAILED: Health score is below the 90% threshold.');
+    process.exit(1);
+  }
+
+  process.exit(0);
 }
 
-runAudit().catch(err => {
-    console.error('❌ Audit Failed Unexpectedly:', err);
-    process.exit(1);
+runAudit().catch((err) => {
+  console.error('❌ Audit Failed Unexpectedly:', err);
+  process.exit(1);
 });

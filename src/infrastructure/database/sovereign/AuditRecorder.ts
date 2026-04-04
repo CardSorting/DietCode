@@ -24,7 +24,7 @@ export class AuditRecorder {
       .values({
         path,
         violation_type: violationType,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       })
       .onConflict((oc: any) => oc.column('path').doUpdateSet({ timestamp: Date.now() }))
       .execute();
@@ -35,13 +35,14 @@ export class AuditRecorder {
    */
   static async recordAudit(type: string, message: string, data?: any): Promise<void> {
     const db = await Core.db();
-    await (db as any).insertInto('audit_log' as any)
+    await (db as any)
+      .insertInto('audit_log' as any)
       .values({
         id: Math.random().toString(36).substring(7),
         type,
         message,
         data: data ? JSON.stringify(data) : null,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       })
       .execute();
   }

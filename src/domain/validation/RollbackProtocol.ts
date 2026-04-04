@@ -1,7 +1,7 @@
 /**
  * [LAYER: DOMAIN]
  * Principle: Pure business logic contracts for state recovery — testable in isolation
- * Prework Status: 
+ * Prework Status:
  *   - Step 0: ✅ Dead code cleared
  *   - Verification: ✅ verify_hardening pass
  *   - Dependency Flow: ✅ Native protocols followed
@@ -18,7 +18,7 @@ export enum RollbackOperationType {
   FILE = 'FILE',
   CONFIGURATION = 'CONFIGURATION',
   DATABASE = 'DATABASE',
-  SNAPSHOT = 'SNAPSHOT'
+  SNAPSHOT = 'SNAPSHOT',
 }
 
 /**
@@ -27,7 +27,7 @@ export enum RollbackOperationType {
 export enum RestoreResult {
   SUCCESS = 'SUCCESS',
   FAILED = 'FAILED',
-  SKIPPED = 'SKIPPED'
+  SKIPPED = 'SKIPPED',
 }
 
 /**
@@ -50,12 +50,12 @@ export interface RollbackOperation {
    * Execute the rollback operation
    */
   restore(): Promise<void>;
-  
+
   /**
    * Get information about this rollback operation
    */
   getRestoreCount(): number;
-  
+
   /**
    * Preview what would be restored
    */
@@ -144,7 +144,7 @@ export interface RollbackAwareSafetyOrchestrator {
   executeWithRollback<T>(
     operation: () => Promise<T>,
     operationContext?: any,
-    safetyPreparation?: boolean
+    safetyPreparation?: boolean,
   ): Promise<{ result: T; rollbackTriggered: boolean }>;
 
   /**

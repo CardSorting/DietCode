@@ -25,7 +25,7 @@ export interface Healer {
    * Get all healing tasks for violations.
    */
   getHealingTasks(violations: VerificationResult[]): Promise<string[]>;
-  
+
   /**
    * Execute healing for a specific violation.
    */

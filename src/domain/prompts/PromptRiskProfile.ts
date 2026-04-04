@@ -3,8 +3,8 @@
  * Principle: Pure business logic for risk assessment and safety categorization
  */
 
-import type { PromptDefinition } from './PromptCategory';
 import type { PromptAudit } from './PromptAudit';
+import type { PromptDefinition } from './PromptCategory';
 
 /**
  * Risk tier classification for prompt executions
@@ -15,7 +15,7 @@ export enum RiskTier {
   /** Moderate risk: shared paths, moderate impact, recoverable */
   MEDIUM = 'medium',
   /** High risk: production data, destructive commands */
-  HIGH = 'high'
+  HIGH = 'high',
 }
 
 /**
@@ -71,8 +71,8 @@ export class SafeguardFactory {
           {
             type: 'testing',
             description: 'Run basic checks on changed behavior',
-            required: true
-          }
+            required: true,
+          },
         ];
 
       case RiskTier.MEDIUM:
@@ -80,13 +80,13 @@ export class SafeguardFactory {
           {
             type: 'testing',
             description: 'Run comprehensive tests for modified paths',
-            required: true
+            required: true,
           },
           {
             type: 'rollback',
             description: 'Prepare rollback script for idempotency',
-            required: true
-          }
+            required: true,
+          },
         ];
 
       case RiskTier.HIGH:
@@ -94,28 +94,28 @@ export class SafeguardFactory {
           {
             type: 'approval',
             description: 'User confirmation required before execution',
-            required: true
+            required: true,
           },
           {
             type: 'backup',
             description: 'Backup affected production systems',
-            required: true
+            required: true,
           },
           {
             type: 'testing',
             description: 'Run full test suite with integration tests',
-            required: true
+            required: true,
           },
           {
             type: 'rollback',
             description: 'Execute rollback plan if verification fails',
-            required: true
+            required: true,
           },
           {
             type: 'isolation',
             description: 'Run in isolated environment/sandbox',
-            required: true
-          }
+            required: true,
+          },
         ];
 
       default:

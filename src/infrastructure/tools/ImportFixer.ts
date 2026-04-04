@@ -5,83 +5,85 @@
  * Pass 18: Zero-Debt Protocol.
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import { execSync } from 'child_process';
+import { execSync } from 'node:child_process';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 export class ImportFixer {
-    private projectRoot: string;
+  private projectRoot: string;
 
-    constructor(projectRoot: string) {
-        this.projectRoot = projectRoot;
+  constructor(projectRoot: string) {
+    this.projectRoot = projectRoot;
+  }
+
+  /**
+   * Fix all relative imports pointing to oldPath, updating them to newPath.
+   */
+  async fixImports(oldPath: string, newPath: string): Promise<{ updatedFiles: string[] }> {
+    const updatedFiles: string[] = [];
+
+    // 1. Get the base name without extension for searching
+    const oldBase = oldPath.replace(/\.ts$/, '');
+    const oldFileName = path.basename(oldBase);
+
+    // 2. Find all files that might contain the import
+    // We search for the filename in the project (greedy but safe)
+    let filesToProcess: string[] = [];
+    try {
+      const grepCmd = `grep -rl "${oldFileName}" ${path.join(this.projectRoot, 'src')}`;
+      const output = execSync(grepCmd, { encoding: 'utf8' });
+      filesToProcess = output.split('\n').filter((f) => f.trim() !== '' && f.endsWith('.ts'));
+    } catch (e) {
+      // No matches found
+      return { updatedFiles: [] };
     }
 
-    /**
-     * Fix all relative imports pointing to oldPath, updating them to newPath.
-     */
-    async fixImports(oldPath: string, newPath: string): Promise<{ updatedFiles: string[] }> {
-        const updatedFiles: string[] = [];
-        
-        // 1. Get the base name without extension for searching
-        const oldBase = oldPath.replace(/\.ts$/, '');
-        const oldFileName = path.basename(oldBase);
+    for (const importerAbs of filesToProcess) {
+      if (importerAbs === path.resolve(this.projectRoot, newPath)) continue;
 
-        // 2. Find all files that might contain the import
-        // We search for the filename in the project (greedy but safe)
-        let filesToProcess: string[] = [];
-        try {
-            const grepCmd = `grep -rl "${oldFileName}" ${path.join(this.projectRoot, 'src')}`;
-            const output = execSync(grepCmd, { encoding: 'utf8' });
-            filesToProcess = output.split('\n').filter(f => f.trim() !== '' && f.endsWith('.ts'));
-        } catch (e) {
-            // No matches found
-            return { updatedFiles: [] };
-        }
+      const content = fs.readFileSync(importerAbs, 'utf8');
+      const importerDir = path.dirname(importerAbs);
 
-        for (const importerAbs of filesToProcess) {
-            if (importerAbs === path.resolve(this.projectRoot, newPath)) continue;
+      // 3. Regex to find relative imports
+      // Matches: import ... from './oldPath' or require('./oldPath')
+      // This is tricky because we need to match the specific relative path
 
-            let content = fs.readFileSync(importerAbs, 'utf8');
-            const importerDir = path.dirname(importerAbs);
-            
-            // 3. Regex to find relative imports
-            // Matches: import ... from './oldPath' or require('./oldPath')
-            // This is tricky because we need to match the specific relative path
-            
-            const lines = content.split('\n');
-            let modified = false;
+      const lines = content.split('\n');
+      let modified = false;
 
-            const newContent = lines.map(line => {
-                const importMatch = line.match(/(import|from|require)\s*['"](\.?\.\/.*)['"]/);
-                if (importMatch && importMatch[2]) {
-                    const relativePath = importMatch[2];
-                    const absImported = path.resolve(importerDir, relativePath);
-                    const absOld = path.resolve(this.projectRoot, oldBase);
+      const newContent = lines
+        .map((line) => {
+          const importMatch = line.match(/(import|from|require)\s*['"](\.?\.\/.*)['"]/);
+          if (importMatch?.[2]) {
+            const relativePath = importMatch[2];
+            const absImported = path.resolve(importerDir, relativePath);
+            const absOld = path.resolve(this.projectRoot, oldBase);
 
-                    // If they match (ignoring extension), we need to update it
-                    if (absImported === absOld) {
-                        const newTargetAbs = path.resolve(this.projectRoot, newPath.replace(/\.ts$/, ''));
-                        let newRelative = path.relative(importerDir, newTargetAbs);
-                        
-                        if (newRelative && !newRelative.startsWith('.')) {
-                            newRelative = './' + newRelative;
-                        }
-                        
-                        if (newRelative) {
-                            modified = true;
-                            return line.replace(relativePath, newRelative);
-                        }
-                    }
-                }
-                return line;
-            }).join('\n');
+            // If they match (ignoring extension), we need to update it
+            if (absImported === absOld) {
+              const newTargetAbs = path.resolve(this.projectRoot, newPath.replace(/\.ts$/, ''));
+              let newRelative = path.relative(importerDir, newTargetAbs);
 
-            if (modified) {
-                fs.writeFileSync(importerAbs, newContent, 'utf8');
-                updatedFiles.push(path.relative(this.projectRoot, importerAbs));
+              if (newRelative && !newRelative.startsWith('.')) {
+                newRelative = `./${newRelative}`;
+              }
+
+              if (newRelative) {
+                modified = true;
+                return line.replace(relativePath, newRelative);
+              }
             }
-        }
+          }
+          return line;
+        })
+        .join('\n');
 
-        return { updatedFiles };
+      if (modified) {
+        fs.writeFileSync(importerAbs, newContent, 'utf8');
+        updatedFiles.push(path.relative(this.projectRoot, importerAbs));
+      }
     }
+
+    return { updatedFiles };
+  }
 }

@@ -4,7 +4,7 @@
  * Violations: None
  */
 
-import type { FileReadResult } from "./FileOperation"
+import type { FileReadResult } from './FileOperation';
 
 /**
  * Metadata for a file signature used for context optimization
@@ -25,30 +25,30 @@ export interface SignatureDatabase {
   /**
    * Check if a file signature exists and is valid
    */
-  hasValidSignature(filePath: string): boolean
+  hasValidSignature(filePath: string): boolean;
 
   /**
    * Retrieve a signature for a file
    */
-  getSignature(filePath: string): FileReadResult | null
+  getSignature(filePath: string): FileReadResult | null;
 
   /**
    * Record a new signature for a file read
    */
-  recordSignature(filePath: string, result: FileReadResult): void
+  recordSignature(filePath: string, result: FileReadResult): void;
 
   /**
    * List all currently tracked signatures
    */
-  listSignatures(): FileReadResult[]
+  listSignatures(): FileReadResult[];
 
   /**
    * Clear all signatures (e.g., on session reset)
    */
-  clear(): void
+  clear(): void;
 
   /**
    * Prune old or invalid signatures to manage space
    */
-  prune(maxAgeMs: number): void
+  prune(maxAgeMs: number): void;
 }

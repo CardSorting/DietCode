@@ -25,7 +25,7 @@ export enum EventType {
   TOOL_CALL_FAILURE = 'tool_call_failure',
   ATTACHMENT_RESOLVED = 'attachment_resolved',
   ERROR = 'error',
-  
+
   // Prompt System Events
   PROMPT_REGISTERED = 'prompt_registered',
   PROMPT_ASSEMBLED = 'prompt_assembled',

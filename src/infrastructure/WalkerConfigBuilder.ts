@@ -1,7 +1,7 @@
 /**
  * [LAYER: INFRASTRUCTURE]
  * Principle: Infrastructure implementation of FileWalkerConfig builder
- * 
+ *
  * Inspired by: ForgeWalker's WalkerConfigBuilder with preset strategies
  */
 
@@ -10,7 +10,7 @@ import { FileWalkerStrategy } from '../domain/system/FileWalkerOptions';
 
 /**
  * Fluent builder for FileWalker configuration
- * 
+ *
  * Usage:
  * ```typescript
  * const config = WalkerConfigBuilder.minimal()

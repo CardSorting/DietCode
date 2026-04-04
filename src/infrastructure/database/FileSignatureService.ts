@@ -16,16 +16,14 @@ export class FileSignatureService {
     try {
       const content = await readFile(filePath);
       const fileStat = await stat(filePath);
-      
-      const hash = createHash('sha256')
-        .update(content)
-        .digest('hex');
+
+      const hash = createHash('sha256').update(content).digest('hex');
 
       return {
         hash,
         algorithm: 'sha256',
         timestamp: Date.now(),
-        size: fileStat.size
+        size: fileStat.size,
       };
     } catch (error) {
       // File likely deleted or inaccessible

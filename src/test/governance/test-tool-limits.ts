@@ -1,13 +1,13 @@
-import { ResourceGovernor, GovernanceAction } from '../../core/capabilities/ResourceGovernor';
+import { GovernanceAction, ResourceGovernor } from '../../core/capabilities/ResourceGovernor';
 
 async function testToolLimits() {
   console.log('🧪 Running Governance Tool Limits Test...');
-  
+
   const governor = new ResourceGovernor({
     maxToolCalls: 5,
     pauseThreshold: 3,
     maxConsecutiveFailures: 2,
-    maxTotalDurationMs: 1000 // 1 second
+    maxTotalDurationMs: 1000, // 1 second
   });
 
   // 1. Test Pause Threshold
@@ -15,13 +15,13 @@ async function testToolLimits() {
   governor.recordResult('read_file', true, 100);
   governor.recordInvocation('write_file');
   governor.recordResult('write_file', true, 100);
-  
+
   let result = governor.shouldProceed('read_file');
   console.log(`Resource count 2, action: ${result.action}`);
 
   governor.recordInvocation('read_file');
   governor.recordResult('read_file', true, 100);
-  
+
   result = governor.shouldProceed('read_file');
   console.log(`Resource count 3, action: ${result.action} (Reason: ${result.reason})`);
   if (result.action !== GovernanceAction.PAUSE) {
@@ -33,7 +33,7 @@ async function testToolLimits() {
   governor.recordResult('read_file', true, 100);
   governor.recordInvocation('read_file');
   governor.recordResult('read_file', true, 100);
-  
+
   result = governor.shouldProceed('read_file');
   console.log(`Resource count 5, action: ${result.action} (Reason: ${result.reason})`);
   if (result.action !== GovernanceAction.BLOCK) {
@@ -46,7 +46,7 @@ async function testToolLimits() {
   governor.recordResult('bad_tool', false, 10);
   governor.recordInvocation('bad_tool');
   governor.recordResult('bad_tool', false, 10);
-  
+
   result = governor.shouldProceed('bad_tool');
   console.log(`Consecutive failures 2, action: ${result.action} (Reason: ${result.reason})`);
   if (result.action !== GovernanceAction.BLOCK) {
@@ -56,7 +56,7 @@ async function testToolLimits() {
   console.log('\n✨ GOVERNANCE TOOL LIMITS VERIFIED! ✨');
 }
 
-testToolLimits().catch(err => {
+testToolLimits().catch((err) => {
   console.error('💥 Error during test:', err);
   process.exit(1);
 });

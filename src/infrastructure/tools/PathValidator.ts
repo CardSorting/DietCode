@@ -5,7 +5,7 @@
  * Production-hardened against path traversal, injection, and resource exhaustion.
  */
 
-import * as nodePath from 'path';
+import * as nodePath from 'node:path';
 
 /** Maximum path length to prevent buffer-based attacks */
 const MAX_PATH_LENGTH = 4096;
@@ -40,14 +40,28 @@ const FORBIDDEN_PREFIXES: readonly string[] = [
  * Only files with these extensions are read during grep fallback.
  */
 export const SAFE_EXTENSIONS: ReadonlySet<string> = new Set([
-  '.ts', '.tsx', '.js', '.jsx', '.json',
-  '.md', '.txt', '.sql',
-  '.yaml', '.yml',
-  '.css', '.scss',
-  '.html', '.xml',
-  '.log', '.env',
-  '.toml', '.ini', '.cfg',
-  '.sh', '.bash', '.zsh',
+  '.ts',
+  '.tsx',
+  '.js',
+  '.jsx',
+  '.json',
+  '.md',
+  '.txt',
+  '.sql',
+  '.yaml',
+  '.yml',
+  '.css',
+  '.scss',
+  '.html',
+  '.xml',
+  '.log',
+  '.env',
+  '.toml',
+  '.ini',
+  '.cfg',
+  '.sh',
+  '.bash',
+  '.zsh',
 ] as const);
 
 /**
@@ -82,7 +96,7 @@ export class PathValidationError extends Error {
   constructor(
     message: string,
     public readonly code: PathValidationErrorCode,
-    public readonly path: string
+    public readonly path: string,
   ) {
     super(message);
     this.name = 'PathValidationError';
@@ -104,24 +118,16 @@ export class PathValidationError extends Error {
  */
 export function validatePath(
   inputPath: string,
-  operation: 'read' | 'write' | 'search' | 'mkdir'
+  operation: 'read' | 'write' | 'search' | 'mkdir',
 ): void {
   // 1. Null/empty check
   if (!inputPath || inputPath.trim().length === 0) {
-    throw new PathValidationError(
-      'Path is required',
-      'EMPTY_PATH',
-      inputPath ?? ''
-    );
+    throw new PathValidationError('Path is required', 'EMPTY_PATH', inputPath ?? '');
   }
 
   // 2. Null byte injection (can truncate paths in C-backed syscalls)
   if (inputPath.includes('\0')) {
-    throw new PathValidationError(
-      'Path contains null bytes',
-      'NULL_BYTES',
-      inputPath
-    );
+    throw new PathValidationError('Path contains null bytes', 'NULL_BYTES', inputPath);
   }
 
   // 3. Length check
@@ -129,7 +135,7 @@ export function validatePath(
     throw new PathValidationError(
       `Path exceeds maximum length of ${MAX_PATH_LENGTH} characters`,
       'PATH_TOO_LONG',
-      inputPath
+      inputPath,
     );
   }
 
@@ -138,31 +144,26 @@ export function validatePath(
     throw new PathValidationError(
       `Path too short (${inputPath.length} characters). Minimum 2 required.`,
       'PATH_TOO_SHORT',
-      inputPath
+      inputPath,
     );
   }
 
   // 5. Path traversal detection — normalize first to catch encoded forms
   const normalized = nodePath.normalize(inputPath);
   if (normalized.includes('..')) {
-    throw new PathValidationError(
-      'Path traversal (..) detected',
-      'PATH_TRAVERSAL',
-      inputPath
-    );
+    throw new PathValidationError('Path traversal (..) detected', 'PATH_TRAVERSAL', inputPath);
   }
 
   // 6. Forbidden system path prefixes (exact canonical match only)
   const normalizedLower = normalized.toLowerCase();
   const forbidden = FORBIDDEN_PREFIXES.find(
-    prefix => normalizedLower === prefix.replace(/\/$/, '') ||
-              normalizedLower.startsWith(prefix)
+    (prefix) => normalizedLower === prefix.replace(/\/$/, '') || normalizedLower.startsWith(prefix),
   );
   if (forbidden) {
     throw new PathValidationError(
       `Access to system path '${forbidden}' is forbidden`,
       'FORBIDDEN_LOCATION',
-      inputPath
+      inputPath,
     );
   }
 }
@@ -180,7 +181,7 @@ export function validatePath(
 export function shellEscape(input: string): string {
   if (input.length === 0) return "''";
   // Replace single quotes with '\'' (end quote, escaped quote, start quote)
-  return "'" + input.replace(/'/g, "'\\''") + "'";
+  return `'${input.replace(/'/g, "'\\''")}'`;
 }
 
 /**

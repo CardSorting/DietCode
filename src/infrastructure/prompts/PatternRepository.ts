@@ -31,8 +31,8 @@ export class PatternRepository {
    * Get patterns by category (safety, tooling, memory, agent)
    */
   static getPatternsByCategory(category: string): PatternMapping[] {
-    return getAllPatterns().filter(p =>
-      p.patternName.toLowerCase().includes(category.toLowerCase())
+    return getAllPatterns().filter((p) =>
+      p.patternName.toLowerCase().includes(category.toLowerCase()),
     );
   }
 
@@ -46,7 +46,7 @@ export class PatternRepository {
       verification: 90,
       tooling: 70,
       context: 40,
-      agent: 60
+      agent: 60,
     };
 
     return getAllPatterns().sort((a, b) => {
@@ -62,18 +62,14 @@ export class PatternRepository {
    * Get patterns that need backend support (require I/O operations)
    */
   static getPatternsRequiringInfrastructure(): PatternMapping[] {
-    return getAllPatterns().filter(p =>
-      p.infrastructureElement !== undefined
-    );
+    return getAllPatterns().filter((p) => p.infrastructureElement !== undefined);
   }
 
   /**
    * Get patterns that provide Core layer orchestration
    */
   static getPatternsRequiringCore(): PatternMapping[] {
-    return getAllPatterns().filter(p =>
-      p.coreElement !== undefined
-    );
+    return getAllPatterns().filter((p) => p.coreElement !== undefined);
   }
 
   /**
@@ -84,16 +80,17 @@ export class PatternRepository {
     missing: Array<{ pattern: string; element: 'Domain' | 'Infrastructure' | 'Core' }>;
   } {
     const missing: Array<{ pattern: string; element: 'Domain' | 'Infrastructure' | 'Core' }> = [];
-    
+
     for (const [name, pattern] of PATTERN_REGISTRY.entries()) {
       if (!pattern.domainElement) missing.push({ pattern: name, element: 'Domain' });
-      if (!pattern.infrastructureElement) missing.push({ pattern: name, element: 'Infrastructure' });
+      if (!pattern.infrastructureElement)
+        missing.push({ pattern: name, element: 'Infrastructure' });
       if (!pattern.coreElement) missing.push({ pattern: name, element: 'Core' });
     }
 
     return {
       valid: missing.length === 0,
-      missing
+      missing,
     };
   }
 
@@ -120,16 +117,21 @@ export class PatternRepository {
       verification: 0,
       tooling: 0,
       context: 0,
-      agent: 0
+      agent: 0,
     };
 
     for (const pattern of getAllPatterns()) {
-      const category = pattern.patternName.toLowerCase().includes('safety') ? 'safety' :
-                       pattern.patternName.toLowerCase().includes('verification') ? 'verification' :
-                       pattern.patternName.toLowerCase().includes('tool') ? 'tooling' :
-                       pattern.patternName.toLowerCase().includes('context') ? 'context' :
-                       pattern.patternName.toLowerCase().includes('agent') ? 'agent' :
-                       'other';
+      const category = pattern.patternName.toLowerCase().includes('safety')
+        ? 'safety'
+        : pattern.patternName.toLowerCase().includes('verification')
+          ? 'verification'
+          : pattern.patternName.toLowerCase().includes('tool')
+            ? 'tooling'
+            : pattern.patternName.toLowerCase().includes('context')
+              ? 'context'
+              : pattern.patternName.toLowerCase().includes('agent')
+                ? 'agent'
+                : 'other';
 
       if (counts[category] !== undefined) {
         counts[category]++;

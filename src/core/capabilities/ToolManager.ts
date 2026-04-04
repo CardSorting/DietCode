@@ -2,29 +2,37 @@
  * [LAYER: CORE]
  * Principle: Orchestration, task coordination, prompt assembly
  * Violations: None
- * 
+ *
  * Manages the registration and execution of tools.
  * Coordinates between Domain definitions and Infrastructure implementations.
  * Uses new Domain contracts: ToolRegistry, ToolExecutor, ToolFactory
  */
 
-import type { ToolDefinition, ToolResult } from '../../domain/agent/ToolDefinition';
-import { EventBus } from '../orchestration/EventBus';
 import { EventType } from '../../domain/Event';
-import type { ToolRouter } from '../../domain/capabilities/ToolRouter';
-import { RiskLevel } from '../../domain/validation/RiskLevel';
-import type { SafetyAwareToolContext, SafetyAwareToolOptions } from '../../domain/capabilities/SafetyAwareToolExecution';
-import type { RollbackProtocol } from '../../domain/validation/RollbackProtocol';
-import { SafetyGuard } from './SafetyGuard';
-import type { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
+import type { ToolDefinition, ToolResult } from '../../domain/agent/ToolDefinition';
 import type { ToolDefinition as DomainToolDefinition } from '../../domain/agent/ToolDefinition';
-import type { HookOrchestrator } from '../manager/HookOrchestrator';
-import type { LockScope, LockResult } from '../../domain/safety/LockScope';
-import { LockOrchestrator } from '../manager/LockOrchestrator';
+import type {
+  SafetyAwareToolContext,
+  SafetyAwareToolOptions,
+} from '../../domain/capabilities/SafetyAwareToolExecution';
+import type { ToolRouter } from '../../domain/capabilities/ToolRouter';
+import type { LockResult, LockScope } from '../../domain/safety/LockScope';
+import type { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
+import { RiskLevel } from '../../domain/validation/RiskLevel';
+import type { RollbackProtocol } from '../../domain/validation/RollbackProtocol';
 import { FileContextTracker } from '../context/FileContextTracker.ts';
 import { RuleContextBuilder } from '../context/RuleContextBuilder.ts';
-import { ResourceGovernor, GovernanceAction } from './ResourceGovernor';
+import type { HookOrchestrator } from '../manager/HookOrchestrator';
+import type { LockOrchestrator } from '../manager/LockOrchestrator';
+import { EventBus } from '../orchestration/EventBus';
 import { ExecutionGovernor } from './ExecutionGovernor';
+import { GovernanceAction, ResourceGovernor } from './ResourceGovernor';
+import type { SafetyGuard } from './SafetyGuard';
+
+/**
+ * Type for error information in tool execution
+ */
+type ToolExecutionError = Error & { message: string };
 
 /**
  * ToolManager orchestrates tool registration and execution
@@ -73,7 +81,7 @@ export class ToolManager {
    * Pattern: Tool Selection Router - when a purpose-built tool exists, use it
    */
   async routeTool(
-    operationType: string
+    operationType: string,
   ): Promise<{ toolName: string; matchesCriteria: boolean } | null> {
     if (!this.toolRouter) {
       console.warn('⚠️  ToolRouter not initialized. Cannot route tool.');
@@ -84,12 +92,12 @@ export class ToolManager {
       const routeResult = await this.toolRouter.route({
         operationType,
         target: undefined,
-        parameters: undefined
+        parameters: undefined,
       });
 
       return {
         toolName: routeResult.tool.name,
-        matchesCriteria: routeResult.matchesCriteria
+        matchesCriteria: routeResult.matchesCriteria,
       };
     } catch (error) {
       console.error(`❌ Tool routing failed: ${error}`);
@@ -107,7 +115,7 @@ export class ToolManager {
   /**
    * Override safety components for modular integration
    * Called by ExecutionService during system initialization
-   * 
+   *
    * @param toolRouter Optional tool router for smart routing
    * @param safetyGuard Optional SafetyGuard instance (RiskEvaluator injected via closure)
    * @param riskEvaluator Risk evaluation engine from Domain
@@ -117,7 +125,7 @@ export class ToolManager {
     toolRouter?: ToolRouter,
     safetyGuard?: SafetyGuard,
     riskEvaluator?: RiskEvaluator,
-    rollbackProtocol?: RollbackProtocol
+    rollbackProtocol?: RollbackProtocol,
   ): void {
     this.toolRouter = toolRouter;
     this.safetyGuard = safetyGuard;
@@ -136,13 +144,11 @@ export class ToolManager {
   /**
    * Configure hooks for pre-tool execution pipeline
    * Maps to Cline's hook-driven architecture
-   * 
+   *
    * @param hookOrchestrator Hook orchestration pipeline
    * @deprecated Prefer configureHooksSync for type safety
    */
-  configureHooks(
-    hookOrchestrator: HookOrchestrator
-  ): void {
+  configureHooks(hookOrchestrator: HookOrchestrator): void {
     this.hookOrchestrator = hookOrchestrator;
     console.log('🔗 Hooks configured for tool execution');
   }
@@ -150,13 +156,13 @@ export class ToolManager {
   /**
    * Configure hooks and locks synchronously (recommended for type safety)
    * Integrates with Cline's multi-phase execution model
-   * 
+   *
    * @param hookOrchestrator Hook orchestration pipeline for pre/cancel hooks
    * @param lockOrchestrator Distributed lock coordination for dangerous operations
    */
   configureHooksSync(
     hookOrchestrator: HookOrchestrator,
-    lockOrchestrator?: LockOrchestrator
+    lockOrchestrator?: LockOrchestrator,
   ): void {
     this.hookOrchestrator = hookOrchestrator;
     this.lockOrchestrator = lockOrchestrator;
@@ -166,10 +172,7 @@ export class ToolManager {
   /**
    * Lock execution scope before tool runs (Cline-style pre-tool locking)
    */
-  async acquireToolLock(
-    operation: string,
-    timeoutMs: number = 60000
-  ): Promise<LockResult> {
+  async acquireToolLock(operation: string, timeoutMs = 60000): Promise<LockResult> {
     if (!this.lockOrchestrator) {
       console.warn('⚠️  LockOrchestrator not configured, skipping lock acquisition');
       return { success: true };
@@ -179,19 +182,20 @@ export class ToolManager {
       taskId: 'tool-execution',
       operation,
       timeoutMs,
-      autoRelease: true
+      autoRelease: true,
     };
 
     try {
       const ticket = await this.lockOrchestrator.acquire(scope, timeoutMs);
       console.log(`🔒 Tool lock acquired: ${operation} (ID: ${ticket.id})`);
       return { success: true, ticket };
-    } catch (error: any) {
-      console.warn(`⚠️  Lock acquisition failed: ${error.message}`);
-      return { 
-        success: false, 
+    } catch (error: unknown) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      console.warn(`⚠️  Lock acquisition failed: ${err.message}`);
+      return {
+        success: false,
         error: error.message,
-        reason: 'timeout' 
+        reason: 'timeout',
       };
     }
   }
@@ -210,8 +214,9 @@ export class ToolManager {
 
       console.log(`✅ Pre-tool hooks passed: ${toolName}`);
       return true;
-    } catch (error: any) {
-      console.error(`⚠️  Pre-tool hooks error:`, error);
+    } catch (error: unknown) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      console.error('⚠️  Pre-tool hooks error:', err);
       return false;
     }
   }
@@ -219,7 +224,7 @@ export class ToolManager {
   /**
    * Execute a tool-based action with safety context
    * Pattern: Safety-enveloped execution - wraps tool execution with safety checks
-   * 
+   *
    * @param name Tool name
    * @param input Tool parameters
    * @param options Safety configuration options
@@ -228,10 +233,10 @@ export class ToolManager {
   async executeWithSafety<T>(
     name: string,
     input: T,
-    options: SafetyAwareToolOptions = {}
+    options: SafetyAwareToolOptions = {},
   ): Promise<SafetyAwareToolContext> {
     const startTime = Date.now();
-    const correlationId = 'task-' + Date.now();
+    const correlationId = `task-${Date.now()}`;
 
     // Context initialization
     let safetyCheck = {
@@ -240,7 +245,7 @@ export class ToolManager {
       approved: false,
       requiresConfirmation: false,
       rollbackPrepared: false,
-      safeguardsApplied: [] as string[]
+      safeguardsApplied: [] as string[],
     };
 
     const tool = this.getTool(name);
@@ -251,7 +256,7 @@ export class ToolManager {
         toolName: name,
         toolResult: {
           content: `Tool '${name}' not found.`,
-          isError: true
+          isError: true,
         },
         safetyCheck: {
           evaluated: false,
@@ -259,13 +264,13 @@ export class ToolManager {
           approved: false,
           requiresConfirmation: false,
           rollbackPrepared: false,
-          safeguardsApplied: []
+          safeguardsApplied: [],
         },
         execution: {
           startTime: Date.now(),
           endTime: Date.now(),
-          durationMs: 0
-        }
+          durationMs: 0,
+        },
       };
     }
 
@@ -281,13 +286,17 @@ export class ToolManager {
     if (governance.action === GovernanceAction.BLOCK) {
       const errorMsg = `🛑 [GOVERNANCE] Tool execution BLOCKED: ${governance.reason}`;
       console.error(errorMsg);
-      this.eventBus.publish(EventType.TOOL_FAILED, { toolName: name, error: errorMsg }, { correlationId });
+      this.eventBus.publish(
+        EventType.TOOL_FAILED,
+        { toolName: name, error: errorMsg },
+        { correlationId },
+      );
       return {
         success: false,
         toolName: name,
         toolResult: { content: errorMsg, isError: true },
         safetyCheck,
-        execution: { startTime, endTime: Date.now(), durationMs: 0 }
+        execution: { startTime, endTime: Date.now(), durationMs: 0 },
       };
     }
 
@@ -308,33 +317,38 @@ export class ToolManager {
         toolName: name,
         toolResult: { content: errorMsg, isError: true },
         safetyCheck,
-        execution: { startTime, endTime: Date.now(), durationMs: 0 }
+        execution: { startTime, endTime: Date.now(), durationMs: 0 },
       };
     }
 
     // Phase 1: Evaluate safety if SafetyGuard configured
     try {
       if (this.safetyGuard) {
-        const safetyEval = await this.safetyGuard.evaluateToolSafety(name, input as Record<string, any>);
-        
+        const safetyEval = await this.safetyGuard.evaluateToolSafety(
+          name,
+          input as Record<string, unknown>,
+        );
+
         safetyCheck = {
           evaluated: true,
           riskLevel: safetyEval.riskLevel,
           approved: safetyEval.isSafe,
           requiresConfirmation: safetyEval.requiresApproval,
-          rollbackPrepared: Boolean(options.backupBeforeModification) && (safetyEval.riskLevel === RiskLevel.MEDIUM || safetyEval.riskLevel === RiskLevel.HIGH),
+          rollbackPrepared:
+            Boolean(options.backupBeforeModification) &&
+            (safetyEval.riskLevel === RiskLevel.MEDIUM || safetyEval.riskLevel === RiskLevel.HIGH),
           safeguardsApplied: [
-            Boolean(options.requireApprovalForHighRisk) ? 'Approval check' : '',
+            options.requireApprovalForHighRisk ? 'Approval check' : '',
             ...(safetyCheck.safeguardsApplied || []),
             safetyCheck.rollbackPrepared ? 'Backup prepared' : '',
-            'Tool execution protected'
-          ].filter(Boolean) as string[]
+            'Tool execution protected',
+          ].filter(Boolean) as string[],
         };
 
         console.log(`🛡️  Safety check: ${safetyEval.riskLevel} - Approved: ${safetyEval.isSafe}`);
       }
     } catch (safetyError) {
-      console.error(`⚠️ Safety evaluation encountered error, proceeding with default:`, safetyError);
+      console.error('⚠️ Safety evaluation encountered error, proceeding with default:', safetyError);
     }
 
     // Execution Phase: Execute tool with ExecutionGovernor for resiliency
@@ -344,33 +358,41 @@ export class ToolManager {
         () => tool.execute(input),
         {
           timeoutMs: 60000,
-          maxRetries: 3
-        }
+          maxRetries: 3,
+        },
       );
-      
+
       const durationMs = Date.now() - startTime;
-      
+
       // Record governance metrics
       this.governor.recordResult(name, !result.isError, durationMs);
 
       if (result.isError) {
-        this.eventBus.publish(EventType.TOOL_FAILED, { 
-          toolName: name, 
-          error: result.content 
-        }, { 
-          correlationId,
-          durationMs 
-        });
-        
+        this.eventBus.publish(
+          EventType.TOOL_FAILED,
+          {
+            toolName: name,
+            error: result.content,
+          },
+          {
+            correlationId,
+            durationMs,
+          },
+        );
+
         // Auto-rollback on tool failure if safety configured
         if (safetyCheck.rollbackPrepared && options.targetPath) {
           console.log(`♻️ Rollback triggered for: ${options.targetPath}`);
         }
       } else {
-        this.eventBus.publish(EventType.TOOL_COMPLETED, { toolName: name }, { 
-          correlationId,
-          durationMs 
-        });
+        this.eventBus.publish(
+          EventType.TOOL_COMPLETED,
+          { toolName: name },
+          {
+            correlationId,
+            durationMs,
+          },
+        );
       }
 
       // Cline Phase: Execute POST_EXECUTION hooks
@@ -387,30 +409,33 @@ export class ToolManager {
         execution: {
           startTime,
           endTime: Date.now(),
-          durationMs
-        }
+          durationMs,
+        },
       };
-
-    } catch (executionError: any) {
+    } catch (executionError: unknown) {
       const durationMs = Date.now() - startTime;
-      
+
       // Record governance metrics for failure
       this.governor.recordResult(name, false, durationMs);
 
-      this.eventBus.publish(EventType.TOOL_FAILED, { 
-        toolName: name, 
-        error: executionError.message 
-      }, { 
-        correlationId,
-        durationMs 
-      });
+      this.eventBus.publish(
+        EventType.TOOL_FAILED,
+        {
+          toolName: name,
+          error: executionError.message,
+        },
+        {
+          correlationId,
+          durationMs,
+        },
+      );
 
       return {
         success: false,
         toolName: name,
         toolResult: {
           content: `Error executing tool '${name}': ${executionError.message}`,
-          isError: true
+          isError: true,
         },
         safetyCheck: {
           evaluated: safetyCheck.evaluated,
@@ -420,14 +445,14 @@ export class ToolManager {
           rollbackPrepared: safetyCheck.rollbackPrepared,
           safeguardsApplied: [
             ...(safetyCheck.safeguardsApplied || []),
-            `Execution failed: ${executionError.message}`
-          ]
+            `Execution failed: ${executionError.message}`,
+          ],
         },
         execution: {
           startTime,
           endTime: Date.now(),
-          durationMs
-        }
+          durationMs,
+        },
       };
     }
   }
@@ -435,10 +460,10 @@ export class ToolManager {
   /**
    * Execute a tool without safety envelope (legacy mode)
    * Used when safety is not enabled or requested
-   * 
+   *
    * @deprecated Use executeWithSafety() for safety-aware execution
    */
-  async executeTool(name: string, input: any): Promise<ToolResult> {
+  async executeTool<T = unknown>(name: string, input: T): Promise<ToolResult> {
     const tool = this.getTool(name);
     if (!tool) {
       this.eventBus.emit(EventType.TOOL_FAILED, { name, error: 'Tool not found' });
@@ -454,15 +479,16 @@ export class ToolManager {
     try {
       const result = await tool.execute(input);
       const durationMs = Date.now() - startTime;
-      
+
       if (result.isError) {
         this.eventBus.emit(EventType.TOOL_FAILED, { name, error: result.content }, { durationMs });
       } else {
         this.eventBus.emit(EventType.TOOL_COMPLETED, { name }, { durationMs });
       }
-      
+
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error instanceof Error ? error : new Error(String(error));
       const durationMs = Date.now() - startTime;
       this.eventBus.emit(EventType.TOOL_FAILED, { name, error: error.message }, { durationMs });
       return {
@@ -482,17 +508,17 @@ export class ToolManager {
   /**
    * Get safety status for diagnostics
    */
-  getDiagnostics(): any {
+  getDiagnostics(): Record<string, boolean> {
     return {
       safetyGuard: this.safetyGuard !== undefined,
       toolRouter: this.toolRouter !== undefined,
       riskEvaluator: this.riskEvaluator !== undefined,
       rollbackProtocol: this.rollbackManager !== undefined,
-      isFullyConfigured: this.safetyGuard !== undefined
+      isFullyConfigured: this.safetyGuard !== undefined,
     };
   }
 
   private sanitizeArray(arr: string[]): string[] {
-    return arr.filter(item => item !== null && item !== '');
+    return arr.filter((item) => item !== null && item !== '');
   }
 }

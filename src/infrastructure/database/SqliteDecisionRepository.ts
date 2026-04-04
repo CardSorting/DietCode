@@ -3,8 +3,8 @@
  * Principle: Implementation of DecisionRepository using BufferedDbPool.
  */
 
-import { Core } from './sovereign/Core';
 import type { DecisionRepository } from '../../domain/memory/DecisionRepository';
+import { Core } from './sovereign/Core';
 
 export class SqliteDecisionRepository implements DecisionRepository {
   async recordDecision(
@@ -13,7 +13,7 @@ export class SqliteDecisionRepository implements DecisionRepository {
     repoPath: string,
     decision: string,
     rationale: string,
-    knowledgeIds: string[] = []
+    knowledgeIds: string[] = [],
   ): Promise<void> {
     await Core.push({
       type: 'insert',
@@ -27,7 +27,7 @@ export class SqliteDecisionRepository implements DecisionRepository {
         rationale,
         knowledgeIds: JSON.stringify(knowledgeIds),
         timestamp: Date.now(),
-      }
+      },
     });
   }
 
@@ -35,10 +35,10 @@ export class SqliteDecisionRepository implements DecisionRepository {
     userId: string,
     type: string,
     content: string,
-    metadata: Record<string, any> = {}
+    metadata: Record<string, any> = {},
   ): Promise<string> {
     const id = globalThis.crypto.randomUUID();
-    
+
     await Core.push({
       type: 'insert',
       table: 'knowledge',
@@ -50,10 +50,9 @@ export class SqliteDecisionRepository implements DecisionRepository {
         confidence: 1.0,
         metadata: JSON.stringify(metadata),
         createdAt: Date.now(),
-      }
+      },
     });
-    
+
     return id;
   }
 }
-

@@ -3,13 +3,13 @@
  * Principle: Orchestrates context loading and injection for prompts
  */
 
-import type { MemoryService } from '../memory/MemoryService';
-import type { ContextService } from '../context/ContextService';
 import type { KnowledgeItem } from '../../domain/memory/Knowledge';
 import type { PromptDefinition } from '../../domain/prompts/PromptCategory';
+import type { ContextAwareStrategy } from '../../domain/prompts/PromptCompositionStrategy';
 import type { TemplateContext } from '../../domain/prompts/PromptTemplateEngine';
 import { TemplateEngine } from '../../domain/prompts/PromptTemplateEngine';
-import type { ContextAwareStrategy } from '../../domain/prompts/PromptCompositionStrategy';
+import type { ContextService } from '../context/ContextService';
+import type { MemoryService } from '../memory/MemoryService';
 
 /**
  * Context slice type definitions for different categories
@@ -41,11 +41,11 @@ export interface ProjectInfo {
   technologies: string[];
 }
 
-  export interface RoleInfo {
-    name: string;
-    role: string;
-    preferences?: Record<string, unknown>;
-  }
+export interface RoleInfo {
+  name: string;
+  role: string;
+  preferences?: Record<string, unknown>;
+}
 
 export interface ToolMetadata {
   name: string;
@@ -60,21 +60,21 @@ export class ContextProviderEngine {
   private contextService: ContextService;
   private strategies: ContextAwareStrategy[];
   private cache = new Map<string, { context: Partial<TemplateContext>; timestamp: number }>();
-  
+
   constructor(
     memoryService: MemoryService,
     contextService: ContextService,
-    config?: Partial<ContextProviderConfig>
+    config?: Partial<ContextProviderConfig>,
   ) {
     this.memoryService = memoryService;
     this.contextService = contextService;
     this.strategies = [];
-    
+
     // Default configuration
     this.config = {
       maxMemoryItems: 20,
       cacheEnabled: true,
-      defaultSessionContext: {}
+      defaultSessionContext: {},
     };
   }
 
@@ -92,12 +92,12 @@ export class ContextProviderEngine {
    */
   async prepareContext(
     prompt: PromptDefinition,
-    sessionContext: Partial<TemplateContext> = {}
+    sessionContext: Partial<TemplateContext> = {},
   ): Promise<Partial<TemplateContext>> {
     const cacheKey = this.generateCacheKey(prompt, sessionContext);
-    
+
     if (this.config.cacheEnabled && this.cache.has(cacheKey)) {
-      return this.cache.get(cacheKey)!.context;
+      return this.cache.get(cacheKey)?.context;
     }
 
     // Start with base context
@@ -108,7 +108,7 @@ export class ContextProviderEngine {
       memory: { items: [], summary: '' },
       user: sessionContext.user || { name: 'unknown', role: 'developer' },
       tool: sessionContext.tool,
-      ...this.config.defaultSessionContext
+      ...this.config.defaultSessionContext,
     };
 
     // Load project-specific context
@@ -124,7 +124,7 @@ export class ContextProviderEngine {
     // Load user preferences from memory if available
     const prefs = preparedContext.user?.preferences;
     if (!prefs) {
-      preparedContext.user = (await this.loadUserPreferences(sessionContext.sessionId || '')) as any;
+      preparedContext.user = await this.loadUserPreferences(sessionContext.sessionId || '');
     }
 
     // Apply registered strategies
@@ -133,7 +133,7 @@ export class ContextProviderEngine {
       try {
         if (strategy.canApply(prompt, preparedContext)) {
           const result = await strategy.apply(prompt, preparedContext);
-          
+
           // Merge strategy result into context
           preparedContext = { ...preparedContext, ...result.context };
           strategyNotes.push(`${strategy.name}: ${result.notes.join(', ')}`);
@@ -148,9 +148,9 @@ export class ContextProviderEngine {
     if (this.config.cacheEnabled) {
       this.cache.set(cacheKey, {
         context: preparedContext,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
-      
+
       // Clean up old cache entries
       this.cleanupCache(cacheKey);
     }
@@ -161,29 +161,29 @@ export class ContextProviderEngine {
   /**
    * Loads project context from knowledge repository
    */
-  private async loadProjectContext(): Promise<any> {  // Changed to any to avoid ProjectInfo type issues
+  private async loadProjectContext(): Promise<ProjectInfo> {
     try {
       // Look for technology stack information in memory
       const stackItems = await this.memoryService.search(
         'SELECT * FROM knowledge WHERE category = $1 AND keywords LIKE $2 AND timestamp > $3',
-        ['technology_stack', '%stack%', this.getRecentTimestamp('60d')]
+        ['technology_stack', '%stack%', this.getRecentTimestamp('60d')],
       );
 
-      const techStack = stackItems.flatMap((item: KnowledgeItem) => 
-        (item.metadata?.technologies || item.value || []) as string[]
+      const techStack = stackItems.flatMap(
+        (item: KnowledgeItem) => (item.metadata?.technologies || item.value || []) as string[],
       );
 
       return {
         name: 'current-project',
         path: '/workspace',
-        technologies: Array.from(new Set(techStack))
+        technologies: Array.from(new Set(techStack)),
       };
     } catch (error) {
       console.warn('Failed to load project context:', error);
       return {
         name: 'unknown',
         path: '/workspace',
-        technologies: []
+        technologies: [],
       };
     }
   }
@@ -191,17 +191,20 @@ export class ContextProviderEngine {
   /**
    * Loads session memory items for the current session
    */
-  private async loadSessionMemoryItems(sessionId: string): Promise<{ items: KnowledgeItem[]; summary: string }> {
+  private async loadSessionMemoryItems(
+    sessionId: string,
+  ): Promise<{ items: KnowledgeItem[]; summary: string }> {
     try {
       // Get recent memory items relevant to the session
       const items = await this.memoryService.search(
         'SELECT * FROM knowledge WHERE session_id = $1 ORDER BY timestamp DESC LIMIT $2',
-        [sessionId, this.config.maxMemoryItems]
+        [sessionId, this.config.maxMemoryItems],
       );
 
-      const summary = items.length > 0 
-        ? `Session contains ${items.length} relevant items`
-        : 'No session-specific memory items available';
+      const summary =
+        items.length > 0
+          ? `Session contains ${items.length} relevant items`
+          : 'No session-specific memory items available';
 
       return { items, summary };
     } catch (error) {
@@ -217,25 +220,25 @@ export class ContextProviderEngine {
     try {
       // Get session context
       const sessionContext = await this.contextService.getSessionBySessionId(sessionId);
-      
+
       // Use session context if available, otherwise get from memory service
-      let preferences: Record<string, unknown> = {};
-      
-      if (sessionContext && sessionContext.detailedContext) {
+      const preferences: Record<string, unknown> = {};
+
+      if (sessionContext?.detailedContext) {
         Object.assign(preferences, sessionContext.detailedContext);
       }
 
       return {
         name: sessionId || 'unknown',
         role: 'developer',
-        preferences
+        preferences,
       };
     } catch (error) {
       console.warn('Failed to load user preferences:', error);
       return {
         name: 'unknown',
         role: 'developer',
-        preferences: {}
+        preferences: {},
       };
     }
   }
@@ -245,7 +248,7 @@ export class ContextProviderEngine {
    */
   private cleanupCache(cacheKey: string): void {
     const MAX_CACHE_SIZE = 100;
-    
+
     if (this.cache.size >= MAX_CACHE_SIZE) {
       // Find the oldest entry and remove it
       let oldestKey: string = cacheKey;
@@ -267,7 +270,7 @@ export class ContextProviderEngine {
    */
   private generateCacheKey(
     prompt: PromptDefinition,
-    sessionContext: Partial<TemplateContext>
+    sessionContext: Partial<TemplateContext>,
   ): string {
     const contextSignature = Object.keys(sessionContext)
       .sort()
@@ -282,7 +285,7 @@ export class ContextProviderEngine {
    */
   private getRecentTimestamp(days: string): string {
     const date = new Date();
-    date.setDate(date.getDate() - parseInt(days));
+    date.setDate(date.getDate() - Number.parseInt(days));
     return date.toISOString();
   }
 

@@ -14,7 +14,7 @@ export class PathValidator {
     /\.env/,
     /\.ssh\//,
     /\.bash_history/,
-    /\.zsh_history/
+    /\.zsh_history/,
   ];
 
   private readonly shellInjectionPatterns = /[&|;$`<>]/;
@@ -38,7 +38,7 @@ export class PathValidator {
 
     // 2. Resolve and normalize
     const absolutePath = path.normalize(path.resolve(this.workspaceRoot, targetPath));
-    
+
     // 3. Boundary check
     if (!absolutePath.startsWith(this.workspaceRoot)) {
       const errorMsg = `🛑 [SECURITY] Path traversal attempt blocked: ${targetPath} is outside workspace ${this.workspaceRoot}`;
@@ -63,8 +63,12 @@ export class PathValidator {
    * Checks if a path is "system" related (e.g., node_modules, .git)
    */
   isSystemPath(targetPath: string): boolean {
-    const normalized = targetPath.replace(/\\/g, "/");
-    return normalized.includes("/node_modules/") || normalized.includes("/.git/") || normalized.includes(".env");
+    const normalized = targetPath.replace(/\\/g, '/');
+    return (
+      normalized.includes('/node_modules/') ||
+      normalized.includes('/.git/') ||
+      normalized.includes('.env')
+    );
   }
 
   getWorkspaceRoot(): string {

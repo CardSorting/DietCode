@@ -1,14 +1,14 @@
 import { randomUUID } from 'node:crypto';
+import type { LockResult, LockScope, LockTicket } from '../../../domain/safety/LockScope';
 import { Core } from './Core';
-import type { LockScope, LockTicket, LockResult } from '../../../domain/safety/LockScope';
 
 /**
  * [LAYER: INFRASTRUCTURE]
  * Principle: Distributed lock management using modular SQLite infrastructure.
- * 
+ *
  * Provides deterministic distributed locking capabilities for multi-process
  * safety, task-level isolation, and concurrent mutation coordination.
- * 
+ *
  * This is the hardened, modular successor to SqliteLockManager.
  */
 export class LockManager {
@@ -39,13 +39,10 @@ export class LockManager {
    * Acquire a distributed lock.
    * Logic: Atomic upsert or check-and-insert with localized polling.
    */
-  async acquire(
-    scope: LockScope,
-    timeoutMs: number = 30000
-  ): Promise<LockResult> {
+  async acquire(scope: LockScope, timeoutMs = 30000): Promise<LockResult> {
     const db = await Core.db();
     const resourceId = `${scope.taskId}_${scope.operation}`;
-    
+
     // Generate unique ticket
     const ticket: LockTicket = {
       id: randomUUID(),
@@ -55,24 +52,24 @@ export class LockManager {
       expiresAt: scope.timeoutMs ? Date.now() + scope.timeoutMs : Date.now() + 60000,
       sessionId: process.env.SESSION_ID || randomUUID(),
       autoRelease: scope.autoRelease !== false,
-      ownerId: scope.ownerId || `agent-${process.pid}`
+      ownerId: scope.ownerId || `agent-${process.pid}`,
     };
 
     const startTime = Date.now();
-    
+
     while (true) {
       const result = await this.tryAcquireImmediate(db, ticket, resourceId);
       if (result.success) {
         return result;
       }
-      
+
       const elapsed = Date.now() - startTime;
       if (timeoutMs === 0 || elapsed >= timeoutMs) {
         return result; // Return the last failure (likely already_locked or timeout)
       }
-      
+
       // Wait before retry (100ms polling)
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
   }
 
@@ -82,7 +79,7 @@ export class LockManager {
   private async tryAcquireImmediate(
     db: any,
     ticket: LockTicket,
-    resourceId: string
+    resourceId: string,
   ): Promise<LockResult> {
     const now = Date.now();
 
@@ -94,31 +91,31 @@ export class LockManager {
       .executeTakeFirst();
 
     if (existing) {
-      const isExpired = parseInt(existing.expires_at) < now;
+      const isExpired = Number.parseInt(existing.expires_at) < now;
       const isOwner = existing.owner_id === ticket.ownerId;
 
       if (!isExpired && !isOwner) {
         return {
           success: false,
           error: `Resource is currently locked by owner: ${existing.owner_id}`,
-          reason: 'already_locked'
+          reason: 'already_locked',
         };
       }
 
       // 2. Perform Takeover or Extension (Atomic Update)
       try {
-        await (db as any).updateTable('locks')
+        await (db as any)
+          .updateTable('locks')
           .set({
             owner_id: ticket.ownerId,
             lock_code: ticket.code,
             acquired_at: ticket.acquiredAt,
-            expires_at: ticket.expiresAt
+            expires_at: ticket.expiresAt,
           })
           .where('resource', '=', resourceId)
-          .where((eb: any) => eb.or([
-            eb('expires_at', '<', now),
-            eb('owner_id', '=', ticket.ownerId)
-          ]))
+          .where((eb: any) =>
+            eb.or([eb('expires_at', '<', now), eb('owner_id', '=', ticket.ownerId)]),
+          )
           .execute();
 
         this.locksCache.set(resourceId, ticket);
@@ -127,20 +124,21 @@ export class LockManager {
         return {
           success: false,
           error: 'Lock acquisition race condition during update',
-          reason: 'already_locked'
+          reason: 'already_locked',
         };
       }
     }
 
     // 3. New Lock Insertion
     try {
-      await (db as any).insertInto('locks')
+      await (db as any)
+        .insertInto('locks')
         .values({
           resource: resourceId,
           owner_id: ticket.ownerId,
           lock_code: ticket.code,
           acquired_at: ticket.acquiredAt,
-          expires_at: ticket.expiresAt
+          expires_at: ticket.expiresAt,
         })
         .execute();
 
@@ -151,7 +149,7 @@ export class LockManager {
         return {
           success: false,
           error: 'Lock acquisition race condition during insert',
-          reason: 'already_locked'
+          reason: 'already_locked',
         };
       }
       throw error;
@@ -161,10 +159,7 @@ export class LockManager {
   /**
    * Release a lock.
    */
-  async release(
-    resourceId: string,
-    expectedCode: string
-  ): Promise<boolean> {
+  async release(resourceId: string, expectedCode: string): Promise<boolean> {
     const db = await Core.db();
     const result = await (db as any)
       .deleteFrom('locks')
@@ -182,17 +177,14 @@ export class LockManager {
   /**
    * Extend an existing lock.
    */
-  async extend(
-    resourceId: string,
-    expectedCode: string,
-    newTimeoutMs: number
-  ): Promise<boolean> {
+  async extend(resourceId: string, expectedCode: string, newTimeoutMs: number): Promise<boolean> {
     const db = await Core.db();
     const newExpiresAt = Date.now() + newTimeoutMs;
 
-    const result = await (db as any).updateTable('locks')
+    const result = await (db as any)
+      .updateTable('locks')
       .set({
-        expires_at: newExpiresAt
+        expires_at: newExpiresAt,
       })
       .where('resource', '=', resourceId)
       .where('lock_code', '=', expectedCode)
@@ -212,7 +204,7 @@ export class LockManager {
   async isLocked(resourceId: string): Promise<LockResult> {
     const now = Date.now();
     const db = await Core.db();
-    
+
     const lock = await (db as any)
       .selectFrom('locks')
       .selectAll()
@@ -225,18 +217,18 @@ export class LockManager {
         id: randomUUID(), // New ticket ID for info lookup
         code: lock.lock_code,
         resourceId: lock.resource,
-        acquiredAt: parseInt(lock.acquired_at),
-        expiresAt: parseInt(lock.expires_at),
+        acquiredAt: Number.parseInt(lock.acquired_at),
+        expiresAt: Number.parseInt(lock.expires_at),
         sessionId: 'unknown',
         autoRelease: true,
-        ownerId: lock.owner_id
+        ownerId: lock.owner_id,
       };
       return { success: true, ticket };
     }
 
     return {
       success: false,
-      reason: 'unlocked'
+      reason: 'unlocked',
     };
   }
 
@@ -247,11 +239,8 @@ export class LockManager {
     const db = await Core.db();
     const now = Date.now();
 
-    await (db as any)
-      .deleteFrom('locks')
-      .where('expires_at', '<=', now)
-      .execute();
-      
+    await (db as any).deleteFrom('locks').where('expires_at', '<=', now).execute();
+
     // Sync cache
     for (const [res, ticket] of this.locksCache.entries()) {
       if (ticket.expiresAt <= now) {
@@ -263,12 +252,15 @@ export class LockManager {
   // Legacy static wrappers for backward compatibility during transition
   static async acquireLock(resource: string, owner: string, ttlMs = 60000): Promise<boolean> {
     const mgr = LockManager.getInstance();
-    const result = await mgr.acquire({
-      taskId: 'legacy',
-      operation: resource,
-      ownerId: owner,
-      timeoutMs: ttlMs
-    }, 0);
+    const result = await mgr.acquire(
+      {
+        taskId: 'legacy',
+        operation: resource,
+        ownerId: owner,
+        timeoutMs: ttlMs,
+      },
+      0,
+    );
     return result.success;
   }
 
@@ -276,7 +268,8 @@ export class LockManager {
     const mgr = LockManager.getInstance();
     // Legacy release didn't use codes, so we have to guess or check-and-delete
     const db = await Core.db();
-    await (db as any).deleteFrom('locks')
+    await (db as any)
+      .deleteFrom('locks')
       .where('resource', '=', `legacy_${resource}`)
       .where('owner_id', '=', owner)
       .execute();

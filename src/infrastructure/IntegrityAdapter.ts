@@ -3,19 +3,19 @@
  * Principle: High-Throughput Scanning via Worker Pool Sharding
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import * as crypto from 'crypto';
-import { WorkerPoolAdapter } from './WorkerPoolAdapter';
-import { FileSystemAdapter } from './FileSystemAdapter';
-import { IntegrityScanner } from '../domain/integrity/IntegrityScanner';
-import { IntegrityPolicy } from '../domain/memory/IntegrityPolicy';
-import { 
-  type IntegrityViolation, 
-  type IntegrityReport, 
-  ViolationType 
-} from '../domain/memory/Integrity';
+import * as crypto from 'node:crypto';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import type { IntegrityScanner } from '../domain/integrity/IntegrityScanner';
 import type { LogService } from '../domain/logging/LogService';
+import {
+  type IntegrityReport,
+  type IntegrityViolation,
+  ViolationType,
+} from '../domain/memory/Integrity';
+import type { IntegrityPolicy } from '../domain/memory/IntegrityPolicy';
+import { FileSystemAdapter } from './FileSystemAdapter';
+import { WorkerPoolAdapter } from './WorkerPoolAdapter';
 
 export class IntegrityAdapter implements IntegrityScanner {
   private poolAdapter!: WorkerPoolAdapter;
@@ -24,7 +24,12 @@ export class IntegrityAdapter implements IntegrityScanner {
   private isWorker: boolean;
   private useQueue: boolean;
 
-  constructor(policy: IntegrityPolicy, private logService: LogService, isWorker = false, useQueue = true) {
+  constructor(
+    policy: IntegrityPolicy,
+    private logService: LogService,
+    isWorker = false,
+    useQueue = true,
+  ) {
     this.isWorker = isWorker;
     this.useQueue = useQueue;
     this.filesystem = new FileSystemAdapter();
@@ -39,9 +44,12 @@ export class IntegrityAdapter implements IntegrityScanner {
    */
   async scan(projectRoot: string): Promise<IntegrityReport> {
     if (this.isWorker) {
-        // Workers should use sequential scanFiles to avoid recursive pool spawning
-        const files = this.getAllFiles(path.join(projectRoot, 'src'));
-        return this.scanFiles(files.map(f => path.relative(projectRoot, f)), projectRoot);
+      // Workers should use sequential scanFiles to avoid recursive pool spawning
+      const files = this.getAllFiles(path.join(projectRoot, 'src'));
+      return this.scanFiles(
+        files.map((f) => path.relative(projectRoot, f)),
+        projectRoot,
+      );
     }
     return this.poolAdapter.scan(projectRoot);
   }
@@ -52,14 +60,14 @@ export class IntegrityAdapter implements IntegrityScanner {
   async scanFile(filePath: string, projectRoot: string): Promise<IntegrityReport> {
     const fullPath = path.resolve(projectRoot, filePath);
     const relPath = path.relative(projectRoot, fullPath);
-    
+
     const violations = await this.scanSingleFile(fullPath, relPath);
-    const score = Math.max(0, 100 - (violations.length * 5));
+    const score = Math.max(0, 100 - violations.length * 5);
 
     return {
-        score,
-        violations,
-        scannedAt: new Date().toISOString()
+      score,
+      violations,
+      scannedAt: new Date().toISOString(),
     };
   }
 
@@ -69,23 +77,23 @@ export class IntegrityAdapter implements IntegrityScanner {
   async scanFiles(files: string[], projectRoot: string): Promise<IntegrityReport> {
     const allViolations: IntegrityViolation[] = [];
     for (const file of files) {
-        const fullPath = path.resolve(projectRoot, file);
-        const relPath = path.relative(projectRoot, fullPath);
-        const violations = await this.scanSingleFile(fullPath, relPath);
-        allViolations.push(...violations);
+      const fullPath = path.resolve(projectRoot, file);
+      const relPath = path.relative(projectRoot, fullPath);
+      const violations = await this.scanSingleFile(fullPath, relPath);
+      allViolations.push(...violations);
     }
-    const score = Math.max(0, 100 - (allViolations.length * 5));
+    const score = Math.max(0, 100 - allViolations.length * 5);
     return {
-        score,
-        violations: allViolations,
-        scannedAt: new Date().toISOString(),
-        fileCount: files.length
+      score,
+      violations: allViolations,
+      scannedAt: new Date().toISOString(),
+      fileCount: files.length,
     };
   }
 
   public async scanSingleFile(absPath: string, relPath: string): Promise<IntegrityViolation[]> {
     const violations: IntegrityViolation[] = [];
-    
+
     if (!fs.existsSync(absPath)) return [];
 
     // Chunked Header Read (16KB)
@@ -95,28 +103,25 @@ export class IntegrityAdapter implements IntegrityScanner {
     // Rule Matching
     for (const rule of rules) {
       if (content.match(rule.pattern)) {
-        violations.push(this.createViolation(
-          rule.type,
-          relPath,
-          rule.message,
-          rule.severity
-        ));
+        violations.push(this.createViolation(rule.type, relPath, rule.message, rule.severity));
       }
     }
 
     // Misplaced File Detection (Header Only)
     const layerMatch = content.slice(0, 500).match(/\[LAYER:?\s*([A-Z]+)\]/);
-    if (layerMatch && layerMatch[1]) {
-        const declaredLayer = layerMatch[1];
-        const expectedDir = this.getExpectedDir(declaredLayer);
-        if (expectedDir && !relPath.startsWith(expectedDir)) {
-            violations.push(this.createViolation(
-                ViolationType.MISPLACED_FILE,
-                relPath,
-                `File declares [LAYER: ${declaredLayer}] but is located in ${relPath}. Should be in ${expectedDir}.`,
-                'error'
-            ));
-        }
+    if (layerMatch?.[1]) {
+      const declaredLayer = layerMatch[1];
+      const expectedDir = this.getExpectedDir(declaredLayer);
+      if (expectedDir && !relPath.startsWith(expectedDir)) {
+        violations.push(
+          this.createViolation(
+            ViolationType.MISPLACED_FILE,
+            relPath,
+            `File declares [LAYER: ${declaredLayer}] but is located in ${relPath}. Should be in ${expectedDir}.`,
+            'error',
+          ),
+        );
+      }
     }
 
     return violations;
@@ -135,24 +140,29 @@ export class IntegrityAdapter implements IntegrityScanner {
 
   private getExpectedDir(layer: string): string | null {
     const mapping: Record<string, string> = {
-        'DOMAIN': 'src/domain',
-        'CORE': 'src/core',
-        'INFRASTRUCTURE': 'src/infrastructure',
-        'UI': 'src/ui',
-        'PLUMBING': 'src/plumbing',
-        'UTILS': 'src/utils'
+      DOMAIN: 'src/domain',
+      CORE: 'src/core',
+      INFRASTRUCTURE: 'src/infrastructure',
+      UI: 'src/ui',
+      PLUMBING: 'src/plumbing',
+      UTILS: 'src/utils',
     };
     return mapping[layer] || null;
   }
 
-  private createViolation(type: ViolationType, file: string, message: string, severity: 'warn' | 'error'): IntegrityViolation {
+  private createViolation(
+    type: ViolationType,
+    file: string,
+    message: string,
+    severity: 'warn' | 'error',
+  ): IntegrityViolation {
     return {
       id: crypto.randomUUID(),
       type,
       file,
       message,
       severity,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -162,9 +172,9 @@ export class IntegrityAdapter implements IntegrityScanner {
     for (const file of files) {
       const name = path.join(dir, file);
       if (fs.statSync(name).isDirectory()) {
-         if (!name.includes('node_modules') && !name.includes('.git')) {
-            this.getAllFiles(name, fileList);
-         }
+        if (!name.includes('node_modules') && !name.includes('.git')) {
+          this.getAllFiles(name, fileList);
+        }
       } else if (name.endsWith('.ts')) {
         fileList.push(name);
       }

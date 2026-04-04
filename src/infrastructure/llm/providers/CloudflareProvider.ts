@@ -6,14 +6,19 @@
 
 import { OpenAI } from 'openai';
 import type { LLMProvider, LLMResponse } from '../../../domain/LLMProvider';
-import type { Message, MessageBlock } from '../../../domain/context/SessionState';
-import type { ToolDefinition } from '../../../domain/agent/ToolDefinition';
 import type { Agent } from '../../../domain/agent/Agent';
-import { Core } from '../../database/sovereign/Core';
-import type { LogService } from '../../../domain/logging/LogService';
-import { MetabolicMonitor } from '../../monitoring/MetabolicMonitor';
-import type { LLMAdapter, ModelInfo, ApiStream, Message as AdapterMessage } from '../../../domain/agent/LLMProviderAdapter';
+import type {
+  Message as AdapterMessage,
+  ApiStream,
+  LLMAdapter,
+  ModelInfo,
+} from '../../../domain/agent/LLMProviderAdapter';
 import { PromptStrategy } from '../../../domain/agent/LLMProviderAdapter';
+import type { ToolDefinition } from '../../../domain/agent/ToolDefinition';
+import type { Message, MessageBlock } from '../../../domain/context/SessionState';
+import type { LogService } from '../../../domain/logging/LogService';
+import { Core } from '../../database/sovereign/Core';
+import { MetabolicMonitor } from '../../monitoring/MetabolicMonitor';
 
 export interface CloudflareConfig {
   accountId: string;
@@ -24,7 +29,7 @@ export interface CloudflareConfig {
 
 /**
  * CloudflareProvider
- * 
+ *
  * Domain-level provider for use with DietCode Agents.
  */
 export class CloudflareProvider implements LLMProvider {
@@ -36,7 +41,7 @@ export class CloudflareProvider implements LLMProvider {
   constructor(config: CloudflareConfig) {
     this.model = config.model || '@cf/moonshotai/kimi-k2.5';
     this.logService = config.logService;
-    
+
     this.client = new OpenAI({
       apiKey: config.apiToken,
       baseURL: `https://api.cloudflare.com/client/v4/accounts/${config.accountId}/ai/v1`,
@@ -47,7 +52,7 @@ export class CloudflareProvider implements LLMProvider {
     agent: Agent,
     messages: Message[],
     tools: ToolDefinition[],
-    metadata?: { taskId?: string }
+    metadata?: { taskId?: string },
   ): Promise<LLMResponse> {
     const startTime = Date.now();
     const modelId = agent.model || this.model;
@@ -56,14 +61,17 @@ export class CloudflareProvider implements LLMProvider {
       const response = await this.client.chat.completions.create({
         model: modelId,
         messages: this.mapMessagesToOpenAI(agent.systemPrompt, messages),
-        tools: tools.length > 0 ? tools.map(t => ({
-          type: 'function',
-          function: {
-            name: t.name,
-            description: t.description,
-            parameters: t.inputSchema,
-          },
-        })) : undefined,
+        tools:
+          tools.length > 0
+            ? tools.map((t) => ({
+                type: 'function',
+                function: {
+                  name: t.name,
+                  description: t.description,
+                  parameters: t.inputSchema,
+                },
+              }))
+            : undefined,
         temperature: agent.def.temperature,
         max_tokens: agent.def.maxTokens || 4096,
       });
@@ -73,10 +81,10 @@ export class CloudflareProvider implements LLMProvider {
       if (!choice) {
         throw new Error('Cloudflare API returned no choices');
       }
-      
+
       const message = choice.message;
       const content: MessageBlock[] = [];
-      
+
       if (message.content) {
         content.push({ type: 'text', text: message.content });
       }
@@ -99,13 +107,15 @@ export class CloudflareProvider implements LLMProvider {
 
       this.monitor.recordTokens(usage.input_tokens + usage.output_tokens);
 
-      this.logTelemetry(response, agent.id, completionTime - startTime, metadata?.taskId).catch(err => {
-        this.logService.error(
-          '[TELEMETRY] Failed to log Cloudflare telemetry',
-          { error: (err as Error).message, agentId: agent.id },
-          { component: 'CloudflareProvider' }
-        );
-      });
+      this.logTelemetry(response, agent.id, completionTime - startTime, metadata?.taskId).catch(
+        (err) => {
+          this.logService.error(
+            '[TELEMETRY] Failed to log Cloudflare telemetry',
+            { error: (err as Error).message, agentId: agent.id },
+            { component: 'CloudflareProvider' },
+          );
+        },
+      );
 
       return {
         content,
@@ -115,7 +125,7 @@ export class CloudflareProvider implements LLMProvider {
       this.logService.error(
         `[CLOUDFLARE] API Error: ${error.message}`,
         { model: modelId },
-        { component: 'CloudflareProvider' }
+        { component: 'CloudflareProvider' },
       );
       throw error;
     }
@@ -123,45 +133,45 @@ export class CloudflareProvider implements LLMProvider {
 
   private mapMessagesToOpenAI(system: string, messages: Message[]): any[] {
     const mapped: any[] = [{ role: 'system', content: system }];
-    
+
     for (const m of messages) {
       if (typeof m.content === 'string') {
         mapped.push({ role: m.role, content: m.content });
       } else {
         const textContent = m.content
-          .filter(b => b.type === 'text')
-          .map(b => (b as any).text)
+          .filter((b) => b.type === 'text')
+          .map((b) => (b as any).text)
           .join('\n');
-        
+
         const toolCalls = m.content
-          .filter(b => b.type === 'tool_use')
-          .map(b => ({
+          .filter((b) => b.type === 'tool_use')
+          .map((b) => ({
             id: (b as any).id,
             type: 'function',
             function: {
               name: (b as any).name,
-              arguments: JSON.stringify((b as any).input)
-            }
+              arguments: JSON.stringify((b as any).input),
+            },
           }));
 
         const toolResults = m.content
-            .filter(b => b.type === 'tool_result')
-            .map(b => ({
-                role: 'tool',
-                tool_call_id: (b as any).tool_use_id,
-                content: (b as any).content
-            }));
+          .filter((b) => b.type === 'tool_result')
+          .map((b) => ({
+            role: 'tool',
+            tool_call_id: (b as any).tool_use_id,
+            content: (b as any).content,
+          }));
 
         if (textContent || toolCalls.length > 0) {
-            mapped.push({
-                role: m.role,
-                content: textContent || null,
-                tool_calls: toolCalls.length > 0 ? toolCalls : undefined
-            });
+          mapped.push({
+            role: m.role,
+            content: textContent || null,
+            tool_calls: toolCalls.length > 0 ? toolCalls : undefined,
+          });
         }
-        
+
         if (toolResults.length > 0) {
-            mapped.push(...toolResults);
+          mapped.push(...toolResults);
         }
       }
     }
@@ -177,7 +187,8 @@ export class CloudflareProvider implements LLMProvider {
       const model = response.model;
       const repoPath = process.cwd();
 
-      await (db as any).insertInto('hive_llm_telemetry' as any)
+      await (db as any)
+        .insertInto('hive_llm_telemetry' as any)
         .values({
           id: globalThis.crypto.randomUUID(),
           repo_path: repoPath,
@@ -189,7 +200,11 @@ export class CloudflareProvider implements LLMProvider {
           model_id: model,
           cost: 0, // Cloudflare Workers AI is often flat-rate or included
           timestamp: Date.now(),
-          environment: JSON.stringify({ duration, platform: process.platform, provider: 'cloudflare' }),
+          environment: JSON.stringify({
+            duration,
+            platform: process.platform,
+            provider: 'cloudflare',
+          }),
         } as any)
         .execute();
     } catch (error) {
@@ -198,10 +213,9 @@ export class CloudflareProvider implements LLMProvider {
   }
 }
 
-
 /**
  * CloudflareAdapter
- * 
+ *
  * Core-level adapter for registration and multi-provider orchestration.
  */
 export class CloudflareAdapter implements LLMAdapter {
@@ -216,11 +230,7 @@ export class CloudflareAdapter implements LLMAdapter {
     });
   }
 
-  createMessage(
-    system: string,
-    messages: AdapterMessage[],
-    _tools?: any[]
-  ): ApiStream {
+  createMessage(system: string, messages: AdapterMessage[], _tools?: any[]): ApiStream {
     const self = this;
     return {
       async *[Symbol.asyncIterator]() {
@@ -228,7 +238,7 @@ export class CloudflareAdapter implements LLMAdapter {
           model: self.model,
           messages: [
             { role: 'system', content: system },
-            ...messages.map(m => ({
+            ...messages.map((m) => ({
               role: m.role as any,
               content: m.content as string,
             })),
@@ -254,7 +264,7 @@ export class CloudflareAdapter implements LLMAdapter {
       supportsStreaming: true,
       costPerThousandTokens: {
         input: 0.0006,
-        output: 0.0030,
+        output: 0.003,
       },
     };
   }

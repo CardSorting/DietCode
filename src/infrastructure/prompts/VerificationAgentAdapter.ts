@@ -10,7 +10,7 @@ export class VerificationAgentAdapter implements VerificationAgent {
   async verify(testCase: TestCase): Promise<VerificationResult> {
     const startTime = Date.now();
     const failureThreshold = testCase.failureThreshold ?? 0.7;
-    
+
     let passed = 0;
     let failed = 0;
     const counterexamples: string[] = [];
@@ -39,7 +39,7 @@ export class VerificationAgentAdapter implements VerificationAgent {
       totalAssertions,
       timestamp: new Date(startTime + executionTime),
       counterexamples,
-      rationale: `Verification complete: ${verdict} (${passed}/${failed} assertions passed)`
+      rationale: `Verification complete: ${verdict} (${passed}/${failed} assertions passed)`,
     };
   }
 

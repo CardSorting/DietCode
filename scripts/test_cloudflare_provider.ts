@@ -1,13 +1,16 @@
+import { LogLevel } from '../src/domain/logging/LogLevel';
+import { ConsoleLoggerAdapter } from '../src/infrastructure/ConsoleLoggerAdapter';
 /**
  * Verification script for Cloudflare AI Provider
  */
-import { CloudflareProvider, CloudflareAdapter } from '../src/infrastructure/llm/providers/CloudflareProvider';
-import { ConsoleLoggerAdapter } from '../src/infrastructure/ConsoleLoggerAdapter';
-import { LogLevel } from '../src/domain/logging/LogLevel';
+import {
+  CloudflareAdapter,
+  CloudflareProvider,
+} from '../src/infrastructure/llm/providers/CloudflareProvider';
 
 async function verify() {
   console.log('--- Cloudflare Provider Verification ---');
-  
+
   const logger = new ConsoleLoggerAdapter();
   logger.setMinLevel(LogLevel.INFO);
 
@@ -24,21 +27,21 @@ async function verify() {
     const provider = new CloudflareProvider({
       accountId: accountId || 'dummy',
       apiToken: apiToken || 'dummy',
-      logService: logger
+      logService: logger,
     });
     console.log('✅ CloudflareProvider instantiated.');
 
     console.log('2. Instantiating CloudflareAdapter (Core)...');
     const adapter = new CloudflareAdapter({
       accountId: accountId || 'dummy',
-      apiToken: apiToken || 'dummy'
+      apiToken: apiToken || 'dummy',
     });
     console.log('✅ CloudflareAdapter instantiated.');
 
     const info = adapter.getModelInfo();
     console.log(`3. Model Info: ${info.name} (ID: ${info.id})`);
     console.log(`   Max Tokens: ${info.maxTokens}`);
-    
+
     console.log('\n--- Verification Successful (Compilation & Registry logic) ---');
   } catch (error: any) {
     console.error('❌ Verification failed:', error.message);

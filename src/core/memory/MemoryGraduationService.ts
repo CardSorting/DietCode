@@ -20,15 +20,16 @@ export class MemoryGraduationService {
    * Graduates a list of learned facts into the global Sovereign KnowledgeBase.
    * Only promotes facts with confidence above the threshold.
    */
-  async graduate(facts: LearnedFact[], confidenceThreshold: number = 0.8): Promise<number> {
+  async graduate(facts: LearnedFact[], confidenceThreshold = 0.8): Promise<number> {
     const db = await Core.db();
     let promotedCount = 0;
 
     for (const fact of facts) {
       if (fact.confidence >= confidenceThreshold) {
         const id = globalThis.crypto.randomUUID();
-        
-        await (db as any).insertInto('knowledge_base' as any)
+
+        await (db as any)
+          .insertInto('knowledge_base' as any)
           .values({
             id,
             knowledge_key: fact.key,
@@ -37,15 +38,17 @@ export class MemoryGraduationService {
             confidence: fact.confidence,
             tags: fact.tags.join(','),
             metadata: fact.metadata ? JSON.stringify(fact.metadata) : null,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
           })
           .execute();
-          
+
         promotedCount++;
       }
     }
 
-    console.log(`🎓 [Graduation] Promoted ${promotedCount}/${facts.length} facts to Sovereign KnowledgeBase.`);
+    console.log(
+      `🎓 [Graduation] Promoted ${promotedCount}/${facts.length} facts to Sovereign KnowledgeBase.`,
+    );
     return promotedCount;
   }
 
@@ -54,15 +57,15 @@ export class MemoryGraduationService {
    */
   async finalizeSession(sessionId: string): Promise<void> {
     const db = await Core.db();
-    await (db as any).updateTable('agent_sessions' as any)
-      .set({ 
+    await (db as any)
+      .updateTable('agent_sessions' as any)
+      .set({
         status: 'completed',
-        endTime: Date.now()
+        endTime: Date.now(),
       })
       .where('id', '=', sessionId)
       .execute();
-      
+
     console.log(`🏁 [Session] Session ${sessionId} finalized and graduated.`);
   }
 }
-

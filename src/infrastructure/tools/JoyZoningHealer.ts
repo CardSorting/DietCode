@@ -4,9 +4,12 @@
  * High-performance response engine for direct architectural remediation.
  */
 
-import { ArchitecturalGuardian, type ArchitecturalViolation } from '../../domain/architecture/ArchitecturalGuardian';
-import { type RemediationStep } from './Remediator';
-import * as path from 'path';
+import * as path from 'node:path';
+import {
+  ArchitecturalGuardian,
+  type ArchitecturalViolation,
+} from '../../domain/architecture/ArchitecturalGuardian';
+import type { RemediationStep } from './Remediator';
 
 export interface JoyZoningHealPayload {
   path: string; // Current transient home of the file (after bypass)
@@ -15,8 +18,8 @@ export interface JoyZoningHealPayload {
 }
 
 export interface DirectAction {
-    strategy: 'MOVE_TO_SAFE_ZONE' | 'ALIGN_WITH_CLUSTER' | 'DEEP_REMEDIATION' | 'NO_ACTION';
-    step?: RemediationStep;
+  strategy: 'MOVE_TO_SAFE_ZONE' | 'ALIGN_WITH_CLUSTER' | 'DEEP_REMEDIATION' | 'NO_ACTION';
+  step?: RemediationStep;
 }
 
 /**
@@ -36,17 +39,19 @@ export class JoyZoningHealer {
    */
   async determineAction(payload: JoyZoningHealPayload): Promise<DirectAction> {
     const { path: currentPath, violations, suggestedPath } = payload;
-    
-    console.log(`[JoyZoningHealer] Direct Analysis: ${currentPath} (${violations.length} violations)`);
 
-    const hasDomainLeak = violations.some(v => v.type === 'DOMAIN_LEAK');
-    const isMissingSubzone = violations.some(v => v.type === 'SUBZONE_MISSING');
+    console.log(
+      `[JoyZoningHealer] Direct Analysis: ${currentPath} (${violations.length} violations)`,
+    );
+
+    const hasDomainLeak = violations.some((v) => v.type === 'DOMAIN_LEAK');
+    const isMissingSubzone = violations.some((v) => v.type === 'SUBZONE_MISSING');
 
     // Deterministic Priority 1: Domain Purity (Leak Repair)
     if (hasDomainLeak && suggestedPath) {
       return {
         strategy: 'MOVE_TO_SAFE_ZONE',
-        step: this.buildStep(currentPath, suggestedPath)
+        step: this.buildStep(currentPath, suggestedPath),
       };
     }
 
@@ -54,15 +59,15 @@ export class JoyZoningHealer {
     if (isMissingSubzone && suggestedPath) {
       return {
         strategy: 'ALIGN_WITH_CLUSTER',
-        step: this.buildStep(currentPath, suggestedPath)
+        step: this.buildStep(currentPath, suggestedPath),
       };
     }
 
     // Deterministic Priority 3: General Remediation
     if (violations.length > 0) {
-        return {
-            strategy: 'DEEP_REMEDIATION'
-        };
+      return {
+        strategy: 'DEEP_REMEDIATION',
+      };
     }
 
     return { strategy: 'NO_ACTION' };
@@ -77,8 +82,7 @@ export class JoyZoningHealer {
       currentPath: currentPath,
       targetPath: targetPath,
       targetLayer: ArchitecturalGuardian.getLayer(targetPath) || 'UNKNOWN',
-      targetSubZone: subZone
+      targetSubZone: subZone,
     };
   }
-
 }

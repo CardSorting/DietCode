@@ -2,23 +2,31 @@
  * [LAYER: VERIFICATION SUITE]
  * Principle: Validates drift prevention mechanisms are functioning correctly
  * Purpose: Full production-grade verification of the DietCode task harness
- * 
+ *
  * Run: npx ts-node src/test/verify_drift_prevention.ts
  */
 
-import { DriftDetectionOrchestrator, TaskEntityManager } from '../core/orchestration/DriftDetectionOrchestrator';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import {
+  DriftDetectionOrchestrator,
+  TaskEntityManager,
+} from '../core/orchestration/DriftDetectionOrchestrator';
+import { OperationalScheduler } from '../core/task/OperationalScheduler';
+import { SovereignSelector } from '../core/task/SovereignSelector';
+import {
+  RequirementType,
+  TaskPriority,
+  TaskState,
+  createTaskEntity,
+} from '../domain/task/TaskEntity';
+import { FileSystemAdapter } from '../infrastructure/FileSystemAdapter';
+import { Core } from '../infrastructure/database/sovereign/Core';
+import { Schema } from '../infrastructure/database/sovereign/Schema';
+import { JoySimulator } from '../infrastructure/simulation/JoySimulator';
 import { CheckpointPersistenceAdapter } from '../infrastructure/task/CheckpointPersistenceAdapter';
 import { SemanticIntegrityAnalyser } from '../infrastructure/task/SemanticIntegrityAnalyser';
 import { TaskConsistencyValidator } from '../infrastructure/task/TaskConsistencyValidator';
-import { FileSystemAdapter } from '../infrastructure/FileSystemAdapter';
-import { SovereignSelector } from '../core/task/SovereignSelector';
-import { OperationalScheduler } from '../core/task/OperationalScheduler';
-import { JoySimulator } from '../infrastructure/simulation/JoySimulator';
-import { TaskState, TaskPriority, createTaskEntity, RequirementType } from '../domain/task/TaskEntity';
-import { Core } from '../infrastructure/database/sovereign/Core';
-import { Schema } from '../infrastructure/database/sovereign/Schema';
-import * as path from 'path';
-import * as fs from 'fs';
 
 async function runVerification() {
   console.log('\n');
@@ -27,12 +35,22 @@ async function runVerification() {
 
   const dbPath = path.join(process.cwd(), 'data', 'verification.db');
   const sovereignDbPath = path.join(process.cwd(), 'data', 'verification-sovereign.db');
-  
+
   const cleanup = (p: string) => {
-    const lock = p + '.lock';
+    const lock = `${p}.lock`;
     if (fs.existsSync(lock)) fs.unlinkSync(lock);
-    [p, `${p}-wal`, `${p}-shm`, `${p}_signals.db`, `${p}_signals.db-wal`, `${p}_signals.db-shm`].forEach(f => {
-      if (fs.existsSync(f)) try { fs.unlinkSync(f); } catch (e) {}
+    [
+      p,
+      `${p}-wal`,
+      `${p}-shm`,
+      `${p}_signals.db`,
+      `${p}_signals.db-wal`,
+      `${p}_signals.db-shm`,
+    ].forEach((f) => {
+      if (fs.existsSync(f))
+        try {
+          fs.unlinkSync(f);
+        } catch (e) {}
     });
   };
 
@@ -40,27 +58,27 @@ async function runVerification() {
   cleanup(sovereignDbPath);
   cleanup(path.join(process.cwd(), 'data', 'diet-code-checkpoints.db'));
   cleanup(path.join(process.cwd(), 'sovereign.db'));
-  
+
   const persistence = new CheckpointPersistenceAdapter(dbPath);
   const semanticAnalyzer = new SemanticIntegrityAnalyser();
   const fileSystem = new FileSystemAdapter();
   const consistencyValidator = new TaskConsistencyValidator(fileSystem, semanticAnalyzer);
   const entityManager = new TaskEntityManager(persistence);
-  
+
   const selector = new SovereignSelector();
   const simulator = new JoySimulator();
   const scheduler = new OperationalScheduler(simulator);
-  
+
   // Pass 18: Initialize Sovereign Hive on Verification Path
   await Core.init(sovereignDbPath, Schema.ensureSchema.bind(Schema));
-  
+
   const orchestrator = new DriftDetectionOrchestrator(
-    persistence, 
-    semanticAnalyzer, 
-    consistencyValidator, 
+    persistence,
+    semanticAnalyzer,
+    consistencyValidator,
     entityManager,
     selector,
-    scheduler
+    scheduler,
   );
 
   const results: { name: string; passed: boolean; message: string }[] = [];
@@ -128,14 +146,18 @@ Implement a production-grade persistence system for sovereign task tracking with
     const validation = await consistencyValidator.validateTask(taskMd);
     const task = createTaskEntity({
       title: 'Drift Core Test',
-      objective: 'Implement a production-grade infrastructure persistence system for sovereign task tracking with high-throughput sharding and atomic commit protocols.',
+      objective:
+        'Implement a production-grade infrastructure persistence system for sovereign task tracking with high-throughput sharding and atomic commit protocols.',
       requirements: validation.requirements,
-      acceptanceCriteria: ['Passes all SQLite stress tests', 'Zero data loss during forced crashes'],
+      acceptanceCriteria: [
+        'Passes all SQLite stress tests',
+        'Zero data loss during forced crashes',
+      ],
       initialContext: 'Building the core of the DietCode sovereign hive.',
-      userAgent: 'Verify-Suite'
+      userAgent: 'Verify-Suite',
     });
     await entityManager.setCurrentTask(task);
-    
+
     const snapshot = await orchestrator.initializeTask(taskMd, 1.0);
     if (!snapshot.checkpointId.startsWith('ckpt-')) {
       throw new Error(`Invalid checkpoint ID format: ${snapshot.checkpointId}`);
@@ -144,7 +166,7 @@ Implement a production-grade persistence system for sovereign task tracking with
 
   // Test 4: Axiomatic Consistency
   await runTest('Axiomatic Consistency', async () => {
-    const objective = "Test axiomatic resonance with structural constraints.";
+    const objective = 'Test axiomatic resonance with structural constraints.';
     const textA = `
 [LAYER: CORE]
 - Principle: Axiomatic Verification
@@ -157,17 +179,19 @@ Test axiomatic resonance with structural constraints.
 - [ ] Verify resonance between content and objective
     - Verification: Compare similarity scores
 `.trim();
-    const unrelated = "Baking a multi-layered chocolate cake with vanilla frosting.";
+    const unrelated = 'Baking a multi-layered chocolate cake with vanilla frosting.';
 
     const healthA = semanticAnalyzer.assessIntegrityAlignment(textA, [], { objective });
     const healthUnrelated = semanticAnalyzer.assessIntegrityAlignment(unrelated, [], { objective });
 
     if (healthA.axiomProfile.status !== 'CLEARED') {
-      throw new Error(`Axiomatic failure on valid content: ${healthA.axiomProfile.failingAxioms.join(', ')}`);
+      throw new Error(
+        `Axiomatic failure on valid content: ${healthA.axiomProfile.failingAxioms.join(', ')}`,
+      );
     }
 
     if (healthUnrelated.axiomProfile.status === 'CLEARED') {
-      throw new Error(`Axiomatic false positive on unrelated content`);
+      throw new Error('Axiomatic false positive on unrelated content');
     }
   });
 
@@ -176,19 +200,21 @@ Test axiomatic resonance with structural constraints.
     const task = createTaskEntity({
       title: 'Persistence Test',
       objective: 'Verify SQLite atomicity and data persistence',
-      requirements: [{
-        uniqueId: 'req-1',
-        description: 'Requirement 1 for thorough testing',
-        type: RequirementType.FEATURE,
-        priority: TaskPriority.MEDIUM,
-        isCritical: false,
-        section: 'Verification'
-      }],
+      requirements: [
+        {
+          uniqueId: 'req-1',
+          description: 'Requirement 1 for thorough testing',
+          type: RequirementType.FEATURE,
+          priority: TaskPriority.MEDIUM,
+          isCritical: false,
+          section: 'Verification',
+        },
+      ],
       acceptanceCriteria: [],
       initialContext: 'Test context',
-      userAgent: 'Verify-Suite'
+      userAgent: 'Verify-Suite',
     });
-    
+
     persistence.persistTask(task);
     const retrieved = persistence.getTask(task.id);
     if (!retrieved || retrieved.title !== 'Persistence Test') {
@@ -219,24 +245,28 @@ Implement drift detection verification test suite for production hardening.
       requirements: validation.requirements,
       acceptanceCriteria: ['All tests pass green'],
       initialContext: 'Test context',
-      userAgent: 'Verify-Suite'
+      userAgent: 'Verify-Suite',
     });
     await entityManager.setCurrentTask(task);
-    
+
     const evaluation = await orchestrator.evaluateDrift(taskMd);
     if (evaluation.recommendation.correctiveAction !== 'drift_correction') {
-      throw new Error(`Expected drift_correction, got ${evaluation.recommendation.correctiveAction}`);
+      throw new Error(
+        `Expected drift_correction, got ${evaluation.recommendation.correctiveAction}`,
+      );
     }
-    console.log(`   (DRIFT) Evaluated Status: ${evaluation.snapshot.semanticHealth.axiomProfile.status}`);
+    console.log(
+      `   (DRIFT) Evaluated Status: ${evaluation.snapshot.semanticHealth.axiomProfile.status}`,
+    );
   });
 
   // Final Results
   console.log('--- Verification Report ---\n');
-  results.forEach(r => {
+  results.forEach((r) => {
     console.log(`${r.passed ? '✅' : '❌'} ${r.name}: ${r.message}`);
   });
 
-  const totalPassed = results.filter(r => r.passed).length;
+  const totalPassed = results.filter((r) => r.passed).length;
   console.log(`\n🏆 Passed: ${totalPassed}/${results.length}`);
 
   if (totalPassed === results.length) {
@@ -247,7 +277,7 @@ Implement drift detection verification test suite for production hardening.
   }
 }
 
-runVerification().catch(err => {
+runVerification().catch((err) => {
   console.error('❌ Critical verification failure:', err);
   process.exit(1);
 });

@@ -2,7 +2,7 @@
  * [LAYER: DOMAIN]
  * Principle: Pure business logic, no external I/O
  * Prework Status: Not applicable (new file)
- * 
+ *
  * Domain-side contract for state mutation rules and validation.
  * Ensures state changes are validated against business rules before committing.
  */
@@ -32,7 +32,7 @@ export interface StateChangeMetadata {
 
 /**
  * State change protocol
- * 
+ *
  * Defines the contract for validating, sanitizing, and applying state changes.
  * Each StateChange must implement a validity check that runs before persistence.
  */
@@ -60,7 +60,7 @@ export interface StateChange<T = unknown> {
   /**
    * Validate this change according to business rules.
    * This is the Core rule: if this returns false, the change must NOT be persisted.
-   * 
+   *
    * @returns True if change is valid, false otherwise
    */
   validate(): boolean;
@@ -68,7 +68,7 @@ export interface StateChange<T = unknown> {
   /**
    * Sanitize the new value if needed.
    * Simple transformations (trimming, type coercion) should happen here.
-   * 
+   *
    * @returns The sanitized value
    */
   sanitize(): T;
@@ -136,7 +136,7 @@ export class StateValidationError extends Error {
 export interface RollbackStrategy {
   /**
    * Revert a state change to its original value.
-   * 
+   *
    * @param change - The StateChange to roll back
    * @returns Promise resolving to rollback result
    */
@@ -155,7 +155,7 @@ export interface StateObserver<T = unknown> {
   /**
    * Called when a state change is about to be applied.
    * Can veto the change by returning false.
-   * 
+   *
    * @param change - The pending state change
    * @returns True to allow change, false to veto
    */
@@ -163,14 +163,14 @@ export interface StateObserver<T = unknown> {
 
   /**
    * Called when a state change is completed successfully.
-   * 
+   *
    * @param result - The result of the change
    */
   onChange?(result: StateChangeResult<T>): void;
 
   /**
    * Called when a state change fails.
-   * 
+   *
    * @param result - The failed result
    */
   onError?(error: StateValidationError): void;

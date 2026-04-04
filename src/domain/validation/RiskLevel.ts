@@ -9,16 +9,16 @@
  * Determines whether execution requires approval
  */
 export enum RiskLevel {
-  SAFE = 'SAFE',              // Local, reversible, no system impact
-  LOW = 'LOW',                // Local but affects critical systems (tests, builds)
-  MEDIUM = 'MEDIUM',          // Hard to undo, affects shared state
-  HIGH = 'HIGH'               // Destructive, irreversible, or external-facing
+  SAFE = 'SAFE', // Local, reversible, no system impact
+  LOW = 'LOW', // Local but affects critical systems (tests, builds)
+  MEDIUM = 'MEDIUM', // Hard to undo, affects shared state
+  HIGH = 'HIGH', // Destructive, irreversible, or external-facing
 }
 
 /**
  * Classification of action types by risk characteristics
  */
-export type ActionType = 
+export type ActionType =
   | 'file_edit'
   | 'file_write'
   | 'file_delete'
@@ -34,7 +34,7 @@ export type ActionType =
  */
 export interface RiskCriteria {
   reversibility: 'LOCAL' | 'REMOTE' | 'SYSTEM-WIDE';
-  systemImpact: number;  // 0-10 scale
+  systemImpact: number; // 0-10 scale
   affectedArea: 'LOCAL' | 'SHARED' | 'EXTERNAL' | 'USERS';
   requiresApproval: boolean;
 }
