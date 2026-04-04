@@ -26,8 +26,7 @@ export class Core {
             this.currentDbPath = resolvedPath;
             this.isInitialized = true;
             if (ensureSchemaFn) {
-                const db = await this.db();
-                await ensureSchemaFn(db);
+                await ensureSchemaFn(dbPool);
             }
             console.log(`[CORE] Sovereign Hive initialized (v2.0 Architecture)`);
         } catch (error) {
@@ -49,14 +48,14 @@ export class Core {
         return await dbPool.getDb('main');
     }
 
-    static async push(op: any) {
+    static async push(...args: any[]) {
         if (!this.isInitialized) throw new Error('Core not initialized.');
-        return await dbPool.push(op);
+        return await (dbPool as any).push(...args);
     }
 
-    static async selectWhere(params: any) {
+    static async selectWhere(...args: any[]) {
         if (!this.isInitialized) throw new Error('Core not initialized.');
-        return await dbPool.selectWhere(params);
+        return await (dbPool as any).selectWhere(...args);
     }
 
     static startHeartbeat(taskId: string) {

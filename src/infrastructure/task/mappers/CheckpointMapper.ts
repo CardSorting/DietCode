@@ -34,14 +34,15 @@ export class CheckpointMapper {
 
   /**
    * Converts a snapshot to a value array for SQL INSERT.
-   * Order must match: checkpoint_id, task_id, timestamp, completed_requirements,
+   * Order must match: id, checkpoint_id, task_id, timestamp, completed_requirements,
    * pending_requirements, semantic_health,
    * output_hash, output_size_bytes, state, tokens_processed, trigger,
    * previous_snapshot_id, user_confirmation_required, drift_reason
    */
   static toRowValues(snapshot: ImplementationSnapshot): any[] {
     return [
-      snapshot.checkpointId,
+      snapshot.checkpointId, // id (PK)
+      snapshot.checkpointId, // checkpoint_id
       snapshot.taskId,
       snapshot.timestamp.getTime(),
       JSON.stringify(snapshot.completedRequirements),

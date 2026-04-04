@@ -12,7 +12,7 @@ export class TaskMapper {
    */
   static fromRow(row: DatabaseTaskRow): TaskEntity {
     return {
-      id: row.task_id,
+      id: row.id,
       title: row.title,
       objective: row.objective,
       requirements: [], // Loaded separately or not stored in core tasks table
@@ -35,24 +35,25 @@ export class TaskMapper {
 
   /**
    * Converts a TaskEntity to a value array for SQL INSERT/REPLACE.
-   * Order must match: task_id, title, objective, state, priority, initial_context,
-   *   vitals_heartbeat, v_token, completed_at, created_at, started_at,
-   *   updated_at, user_agent
+   * Order must match: id, task_id, title, objective, state, priority,
+   *   vitals_heartbeat, v_token, initial_context, created_at, updated_at,
+   *   started_at, completed_at, user_agent
    */
   static toRowValues(task: TaskEntity): any[] {
     return [
-      task.id,
+      task.id, // Primary Key 'id'
+      task.id, // 'task_id' field
       task.title,
       task.objective,
       task.state,
       task.priority.toString(),
-      task.initialContext,
       task.vitalsHeartbeat ? JSON.stringify(task.vitalsHeartbeat) : null,
       task.vToken || null,
-      task.metadata.completedAt?.getTime() || null,
+      task.initialContext,
       task.metadata.createdAt.getTime(),
-      task.metadata.startedAt?.getTime() || null,
       task.metadata.updatedAt.getTime(),
+      task.metadata.startedAt?.getTime() || null,
+      task.metadata.completedAt?.getTime() || null,
       task.metadata.userAgent
     ];
   }

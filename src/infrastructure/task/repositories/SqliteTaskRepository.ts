@@ -16,22 +16,21 @@ export class SqliteTaskRepository {
    */
   save(task: TaskEntity): void {
     const taskData = TaskMapper.toRowValues(task);
-    const id = task.id; // task_id is used as the axiomatic primary key 'id'
     const stmt = this.db.prepare(`
       INSERT OR REPLACE INTO hive_tasks (
         id, task_id, title, objective, state, priority,
-        initial_context, vitals_heartbeat, v_token,
-        completed_at, created_at, started_at, updated_at, user_agent
+        vitals_heartbeat, v_token, initial_context,
+        created_at, updated_at, started_at, completed_at, user_agent
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
-    stmt.run(id, ...taskData);
+    stmt.run(...taskData);
   }
 
   /**
    * Retrieves a task by ID.
    */
   findById(taskId: TaskId): TaskEntity | null {
-    const row = this.db.prepare('SELECT * FROM hive_tasks WHERE task_id = ?').get(taskId) as DatabaseTaskRow | undefined;
+    const row = this.db.prepare('SELECT * FROM hive_tasks WHERE id = ?').get(taskId) as DatabaseTaskRow | undefined;
     if (!row) return null;
     return TaskMapper.fromRow(row);
   }
@@ -52,7 +51,7 @@ export class SqliteTaskRepository {
    * Updates task state and timestamp.
    */
   updateState(taskId: TaskId, state: string): void {
-    this.db.prepare('UPDATE hive_tasks SET state = ?, updated_at = ? WHERE task_id = ?').run(
+    this.db.prepare('UPDATE hive_tasks SET state = ?, updated_at = ? WHERE id = ?').run(
       state,
       Date.now(),
       taskId

@@ -18,7 +18,6 @@ export class SqliteCheckpointRepository {
    */
   save(snapshot: ImplementationSnapshot): void {
     const values = CheckpointMapper.toRowValues(snapshot);
-    const id = snapshot.checkpointId || crypto.randomUUID(); // Axiomatic Primary Key
     
     const stmt = this.db.prepare(`
       INSERT OR REPLACE INTO hive_checkpoints (
@@ -29,7 +28,7 @@ export class SqliteCheckpointRepository {
         user_confirmation_required, drift_reason
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
-    stmt.run(id, ...values);
+    stmt.run(...values);
   }
 
   /**
@@ -38,8 +37,8 @@ export class SqliteCheckpointRepository {
   findById(taskId: TaskId, checkpointId: CheckpointId): ImplementationSnapshot | null {
     const row = this.db.prepare(`
       SELECT * FROM hive_checkpoints 
-      WHERE task_id = ? AND checkpoint_id = ?
-    `).get(taskId, checkpointId) as DatabaseCheckpointRow | undefined;
+      WHERE id = ?
+    `).get(checkpointId) as DatabaseCheckpointRow | undefined;
     if (!row) return null;
     return CheckpointMapper.fromRow(row);
   }

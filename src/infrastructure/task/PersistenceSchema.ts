@@ -49,13 +49,13 @@ export const INITIAL_SCHEMA = `
     objective TEXT NOT NULL,
     state TEXT NOT NULL,
     priority INTEGER NOT NULL,
-    initial_context TEXT DEFAULT '',
     vitals_heartbeat TEXT,
     v_token TEXT,
-    completed_at INTEGER,
+    initial_context TEXT,
     created_at INTEGER NOT NULL,
-    started_at INTEGER,
     updated_at INTEGER NOT NULL,
+    started_at INTEGER,
+    completed_at INTEGER,
     user_agent TEXT NOT NULL
   );
 
@@ -75,8 +75,7 @@ export const INITIAL_SCHEMA = `
     trigger TEXT NOT NULL,
     previous_snapshot_id TEXT,
     user_confirmation_required INTEGER DEFAULT 0,
-    drift_reason TEXT,
-    FOREIGN KEY (task_id) REFERENCES hive_tasks(task_id)
+    drift_reason TEXT
   );
 
   -- Axiomatic Indexes
