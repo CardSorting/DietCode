@@ -11,7 +11,6 @@ export class PathValidator {
   private readonly sensitivePatterns = [
     /\.git\//,
     /node_modules\//,
-    /\.env/,
     /\.ssh\//,
     /\.bash_history/,
     /\.zsh_history/,

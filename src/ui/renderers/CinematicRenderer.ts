@@ -97,6 +97,16 @@ export const CinematicRenderer = {
   },
 
   /**
+   * Simple reveal of multiple lines with delay.
+   */
+  async revealLines(lines: string[], delay = 50): Promise<void> {
+    for (const line of lines) {
+      console.log(line);
+      if (delay > 0) await new Promise(r => setTimeout(r, delay));
+    }
+  },
+
+  /**
    * Shutter wipe of the console.
    */
   async wipe(): Promise<void> {

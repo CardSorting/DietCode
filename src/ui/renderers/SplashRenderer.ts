@@ -39,7 +39,7 @@ export const SplashRenderer = {
     ];
 
     for (const msg of diagnostics) {
-      await CinematicRenderer.typewriter(COLORS.MUTED(`[DEBUG] ${msg}`), 5);
+      await CinematicRenderer.hardType(COLORS.MUTED(`[DEBUG] ${msg}`), 5);
       await new Promise(r => setTimeout(r, 50));
     }
 
