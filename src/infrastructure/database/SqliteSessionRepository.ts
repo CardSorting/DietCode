@@ -73,7 +73,7 @@ export class SqliteSessionRepository implements SessionRepository {
 
     await Core.push({
       type: 'insert',
-      table: 'tasks',
+      table: 'hive_tasks',
       values: {
         id: sessionId,
         userId: userId,
@@ -94,8 +94,9 @@ export class SqliteSessionRepository implements SessionRepository {
 
     // Fluid Read: Get session context
     const results = await Core.selectWhere(
-      'tasks',
+      'hive_tasks',
       { column: 'id', operator: '=', value: sessionId },
+      undefined,
       { limit: 1 },
     );
     const session = results[0] as any;
@@ -104,7 +105,7 @@ export class SqliteSessionRepository implements SessionRepository {
 
     await Core.push({
       type: 'insert',
-      table: 'audit_events',
+      table: 'hive_audit',
       values: {
         id: globalThis.crypto.randomUUID(),
         userId: session.userId,
@@ -120,7 +121,7 @@ export class SqliteSessionRepository implements SessionRepository {
 
     await Core.push({
       type: 'update',
-      table: 'tasks',
+      table: 'hive_tasks',
       values: { updatedAt: now },
       where: { column: 'id', operator: '=', value: sessionId },
     });
@@ -129,8 +130,9 @@ export class SqliteSessionRepository implements SessionRepository {
   async loadSession(sessionId: string): Promise<SessionState | null> {
     // 1. Get task state
     const taskResults = await Core.selectWhere(
-      'tasks',
+      'hive_tasks',
       { column: 'id', operator: '=', value: sessionId },
+      undefined,
       { limit: 1 },
     );
     const task = taskResults[0] as any;
@@ -139,12 +141,13 @@ export class SqliteSessionRepository implements SessionRepository {
 
     // 2. Get session messages from audit events
     const eventResults = await Core.selectWhere(
-      'audit_events',
+      'hive_audit',
       [
         { column: 'type', operator: '=', value: 'session_message' },
         { column: 'data', operator: 'LIKE', value: `%${sessionId}%` },
       ],
-      { orderBy: { column: 'createdAt', direction: 'asc' } },
+      undefined,
+      { orderBy: { column: 'timestamp', direction: 'asc' } },
     );
 
     const messages: Message[] = [];
@@ -168,7 +171,7 @@ export class SqliteSessionRepository implements SessionRepository {
 
     await Core.push({
       type: 'update',
-      table: 'tasks',
+      table: 'hive_tasks',
       values: {
         status,
         result: result ? JSON.stringify(result) : null,
@@ -187,7 +190,7 @@ export class SqliteSessionRepository implements SessionRepository {
 
     await Core.push({
       type: 'update',
-      table: 'tasks',
+      table: 'hive_tasks',
       values: {
         agentId,
         updatedAt: now,

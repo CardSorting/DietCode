@@ -9,13 +9,16 @@ import type { EventType, SystemEvent } from '../../domain/Event';
 import { LogLevel } from '../../domain/logging/LogLevel';
 import type { LogService } from '../../domain/logging/LogService';
 
+// Hardened Infrastructure: Support high-concurrency event streams
+EventEmitter.defaultMaxListeners = 1000;
+
 export class EventBus {
   private static instance?: EventBus;
   private emitter: EventEmitter = new EventEmitter();
   private logService: LogService;
 
   private constructor(logService: LogService) {
-    this.emitter.setMaxListeners(100);
+    this.emitter.setMaxListeners(1000);
     this.logService = logService;
   }
 

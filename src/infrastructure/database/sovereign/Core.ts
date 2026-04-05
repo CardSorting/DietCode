@@ -2,7 +2,7 @@ import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { dbPool, setDbPath } from '@noorm/broccoliq';
-import { Kysely } from 'kysely';
+import type { Kysely } from 'kysely';
 import { BroccoliQueueAdapter } from '../../queue/BroccoliQueueAdapter';
 import type { DatabaseSchema } from './DatabaseSchema';
 
@@ -59,14 +59,15 @@ export class Core {
   static kysely(): Kysely<DatabaseSchema> {
     if (!Core.isInitialized) throw new Error('Core not initialized.');
     if (!Core.Kysely) {
-      Core.Kysely = new Kysely<DatabaseSchema>({ dialect: dbPool as any });
+      // Level 2: Late-bound Kysely integration with BroccoliQ Buffered Pool
+      throw new Error('Kysely must be initialized asynchronously. Use Core.db() instead.');
     }
     return Core.Kysely;
   }
 
-  static async db() {
+  static async db(): Promise<Kysely<DatabaseSchema>> {
     if (!Core.isInitialized) throw new Error('Core not initialized.');
-    return await dbPool.getDb('main');
+    return (await dbPool.getDb('main')) as unknown as Kysely<DatabaseSchema>;
   }
 
   static get pool() {
@@ -111,23 +112,27 @@ export class Core {
   private static async recordHeartbeat() {
     if (!Core.currentTaskId || !Core.currentHeartbeatId) return;
     try {
+      // Harmonized with 'hive_tasks' table in master unified schema
       await Core.push({
         type: 'upsert',
         table: 'hive_tasks',
-        where: { task_id: Core.currentTaskId },
+        where: { column: 'task_id', value: Core.currentTaskId },
         values: {
           id: Core.currentHeartbeatId,
           task_id: Core.currentTaskId,
+          state: 'PROCESSING',
+          updated_at: Date.now(),
           vitals_heartbeat: JSON.stringify({
             timestamp: Date.now(),
             status: 'ALIVE',
           }),
-          updated_at: Date.now(),
           v_token: crypto.randomUUID(),
         },
       });
     } catch (e) {}
   }
+
+
 
   static async flush() {
     Core.stopHeartbeat();

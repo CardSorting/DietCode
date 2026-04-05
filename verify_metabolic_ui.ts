@@ -1,7 +1,7 @@
 import { TerminalUI } from './src/ui/terminal';
 import { NodeTerminalAdapter } from './src/infrastructure/NodeTerminalAdapter';
-import { LogService } from './src/domain/logging/LogService';
-import { HudData } from './src/domain/system/TerminalInterface';
+import type { LogService } from './src/domain/logging/LogService';
+import type { HudData } from './src/domain/system/TerminalInterface';
 import { COLORS } from './src/ui/design/Theme';
 
 // Mock LogService
@@ -10,6 +10,10 @@ class MockLogService implements LogService {
   error(message: string) { console.error(`[ERROR] ${message}`); }
   warn(message: string) { console.warn(`[WARN] ${message}`); }
   debug(message: string) { console.debug(`[DEBUG] ${message}`); }
+  info(message: string) { console.log(`[INFO] ${message}`); }
+  logEntry(entry: any) { console.log(`[ENTRY] ${entry.message}`); }
+  setMinLevel(level: any) {}
+  getMinLevel() { return 0 as any; }
 }
 
 async function verify() {

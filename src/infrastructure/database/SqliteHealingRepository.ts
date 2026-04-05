@@ -11,7 +11,7 @@ export class SqliteHealingRepository implements HealingRepository {
     // 2.0 Architectural Pattern: Zero-Wait ingestion
     await Core.push({
       type: 'insert',
-      table: 'healing_proposals',
+      table: 'hive_healing_proposals',
       values: {
         id: proposal.id,
         violationId: proposal.violationId,
@@ -28,8 +28,9 @@ export class SqliteHealingRepository implements HealingRepository {
 
   async getProposalById(id: string): Promise<HealingProposal | null> {
     const results = await Core.selectWhere(
-      'healing_proposals',
+      'hive_healing_proposals',
       { column: 'id', operator: '=', value: id },
+      undefined,
       { limit: 1 },
     );
 
@@ -38,7 +39,7 @@ export class SqliteHealingRepository implements HealingRepository {
   }
 
   async getProposalsForViolation(violationId: string): Promise<HealingProposal[]> {
-    const results = await Core.selectWhere('healing_proposals', {
+    const results = await Core.selectWhere('hive_healing_proposals', {
       column: 'violationId',
       operator: '=',
       value: violationId,
@@ -55,7 +56,7 @@ export class SqliteHealingRepository implements HealingRepository {
 
     await Core.push({
       type: 'update',
-      table: 'healing_proposals',
+      table: 'hive_healing_proposals',
       values: updateData,
       where: {
         column: 'id',
@@ -66,7 +67,7 @@ export class SqliteHealingRepository implements HealingRepository {
   }
 
   async listRecentProposals(limit = 10): Promise<HealingProposal[]> {
-    const results = await Core.selectWhere('healing_proposals', [], {
+    const results = await Core.selectWhere('hive_healing_proposals', [], undefined, {
       orderBy: { column: 'createdAt', direction: 'desc' },
       limit,
     });

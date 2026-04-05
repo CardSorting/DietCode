@@ -59,7 +59,7 @@ export class QueueWorker {
     while (this.isProcessing) {
       try {
         // Get pending jobs from swarm_queue or hive_queue
-        const jobs = await Core.selectWhere('hive_queue', 'status', '=', 'pending');
+        const jobs = await Core.selectWhere('hive_queue', { column: 'status', operator: '=', value: 'pending' });
 
         if (jobs && jobs.length > 0) {
           for (const job of jobs) {

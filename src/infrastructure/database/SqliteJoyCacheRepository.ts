@@ -203,6 +203,7 @@ export class SqliteJoyCacheRepository {
     const results = await Core.selectWhere(
       'hive_joy_metrics',
       { column: 'path', operator: '=', value: filePath },
+      undefined,
       { limit: 1 },
     );
     const result = results[0] as any;

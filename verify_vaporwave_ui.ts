@@ -1,7 +1,7 @@
 import { TerminalUI } from './src/ui/terminal';
 import { NodeTerminalAdapter } from './src/infrastructure/NodeTerminalAdapter';
-import { LogService } from './src/domain/logging/LogService';
-import { HudData } from './src/domain/system/TerminalInterface';
+import type { LogService } from './src/domain/logging/LogService';
+import type { HudData } from './src/domain/system/TerminalInterface';
 import { COLORS } from './src/ui/design/Theme';
 import { CinematicRenderer } from './src/ui/renderers/CinematicRenderer';
 import { MetabolicRenderer } from './src/ui/renderers/MetabolicRenderer';
@@ -12,6 +12,10 @@ class MockLogService implements LogService {
   error(message: string) { console.error(`[AETHER_ERR] ${message}`); }
   warn(message: string) { console.warn(`[MIDNIGHT_WARN] ${message}`); }
   debug(message: string) { console.debug(`[DREAM_DBG] ${message}`); }
+  info(message: string) { console.log(`[INFO] ${message}`); }
+  logEntry(entry: any) { console.log(`[ENTRY] ${entry.message}`); }
+  setMinLevel(level: any) {}
+  getMinLevel() { return 0 as any; }
 }
 
 async function verify() {

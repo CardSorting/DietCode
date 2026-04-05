@@ -10,7 +10,7 @@ export class SqliteKnowledgeRepository implements KnowledgeRepository {
     // 2.0 Architectural Pattern: Push to Memory Buffer (Level 7)
     await Core.push({
       type: 'insert',
-      table: 'knowledge_base',
+      table: 'hive_kb',
       values: {
         id: item.id,
         knowledge_key: item.key,
@@ -19,7 +19,7 @@ export class SqliteKnowledgeRepository implements KnowledgeRepository {
         confidence: item.confidence,
         tags: JSON.stringify(item.tags),
         metadata: JSON.stringify(item.metadata || {}),
-        createdAt: item.createdAt,
+        created_at: item.createdAt,
       },
     });
   }
@@ -27,8 +27,9 @@ export class SqliteKnowledgeRepository implements KnowledgeRepository {
   async findRelevant(query: string, limit = 5): Promise<KnowledgeItem[]> {
     // Fluid Select: Automatically merges buffers & disk
     const results = await Core.selectWhere(
-      'knowledge_base',
+      'hive_kb',
       { column: 'knowledge_key', operator: 'LIKE', value: `%${query}%` },
+      undefined,
       { limit },
     );
 
@@ -42,7 +43,7 @@ export class SqliteKnowledgeRepository implements KnowledgeRepository {
   }
 
   async getAll(): Promise<KnowledgeItem[]> {
-    const results = await Core.selectWhere('knowledge_base', []);
+    const results = await Core.selectWhere('hive_kb', []);
 
     return results.map((r: any) => ({
       ...r,

@@ -27,7 +27,7 @@ async function verify() {
   const systemAdapter = new NodeSystemAdapter(fs, logger);
 
   // Initialize Infrastructure
-  await SqliteLockManager.initialize();
+  // SqliteLockManager (LockManager) singleton initializes itself on first access
 
   const discovery = new DiscoveryService(fs, systemAdapter, logger);
   const rollback = new RollbackManager();

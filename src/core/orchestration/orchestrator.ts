@@ -23,7 +23,7 @@ import { EventBus } from './EventBus';
 import type { ExecutionService } from './ExecutionService';
 import type { HandoverService } from './HandoverService';
 import type { SwarmAuditor } from './SwarmAuditor';
-import { ICONS } from '../../ui/theme';
+import { ICONS } from '../../ui/design/Theme';
 
 export class Orchestrator {
   private eventBus: EventBus;

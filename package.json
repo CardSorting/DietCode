@@ -1,49 +1,22 @@
 {
-  "name": "@noorm/broccoliq",
+  "name": "dietcode",
   "version": "2.0.0",
   "type": "module",
-  "private": false,
-  "description": "BroccoliQ - Sharded Sovereign Hive Architecture (Level 10 Persistence)",
-  "main": "./dist/infrastructure/index.js",
-  "types": "./dist/infrastructure/index.d.ts",
-  "exports": {
-    ".": "./dist/infrastructure/index.js",
-    "./pool": "./dist/infrastructure/db/pool/index.js",
-    "./queue": "./dist/infrastructure/queue/SqliteQueue.js"
-  },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE",
-    "CONTRIBUTING.md",
-    "CODE_OF_CONDUCT.md",
-    "SECURITY.md"
-  ],
-  "engines": {
-    "node": ">=18.0.0",
-    "bun": ">=1.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/cardsorting/broccoliq.git"
-  },
-  "bugs": {
-    "url": "https://github.com/cardsorting/broccoliq/issues"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
+  "private": true,
+  "description": "Sovereign Hive Architecture for DietCode - Zero-Shim AI Orchestration",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "benchmark": "npx tsx ./infrastructure/db/Benchmark.ts",
-    "update-kb": "npx tsx ./infrastructure/db/PopulateKnowledge.ts",
+    "test": "vitest run",
     "lint": "biome lint . && eslint .",
     "format": "biome format . --write",
-    "check": "biome check --apply ."
+    "check": "biome check --apply .",
+    "verify": "npx tsx verify_advanced_infrastructure.ts"
   },
   "dependencies": {
+    "@noorm/broccoliq": "file:../broccolidb",
     "@anthropic-ai/sdk": "^0.82.0",
     "better-sqlite3": "^11.3.0",
     "kysely": "^0.27.2",

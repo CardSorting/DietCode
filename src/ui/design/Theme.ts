@@ -13,6 +13,9 @@ export const COLORS = {
   // Vaporwave Aesthetic Core
   AESTHETIC_PINK: chalk.hex('#ff71ce'), 
   AESTHETIC_PURPLE: chalk.hex('#b967ff'),
+  NEON_CYAN: chalk.hex('#00f2ff'),
+  NEON_PINK: chalk.hex('#ff71ce'),
+  SOFT_PURPLE: chalk.hex('#b967ff'),
   
   // Aesthetic Profiles
   PROFILES: {

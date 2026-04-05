@@ -10,7 +10,7 @@ export class SqliteSnapshotRepository implements SnapshotRepository {
   async saveSnapshot(snapshot: Snapshot): Promise<void> {
     await Core.push({
       type: 'insert',
-      table: 'snapshots',
+      table: 'hive_snapshots',
       values: {
         id: snapshot.id,
         path: snapshot.path,
@@ -26,8 +26,9 @@ export class SqliteSnapshotRepository implements SnapshotRepository {
 
   async getLatestSnapshot(filePath: string): Promise<Snapshot | null> {
     const results = await Core.selectWhere(
-      'snapshots',
+      'hive_snapshots',
       { column: 'path', operator: '=', value: filePath },
+      undefined,
       { orderBy: { column: 'timestamp', direction: 'desc' }, limit: 1 },
     );
     const result = results[0] as any;
@@ -46,8 +47,9 @@ export class SqliteSnapshotRepository implements SnapshotRepository {
 
   async getSnapshotById(id: string): Promise<Snapshot | null> {
     const results = await Core.selectWhere(
-      'snapshots',
+      'hive_snapshots',
       { column: 'id', operator: '=', value: id },
+      undefined,
       { limit: 1 },
     );
     const result = results[0] as any;
@@ -67,7 +69,7 @@ export class SqliteSnapshotRepository implements SnapshotRepository {
   async cleanup(beforeTimestamp: number): Promise<void> {
     await Core.push({
       type: 'delete',
-      table: 'snapshots',
+      table: 'hive_snapshots',
       where: {
         column: 'timestamp',
         operator: '<',

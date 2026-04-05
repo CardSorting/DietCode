@@ -97,6 +97,21 @@ export const CinematicRenderer = {
   },
 
   /**
+   * Shimmer Reveal: Reveals lines with a sliding Liquid Neon shimmer effect.
+   */
+  async shimmerReveal(lines: string[], cycles = 1): Promise<void> {
+    for (const line of lines) {
+      for (let c = 0; c < cycles; c++) {
+        for (let offset = -5; offset < line.length + 5; offset++) {
+          process.stdout.write(`\r${COLORS.applyRainbowShimmer(line, offset / line.length)}`);
+          await new Promise(r => setTimeout(r, 20));
+        }
+      }
+      process.stdout.write('\n');
+    }
+  },
+
+  /**
    * Simple reveal of multiple lines with delay.
    */
   async revealLines(lines: string[], delay = 50): Promise<void> {
