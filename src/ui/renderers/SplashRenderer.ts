@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { COLORS, ICONS } from '../design/Theme';
+import { AESTHETIC, COLORS, ICONS } from '../design/Theme';
 import { CinematicRenderer } from './CinematicRenderer';
 
 /**
@@ -9,8 +9,9 @@ export const SplashRenderer = {
   /**
    * Renders the compact splash screen.
    */
-  renderSplash(): string {
-    const iconLines = ICONS.DIETCODE.trim().split('\n');
+  renderSplash(profile = 'AETHER'): string {
+    const logo = AESTHETIC.getLogo(profile || 'AETHER');
+    const iconLines = logo.trim().split('\n');
     const title = COLORS.HIGHLIGHT('DIETCODE');
     const subtitle = COLORS.PRIMARY('[ SOVEREIGN HIVE ARCHITECTURE ]');
     const version = COLORS.MUTED('v2.0.0');
@@ -19,18 +20,18 @@ export const SplashRenderer = {
     const icon = iconLines.map(l => l.replace('[D|C]', chalk.red('[D|C]'))).join('\n').split('\n');
 
     return [
-      `  ${icon[0]}`,
-      `  ${icon[1]}   ${title}`,
-      `  ${icon[2]}   ${subtitle}`,
-      `  ${icon[3]}   ${version}`,
-      `  ${icon[4]}`,
+      `  ${icon[0] || ''}`,
+      `  ${icon[1] || ''}`,
+      `  ${icon[2] || ''}`,
+      `  ${icon[3] || ''}`,
+      `  ${icon[icon.length - 1] || ''}`,
     ].join('\n');
   },
 
   /**
    * Performs a cinematic boot sequence.
    */
-  async bootSequence(): Promise<void> {
+  async bootSequence(profile = 'AETHER'): Promise<void> {
     const diagnostics = [
       'INIT: Sovereign Kernel [OK]',
       'SYNC: Hive Memory Core [OK]',
@@ -44,7 +45,7 @@ export const SplashRenderer = {
     }
 
     console.log('\n');
-    await CinematicRenderer.revealLines(this.renderSplash().split('\n'), 50);
+    await CinematicRenderer.revealLines(this.renderSplash(profile).split('\n'), 50);
     console.log('\n');
   },
 

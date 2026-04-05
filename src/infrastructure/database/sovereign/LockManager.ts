@@ -18,14 +18,6 @@ export class LockManager {
   private constructor() {}
 
   /**
-   * Legacy initialization bridge.
-   * Ensures the core hive is operational.
-   */
-  static async initialize(): Promise<void> {
-    await Core.init('./data/sovereign.db');
-  }
-
-  /**
    * Get singleton instance
    */
   static getInstance(): LockManager {
@@ -247,31 +239,5 @@ export class LockManager {
         this.locksCache.delete(res);
       }
     }
-  }
-
-  // Legacy static wrappers for backward compatibility during transition
-  static async acquireLock(resource: string, owner: string, ttlMs = 60000): Promise<boolean> {
-    const mgr = LockManager.getInstance();
-    const result = await mgr.acquire(
-      {
-        taskId: 'legacy',
-        operation: resource,
-        ownerId: owner,
-        timeoutMs: ttlMs,
-      },
-      0,
-    );
-    return result.success;
-  }
-
-  static async releaseLock(resource: string, owner: string): Promise<void> {
-    const mgr = LockManager.getInstance();
-    // Legacy release didn't use codes, so we have to guess or check-and-delete
-    const db = await Core.db();
-    await (db as any)
-      .deleteFrom('locks')
-      .where('resource', '=', `legacy_${resource}`)
-      .where('owner_id', '=', owner)
-      .execute();
   }
 }

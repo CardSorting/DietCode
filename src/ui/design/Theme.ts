@@ -14,14 +14,35 @@ export const COLORS = {
   AESTHETIC_PINK: chalk.hex('#ff71ce'), 
   AESTHETIC_PURPLE: chalk.hex('#b967ff'),
   
+  // Aesthetic Profiles
+  PROFILES: {
+    AETHER: { primary: '#00f2ff', highlight: '#ffffff' },
+    MATRIX: { primary: '#00ff41', highlight: '#00ff41' },
+    VAPORWAVE: { primary: '#ff71ce', highlight: '#b967ff' },
+    INDUSTRIAL: { primary: '#abb2bf', highlight: '#e06c75' }
+  },
+
+  activeProfile: 'AETHER',
+
+  get PRIMARY() {
+    const p = (this as any).PROFILES[(this as any).activeProfile] || (this as any).PROFILES.AETHER;
+    return chalk.hex(p.primary);
+  },
+
+  get HIGHLIGHT() {
+    const p = (this as any).PROFILES[(this as any).activeProfile] || (this as any).PROFILES.AETHER;
+    return chalk.hex(p.highlight).bold;
+  },
+
+  get SOVEREIGN() {
+    return this.activeProfile === 'VAPORWAVE' ? this.AESTHETIC_PURPLE.bold : this.HIVE_CYAN.bold;
+  },
+
   // Base Sovereign Tokens
-  PRIMARY: chalk.hex('#00f2ff'),
   SECONDARY: chalk.hex('#3e4451'),
   SUCCESS: chalk.hex('#00ff41'),
   ERROR: chalk.hex('#ff0033'),
   WARNING: chalk.hex('#ffcc00'),
-  HIGHLIGHT: chalk.hex('#ffffff').bold,
-  SOVEREIGN: chalk.hex('#b967ff').bold,
   MUTED: chalk.hex('#282c34'),
 
   // Semantic UI Tokens
@@ -63,9 +84,9 @@ export const COLORS = {
      const scaledFactor = (factor % 1) * n;
      const i = Math.floor(scaledFactor);
      const f = scaledFactor - i;
-     const stopA = stops[i] ?? stops[0];
-     const stopB = stops[i + 1] ?? stops[stops.length - 1];
-     return this.lerpRgb(stopA, stopB, f);
+     const stopA = stops[i] as string;
+     const stopB = (stops[i + 1] ?? stops[stops.length - 1]) as string;
+     return (this as any).lerpRgb(stopA, stopB, f);
   },
 
   /**
@@ -144,10 +165,24 @@ export const ICONS = {
 `,
   DIETCODE: `
   .---.
- /     \\
-| [D|C] |
-|       |
+ /     \\   DIETCODE
+| [D|C] |   [ SOVEREIGN HIVE ARCHITECTURE ]
+|       |   v2.0.0
  '---'
+`,
+  MATRIX_LOGO: `
+  [0|1]
+ / 0 1 \\   SOVEREIGN_MATRIX
+|  1 0  |  [ PROTOCOL_LOCKED ]
+ \\ 1 0 /
+  [1|0]
+`,
+  VAPOR_LOGO: `
+  * . *
+ / ~ ~ \\   AESTHETIC_HIVE
+|  [V|P] |  [ PINK_DREAMSTATE ]
+ \\ ~ ~ /
+  * . *
 `,
   PREMIUM: `
   .---.
@@ -167,6 +202,15 @@ export const ICONS = {
   DATABASE: '🗄️',
   BEE: '🐝',
   TEMPLE: '🏛️',
+  TELEMETRY: '📡',
+};
+
+export const AESTHETIC = {
+  getLogo(profile: string): string {
+    if (profile === 'MATRIX') return ICONS.MATRIX_LOGO;
+    if (profile === 'VAPORWAVE') return ICONS.VAPOR_LOGO;
+    return ICONS.DIETCODE;
+  }
 };
 
 export const BORDERS = {

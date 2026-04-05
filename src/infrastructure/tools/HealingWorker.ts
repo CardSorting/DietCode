@@ -69,13 +69,21 @@ export class HealingWorker {
           console.log(`[JoyZoning] Pass 4 Verified Strategy Analysis: ${resource}`);
 
           // Phase 3: Distributed Atomic Lock (Durable Guarding)
-          const locked = await LockManager.acquireLock(resource, owner);
-          if (!locked) {
+          const lockResult = await LockManager.getInstance().acquire({
+            taskId: 'joyzoning',
+            operation: `heal_${resource}`,
+            ownerId: owner,
+            timeoutMs: 60000,
+          });
+
+          if (!lockResult.success) {
             console.log(
               `[JoyZoning] Resource Logic Locked: Skipping concurrent healing for ${resource}`,
             );
             return;
           }
+
+          const ticket = lockResult.ticket!;
 
           try {
             const result = await this.joyHealer.determineAction(payload.payload);
@@ -148,7 +156,7 @@ export class HealingWorker {
             );
           } finally {
             // Phase 3: Absolute Lock Release
-            await LockManager.releaseLock(resource, owner);
+            await LockManager.getInstance().release(ticket.resourceId, ticket.code);
           }
         }
       },

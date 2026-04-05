@@ -78,14 +78,19 @@ export class Core {
     return Core.appQueue;
   }
 
-  static async push(...args: any[]) {
+  static async push(op: any, agentId?: string, affectedFile?: string) {
     if (!Core.isInitialized) throw new Error('Core not initialized.');
-    return await (dbPool as any).push(...args);
+    return await dbPool.push(op, agentId, affectedFile);
   }
 
-  static async selectWhere(...args: any[]) {
+  static async selectWhere<T extends keyof any>(
+    table: T,
+    where: any,
+    agentId?: string,
+    options?: { orderBy?: { column: string; direction: 'asc' | 'desc' }; limit?: number; shardId?: string },
+  ) {
     if (!Core.isInitialized) throw new Error('Core not initialized.');
-    return await (dbPool as any).selectWhere(...args);
+    return await dbPool.selectWhere(table as any, where, agentId, options);
   }
 
   static startHeartbeat(taskId: string) {
