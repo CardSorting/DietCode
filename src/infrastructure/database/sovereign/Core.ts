@@ -33,6 +33,10 @@ export class Core {
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
       setDbPath(resolvedPath);
       Core.currentDbPath = resolvedPath;
+      
+      // Level 10: Establish schema baseline before allowing system scans
+      await dbPool.getDb('main');
+      
       Core.appQueue = new BroccoliQueueAdapter();
       Core.isInitialized = true;
       if (ensureSchemaFn) {

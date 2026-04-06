@@ -19,10 +19,10 @@
     "dietcode": "./dist/index.js"
   },
   "dependencies": {
-    "@noorm/broccoliq": "file:../broccolidb",
+    "@noorm/broccoliq": "^2.2.5",
     "@anthropic-ai/sdk": "^0.82.0",
     "better-sqlite3": "^11.3.0",
-    "kysely": "^0.27.2",
+    "kysely": "^0.28.2",
     "kysely-bun-sqlite": "^0.4.0",
     "openai": "^6.33.0"
   },
