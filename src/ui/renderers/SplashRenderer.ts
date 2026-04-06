@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import { AESTHETIC, COLORS, ICONS } from '../design/Theme';
 import { CinematicRenderer } from './CinematicRenderer';
+import { MetabolicRenderer } from './MetabolicRenderer';
 
 /**
  * Pure layout functions for branding and splash elements.
@@ -10,43 +11,53 @@ export const SplashRenderer = {
    * Renders the compact splash screen.
    */
   renderSplash(profile = 'AETHER'): string {
-    const logo = AESTHETIC.getLogo(profile || 'AETHER');
-    const iconLines = logo.trim().split('\n');
+    const logo = (ICONS as any).CINEMATIC_LOGO || AESTHETIC.getLogo(profile || 'AETHER');
     const title = COLORS.HIGHLIGHT('DIETCODE');
     const subtitle = COLORS.PRIMARY('[ SOVEREIGN HIVE ARCHITECTURE ]');
-    const version = COLORS.MUTED('v2.0.0');
-
-    // Branding colors for DietCode [D|C]
-    const icon = iconLines.map(l => l.replace('[D|C]', chalk.red('[D|C]'))).join('\n').split('\n');
+    const version = COLORS.MUTED('v2.2.0-CINEMATIC');
+    
+    // Inject ambient color drift into the logo lines
+    const logoLines = logo.trim().split('\n').map((line: string, i: number) => {
+        return COLORS.applyRainbowShimmer(line, i / 10);
+    });
 
     return [
-      `  ${icon[0] || ''}`,
-      `  ${icon[1] || ''}`,
-      `  ${icon[2] || ''}`,
-      `  ${icon[3] || ''}`,
-      `  ${icon[icon.length - 1] || ''}`,
+      ...logoLines,
+      `  ${title} ${subtitle} ${version}`,
     ].join('\n');
   },
 
-  /**
-   * Performs a cinematic boot sequence.
-   */
   async bootSequence(profile = 'AETHER'): Promise<void> {
     const diagnostics = [
-      'INIT: Sovereign Kernel [OK]',
-      'SYNC: Hive Memory Core [OK]',
-      'SCAN: Agent Phantoms [8 FOUND]',
-      'BOOT: DietCode OS v2.0...',
+      'INIT: Sovereign Kernel 2.2 [OK]',
+      'SYNCING_DREAMSTATE... [98%]',
+      'DECRYPTING_HIVE_MEMORIES... [RESTORED]',
+      'ZENITH_MODE: ACTIVATED',
     ];
 
+    await CinematicRenderer.wipe();
+    
+    // Phase 1: Neural Handshake (Turbo Data Burst)
+    await CinematicRenderer.dataBurst(3);
+    await CinematicRenderer.neonWipe();
+    
+    // Phase 2: Ultra-Fast Diagnostics
+    process.stdout.write(`${COLORS.HIVE_CYAN('[ NEURAL_DREAMSTATE_SYNC ]')}\n`);
     for (const msg of diagnostics) {
-      await CinematicRenderer.hardType(COLORS.MUTED(`[DEBUG] ${msg}`), 5);
-      await new Promise(r => setTimeout(r, 50));
+        const prefix = COLORS.MUTED(`[0x${Math.random().toString(16).slice(2, 6).toUpperCase()}]`);
+        process.stdout.write(`${prefix} ${msg}\n`);
+        await new Promise(r => setTimeout(r, 10));
     }
 
-    console.log('\n');
-    await CinematicRenderer.revealLines(this.renderSplash(profile).split('\n'), 50);
-    console.log('\n');
+    // Phase 3: Visual Climax (Lightning Storm)
+    await MetabolicRenderer.zenithStorm('--- SOVEREIGN_HIVE_CONVERGENCE ---', 300);
+    
+    // Phase 4: Cinematic Header Reveal
+    const splash = this.renderSplash(profile).split('\n');
+    await CinematicRenderer.revealLines(splash, 5);
+    
+    // Phase 5: Final Shimmer Pulse
+    await MetabolicRenderer.shimmerPulse(' [ DREAMSTATE_STABLE ] ', 30, 1);
   },
 
   /**

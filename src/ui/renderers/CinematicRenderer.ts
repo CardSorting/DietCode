@@ -122,14 +122,87 @@ export const CinematicRenderer = {
   },
 
   /**
-   * Shutter wipe of the console.
+   * Universal terminal reset and cursor home.
    */
   async wipe(): Promise<void> {
-    const height = process.stdout.rows || 20;
-    for (let i = 0; i < height; i++) {
-      process.stdout.write('\n');
-      await new Promise((resolve) => setTimeout(resolve, 20));
+    process.stdout.write('\x1b[2J\x1b[H');
+  },
+
+  /**
+   * Glitches a line of text by briefly replacing characters with noise.
+   */
+  async glitchLine(text: string, count = 5): Promise<void> {
+    const glitchChars = (COLORS as any).GLITCH_CHARS || '01#@$%&*!?';
+    const original = text;
+    for (let i = 0; i < count; i++) {
+        const glitched = text.split('').map(c => Math.random() > 0.8 ? glitchChars[Math.floor(Math.random() * glitchChars.length)] : c).join('');
+        process.stdout.write(`\r${COLORS.HIVE_GREEN(glitched)}`);
+        await new Promise(r => setTimeout(r, 40));
     }
-    process.stdout.write('\x1Bc'); 
+    process.stdout.write(`\r${original}\n`);
+  },
+
+  /**
+   * Renders a "Scanning" bar across the width of the terminal.
+   */
+  async scanline(height = 5): Promise<void> {
+    const width = process.stdout.columns || 80;
+    const bar = '█'.repeat(width);
+    for (let i = 0; i < height; i++) {
+        process.stdout.write(`\r${COLORS.HIVE_CYAN(bar)}`);
+        await new Promise(r => setTimeout(r, 50));
+        process.stdout.write(`\r${' '.repeat(width)}`);
+        await new Promise(r => setTimeout(r, 20));
+    }
+  },
+
+  /**
+   * Simulates a high-speed data burst with flickering characters across multiple lines.
+   */
+  async dataBurst(lines = 3): Promise<void> {
+    const width = process.stdout.columns || 80;
+    const chars = (COLORS as any).GLITCH_CHARS || '01#@$%&*!?';
+    for (let i = 0; i < 8; i++) {
+        let block = '';
+        for (let l = 0; l < lines; l++) {
+            block += `${COLORS.MUTED(Array(width).fill(0).map(() => chars[Math.floor(Math.random() * chars.length)]).join(''))}\n`;
+        }
+        process.stdout.write(block);
+        await new Promise(r => setTimeout(r, 10));
+        process.stdout.write(`\x1b[${lines}A`); // Move back up
+    }
+    // Clear block
+    for (let l = 0; l < lines; l++) {
+        process.stdout.write(`${' '.repeat(width)}\n`);
+    }
+    process.stdout.write(`\x1b[${lines}A`);
+  },
+
+  /**
+   * A vivid, multi-color horizontal wipe that resets the aesthetic.
+   */
+  async neonWipe(): Promise<void> {
+    const width = process.stdout.columns || 80;
+    const bar = '█'.repeat(width);
+    const colors = [COLORS.AESTHETIC_PINK, COLORS.HIVE_CYAN, COLORS.AESTHETIC_PURPLE];
+    
+    for (const color of colors) {
+        process.stdout.write(`\r${color(bar)}`);
+        await new Promise(r => setTimeout(r, 20));
+    }
+    process.stdout.write(`\r${' '.repeat(width)}\r`);
+  },
+
+  /**
+   * Pulses a line of text with varying intensity.
+   */
+  async pulseText(text: string, cycles = 1): Promise<void> {
+    for (let c = 0; c < cycles; c++) {
+        process.stdout.write(`\r${COLORS.HIGHLIGHT(text)}`);
+        await new Promise(r => setTimeout(r, 80));
+        process.stdout.write(`\r${COLORS.MUTED(text)}`);
+        await new Promise(r => setTimeout(r, 80));
+    }
+    process.stdout.write(`\r${COLORS.SUCCESS(text)}\n`);
   }
 };
