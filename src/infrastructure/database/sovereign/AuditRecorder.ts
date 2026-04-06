@@ -8,7 +8,7 @@ export class AuditRecorder {
   static async isBypassed(path: string): Promise<boolean> {
     const db = await Core.db();
     const result = await (db as any)
-      .selectFrom('joy_bypasses' as any)
+      .selectFrom('hive_joy_bypasses' as any)
       .selectAll()
       .where('path', '=', path)
       .executeTakeFirst();
@@ -21,8 +21,9 @@ export class AuditRecorder {
   static async recordBypass(path: string, violationType: string): Promise<void> {
     const db = await Core.db();
     await (db as any)
-      .insertInto('joy_bypasses' as any)
+      .insertInto('hive_joy_bypasses' as any)
       .values({
+        id: globalThis.crypto.randomUUID(),
         path,
         violation_type: violationType,
         timestamp: Date.now(),
@@ -37,9 +38,9 @@ export class AuditRecorder {
   static async recordAudit(type: string, message: string, data?: any): Promise<void> {
     const db = await Core.db();
     await (db as any)
-      .insertInto('audit_log' as any)
+      .insertInto('hive_audit' as any)
       .values({
-        id: Math.random().toString(36).substring(7),
+        id: globalThis.crypto.randomUUID(),
         type,
         message,
         data: data ? JSON.stringify(data) : null,

@@ -16,9 +16,12 @@ export class ActiveIntegrityScanner {
   async verifyFileIntegrity(filePath: string): Promise<{ clear: boolean; reason?: string }> {
     if (!fs.existsSync(filePath)) return { clear: true };
 
+    // Pass 18: Resilience — If core is not initialized, skip during bootstrap phase
+    if (!Core.isAvailable()) return { clear: true };
+
     const db = await Core.db();
     const context = (await (db as any)
-      .selectFrom('file_context' as any)
+      .selectFrom('hive_file_context' as any)
       .select(['signature', 'path'])
       .where('path', '=', filePath)
       .executeTakeFirst()) as any;
@@ -37,8 +40,8 @@ export class ActiveIntegrityScanner {
     if (currentSignature !== context.signature) {
       // External Edit Detected!
       await (db as any)
-        .updateTable('file_context' as any)
-        .set({ externalEditDetected: 1 })
+        .updateTable('hive_file_context' as any)
+        .set({ external_edit_detected: 1 })
         .where('path', '=', filePath)
         .execute();
 
@@ -58,20 +61,21 @@ export class ActiveIntegrityScanner {
   async recordFileState(filePath: string, signature: string): Promise<void> {
     const db = await Core.db();
     await (db as any)
-      .insertInto('file_context' as any)
+      .insertInto('hive_file_context' as any)
       .values({
+        id: globalThis.crypto.randomUUID(),
         path: filePath,
         state: 'SOVEREIGN',
         source: 'INTERNAL',
         signature,
-        lastReadDate: Date.now(),
-        externalEditDetected: 0,
+        last_read_date: Date.now(),
+        external_edit_detected: 0,
       })
       .onConflict((oc: any) =>
         oc.column('path').doUpdateSet({
           signature,
-          externalEditDetected: 0,
-          lastReadDate: Date.now(),
+          external_edit_detected: 0,
+          last_read_date: Date.now(),
         }),
       )
       .execute();

@@ -76,12 +76,17 @@ export class SqliteSessionRepository implements SessionRepository {
       table: 'hive_tasks',
       values: {
         id: sessionId,
-        userId: userId,
-        agentId: agentId,
-        status: 'pending',
+        task_id: sessionId,
+        user_id: userId,
+        agent_id: agentId,
+        title: description,
+        objective: description,
         description: description,
-        createdAt: now,
-        updatedAt: now,
+        status: 'pending',
+        priority: 1,
+        created_at: now,
+        updated_at: now,
+        user_agent: 'DietCode-CLI',
       },
     });
 
@@ -108,21 +113,22 @@ export class SqliteSessionRepository implements SessionRepository {
       table: 'hive_audit',
       values: {
         id: globalThis.crypto.randomUUID(),
-        userId: session.userId,
-        agentId: session.agentId,
+        session_id: sessionId,
+        user_id: session.user_id,
+        agent_id: session.agent_id,
         type: 'session_message',
         data: JSON.stringify({
           taskId: sessionId,
           message: message,
         }),
-        createdAt: now,
+        timestamp: now,
       },
     });
 
     await Core.push({
       type: 'update',
       table: 'hive_tasks',
-      values: { updatedAt: now },
+      values: { updated_at: now },
       where: { column: 'id', operator: '=', value: sessionId },
     });
   }
@@ -175,7 +181,7 @@ export class SqliteSessionRepository implements SessionRepository {
       values: {
         status,
         result: result ? JSON.stringify(result) : null,
-        updatedAt: now,
+        updated_at: now,
       },
       where: { column: 'id', operator: '=', value: sessionId },
     });
@@ -192,8 +198,8 @@ export class SqliteSessionRepository implements SessionRepository {
       type: 'update',
       table: 'hive_tasks',
       values: {
-        agentId,
-        updatedAt: now,
+        agent_id: agentId,
+        updated_at: now,
       },
       where: { column: 'id', operator: '=', value: sessionId },
     });

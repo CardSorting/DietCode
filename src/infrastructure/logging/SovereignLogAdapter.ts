@@ -59,10 +59,10 @@ export class SovereignLogAdapter implements LogService {
       const id = globalThis.crypto.randomUUID();
 
       await (db as any)
-        .insertInto('audit_log' as any)
+        .insertInto('hive_audit' as any)
         .values({
           id,
-          sessionId: this.currentSessionId,
+          session_id: this.currentSessionId,
           type: level,
           message,
           data: data ? JSON.stringify(data) : null,

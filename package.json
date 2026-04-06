@@ -7,13 +7,16 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "bun build ./index.ts --outfile=./dist/index.js --target=node --bundle --external better-sqlite3 --external bindings",
     "dev": "tsc --watch",
     "test": "vitest run",
     "lint": "biome lint . && eslint .",
     "format": "biome format . --write",
     "check": "biome check --apply .",
     "verify": "npx tsx verify_advanced_infrastructure.ts"
+  },
+  "bin": {
+    "dietcode": "./dist/index.js"
   },
   "dependencies": {
     "@noorm/broccoliq": "file:../broccolidb",

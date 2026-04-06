@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { AgentRegistry } from './src/core/capabilities/AgentRegistry';
 import { CommandProcessor } from './src/core/capabilities/CommandProcessor';
 import { SkillLoader } from './src/core/capabilities/SkillLoader';
@@ -55,6 +56,9 @@ async function main() {
   // Initialize Core Infrastructure
   const fs = new FileSystemAdapter();
 
+  // Initialize Database infrastructure BEFORE Bootstrap to avoid circular dependency
+  await SovereignDb.init('./data/diet-code-sovereign.db');
+
   // Triple Down: Sovereign Onboarding & Setup
   const bootstrap = new BootstrapService(fs, ui);
   const config = await bootstrap.bootstrap();
@@ -65,8 +69,6 @@ async function main() {
 
   const systemAdapter = new NodeSystemAdapter(fs, logger);
 
-  // Initialize Database infrastructure
-  await SovereignDb.init('./data/diet-code-sovereign.db');
   const repository = new SqliteSessionRepository();
   const decisions = new SqliteDecisionRepository();
   const audit = new SqliteAuditRepository();

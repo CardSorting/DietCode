@@ -29,16 +29,16 @@ export class MemoryGraduationService {
         const id = globalThis.crypto.randomUUID();
 
         await (db as any)
-          .insertInto('knowledge_base' as any)
+          .insertInto('hive_kb' as any)
           .values({
             id,
             knowledge_key: fact.key,
             knowledge_value: fact.value,
-            type: fact.type,
+            type: fact.key,
             confidence: fact.confidence,
             tags: fact.tags.join(','),
             metadata: fact.metadata ? JSON.stringify(fact.metadata) : null,
-            createdAt: new Date().toISOString(),
+            created_at: new Date().toISOString(),
           })
           .execute();
 
@@ -58,10 +58,10 @@ export class MemoryGraduationService {
   async finalizeSession(sessionId: string): Promise<void> {
     const db = await Core.db();
     await (db as any)
-      .updateTable('agent_sessions' as any)
+      .updateTable('hive_agent_sessions' as any)
       .set({
         status: 'completed',
-        endTime: Date.now(),
+        end_time: Date.now(),
       })
       .where('id', '=', sessionId)
       .execute();
