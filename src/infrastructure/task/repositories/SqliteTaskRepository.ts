@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2026 DietCode Contributors
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 import type { Database } from 'better-sqlite3';
 import type { TaskEntity, TaskId } from '../../../domain/task/TaskEntity';
 import type { DatabaseTaskRow } from '../PersistenceSchema';

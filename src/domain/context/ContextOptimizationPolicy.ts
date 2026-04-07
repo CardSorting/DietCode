@@ -1,4 +1,10 @@
 /**
+ * Copyright (c) 2026 DietCode Contributors
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+/**
  * [DOMAIN: CONTEXT_OPTIMIZATION_POLICY]
  * Principle: Pure business logic defining optimization rules and thresholds
  * Violations: None

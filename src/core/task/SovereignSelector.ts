@@ -1,4 +1,10 @@
 /**
+ * Copyright (c) 2026 DietCode Contributors
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+/**
  * [LAYER: CORE]
  * Principle: Negative-Audit Gate — The Sovereign Selector (v6.0)
  * Validates the "Provenance Bundle" before starting a task.

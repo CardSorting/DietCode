@@ -1,4 +1,10 @@
 /**
+ * Copyright (c) 2026 DietCode Contributors
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+/**
  * [LAYER: CORE]
  * Principle: Cognitive Economy — manages and optimizes the LLM context window.
  * "Prunes" or "folds" large attachments to keep the most relevant information.

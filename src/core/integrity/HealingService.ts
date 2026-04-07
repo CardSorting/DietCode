@@ -1,4 +1,10 @@
 /**
+ * Copyright (c) 2026 DietCode Contributors
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+/**
  * [LAYER: CORE]
  * Principle: Sovereign Healing — a proactive recovery engine for architectural drift.
  * Pass 13: Autonomous Self-Healing — implements confidence-based auto-remediation.

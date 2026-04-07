@@ -1,4 +1,10 @@
 /**
+ * Copyright (c) 2026 DietCode Contributors
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+/**
  * [INFRASTRUCTURE: VIM_FILE_READER]
  * Principle: Adapter for reading files via Vim protocol
  * Violations: None - implements domain interfaces through specialized adapters

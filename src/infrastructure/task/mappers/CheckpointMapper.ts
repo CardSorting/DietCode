@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2026 DietCode Contributors
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 import type { ImplementationSnapshot } from '../../../domain/task/ImplementationSnapshot';
 import type { TaskState } from '../../../domain/task/TaskEntity';
 import type { DatabaseCheckpointRow } from '../PersistenceSchema';

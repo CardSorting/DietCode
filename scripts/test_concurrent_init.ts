@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2026 DietCode Contributors
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 import { fork } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';

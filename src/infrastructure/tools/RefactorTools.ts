@@ -1,4 +1,10 @@
 /**
+ * Copyright (c) 2026 DietCode Contributors
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+/**
  * [LAYER: INFRASTRUCTURE]
  * Principle: Refactor Tools — High-level Facade for architecture-guarded file moves.
  * Pass 18: Separation of Concerns (Refactor Decoupling).

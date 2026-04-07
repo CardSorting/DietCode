@@ -1,4 +1,10 @@
 /**
+ * Copyright (c) 2026 DietCode Contributors
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+/**
  * [CORE: CONTEXT_OPTIMIZATION_SERVICE]
  * Principle: Main orchestrator for context optimization integration
  * Violations: None - coordinates domain and infrastructure

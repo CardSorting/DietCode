@@ -1,4 +1,10 @@
 /**
+ * Copyright (c) 2026 DietCode Contributors
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+/**
  * [LAYER: INTEGRATION DEMONSTRATION]
  * Principle: Demonstrates end-to-end drift prevention integration with hardened infrastructure
  * Purpose: Showcasing real SQL-backed checkpoints and semantic integrity analysis

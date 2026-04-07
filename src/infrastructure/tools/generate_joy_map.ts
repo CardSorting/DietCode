@@ -1,4 +1,10 @@
 /**
+ * Copyright (c) 2026 DietCode Contributors
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+/**
  * [LAYER: INFRASTRUCTURE]
  * Principle: Structural Observability — generates the live JOY_MAP.md metrics dashboard.
  * Pass 11: Metric-Driven Architectural Health.

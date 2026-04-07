@@ -1,4 +1,10 @@
 /**
+ * Copyright (c) 2026 DietCode Contributors
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+/**
  * [LAYER: CORE]
  * Principle: Architectural Guard — monitors and enforces layer boundaries.
  * Uses structured logging for production-grade observability.

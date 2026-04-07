@@ -1,4 +1,10 @@
 /**
+ * Copyright (c) 2026 DietCode Contributors
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+/**
  * [LAYER: VERIFICATION SUITE]
  * [SUB-ZONE: database]
  * Principle: Validates atomic schema patching prevents SQL "no such column: id" errors
