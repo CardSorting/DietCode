@@ -27,8 +27,8 @@ export function useSovereignBridge() {
       id: generateId(),
       type,
       payload,
-      timestamp: Date.now()
-    } as any; 
+      metadata: { timestamp: Date.now() }
+    }; 
     
     vscode.postMessage(request);
     return request.id;
@@ -88,7 +88,7 @@ export function useSovereignBridge() {
         id: requestId,
         type,
         payload,
-        timestamp: Date.now()
+        metadata: { timestamp: Date.now() }
       } as any);
     });
   }, []);

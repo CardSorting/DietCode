@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { TerminalSquare, Settings as SettingsIcon, History } from 'lucide-react';
 import { useSovereignBridge } from './hooks/useSovereignBridge';
 import { WebViewMessageType, WebViewRequestType } from './types/WebViewMessageProtocol';
@@ -22,7 +22,7 @@ function App() {
     status: 'OPTIMAL'
   });
 
-  const bottomRef = useRef<HTMLDivElement>(null);
+  
 
   const { postRequest, useMessageListener, generateId } = useSovereignBridge();
 
@@ -144,7 +144,7 @@ function App() {
           status={status} 
           badge={badge} 
           metrics={metrics}
-          bottomRef={bottomRef} 
+           
           onSend={handleSend} 
           isHidden={activeView !== 'console'} 
         />

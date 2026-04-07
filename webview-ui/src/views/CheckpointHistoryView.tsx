@@ -19,7 +19,8 @@ export function CheckpointHistoryView({ onClose }: CheckpointHistoryViewProps) {
   }, [postRequest]);
 
   useMessageListener(WebViewMessageType.CHECKPOINTS_LOADED, (payload) => {
-    setCheckpoints(payload.checkpoints || []);
+    const checkedPayload = payload as { checkpoints?: Checkpoint[] };
+    setCheckpoints(checkedPayload.checkpoints || []);
     setLoading(false);
   });
 

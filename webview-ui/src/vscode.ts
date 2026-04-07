@@ -1,41 +1,94 @@
 import type { WebViewRequest } from './types/WebViewMessageProtocol';
 
-declare function acquireVsCodeApi(): any;
+/**
+ * Strict type definition for VS Code API exposed to WebViews.
+ * Matches the TypeScript definitions from VS Code extension APIs.
+ */
+interface IVSCodeApi {
+  // Window messaging
+  postMessage<T = unknown>(message: T): void;
+  
+  // State management
+  getState<T = unknown>(): T | undefined;
+  setState<T>(state: T): void;
+  
+  // Storage events
+  onDidChangeStorage(callback: (event: unknown) => void): void;
+  
+  // Extensions
+  getConfiguration(section: string): any;
+  getExtension(id: string): any;
+  
+  // Telemetry
+  setState(language: string, message: string): void;
+}
+
+/**
+ * Type guard to verify if acquireVsCodeApi exists and returns a valid API
+ */
+function acquireVsCodeApi(): IVSCodeApi | undefined {
+  if (typeof acquireVsCodeApi !== 'function') {
+    return undefined;
+  }
+  
+  try {
+    return acquireVsCodeApi();
+  } catch (error) {
+    console.warn('Failed to acquire VS Code API:', error);
+    return undefined;
+  }
+}
 
 /**
  * Wrapper for the VS Code API exposed to WebViews.
+ * Provides strict typing and graceful degradation when API is unavailable.
  */
 class VSCodeAPIWrapper {
-  private readonly vsCodeApi: any;
+  private readonly vsCodeApi: IVSCodeApi | undefined;
 
   constructor() {
-    if (typeof acquireVsCodeApi === 'function') {
-      this.vsCodeApi = acquireVsCodeApi();
-    }
+    this.vsCodeApi = acquireVsCodeApi();
   }
 
-  public postMessage(message: WebViewRequest) {
+  public postMessage(message: WebViewRequest): void {
     if (this.vsCodeApi) {
       this.vsCodeApi.postMessage(message);
       return;
     }
-    console.log('Would post message to VS Code:', message);
+    
+    // Development fallback
+    console.log('Would post message to VS Code (dev mode):', message);
   }
 
-  public getState(): any {
+  public getState<T = unknown>(): T | undefined {
     if (this.vsCodeApi) {
-      return this.vsCodeApi.getState();
+      return this.vsCodeApi.getState<T>();
     }
+    
+    // Development fallback to localStorage
     const state = localStorage.getItem('vscodeState');
-    return state ? JSON.parse(state) : undefined;
+    if (!state) return undefined;
+    
+    try {
+      return JSON.parse(state) as T;
+    } catch (error) {
+      console.warn('Failed to parse vscode state:', error);
+      return undefined;
+    }
   }
 
-  public setState<T>(newState: T): T {
+  public setState<T>(newState: T): void {
     if (this.vsCodeApi) {
-      return this.vsCodeApi.setState(newState);
+      this.vsCodeApi.setState(newState);
+      return;
     }
-    localStorage.setItem('vscodeState', JSON.stringify(newState));
-    return newState;
+    
+    // Development fallback to localStorage
+    try {
+      localStorage.setItem('vscodeState', JSON.stringify(newState));
+    } catch (error) {
+      console.error('Failed to save vscode state:', error);
+    }
   }
 }
 

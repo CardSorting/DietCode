@@ -180,6 +180,8 @@ export interface WebViewRequest {
   metadata?: {
     userId?: string;
     session?: string;
+    timestamp?: number;
+    createdAt?: number;
   };
 }
 

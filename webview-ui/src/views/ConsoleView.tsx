@@ -19,7 +19,7 @@ interface ConsoleViewProps {
   status: string;
   badge: string;
   metrics: SystemMetrics;
-  bottomRef: RefObject<HTMLDivElement | null>;
+  bottomRef?: RefObject<HTMLDivElement | null>;
   onSend: (text: string) => void;
   isHidden: boolean;
 }
@@ -55,7 +55,7 @@ export function ConsoleView({ logs, status, badge, metrics, bottomRef, onSend, i
             </div>
           );
         })}
-        <div ref={bottomRef} />
+        {bottomRef && <div ref={bottomRef} />}
       </div>
       <SovereignInput onSend={onSend} />
     </>
