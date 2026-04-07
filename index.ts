@@ -48,6 +48,7 @@ import { createGrepTool } from './src/infrastructure/tools/grep';
 import { createMkdirTool } from './src/infrastructure/tools/mkdir';
 import { TerminalUI } from './src/ui/terminal';
 import { BootstrapService } from './src/core/setup/BootstrapService';
+import { supportsUnicode } from './src/ui/design/Theme';
 import chalk from 'chalk';
 
 async function main() {
@@ -60,6 +61,9 @@ async function main() {
   if (process.stdout.isTTY) {
     process.stdout.setDefaultEncoding('utf-8');
   }
+
+  const mode = supportsUnicode() ? 'SOVEREIGN_UNICODE' : 'AXIOM_ASCII';
+  console.log(chalk.gray(`[ NEURAL_INTERFACE: ${mode} ]`));
 
   // Initialize logger with proper dependency injection
   const logger = new ConsoleLoggerAdapter();

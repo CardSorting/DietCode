@@ -13,17 +13,19 @@ import chalk from 'chalk';
 export const supportsUnicode = (): boolean => {
   if (process.env.DIETCODE_NO_UNICODE === 'true') return false;
   
-  // Check common indicators of Unicode support
+  // Strict Locale Check: Only return true if we find an explicit UTF-8 directive
   const hasUnicodeEnv = /UTF-8/i.test(process.env.LC_ALL || process.env.LC_CTYPE || process.env.LANG || '');
   if (hasUnicodeEnv) return true;
 
+  // Fallback for known high-fidelity environments
   return !!(
     process.env.WT_SESSION ||
     process.env.TERMINUS_SUBLIME ||
     process.env.TERM_PROGRAM === 'vscode' ||
+    process.env.TERM_PROGRAM === 'Apple_Terminal' || // Specific to Mac
+    process.env.TERM_PROGRAM === 'iTerm.app' ||
     process.env.TERM === 'xterm-256color' ||
-    process.env.TERM === 'alacritty' ||
-    (process.platform !== 'win32' && process.env.TERM !== 'linux' && process.env.TERM !== 'vt100')
+    process.env.TERM === 'alacritty'
   );
 };
 
