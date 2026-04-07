@@ -13,20 +13,39 @@ import chalk from 'chalk';
 export const supportsUnicode = (): boolean => {
   if (process.env.DIETCODE_NO_UNICODE === 'true') return false;
   
-  // Strict Locale Check: Only return true if we find an explicit UTF-8 directive
   const hasUnicodeEnv = /UTF-8/i.test(process.env.LC_ALL || process.env.LC_CTYPE || process.env.LANG || '');
   if (hasUnicodeEnv) return true;
 
-  // Fallback for known high-fidelity environments
   return !!(
     process.env.WT_SESSION ||
     process.env.TERMINUS_SUBLIME ||
+    process.env.COLORTERM ||
     process.env.TERM_PROGRAM === 'vscode' ||
-    process.env.TERM_PROGRAM === 'Apple_Terminal' || // Specific to Mac
+    process.env.TERM_PROGRAM === 'Apple_Terminal' ||
     process.env.TERM_PROGRAM === 'iTerm.app' ||
     process.env.TERM === 'xterm-256color' ||
-    process.env.TERM === 'alacritty'
+    process.env.TERM === 'alacritty' ||
+    process.env.TERM === 'rxvt-unicode-256color'
   );
+};
+
+export const SYMBOLS = {
+  get HEARBEAT() { return supportsUnicode() ? 'ﮩ٨ـﮩﮩ٨ـ' : '-^-v-^'; },
+  get WAVE() { return supportsUnicode() ? '∿∼∽∿∼∽' : '~~~~~~'; },
+  get SCAN_BLOCK() { return supportsUnicode() ? '░▒▓█▓▒░' : '[#####]'; },
+  get GHOST_CHARS() { return supportsUnicode() ? '░▒▓█' : '#=- '; },
+  get FULL_BLOCK() { return supportsUnicode() ? '█' : '#'; },
+  get EMPTY_BLOCK() { return supportsUnicode() ? '░' : '.'; },
+  get SPARK() { return supportsUnicode() ? '⚡' : '>'; },
+  get GLITCH_CHARS() { return '01#@$%&*!?'; },
+  get DATA_BLOCK() { return supportsUnicode() ? '▓▒░' : '###'; },
+  get CIRCLE() { return supportsUnicode() ? '◌◍◎◑◐○◌' : 'oO0OoO.'; },
+  getSpark(progress: number): string {
+    const isUnicode = supportsUnicode();
+    if (isUnicode) return '⚡';
+    // Kinetic ASCII Shimmer: '>' moves as the bar fills
+    return progress > 0.9 ? '!' : '>';
+  }
 };
 
 export const COLORS = {
@@ -179,9 +198,9 @@ export const METABOLIC_MODIFIERS = {
 };
 
 export const WAVEFORMS = {
-  get THOUGHT() { return supportsUnicode() ? '∿∼∽∿∼∽' : '~~~~~~'; },
-  get SCAN() { return supportsUnicode() ? '░▒▓█▓▒░' : '[#####]'; },
-  get HEARTBEAT() { return supportsUnicode() ? 'ﮩ٨ـﮩﮩ٨ـ' : '-^-v-^'; },
+  get THOUGHT() { return SYMBOLS.WAVE; },
+  get SCAN() { return SYMBOLS.SCAN_BLOCK; },
+  get HEARTBEAT() { return SYMBOLS.HEARBEAT; },
 };
 
 export const ICONS = {
@@ -234,12 +253,13 @@ export const ICONS = {
   get TELEMETRY() { return supportsUnicode() ? '📡' : '(LINK)'; },
   get CINEMATIC_LOGO() {
     if (supportsUnicode()) {
+      const b = SYMBOLS.FULL_BLOCK;
       return `
- ██████╗ ██╗███████╗████████╗ ██████╗  ██████╗ ██████╗ ███████╗
- ██╔══██╗██║██╔════╝╚══██╔══╝██╔════╝ ██╔═══██╗██╔══██╗██╔════╝
- ██║  ██║██║█████╗     ██║   ██║      ██║   ██║██║  ██║█████╗  
- ██║  ██║██║██╔══╝     ██║   ██║      ██║   ██║██║  ██║██╔══╝  
- ██████╔╝██║███████╗   ██║   ╚██████╗ ╚██████╔╝██████╔╝███████╗
+ ${b}${b}${b}${b}${b}${b}╗ ██╗███████╗████████╗ ██████╗  ██████╗ ██████╗ ███████╗
+ ${b}${b}╔══${b}${b}╗██║██╔════╝╚══██╔══╝██╔════╝ ██╔═══██╗██╔══██╗██╔════╝
+ ${b}${b}║  ${b}${b}║██║█████╗     ██║   ██║      ██║   ██║██║  ██║█████╗  
+ ${b}${b}║  ${b}${b}║██║██╔══╝     ██║   ██║      ██║   ██║██║  ██║██╔══╝  
+ ${b}${b}${b}${b}${b}${b}╔╝██║███████╗   ██║   ╚██████╗ ╚██████╔╝██████╔╝███████╗
  ╚═════╝ ╚═╝╚══════╝   ╚═╝    ╚═════╝  ╚═════╝ ╚═════╝ ╚══════╝
 `;
     }
@@ -248,10 +268,10 @@ export const ICONS = {
  [ CORE INTEGRITY SYSTEM ]
 `;
   },
-  GLITCH_CHARS: '01#@$%&*!?',
-  DATA_BLOCK: '▓▒░',
-  PULSE_WAVE: '∿∼∽∿∼∽',
-  DREAM_CIRCLE: '◌◍◎◑◐○◌',
+  get GLITCH_CHARS() { return SYMBOLS.GLITCH_CHARS; },
+  get DATA_BLOCK() { return SYMBOLS.DATA_BLOCK; },
+  get PULSE_WAVE() { return SYMBOLS.WAVE; },
+  get DREAM_CIRCLE() { return SYMBOLS.CIRCLE; },
 };
 
 export const AESTHETIC = {

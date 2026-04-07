@@ -62,8 +62,15 @@ async function main() {
     process.stdout.setDefaultEncoding('utf-8');
   }
 
-  const mode = supportsUnicode() ? 'SOVEREIGN_UNICODE' : 'AXIOM_ASCII';
-  console.log(chalk.gray(`[ NEURAL_INTERFACE: ${mode} ]`));
+  const isUnicode = supportsUnicode();
+  const mode = isUnicode ? 'SOVEREIGN_UNICODE' : 'AXIOM_ASCII';
+  const colorSupport = chalk.level > 0 ? (chalk.level > 2 ? 'TRUECOLOR' : '256_COLOR') : 'NO_COLOR';
+  
+  console.log(chalk.gray('[ NEURAL_HANDSHAKE: INITIALIZED ]'));
+  console.log(chalk.gray(`  INTERFACE : ${mode}`));
+  console.log(chalk.gray(`  VISUALS   : ${colorSupport}`));
+  console.log(chalk.gray(`  LOCALE    : ${process.env.LANG || 'UNKNOWN'}`));
+  console.log('');
 
   // Initialize logger with proper dependency injection
   const logger = new ConsoleLoggerAdapter();

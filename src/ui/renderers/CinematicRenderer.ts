@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { COLORS } from '../design/Theme';
+import { COLORS, ICONS, SYMBOLS, supportsUnicode } from '../design/Theme';
 
 /**
  * [LAYER: RENDERER]
@@ -138,7 +138,7 @@ export const CinematicRenderer = {
    * Glitches a line of text by briefly replacing characters with noise.
    */
   async glitchLine(text: string, count = 5): Promise<void> {
-    const glitchChars = (COLORS as any).GLITCH_CHARS || '01#@$%&*!?';
+    const glitchChars = ICONS.GLITCH_CHARS;
     const original = text;
     for (let i = 0; i < count; i++) {
         const glitched = text.split('').map(c => Math.random() > 0.8 ? glitchChars[Math.floor(Math.random() * glitchChars.length)] : c).join('');
@@ -153,7 +153,7 @@ export const CinematicRenderer = {
    */
   async scanline(height = 5): Promise<void> {
     const width = process.stdout.columns || 80;
-    const bar = '█'.repeat(width);
+    const bar = SYMBOLS.FULL_BLOCK.repeat(width);
     for (let i = 0; i < height; i++) {
         process.stdout.write(`\r${COLORS.HIVE_CYAN(bar)}`);
         await new Promise(r => setTimeout(r, 50));
@@ -166,8 +166,9 @@ export const CinematicRenderer = {
    * Simulates a high-speed data burst with flickering characters across multiple lines.
    */
   async dataBurst(lines = 3): Promise<void> {
+    const isUnicode = supportsUnicode();
     const width = process.stdout.columns || 80;
-    const chars = (COLORS as any).GLITCH_CHARS || '01#@$%&*!?';
+    const chars = ICONS.GLITCH_CHARS;
     for (let i = 0; i < 8; i++) {
         let block = '';
         for (let l = 0; l < lines; l++) {
@@ -189,7 +190,7 @@ export const CinematicRenderer = {
    */
   async neonWipe(): Promise<void> {
     const width = process.stdout.columns || 80;
-    const bar = '█'.repeat(width);
+    const bar = SYMBOLS.FULL_BLOCK.repeat(width);
     const colors = [COLORS.AESTHETIC_PINK, COLORS.HIVE_CYAN, COLORS.AESTHETIC_PURPLE];
     
     for (const color of colors) {

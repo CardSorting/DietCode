@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { BORDERS, COLORS, ICONS, WAVEFORMS, supportsUnicode } from '../design/Theme';
+import { BORDERS, COLORS, ICONS, SYMBOLS, WAVEFORMS, supportsUnicode } from '../design/Theme';
 import { MetabolicRenderer } from './MetabolicRenderer';
 
 /**
@@ -16,16 +16,23 @@ export const ProtocolRenderer = {
    * Renders a header for a specific onboarding step.
    */
   renderStepHeader(step: number, total: number, title: string, project?: string): string {
-    const progress = Math.round((step / total) * 100);
-    const isUnicode = supportsUnicode();
-    const bar = (isUnicode ? '█' : '#').repeat(Math.floor(progress / 5)) + (isUnicode ? '░' : '.').repeat(20 - Math.floor(progress / 5));
+    const progress = step / total;
+    const percent = Math.round(progress * 100);
+    const filled = Math.floor(progress * 20);
+    const spark = SYMBOLS.getSpark(progress);
+    
+    const bar = SYMBOLS.FULL_BLOCK.repeat(Math.max(0, filled - 1)) + 
+                (filled > 0 ? spark : '') + 
+                SYMBOLS.EMPTY_BLOCK.repeat(Math.max(0, 20 - filled));
+                
     const projectHeader = project ? COLORS.AESTHETIC_PURPLE(` PROJECT_AETHER: ${project}`) : '';
     
     return [
-      '\n',
-      `${COLORS.HIVE_CYAN(`[ STEP ${step}/${total} ] ${title.toUpperCase()}`)}${projectHeader}`,
-      COLORS.MUTED(` PROGRESS: [${bar}] ${progress}%`),
-      '\n'
+      `\n${BORDERS.tl}${BORDERS.h.repeat(60)}${BORDERS.tr}`,
+      `${BORDERS.v} [ STEP ${step}/${total} ] ${title.padEnd(46)} ${BORDERS.v}`,
+      `${BORDERS.v}  PROGRESS: [${COLORS.HIVE_CYAN(bar)}] ${percent}%`.padEnd(62) + BORDERS.v,
+      `${BORDERS.bl}${BORDERS.h.repeat(60)}${BORDERS.br}`,
+      projectHeader,
     ].join('\n');
   },
 
@@ -204,10 +211,14 @@ export const ProtocolRenderer = {
   },
 
   renderMiniBar(value: number): string {
-    const isUnicode = supportsUnicode();
-    const blocks = Math.floor(value / 10);
-    const full = isUnicode ? '█' : '#';
-    const empty = isUnicode ? '░' : '.';
-    return `[${COLORS.PRIMARY(full.repeat(blocks))}${empty.repeat(10 - blocks)}]`;
+    const progress = value / 100;
+    const filled = Math.floor(progress * 10);
+    const spark = SYMBOLS.getSpark(progress);
+    
+    const bar = SYMBOLS.FULL_BLOCK.repeat(Math.max(0, filled - 1)) + 
+                (filled > 0 ? spark : '') + 
+                SYMBOLS.EMPTY_BLOCK.repeat(Math.max(0, 10 - filled));
+                
+    return `[${COLORS.PRIMARY(bar)}]`;
   }
 };
