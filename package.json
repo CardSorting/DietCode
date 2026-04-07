@@ -25,6 +25,7 @@
           "type": "webview",
           "id": "dietcode-webview",
           "name": "Sovereign Hive",
+          "icon": "$(zap)",
           "visibility": "visible"
         }
       ]
@@ -38,8 +39,11 @@
   },
   "scripts": {
     "build:webview": "cd webview-ui && bun run build",
-    "build": "bun run build:webview && bun build ./src/extension.ts --outfile=./dist/extension.js --target=node --bundle --external vscode",
+    "build:cli": "bun build ./index.ts --outfile=./dist/index.js --target=node --bundle --external better-sqlite3 --external @noorm/broccoliq",
+    "build": "bun run build:webview && bun run build:cli && bun build ./src/extension.ts --outfile=./dist/extension.js --target=node --bundle --external vscode",
     "dev": "tsc --watch",
+    "cli": "bun ./dist/index.js",
+    "cli:dev": "bun run ./index.ts",
     "test": "vitest run",
     "lint": "biome lint . && eslint .",
     "format": "biome format . --write",
