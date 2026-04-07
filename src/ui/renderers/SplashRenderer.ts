@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import chalk from 'chalk';
-import { AESTHETIC, COLORS, ICONS } from '../design/Theme';
+import { AESTHETIC, COLORS, ICONS, supportsUnicode } from '../design/Theme';
 import { CinematicRenderer } from './CinematicRenderer';
 import { MetabolicRenderer } from './MetabolicRenderer';
 

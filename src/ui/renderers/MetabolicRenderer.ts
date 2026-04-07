@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { COLORS, METABOLIC_MODIFIERS, WAVEFORMS } from '../design/Theme';
+import { COLORS, METABOLIC_MODIFIERS, WAVEFORMS, supportsUnicode } from '../design/Theme';
 
 /**
  * [LAYER: RENDERER]
@@ -72,8 +72,10 @@ export const MetabolicRenderer = {
     const startTime = Date.now();
     const ghosts = '░▒▓█';
     while (Date.now() - startTime < duration) {
+       const isUnicode = supportsUnicode();
        const shift = Math.floor(Math.random() * 8) - 4;
-       const ghostText = text.split('').map(c => Math.random() > 0.7 ? ghosts[Math.floor(Math.random() * ghosts.length)] : c).join('');
+       const ghostChars = isUnicode ? '░▒▓█' : '#=- ';
+       const ghostText = text.split('').map(c => Math.random() > 0.7 ? ghostChars[Math.floor(Math.random() * ghostChars.length)] : c).join('');
        const color = Math.random() > 0.5 ? COLORS.HIVE_GREEN : COLORS.AESTHETIC_PINK;
        process.stdout.write(`\r${' '.repeat(Math.abs(shift))}${COLORS.MUTED(ghostText)}`);
        await new Promise(r => setTimeout(r, 20));
@@ -108,7 +110,8 @@ export const MetabolicRenderer = {
    * Aesthetic "Aether Glitch": Subtle, dreamy distortion.
    */
   async aetherGlitch(text: string, duration = 300): Promise<void> {
-    const symbols = '◌◍◎◑◐○◌☾☆';
+    const isUnicode = supportsUnicode();
+    const symbols = isUnicode ? '◌◍◎◑◐○◌☾☆' : 'oO0*+-.';
     process.stdout.write(`\r${COLORS.AESTHETIC_PINK(text.split('').map(c => Math.random() > 0.8 ? symbols[Math.floor(Math.random() * symbols.length)] : c).join(''))}`);
     await new Promise(r => setTimeout(r, duration / 2));
     process.stdout.write(`\r${COLORS.HIVE_CYAN(text)}`);

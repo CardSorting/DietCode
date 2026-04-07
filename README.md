@@ -38,6 +38,9 @@ To initiate the cinematic onboarding and establish your neural link:
 dietcode
 ```
 
+> [!TIP]
+> If symbols are not displaying correctly in your terminal, run `dietcode --no-unicode` to enable **Axiom ASCII** compatibility mode.
+
 #### 🧩 VS Code Extension
 Press `F5` in VS Code to launch the extension development host. The **Sovereign Hive** panel will be available in the activity bar.
 

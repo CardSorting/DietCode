@@ -51,6 +51,16 @@ import { BootstrapService } from './src/core/setup/BootstrapService';
 import chalk from 'chalk';
 
 async function main() {
+  // Handle compatibility flags before anything else
+  if (process.argv.includes('--no-unicode')) {
+    process.env.DIETCODE_NO_UNICODE = 'true';
+  }
+
+  // Force UT8 encoding for all output streams
+  if (process.stdout.isTTY) {
+    process.stdout.setDefaultEncoding('utf-8');
+  }
+
   // Initialize logger with proper dependency injection
   const logger = new ConsoleLoggerAdapter();
   logger.setMinLevel(LogLevel.INFO);

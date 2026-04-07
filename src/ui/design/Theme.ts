@@ -10,6 +10,23 @@ import chalk from 'chalk';
  * [LAYER: DESIGN]
  * Sovereign Aether Design Tokens — Liquid Neon Extensions.
  */
+export const supportsUnicode = (): boolean => {
+  if (process.env.DIETCODE_NO_UNICODE === 'true') return false;
+  
+  // Check common indicators of Unicode support
+  const hasUnicodeEnv = /UTF-8/i.test(process.env.LC_ALL || process.env.LC_CTYPE || process.env.LANG || '');
+  if (hasUnicodeEnv) return true;
+
+  return !!(
+    process.env.WT_SESSION ||
+    process.env.TERMINUS_SUBLIME ||
+    process.env.TERM_PROGRAM === 'vscode' ||
+    process.env.TERM === 'xterm-256color' ||
+    process.env.TERM === 'alacritty' ||
+    (process.platform !== 'win32' && process.env.TERM !== 'linux' && process.env.TERM !== 'vt100')
+  );
+};
+
 export const COLORS = {
   // Matrix / Sovereign Core
   HIVE_GREEN: chalk.hex('#00ff41'),   // Matrix Green
@@ -152,16 +169,17 @@ export const METABOLIC_MODIFIERS = {
     return '#00ff41';
   },
   getPulseIntensity(health: number): string {
+    const isUnicode = supportsUnicode();
     if (health < 0.3) return '!!';
-    if (health < 0.6) return '≈';
-    return '●';
+    if (health < 0.6) return isUnicode ? '≈' : '~~';
+    return isUnicode ? '●' : '(*)';
   }
 };
 
 export const WAVEFORMS = {
-  THOUGHT: '∿∼∽∿∼∽',
-  SCAN: '░▒▓█▓▒░',
-  HEARTBEAT: 'ﮩ٨ـﮩﮩ٨ـ',
+  get THOUGHT() { return supportsUnicode() ? '∿∼∽∿∼∽' : '~~~~~~'; },
+  get SCAN() { return supportsUnicode() ? '░▒▓█▓▒░' : '[#####]'; },
+  get HEARTBEAT() { return supportsUnicode() ? 'ﮩ٨ـﮩﮩ٨ـ' : '-^-v-^'; },
 };
 
 export const ICONS = {
@@ -200,26 +218,34 @@ export const ICONS = {
 |  ~~~  |
  '---'
 `,
-  MINI_CAN: '🥤',
-  SODA_CAN: '🥫',
-  CHECK: '✅',
-  CROSS: '❌',
-  LOADING: '⏳',
-  DIAGNOSTIC: '🛠️',
-  GEAR: '⚙️',
-  BRAIN: '🧠',
-  DATABASE: '🗄️',
-  BEE: '🐝',
-  TEMPLE: '🏛️',
-  TELEMETRY: '📡',
-  CINEMATIC_LOGO: `
+  get MINI_CAN() { return supportsUnicode() ? '🥤' : '(CAN)'; },
+  get SODA_CAN() { return supportsUnicode() ? '🥫' : '(🥫)'; },
+  get CHECK() { return supportsUnicode() ? '✅' : '[OK]'; },
+  get CROSS() { return supportsUnicode() ? '❌' : '[FAIL]'; },
+  get LOADING() { return supportsUnicode() ? '⏳' : '(WAIT)'; },
+  get DIAGNOSTIC() { return supportsUnicode() ? '🛠️' : '(TOOL)'; },
+  get GEAR() { return supportsUnicode() ? '⚙️' : '(GEAR)'; },
+  get BRAIN() { return supportsUnicode() ? '🧠' : '(BRAIN)'; },
+  get DATABASE() { return supportsUnicode() ? '🗄️' : '(DB)'; },
+  get BEE() { return supportsUnicode() ? '🐝' : '(SWARM)'; },
+  get TEMPLE() { return supportsUnicode() ? '🏛️' : '(GUARD)'; },
+  get TELEMETRY() { return supportsUnicode() ? '📡' : '(LINK)'; },
+  get CINEMATIC_LOGO() {
+    if (supportsUnicode()) {
+      return `
  ██████╗ ██╗███████╗████████╗ ██████╗  ██████╗ ██████╗ ███████╗
  ██╔══██╗██║██╔════╝╚══██╔══╝██╔════╝ ██╔═══██╗██╔══██╗██╔════╝
  ██║  ██║██║█████╗     ██║   ██║      ██║   ██║██║  ██║█████╗  
  ██║  ██║██║██╔══╝     ██║   ██║      ██║   ██║██║  ██║██╔══╝  
  ██████╔╝██║███████╗   ██║   ╚██████╗ ╚██████╔╝██████╔╝███████╗
  ╚═════╝ ╚═╝╚══════╝   ╚═╝    ╚═════╝  ╚═════╝ ╚═════╝ ╚══════╝
-`,
+`;
+    }
+    return `
+ DIETCODE [ SOVEREIGN HIVE ARCHITECTURE ]
+ [ CORE INTEGRITY SYSTEM ]
+`;
+  },
   GLITCH_CHARS: '01#@$%&*!?',
   DATA_BLOCK: '▓▒░',
   PULSE_WAVE: '∿∼∽∿∼∽',
@@ -235,15 +261,15 @@ export const AESTHETIC = {
 };
 
 export const BORDERS = {
-  tl: '╭',
-  tr: '╮',
-  bl: '╰',
-  br: '╯',
-  h: '─',
-  v: '│',
-  ml: '├',
-  mr: '┤',
-  mt: '┬',
-  mb: '┴',
-  mm: '┼',
+  get tl() { return supportsUnicode() ? '╭' : '+'; },
+  get tr() { return supportsUnicode() ? '╮' : '+'; },
+  get bl() { return supportsUnicode() ? '╰' : '+'; },
+  get br() { return supportsUnicode() ? '╯' : '+'; },
+  get h() { return supportsUnicode() ? '─' : '-'; },
+  get v() { return supportsUnicode() ? '│' : '|'; },
+  get ml() { return supportsUnicode() ? '├' : '+'; },
+  get mr() { return supportsUnicode() ? '┤' : '+'; },
+  get mt() { return supportsUnicode() ? '┬' : '+'; },
+  get mb() { return supportsUnicode() ? '┴' : '+'; },
+  get mm() { return supportsUnicode() ? '┼' : '+'; },
 };

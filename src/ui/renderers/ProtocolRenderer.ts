@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { BORDERS, COLORS, ICONS, WAVEFORMS } from '../design/Theme';
+import { BORDERS, COLORS, ICONS, WAVEFORMS, supportsUnicode } from '../design/Theme';
 import { MetabolicRenderer } from './MetabolicRenderer';
 
 /**
@@ -17,7 +17,8 @@ export const ProtocolRenderer = {
    */
   renderStepHeader(step: number, total: number, title: string, project?: string): string {
     const progress = Math.round((step / total) * 100);
-    const bar = '█'.repeat(Math.floor(progress / 5)) + '░'.repeat(20 - Math.floor(progress / 5));
+    const isUnicode = supportsUnicode();
+    const bar = (isUnicode ? '█' : '#').repeat(Math.floor(progress / 5)) + (isUnicode ? '░' : '.').repeat(20 - Math.floor(progress / 5));
     const projectHeader = project ? COLORS.AESTHETIC_PURPLE(` PROJECT_AETHER: ${project}`) : '';
     
     return [
@@ -203,7 +204,10 @@ export const ProtocolRenderer = {
   },
 
   renderMiniBar(value: number): string {
+    const isUnicode = supportsUnicode();
     const blocks = Math.floor(value / 10);
-    return `[${COLORS.PRIMARY('█'.repeat(blocks))}${'░'.repeat(10 - blocks)}]`;
+    const full = isUnicode ? '█' : '#';
+    const empty = isUnicode ? '░' : '.';
+    return `[${COLORS.PRIMARY(full.repeat(blocks))}${empty.repeat(10 - blocks)}]`;
   }
 };
