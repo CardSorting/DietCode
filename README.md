@@ -1,54 +1,73 @@
-# 🥗 DietCode
+# 🥗 DietCode: Sovereign Hive
 
-**DietCode** is a minimalist, architecturally pure AI coding assistant built with Bun and the Anthropic SDK. It serves as a hardened scaffolding for AI-driven development, strictly adhering to the **Joy-Zoning** architectural principles.
+> **"The most sharded, modular, and Level 10 hardened AI orchestration infrastructure in the ecosystem."**
+
+**DietCode** is a minimalist, architecturally pure AI coding assistant built for VS Code. It is engineered with the **Sovereign Hive Architecture**, strictly adhering to **Joy-Zoning** principles to ensure zero-shim, high-throughput AI orchestration.
+
+---
+
+## 🏛️ The Sovereign Vision
+
+DietCode isn't just a coding assistant; it's a **Sovereign Hive**. By sharding logic into strict, isolated zones, we achieve:
+- **Axiomatic Finality**: Every action is verified, typed, and hardened.
+- **Zero-Shim Orchestration**: Direct, granular control over AI agents without bloated abstractions.
+- **Cinematic Experience**: A high-fidelity, "Dreamstate" interface designed for peak immersion.
+
+---
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### 1. Prerequisites
 - [Bun](https://bun.sh) runtime (v1.2.18+)
-- Anthropic API Key
+- [VS Code](https://code.visualstudio.com/)
+- Anthropic API Key (or OpenAI/BroccoliQ compatible providers)
 
-### Installation
+### 2. Installation
 ```bash
 bun install
 ```
 
-### Configuration
-Set your Anthropic API key as an environment variable:
+### 3. Build & Launch
 ```bash
-export ANTHROPIC_API_KEY='your-api-key'
+bun run build
 ```
+Then, press `F5` in VS Code to launch the **Sovereign Hive** extension development host.
 
-### Usage
-Run DietCode in interactive mode:
-```bash
-bun run index.ts
-```
-
-Or pass a single prompt:
-```bash
-bun run index.ts "create a new directory called test"
-```
+---
 
 ## 📐 Joy-Zoning Architecture
 
-DietCode is organized into clear, isolated layers to ensure maintainability and testability:
+DietCode follows a strict layered architecture to prevent technical drift:
 
-- **📁 DOMAIN (`src/domain/`)**: Pure business logic, interfaces, and models. Zero external dependencies (no I/O, no SDKs).
-- **📁 CORE (`src/core/`)**: Application orchestration. Coordinates between Domain contracts and Infrastructure implementations.
-- **📁 INFRASTRUCTURE (`src/infrastructure/`)**: Concrete implementations of Domain interfaces (LLM adapters, Filesystem adapters, Tools).
-- **📁 UI (`src/ui/`)**: Presentation layer for user interaction (Terminal/CLI).
-- **📁 PLUMBING (`src/utils/`)**: Stateless, zero-context utilities.
+- **📁 DOMAIN**: Pure business logic. The axiomatic heart.
+- **📁 CORE**: Orchestration. Coordinating the Hive's pulse.
+- **📁 INFRASTRUCTURE**: Concrete adapters (AI SDKs, FS, DB).
+- **📁 UI**: Cinematic presentation (VS Code Webviews).
+- **📁 PLUMBING**: Stateless, zero-context utilities.
 
-## 🛠️ Built-in Tools
-- `read_file`: Read file contents.
-- `write_file`: Write content to files.
-- `mkdir`: Create directories.
-- `grep`: Search for patterns in file contents (with a pure Node.js fallback).
-
-## ⌨️ Slash Commands
-- `/exit`: Quit the application.
-- `/clear`: Clear the terminal screen.
+For a deep dive, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ---
-Built with 🥗 by CardSorting.
+
+## 📚 Documentation Map
+
+Explore the Hive's technical layers:
+
+| Document | Purpose |
+| :--- | :--- |
+| 🏰 [**ARCHITECTURE**](ARCHITECTURE.md) | Deep dive into Joy-Zoning and the Sovereign Hive design. |
+| ⚒️ [**DEVELOPMENT**](DEVELOPMENT.md) | Guide for contributors, build scripts, and testing protocols. |
+| ✨ [**FEATURES**](FEATURES.md) | Cinematic Boot, Dreamstate UI, and Hardened Guardrails. |
+| 🤝 [**CONTRIBUTING**](CONTRIBUTING.md) | The Level 10 Standard for adding to the Hive. |
+| 🚨 [**TROUBLESHOOTING**](docs/TROUBLESHOOTING.md) | Common issues and configuration fixes. |
+
+---
+
+## 🛠️ Built-in Tools
+- **Deep Filesystem**: Hardened `read`/`write`/`grep` with safety sharding.
+- **BroccoliQ Persistence**: Highly-available, sharded SQLite state management.
+- **Dreamstate Boot**: Immersive, multi-phase cinematic diagnostics.
+
+---
+
+Built with 🥗 by **CardSorting**.
