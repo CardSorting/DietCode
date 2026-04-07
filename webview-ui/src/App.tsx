@@ -11,8 +11,8 @@ import { CheckpointHistoryView } from './views/CheckpointHistoryView';
 
 function App() {
   const [activeView, setActiveView] = useState<'console' | 'settings' | 'history'>('console');
-  const [status, setStatus] = useState('Stabilizing Neural Handshake...');
-  const [badge, setBadge] = useState('BOOT_SYNC');
+  const [status, setStatus] = useState('Connecting...');
+  const [badge, setBadge] = useState('READY');
   const [logs, setLogs] = useState<LogLine[]>([]);
   const [isLinkHealthy, setIsLinkHealthy] = useState(true);
   const [metrics, setMetrics] = useState<SystemMetrics>({
@@ -44,14 +44,14 @@ function App() {
 
   // IPC Event Subscriptions
   useMessageListener(WebViewMessageType.READY, () => {
-    setBadge('HIVE_UP');
-    setStatus('Hive Connection Stable');
+    setBadge('CONNECTED');
+    setStatus('Connection Stable');
   });
 
   useMessageListener(WebViewMessageType.SYSTEM_READY, () => {
-    setBadge('NEURAL_AWAKE');
-    setStatus('Sovereign Orchestrator Ready');
-    addLog('>> [SYSTEM]: Neural link established successfully.', 'system');
+    setBadge('READY');
+    setStatus('DietCode Ready');
+    addLog('>> [SYSTEM]: System connected successfully.', 'system');
   });
 
   useMessageListener(WebViewMessageType.SYSTEM_METRICS, (payload: SystemMetrics) => {
@@ -59,7 +59,7 @@ function App() {
   });
 
   useMessageListener(WebViewMessageType.SETTINGS_LOADED, (payload) => {
-    addLog(`> SYSTEM: Configuration synchronized. Auto-Approve: ${payload.autoApprove}`, 'system', 'Settings Hydrated');
+    addLog(`> SYSTEM: Settings updated. Auto-Approve: ${payload.autoApprove}`, 'system', 'Settings Updated');
   });
 
   useMessageListener(WebViewMessageType.STATE, (payload) => {
@@ -71,7 +71,7 @@ function App() {
   });
 
   useMessageListener(WebViewMessageType.TOOL, (payload) => {
-    addLog(payload.result ? JSON.stringify(payload.result, null, 2) : 'Awaiting Authorization', 'tool', `Tool: ${payload.toolName}`, payload.status);
+    addLog(payload.result ? JSON.stringify(payload.result, null, 2) : 'Waiting for approval', 'tool', `Tool: ${payload.toolName}`, payload.status);
   });
 
   useMessageListener(WebViewMessageType.LOG, (payload) => {
@@ -108,10 +108,8 @@ function App() {
     <div className="content">
       <header>
         <div className="logo-container">
-          <span className="logo">⚡</span>
-          <h1 className="title">DIETCODE</h1>
         </div>
-        <div className="subtitle">[ SOVEREIGN HIVE ARCHITECTURE ]</div>
+        <div className="subtitle">[ AI DEVELOPMENT SYSTEM ]</div>
         <div className="header-nav">
           <button 
             type="button" 
@@ -125,7 +123,7 @@ function App() {
             type="button" 
             className={`icon-btn ${activeView === 'history' ? 'active' : ''}`} 
             onClick={() => setActiveView('history')}
-            title="Checkpoint History"
+            title="History"
           >
             <History size={18} />
           </button>
@@ -161,7 +159,7 @@ function App() {
             <span className={`metric health-indicator ${isLinkHealthy ? 'healthy' : 'unhealthy'}`}>
               LINK: {isLinkHealthy ? 'ACTIVE' : 'DEGRADED'}
             </span>
-            <span className="metric">v2.2.0-SOVEREIGN</span>
+            <span className="metric">v2.2.0</span>
             <span className="metric">REACT_V18</span>
             <span className="metric">{logs.length} LOGS</span>
           </div>

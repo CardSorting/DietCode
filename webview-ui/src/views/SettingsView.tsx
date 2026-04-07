@@ -87,7 +87,7 @@ export function SettingsView({ onClose }: SettingsViewProps) {
     <div className="view-container">
       <div className="view-header">
         <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, fontSize: '1rem' }}>
-          <Sliders size={16} className="text-cyan-400" /> Global Settings
+          <Sliders size={16} className="text-cyan-400" /> Settings
         </h2>
         <button type="button" className="icon-btn" onClick={onClose} aria-label="Close settings">
           <X size={18} />
@@ -110,12 +110,12 @@ export function SettingsView({ onClose }: SettingsViewProps) {
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
-            <p className="helper-text">This model will be used as the default brain for all agent tasks.</p>
+            <p className="helper-text">This model will be used as the default for all tasks.</p>
           </div>
         </div>
 
         <div className="settings-section">
-          <h3 className="section-title">Model Providers</h3>
+          <h3 className="section-title">AI Providers</h3>
           <p className="helper-text">Enable the AI services you want to use and add your API keys.</p>
           <div className="provider-list">
             {providers.map((provider) => (

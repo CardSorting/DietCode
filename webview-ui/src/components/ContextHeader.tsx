@@ -14,15 +14,15 @@ export function ContextHeader({ metrics }: ContextHeaderProps) {
     <div className="context-header">
       <div className="context-stat">
         <Cpu size={14} className="icon-cyan" />
-        <span>NEURAL LOAD: <strong>~{loadPercentage}%</strong> <em>({loadDisplay} / {totalDisplay})</em></span>
+        <span>AI USAGE: <strong>~{loadPercentage}%</strong> <em>({loadDisplay} / {totalDisplay})</em></span>
       </div>
       <div className="context-stat">
         <Zap size={14} className="icon-magenta" />
-        <span>CACHE MAPPING: <strong>{metrics.cacheMapping}%</strong></span>
+        <span>MEMORY CONTEXT: <strong>{metrics.cacheMapping}%</strong></span>
       </div>
       <div className="context-stat desktop-only">
         <Activity size={14} className="icon-cyan" />
-        <span>BROCCOLIQ: <strong>{metrics.status.toUpperCase()}</strong></span>
+        <span>DATABASE: <strong>{metrics.status.toUpperCase()}</strong></span>
       </div>
     </div>
   );

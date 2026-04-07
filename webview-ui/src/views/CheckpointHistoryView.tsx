@@ -25,7 +25,7 @@ export function CheckpointHistoryView({ onClose }: CheckpointHistoryViewProps) {
 
   const handleRestore = (id: string) => {
     const win = window as any;
-    if (win.confirm(`Are you sure you want to restore state to checkpoint ${id.substring(0, 8)}? Current progress may be overwritten.`)) {
+    if (win.confirm(`Are you sure you want to restore to version ${id.substring(0, 8)}? Current progress may be overwritten.`)) {
       postRequest(WebViewRequestType.RESTORE_CHECKPOINT, { id });
       onClose();
     }
@@ -35,7 +35,7 @@ export function CheckpointHistoryView({ onClose }: CheckpointHistoryViewProps) {
     <div className="view-container">
       <div className="view-header">
         <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, fontSize: '1rem' }}>
-          <Database size={16} /> BroccoliDB History
+          <Database size={16} /> History
         </h2>
         <button type="button" className="icon-btn" onClick={onClose}><X size={18} /></button>
       </div>
@@ -43,10 +43,10 @@ export function CheckpointHistoryView({ onClose }: CheckpointHistoryViewProps) {
         {loading ? (
           <div className="empty-state">
             <Loader2 className="animate-spin" size={24} />
-            <div style={{ marginTop: '0.5rem' }}>Synchronizing with Hive...</div>
+            <div style={{ marginTop: '0.5rem' }}>Loading history...</div>
           </div>
         ) : checkpoints.length === 0 ? (
-          <div className="empty-state">No checkpoints found in Sovereign Hive.</div>
+          <div className="empty-state">No history found for this project.</div>
         ) : (
           checkpoints.map((cp) => (
             <div key={cp.id} className="history-card">
@@ -60,7 +60,7 @@ export function CheckpointHistoryView({ onClose }: CheckpointHistoryViewProps) {
                 className="restore-btn"
                 onClick={() => handleRestore(cp.id)}
               >
-                <ArrowLeft size={14}/> Restore State
+                <ArrowLeft size={14}/> Restore Version
               </button>
             </div>
           ))

@@ -49,7 +49,7 @@ export function ActionRow({ title, type, content, status, defaultExpanded = fals
         </span>
         {getIcon()}
         <span className="action-title">{title}</span>
-        {status === 'pending' && <span className="action-pending-badge">Awaiting Authorization...</span>}
+        {status === 'pending' && <span className="action-pending-badge">Waiting for approval...</span>}
       </div>
       
       {expanded && content && (
@@ -63,7 +63,7 @@ export function ActionRow({ title, type, content, status, defaultExpanded = fals
           {status === 'pending' && (
             <div className="action-guardrail-actions">
               <button type="button" className="sovereign-btn primary" onClick={() => handleApproval(true)}>
-                <Check size={16} /> Approve Execution
+                <Check size={16} /> Approve
               </button>
               <button type="button" className="sovereign-btn danger" onClick={() => handleApproval(false)}>
                 <X size={16} /> Reject

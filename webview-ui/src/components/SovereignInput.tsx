@@ -87,7 +87,7 @@ export function SovereignInput({ onSend, disabled }: SovereignInputProps) {
         <button 
           type="button"
           className={`sovereign-attachment-btn ${attachments.length > 0 ? 'active' : ''}`}
-          title="Attach Context (Images/Files)"
+          title="Attach files"
           onClick={handleFileClick}
           disabled={disabled}
         >
@@ -102,7 +102,7 @@ export function SovereignInput({ onSend, disabled }: SovereignInputProps) {
             handleInput();
           }}
           onKeyDown={handleKeyDown}
-          placeholder="Enter neural command sequence..."
+          placeholder="Type a message..."
           disabled={disabled}
           rows={1}
         />
