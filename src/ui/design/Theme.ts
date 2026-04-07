@@ -11,21 +11,19 @@ import chalk from 'chalk';
  * Sovereign Aether Design Tokens — Liquid Neon Extensions.
  */
 export const supportsUnicode = (): boolean => {
+  // Manual override takes priority
   if (process.env.DIETCODE_NO_UNICODE === 'true') return false;
+  if (process.env.DIETCODE_FORCE_UNICODE === 'true') return true;
   
+  // Strict Locale Check: Only return true if the environment explicitly claims UTF-8 support
   const hasUnicodeEnv = /UTF-8/i.test(process.env.LC_ALL || process.env.LC_CTYPE || process.env.LANG || '');
   if (hasUnicodeEnv) return true;
 
+  // Fallback ONLY for modern terminal systems known to be UTF-8 by default regardless of LANG
   return !!(
-    process.env.WT_SESSION ||
+    process.env.WT_SESSION || // Windows Terminal
     process.env.TERMINUS_SUBLIME ||
-    process.env.COLORTERM ||
-    process.env.TERM_PROGRAM === 'vscode' ||
-    process.env.TERM_PROGRAM === 'Apple_Terminal' ||
-    process.env.TERM_PROGRAM === 'iTerm.app' ||
-    process.env.TERM === 'xterm-256color' ||
-    process.env.TERM === 'alacritty' ||
-    process.env.TERM === 'rxvt-unicode-256color'
+    process.env.TERM_PROGRAM === 'vscode'
   );
 };
 

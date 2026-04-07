@@ -57,9 +57,15 @@ async function main() {
     process.env.DIETCODE_NO_UNICODE = 'true';
   }
 
-  // Force UT8 encoding for all output streams
-  if (process.stdout.isTTY) {
-    process.stdout.setDefaultEncoding('utf-8');
+  if (process.argv.includes('--diagnose')) {
+    console.log(chalk.yellow('[ NEURAL_DIAGNOSTICS ]'));
+    console.log(`  PLATFORM  : ${process.platform}`);
+    console.log(`  LC_ALL    : ${process.env.LC_ALL}`);
+    console.log(`  LC_CTYPE  : ${process.env.LC_CTYPE}`);
+    console.log(`  LANG      : ${process.env.LANG}`);
+    console.log(`  TERM      : ${process.env.TERM}`);
+    console.log(`  TERM_PROG : ${process.env.TERM_PROGRAM}`);
+    console.log('');
   }
 
   const isUnicode = supportsUnicode();
