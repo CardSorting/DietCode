@@ -26,12 +26,20 @@ DietCode isn't just a coding assistant; it's a **Sovereign Hive**. By sharding l
 ```bash
 bun install
 ```
+> [!NOTE]
+> The installation process automatically builds the CLI and links the `dietcode` command to your terminal using a `postinstall` hook.
 
-### 3. Build & Launch
+### 3. Launching the Hive
+You can access the **Sovereign Hive** through two primary interfaces:
+
+#### 🖥️ Cinematic CLI
+To initiate the cinematic onboarding and establish your neural link:
 ```bash
-bun run build
+dietcode
 ```
-Then, press `F5` in VS Code to launch the **Sovereign Hive** extension development host.
+
+#### 🧩 VS Code Extension
+Press `F5` in VS Code to launch the extension development host. The **Sovereign Hive** panel will be available in the activity bar.
 
 ---
 
@@ -64,6 +72,7 @@ Explore the Hive's technical layers:
 ---
 
 ## 🛠️ Built-in Tools
+- **Sovereign CLI**: Zero-command, hyper-automated terminal interface.
 - **Deep Filesystem**: Hardened `read`/`write`/`grep` with safety sharding.
 - **BroccoliQ Persistence**: Highly-available, sharded SQLite state management.
 - **Dreamstate Boot**: Immersive, multi-phase cinematic diagnostics.
