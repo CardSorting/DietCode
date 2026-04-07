@@ -95,9 +95,23 @@ async function main() {
   // Initialize Database infrastructure BEFORE Bootstrap to avoid circular dependency
   await SovereignDb.init('./data/diet-code-sovereign.db');
 
+  // Parse CLI Overrides
+  const overrides: any = {};
+  let forceSetup = false;
+
+  for (let i = 2; i < process.argv.length; i++) {
+    const arg = process.argv[i];
+    if (arg === '--anthropic-key' && process.argv[i+1]) overrides.anthropicApiKey = process.argv[++i];
+    else if (arg === '--openai-key' && process.argv[i+1]) overrides.openaiApiKey = process.argv[++i];
+    else if (arg === '--gemini-key' && process.argv[i+1]) overrides.geminiApiKey = process.argv[++i];
+    else if (arg === '--cloudflare-id' && process.argv[i+1]) overrides.cloudflareAccountId = process.argv[++i];
+    else if (arg === '--cloudflare-token' && process.argv[i+1]) overrides.cloudflareApiToken = process.argv[++i];
+    else if (arg === '--setup' || arg === '--init') forceSetup = true;
+  }
+
   // Triple Down: Sovereign Onboarding & Setup
   const bootstrap = new BootstrapService(fs, ui);
-  const config = await bootstrap.bootstrap();
+  const config = await bootstrap.bootstrap(overrides, forceSetup);
 
   const apiKey = config.anthropicApiKey;
   const cfAccountId = config.cloudflareAccountId;

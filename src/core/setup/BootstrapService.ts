@@ -30,6 +30,34 @@ export interface UserConfig {
   onboardedAt: number;
 }
 
+const PROVIDER_UPLINKS: Record<'anthropic' | 'openai' | 'gemini' | 'cloudflare' | 'ollama', { name: string; url: string; strength: string }> = {
+  anthropic: { 
+    name: 'Anthropic', 
+    url: 'https://console.anthropic.com/', 
+    strength: 'High-intelligence reasoning (Claude 3.7)' 
+  },
+  openai: { 
+    name: 'OpenAI', 
+    url: 'https://platform.openai.com/api-keys', 
+    strength: 'Versatile and widely supported (GPT-4o)' 
+  },
+  gemini: { 
+    name: 'Google Gemini', 
+    url: 'https://aistudio.google.com/app/apikey', 
+    strength: 'Fast performance and massive context (Gemini 2.0)' 
+  },
+  cloudflare: { 
+    name: 'Cloudflare Workers AI', 
+    url: 'https://dash.cloudflare.com/', 
+    strength: 'Edge-optimized and cost-effective' 
+  },
+  ollama: { 
+    name: 'Ollama (Local)', 
+    url: 'https://ollama.com/', 
+    strength: 'Private, offline, and free local reasoning' 
+  }
+};
+
 export class BootstrapService {
   private projectName = 'DIETCODE';
 
@@ -49,7 +77,7 @@ export class BootstrapService {
     }
   }
 
-  async bootstrap(): Promise<BootstrapConfig> {
+  async bootstrap(overrides?: Partial<BootstrapConfig>, forceSetup?: boolean): Promise<BootstrapConfig> {
     const userConfig = this.loadUserConfig();
     (COLORS as any).activeProfile = (userConfig as any).aesthetic || 'AETHER';
 
@@ -57,19 +85,37 @@ export class BootstrapService {
     
     // Phase 1: Cinematic Splash & Diagnostics
     await SplashRenderer.bootSequence((COLORS as any).activeProfile);
+    
+    // Apply Overrides Immediately
+    if (overrides && Object.keys(overrides).length > 0) {
+        const current = await this.loadConfig();
+        const merged = { ...current, ...overrides };
+        await this.saveToEnv(merged);
+        await ProtocolRenderer.renderSuccess('Neural parameters synchronized via direct CLI override.');
+    }
+
     await this.runSafetyAudit();
     await this.runDiagnostics();
 
     const config: BootstrapConfig = await this.loadConfig();
 
-    // Check if configuration is incomplete
-    const isIncomplete = !config.anthropicApiKey && (!config.cloudflareAccountId || !config.cloudflareApiToken);
+    // Check if configuration is incomplete or forceSetup is true
+    const isIncomplete = !config.anthropicApiKey && (!config.cloudflareAccountId || !config.cloudflareApiToken) && !config.openaiApiKey && !config.geminiApiKey;
     
-    if (isIncomplete) {
+    if (isIncomplete || forceSetup) {
       await this.runConnectivityProtocol(config);
     } else {
       // Just show a quick status check if already configured
       console.log(ProtocolRenderer.renderStepHeader(1, 1, 'Neural Link Active', this.projectName));
+      
+      const providers = [
+        { name: 'Anthropic', status: config.anthropicApiKey ? 'CONNECTED' as const : 'MISSING' as const },
+        { name: 'OpenAI', status: config.openaiApiKey ? 'CONNECTED' as const : 'MISSING' as const },
+        { name: 'Google Gemini', status: config.geminiApiKey ? 'CONNECTED' as const : 'MISSING' as const },
+        { name: 'Cloudflare', status: config.cloudflareAccountId ? 'CONNECTED' as const : 'MISSING' as const },
+        { name: 'Local (Ollama)', status: config.ollamaBaseUrl ? 'CONNECTED' as const : 'MISSING' as const },
+      ];
+      console.log(ProtocolRenderer.renderConnectivityStatus(providers));
       console.log(ProtocolRenderer.renderNeuralStatus({ resonance: 98, stability: 100, latency: 12 }));
     }
 
@@ -145,6 +191,10 @@ export class BootstrapService {
     if (choice === '4') await this.setupCloudflare(config);
     if (choice === '5') await this.setupOllama(config);
 
+    if (!config.ollamaBaseUrl) {
+        await this.discoverLocalNode(config);
+    }
+
     console.log(ProtocolRenderer.renderStepHeader(2, 3, 'Neural Profile Calibration', this.projectName));
     await this.calibrateNeuralProfiles(config);
 
@@ -157,16 +207,21 @@ export class BootstrapService {
 
   private async setupOpenAI(config: BootstrapConfig) {
     let valid = false;
+    const meta = PROVIDER_UPLINKS.openai;
     while (!valid) {
-      this.ui.logInfo(`${ICONS.GEAR} AUTH_REQUIRED: OpenAI API Access`);
+      this.ui.logInfo(`${ICONS.GEAR} AUTH_REQUIRED: ${meta.name} API Access`);
+      this.ui.logInfo(`STRENGTH: ${COLORS.HIGHLIGHT(meta.strength)}`);
+      this.ui.logInfo(`OBTAIN_KEY: ${COLORS.HIVE_CYAN(meta.url)}`);
+      
       const key = await this.ui.promptSecret('Enter OpenAI API Key (or "skip"): ');
       if (key.toLowerCase() === 'skip') break;
       
+      const sanitizedKey = key.trim();
       await ProtocolRenderer.renderHandshakePulse('OpenAI');
-      valid = await this.validateOpenAI(key);
+      valid = await this.validateOpenAI(sanitizedKey);
 
       if (valid) {
-        config.openaiApiKey = key;
+        config.openaiApiKey = sanitizedKey;
         await ProtocolRenderer.renderSuccess('OpenAI Uplink Established.');
       } else {
         this.ui.logError('Handshake failed. Verify your API Key.');
@@ -176,16 +231,21 @@ export class BootstrapService {
 
   private async setupGemini(config: BootstrapConfig) {
     let valid = false;
+    const meta = PROVIDER_UPLINKS.gemini;
     while (!valid) {
-      this.ui.logInfo(`${ICONS.GEAR} AUTH_REQUIRED: Google Gemini API Access`);
+      this.ui.logInfo(`${ICONS.GEAR} AUTH_REQUIRED: ${meta.name} API Access`);
+      this.ui.logInfo(`STRENGTH: ${COLORS.HIGHLIGHT(meta.strength)}`);
+      this.ui.logInfo(`OBTAIN_KEY: ${COLORS.HIVE_CYAN(meta.url)}`);
+      
       const key = await this.ui.promptSecret('Enter Gemini API Key (or "skip"): ');
       if (key.toLowerCase() === 'skip') break;
       
+      const sanitizedKey = key.trim();
       await ProtocolRenderer.renderHandshakePulse('Gemini');
-      valid = await this.validateGemini(key);
+      valid = await this.validateGemini(sanitizedKey);
 
       if (valid) {
-        config.geminiApiKey = key;
+        config.geminiApiKey = sanitizedKey;
         await ProtocolRenderer.renderSuccess('Gemini Hive Active.');
       } else {
         this.ui.logError('Handshake failed. Verify your API Key.');
@@ -195,18 +255,23 @@ export class BootstrapService {
 
   private async setupAnthropic(config: BootstrapConfig) {
     let valid = false;
+    const meta = PROVIDER_UPLINKS.anthropic;
     while (!valid) {
-      this.ui.logInfo(`${ICONS.GEAR} AUTH_REQUIRED: Anthropic API Access`);
+      this.ui.logInfo(`${ICONS.GEAR} AUTH_REQUIRED: ${meta.name} API Access`);
+      this.ui.logInfo(`STRENGTH: ${COLORS.HIGHLIGHT(meta.strength)}`);
+      this.ui.logInfo(`OBTAIN_KEY: ${COLORS.HIVE_CYAN(meta.url)}`);
+      
       const key = await this.ui.promptSecret('Enter Anthropic API Key (or "skip"): ');
       if (key.toLowerCase() === 'skip') break;
       
+      const sanitizedKey = key.trim();
       await ProtocolRenderer.renderValidationPulse('Decrypting and verifying Anthropic handshake');
       const start = Date.now();
-      valid = await this.validateAnthropic(key);
+      valid = await this.validateAnthropic(sanitizedKey);
       const latency = Date.now() - start;
 
       if (valid) {
-        config.anthropicApiKey = key;
+        config.anthropicApiKey = sanitizedKey;
         await ProtocolRenderer.renderSuccess('Anthropic Uplink Established.');
         console.log(ProtocolRenderer.renderNeuralLinkQuality(latency));
       } else {
@@ -217,20 +282,27 @@ export class BootstrapService {
 
   private async setupCloudflare(config: BootstrapConfig) {
     let valid = false;
+    const meta = PROVIDER_UPLINKS.cloudflare;
     while (!valid) {
-      this.ui.logInfo(`${ICONS.GEAR} AUTH_REQUIRED: Cloudflare Workers AI`);
+      this.ui.logInfo(`${ICONS.GEAR} AUTH_REQUIRED: ${meta.name}`);
+      this.ui.logInfo(`STRENGTH: ${COLORS.HIGHLIGHT(meta.strength)}`);
+      this.ui.logInfo(`DASHBOARD: ${COLORS.HIVE_CYAN(meta.url)}`);
+
       const id = await this.ui.promptUser('Enter Cloudflare Account ID: ');
       const token = await this.ui.promptSecret('Enter Cloudflare API Token: ');
       if (id.toLowerCase() === 'skip') break;
 
+      const sanitizedId = id.trim();
+      const sanitizedToken = token.trim();
+
       await ProtocolRenderer.renderValidationPulse('Synchronizing Cloudflare Workers AI');
       const start = Date.now();
-      valid = await this.validateCloudflare(id, token);
+      valid = await this.validateCloudflare(sanitizedId, sanitizedToken);
       const latency = Date.now() - start;
 
       if (valid) {
-        config.cloudflareAccountId = id;
-        config.cloudflareApiToken = token;
+        config.cloudflareAccountId = sanitizedId;
+        config.cloudflareApiToken = sanitizedToken;
         await ProtocolRenderer.renderSuccess('Cloudflare Hive Active.');
         console.log(ProtocolRenderer.renderNeuralLinkQuality(latency));
       } else {
@@ -284,9 +356,13 @@ export class BootstrapService {
   }
 
   private async setupOllama(config: BootstrapConfig) {
-    this.ui.logInfo(`${ICONS.GEAR} AUTH_REQUIRED: Local Node (Ollama) Registration`);
+    const meta = PROVIDER_UPLINKS.ollama;
+    this.ui.logInfo(`${ICONS.GEAR} AUTH_REQUIRED: ${meta.name} Registration`);
+    this.ui.logInfo(`STRENGTH: ${COLORS.HIGHLIGHT(meta.strength)}`);
+    this.ui.logInfo(`DOWNLOAD: ${COLORS.HIVE_CYAN(meta.url)}`);
+
     const url = await this.ui.promptUser('Enter Ollama Base URL [http://localhost:11434]: ');
-    config.ollamaBaseUrl = url || 'http://localhost:11434';
+    config.ollamaBaseUrl = (url || 'http://localhost:11434').trim();
     
     await ProtocolRenderer.renderHandshakePulse('Ollama');
     
@@ -297,6 +373,22 @@ export class BootstrapService {
     } else {
       this.ui.logError('Local Node unreachable. Please ensure Ollama is running.');
     }
+  }
+
+  private async discoverLocalNode(config: BootstrapConfig) {
+      const defaultUrl = 'http://localhost:11434';
+      process.stdout.write(`\r ${ICONS.DIAGNOSTIC} Scanning for Local Neural Nodes...`);
+      const isOllamaRunning = await this.validateOllama(defaultUrl);
+      process.stdout.write(`\r${' '.repeat(50)}\r`);
+
+      if (isOllamaRunning) {
+          this.ui.logInfo(`${COLORS.SUCCESS('◈')} PROXIMITY_ALERT: Ollama Local Node detected at ${defaultUrl}`);
+          const use = await this.ui.promptUser('Shall I enable your Local Neural Link automatically? (y/n): ');
+          if (use.toLowerCase() === 'y' || use.toLowerCase() === 'yes') {
+              config.ollamaBaseUrl = defaultUrl;
+              await ProtocolRenderer.renderSuccess('Local Node Auto-Synchronized.');
+          }
+      }
   }
 
   private async runDiagnostics() {
@@ -457,12 +549,16 @@ export class BootstrapService {
     this.ui.logInfo(`${ICONS.GEAR} AUTH_AUDIT: Checking Repository Safety...`);
     if (this.fs.exists('.gitignore')) {
       const content = this.fs.readFile('.gitignore');
-      if (!content.includes('.env')) {
-        this.ui.logError('CRITICAL_VULNERABILITY: .env is NOT ignored in .gitignore!');
+      const lines = content.split('\n').map(l => l.trim());
+      
+      const leaks = ['.env', '.env.bak', '.env.local', '.env.example'].filter(env => !lines.some(l => l.includes(env)));
+
+      if (leaks.length > 0) {
+        this.ui.logError(`CRITICAL_VULNERABILITY: Secret patterns [${leaks.join(', ')}] are NOT ignored in .gitignore!`);
         const fix = await this.ui.promptUser('Shall I patch .gitignore to secure your credentials? (y/n): ');
         if (fix.toLowerCase() === 'y') {
-          this.fs.writeFile('.gitignore', `${content}\n\n# DietCode Sovereign Secrets\n.env\n`);
-          this.ui.logSuccess('Patch Applied: .env is now insulated.');
+          this.fs.writeFile('.gitignore', `${content}\n\n# DietCode Sovereign Secrets\n.env*\n.env.local\n`);
+          this.ui.logSuccess('Patch Applied: Global secret patterns are now insulated.');
         }
       } else {
         this.ui.logSuccess('Safety Protocol Verified: Secrets are insulated.');
@@ -527,7 +623,7 @@ export class BootstrapService {
       }
     }
 
-    this.fs.writeFile('.env', newLines.join('\n'));
+    this.fs.writeFile('.env', newLines.join('\n'), { mode: 0o600 });
   }
 
   private loadUserConfig(): UserConfig {

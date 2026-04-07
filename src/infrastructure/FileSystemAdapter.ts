@@ -85,7 +85,7 @@ export class FileSystemAdapter implements Filesystem {
     return lines.slice(startLine - 1, endLine).join('\n');
   }
 
-  writeFile(filePath: string, content: string): void {
+  writeFile(filePath: string, content: string, options?: { mode?: number }): void {
     this.checkFocus(filePath);
     const validatedPath = this.validator.validate(filePath);
     let linesAdded = 0;
@@ -106,7 +106,7 @@ export class FileSystemAdapter implements Filesystem {
       // Ignore for telemetry
     }
 
-    fs.writeFileSync(validatedPath, content, 'utf8');
+    fs.writeFileSync(validatedPath, content, { encoding: 'utf8', mode: options?.mode });
 
     // Pass 18: Record Sovereign Signature
     const signature = crypto.createHash('sha256').update(content).digest('hex');

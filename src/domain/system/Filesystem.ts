@@ -22,7 +22,7 @@ export interface Filesystem {
   // Basic text operations
   readFile(path: string): string;
   readRange(path: string, startLine: number, endLine: number): string;
-  writeFile(path: string, content: string): void;
+  writeFile(path: string, content: string, options?: { mode?: number }): void;
   mkdir(path: string): void;
   exists(path: string): boolean;
 
