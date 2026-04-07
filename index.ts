@@ -56,6 +56,9 @@ async function main() {
   if (process.argv.includes('--no-unicode')) {
     process.env.DIETCODE_NO_UNICODE = 'true';
   }
+  if (process.argv.includes('--cinematic')) {
+    process.env.DIETCODE_FORCE_UNICODE = 'true';
+  }
 
   if (process.argv.includes('--diagnose')) {
     console.log(chalk.yellow('[ NEURAL_DIAGNOSTICS ]'));

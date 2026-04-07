@@ -20,7 +20,7 @@ export const SplashRenderer = {
     const logo = (ICONS as any).CINEMATIC_LOGO || AESTHETIC.getLogo(profile || 'AETHER');
     const title = COLORS.HIGHLIGHT('DIETCODE');
     const subtitle = COLORS.PRIMARY('[ SOVEREIGN HIVE ARCHITECTURE ]');
-    const version = COLORS.MUTED('v2.2.2-AXIOM-STRICT');
+    const version = COLORS.MUTED('v2.2.4-ZERO-ERROR');
     
     // Inject ambient color drift into the logo lines
     const logoLines = logo.trim().split('\n').map((line: string, i: number) => {

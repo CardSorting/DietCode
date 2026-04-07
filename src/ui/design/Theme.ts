@@ -11,20 +11,9 @@ import chalk from 'chalk';
  * Sovereign Aether Design Tokens — Liquid Neon Extensions.
  */
 export const supportsUnicode = (): boolean => {
-  // Manual override takes priority
-  if (process.env.DIETCODE_NO_UNICODE === 'true') return false;
-  if (process.env.DIETCODE_FORCE_UNICODE === 'true') return true;
-  
-  // Strict Locale Check: Only return true if the environment explicitly claims UTF-8 support
-  const hasUnicodeEnv = /UTF-8/i.test(process.env.LC_ALL || process.env.LC_CTYPE || process.env.LANG || '');
-  if (hasUnicodeEnv) return true;
-
-  // Fallback ONLY for modern terminal systems known to be UTF-8 by default regardless of LANG
-  return !!(
-    process.env.WT_SESSION || // Windows Terminal
-    process.env.TERMINUS_SUBLIME ||
-    process.env.TERM_PROGRAM === 'vscode'
-  );
+  // Final Hard-Lock: Default to ASCII (False) unless explicitly forced by the user.
+  // This eliminates all 'mojibake' false-positives from unreliable environment variables.
+  return process.env.DIETCODE_FORCE_UNICODE === 'true';
 };
 
 export const SYMBOLS = {
