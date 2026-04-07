@@ -99,24 +99,11 @@ export class BootstrapService {
 
     const config: BootstrapConfig = await this.loadConfig();
 
-    // Check if configuration is incomplete or forceSetup is true
     const isIncomplete = !config.anthropicApiKey && (!config.cloudflareAccountId || !config.cloudflareApiToken) && !config.openaiApiKey && !config.geminiApiKey;
     
+    // Phase 2: AI Provider Selection (Linear Step-by-Step)
     if (isIncomplete || forceSetup) {
-      await this.runConnectivityProtocol(config);
-    } else {
-      // Just show a quick status check if already configured
-      console.log(ProtocolRenderer.renderStepHeader(1, 1, 'Neural Link Active', this.projectName));
-      
-      const providers = [
-        { name: 'Anthropic', status: config.anthropicApiKey ? 'CONNECTED' as const : 'MISSING' as const },
-        { name: 'OpenAI', status: config.openaiApiKey ? 'CONNECTED' as const : 'MISSING' as const },
-        { name: 'Google Gemini', status: config.geminiApiKey ? 'CONNECTED' as const : 'MISSING' as const },
-        { name: 'Cloudflare', status: config.cloudflareAccountId ? 'CONNECTED' as const : 'MISSING' as const },
-        { name: 'Local (Ollama)', status: config.ollamaBaseUrl ? 'CONNECTED' as const : 'MISSING' as const },
-      ];
-      console.log(ProtocolRenderer.renderConnectivityStatus(providers));
-      console.log(ProtocolRenderer.renderNeuralStatus({ resonance: 98, stability: 100, latency: 12 }));
+      await this.runProviderSetup(config);
     }
 
     await this.personalize();
@@ -162,46 +149,33 @@ export class BootstrapService {
     return config;
   }
 
-  private async runConnectivityProtocol(config: BootstrapConfig) {
-    console.log(ProtocolRenderer.renderStepHeader(1, 3, 'Connectivity Protocol Activation', this.projectName));
-    this.ui.logInfo('Initialize your Hive neural link by configuring your AI providers.');
+  private async runProviderSetup(config: BootstrapConfig) {
+    console.log(ProtocolRenderer.renderStepHeader(1, 3, 'AI Provider Setup', this.projectName));
+    this.ui.logInfo('To get started, we need to connect a "Brain" to DietCode.');
+    this.ui.logInfo('You can use a cloud service (like Anthropic or OpenAI) or a local one (Ollama).');
 
     const providers = [
-      { name: 'Anthropic', status: config.anthropicApiKey ? 'CONNECTED' : 'MISSING' },
-      { name: 'OpenAI', status: config.openaiApiKey ? 'CONNECTED' : 'MISSING' },
-      { name: 'Google Gemini', status: config.geminiApiKey ? 'CONNECTED' : 'MISSING' },
-      { name: 'Cloudflare', status: config.cloudflareAccountId ? 'CONNECTED' : 'MISSING' },
-      { name: 'Local (Ollama)', status: config.ollamaBaseUrl ? 'CONNECTED' : 'MISSING' },
+      { id: '1', name: 'Anthropic (Recommended)', meta: PROVIDER_UPLINKS.anthropic },
+      { id: '2', name: 'OpenAI', meta: PROVIDER_UPLINKS.openai },
+      { id: '3', name: 'Google Gemini', meta: PROVIDER_UPLINKS.gemini },
+      { id: '4', name: 'Cloudflare Workers AI', meta: PROVIDER_UPLINKS.cloudflare },
+      { id: '5', name: 'Ollama (Local/Private)', meta: PROVIDER_UPLINKS.ollama },
     ];
 
-    console.log(ProtocolRenderer.renderConnectivityStatus(providers as any));
-
-    const choice = await this.ui.promptUser(
-      'Initialize provider uplink? (1: Anthropic, 2: OpenAI, 3: Gemini, 4: Cloudflare, 5: Local, S: Skip): ',
-    );
-
-    if (choice.toLowerCase() === 's') {
-      this.ui.logInfo(`${COLORS.WARNING('WARNING:')} Connectivity Protocol bypassed.`);
-      return;
+    for (const p of providers) {
+      console.log(`  ${COLORS.HIVE_GOLD(p.id)}. ${p.name.padEnd(25)} - ${p.meta.strength}`);
     }
+    
+    const choice = await this.ui.promptUser('\nWhich AI service would you like to connect first? (1-5): ');
 
     if (choice === '1') await this.setupAnthropic(config);
-    if (choice === '2') await this.setupOpenAI(config);
-    if (choice === '3') await this.setupGemini(config);
-    if (choice === '4') await this.setupCloudflare(config);
-    if (choice === '5') await this.setupOllama(config);
+    else if (choice === '2') await this.setupOpenAI(config);
+    else if (choice === '3') await this.setupGemini(config);
+    else if (choice === '4') await this.setupCloudflare(config);
+    else if (choice === '5') await this.setupOllama(config);
 
     if (!config.ollamaBaseUrl) {
         await this.discoverLocalNode(config);
-    }
-
-    console.log(ProtocolRenderer.renderStepHeader(2, 3, 'Neural Profile Calibration', this.projectName));
-    await this.calibrateNeuralProfiles(config);
-
-    const save = await this.ui.promptUser('Sovereign, persist parameters to Hive manifest? (y/n): ');
-    if (save.toLowerCase() === 'y' || save.toLowerCase() === 'yes') {
-      await this.saveToEnv(config);
-      await ProtocolRenderer.renderSuccess('Neural parameters persisted to Hive manifest.');
     }
   }
 
@@ -312,46 +286,31 @@ export class BootstrapService {
   }
 
   private async calibrateNeuralProfiles(config: BootstrapConfig) {
+    console.log(ProtocolRenderer.renderStepHeader(2, 3, 'Model Selection', this.projectName));
+    this.ui.logInfo('Now, let\'s pick which AI model to use for your tasks.');
+
     if (config.anthropicApiKey) {
-      this.ui.logInfo('\n[ ANTHROPIC NEURAL PROFILE ]');
-      const modelChoice = await this.ui.promptUser(
-        'Select Model (1: Claude 3.7 Sonnet [PRECISE], 2: Claude 3.5 Sonnet [FAST]): ',
-      );
-      config.anthropicModel = modelChoice === '2' 
-        ? 'claude-3-5-sonnet-20241022' 
-        : 'claude-3-7-sonnet-20250219';
-      this.ui.logSuccess(`Profile set to: ${config.anthropicModel}`);
+      this.ui.logInfo(`\n${ICONS.GEAR} Choose your Anthropic Model:`);
+      console.log('  1. Claude 3.7 Sonnet (Best for coding & reasoning)');
+      console.log('  2. Claude 3.5 Haiku (Fast & efficient)');
+      const choice = await this.ui.promptUser('Selection (1-2) [1]: ');
+      config.anthropicModel = choice === '2' ? 'claude-3-5-haiku-20241022' : 'claude-3-7-sonnet-20250219';
     }
 
     if (config.openaiApiKey) {
-      this.ui.logInfo('\n[ OPENAI NEURAL PROFILE ]');
-      const modelChoice = await this.ui.promptUser(
-        'Select Model (1: GPT-4o [PRECISE], 2: GPT-4o-mini [FAST]): ',
-      );
-      config.openaiModel = modelChoice === '2' ? 'gpt-4o-mini' : 'gpt-4o';
-      this.ui.logSuccess(`Profile set to: ${config.openaiModel}`);
+      this.ui.logInfo(`\n${ICONS.GEAR} Choose your OpenAI Model:`);
+      console.log('  1. GPT-4o (Most intelligent)');
+      console.log('  2. GPT-4o-mini (Small & fast)');
+      const choice = await this.ui.promptUser('Selection (1-2) [1]: ');
+      config.openaiModel = choice === '2' ? 'gpt-4o-mini' : 'gpt-4o';
     }
 
     if (config.geminiApiKey) {
-        this.ui.logInfo('\n[ GEMINI NEURAL PROFILE ]');
-        const modelChoice = await this.ui.promptUser(
-          'Select Model (1: Gemini 2.0 Flash [FAST], 2: Gemini 1.5 Pro [PRECISE]): ',
-        );
-        config.geminiModel = modelChoice === '2' ? 'gemini-1.5-pro' : 'gemini-2.0-flash';
-        this.ui.logSuccess(`Profile set to: ${config.geminiModel}`);
-    }
-
-    if (config.cloudflareAccountId) {
-      this.ui.logInfo('\n[ CLOUDFLARE NEURAL PROFILE ]');
-      this.ui.logInfo('Profile Locked: @cf/moonshotai/kimi-k2.5 (Sovereign Default)');
-      config.cloudflareModel = '@cf/moonshotai/kimi-k2.5';
-    }
-
-    if (config.ollamaBaseUrl) {
-       this.ui.logInfo('\n[ LOCAL NODE NEURAL PROFILE ]');
-       const oModel = await this.ui.promptUser('Enter Local Model (e.g. deepseek-r1:32b, llama3.1): ');
-       config.ollamaModel = oModel || 'deepseek-r1:32b';
-       this.ui.logSuccess(`Local Profile set to: ${config.ollamaModel}`);
+      this.ui.logInfo(`\n${ICONS.GEAR} Choose your Google Gemini Model:`);
+      console.log('  1. Gemini 2.0 Flash (Fastest with 1M context)');
+      console.log('  2. Gemini 1.5 Pro (Deep reasoning)');
+      const choice = await this.ui.promptUser('Selection (1-2) [1]: ');
+      config.geminiModel = choice === '2' ? 'gemini-1.5-pro' : 'gemini-2.0-flash';
     }
   }
 
@@ -468,59 +427,47 @@ export class BootstrapService {
   }
 
   private async personalize() {
+    this.ui.logInfo(`\n${ProtocolRenderer.renderStepHeader(3, 3, 'User Profile', this.projectName)}`);
+    this.ui.logInfo('Almost done! Let\'s personalize your experience.');
+    
     const configPath = '.dietcode/config.json';
-    let userConfig: UserConfig = { name: 'Sovereign Administrator', onboardedAt: Date.now() };
+    let userConfig: UserConfig = { name: 'Admin', onboardedAt: Date.now() };
 
     if (this.fs.exists(configPath)) {
-      try {
-        userConfig = JSON.parse(this.fs.readFile(configPath));
-      } catch { /* use default */ }
-    } else {
-      console.log(ProtocolRenderer.renderStepHeader(3, 3, 'Identification Sequence', this.projectName));
-      const name = await this.ui.promptUser('By what title shall the Hive address you, Sovereign? ');
-      if (name.trim()) {
-        userConfig.name = name.trim();
-      } else {
-        userConfig.name = this.generateSovereignHandle();
-        await ProtocolRenderer.renderSovereignHandle(userConfig.name);
-      }
-      if (!this.fs.exists('.dietcode')) this.fs.mkdir('.dietcode');
-      this.fs.writeFile(configPath, JSON.stringify(userConfig, null, 2));
-      await MetabolicRenderer.decrypt(`Sovereign Identity Recognized: ${userConfig.name}`, 30);
+      userConfig = JSON.parse(this.fs.readFile(configPath));
     }
 
-    // Pass 4: Aesthetic Selection
-    if (!(userConfig as any).aesthetic) {
-      console.log(ProtocolRenderer.renderStepHeader(4, 4, 'Aesthetic Synchronization', this.projectName));
-      const profiles = Object.keys(COLORS.PROFILES);
-      console.log(ProtocolRenderer.renderThemeSelection(profiles, COLORS.activeProfile));
-      const tChoice = await this.ui.promptUser('Select your Sub-Hive Aesthetic Profile (A/M/V/I): ');
-      const map: Record<string, string> = { a: 'AETHER', m: 'MATRIX', v: 'VAPORWAVE', i: 'INDUSTRIAL' };
-      const key = (tChoice ? tChoice.toLowerCase()[0] : 'a') as string;
-      const selected = map[key] || 'AETHER';
-      (COLORS as any).activeProfile = selected;
-      (userConfig as any).aesthetic = selected;
-      this.fs.writeFile(configPath, JSON.stringify(userConfig, null, 2));
-      await ProtocolRenderer.renderSuccess(`Aesthetic Profile Synchronized: ${selected}`);
-    } else {
-      (COLORS as any).activeProfile = (userConfig as any).aesthetic;
-    }
+    const name = await this.ui.promptUser(`What is your name? [${userConfig.name}]: `);
+    if (name) userConfig.name = name;
 
-    console.log(`\n ${COLORS.PRIMARY('WELCOME BACK,')} ${COLORS.HIGHLIGHT(userConfig.name.toUpperCase())}\n`);
-    await this.activateSwarm();
+    this.ui.logInfo(`\n${ICONS.GEAR} Choose a color theme for the CLI:`);
+    console.log(`  1. ${COLORS.HIGHLIGHT('AETHER')} (Standard Deep Space)`);
+    console.log(`  2. ${COLORS.WARNING('VOLCANIC')} (High Contrast Heat)`);
+    console.log(`  3. ${COLORS.HIVE_GOLD('SOLARIS')} (Golden Dawn)`);
+    console.log(`  4. ${COLORS.MUTED('ONYX')} (Stealth Mode)`);
+
+    const themeChoice = await this.ui.promptUser('Selection (1-4) [1]: ');
+    const themeMap: Record<string, string> = { '1': 'AETHER', '2': 'VOLCANIC', '3': 'SOLARIS', '4': 'ONYX' };
+    (userConfig as any).aesthetic = themeMap[themeChoice] || 'AETHER';
+
+    this.fs.writeFile(configPath, JSON.stringify(userConfig, null, 2));
+    await ProtocolRenderer.renderSuccess(`Profile saved. Welcome to the hive, ${userConfig.name}.`);
   }
 
   private async runKickstartProtocol() {
+    this.ui.logInfo('\nPreparing for final activation...');
     const config = await this.loadConfig();
-    const user = this.loadUserConfig();
+    const model = config.anthropicModel || config.openaiModel || config.geminiModel || 'Ollama';
     
     console.log(ProtocolRenderer.renderAxiomReceipt({
-        name: user.name,
-        model: config.anthropicModel || config.cloudflareModel || 'NONE',
-        theme: (user as any).aesthetic || 'AETHER',
-        latency: 42 // Mock or last measured
+      name: JSON.parse(this.fs.readFile('.dietcode/config.json')).name,
+      model,
+      theme: (JSON.parse(this.fs.readFile('.dietcode/config.json')) as any).aesthetic || 'AETHER',
+      latency: 12
     }));
 
+    await MetabolicRenderer.dataBurst(['READY_FOR_COMMAND', 'HIVE_MINDS_ONLINE', 'SOVEREIGN_RESERVE_STABLE']);
+    
     console.log(ProtocolRenderer.renderKickstartMenu());
     const choice = await this.ui.promptUser('Initiate Kickstart Task? (1-3 or S): ');
     

@@ -15,7 +15,7 @@ export const ProtocolRenderer = {
   /**
    * Renders a header for a specific onboarding step.
    */
-  renderStepHeader(step: number, total: number, title: string, project?: string): string {
+  renderStepHeader(step: number, total: number, title: string, _project?: string): string {
     const progress = step / total;
     const percent = Math.round(progress * 100);
     const filled = Math.floor(progress * 20);
@@ -25,14 +25,11 @@ export const ProtocolRenderer = {
                 (filled > 0 ? spark : '') + 
                 SYMBOLS.EMPTY_BLOCK.repeat(Math.max(0, 20 - filled));
                 
-    const projectHeader = project ? COLORS.AESTHETIC_PURPLE(` PROJECT_AETHER: ${project}`) : '';
-    
     return [
       `\n${BORDERS.tl}${BORDERS.h.repeat(60)}${BORDERS.tr}`,
-      `${BORDERS.v} [ STEP ${step}/${total} ] ${title.padEnd(46)} ${BORDERS.v}`,
+      `${BORDERS.v} [ PHASE ${step}/${total} ] ${title.padEnd(46)} ${BORDERS.v}`,
       `${BORDERS.v}  PROGRESS: [${COLORS.HIVE_CYAN(bar)}] ${percent}%`.padEnd(62) + BORDERS.v,
       `${BORDERS.bl}${BORDERS.h.repeat(60)}${BORDERS.br}`,
-      projectHeader,
     ].join('\n');
   },
 
@@ -42,16 +39,16 @@ export const ProtocolRenderer = {
   renderConnectivityStatus(providers: { name: string, status: 'CONNECTED' | 'PENDING' | 'MISSING' | 'ERROR' }[]): string {
     const lines = providers.map(p => {
       let statusText = '';
-      if (p.status === 'CONNECTED') statusText = COLORS.SUCCESS('CONNECTED');
-      else if (p.status === 'PENDING') statusText = COLORS.WARNING('PENDING');
-      else if (p.status === 'MISSING') statusText = COLORS.MUTED('MISSING');
-      else statusText = COLORS.ERROR('ERROR');
+      if (p.status === 'CONNECTED') statusText = COLORS.SUCCESS('READY');
+      else if (p.status === 'PENDING') statusText = COLORS.WARNING('SETTING_UP');
+      else if (p.status === 'MISSING') statusText = COLORS.MUTED('NOT_CONFIGURED');
+      else statusText = COLORS.ERROR('FAILURE');
       
       return ` ${ICONS.GEAR} ${p.name.padEnd(12)} : ${statusText}`;
     });
 
     const box = [
-      COLORS.PRIMARY(`${BORDERS.tl}${BORDERS.h} HIVE CONNECTIVITY STATUS ${BORDERS.h.repeat(15)}${BORDERS.tr}`),
+      COLORS.PRIMARY(`${BORDERS.tl}${BORDERS.h} AI SERVICES CHECK ${BORDERS.h.repeat(22)}${BORDERS.tr}`),
       ...lines.map(l => `${COLORS.PRIMARY(BORDERS.v)} ${l.padEnd(38)} ${COLORS.PRIMARY(BORDERS.v)}`),
       COLORS.PRIMARY(`${BORDERS.bl}${BORDERS.h.repeat(40)}${BORDERS.br}`)
     ].join('\n');
@@ -109,10 +106,10 @@ export const ProtocolRenderer = {
     const stabBar = this.renderMiniBar(metrics.stability);
     
     return [
-      COLORS.AESTHETIC_PINK(' [ NEURAL_DASHBOARD ]'),
-      `  RESONANCE : ${resBar} ${metrics.resonance}%`,
+      COLORS.AESTHETIC_PINK(' [ NETWORK_OVERVIEW ]'),
+      `  SYNC      : ${resBar} ${metrics.resonance}%`,
       `  STABILITY : ${stabBar} ${metrics.stability}%`,
-      `  LATENCY   : ${COLORS.HIVE_GOLD(`${metrics.latency}ms`)}`,
+      `  SPEED     : ${COLORS.HIVE_GOLD(`${metrics.latency}ms`)}`,
       '\n'
     ].join('\n');
   },
@@ -121,14 +118,13 @@ export const ProtocolRenderer = {
    * Renders a Neural Link Quality assessment based on latency.
    */
   renderNeuralLinkQuality(latency: number): string {
-    let rating = COLORS.SUCCESS('SOVEREIGN');
-    if (latency > 500) rating = COLORS.ERROR('DRIFTING');
-    else if (latency > 250) rating = COLORS.WARNING('ACTIVE');
-    else if (latency > 100) rating = COLORS.PRIMARY('PRIME');
+    let rating = COLORS.SUCCESS('EXCELLENT');
+    if (latency > 500) rating = COLORS.ERROR('SLOW');
+    else if (latency > 250) rating = COLORS.WARNING('AVERAGE');
+    else if (latency > 100) rating = COLORS.PRIMARY('GOOD');
     
     return [
-      `  NEURAL_LINK_QUALITY : ${rating} (${latency}ms)`,
-      `  SIGNAL_STRENGTH     : ${COLORS.PRIMARY(WAVEFORMS.HEARTBEAT)}`,
+      `  LINK_QUALITY : ${rating} (${latency}ms)`,
       '\n'
     ].join('\n');
   },
@@ -175,13 +171,13 @@ export const ProtocolRenderer = {
     return [
       '\n',
       COLORS.PRIMARY(`${BORDERS.tl}${BORDERS.h.repeat(42)}${BORDERS.tr}`),
-      `${COLORS.PRIMARY(BORDERS.v)} ${COLORS.HIGHLIGHT('NEURAL_SYNCHRONIZATION_RECEIPT')}         ${COLORS.PRIMARY(BORDERS.v)}`,
+      `${COLORS.PRIMARY(BORDERS.v)} ${COLORS.HIGHLIGHT('SETUP_SYNCHRONIZATION_COMPLETE')}         ${COLORS.PRIMARY(BORDERS.v)}`,
       `${COLORS.PRIMARY(BORDERS.v)} ${COLORS.MUTED(BORDERS.h.repeat(40))} ${COLORS.PRIMARY(BORDERS.v)}`,
-      `${COLORS.PRIMARY(BORDERS.v)}  SOVEREIGN  : ${config.name.padEnd(25)} ${COLORS.PRIMARY(BORDERS.v)}`,
-      `${COLORS.PRIMARY(BORDERS.v)}  PROFILE    : ${config.model.padEnd(25)} ${COLORS.PRIMARY(BORDERS.v)}`,
-      `${COLORS.PRIMARY(BORDERS.v)}  AESTHETIC  : ${config.theme.padEnd(25)} ${COLORS.PRIMARY(BORDERS.v)}`,
-      `${COLORS.PRIMARY(BORDERS.v)}  LATENCY    : ${COLORS.HIVE_GOLD(`${config.latency}ms`).padEnd(34)} ${COLORS.PRIMARY(BORDERS.v)}`,
-      `${COLORS.PRIMARY(BORDERS.v)}  SIGNATURE  : ${COLORS.MUTED(signature).padEnd(34)} ${COLORS.PRIMARY(BORDERS.v)}`,
+      `${COLORS.PRIMARY(BORDERS.v)}  USER      : ${config.name.padEnd(25)} ${COLORS.PRIMARY(BORDERS.v)}`,
+      `${COLORS.PRIMARY(BORDERS.v)}  MODEL     : ${config.model.padEnd(25)} ${COLORS.PRIMARY(BORDERS.v)}`,
+      `${COLORS.PRIMARY(BORDERS.v)}  THEME     : ${config.theme.padEnd(25)} ${COLORS.PRIMARY(BORDERS.v)}`,
+      `${COLORS.PRIMARY(BORDERS.v)}  SPEED     : ${COLORS.HIVE_GOLD(`${config.latency}ms`).padEnd(34)} ${COLORS.PRIMARY(BORDERS.v)}`,
+      `${COLORS.PRIMARY(BORDERS.v)}  SIGNATURE : ${COLORS.MUTED(signature).padEnd(34)} ${COLORS.PRIMARY(BORDERS.v)}`,
       COLORS.PRIMARY(`${BORDERS.bl}${BORDERS.h.repeat(42)}${BORDERS.br}`),
       '\n'
     ].join('\n');
