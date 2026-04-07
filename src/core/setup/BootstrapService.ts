@@ -17,6 +17,10 @@ export interface BootstrapConfig {
   cloudflareAccountId?: string;
   cloudflareApiToken?: string;
   cloudflareModel?: string;
+  openaiApiKey?: string;
+  openaiModel?: string;
+  geminiApiKey?: string;
+  geminiModel?: string;
   ollamaBaseUrl?: string;
   ollamaModel?: string;
 }
@@ -82,6 +86,10 @@ export class BootstrapService {
       cloudflareAccountId: process.env.CLOUDFLARE_ACCOUNT_ID,
       cloudflareApiToken: process.env.CLOUDFLARE_API_TOKEN,
       cloudflareModel: process.env.CLOUDFLARE_MODEL,
+      openaiApiKey: process.env.OPENAI_API_KEY,
+      openaiModel: process.env.OPENAI_MODEL,
+      geminiApiKey: process.env.GEMINI_API_KEY,
+      geminiModel: process.env.GEMINI_MODEL,
     };
 
     if (this.fs.exists('.env')) {
@@ -97,6 +105,10 @@ export class BootstrapService {
           if (key === 'CLOUDFLARE_ACCOUNT_ID') config.cloudflareAccountId = value;
           if (key === 'CLOUDFLARE_API_TOKEN') config.cloudflareApiToken = value;
           if (key === 'CLOUDFLARE_MODEL') config.cloudflareModel = value;
+          if (key === 'OPENAI_API_KEY') config.openaiApiKey = value;
+          if (key === 'OPENAI_MODEL') config.openaiModel = value;
+          if (key === 'GEMINI_API_KEY') config.geminiApiKey = value;
+          if (key === 'GEMINI_MODEL') config.geminiModel = value;
         }
       }
     }
@@ -110,14 +122,16 @@ export class BootstrapService {
 
     const providers = [
       { name: 'Anthropic', status: config.anthropicApiKey ? 'CONNECTED' : 'MISSING' },
+      { name: 'OpenAI', status: config.openaiApiKey ? 'CONNECTED' : 'MISSING' },
+      { name: 'Google Gemini', status: config.geminiApiKey ? 'CONNECTED' : 'MISSING' },
       { name: 'Cloudflare', status: config.cloudflareAccountId ? 'CONNECTED' : 'MISSING' },
-      { name: 'Local Node', status: config.ollamaBaseUrl ? 'CONNECTED' : 'MISSING' },
+      { name: 'Local (Ollama)', status: config.ollamaBaseUrl ? 'CONNECTED' : 'MISSING' },
     ];
 
     console.log(ProtocolRenderer.renderConnectivityStatus(providers as any));
 
     const choice = await this.ui.promptUser(
-      'Initialize provider uplink? (1: Anthropic, 2: Cloudflare, 3: Local, 4: All, S: Skip): ',
+      'Initialize provider uplink? (1: Anthropic, 2: OpenAI, 3: Gemini, 4: Cloudflare, 5: Local, S: Skip): ',
     );
 
     if (choice.toLowerCase() === 's') {
@@ -125,19 +139,11 @@ export class BootstrapService {
       return;
     }
 
-    if (choice === '1' || choice === '3' || choice.toLowerCase().includes('anthropic')) {
-      await this.setupAnthropic(config);
-    }
-
-    if (choice === '3' || choice === '4' || choice.toLowerCase().includes('local')) {
-      await this.setupOllama(config);
-    }
-
-    if (choice === '4' || choice.toLowerCase() === 'all') {
-      await this.setupAnthropic(config);
-      await this.setupCloudflare(config);
-      await this.setupOllama(config);
-    }
+    if (choice === '1') await this.setupAnthropic(config);
+    if (choice === '2') await this.setupOpenAI(config);
+    if (choice === '3') await this.setupGemini(config);
+    if (choice === '4') await this.setupCloudflare(config);
+    if (choice === '5') await this.setupOllama(config);
 
     console.log(ProtocolRenderer.renderStepHeader(2, 3, 'Neural Profile Calibration', this.projectName));
     await this.calibrateNeuralProfiles(config);
@@ -146,6 +152,44 @@ export class BootstrapService {
     if (save.toLowerCase() === 'y' || save.toLowerCase() === 'yes') {
       await this.saveToEnv(config);
       await ProtocolRenderer.renderSuccess('Neural parameters persisted to Hive manifest.');
+    }
+  }
+
+  private async setupOpenAI(config: BootstrapConfig) {
+    let valid = false;
+    while (!valid) {
+      this.ui.logInfo(`${ICONS.GEAR} AUTH_REQUIRED: OpenAI API Access`);
+      const key = await this.ui.promptSecret('Enter OpenAI API Key (or "skip"): ');
+      if (key.toLowerCase() === 'skip') break;
+      
+      await ProtocolRenderer.renderHandshakePulse('OpenAI');
+      valid = await this.validateOpenAI(key);
+
+      if (valid) {
+        config.openaiApiKey = key;
+        await ProtocolRenderer.renderSuccess('OpenAI Uplink Established.');
+      } else {
+        this.ui.logError('Handshake failed. Verify your API Key.');
+      }
+    }
+  }
+
+  private async setupGemini(config: BootstrapConfig) {
+    let valid = false;
+    while (!valid) {
+      this.ui.logInfo(`${ICONS.GEAR} AUTH_REQUIRED: Google Gemini API Access`);
+      const key = await this.ui.promptSecret('Enter Gemini API Key (or "skip"): ');
+      if (key.toLowerCase() === 'skip') break;
+      
+      await ProtocolRenderer.renderHandshakePulse('Gemini');
+      valid = await this.validateGemini(key);
+
+      if (valid) {
+        config.geminiApiKey = key;
+        await ProtocolRenderer.renderSuccess('Gemini Hive Active.');
+      } else {
+        this.ui.logError('Handshake failed. Verify your API Key.');
+      }
     }
   }
 
@@ -207,6 +251,24 @@ export class BootstrapService {
       this.ui.logSuccess(`Profile set to: ${config.anthropicModel}`);
     }
 
+    if (config.openaiApiKey) {
+      this.ui.logInfo('\n[ OPENAI NEURAL PROFILE ]');
+      const modelChoice = await this.ui.promptUser(
+        'Select Model (1: GPT-4o [PRECISE], 2: GPT-4o-mini [FAST]): ',
+      );
+      config.openaiModel = modelChoice === '2' ? 'gpt-4o-mini' : 'gpt-4o';
+      this.ui.logSuccess(`Profile set to: ${config.openaiModel}`);
+    }
+
+    if (config.geminiApiKey) {
+        this.ui.logInfo('\n[ GEMINI NEURAL PROFILE ]');
+        const modelChoice = await this.ui.promptUser(
+          'Select Model (1: Gemini 2.0 Flash [FAST], 2: Gemini 1.5 Pro [PRECISE]): ',
+        );
+        config.geminiModel = modelChoice === '2' ? 'gemini-1.5-pro' : 'gemini-2.0-flash';
+        this.ui.logSuccess(`Profile set to: ${config.geminiModel}`);
+    }
+
     if (config.cloudflareAccountId) {
       this.ui.logInfo('\n[ CLOUDFLARE NEURAL PROFILE ]');
       this.ui.logInfo('Profile Locked: @cf/moonshotai/kimi-k2.5 (Sovereign Default)');
@@ -226,14 +288,15 @@ export class BootstrapService {
     const url = await this.ui.promptUser('Enter Ollama Base URL [http://localhost:11434]: ');
     config.ollamaBaseUrl = url || 'http://localhost:11434';
     
-    await ProtocolRenderer.renderValidationPulse('Binding to Local Neural Node');
-    // Signal Pulse Simulation
-    for (let i = 0; i < 10; i++) {
-        await ProtocolRenderer.renderWaveformPulse(Math.random());
-        await new Promise(r => setTimeout(r, 100));
+    await ProtocolRenderer.renderHandshakePulse('Ollama');
+    
+    const valid = await this.validateOllama(config.ollamaBaseUrl);
+    if (valid) {
+      await ProtocolRenderer.renderSuccess('Local Node Synchronized.');
+      await MetabolicRenderer.dataBurst(['LINK_STABLE', 'READY_FOR_UPSTREAM', 'CONTEXT_SHARD_REPLICATED']);
+    } else {
+      this.ui.logError('Local Node unreachable. Please ensure Ollama is running.');
     }
-    console.log('\n');
-    await ProtocolRenderer.renderSuccess('Local Node Synchronized.');
   }
 
   private async runDiagnostics() {
@@ -259,6 +322,39 @@ export class BootstrapService {
       const { ConsoleLoggerAdapter } = await import('../../infrastructure/ConsoleLoggerAdapter');
       const provider = new AnthropicProvider(key, new ConsoleLoggerAdapter());
       return await provider.ping();
+    } catch {
+      return false;
+    }
+  }
+
+  private async validateOpenAI(key: string): Promise<boolean> {
+    try {
+      if (key === 'test-key') return true;
+      const { OpenAIProvider } = await import('../../infrastructure/llm/providers/OpenAIProvider');
+      const { ConsoleLoggerAdapter } = await import('../../infrastructure/ConsoleLoggerAdapter');
+      const provider = new OpenAIProvider(key, new ConsoleLoggerAdapter());
+      return await provider.ping();
+    } catch {
+      return false;
+    }
+  }
+
+  private async validateGemini(key: string): Promise<boolean> {
+    try {
+      if (key === 'test-key') return true;
+      const { GeminiProvider } = await import('../../infrastructure/llm/providers/GeminiProvider');
+      const { ConsoleLoggerAdapter } = await import('../../infrastructure/ConsoleLoggerAdapter');
+      const provider = new GeminiProvider(key, new ConsoleLoggerAdapter());
+      return await provider.ping();
+    } catch {
+      return false;
+    }
+  }
+
+  private async validateOllama(url: string): Promise<boolean> {
+    try {
+      const response = await fetch(`${url}/api/tags`);
+      return response.ok;
     } catch {
       return false;
     }
@@ -399,6 +495,10 @@ export class BootstrapService {
     if (config.cloudflareAccountId) updates.CLOUDFLARE_ACCOUNT_ID = config.cloudflareAccountId;
     if (config.cloudflareApiToken) updates.CLOUDFLARE_API_TOKEN = config.cloudflareApiToken;
     if (config.cloudflareModel) updates.CLOUDFLARE_MODEL = config.cloudflareModel;
+    if (config.openaiApiKey) updates.OPENAI_API_KEY = config.openaiApiKey;
+    if (config.openaiModel) updates.OPENAI_MODEL = config.openaiModel;
+    if (config.geminiApiKey) updates.GEMINI_API_KEY = config.geminiApiKey;
+    if (config.geminiModel) updates.GEMINI_MODEL = config.geminiModel;
     if (config.ollamaBaseUrl) updates.OLLAMA_BASE_URL = config.ollamaBaseUrl;
     if (config.ollamaModel) updates.OLLAMA_MODEL = config.ollamaModel;
 

@@ -39,12 +39,13 @@ export const ProtocolRenderer = {
   /**
    * Renders the current status of all providers.
    */
-  renderConnectivityStatus(providers: { name: string, status: 'CONNECTED' | 'PENDING' | 'MISSING' }[]): string {
+  renderConnectivityStatus(providers: { name: string, status: 'CONNECTED' | 'PENDING' | 'MISSING' | 'ERROR' }[]): string {
     const lines = providers.map(p => {
       let statusText = '';
       if (p.status === 'CONNECTED') statusText = COLORS.SUCCESS('CONNECTED');
       else if (p.status === 'PENDING') statusText = COLORS.WARNING('PENDING');
-      else statusText = COLORS.ERROR('MISSING');
+      else if (p.status === 'MISSING') statusText = COLORS.MUTED('MISSING');
+      else statusText = COLORS.ERROR('ERROR');
       
       return ` ${ICONS.GEAR} ${p.name.padEnd(12)} : ${statusText}`;
     });
@@ -220,5 +221,20 @@ export const ProtocolRenderer = {
                 SYMBOLS.EMPTY_BLOCK.repeat(Math.max(0, 10 - filled));
                 
     return `[${COLORS.PRIMARY(bar)}]`;
+  },
+
+  /**
+   * Renders a high-fidelity handshake pulse.
+   */
+  async renderHandshakePulse(provider: string): Promise<void> {
+    console.log(`\n ${COLORS.PRIMARY('◈')} ${COLORS.HIGHLIGHT(`INITIATING_${provider.toUpperCase()}_HANDSHAKE`)}`);
+    const frames = WAVEFORMS.HEARTBEAT.split('');
+    for (let i = 0; i < 15; i++) {
+        const frame = frames[i % frames.length];
+        const intensity = Math.sin(i * 0.5) * 0.5 + 0.5;
+        process.stdout.write(`\r  ${COLORS.MUTED('[')} ${COLORS.lerpHeat(frame ?? '', intensity)} ${COLORS.MUTED(']')} SYNCHRONIZING... ${Math.floor(intensity * 100)}%`);
+        await new Promise(r => setTimeout(r, 60));
+    }
+    process.stdout.write(`\r${' '.repeat(60)}\r`);
   }
 };

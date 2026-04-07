@@ -172,5 +172,19 @@ export const MetabolicRenderer = {
       }
     }
     process.stdout.write('\n');
+  },
+
+  /**
+   * Data Burst: Sharp, multi-line telemetry simulation.
+   */
+  async dataBurst(lines: string[], speed = 10): Promise<void> {
+    for (const line of lines) {
+      const g = Math.random().toString(16).slice(2, 6).toUpperCase();
+      const addr = `0x${Math.random().toString(16).slice(2, 8).toUpperCase()}`;
+      const color = Math.random() > 0.5 ? COLORS.HIVE_CYAN : COLORS.AESTHETIC_PINK;
+      
+      process.stdout.write(`${COLORS.MUTED(`[DATA_${g}]`)} ${COLORS.PRIMARY(addr)} >> ${color(line)}\n`);
+      await new Promise(r => setTimeout(r, speed));
+    }
   }
 };

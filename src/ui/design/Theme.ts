@@ -156,6 +156,14 @@ export const COLORS = {
       const b = Math.round(rgbBase.b + (rgbShine.b - rgbBase.b) * intensity);
       return chalk.rgb(r, g, b)(char);
     }).join('');
+  },
+
+  /**
+   * Lerps a character's color based on "heat" (0-1).
+   */
+  lerpHeat(text: string, heat: number): string {
+    const rgb = this.getRainbowColor(heat * 0.3); // Map to first third of spectrum (Green -> Cyan)
+    return chalk.rgb(rgb.r, rgb.g, rgb.b)(text);
   }
 };
 

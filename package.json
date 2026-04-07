@@ -56,8 +56,9 @@
     "dietcode": "./dist/index.js"
   },
   "dependencies": {
-    "@noorm/broccoliq": "^2.2.5",
     "@anthropic-ai/sdk": "^0.82.0",
+    "@google/generative-ai": "^0.24.1",
+    "@noorm/broccoliq": "^2.2.5",
     "better-sqlite3": "^11.3.0",
     "kysely": "^0.28.2",
     "kysely-bun-sqlite": "^0.4.0",
