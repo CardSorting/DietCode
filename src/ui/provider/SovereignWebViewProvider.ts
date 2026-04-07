@@ -179,16 +179,60 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
     }
 
     private async _getSettings() {
+        // Load stored provider configs or use defaults
+        const providers: any[] = [
+            { id: 'anthropic', name: 'Anthropic (Claude)', type: 'chat', enabled: true },
+            { id: 'cloudflare', name: 'Cloudflare Workers AI', type: 'chat', enabled: false },
+            { id: 'openai', name: 'OpenAI (Embeddings)', type: 'embedding', enabled: true },
+            { id: 'cohere', name: 'Cohere (Embeddings)', type: 'embedding', enabled: false },
+        ];
+
+        // Enrich with stored API keys
+        const enrichedProviders = providers.map(p => ({
+            ...p,
+            apiKey: this._context.globalState.get(`apiKey_${p.id}`, ''),
+            enabled: this._context.globalState.get(`enabled_${p.id}`, p.enabled),
+        }));
+
+        // Migration: Check if we have an old global apiKey and migrate to anthropic if suitable
+        const oldApiKey = this._context.globalState.get('apiKey', '') as string;
+        if (oldApiKey && !enrichedProviders.find(p => (p as any).id === 'anthropic')?.apiKey) {
+            if (oldApiKey.startsWith('sk-ant')) {
+                await this._context.globalState.update('apiKey_anthropic', oldApiKey);
+                const anthropic = enrichedProviders.find(p => (p as any).id === 'anthropic');
+                if (anthropic) (anthropic as any).apiKey = oldApiKey;
+                // Clear old key to prevent re-migration
+                await this._context.globalState.update('apiKey', undefined);
+            }
+        }
+
         return {
-            apiKey: this._context.globalState.get('apiKey', ''),
             autoApprove: this._context.globalState.get('autoApprove', false),
-            theme: 'sovereign-hive'
+            selectedProvider: this._context.globalState.get('selectedProvider', 'anthropic'),
+            providers: enrichedProviders,
+            neuralDepth: this._context.globalState.get('neuralDepth', 'standard'),
+            theme: this._context.globalState.get('theme', 'sovereign-hive')
         };
     }
 
     private async _saveSettings(settings: any) {
-        if (settings.apiKey !== undefined) await this._context.globalState.update('apiKey', settings.apiKey);
         if (settings.autoApprove !== undefined) await this._context.globalState.update('autoApprove', settings.autoApprove);
+        if (settings.selectedProvider !== undefined) await this._context.globalState.update('selectedProvider', settings.selectedProvider);
+        if (settings.neuralDepth !== undefined) await this._context.globalState.update('neuralDepth', settings.neuralDepth);
+        if (settings.theme !== undefined) await this._context.globalState.update('theme', settings.theme);
+
+        if (settings.providers && Array.isArray(settings.providers)) {
+            for (const provider of settings.providers) {
+                if (provider.id) {
+                    if (provider.apiKey !== undefined) {
+                        await this._context.globalState.update(`apiKey_${provider.id}`, provider.apiKey);
+                    }
+                    if (provider.enabled !== undefined) {
+                        await this._context.globalState.update(`enabled_${provider.id}`, provider.enabled);
+                    }
+                }
+            }
+        }
     }
 
     private _sendMessage(message: WebViewMessage) {

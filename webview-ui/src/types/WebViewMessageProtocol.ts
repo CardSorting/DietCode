@@ -137,11 +137,20 @@ export interface Checkpoint {
   hash?: string;
 }
 
+export interface LLMProviderConfig {
+  id: string;
+  name: string;
+  apiKey?: string;
+  enabled: boolean;
+  type: 'chat' | 'embedding';
+}
+
 export interface SovereignSettings {
-  apiKey: string;
   autoApprove: boolean;
+  selectedProvider: string;
+  providers: LLMProviderConfig[];
   neuralDepth?: 'shallow' | 'standard' | 'deep';
-  provider?: string;
+  theme?: string;
 }
 
 /**
