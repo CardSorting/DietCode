@@ -16,7 +16,7 @@ import type { LogService } from '../../domain/logging/LogService';
 import type { IntegrityReport, IntegrityViolation } from '../../domain/memory/Integrity';
 import type { LockScope } from '../../domain/safety/LockScope';
 import { JobType, type QueueProvider } from '../../domain/system/QueueProvider';
-import { LockOrchestrator, LockTimeoutStrategy } from '../manager/LockOrchestrator.ts';
+import { LockOrchestrator, LockTimeoutStrategy } from '../manager/LockOrchestrator';
 import type { SnapshotService } from '../memory/SnapshotService';
 import { EventBus } from '../orchestration/EventBus';
 

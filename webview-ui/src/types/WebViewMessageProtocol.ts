@@ -135,7 +135,6 @@ export interface Checkpoint {
   timestamp: number;
   summary: string;
   hash?: string;
-  path?: string;
 }
 
 export interface SovereignSettings {
@@ -190,11 +189,11 @@ export enum WebViewRequestType {
   REQUEST_STATE = 'request_state',
   SEND_MESSAGE = 'send_message', // User message from UI
   LOAD_CHECKPOINTS = 'load_checkpoints',
+  RESTORE_CHECKPOINT = 'restore_checkpoint',
   SAVE_SETTINGS = 'save_settings',
   GET_SETTINGS = 'get_settings',
   TOOL_APPROVAL = 'tool_approval',
   TEST_CONNECTION = 'test_connection',
-  RESTORE_CHECKPOINT = 'restore_checkpoint',
 }
 
 /**

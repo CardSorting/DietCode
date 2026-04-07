@@ -69,7 +69,7 @@ async function runRigorousTest() {
   console.log('✅ Hardening complete.\n');
 
   console.log('🔍 Step 3: Verifying data integrity and schema compliance...');
-  const db = await dbPool.getDb('main');
+  const db = (await dbPool.getDb('main')) as any;
 
   // Verify queue_settings
   const qsResult = await db.executeQuery(CompiledQuery.raw('PRAGMA table_info(queue_settings)'));

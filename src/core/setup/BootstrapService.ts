@@ -331,8 +331,16 @@ export class BootstrapService {
     const choice = await this.ui.promptUser('Initiate Kickstart Task? (1-3 or S): ');
     
     if (choice === '1') {
-      this.ui.logInfo(`${ICONS.DIAGNOSTIC} Launching SYSTEM_SCAN...`);
-      // In a real app, this would trigger the orchestrator
+      this.ui.logInfo(`${ICONS.DIAGNOSTIC} Launching REAL_SYSTEM_SCAN...`);
+      // Real Implementation: Trigger the Orchestrator via EventBus
+      const { EventBus } = await import('../orchestration/EventBus');
+      const { EventType } = await import('../../domain/Event');
+      
+      EventBus.getInstance().publish(EventType.COMMAND_RECEIVED, { 
+        command: 'SYSTEM_SCAN',
+        source: 'BootstrapService'
+      });
+      
       await MetabolicRenderer.axiomScan(30);
     } else if (choice === '2') {
       this.ui.logInfo(`${ICONS.GEAR} Launching HIVE_AUDIT...`);

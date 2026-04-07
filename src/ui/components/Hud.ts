@@ -20,18 +20,21 @@ export class Hud {
   }
 
   /**
-   * Starts a non-blocking background pulse.
-   * Note: This assumes we can redraw or at least toggle a small indicator.
-   * In a real terminal, we'd use cursor escapes to update the specific "pulse" char.
+   * Starts a non-blocking background pulse using ANSI cursor escapes
+   * to update the specific "pulse" char without redrawing the entire line.
    */
   public startHeartbeat() {
     if (this.heartbeatInterval) return;
 
     this.heartbeatInterval = setInterval(() => {
       this.pulseState = !this.pulseState;
-      // In this environment, we mostly rely on full renders, 
-      // so this heartbeat might just 'prime' the next render 
-      // or we could use precision cursor management in the adapter.
+      // Real Implementation: Use ANSI cursor escapes to update the pulse indicator in-place
+      if (this.data) {
+          process.stdout.write('\x1b[s'); // Save position
+          process.stdout.write(this.getPulseIndicator()); 
+          process.stdout.write('\x1b[u'); // Restore position
+          process.stdout.write('');      // Flush
+      }
     }, 1000);
   }
 

@@ -8,8 +8,8 @@
  */
 
 import { type FSWatcher as ChokidarWatcher, watch } from 'chokidar';
-import { FileChangeType } from '../../domain/context/FileChange.ts';
-import type { FileChange } from '../../domain/context/FileChange.ts';
+import { FileChangeType } from '../../domain/context/FileChange';
+import type { FileChange } from '../../domain/context/FileChange';
 
 /**
  * File watcher configuration

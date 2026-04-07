@@ -4,10 +4,41 @@
   "type": "module",
   "private": true,
   "description": "Sovereign Hive Architecture for DietCode - Zero-Shim AI Orchestration",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/extension.js",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "activationEvents": [],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "dietcode-explorer",
+          "title": "DietCode",
+          "icon": "$(zap)"
+        }
+      ]
+    },
+    "views": {
+      "dietcode-explorer": [
+        {
+          "type": "webview",
+          "id": "dietcode-webview",
+          "name": "Sovereign Hive",
+          "visibility": "visible"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "dietcode.openWebView",
+        "title": "DietCode: Open Sovereign Hive"
+      }
+    ]
+  },
   "scripts": {
-    "build": "bun build ./index.ts --outfile=./dist/index.js --target=node --bundle --external better-sqlite3 --external bindings",
+    "build:webview": "cd webview-ui && bun run build",
+    "build": "bun run build:webview && bun build ./src/extension.ts --outfile=./dist/extension.js --target=node --bundle --external vscode",
     "dev": "tsc --watch",
     "test": "vitest run",
     "lint": "biome lint . && eslint .",
@@ -35,6 +66,7 @@
     "chokidar": "^5.0.0",
     "eslint": "^9.10.0",
     "eslint-config-prettier": "^9.1.0",
+    "@types/vscode": "^1.90.0",
     "typescript": "^5.6.2",
     "typescript-eslint": "^8.5.0",
     "vitest": "^3.2.4"

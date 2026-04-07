@@ -61,7 +61,7 @@ async function verifySchemaPatching() {
     console.log('[TEST] Running Schema.ensureSchema...');
     const schemaStart = Date.now();
     setDbPath(dbPath);
-    const db = await dbPool.getDb('main');
+    const db = (await dbPool.getDb('main')) as any;
 
     await Schema.ensureSchema(db);
 

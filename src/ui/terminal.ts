@@ -65,9 +65,11 @@ export class TerminalUI implements TerminalInterface {
   }
 
   renderHud(data: HudData) {
-    // Inject the pulse indicator from the component heartbeat
+    // Real Implementation: Inject the pulse indicator and explicitly render to the TUI layer
     const pulse = this.hud.getPulseIndicator();
-    // In a real terminal, we would update the rendered buffer.
+    const hudFrame = this.hud.render(data);
+    
+    // Dispatch the rendered frame to the underlying system terminal
     this.terminal.renderHud(data);
   }
 

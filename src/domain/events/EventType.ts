@@ -41,4 +41,5 @@ export enum EventType {
   IMPLEMENTATION_STARTED = 'implementation_started',
   IMPLEMENTATION_COMPLETED = 'implementation_completed',
   SYSTEM_ERROR = 'system_error',
+  COMMAND_RECEIVED = 'command_received',
 }

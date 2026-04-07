@@ -6,6 +6,7 @@
 
 import type { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
 import type { ApprovalRequirements, RiskLevel } from '../../domain/validation/RiskLevel';
+import { UIBridge } from '../../ui/provider/UIBridge';
 
 /**
  * Approval decision for an action
@@ -23,9 +24,11 @@ export interface ApprovalDecision {
  */
 export class ApprovalService {
   private riskEvaluator: RiskEvaluator;
+  private bridge: UIBridge;
 
   constructor(riskEvaluator: RiskEvaluator) {
     this.riskEvaluator = riskEvaluator;
+    this.bridge = UIBridge.getInstance();
   }
 
   /**
@@ -46,28 +49,22 @@ export class ApprovalService {
       };
     }
 
-    // Show warning for risky actions
+    // Show warning for risky actions in console (CLI observability)
     if (requirements.requiresRollback) {
       console.warn(`⚠️  ACTION RISK WARNING: ${actionType}`);
       console.warn(`   Target: ${targetPath}`);
-      console.warn('   ⛔️  This action is irreversible or affects shared systems.');
-      console.warn('   ✅  Recommended safeguards:');
-
-      for (const guard of requirements.recommendedSafeguards) {
-        console.warn(`      - ${guard}`);
-      }
     }
 
-    // Prompt user (in a real implementation, this would show a modal)
-    // For now, we simulate the approval process
-    console.log(`\n❓ Approve ${actionType} on ${targetPath}? (y/n): `);
+    // Real implementation: Request approval via UIBridge (Webview)
+    const approved = await this.bridge.requestUserApproval(
+        `approval-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+        { actionType, targetPath, requirements }
+    );
 
-    // Simulated approval - in production this would be user input
-    // Returning false to demonstrate the workflow
     return {
-      approved: true,
-      reason: 'Simulated user approval',
-      safeguardsPrepared: requirements.recommendedSafeguards,
+      approved,
+      reason: approved ? 'User approved via Sovereign UI' : 'User rejected via Sovereign UI',
+      safeguardsPrepared: approved ? requirements.recommendedSafeguards : [],
       requiresConfirmation: true,
     };
   }

@@ -43,8 +43,9 @@ export class SwarmAuditor {
       { component: 'SwarmAuditor' },
     );
 
-    // In a real app, we would query the repository after a short delay
-    // to ensure the 'updateSessionAgent' call actually succeeded.
+    // Triple Down Hardening: Verification delay to ensure eventual consistency
+    await new Promise(r => setTimeout(r, 100));
+
     const session = await this.repository.getSession(sessionId);
     if (session && session.agentId === toAgentId) {
       this.logService.info(

@@ -1,6 +1,6 @@
 import type { FileReuseDecision, PatternSessionStats } from '../../domain/context/FileReadPattern';
 import { FileReuseStrategy } from '../../domain/context/FileReadPattern';
-import { FileContextTracker } from '../context/FileContextTracker.ts';
+import { FileContextTracker } from '../context/FileContextTracker';
 
 /**
  * Configuration for pattern analysis optimization
