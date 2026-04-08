@@ -117,7 +117,7 @@ export class SafetyEvaluator implements RiskEvaluator {
    * Validate reversibility based on action type and target path
    */
   private determineReversibility(criteria: ActionCriteria): 'LOCAL' | 'REMOTE' | 'SYSTEM-WIDE' {
-    const { actionType, targetPath } = criteria;
+    const { actionType } = criteria;
 
     // Local file edits are reversible
     if (actionType === 'file_edit' || actionType === 'file_write') {

@@ -239,7 +239,7 @@ export class EnhancedFileSystemAdapter implements Filesystem {
       try {
         const entries = this.readdir(currentPath);
         for (const entry of entries) {
-          const fullPath = require('node:path').join(currentPath, entry.name);
+          const fullPath = path.join(currentPath, entry.name);
           if (ignorer?.isIgnored(fullPath)) continue;
           results.push({ path: fullPath });
           if (entry.isDirectory) {

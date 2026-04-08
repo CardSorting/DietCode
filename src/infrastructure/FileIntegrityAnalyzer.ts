@@ -28,10 +28,10 @@ import * as crypto from 'node:crypto';
  * @returns SHA-256 hash in hexadecimal format
  */
 export async function computeContentHash(content: string): Promise<string> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const hash = crypto.createHash('sha256');
     hash.update(content, 'utf8');
-    hash.digest('hex') ? resolve(hash.digest('hex')) : reject(new Error('Hash computation failed'));
+    resolve(hash.digest('hex'));
   });
 }
 

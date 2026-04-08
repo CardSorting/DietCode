@@ -4,7 +4,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import * as path from 'node:path';
 import { FileSystemAdapter } from '../../infrastructure/FileSystemAdapter';
 import { PathValidator } from '../../infrastructure/validation/PathValidator';
 

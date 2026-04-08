@@ -253,11 +253,10 @@ export class CloudflareAdapter implements LLMAdapter {
   }
 
   createMessage(system: string, messages: AdapterMessage[], _tools?: any[]): ApiStream {
-    const self = this;
     return {
-      async *[Symbol.asyncIterator]() {
-        const stream = await self.client.chat.completions.create({
-          model: self.model,
+      [Symbol.asyncIterator]: async function* (this: CloudflareAdapter) {
+        const stream = await this.client.chat.completions.create({
+          model: this.model,
           messages: [
             { role: 'system', content: system },
             ...messages.map((m) => ({
@@ -272,7 +271,7 @@ export class CloudflareAdapter implements LLMAdapter {
           const content = chunk.choices?.[0]?.delta?.content || '';
           if (content) yield content;
         }
-      },
+      }.bind(this),
     } as any;
   }
 

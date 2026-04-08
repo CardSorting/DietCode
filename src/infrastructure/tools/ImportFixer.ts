@@ -39,7 +39,7 @@ export class ImportFixer {
       const grepCmd = `grep -rl "${oldFileName}" ${path.join(this.projectRoot, 'src')}`;
       const output = execSync(grepCmd, { encoding: 'utf8' });
       filesToProcess = output.split('\n').filter((f) => f.trim() !== '' && f.endsWith('.ts'));
-    } catch (e) {
+    } catch (_e) {
       // No matches found
       return { updatedFiles: [] };
     }

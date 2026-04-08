@@ -1,178 +1,183 @@
-/**
- * Copyright (c) 2026 DietCode Contributors
- * 
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-import { useState, useEffect, useCallback } from 'react';
-import { TerminalSquare, Settings as SettingsIcon, History } from 'lucide-react';
-import { useSovereignBridge } from './hooks/useSovereignBridge';
-import { WebViewMessageType, WebViewRequestType } from './types/WebViewMessageProtocol';
-import type { LogLine } from './views/ConsoleView';
-import type { SystemMetrics } from './types/WebViewMessageProtocol';
-
+import { TerminalSquare, Settings as SettingsIcon, History, Radio, Activity } from 'lucide-react';
 import { ConsoleView } from './views/ConsoleView';
 import { SettingsView } from './views/SettingsView';
+import { DiagnosticHUD } from './views/DiagnosticHUD';
 import { CheckpointHistoryView } from './views/CheckpointHistoryView';
+import { SovereignProvider } from './context/SovereignContext';
+import { useSovereign } from './hooks/useSovereign';
+import { VisualEqualizer } from './components/VisualEqualizer';
+import { BiometricScan } from './components/BiometricScan';
+import { useState, useCallback } from 'react';
 
-function App() {
-  const [activeView, setActiveView] = useState<'console' | 'settings' | 'history'>('console');
-  const [status, setStatus] = useState('Connecting...');
-  const [badge, setBadge] = useState('READY');
-  const [logs, setLogs] = useState<LogLine[]>([]);
-  const [isLinkHealthy, setIsLinkHealthy] = useState(true);
-  const [metrics, setMetrics] = useState<SystemMetrics>({
-    neuralLoad: 0,
-    neuralTotal: 128000,
-    cacheMapping: 0,
-    status: 'OPTIMAL'
-  });
+function AppContent() {
+  const { 
+    activeView, 
+    setActiveView, 
+    status, 
+    badge, 
+    logs, 
+    metrics, 
+    isLinkHealthy, 
+    isThinking,
+    handleSend,
+    coreTheme
+  } = useSovereign();
 
-  
+  const [showHud, setShowHud] = useState(false);
+  const [isScanning, setIsScanning] = useState(true);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-  const { postRequest, useMessageListener, generateId } = useSovereignBridge();
+  const [lastView, setLastView] = useState(activeView);
 
-  const addLog = useCallback((text: string, type: LogLine['type'], title?: string, status?: string) => {
-    setLogs(prev => [...prev, { id: generateId(), text, type, title, status }]);
-  }, [generateId]);
+  // Trigger scan when view changes (render-time adjustment)
+  if (activeView !== lastView) {
+    setIsScanning(true);
+    setLastView(activeView);
+  }
 
-  const appendStream = useCallback((text: string) => {
-    setLogs(prev => {
-      const last = prev[prev.length - 1];
-      if (last && last.type === 'stream') {
-        const updatedLogs = [...prev];
-        updatedLogs[updatedLogs.length - 1] = { ...last, text: last.text + text };
-        return updatedLogs;
-      }
-      return [...prev, { id: generateId(), text, type: 'stream' }];
-    });
-  }, [generateId]);
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+     const { clientX, clientY } = e;
+     const x = (clientX / window.innerWidth - 0.5) * 20; // Max 10px shift
+     const y = (clientY / window.innerHeight - 0.5) * 20;
+     setMousePos({ x, y });
+  }, []);
 
-  // IPC Event Subscriptions
-  useMessageListener(WebViewMessageType.READY, () => {
-    setBadge('CONNECTED');
-    setStatus('Connection Stable');
-  });
-
-  useMessageListener(WebViewMessageType.SYSTEM_READY, () => {
-    setBadge('READY');
-    setStatus('DietCode Ready');
-    addLog('>> [SYSTEM]: System connected successfully.', 'system');
-  });
-
-  useMessageListener(WebViewMessageType.SYSTEM_METRICS, (payload: SystemMetrics) => {
-    setMetrics(payload);
-  });
-
-  useMessageListener(WebViewMessageType.SETTINGS_LOADED, (payload) => {
-    addLog(`> SYSTEM: Settings updated. Auto-Approve: ${payload.autoApprove}`, 'system', 'Settings Updated');
-  });
-
-  useMessageListener(WebViewMessageType.STATE, (payload) => {
-    addLog(`${payload.key} -> ${payload.value}`, 'info');
-  });
-
-  useMessageListener(WebViewMessageType.HOOK, (payload) => {
-    addLog(`Hook [${payload.hookName}] Phase: ${payload.phase}`, 'hook', 'Hook Execution');
-  });
-
-  useMessageListener(WebViewMessageType.TOOL, (payload) => {
-    addLog(payload.result ? JSON.stringify(payload.result, null, 2) : 'Waiting for approval', 'tool', `Tool: ${payload.toolName}`, payload.status);
-  });
-
-  useMessageListener(WebViewMessageType.LOG, (payload) => {
-    addLog(`> ${payload.level.toUpperCase()}: ${payload.message}`, payload.level === 'error' ? 'error' : 'info');
-  });
-
-  useMessageListener(WebViewMessageType.ERROR, (payload) => {
-    addLog(`> ERROR: ${payload.message}`, 'error');
-  });
-
-  useMessageListener(WebViewMessageType.STREAM, (payload) => {
-    appendStream(payload.text);
-  });
-
-  useMessageListener(WebViewMessageType.HEARTBEAT_PONG, () => {
-    setIsLinkHealthy(true);
-  });
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      setIsLinkHealthy(false); // Reset health, wait for pong
-      postRequest(WebViewRequestType.ECHO, { timestamp: Date.now() });
-    }, 15000); 
-
-    return () => clearInterval(intervalId);
-  }, [postRequest]);
-
-  const handleSend = (text: string) => {
-    addLog(text, 'info'); 
-    postRequest(WebViewRequestType.SEND_MESSAGE, { text });
-  };
+  const isHistoryVisible = activeView === 'history';
 
   return (
-    <div className="content">
-      <header>
-        <div className="logo-container">
-        </div>
-        <div className="subtitle">[ AI DEVELOPMENT SYSTEM ]</div>
-        <div className="header-nav">
-          <button 
-            type="button" 
-            className={`icon-btn ${activeView === 'console' ? 'active' : ''}`} 
-            onClick={() => setActiveView('console')}
-            title="Terminal Console"
-          >
-            <TerminalSquare size={18} />
-          </button>
-          <button 
-            type="button" 
-            className={`icon-btn ${activeView === 'history' ? 'active' : ''}`} 
-            onClick={() => setActiveView('history')}
-            title="History"
-          >
-            <History size={18} />
-          </button>
-          <button 
-            type="button" 
-            className={`icon-btn ${activeView === 'settings' ? 'active' : ''}`} 
-            onClick={() => setActiveView('settings')}
-            title="Configuration"
-          >
-            <SettingsIcon size={18} />
-          </button>
-        </div>
-      </header>
+    <div 
+      className={`neural-backbone-wrapper ${isThinking ? 'thinking-pulse' : ''} theme-${coreTheme}`}
+      onMouseMove={handleMouseMove}
+    >
+      {isScanning && <BiometricScan onComplete={() => setIsScanning(false)} />}
       
-      <main style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <ConsoleView 
-          logs={logs} 
-          status={status} 
-          badge={badge} 
-          metrics={metrics}
-           
-          onSend={handleSend} 
-          isHidden={activeView !== 'console'} 
-        />
-        {activeView === 'settings' && <SettingsView onClose={() => setActiveView('console')} />}
-        {activeView === 'history' && <CheckpointHistoryView onClose={() => setActiveView('console')} />}
-      </main>
-      
-      {activeView === 'console' && (
+      <div 
+        className="neural-backbone-bg"
+        style={{ transform: `translate(${mousePos.x}px, ${mousePos.y}px)` }}
+      >
+        <svg className="backbone-lattice" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <title>Neural Backbone Lattice</title>
+          <pattern id="lattice" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+            <circle cx="5" cy="5" r="0.5" fill="currentColor" />
+            <path d="M 5 0 L 5 10 M 0 5 L 10 5" stroke="currentColor" strokeWidth="0.1" />
+          </pattern>
+          <rect x="0" y="0" width="100" height="100" fill="url(#lattice)" />
+        </svg>
+      </div>
+
+      <div className="content command-center">
+        <header className="cinematic-entry">
+          <div className="logo-container">
+            <div className="logo">[ SOVEREIGN HIVE ]</div>
+            <h1 className="title">DIETCODE</h1>
+          </div>
+          <div className="header-nav">
+            <button 
+              type="button" 
+              className={`icon-btn ${activeView === 'console' ? 'active' : ''}`} 
+              onClick={() => setActiveView('console')}
+              title="Terminal Console"
+            >
+              <TerminalSquare size={18} />
+            </button>
+            <button 
+              type="button" 
+              className={`icon-btn ${activeView === 'history' ? 'active' : ''}`} 
+              onClick={() => setActiveView('history')}
+              title="Neural Chronology"
+            >
+              <History size={18} />
+            </button>
+            <button 
+              type="button" 
+              className={`icon-btn ${activeView === 'settings' ? 'active' : ''}`} 
+              onClick={() => setActiveView('settings')}
+              title="Intelligence Registry"
+            >
+              <SettingsIcon size={18} />
+            </button>
+          </div>
+        </header>
+        
+        <main>
+          <ConsoleView 
+            logs={logs} 
+            status={status} 
+            badge={badge} 
+            metrics={metrics}
+            onSend={handleSend} 
+            isHidden={activeView === 'settings'} 
+          />
+          
+          {activeView === 'settings' && (
+            <div className="view-overlay">
+              <SettingsView onClose={() => setActiveView('console')} />
+            </div>
+          )}
+
+          {showHud && (
+             <div className="view-overlay parallax-hud" style={{ transform: `translate(${-mousePos.x * 0.5}px, ${-mousePos.y * 0.5}px)` }}>
+                <DiagnosticHUD onClose={() => setShowHud(false)} />
+             </div>
+          )}
+        </main>
+
+        {/* Dual Pane Sidebar: Persistent Chronology if active */}
+        {isHistoryVisible && (
+          <aside className="sovereign-sideboard">
+             <CheckpointHistoryView onClose={() => setActiveView('console')} />
+          </aside>
+        )}
+        
         <footer>
-          <div className="cinematic-border" />
-          <div className="metrics">
-            <span className={`metric health-indicator ${isLinkHealthy ? 'healthy' : 'unhealthy'}`}>
-              LINK: {isLinkHealthy ? 'ACTIVE' : 'DEGRADED'}
-            </span>
-            <span className="metric">v2.2.0</span>
-            <span className="metric">REACT_V18</span>
-            <span className="metric">{logs.length} LOGS</span>
+          <div className="metrics diagnostic-grid">
+            <button 
+              type="button"
+              className="metric-group clickable" 
+              onClick={() => setShowHud(!showHud)} 
+              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setShowHud(!showHud)}
+              tabIndex={0}
+              title="Toggle Diagnostic HUD"
+            >
+              <Radio size={10} className={isLinkHealthy ? 'icon-cyan pulse-waiting' : 'icon-error'} />
+              <span className={`metric health-indicator ${isLinkHealthy ? 'healthy' : 'unhealthy'}`}>
+                UPLINK: {isLinkHealthy ? 'STABLE' : 'DEGRADED'}
+              </span>
+            </button>
+            <button 
+              type="button"
+              className="metric-group desktop-only clickable" 
+              onClick={() => setShowHud(true)}
+              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setShowHud(true)}
+              tabIndex={0}
+            >
+               <Activity size={10} className={isThinking ? 'icon-magenta pulse-waiting' : 'icon-cyan'} />
+               <span className="metric">PROC: {isThinking ? 'BUSY' : 'IDLE'}</span>
+               <VisualEqualizer active={isThinking} />
+               <span className="metric">BUFFER: {logs.length}L</span>
+            </button>
+            <div className="metric-group">
+              <span className="metric">SOVEREIGN_HIVE_v2.5</span>
+            </div>
           </div>
         </footer>
-      )}
+      </div>
     </div>
   );
 }
 
+
+
+
+function App() {
+  return (
+    <SovereignProvider>
+      <AppContent />
+    </SovereignProvider>
+  );
+}
+
 export default App;
+
+
+

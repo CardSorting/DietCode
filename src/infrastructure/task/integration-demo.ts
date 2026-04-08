@@ -20,19 +20,12 @@ import {
 } from '../../core/orchestration/DriftDetectionOrchestrator';
 import { OperationalScheduler } from '../../core/task/OperationalScheduler';
 import { SovereignSelector } from '../../core/task/SovereignSelector';
-import { CheckpointTrigger } from '../../domain/task/ImplementationSnapshot';
 import {
-  RequirementType,
-  TaskPriority,
-  TaskState,
   createTaskEntity,
+  TaskPriority,
 } from '../../domain/task/TaskEntity';
 import { ConsoleLoggerAdapter } from '../ConsoleLoggerAdapter';
 import { FileSystemAdapter } from '../FileSystemAdapter';
-import { Core } from '../database/sovereign/Core';
-import { Schema } from '../database/sovereign/Schema';
-import { BroccoliQueueAdapter } from '../queue/BroccoliQueueAdapter';
-import { SovereignWorkerProxy } from '../queue/SovereignWorkerProxy';
 import { JoySimulator } from '../simulation/JoySimulator';
 import { CheckpointPersistenceAdapter } from './CheckpointPersistenceAdapter';
 import { SemanticIntegrityAnalyser } from './SemanticIntegrityAnalyser';
@@ -69,7 +62,7 @@ async function demonstrateDriftPrevention() {
   const scheduler = new OperationalScheduler(simulator);
 
   // Pass 18: Initialize Sovereign Worker Proxy
-  const logService = new ConsoleLoggerAdapter();
+  const _logService = new ConsoleLoggerAdapter();
 
   // --- LEGACY SIMULATION: Force Nuclear Patching ---
   console.log('🧪 Simulating legacy schema environment...');
@@ -90,8 +83,8 @@ async function demonstrateDriftPrevention() {
   legacyDb.close();
   // ------------------------------------------------
 
-  await Core.init(sovereignDbPath, Schema.ensureSchema.bind(Schema));
-  const queueAdapter = new BroccoliQueueAdapter();
+  // await Core.init(sovereignDbPath, Schema.ensureSchema.bind(Schema));
+  // const queueAdapter = new BroccoliQueueAdapter();
   const orchestrator = new DriftDetectionOrchestrator(
     persistence,
     semanticAnalyzer,

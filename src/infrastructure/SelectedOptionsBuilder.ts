@@ -15,6 +15,7 @@
 import { LogLevel } from '../domain/logging/LogLevel';
 import type { LogService } from '../domain/logging/LogService';
 import { ConsoleLoggerAdapter } from './ConsoleLoggerAdapter';
+import * as readline from 'node:readline';
 
 /**
  * FZF-based user selection builder.
@@ -188,7 +189,6 @@ export class InputBuilder {
    * @returns User-provided value
    */
   async prompt(): Promise<string> {
-    const readline = require('node:readline');
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,

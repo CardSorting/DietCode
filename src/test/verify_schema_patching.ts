@@ -44,7 +44,9 @@ async function verifySchemaPatching() {
         try {
           fs.unlinkSync(f);
           console.log(`[CLEANUP] Removed old database: ${f}`);
-        } catch (e) {}
+        } catch (e) {
+          // Ignore cleanup errors
+        }
       }
     }
   };

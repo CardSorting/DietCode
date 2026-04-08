@@ -12,7 +12,6 @@
 
 import { SafetyEvaluator } from './infrastructure/validation/SafetyEvaluator';
 
-import type { PatternMapping } from './domain/prompts/SplitStrategy';
 
 import type { RiskLevel } from './domain/validation/RiskLevel';
 
@@ -24,9 +23,6 @@ import type { ToolDefinition } from './domain/agent/ToolDefinition';
 
 import { RollbackManager } from './infrastructure/validation/RollbackManager';
 
-const system = {
-  internal: 'internal',
-} as const;
 
 /**
  * Demonstration of Safety-First Execution Pattern
@@ -35,9 +31,9 @@ async function demoSafetyFirstExecution() {
   console.log('\n🛡️  DEMO: Safety-First Execution Pattern');
   console.log('═'.repeat(50));
 
-  const rollbackManager = new RollbackManager();
-  const securityProtocol = rollbackManager;
-  const safetyEvaluator = new SafetyEvaluator();
+  const _rollbackManager = new RollbackManager();
+  const _securityProtocol = _rollbackManager;
+  const _safetyEvaluator = new SafetyEvaluator();
 
   // Test Case 1: SAFE Action (file edit)
   console.log('\n📝 Test: File Edit (SAFE)');
@@ -234,8 +230,8 @@ async function demoEndToEnd() {
   console.log('═'.repeat(50));
 
   console.log('\n1️⃣  Initialize Safety Infrastructure');
-  const rollbackManager = new RollbackManager();
-  const safetyEvaluator = new SafetyEvaluator();
+  const _rollbackManager = new RollbackManager();
+  const _safetyEvaluator = new SafetyEvaluator();
 
   console.log('   ✅ Safety evaluator initialized');
   console.log('   ✅ Rollback protocol initialized');
@@ -245,7 +241,7 @@ async function demoEndToEnd() {
   const result = (await executeWithSafety(
     async () => {
       // Simulate action execution
-      const backup = await rollbackManager.backupFile('/config/settings.json', '{}');
+      const backup = await _rollbackManager.backupFile('/config/settings.json', '{}');
       console.log(`   📦 Created backup: ${backup.id}`);
 
       // Simulate failure

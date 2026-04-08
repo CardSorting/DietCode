@@ -16,11 +16,9 @@ import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { parentPort, workerData } from 'node:worker_threads';
-import { IntegrityScanner } from '../../domain/integrity/IntegrityScanner';
-import {
-  type IntegrityReport,
-  type IntegrityViolation,
-  ViolationType,
+import type {
+  IntegrityReport,
+  IntegrityViolation,
 } from '../../domain/memory/Integrity';
 import { IntegrityPolicy } from '../../domain/memory/IntegrityPolicy';
 
@@ -65,7 +63,7 @@ const scanner = {
           });
         }
       }
-    } catch (e) {
+    } catch (_e) {
       // Skip inaccessible files
     }
 

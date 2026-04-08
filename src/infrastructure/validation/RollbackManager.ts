@@ -15,7 +15,6 @@ import type {
   Backup as DomainBackup,
   RollbackOperation as DomainRollbackOperation,
   RollbackProtocol as DomainRollbackProtocol,
-  RollbackOperationType,
 } from '../../domain/validation/RollbackProtocol';
 
 /**
@@ -85,7 +84,7 @@ export class RollbackManager implements DomainRollbackProtocol {
    * @param backup The backup to restore
    * @returns Number of remaining backups after rollback
    */
-  async rollback(backup: DomainBackup): Promise<number> {
+  async rollback(_backup: DomainBackup): Promise<number> {
     try {
       // Keep operation list but don't find by backup.id (simplified interface)
       return this.backups.length;
@@ -134,7 +133,7 @@ export class RollbackManager implements DomainRollbackProtocol {
    * @param path The file or directory path
    * @returns Array of RollbackOperation instances
    */
-  async getRollbackOptions(path: string): Promise<DomainRollbackOperation[]> {
+  async getRollbackOptions(_path: string): Promise<DomainRollbackOperation[]> {
     return Promise.resolve([]);
   }
 
@@ -143,7 +142,7 @@ export class RollbackManager implements DomainRollbackProtocol {
    * @param path The file or directory path
    * @returns True if backup exists, false otherwise
    */
-  async hasBackup(path: string): Promise<boolean> {
+  async hasBackup(_path: string): Promise<boolean> {
     await new Promise((resolve) => setTimeout(resolve, 0));
     return false;
   }
@@ -154,7 +153,7 @@ export class RollbackManager implements DomainRollbackProtocol {
    * @param criteria Risk evaluation criteria
    * @returns Approval requirements including rollback necessity
    */
-  async getApprovalRequirementsForRollback(criteria?: any): Promise<ApprovalRequirements> {
+  async getApprovalRequirementsForRollback(_criteria?: unknown): Promise<ApprovalRequirements> {
     const defaultRequirements: ApprovalRequirements = {
       requiresConfirmation: true,
       requiresRollback: true,

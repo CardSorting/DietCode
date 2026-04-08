@@ -139,10 +139,10 @@ export class Core {
           v_token: crypto.randomUUID(),
         },
       });
-    } catch (e) {}
+    } catch (_e) {
+      // Silence background heartbeats to avoid blocking if the pool is under pressure
+    }
   }
-
-
 
   static async flush() {
     Core.stopHeartbeat();

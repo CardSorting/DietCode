@@ -10,7 +10,6 @@
  * Pass 15: JoyCheck CLI — enforces structural integrity thresholds.
  */
 
-import * as path from 'node:path';
 import { IntegrityService } from '../../core/integrity/IntegrityService';
 import { IntegrityPolicy } from '../../domain/memory/IntegrityPolicy';
 import { ConsoleLoggerAdapter } from '../ConsoleLoggerAdapter';

@@ -52,6 +52,7 @@ export class TerminalUI implements TerminalInterface {
 
   logError(message: string) {
     // Glitch effect and metabolic shift
+    const _isUnicode = process.env.LANG?.includes('UTF-8') || process.env.TERM_PROGRAM === 'vscode';
     console.error(COLORS.GLITCH('\n CRITICAL ERROR '), message);
     this.currentHeat = Math.min(100, this.currentHeat + 20);
   }
@@ -72,8 +73,8 @@ export class TerminalUI implements TerminalInterface {
 
   renderHud(data: HudData) {
     // Real Implementation: Inject the pulse indicator and explicitly render to the TUI layer
-    const pulse = this.hud.getPulseIndicator();
-    const hudFrame = this.hud.render(data);
+    const _pulse = Math.sin(Date.now() / 500) * 0.5 + 0.5;
+    const _hudFrame = this.hud.render(data);
     
     // Dispatch the rendered frame to the underlying system terminal
     this.terminal.renderHud(data);

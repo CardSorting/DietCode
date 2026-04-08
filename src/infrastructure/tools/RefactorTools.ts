@@ -13,7 +13,6 @@
 import * as path from 'node:path';
 import type { ArchitectureEvent, MoveOptions } from '../../domain/events/ArchitectureEvent';
 import type { IntegrityScanner } from '../../domain/integrity/IntegrityScanner';
-import type { IntegrityReport } from '../../domain/memory/Integrity';
 import { JoySimulator } from '../architecture/JoySimulator';
 
 import { RefactorEventFactory } from './refactor/RefactorEventFactory';

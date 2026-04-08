@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2026 DietCode Contributors
- * 
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
 import { useState, useEffect } from 'react';
 
 export function SovereignTyping({ text, speed = 15 }: { text: string; speed?: number }) {
@@ -15,9 +9,18 @@ export function SovereignTyping({ text, speed = 15 }: { text: string; speed?: nu
     setComplete(false);
     
     let i = 0;
+    const artifacts = ['$', '#', '%', '&', '@', '?', '!', '0', '1', '█', '▓', '▒', '░'];
+    
     const interval = setInterval(() => {
-      setDisplayed(text.slice(0, i + 1));
-      i++;
+      // Scramble phase: momentary flicker of random artifacts at the leading edge
+      if (Math.random() > 0.7 && i < text.length) {
+        const scramble = text.slice(0, i) + artifacts[Math.floor(Math.random() * artifacts.length)];
+        setDisplayed(scramble);
+      } else {
+        setDisplayed(text.slice(0, i + 1));
+        i++;
+      }
+
       if (i >= text.length) {
         clearInterval(interval);
         setComplete(true);
@@ -28,13 +31,15 @@ export function SovereignTyping({ text, speed = 15 }: { text: string; speed?: nu
   }, [text, speed]);
 
   if (complete) {
-    return <span className="shimmer-text">{text}</span>;
+    return <span className="shimmer-text cinematic-entry decryption-settle">{text}</span>;
   }
 
   return (
-    <span>
+    <span className="typing-flicker">
       {displayed}
-      <span className="blinking-cursor">_</span>
+      <span className="blinking-cursor neon-cyan">_</span>
     </span>
   );
 }
+
+

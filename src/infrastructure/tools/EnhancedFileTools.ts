@@ -18,9 +18,6 @@
  * Triaging:
  *   - [IMPLEMENT] Production file tools with ForgeFS features (binary detection, hashing)
  */
-import * as fs from 'node:fs/promises';
-import type { FileErrorContext } from '../../domain/system/FileError';
-import { FileErrorCode } from '../../domain/system/FileError';
 import type {
   FileMetadata,
   ReadFileResult,
@@ -182,7 +179,6 @@ export async function atomicWriteFile(
   } catch (error) {
     // Clean up temp file if it exists
     try {
-      const stats = await fs.stat(`${path}.tmp`);
       await fs.unlink(`${path}.tmp`);
     } catch {
       // Ignore cleanup errors

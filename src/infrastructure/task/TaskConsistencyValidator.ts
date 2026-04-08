@@ -17,7 +17,6 @@
  */
 
 import * as crypto from 'node:crypto';
-import type { AxiomProfile } from '../../domain/task/ImplementationSnapshot';
 import { ComplianceState, IntegrityAxiom } from '../../domain/task/ImplementationSnapshot';
 import type { ConsistencyReport, Requirement, TaskValidation } from '../../domain/task/TaskEntity';
 import { RequirementType, TaskPriority } from '../../domain/task/TaskEntity';

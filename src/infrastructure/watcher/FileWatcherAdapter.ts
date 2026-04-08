@@ -15,7 +15,7 @@
 
 import { type FSWatcher as ChokidarWatcher, watch } from 'chokidar';
 import { FileChangeType } from '../../domain/context/FileChange';
-import type { FileChange } from '../../domain/context/FileChange';
+import * as path from 'node:path';
 
 /**
  * File watcher configuration
@@ -182,22 +182,22 @@ export class FileWatcherAdapter {
 
     console.log(`👀 File watcher started: ${paths.join(', ')}`);
 
-    for (const path of paths) {
+    for (const p of paths) {
       // Normalize path to absolute
-      const absolutePath = path.startsWith('/')
-        ? path
-        : require('node:path').join(process.cwd(), path);
+      const absolutePath = p.startsWith('/')
+        ? p
+        : path.join(process.cwd(), p);
 
       const watcher = watch(absolutePath, this.watcherOptions);
       this.watchers.set(absolutePath, watcher);
 
       // Configure event handlers
       watcher
-        .on('add', (path: string) => this.handleAdd(path))
-        .on('change', (path: string) => this.handleChange(path))
-        .on('unlink', (path: string) => this.handleUnlink(path))
-        .on('addDir', (path: string) => this.handleAddDir(path))
-        .on('unlinkDir', (path: string) => this.handleUnlinkDir(path))
+        .on('add', (p: string) => this.handleAdd(p))
+        .on('change', (p: string) => this.handleChange(p))
+        .on('unlink', (p: string) => this.handleUnlink(p))
+        .on('addDir', (p: string) => this.handleAddDir(p))
+        .on('unlinkDir', (p: string) => this.handleUnlinkDir(p))
         .on('ready', () => {
           console.log(`✅ Watcher ready for: ${absolutePath}`);
           this.emitReady();
@@ -398,10 +398,10 @@ export class FileWatcherAdapter {
   /**
    * Check if path is being watched
    */
-  isWatching(path: string): boolean {
-    const absolutePath = path.startsWith('/')
-      ? path
-      : require('node:path').join(process.cwd(), path);
+  isWatching(p: string): boolean {
+    const absolutePath = p.startsWith('/')
+      ? p
+      : path.join(process.cwd(), p);
 
     return this.watchers.has(absolutePath);
   }

@@ -1,35 +1,57 @@
-/**
- * Copyright (c) 2026 DietCode Contributors
- * 
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-import { Cpu, Zap, Activity } from 'lucide-react';
 import type { SystemMetrics } from '../types/WebViewMessageProtocol';
+import { NeuralGauge } from './NeuralGauge';
 
 interface ContextHeaderProps {
   metrics: SystemMetrics;
 }
 
 export function ContextHeader({ metrics }: ContextHeaderProps) {
-  const loadPercentage = Math.round((metrics.neuralLoad / metrics.neuralTotal) * 100);
-  const totalDisplay = metrics.neuralTotal > 1000 ? `${(metrics.neuralTotal / 1000).toFixed(0)}k` : metrics.neuralTotal;
-  const loadDisplay = metrics.neuralLoad > 1000 ? `${(metrics.neuralLoad / 1000).toFixed(1)}k` : metrics.neuralLoad;
+  const loadPercentage = ((metrics.neuralLoad / metrics.neuralTotal) * 100);
 
   return (
-    <div className="context-header">
-      <div className="context-stat">
-        <Cpu size={14} className="icon-cyan" />
-        <span>AI USAGE: <strong>~{loadPercentage}%</strong> <em>({loadDisplay} / {totalDisplay})</em></span>
-      </div>
-      <div className="context-stat">
-        <Zap size={14} className="icon-magenta" />
-        <span>MEMORY CONTEXT: <strong>{metrics.cacheMapping}%</strong></span>
-      </div>
-      <div className="context-stat desktop-only">
-        <Activity size={14} className="icon-cyan" />
-        <span>DATABASE: <strong>{metrics.status.toUpperCase()}</strong></span>
+    <div className="sovereign-context-header instrument-cluster">
+      <div className="header-top-row">
+        <div className="instrument-group">
+          <NeuralGauge 
+            value={metrics.neuralLoad} 
+            total={metrics.neuralTotal} 
+            label="TOKEN_LOAD" 
+            size={54} 
+            color="cyan" 
+          />
+          <NeuralGauge 
+            value={metrics.cacheMapping} 
+            total={100} 
+            label="SYNC_MAP" 
+            size={54} 
+            color="magenta" 
+          />
+        </div>
+
+        <div className="diagnostic-readout">
+          <div className="readout-item">
+            <span className="readout-label">SYSTEM_PATH</span>
+            <span className="readout-value shimmer-text">CLAUDE-3.5-SONNET</span>
+          </div>
+          <div className="readout-item">
+             <span className="readout-label">HIVE_STABILITY</span>
+             <span className={`readout-value ${metrics.status === 'OPTIMAL' ? 'text-success' : 'text-warning'}`}>
+               {metrics.status.toUpperCase()}
+             </span>
+          </div>
+          <div className="readout-item desktop-only">
+             <span className="readout-label">DIET_COEFF</span>
+             <span className="readout-value text-accent-cyan">1.24X_OPTIMIZED</span>
+          </div>
+        </div>
+
+        <div className="header-status-indicator">
+           <div className="status-label">{loadPercentage.toFixed(1)}%</div>
+           <span className="indicator-label">NEURAL_READY</span>
+        </div>
       </div>
     </div>
   );
 }
+
+

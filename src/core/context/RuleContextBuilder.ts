@@ -24,7 +24,7 @@ const MAX_CANDIDATES = 100;
 // Extract potential paths from plain text using regex
 function extractPathsFromText(text: string): string[] {
   // Regex looking for common path patterns, including [MODIFY] [file](file:///...)
-  const pathRegex = /(?:[a-zA-Z]:\\|[\\\/])?(?:[\w\-. ]+[\\\/])*[\w\-. ]+\.[\w\-]{2,}/g;
+  const pathRegex = /(?:[a-zA-Z]:\\|[\\/])?(?:[\w\-. ]+[\\/])*[\w\-. ]+\.[\w-]{2,}/g;
   const markdownPathRegex = /\[.*?\]\(file:\/\/\/(.*?)\)/g;
 
   const results: string[] = [];
@@ -49,7 +49,7 @@ function extractPathsFromText(text: string): string[] {
 
 // Extract paths from @mentions (e.g. "Check @src/core/context/Tracker.ts")
 function extractMentions(text: string): string[] {
-  const mentionRegex = /@([\w\-. \/]+\.[\w\-]{2,})/g;
+  const mentionRegex = /@([\w\-. /]+\.[\w-]{2,})/g;
   const results: string[] = [];
   let match = mentionRegex.exec(text);
   while (match) {

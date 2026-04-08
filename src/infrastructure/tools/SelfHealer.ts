@@ -12,7 +12,6 @@
  */
 
 import type { IntegrityScanner } from '../../domain/integrity/IntegrityScanner';
-import type { IntegrityPolicy } from '../../domain/memory/IntegrityPolicy';
 import { SemanticIntegrityAdapter } from '../SemanticIntegrityAdapter';
 import { RefactorTools } from './RefactorTools';
 import { type RemediationStep, Remediator } from './Remediator';

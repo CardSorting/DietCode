@@ -10,7 +10,7 @@
  * Pass 7: Zero-Stalling Architectural Guard.
  */
 
-import { parentPort, workerData } from 'node:worker_threads';
+import { parentPort } from 'node:worker_threads';
 import { IntegrityPolicy } from '../../domain/memory/IntegrityPolicy';
 import { analyzeDependencies } from '../SemanticIntegrityAdapter';
 

@@ -22,11 +22,11 @@ interface IVSCodeApi {
   onDidChangeStorage(callback: (event: unknown) => void): void;
   
   // Extensions
-  getConfiguration(section: string): any;
-  getExtension(id: string): any;
+  getConfiguration(section: string): unknown;
+  getExtension(id: string): unknown;
   
   // Telemetry
-  setState(language: string, message: string): void;
+  logTelemetry(eventName: string, data: unknown): void;
 }
 
 /**

@@ -23,7 +23,6 @@ import { SovereignSelector } from '../core/task/SovereignSelector';
 import {
   RequirementType,
   TaskPriority,
-  TaskState,
   createTaskEntity,
 } from '../domain/task/TaskEntity';
 import { FileSystemAdapter } from '../infrastructure/FileSystemAdapter';
@@ -56,7 +55,9 @@ async function runVerification() {
       if (fs.existsSync(f)) {
         try {
           fs.unlinkSync(f);
-        } catch (e) {}
+        } catch (e) {
+          // Ignore cleanup errors
+        }
       }
     }
   };
