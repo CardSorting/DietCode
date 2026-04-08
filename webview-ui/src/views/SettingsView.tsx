@@ -1,4 +1,4 @@
-import { X, Save, ShieldCheck, AlertCircle, Loader2, Eye, EyeOff, Cpu, Box, HardDrive, Globe, Lock, Zap } from 'lucide-react';
+import { X, Save, ShieldCheck, AlertCircle, Loader2, Eye, EyeOff, Cpu, Box, HardDrive, Globe, Lock, Zap, Check, ChevronRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useSovereignBridge, useSovereignMessage } from '../hooks/useSovereignBridge';
 import { useSovereign } from '../hooks/useSovereign';
@@ -31,6 +31,11 @@ export const SettingsView = ({ onClose }: SettingsViewProps) => {
       setAutoApprove(!!payload.settings.autoApprove);
     }
   });
+
+  const handleProviderSelect = (id: string) => {
+    setSelectedProvider(id);
+    setTestResult(null); // Clear test results when switching
+  };
 
   const handleProviderToggle = (id: string) => {
     setProviders(prev => prev.map(p => p.id === id ? { ...p, enabled: !p.enabled } : p));
@@ -92,58 +97,103 @@ export const SettingsView = ({ onClose }: SettingsViewProps) => {
       </div>
 
       <div className="settings-content">
-        {/* Connected AI Models Section */}
+        {/* Connected AI Models Section - Redesigned */}
         <div className="settings-section">
           <h2 className="section-title">Connected AI Models</h2>
           
-          <div className="models-list">
+          {/* Provider Selection Cards */}
+          <div className="provider-selection">
             {providers.map((provider) => (
-              <div key={provider.id} className="model-card">
-                <div className="model-header">
-                  <div className="model-title-group">
-                    <span className="model-name">{provider.name}</span>
-                    {provider.enabled && <span className="enabled-badge">Active</span>}
-                  </div>
-                  <label className="switch">
-                    <input 
-                      type="checkbox" 
-                      checked={provider.enabled} 
-                      onClick={(e) => e.stopPropagation()} 
-                      onChange={() => handleProviderToggle(provider.id)} 
-                    />
-                    <span className="slider" />
-                  </label>
-                </div>
-
-                {provider.enabled && (
-                  <div className="model-body">
-                    <label className="field-label">
-                      <Lock size={14} />
-                      <span>API Key</span>
-                    </label>
-                    <div className="api-key-field">
-                      <input 
-                        type={showKeys[provider.id] ? 'text' : 'password'}
-                        placeholder="Enter your API key"
-                        className="api-key-input"
-                        value={provider.apiKey || ''}
-                        onClick={(e) => e.stopPropagation()}
-                        onChange={(e) => handleApiKeyChange(provider.id, e.target.value)}
-                      />
-                      <button 
-                        type="button" 
-                        className="visibility-toggle"
-                        onClick={(e) => { e.stopPropagation(); toggleKeyVisibility(provider.id); }}
-                        aria-label="Toggle key visibility"
-                      >
-                        {showKeys[provider.id] ? <EyeOff size={14} /> : <Eye size={14} />}
-                      </button>
-                    </div>
+              <div 
+                key={provider.id}
+                className={`provider-card ${selectedProvider === provider.id ? 'selected' : ''} ${!provider.enabled ? 'disabled' : ''}`}
+                onClick={() => provider.enabled && handleProviderSelect(provider.id)}
+              >
+                {selectedProvider === provider.id && (
+                  <div className="provider-check">
+                    <Check size={16} />
                   </div>
                 )}
+                <div className="provider-icon-wrapper">
+                  <AvatarIcon type={provider.type} />
+                </div>
+                <div className="provider-info">
+                  <span className="provider-name">{provider.name}</span>
+                  {provider.enabled ? (
+                    <span className="provider-status active">Active</span>
+                  ) : (
+                    <span className="provider-status disabled">Disabled</span>
+                  )}
+                </div>
+                <ChevronRight size={18} className="provider-arrow" />
               </div>
             ))}
           </div>
+
+          {/* Selected Provider Details */}
+          {selectedProvider && providers.find(p => p.id === selectedProvider) && (
+            <div className="provider-details">
+              <div className="details-header">
+                <h3 className="details-title">Configure {providers.find(p => p.id === selectedProvider)!.name}</h3>
+                {providers.find(p => p.id === selectedProvider)!.enabled && (
+                  <button 
+                    type="button" 
+                    className="enable-toggle"
+                    onClick={() => handleProviderToggle(selectedProvider)}
+                    aria-label="Disable provider"
+                  >
+                    <ShieldCheck size={16} />
+                  </button>
+                )}
+              </div>
+
+              <div className="details-body">
+                <label className="field-label">
+                  <Lock size={14} />
+                  <span>API Key</span>
+                </label>
+                <div className="api-key-field">
+                  <input 
+                    type={showKeys[selectedProvider] ? 'text' : 'password'}
+                    placeholder="Enter your API key"
+                    className="api-key-input"
+                    value={providers.find(p => p.id === selectedProvider)!.apiKey || ''}
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={(e) => handleApiKeyChange(selectedProvider, e.target.value)}
+                  />
+                  <button 
+                    type="button" 
+                    className="visibility-toggle"
+                    onClick={(e) => { e.stopPropagation(); toggleKeyVisibility(selectedProvider); }}
+                    aria-label="Toggle key visibility"
+                  >
+                    {showKeys[selectedProvider] ? <EyeOff size={14} /> : <Eye size={14} />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="details-footer">
+                <button 
+                  type="button" 
+                  className="test-connection-btn"
+                  onClick={handleTestConnection}
+                  disabled={testing || !providers.find(p => p.id === selectedProvider)!.apiKey}
+                >
+                  {testing ? (
+                    <>
+                      <Loader2 size={16} className="spin" />
+                      Testing...
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck size={16} />
+                      Test Connection
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Capabilities Section */}
@@ -243,4 +293,20 @@ export const SettingsView = ({ onClose }: SettingsViewProps) => {
     </div>
   );
 }
+
+// Helper component for provider icons
+const AvatarIcon: React.FC<{ type: 'chat' | 'embedding' }> = ({ type }) => {
+  if (type === 'embedding') {
+    return (
+      <div className="provider-avatar">
+        <Cpu size={20} />
+      </div>
+    );
+  }
+  return (
+    <div className="provider-avatar">
+      <Box size={20} />
+    </div>
+  );
+};
 
