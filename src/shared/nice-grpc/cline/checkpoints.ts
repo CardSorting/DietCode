@@ -5,9 +5,9 @@
 // source: cline/checkpoints.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Timestamp } from "../google/protobuf/timestamp";
-import { Empty, Int64Request, Metadata, StringArrayRequest } from "./common";
+import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+import { Timestamp } from '../google/protobuf/timestamp';
+import { Empty, Int64Request, Metadata, StringArrayRequest } from './common';
 
 export interface CheckpointRestoreRequest {
   metadata: Metadata | undefined;
@@ -39,16 +39,14 @@ export enum CheckpointEvent_OperationType {
 export function checkpointEvent_OperationTypeFromJSON(object: any): CheckpointEvent_OperationType {
   switch (object) {
     case 0:
-    case "CHECKPOINT_INIT":
+    case 'CHECKPOINT_INIT':
       return CheckpointEvent_OperationType.CHECKPOINT_INIT;
     case 1:
-    case "CHECKPOINT_COMMIT":
+    case 'CHECKPOINT_COMMIT':
       return CheckpointEvent_OperationType.CHECKPOINT_COMMIT;
     case 2:
-    case "CHECKPOINT_RESTORE":
+    case 'CHECKPOINT_RESTORE':
       return CheckpointEvent_OperationType.CHECKPOINT_RESTORE;
-    case -1:
-    case "UNRECOGNIZED":
     default:
       return CheckpointEvent_OperationType.UNRECOGNIZED;
   }
@@ -57,14 +55,13 @@ export function checkpointEvent_OperationTypeFromJSON(object: any): CheckpointEv
 export function checkpointEvent_OperationTypeToJSON(object: CheckpointEvent_OperationType): string {
   switch (object) {
     case CheckpointEvent_OperationType.CHECKPOINT_INIT:
-      return "CHECKPOINT_INIT";
+      return 'CHECKPOINT_INIT';
     case CheckpointEvent_OperationType.CHECKPOINT_COMMIT:
-      return "CHECKPOINT_COMMIT";
+      return 'CHECKPOINT_COMMIT';
     case CheckpointEvent_OperationType.CHECKPOINT_RESTORE:
-      return "CHECKPOINT_RESTORE";
-    case CheckpointEvent_OperationType.UNRECOGNIZED:
+      return 'CHECKPOINT_RESTORE';
     default:
-      return "UNRECOGNIZED";
+      return 'UNRECOGNIZED';
   }
 }
 
@@ -78,18 +75,21 @@ export interface PathHashMap_PathHashEntry {
 }
 
 function createBaseCheckpointRestoreRequest(): CheckpointRestoreRequest {
-  return { metadata: undefined, number: 0, restoreType: "", offset: undefined };
+  return { metadata: undefined, number: 0, restoreType: '', offset: undefined };
 }
 
 export const CheckpointRestoreRequest: MessageFns<CheckpointRestoreRequest> = {
-  encode(message: CheckpointRestoreRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CheckpointRestoreRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
     if (message.number !== 0) {
       writer.uint32(16).int64(message.number);
     }
-    if (message.restoreType !== "") {
+    if (message.restoreType !== '') {
       writer.uint32(26).string(message.restoreType);
     }
     if (message.offset !== undefined) {
@@ -153,8 +153,8 @@ export const CheckpointRestoreRequest: MessageFns<CheckpointRestoreRequest> = {
       restoreType: isSet(object.restoreType)
         ? globalThis.String(object.restoreType)
         : isSet(object.restore_type)
-        ? globalThis.String(object.restore_type)
-        : "",
+          ? globalThis.String(object.restore_type)
+          : '',
       offset: isSet(object.offset) ? globalThis.Number(object.offset) : undefined,
     };
   },
@@ -167,7 +167,7 @@ export const CheckpointRestoreRequest: MessageFns<CheckpointRestoreRequest> = {
     if (message.number !== 0) {
       obj.number = Math.round(message.number);
     }
-    if (message.restoreType !== "") {
+    if (message.restoreType !== '') {
       obj.restoreType = message.restoreType;
     }
     if (message.offset !== undefined) {
@@ -176,28 +176,36 @@ export const CheckpointRestoreRequest: MessageFns<CheckpointRestoreRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CheckpointRestoreRequest>, I>>(base?: I): CheckpointRestoreRequest {
+  create<I extends Exact<DeepPartial<CheckpointRestoreRequest>, I>>(
+    base?: I,
+  ): CheckpointRestoreRequest {
     return CheckpointRestoreRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CheckpointRestoreRequest>, I>>(object: I): CheckpointRestoreRequest {
+  fromPartial<I extends Exact<DeepPartial<CheckpointRestoreRequest>, I>>(
+    object: I,
+  ): CheckpointRestoreRequest {
     const message = createBaseCheckpointRestoreRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
     message.number = object.number ?? 0;
-    message.restoreType = object.restoreType ?? "";
+    message.restoreType = object.restoreType ?? '';
     message.offset = object.offset ?? undefined;
     return message;
   },
 };
 
 function createBaseCheckpointSubscriptionRequest(): CheckpointSubscriptionRequest {
-  return { cwdHash: "" };
+  return { cwdHash: '' };
 }
 
 export const CheckpointSubscriptionRequest: MessageFns<CheckpointSubscriptionRequest> = {
-  encode(message: CheckpointSubscriptionRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.cwdHash !== "") {
+  encode(
+    message: CheckpointSubscriptionRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.cwdHash !== '') {
       writer.uint32(10).string(message.cwdHash);
     }
     return writer;
@@ -232,33 +240,42 @@ export const CheckpointSubscriptionRequest: MessageFns<CheckpointSubscriptionReq
       cwdHash: isSet(object.cwdHash)
         ? globalThis.String(object.cwdHash)
         : isSet(object.cwd_hash)
-        ? globalThis.String(object.cwd_hash)
-        : "",
+          ? globalThis.String(object.cwd_hash)
+          : '',
     };
   },
 
   toJSON(message: CheckpointSubscriptionRequest): unknown {
     const obj: any = {};
-    if (message.cwdHash !== "") {
+    if (message.cwdHash !== '') {
       obj.cwdHash = message.cwdHash;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CheckpointSubscriptionRequest>, I>>(base?: I): CheckpointSubscriptionRequest {
+  create<I extends Exact<DeepPartial<CheckpointSubscriptionRequest>, I>>(
+    base?: I,
+  ): CheckpointSubscriptionRequest {
     return CheckpointSubscriptionRequest.fromPartial(base ?? ({} as any));
   },
   fromPartial<I extends Exact<DeepPartial<CheckpointSubscriptionRequest>, I>>(
     object: I,
   ): CheckpointSubscriptionRequest {
     const message = createBaseCheckpointSubscriptionRequest();
-    message.cwdHash = object.cwdHash ?? "";
+    message.cwdHash = object.cwdHash ?? '';
     return message;
   },
 };
 
 function createBaseCheckpointEvent(): CheckpointEvent {
-  return { operation: 0, cwdHash: "", isActive: false, timestamp: undefined, taskId: undefined, commitHash: undefined };
+  return {
+    operation: 0,
+    cwdHash: '',
+    isActive: false,
+    timestamp: undefined,
+    taskId: undefined,
+    commitHash: undefined,
+  };
 }
 
 export const CheckpointEvent: MessageFns<CheckpointEvent> = {
@@ -266,7 +283,7 @@ export const CheckpointEvent: MessageFns<CheckpointEvent> = {
     if (message.operation !== 0) {
       writer.uint32(8).int32(message.operation);
     }
-    if (message.cwdHash !== "") {
+    if (message.cwdHash !== '') {
       writer.uint32(18).string(message.cwdHash);
     }
     if (message.isActive !== false) {
@@ -350,28 +367,30 @@ export const CheckpointEvent: MessageFns<CheckpointEvent> = {
 
   fromJSON(object: any): CheckpointEvent {
     return {
-      operation: isSet(object.operation) ? checkpointEvent_OperationTypeFromJSON(object.operation) : 0,
+      operation: isSet(object.operation)
+        ? checkpointEvent_OperationTypeFromJSON(object.operation)
+        : 0,
       cwdHash: isSet(object.cwdHash)
         ? globalThis.String(object.cwdHash)
         : isSet(object.cwd_hash)
-        ? globalThis.String(object.cwd_hash)
-        : "",
+          ? globalThis.String(object.cwd_hash)
+          : '',
       isActive: isSet(object.isActive)
         ? globalThis.Boolean(object.isActive)
         : isSet(object.is_active)
-        ? globalThis.Boolean(object.is_active)
-        : false,
+          ? globalThis.Boolean(object.is_active)
+          : false,
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
       taskId: isSet(object.taskId)
         ? globalThis.String(object.taskId)
         : isSet(object.task_id)
-        ? globalThis.String(object.task_id)
-        : undefined,
+          ? globalThis.String(object.task_id)
+          : undefined,
       commitHash: isSet(object.commitHash)
         ? globalThis.String(object.commitHash)
         : isSet(object.commit_hash)
-        ? globalThis.String(object.commit_hash)
-        : undefined,
+          ? globalThis.String(object.commit_hash)
+          : undefined,
     };
   },
 
@@ -380,7 +399,7 @@ export const CheckpointEvent: MessageFns<CheckpointEvent> = {
     if (message.operation !== 0) {
       obj.operation = checkpointEvent_OperationTypeToJSON(message.operation);
     }
-    if (message.cwdHash !== "") {
+    if (message.cwdHash !== '') {
       obj.cwdHash = message.cwdHash;
     }
     if (message.isActive !== false) {
@@ -404,11 +423,12 @@ export const CheckpointEvent: MessageFns<CheckpointEvent> = {
   fromPartial<I extends Exact<DeepPartial<CheckpointEvent>, I>>(object: I): CheckpointEvent {
     const message = createBaseCheckpointEvent();
     message.operation = object.operation ?? 0;
-    message.cwdHash = object.cwdHash ?? "";
+    message.cwdHash = object.cwdHash ?? '';
     message.isActive = object.isActive ?? false;
-    message.timestamp = (object.timestamp !== undefined && object.timestamp !== null)
-      ? Timestamp.fromPartial(object.timestamp)
-      : undefined;
+    message.timestamp =
+      object.timestamp !== undefined && object.timestamp !== null
+        ? Timestamp.fromPartial(object.timestamp)
+        : undefined;
     message.taskId = object.taskId ?? undefined;
     message.commitHash = object.commitHash ?? undefined;
     return message;
@@ -458,21 +478,21 @@ export const PathHashMap: MessageFns<PathHashMap> = {
     return {
       pathHash: isObject(object.pathHash)
         ? (globalThis.Object.entries(object.pathHash) as [string, any][]).reduce(
-          (acc: { [key: string]: string }, [key, value]: [string, any]) => {
-            acc[key] = globalThis.String(value);
-            return acc;
-          },
-          {},
-        )
+            (acc: { [key: string]: string }, [key, value]: [string, any]) => {
+              acc[key] = globalThis.String(value);
+              return acc;
+            },
+            {},
+          )
         : isObject(object.path_hash)
-        ? (globalThis.Object.entries(object.path_hash) as [string, any][]).reduce(
-          (acc: { [key: string]: string }, [key, value]: [string, any]) => {
-            acc[key] = globalThis.String(value);
-            return acc;
-          },
-          {},
-        )
-        : {},
+          ? (globalThis.Object.entries(object.path_hash) as [string, any][]).reduce(
+              (acc: { [key: string]: string }, [key, value]: [string, any]) => {
+                acc[key] = globalThis.String(value);
+                return acc;
+              },
+              {},
+            )
+          : {},
     };
   },
 
@@ -495,29 +515,31 @@ export const PathHashMap: MessageFns<PathHashMap> = {
   },
   fromPartial<I extends Exact<DeepPartial<PathHashMap>, I>>(object: I): PathHashMap {
     const message = createBasePathHashMap();
-    message.pathHash = (globalThis.Object.entries(object.pathHash ?? {}) as [string, string][]).reduce(
-      (acc: { [key: string]: string }, [key, value]: [string, string]) => {
-        if (value !== undefined) {
-          acc[key] = globalThis.String(value);
-        }
-        return acc;
-      },
-      {},
-    );
+    message.pathHash = (
+      globalThis.Object.entries(object.pathHash ?? {}) as [string, string][]
+    ).reduce((acc: { [key: string]: string }, [key, value]: [string, string]) => {
+      if (value !== undefined) {
+        acc[key] = globalThis.String(value);
+      }
+      return acc;
+    }, {});
     return message;
   },
 };
 
 function createBasePathHashMap_PathHashEntry(): PathHashMap_PathHashEntry {
-  return { key: "", value: "" };
+  return { key: '', value: '' };
 }
 
 export const PathHashMap_PathHashEntry: MessageFns<PathHashMap_PathHashEntry> = {
-  encode(message: PathHashMap_PathHashEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.key !== "") {
+  encode(
+    message: PathHashMap_PathHashEntry,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.key !== '') {
       writer.uint32(10).string(message.key);
     }
-    if (message.value !== "") {
+    if (message.value !== '') {
       writer.uint32(18).string(message.value);
     }
     return writer;
@@ -557,40 +579,44 @@ export const PathHashMap_PathHashEntry: MessageFns<PathHashMap_PathHashEntry> = 
 
   fromJSON(object: any): PathHashMap_PathHashEntry {
     return {
-      key: isSet(object.key) ? globalThis.String(object.key) : "",
-      value: isSet(object.value) ? globalThis.String(object.value) : "",
+      key: isSet(object.key) ? globalThis.String(object.key) : '',
+      value: isSet(object.value) ? globalThis.String(object.value) : '',
     };
   },
 
   toJSON(message: PathHashMap_PathHashEntry): unknown {
     const obj: any = {};
-    if (message.key !== "") {
+    if (message.key !== '') {
       obj.key = message.key;
     }
-    if (message.value !== "") {
+    if (message.value !== '') {
       obj.value = message.value;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<PathHashMap_PathHashEntry>, I>>(base?: I): PathHashMap_PathHashEntry {
+  create<I extends Exact<DeepPartial<PathHashMap_PathHashEntry>, I>>(
+    base?: I,
+  ): PathHashMap_PathHashEntry {
     return PathHashMap_PathHashEntry.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<PathHashMap_PathHashEntry>, I>>(object: I): PathHashMap_PathHashEntry {
+  fromPartial<I extends Exact<DeepPartial<PathHashMap_PathHashEntry>, I>>(
+    object: I,
+  ): PathHashMap_PathHashEntry {
     const message = createBasePathHashMap_PathHashEntry();
-    message.key = object.key ?? "";
-    message.value = object.value ?? "";
+    message.key = object.key ?? '';
+    message.value = object.value ?? '';
     return message;
   },
 };
 
 export type CheckpointsServiceDefinition = typeof CheckpointsServiceDefinition;
 export const CheckpointsServiceDefinition = {
-  name: "CheckpointsService",
-  fullName: "cline.CheckpointsService",
+  name: 'CheckpointsService',
+  fullName: 'cline.CheckpointsService',
   methods: {
     checkpointDiff: {
-      name: "checkpointDiff",
+      name: 'checkpointDiff',
       requestType: Int64Request,
       requestStream: false,
       responseType: Empty,
@@ -598,7 +624,7 @@ export const CheckpointsServiceDefinition = {
       options: {},
     },
     checkpointRestore: {
-      name: "checkpointRestore",
+      name: 'checkpointRestore',
       requestType: CheckpointRestoreRequest,
       requestStream: false,
       responseType: Empty,
@@ -606,7 +632,7 @@ export const CheckpointsServiceDefinition = {
       options: {},
     },
     subscribeToCheckpoints: {
-      name: "subscribeToCheckpoints",
+      name: 'subscribeToCheckpoints',
       requestType: CheckpointSubscriptionRequest,
       requestStream: false,
       responseType: CheckpointEvent,
@@ -614,7 +640,7 @@ export const CheckpointsServiceDefinition = {
       options: {},
     },
     getCwdHash: {
-      name: "getCwdHash",
+      name: 'getCwdHash',
       requestType: StringArrayRequest,
       requestStream: false,
       responseType: PathHashMap,
@@ -626,14 +652,19 @@ export const CheckpointsServiceDefinition = {
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-type Exact<P, I extends P> = P extends Builtin ? P
+type Exact<P, I extends P> = P extends Builtin
+  ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function toTimestamp(date: Date): Timestamp {
@@ -651,26 +682,26 @@ function fromTimestamp(t: Timestamp): Date {
 function fromJsonTimestamp(o: any): Timestamp {
   if (o instanceof globalThis.Date) {
     return toTimestamp(o);
-  } else if (typeof o === "string") {
-    return toTimestamp(new globalThis.Date(o));
-  } else {
-    return Timestamp.fromJSON(o);
   }
+  if (typeof o === 'string') {
+    return toTimestamp(new globalThis.Date(o));
+  }
+  return Timestamp.fromJSON(o);
 }
 
 function longToNumber(int64: { toString(): string }): number {
   const num = globalThis.Number(int64.toString());
   if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+    throw new globalThis.Error('Value is larger than Number.MAX_SAFE_INTEGER');
   }
   if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
+    throw new globalThis.Error('Value is smaller than Number.MIN_SAFE_INTEGER');
   }
   return num;
 }
 
 function isObject(value: any): boolean {
-  return typeof value === "object" && value !== null;
+  return typeof value === 'object' && value !== null;
 }
 
 function isSet(value: any): boolean {

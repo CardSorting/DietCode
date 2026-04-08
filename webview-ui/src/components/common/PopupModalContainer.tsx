@@ -1,11 +1,11 @@
-import styled from "styled-components"
-import { CODE_BLOCK_BG_COLOR } from "./CodeBlock"
+import styled from 'styled-components';
+import { CODE_BLOCK_BG_COLOR } from './CodeBlock';
 
 interface PopupModalContainerProps {
-	$menuPosition: number
-	$arrowPosition: number
-	$bottomOffset?: number
-	$maxHeight?: string
+  $menuPosition: number;
+  $arrowPosition: number;
+  $bottomOffset?: number;
+  $maxHeight?: string;
 }
 
 /**
@@ -19,7 +19,7 @@ const PopupModalContainer = styled.div<PopupModalContainerProps>`
 	bottom: ${(props) => `calc(100vh - ${props.$menuPosition}px + ${props.$bottomOffset ?? 6}px)`};
 	display: flex;
 	flex-direction: column;
-	max-height: ${(props) => props.$maxHeight ?? "calc(100vh - 100px)"};
+	max-height: ${(props) => props.$maxHeight ?? 'calc(100vh - 100px)'};
 	background: ${CODE_BLOCK_BG_COLOR};
 	border: 1px solid var(--vscode-editorGroup-border);
 	border-bottom: none;
@@ -51,6 +51,6 @@ const PopupModalContainer = styled.div<PopupModalContainerProps>`
 		background: ${CODE_BLOCK_BG_COLOR};
 		z-index: -1;
 	}
-`
+`;
 
-export default PopupModalContainer
+export default PopupModalContainer;

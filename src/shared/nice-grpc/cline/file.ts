@@ -5,8 +5,16 @@
 // source: cline/file.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { BooleanRequest, BooleanResponse, Empty, EmptyRequest, Metadata, StringArrays, StringRequest } from "./common";
+import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+import {
+  BooleanRequest,
+  BooleanResponse,
+  Empty,
+  EmptyRequest,
+  Metadata,
+  StringArrays,
+  StringRequest,
+} from './common';
 
 /** Enum for file search type filtering */
 export enum FileSearchType {
@@ -18,13 +26,11 @@ export enum FileSearchType {
 export function fileSearchTypeFromJSON(object: any): FileSearchType {
   switch (object) {
     case 0:
-    case "FILE":
+    case 'FILE':
       return FileSearchType.FILE;
     case 1:
-    case "FOLDER":
+    case 'FOLDER':
       return FileSearchType.FOLDER;
-    case -1:
-    case "UNRECOGNIZED":
     default:
       return FileSearchType.UNRECOGNIZED;
   }
@@ -33,12 +39,11 @@ export function fileSearchTypeFromJSON(object: any): FileSearchType {
 export function fileSearchTypeToJSON(object: FileSearchType): string {
   switch (object) {
     case FileSearchType.FILE:
-      return "FILE";
+      return 'FILE';
     case FileSearchType.FOLDER:
-      return "FOLDER";
-    case FileSearchType.UNRECOGNIZED:
+      return 'FOLDER';
     default:
-      return "UNRECOGNIZED";
+      return 'UNRECOGNIZED';
   }
 }
 
@@ -53,16 +58,14 @@ export enum RuleScope {
 export function ruleScopeFromJSON(object: any): RuleScope {
   switch (object) {
     case 0:
-    case "LOCAL":
+    case 'LOCAL':
       return RuleScope.LOCAL;
     case 1:
-    case "GLOBAL":
+    case 'GLOBAL':
       return RuleScope.GLOBAL;
     case 2:
-    case "REMOTE":
+    case 'REMOTE':
       return RuleScope.REMOTE;
-    case -1:
-    case "UNRECOGNIZED":
     default:
       return RuleScope.UNRECOGNIZED;
   }
@@ -71,14 +74,13 @@ export function ruleScopeFromJSON(object: any): RuleScope {
 export function ruleScopeToJSON(object: RuleScope): string {
   switch (object) {
     case RuleScope.LOCAL:
-      return "LOCAL";
+      return 'LOCAL';
     case RuleScope.GLOBAL:
-      return "GLOBAL";
+      return 'GLOBAL';
     case RuleScope.REMOTE:
-      return "REMOTE";
-    case RuleScope.UNRECOGNIZED:
+      return 'REMOTE';
     default:
-      return "UNRECOGNIZED";
+      return 'UNRECOGNIZED';
   }
 }
 
@@ -95,9 +97,7 @@ export interface RefreshedRules {
 
 /** Request to toggle a Windsurf rule */
 export interface ToggleWindsurfRuleRequest {
-  metadata:
-    | Metadata
-    | undefined;
+  metadata: Metadata | undefined;
   /** Path to the rule file */
   rulePath: string;
   /** Whether to enable or disable the rule */
@@ -106,9 +106,7 @@ export interface ToggleWindsurfRuleRequest {
 
 /** Request to toggle an Agents rule */
 export interface ToggleAgentsRuleRequest {
-  metadata:
-    | Metadata
-    | undefined;
+  metadata: Metadata | undefined;
   /** Path to the rule file */
   rulePath: string;
   /** Whether to enable or disable the rule */
@@ -128,23 +126,15 @@ export interface RelativePaths {
 
 /** Request for file search operations */
 export interface FileSearchRequest {
-  metadata:
-    | Metadata
-    | undefined;
+  metadata: Metadata | undefined;
   /** Search query string */
   query: string;
   /** Optional request ID for tracking requests */
-  mentionsRequestId?:
-    | string
-    | undefined;
+  mentionsRequestId?: string | undefined;
   /** Optional limit for results (default: 20) */
-  limit?:
-    | number
-    | undefined;
+  limit?: number | undefined;
   /** Optional selected type filter */
-  selectedType?:
-    | FileSearchType
-    | undefined;
+  selectedType?: FileSearchType | undefined;
   /** Optional workspace name to search in */
   workspaceHint?: string | undefined;
 }
@@ -164,9 +154,7 @@ export interface FileInfo {
   /** "file" or "folder" */
   type: string;
   /** Display name (usually basename) */
-  label?:
-    | string
-    | undefined;
+  label?: string | undefined;
   /** Workspace this result came from */
   workspaceName?: string | undefined;
 }
@@ -187,19 +175,13 @@ export interface GitCommit {
 
 /** Unified request for all rule file operations */
 export interface RuleFileRequest {
-  metadata:
-    | Metadata
-    | undefined;
+  metadata: Metadata | undefined;
   /** Common field for all operations */
   isGlobal: boolean;
   /** Path field for deleteRuleFile (optional) */
-  rulePath?:
-    | string
-    | undefined;
+  rulePath?: string | undefined;
   /** Filename field for createRuleFile (optional) */
-  filename?:
-    | string
-    | undefined;
+  filename?: string | undefined;
   /** Type of the file to create (optional) */
   type?: string | undefined;
 }
@@ -216,9 +198,7 @@ export interface RuleFile {
 
 /** Request to toggle a Cline rule */
 export interface ToggleClineRuleRequest {
-  metadata:
-    | Metadata
-    | undefined;
+  metadata: Metadata | undefined;
   /** Scope of the rule (local, global, or remote) */
   scope: RuleScope;
   /** Path to the rule file */
@@ -246,9 +226,7 @@ export interface ToggleClineRules {
 
 /** Request to toggle a Cursor rule */
 export interface ToggleCursorRuleRequest {
-  metadata:
-    | Metadata
-    | undefined;
+  metadata: Metadata | undefined;
   /** Path to the rule file */
   rulePath: string;
   /** Whether to enable or disable the rule */
@@ -285,9 +263,7 @@ export interface HooksToggles {
 
 /** Request to toggle a hook */
 export interface ToggleHookRequest {
-  metadata:
-    | Metadata
-    | undefined;
+  metadata: Metadata | undefined;
   /** Name of the hook (e.g., "TaskStart") */
   hookName: string;
   /** Whether this is a global or workspace hook */
@@ -305,9 +281,7 @@ export interface ToggleHookResponse {
 
 /** Request to create a hook */
 export interface CreateHookRequest {
-  metadata:
-    | Metadata
-    | undefined;
+  metadata: Metadata | undefined;
   /** Name of the hook to create */
   hookName: string;
   /** Whether to create in global or workspace hooks directory */
@@ -323,9 +297,7 @@ export interface CreateHookResponse {
 
 /** Request to delete a hook */
 export interface DeleteHookRequest {
-  metadata:
-    | Metadata
-    | undefined;
+  metadata: Metadata | undefined;
   /** Name of the hook to delete */
   hookName: string;
   /** Whether this is a global or workspace hook */
@@ -375,9 +347,7 @@ export interface SkillsToggles_LocalSkillsTogglesEntry {
 
 /** Request to toggle a skill */
 export interface ToggleSkillRequest {
-  metadata:
-    | Metadata
-    | undefined;
+  metadata: Metadata | undefined;
   /** Path to the skill directory */
   skillPath: string;
   /** Whether this is a global or workspace skill */
@@ -388,9 +358,7 @@ export interface ToggleSkillRequest {
 
 /** Request to create a skill */
 export interface CreateSkillRequest {
-  metadata:
-    | Metadata
-    | undefined;
+  metadata: Metadata | undefined;
   /** Name of the skill to create */
   skillName: string;
   /** Whether to create in global or workspace skills directory */
@@ -399,9 +367,7 @@ export interface CreateSkillRequest {
 
 /** Request to delete a skill */
 export interface DeleteSkillRequest {
-  metadata:
-    | Metadata
-    | undefined;
+  metadata: Metadata | undefined;
   /** Path to the skill directory */
   skillPath: string;
   /** Whether this is a global or workspace skill */
@@ -523,38 +489,38 @@ export const RefreshedRules: MessageFns<RefreshedRules> = {
       globalClineRulesToggles: isSet(object.globalClineRulesToggles)
         ? ClineRulesToggles.fromJSON(object.globalClineRulesToggles)
         : isSet(object.global_cline_rules_toggles)
-        ? ClineRulesToggles.fromJSON(object.global_cline_rules_toggles)
-        : undefined,
+          ? ClineRulesToggles.fromJSON(object.global_cline_rules_toggles)
+          : undefined,
       localClineRulesToggles: isSet(object.localClineRulesToggles)
         ? ClineRulesToggles.fromJSON(object.localClineRulesToggles)
         : isSet(object.local_cline_rules_toggles)
-        ? ClineRulesToggles.fromJSON(object.local_cline_rules_toggles)
-        : undefined,
+          ? ClineRulesToggles.fromJSON(object.local_cline_rules_toggles)
+          : undefined,
       localCursorRulesToggles: isSet(object.localCursorRulesToggles)
         ? ClineRulesToggles.fromJSON(object.localCursorRulesToggles)
         : isSet(object.local_cursor_rules_toggles)
-        ? ClineRulesToggles.fromJSON(object.local_cursor_rules_toggles)
-        : undefined,
+          ? ClineRulesToggles.fromJSON(object.local_cursor_rules_toggles)
+          : undefined,
       localWindsurfRulesToggles: isSet(object.localWindsurfRulesToggles)
         ? ClineRulesToggles.fromJSON(object.localWindsurfRulesToggles)
         : isSet(object.local_windsurf_rules_toggles)
-        ? ClineRulesToggles.fromJSON(object.local_windsurf_rules_toggles)
-        : undefined,
+          ? ClineRulesToggles.fromJSON(object.local_windsurf_rules_toggles)
+          : undefined,
       localAgentsRulesToggles: isSet(object.localAgentsRulesToggles)
         ? ClineRulesToggles.fromJSON(object.localAgentsRulesToggles)
         : isSet(object.local_agents_rules_toggles)
-        ? ClineRulesToggles.fromJSON(object.local_agents_rules_toggles)
-        : undefined,
+          ? ClineRulesToggles.fromJSON(object.local_agents_rules_toggles)
+          : undefined,
       localWorkflowToggles: isSet(object.localWorkflowToggles)
         ? ClineRulesToggles.fromJSON(object.localWorkflowToggles)
         : isSet(object.local_workflow_toggles)
-        ? ClineRulesToggles.fromJSON(object.local_workflow_toggles)
-        : undefined,
+          ? ClineRulesToggles.fromJSON(object.local_workflow_toggles)
+          : undefined,
       globalWorkflowToggles: isSet(object.globalWorkflowToggles)
         ? ClineRulesToggles.fromJSON(object.globalWorkflowToggles)
         : isSet(object.global_workflow_toggles)
-        ? ClineRulesToggles.fromJSON(object.global_workflow_toggles)
-        : undefined,
+          ? ClineRulesToggles.fromJSON(object.global_workflow_toggles)
+          : undefined,
     };
   },
 
@@ -590,30 +556,31 @@ export const RefreshedRules: MessageFns<RefreshedRules> = {
   fromPartial<I extends Exact<DeepPartial<RefreshedRules>, I>>(object: I): RefreshedRules {
     const message = createBaseRefreshedRules();
     message.globalClineRulesToggles =
-      (object.globalClineRulesToggles !== undefined && object.globalClineRulesToggles !== null)
+      object.globalClineRulesToggles !== undefined && object.globalClineRulesToggles !== null
         ? ClineRulesToggles.fromPartial(object.globalClineRulesToggles)
         : undefined;
     message.localClineRulesToggles =
-      (object.localClineRulesToggles !== undefined && object.localClineRulesToggles !== null)
+      object.localClineRulesToggles !== undefined && object.localClineRulesToggles !== null
         ? ClineRulesToggles.fromPartial(object.localClineRulesToggles)
         : undefined;
     message.localCursorRulesToggles =
-      (object.localCursorRulesToggles !== undefined && object.localCursorRulesToggles !== null)
+      object.localCursorRulesToggles !== undefined && object.localCursorRulesToggles !== null
         ? ClineRulesToggles.fromPartial(object.localCursorRulesToggles)
         : undefined;
     message.localWindsurfRulesToggles =
-      (object.localWindsurfRulesToggles !== undefined && object.localWindsurfRulesToggles !== null)
+      object.localWindsurfRulesToggles !== undefined && object.localWindsurfRulesToggles !== null
         ? ClineRulesToggles.fromPartial(object.localWindsurfRulesToggles)
         : undefined;
     message.localAgentsRulesToggles =
-      (object.localAgentsRulesToggles !== undefined && object.localAgentsRulesToggles !== null)
+      object.localAgentsRulesToggles !== undefined && object.localAgentsRulesToggles !== null
         ? ClineRulesToggles.fromPartial(object.localAgentsRulesToggles)
         : undefined;
-    message.localWorkflowToggles = (object.localWorkflowToggles !== undefined && object.localWorkflowToggles !== null)
-      ? ClineRulesToggles.fromPartial(object.localWorkflowToggles)
-      : undefined;
+    message.localWorkflowToggles =
+      object.localWorkflowToggles !== undefined && object.localWorkflowToggles !== null
+        ? ClineRulesToggles.fromPartial(object.localWorkflowToggles)
+        : undefined;
     message.globalWorkflowToggles =
-      (object.globalWorkflowToggles !== undefined && object.globalWorkflowToggles !== null)
+      object.globalWorkflowToggles !== undefined && object.globalWorkflowToggles !== null
         ? ClineRulesToggles.fromPartial(object.globalWorkflowToggles)
         : undefined;
     return message;
@@ -621,15 +588,18 @@ export const RefreshedRules: MessageFns<RefreshedRules> = {
 };
 
 function createBaseToggleWindsurfRuleRequest(): ToggleWindsurfRuleRequest {
-  return { metadata: undefined, rulePath: "", enabled: false };
+  return { metadata: undefined, rulePath: '', enabled: false };
 }
 
 export const ToggleWindsurfRuleRequest: MessageFns<ToggleWindsurfRuleRequest> = {
-  encode(message: ToggleWindsurfRuleRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ToggleWindsurfRuleRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.rulePath !== "") {
+    if (message.rulePath !== '') {
       writer.uint32(18).string(message.rulePath);
     }
     if (message.enabled !== false) {
@@ -684,8 +654,8 @@ export const ToggleWindsurfRuleRequest: MessageFns<ToggleWindsurfRuleRequest> = 
       rulePath: isSet(object.rulePath)
         ? globalThis.String(object.rulePath)
         : isSet(object.rule_path)
-        ? globalThis.String(object.rule_path)
-        : "",
+          ? globalThis.String(object.rule_path)
+          : '',
       enabled: isSet(object.enabled) ? globalThis.Boolean(object.enabled) : false,
     };
   },
@@ -695,7 +665,7 @@ export const ToggleWindsurfRuleRequest: MessageFns<ToggleWindsurfRuleRequest> = 
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.rulePath !== "") {
+    if (message.rulePath !== '') {
       obj.rulePath = message.rulePath;
     }
     if (message.enabled !== false) {
@@ -704,30 +674,38 @@ export const ToggleWindsurfRuleRequest: MessageFns<ToggleWindsurfRuleRequest> = 
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ToggleWindsurfRuleRequest>, I>>(base?: I): ToggleWindsurfRuleRequest {
+  create<I extends Exact<DeepPartial<ToggleWindsurfRuleRequest>, I>>(
+    base?: I,
+  ): ToggleWindsurfRuleRequest {
     return ToggleWindsurfRuleRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ToggleWindsurfRuleRequest>, I>>(object: I): ToggleWindsurfRuleRequest {
+  fromPartial<I extends Exact<DeepPartial<ToggleWindsurfRuleRequest>, I>>(
+    object: I,
+  ): ToggleWindsurfRuleRequest {
     const message = createBaseToggleWindsurfRuleRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.rulePath = object.rulePath ?? "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.rulePath = object.rulePath ?? '';
     message.enabled = object.enabled ?? false;
     return message;
   },
 };
 
 function createBaseToggleAgentsRuleRequest(): ToggleAgentsRuleRequest {
-  return { metadata: undefined, rulePath: "", enabled: false };
+  return { metadata: undefined, rulePath: '', enabled: false };
 }
 
 export const ToggleAgentsRuleRequest: MessageFns<ToggleAgentsRuleRequest> = {
-  encode(message: ToggleAgentsRuleRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ToggleAgentsRuleRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.rulePath !== "") {
+    if (message.rulePath !== '') {
       writer.uint32(18).string(message.rulePath);
     }
     if (message.enabled !== false) {
@@ -782,8 +760,8 @@ export const ToggleAgentsRuleRequest: MessageFns<ToggleAgentsRuleRequest> = {
       rulePath: isSet(object.rulePath)
         ? globalThis.String(object.rulePath)
         : isSet(object.rule_path)
-        ? globalThis.String(object.rule_path)
-        : "",
+          ? globalThis.String(object.rule_path)
+          : '',
       enabled: isSet(object.enabled) ? globalThis.Boolean(object.enabled) : false,
     };
   },
@@ -793,7 +771,7 @@ export const ToggleAgentsRuleRequest: MessageFns<ToggleAgentsRuleRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.rulePath !== "") {
+    if (message.rulePath !== '') {
       obj.rulePath = message.rulePath;
     }
     if (message.enabled !== false) {
@@ -802,15 +780,20 @@ export const ToggleAgentsRuleRequest: MessageFns<ToggleAgentsRuleRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ToggleAgentsRuleRequest>, I>>(base?: I): ToggleAgentsRuleRequest {
+  create<I extends Exact<DeepPartial<ToggleAgentsRuleRequest>, I>>(
+    base?: I,
+  ): ToggleAgentsRuleRequest {
     return ToggleAgentsRuleRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ToggleAgentsRuleRequest>, I>>(object: I): ToggleAgentsRuleRequest {
+  fromPartial<I extends Exact<DeepPartial<ToggleAgentsRuleRequest>, I>>(
+    object: I,
+  ): ToggleAgentsRuleRequest {
     const message = createBaseToggleAgentsRuleRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.rulePath = object.rulePath ?? "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.rulePath = object.rulePath ?? '';
     message.enabled = object.enabled ?? false;
     return message;
   },
@@ -866,7 +849,9 @@ export const RelativePathsRequest: MessageFns<RelativePathsRequest> = {
   fromJSON(object: any): RelativePathsRequest {
     return {
       metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
-      uris: globalThis.Array.isArray(object?.uris) ? object.uris.map((e: any) => globalThis.String(e)) : [],
+      uris: globalThis.Array.isArray(object?.uris)
+        ? object.uris.map((e: any) => globalThis.String(e))
+        : [],
     };
   },
 
@@ -884,11 +869,14 @@ export const RelativePathsRequest: MessageFns<RelativePathsRequest> = {
   create<I extends Exact<DeepPartial<RelativePathsRequest>, I>>(base?: I): RelativePathsRequest {
     return RelativePathsRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<RelativePathsRequest>, I>>(object: I): RelativePathsRequest {
+  fromPartial<I extends Exact<DeepPartial<RelativePathsRequest>, I>>(
+    object: I,
+  ): RelativePathsRequest {
     const message = createBaseRelativePathsRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
     message.uris = object.uris?.map((e) => e) || [];
     return message;
   },
@@ -931,7 +919,11 @@ export const RelativePaths: MessageFns<RelativePaths> = {
   },
 
   fromJSON(object: any): RelativePaths {
-    return { paths: globalThis.Array.isArray(object?.paths) ? object.paths.map((e: any) => globalThis.String(e)) : [] };
+    return {
+      paths: globalThis.Array.isArray(object?.paths)
+        ? object.paths.map((e: any) => globalThis.String(e))
+        : [],
+    };
   },
 
   toJSON(message: RelativePaths): unknown {
@@ -955,7 +947,7 @@ export const RelativePaths: MessageFns<RelativePaths> = {
 function createBaseFileSearchRequest(): FileSearchRequest {
   return {
     metadata: undefined,
-    query: "",
+    query: '',
     mentionsRequestId: undefined,
     limit: undefined,
     selectedType: undefined,
@@ -968,7 +960,7 @@ export const FileSearchRequest: MessageFns<FileSearchRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.query !== "") {
+    if (message.query !== '') {
       writer.uint32(18).string(message.query);
     }
     if (message.mentionsRequestId !== undefined) {
@@ -1053,23 +1045,23 @@ export const FileSearchRequest: MessageFns<FileSearchRequest> = {
   fromJSON(object: any): FileSearchRequest {
     return {
       metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
-      query: isSet(object.query) ? globalThis.String(object.query) : "",
+      query: isSet(object.query) ? globalThis.String(object.query) : '',
       mentionsRequestId: isSet(object.mentionsRequestId)
         ? globalThis.String(object.mentionsRequestId)
         : isSet(object.mentions_request_id)
-        ? globalThis.String(object.mentions_request_id)
-        : undefined,
+          ? globalThis.String(object.mentions_request_id)
+          : undefined,
       limit: isSet(object.limit) ? globalThis.Number(object.limit) : undefined,
       selectedType: isSet(object.selectedType)
         ? fileSearchTypeFromJSON(object.selectedType)
         : isSet(object.selected_type)
-        ? fileSearchTypeFromJSON(object.selected_type)
-        : undefined,
+          ? fileSearchTypeFromJSON(object.selected_type)
+          : undefined,
       workspaceHint: isSet(object.workspaceHint)
         ? globalThis.String(object.workspaceHint)
         : isSet(object.workspace_hint)
-        ? globalThis.String(object.workspace_hint)
-        : undefined,
+          ? globalThis.String(object.workspace_hint)
+          : undefined,
     };
   },
 
@@ -1078,7 +1070,7 @@ export const FileSearchRequest: MessageFns<FileSearchRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.query !== "") {
+    if (message.query !== '') {
       obj.query = message.query;
     }
     if (message.mentionsRequestId !== undefined) {
@@ -1101,10 +1093,11 @@ export const FileSearchRequest: MessageFns<FileSearchRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<FileSearchRequest>, I>>(object: I): FileSearchRequest {
     const message = createBaseFileSearchRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.query = object.query ?? "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.query = object.query ?? '';
     message.mentionsRequestId = object.mentionsRequestId ?? undefined;
     message.limit = object.limit ?? undefined;
     message.selectedType = object.selectedType ?? undefined;
@@ -1162,12 +1155,14 @@ export const FileSearchResults: MessageFns<FileSearchResults> = {
 
   fromJSON(object: any): FileSearchResults {
     return {
-      results: globalThis.Array.isArray(object?.results) ? object.results.map((e: any) => FileInfo.fromJSON(e)) : [],
+      results: globalThis.Array.isArray(object?.results)
+        ? object.results.map((e: any) => FileInfo.fromJSON(e))
+        : [],
       mentionsRequestId: isSet(object.mentionsRequestId)
         ? globalThis.String(object.mentionsRequestId)
         : isSet(object.mentions_request_id)
-        ? globalThis.String(object.mentions_request_id)
-        : undefined,
+          ? globalThis.String(object.mentions_request_id)
+          : undefined,
     };
   },
 
@@ -1194,15 +1189,15 @@ export const FileSearchResults: MessageFns<FileSearchResults> = {
 };
 
 function createBaseFileInfo(): FileInfo {
-  return { path: "", type: "", label: undefined, workspaceName: undefined };
+  return { path: '', type: '', label: undefined, workspaceName: undefined };
 }
 
 export const FileInfo: MessageFns<FileInfo> = {
   encode(message: FileInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.path !== "") {
+    if (message.path !== '') {
       writer.uint32(10).string(message.path);
     }
-    if (message.type !== "") {
+    if (message.type !== '') {
       writer.uint32(18).string(message.type);
     }
     if (message.label !== undefined) {
@@ -1264,23 +1259,23 @@ export const FileInfo: MessageFns<FileInfo> = {
 
   fromJSON(object: any): FileInfo {
     return {
-      path: isSet(object.path) ? globalThis.String(object.path) : "",
-      type: isSet(object.type) ? globalThis.String(object.type) : "",
+      path: isSet(object.path) ? globalThis.String(object.path) : '',
+      type: isSet(object.type) ? globalThis.String(object.type) : '',
       label: isSet(object.label) ? globalThis.String(object.label) : undefined,
       workspaceName: isSet(object.workspaceName)
         ? globalThis.String(object.workspaceName)
         : isSet(object.workspace_name)
-        ? globalThis.String(object.workspace_name)
-        : undefined,
+          ? globalThis.String(object.workspace_name)
+          : undefined,
     };
   },
 
   toJSON(message: FileInfo): unknown {
     const obj: any = {};
-    if (message.path !== "") {
+    if (message.path !== '') {
       obj.path = message.path;
     }
-    if (message.type !== "") {
+    if (message.type !== '') {
       obj.type = message.type;
     }
     if (message.label !== undefined) {
@@ -1297,8 +1292,8 @@ export const FileInfo: MessageFns<FileInfo> = {
   },
   fromPartial<I extends Exact<DeepPartial<FileInfo>, I>>(object: I): FileInfo {
     const message = createBaseFileInfo();
-    message.path = object.path ?? "";
-    message.type = object.type ?? "";
+    message.path = object.path ?? '';
+    message.type = object.type ?? '';
     message.label = object.label ?? undefined;
     message.workspaceName = object.workspaceName ?? undefined;
     return message;
@@ -1343,7 +1338,9 @@ export const GitCommits: MessageFns<GitCommits> = {
 
   fromJSON(object: any): GitCommits {
     return {
-      commits: globalThis.Array.isArray(object?.commits) ? object.commits.map((e: any) => GitCommit.fromJSON(e)) : [],
+      commits: globalThis.Array.isArray(object?.commits)
+        ? object.commits.map((e: any) => GitCommit.fromJSON(e))
+        : [],
     };
   },
 
@@ -1366,24 +1363,24 @@ export const GitCommits: MessageFns<GitCommits> = {
 };
 
 function createBaseGitCommit(): GitCommit {
-  return { hash: "", shortHash: "", subject: "", author: "", date: "" };
+  return { hash: '', shortHash: '', subject: '', author: '', date: '' };
 }
 
 export const GitCommit: MessageFns<GitCommit> = {
   encode(message: GitCommit, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.hash !== "") {
+    if (message.hash !== '') {
       writer.uint32(10).string(message.hash);
     }
-    if (message.shortHash !== "") {
+    if (message.shortHash !== '') {
       writer.uint32(18).string(message.shortHash);
     }
-    if (message.subject !== "") {
+    if (message.subject !== '') {
       writer.uint32(26).string(message.subject);
     }
-    if (message.author !== "") {
+    if (message.author !== '') {
       writer.uint32(34).string(message.author);
     }
-    if (message.date !== "") {
+    if (message.date !== '') {
       writer.uint32(42).string(message.date);
     }
     return writer;
@@ -1447,33 +1444,33 @@ export const GitCommit: MessageFns<GitCommit> = {
 
   fromJSON(object: any): GitCommit {
     return {
-      hash: isSet(object.hash) ? globalThis.String(object.hash) : "",
+      hash: isSet(object.hash) ? globalThis.String(object.hash) : '',
       shortHash: isSet(object.shortHash)
         ? globalThis.String(object.shortHash)
         : isSet(object.short_hash)
-        ? globalThis.String(object.short_hash)
-        : "",
-      subject: isSet(object.subject) ? globalThis.String(object.subject) : "",
-      author: isSet(object.author) ? globalThis.String(object.author) : "",
-      date: isSet(object.date) ? globalThis.String(object.date) : "",
+          ? globalThis.String(object.short_hash)
+          : '',
+      subject: isSet(object.subject) ? globalThis.String(object.subject) : '',
+      author: isSet(object.author) ? globalThis.String(object.author) : '',
+      date: isSet(object.date) ? globalThis.String(object.date) : '',
     };
   },
 
   toJSON(message: GitCommit): unknown {
     const obj: any = {};
-    if (message.hash !== "") {
+    if (message.hash !== '') {
       obj.hash = message.hash;
     }
-    if (message.shortHash !== "") {
+    if (message.shortHash !== '') {
       obj.shortHash = message.shortHash;
     }
-    if (message.subject !== "") {
+    if (message.subject !== '') {
       obj.subject = message.subject;
     }
-    if (message.author !== "") {
+    if (message.author !== '') {
       obj.author = message.author;
     }
-    if (message.date !== "") {
+    if (message.date !== '') {
       obj.date = message.date;
     }
     return obj;
@@ -1484,17 +1481,23 @@ export const GitCommit: MessageFns<GitCommit> = {
   },
   fromPartial<I extends Exact<DeepPartial<GitCommit>, I>>(object: I): GitCommit {
     const message = createBaseGitCommit();
-    message.hash = object.hash ?? "";
-    message.shortHash = object.shortHash ?? "";
-    message.subject = object.subject ?? "";
-    message.author = object.author ?? "";
-    message.date = object.date ?? "";
+    message.hash = object.hash ?? '';
+    message.shortHash = object.shortHash ?? '';
+    message.subject = object.subject ?? '';
+    message.author = object.author ?? '';
+    message.date = object.date ?? '';
     return message;
   },
 };
 
 function createBaseRuleFileRequest(): RuleFileRequest {
-  return { metadata: undefined, isGlobal: false, rulePath: undefined, filename: undefined, type: undefined };
+  return {
+    metadata: undefined,
+    isGlobal: false,
+    rulePath: undefined,
+    filename: undefined,
+    type: undefined,
+  };
 }
 
 export const RuleFileRequest: MessageFns<RuleFileRequest> = {
@@ -1579,13 +1582,13 @@ export const RuleFileRequest: MessageFns<RuleFileRequest> = {
       isGlobal: isSet(object.isGlobal)
         ? globalThis.Boolean(object.isGlobal)
         : isSet(object.is_global)
-        ? globalThis.Boolean(object.is_global)
-        : false,
+          ? globalThis.Boolean(object.is_global)
+          : false,
       rulePath: isSet(object.rulePath)
         ? globalThis.String(object.rulePath)
         : isSet(object.rule_path)
-        ? globalThis.String(object.rule_path)
-        : undefined,
+          ? globalThis.String(object.rule_path)
+          : undefined,
       filename: isSet(object.filename) ? globalThis.String(object.filename) : undefined,
       type: isSet(object.type) ? globalThis.String(object.type) : undefined,
     };
@@ -1616,9 +1619,10 @@ export const RuleFileRequest: MessageFns<RuleFileRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<RuleFileRequest>, I>>(object: I): RuleFileRequest {
     const message = createBaseRuleFileRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
     message.isGlobal = object.isGlobal ?? false;
     message.rulePath = object.rulePath ?? undefined;
     message.filename = object.filename ?? undefined;
@@ -1628,15 +1632,15 @@ export const RuleFileRequest: MessageFns<RuleFileRequest> = {
 };
 
 function createBaseRuleFile(): RuleFile {
-  return { filePath: "", displayName: "", alreadyExists: false };
+  return { filePath: '', displayName: '', alreadyExists: false };
 }
 
 export const RuleFile: MessageFns<RuleFile> = {
   encode(message: RuleFile, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.filePath !== "") {
+    if (message.filePath !== '') {
       writer.uint32(10).string(message.filePath);
     }
-    if (message.displayName !== "") {
+    if (message.displayName !== '') {
       writer.uint32(18).string(message.displayName);
     }
     if (message.alreadyExists !== false) {
@@ -1690,27 +1694,27 @@ export const RuleFile: MessageFns<RuleFile> = {
       filePath: isSet(object.filePath)
         ? globalThis.String(object.filePath)
         : isSet(object.file_path)
-        ? globalThis.String(object.file_path)
-        : "",
+          ? globalThis.String(object.file_path)
+          : '',
       displayName: isSet(object.displayName)
         ? globalThis.String(object.displayName)
         : isSet(object.display_name)
-        ? globalThis.String(object.display_name)
-        : "",
+          ? globalThis.String(object.display_name)
+          : '',
       alreadyExists: isSet(object.alreadyExists)
         ? globalThis.Boolean(object.alreadyExists)
         : isSet(object.already_exists)
-        ? globalThis.Boolean(object.already_exists)
-        : false,
+          ? globalThis.Boolean(object.already_exists)
+          : false,
     };
   },
 
   toJSON(message: RuleFile): unknown {
     const obj: any = {};
-    if (message.filePath !== "") {
+    if (message.filePath !== '') {
       obj.filePath = message.filePath;
     }
-    if (message.displayName !== "") {
+    if (message.displayName !== '') {
       obj.displayName = message.displayName;
     }
     if (message.alreadyExists !== false) {
@@ -1724,15 +1728,15 @@ export const RuleFile: MessageFns<RuleFile> = {
   },
   fromPartial<I extends Exact<DeepPartial<RuleFile>, I>>(object: I): RuleFile {
     const message = createBaseRuleFile();
-    message.filePath = object.filePath ?? "";
-    message.displayName = object.displayName ?? "";
+    message.filePath = object.filePath ?? '';
+    message.displayName = object.displayName ?? '';
     message.alreadyExists = object.alreadyExists ?? false;
     return message;
   },
 };
 
 function createBaseToggleClineRuleRequest(): ToggleClineRuleRequest {
-  return { metadata: undefined, scope: 0, rulePath: "", enabled: false };
+  return { metadata: undefined, scope: 0, rulePath: '', enabled: false };
 }
 
 export const ToggleClineRuleRequest: MessageFns<ToggleClineRuleRequest> = {
@@ -1743,7 +1747,7 @@ export const ToggleClineRuleRequest: MessageFns<ToggleClineRuleRequest> = {
     if (message.scope !== 0) {
       writer.uint32(16).int32(message.scope);
     }
-    if (message.rulePath !== "") {
+    if (message.rulePath !== '') {
       writer.uint32(26).string(message.rulePath);
     }
     if (message.enabled !== false) {
@@ -1807,8 +1811,8 @@ export const ToggleClineRuleRequest: MessageFns<ToggleClineRuleRequest> = {
       rulePath: isSet(object.rulePath)
         ? globalThis.String(object.rulePath)
         : isSet(object.rule_path)
-        ? globalThis.String(object.rule_path)
-        : "",
+          ? globalThis.String(object.rule_path)
+          : '',
       enabled: isSet(object.enabled) ? globalThis.Boolean(object.enabled) : false,
     };
   },
@@ -1821,7 +1825,7 @@ export const ToggleClineRuleRequest: MessageFns<ToggleClineRuleRequest> = {
     if (message.scope !== 0) {
       obj.scope = ruleScopeToJSON(message.scope);
     }
-    if (message.rulePath !== "") {
+    if (message.rulePath !== '') {
       obj.rulePath = message.rulePath;
     }
     if (message.enabled !== false) {
@@ -1830,16 +1834,21 @@ export const ToggleClineRuleRequest: MessageFns<ToggleClineRuleRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ToggleClineRuleRequest>, I>>(base?: I): ToggleClineRuleRequest {
+  create<I extends Exact<DeepPartial<ToggleClineRuleRequest>, I>>(
+    base?: I,
+  ): ToggleClineRuleRequest {
     return ToggleClineRuleRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ToggleClineRuleRequest>, I>>(object: I): ToggleClineRuleRequest {
+  fromPartial<I extends Exact<DeepPartial<ToggleClineRuleRequest>, I>>(
+    object: I,
+  ): ToggleClineRuleRequest {
     const message = createBaseToggleClineRuleRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
     message.scope = object.scope ?? 0;
-    message.rulePath = object.rulePath ?? "";
+    message.rulePath = object.rulePath ?? '';
     message.enabled = object.enabled ?? false;
     return message;
   },
@@ -1852,7 +1861,10 @@ function createBaseClineRulesToggles(): ClineRulesToggles {
 export const ClineRulesToggles: MessageFns<ClineRulesToggles> = {
   encode(message: ClineRulesToggles, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     globalThis.Object.entries(message.toggles).forEach(([key, value]: [string, boolean]) => {
-      ClineRulesToggles_TogglesEntry.encode({ key: key as any, value }, writer.uint32(10).fork()).join();
+      ClineRulesToggles_TogglesEntry.encode(
+        { key: key as any, value },
+        writer.uint32(10).fork(),
+      ).join();
     });
     return writer;
   },
@@ -1888,12 +1900,12 @@ export const ClineRulesToggles: MessageFns<ClineRulesToggles> = {
     return {
       toggles: isObject(object.toggles)
         ? (globalThis.Object.entries(object.toggles) as [string, any][]).reduce(
-          (acc: { [key: string]: boolean }, [key, value]: [string, any]) => {
-            acc[key] = globalThis.Boolean(value);
-            return acc;
-          },
-          {},
-        )
+            (acc: { [key: string]: boolean }, [key, value]: [string, any]) => {
+              acc[key] = globalThis.Boolean(value);
+              return acc;
+            },
+            {},
+          )
         : {},
     };
   },
@@ -1917,26 +1929,28 @@ export const ClineRulesToggles: MessageFns<ClineRulesToggles> = {
   },
   fromPartial<I extends Exact<DeepPartial<ClineRulesToggles>, I>>(object: I): ClineRulesToggles {
     const message = createBaseClineRulesToggles();
-    message.toggles = (globalThis.Object.entries(object.toggles ?? {}) as [string, boolean][]).reduce(
-      (acc: { [key: string]: boolean }, [key, value]: [string, boolean]) => {
-        if (value !== undefined) {
-          acc[key] = globalThis.Boolean(value);
-        }
-        return acc;
-      },
-      {},
-    );
+    message.toggles = (
+      globalThis.Object.entries(object.toggles ?? {}) as [string, boolean][]
+    ).reduce((acc: { [key: string]: boolean }, [key, value]: [string, boolean]) => {
+      if (value !== undefined) {
+        acc[key] = globalThis.Boolean(value);
+      }
+      return acc;
+    }, {});
     return message;
   },
 };
 
 function createBaseClineRulesToggles_TogglesEntry(): ClineRulesToggles_TogglesEntry {
-  return { key: "", value: false };
+  return { key: '', value: false };
 }
 
 export const ClineRulesToggles_TogglesEntry: MessageFns<ClineRulesToggles_TogglesEntry> = {
-  encode(message: ClineRulesToggles_TogglesEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.key !== "") {
+  encode(
+    message: ClineRulesToggles_TogglesEntry,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.key !== '') {
       writer.uint32(10).string(message.key);
     }
     if (message.value !== false) {
@@ -1979,14 +1993,14 @@ export const ClineRulesToggles_TogglesEntry: MessageFns<ClineRulesToggles_Toggle
 
   fromJSON(object: any): ClineRulesToggles_TogglesEntry {
     return {
-      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      key: isSet(object.key) ? globalThis.String(object.key) : '',
       value: isSet(object.value) ? globalThis.Boolean(object.value) : false,
     };
   },
 
   toJSON(message: ClineRulesToggles_TogglesEntry): unknown {
     const obj: any = {};
-    if (message.key !== "") {
+    if (message.key !== '') {
       obj.key = message.key;
     }
     if (message.value !== false) {
@@ -1995,21 +2009,27 @@ export const ClineRulesToggles_TogglesEntry: MessageFns<ClineRulesToggles_Toggle
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ClineRulesToggles_TogglesEntry>, I>>(base?: I): ClineRulesToggles_TogglesEntry {
+  create<I extends Exact<DeepPartial<ClineRulesToggles_TogglesEntry>, I>>(
+    base?: I,
+  ): ClineRulesToggles_TogglesEntry {
     return ClineRulesToggles_TogglesEntry.fromPartial(base ?? ({} as any));
   },
   fromPartial<I extends Exact<DeepPartial<ClineRulesToggles_TogglesEntry>, I>>(
     object: I,
   ): ClineRulesToggles_TogglesEntry {
     const message = createBaseClineRulesToggles_TogglesEntry();
-    message.key = object.key ?? "";
+    message.key = object.key ?? '';
     message.value = object.value ?? false;
     return message;
   },
 };
 
 function createBaseToggleClineRules(): ToggleClineRules {
-  return { globalClineRulesToggles: undefined, localClineRulesToggles: undefined, remoteRulesToggles: undefined };
+  return {
+    globalClineRulesToggles: undefined,
+    localClineRulesToggles: undefined,
+    remoteRulesToggles: undefined,
+  };
 }
 
 export const ToggleClineRules: MessageFns<ToggleClineRules> = {
@@ -2071,18 +2091,18 @@ export const ToggleClineRules: MessageFns<ToggleClineRules> = {
       globalClineRulesToggles: isSet(object.globalClineRulesToggles)
         ? ClineRulesToggles.fromJSON(object.globalClineRulesToggles)
         : isSet(object.global_cline_rules_toggles)
-        ? ClineRulesToggles.fromJSON(object.global_cline_rules_toggles)
-        : undefined,
+          ? ClineRulesToggles.fromJSON(object.global_cline_rules_toggles)
+          : undefined,
       localClineRulesToggles: isSet(object.localClineRulesToggles)
         ? ClineRulesToggles.fromJSON(object.localClineRulesToggles)
         : isSet(object.local_cline_rules_toggles)
-        ? ClineRulesToggles.fromJSON(object.local_cline_rules_toggles)
-        : undefined,
+          ? ClineRulesToggles.fromJSON(object.local_cline_rules_toggles)
+          : undefined,
       remoteRulesToggles: isSet(object.remoteRulesToggles)
         ? ClineRulesToggles.fromJSON(object.remoteRulesToggles)
         : isSet(object.remote_rules_toggles)
-        ? ClineRulesToggles.fromJSON(object.remote_rules_toggles)
-        : undefined,
+          ? ClineRulesToggles.fromJSON(object.remote_rules_toggles)
+          : undefined,
     };
   },
 
@@ -2106,30 +2126,34 @@ export const ToggleClineRules: MessageFns<ToggleClineRules> = {
   fromPartial<I extends Exact<DeepPartial<ToggleClineRules>, I>>(object: I): ToggleClineRules {
     const message = createBaseToggleClineRules();
     message.globalClineRulesToggles =
-      (object.globalClineRulesToggles !== undefined && object.globalClineRulesToggles !== null)
+      object.globalClineRulesToggles !== undefined && object.globalClineRulesToggles !== null
         ? ClineRulesToggles.fromPartial(object.globalClineRulesToggles)
         : undefined;
     message.localClineRulesToggles =
-      (object.localClineRulesToggles !== undefined && object.localClineRulesToggles !== null)
+      object.localClineRulesToggles !== undefined && object.localClineRulesToggles !== null
         ? ClineRulesToggles.fromPartial(object.localClineRulesToggles)
         : undefined;
-    message.remoteRulesToggles = (object.remoteRulesToggles !== undefined && object.remoteRulesToggles !== null)
-      ? ClineRulesToggles.fromPartial(object.remoteRulesToggles)
-      : undefined;
+    message.remoteRulesToggles =
+      object.remoteRulesToggles !== undefined && object.remoteRulesToggles !== null
+        ? ClineRulesToggles.fromPartial(object.remoteRulesToggles)
+        : undefined;
     return message;
   },
 };
 
 function createBaseToggleCursorRuleRequest(): ToggleCursorRuleRequest {
-  return { metadata: undefined, rulePath: "", enabled: false };
+  return { metadata: undefined, rulePath: '', enabled: false };
 }
 
 export const ToggleCursorRuleRequest: MessageFns<ToggleCursorRuleRequest> = {
-  encode(message: ToggleCursorRuleRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ToggleCursorRuleRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.rulePath !== "") {
+    if (message.rulePath !== '') {
       writer.uint32(18).string(message.rulePath);
     }
     if (message.enabled !== false) {
@@ -2184,8 +2208,8 @@ export const ToggleCursorRuleRequest: MessageFns<ToggleCursorRuleRequest> = {
       rulePath: isSet(object.rulePath)
         ? globalThis.String(object.rulePath)
         : isSet(object.rule_path)
-        ? globalThis.String(object.rule_path)
-        : "",
+          ? globalThis.String(object.rule_path)
+          : '',
       enabled: isSet(object.enabled) ? globalThis.Boolean(object.enabled) : false,
     };
   },
@@ -2195,7 +2219,7 @@ export const ToggleCursorRuleRequest: MessageFns<ToggleCursorRuleRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.rulePath !== "") {
+    if (message.rulePath !== '') {
       obj.rulePath = message.rulePath;
     }
     if (message.enabled !== false) {
@@ -2204,22 +2228,27 @@ export const ToggleCursorRuleRequest: MessageFns<ToggleCursorRuleRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ToggleCursorRuleRequest>, I>>(base?: I): ToggleCursorRuleRequest {
+  create<I extends Exact<DeepPartial<ToggleCursorRuleRequest>, I>>(
+    base?: I,
+  ): ToggleCursorRuleRequest {
     return ToggleCursorRuleRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ToggleCursorRuleRequest>, I>>(object: I): ToggleCursorRuleRequest {
+  fromPartial<I extends Exact<DeepPartial<ToggleCursorRuleRequest>, I>>(
+    object: I,
+  ): ToggleCursorRuleRequest {
     const message = createBaseToggleCursorRuleRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.rulePath = object.rulePath ?? "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.rulePath = object.rulePath ?? '';
     message.enabled = object.enabled ?? false;
     return message;
   },
 };
 
 function createBaseToggleWorkflowRequest(): ToggleWorkflowRequest {
-  return { metadata: undefined, workflowPath: "", enabled: false, scope: 0 };
+  return { metadata: undefined, workflowPath: '', enabled: false, scope: 0 };
 }
 
 export const ToggleWorkflowRequest: MessageFns<ToggleWorkflowRequest> = {
@@ -2227,7 +2256,7 @@ export const ToggleWorkflowRequest: MessageFns<ToggleWorkflowRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.workflowPath !== "") {
+    if (message.workflowPath !== '') {
       writer.uint32(18).string(message.workflowPath);
     }
     if (message.enabled !== false) {
@@ -2293,8 +2322,8 @@ export const ToggleWorkflowRequest: MessageFns<ToggleWorkflowRequest> = {
       workflowPath: isSet(object.workflowPath)
         ? globalThis.String(object.workflowPath)
         : isSet(object.workflow_path)
-        ? globalThis.String(object.workflow_path)
-        : "",
+          ? globalThis.String(object.workflow_path)
+          : '',
       enabled: isSet(object.enabled) ? globalThis.Boolean(object.enabled) : false,
       scope: isSet(object.scope) ? ruleScopeFromJSON(object.scope) : 0,
     };
@@ -2305,7 +2334,7 @@ export const ToggleWorkflowRequest: MessageFns<ToggleWorkflowRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.workflowPath !== "") {
+    if (message.workflowPath !== '') {
       obj.workflowPath = message.workflowPath;
     }
     if (message.enabled !== false) {
@@ -2320,12 +2349,15 @@ export const ToggleWorkflowRequest: MessageFns<ToggleWorkflowRequest> = {
   create<I extends Exact<DeepPartial<ToggleWorkflowRequest>, I>>(base?: I): ToggleWorkflowRequest {
     return ToggleWorkflowRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ToggleWorkflowRequest>, I>>(object: I): ToggleWorkflowRequest {
+  fromPartial<I extends Exact<DeepPartial<ToggleWorkflowRequest>, I>>(
+    object: I,
+  ): ToggleWorkflowRequest {
     const message = createBaseToggleWorkflowRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.workflowPath = object.workflowPath ?? "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.workflowPath = object.workflowPath ?? '';
     message.enabled = object.enabled ?? false;
     message.scope = object.scope ?? 0;
     return message;
@@ -2333,18 +2365,18 @@ export const ToggleWorkflowRequest: MessageFns<ToggleWorkflowRequest> = {
 };
 
 function createBaseHookInfo(): HookInfo {
-  return { name: "", enabled: false, absolutePath: "" };
+  return { name: '', enabled: false, absolutePath: '' };
 }
 
 export const HookInfo: MessageFns<HookInfo> = {
   encode(message: HookInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.name !== "") {
+    if (message.name !== '') {
       writer.uint32(10).string(message.name);
     }
     if (message.enabled !== false) {
       writer.uint32(16).bool(message.enabled);
     }
-    if (message.absolutePath !== "") {
+    if (message.absolutePath !== '') {
       writer.uint32(26).string(message.absolutePath);
     }
     return writer;
@@ -2392,25 +2424,25 @@ export const HookInfo: MessageFns<HookInfo> = {
 
   fromJSON(object: any): HookInfo {
     return {
-      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : '',
       enabled: isSet(object.enabled) ? globalThis.Boolean(object.enabled) : false,
       absolutePath: isSet(object.absolutePath)
         ? globalThis.String(object.absolutePath)
         : isSet(object.absolute_path)
-        ? globalThis.String(object.absolute_path)
-        : "",
+          ? globalThis.String(object.absolute_path)
+          : '',
     };
   },
 
   toJSON(message: HookInfo): unknown {
     const obj: any = {};
-    if (message.name !== "") {
+    if (message.name !== '') {
       obj.name = message.name;
     }
     if (message.enabled !== false) {
       obj.enabled = message.enabled;
     }
-    if (message.absolutePath !== "") {
+    if (message.absolutePath !== '') {
       obj.absolutePath = message.absolutePath;
     }
     return obj;
@@ -2421,20 +2453,20 @@ export const HookInfo: MessageFns<HookInfo> = {
   },
   fromPartial<I extends Exact<DeepPartial<HookInfo>, I>>(object: I): HookInfo {
     const message = createBaseHookInfo();
-    message.name = object.name ?? "";
+    message.name = object.name ?? '';
     message.enabled = object.enabled ?? false;
-    message.absolutePath = object.absolutePath ?? "";
+    message.absolutePath = object.absolutePath ?? '';
     return message;
   },
 };
 
 function createBaseWorkspaceHooks(): WorkspaceHooks {
-  return { workspaceName: "", hooks: [] };
+  return { workspaceName: '', hooks: [] };
 }
 
 export const WorkspaceHooks: MessageFns<WorkspaceHooks> = {
   encode(message: WorkspaceHooks, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.workspaceName !== "") {
+    if (message.workspaceName !== '') {
       writer.uint32(10).string(message.workspaceName);
     }
     for (const v of message.hooks) {
@@ -2480,15 +2512,17 @@ export const WorkspaceHooks: MessageFns<WorkspaceHooks> = {
       workspaceName: isSet(object.workspaceName)
         ? globalThis.String(object.workspaceName)
         : isSet(object.workspace_name)
-        ? globalThis.String(object.workspace_name)
-        : "",
-      hooks: globalThis.Array.isArray(object?.hooks) ? object.hooks.map((e: any) => HookInfo.fromJSON(e)) : [],
+          ? globalThis.String(object.workspace_name)
+          : '',
+      hooks: globalThis.Array.isArray(object?.hooks)
+        ? object.hooks.map((e: any) => HookInfo.fromJSON(e))
+        : [],
     };
   },
 
   toJSON(message: WorkspaceHooks): unknown {
     const obj: any = {};
-    if (message.workspaceName !== "") {
+    if (message.workspaceName !== '') {
       obj.workspaceName = message.workspaceName;
     }
     if (message.hooks?.length) {
@@ -2502,7 +2536,7 @@ export const WorkspaceHooks: MessageFns<WorkspaceHooks> = {
   },
   fromPartial<I extends Exact<DeepPartial<WorkspaceHooks>, I>>(object: I): WorkspaceHooks {
     const message = createBaseWorkspaceHooks();
-    message.workspaceName = object.workspaceName ?? "";
+    message.workspaceName = object.workspaceName ?? '';
     message.hooks = object.hooks?.map((e) => HookInfo.fromPartial(e)) || [];
     return message;
   },
@@ -2571,18 +2605,18 @@ export const HooksToggles: MessageFns<HooksToggles> = {
       globalHooks: globalThis.Array.isArray(object?.globalHooks)
         ? object.globalHooks.map((e: any) => HookInfo.fromJSON(e))
         : globalThis.Array.isArray(object?.global_hooks)
-        ? object.global_hooks.map((e: any) => HookInfo.fromJSON(e))
-        : [],
+          ? object.global_hooks.map((e: any) => HookInfo.fromJSON(e))
+          : [],
       workspaceHooks: globalThis.Array.isArray(object?.workspaceHooks)
         ? object.workspaceHooks.map((e: any) => WorkspaceHooks.fromJSON(e))
         : globalThis.Array.isArray(object?.workspace_hooks)
-        ? object.workspace_hooks.map((e: any) => WorkspaceHooks.fromJSON(e))
-        : [],
+          ? object.workspace_hooks.map((e: any) => WorkspaceHooks.fromJSON(e))
+          : [],
       isWindows: isSet(object.isWindows)
         ? globalThis.Boolean(object.isWindows)
         : isSet(object.is_windows)
-        ? globalThis.Boolean(object.is_windows)
-        : false,
+          ? globalThis.Boolean(object.is_windows)
+          : false,
     };
   },
 
@@ -2613,7 +2647,13 @@ export const HooksToggles: MessageFns<HooksToggles> = {
 };
 
 function createBaseToggleHookRequest(): ToggleHookRequest {
-  return { metadata: undefined, hookName: "", isGlobal: false, enabled: false, workspaceName: undefined };
+  return {
+    metadata: undefined,
+    hookName: '',
+    isGlobal: false,
+    enabled: false,
+    workspaceName: undefined,
+  };
 }
 
 export const ToggleHookRequest: MessageFns<ToggleHookRequest> = {
@@ -2621,7 +2661,7 @@ export const ToggleHookRequest: MessageFns<ToggleHookRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.hookName !== "") {
+    if (message.hookName !== '') {
       writer.uint32(18).string(message.hookName);
     }
     if (message.isGlobal !== false) {
@@ -2698,19 +2738,19 @@ export const ToggleHookRequest: MessageFns<ToggleHookRequest> = {
       hookName: isSet(object.hookName)
         ? globalThis.String(object.hookName)
         : isSet(object.hook_name)
-        ? globalThis.String(object.hook_name)
-        : "",
+          ? globalThis.String(object.hook_name)
+          : '',
       isGlobal: isSet(object.isGlobal)
         ? globalThis.Boolean(object.isGlobal)
         : isSet(object.is_global)
-        ? globalThis.Boolean(object.is_global)
-        : false,
+          ? globalThis.Boolean(object.is_global)
+          : false,
       enabled: isSet(object.enabled) ? globalThis.Boolean(object.enabled) : false,
       workspaceName: isSet(object.workspaceName)
         ? globalThis.String(object.workspaceName)
         : isSet(object.workspace_name)
-        ? globalThis.String(object.workspace_name)
-        : undefined,
+          ? globalThis.String(object.workspace_name)
+          : undefined,
     };
   },
 
@@ -2719,7 +2759,7 @@ export const ToggleHookRequest: MessageFns<ToggleHookRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.hookName !== "") {
+    if (message.hookName !== '') {
       obj.hookName = message.hookName;
     }
     if (message.isGlobal !== false) {
@@ -2739,10 +2779,11 @@ export const ToggleHookRequest: MessageFns<ToggleHookRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<ToggleHookRequest>, I>>(object: I): ToggleHookRequest {
     const message = createBaseToggleHookRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.hookName = object.hookName ?? "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.hookName = object.hookName ?? '';
     message.isGlobal = object.isGlobal ?? false;
     message.enabled = object.enabled ?? false;
     message.workspaceName = object.workspaceName ?? undefined;
@@ -2791,8 +2832,8 @@ export const ToggleHookResponse: MessageFns<ToggleHookResponse> = {
       hooksToggles: isSet(object.hooksToggles)
         ? HooksToggles.fromJSON(object.hooksToggles)
         : isSet(object.hooks_toggles)
-        ? HooksToggles.fromJSON(object.hooks_toggles)
-        : undefined,
+          ? HooksToggles.fromJSON(object.hooks_toggles)
+          : undefined,
     };
   },
 
@@ -2809,15 +2850,16 @@ export const ToggleHookResponse: MessageFns<ToggleHookResponse> = {
   },
   fromPartial<I extends Exact<DeepPartial<ToggleHookResponse>, I>>(object: I): ToggleHookResponse {
     const message = createBaseToggleHookResponse();
-    message.hooksToggles = (object.hooksToggles !== undefined && object.hooksToggles !== null)
-      ? HooksToggles.fromPartial(object.hooksToggles)
-      : undefined;
+    message.hooksToggles =
+      object.hooksToggles !== undefined && object.hooksToggles !== null
+        ? HooksToggles.fromPartial(object.hooksToggles)
+        : undefined;
     return message;
   },
 };
 
 function createBaseCreateHookRequest(): CreateHookRequest {
-  return { metadata: undefined, hookName: "", isGlobal: false, workspaceName: undefined };
+  return { metadata: undefined, hookName: '', isGlobal: false, workspaceName: undefined };
 }
 
 export const CreateHookRequest: MessageFns<CreateHookRequest> = {
@@ -2825,7 +2867,7 @@ export const CreateHookRequest: MessageFns<CreateHookRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.hookName !== "") {
+    if (message.hookName !== '') {
       writer.uint32(18).string(message.hookName);
     }
     if (message.isGlobal !== false) {
@@ -2891,18 +2933,18 @@ export const CreateHookRequest: MessageFns<CreateHookRequest> = {
       hookName: isSet(object.hookName)
         ? globalThis.String(object.hookName)
         : isSet(object.hook_name)
-        ? globalThis.String(object.hook_name)
-        : "",
+          ? globalThis.String(object.hook_name)
+          : '',
       isGlobal: isSet(object.isGlobal)
         ? globalThis.Boolean(object.isGlobal)
         : isSet(object.is_global)
-        ? globalThis.Boolean(object.is_global)
-        : false,
+          ? globalThis.Boolean(object.is_global)
+          : false,
       workspaceName: isSet(object.workspaceName)
         ? globalThis.String(object.workspaceName)
         : isSet(object.workspace_name)
-        ? globalThis.String(object.workspace_name)
-        : undefined,
+          ? globalThis.String(object.workspace_name)
+          : undefined,
     };
   },
 
@@ -2911,7 +2953,7 @@ export const CreateHookRequest: MessageFns<CreateHookRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.hookName !== "") {
+    if (message.hookName !== '') {
       obj.hookName = message.hookName;
     }
     if (message.isGlobal !== false) {
@@ -2928,10 +2970,11 @@ export const CreateHookRequest: MessageFns<CreateHookRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<CreateHookRequest>, I>>(object: I): CreateHookRequest {
     const message = createBaseCreateHookRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.hookName = object.hookName ?? "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.hookName = object.hookName ?? '';
     message.isGlobal = object.isGlobal ?? false;
     message.workspaceName = object.workspaceName ?? undefined;
     return message;
@@ -2979,8 +3022,8 @@ export const CreateHookResponse: MessageFns<CreateHookResponse> = {
       hooksToggles: isSet(object.hooksToggles)
         ? HooksToggles.fromJSON(object.hooksToggles)
         : isSet(object.hooks_toggles)
-        ? HooksToggles.fromJSON(object.hooks_toggles)
-        : undefined,
+          ? HooksToggles.fromJSON(object.hooks_toggles)
+          : undefined,
     };
   },
 
@@ -2997,15 +3040,16 @@ export const CreateHookResponse: MessageFns<CreateHookResponse> = {
   },
   fromPartial<I extends Exact<DeepPartial<CreateHookResponse>, I>>(object: I): CreateHookResponse {
     const message = createBaseCreateHookResponse();
-    message.hooksToggles = (object.hooksToggles !== undefined && object.hooksToggles !== null)
-      ? HooksToggles.fromPartial(object.hooksToggles)
-      : undefined;
+    message.hooksToggles =
+      object.hooksToggles !== undefined && object.hooksToggles !== null
+        ? HooksToggles.fromPartial(object.hooksToggles)
+        : undefined;
     return message;
   },
 };
 
 function createBaseDeleteHookRequest(): DeleteHookRequest {
-  return { metadata: undefined, hookName: "", isGlobal: false, workspaceName: undefined };
+  return { metadata: undefined, hookName: '', isGlobal: false, workspaceName: undefined };
 }
 
 export const DeleteHookRequest: MessageFns<DeleteHookRequest> = {
@@ -3013,7 +3057,7 @@ export const DeleteHookRequest: MessageFns<DeleteHookRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.hookName !== "") {
+    if (message.hookName !== '') {
       writer.uint32(18).string(message.hookName);
     }
     if (message.isGlobal !== false) {
@@ -3079,18 +3123,18 @@ export const DeleteHookRequest: MessageFns<DeleteHookRequest> = {
       hookName: isSet(object.hookName)
         ? globalThis.String(object.hookName)
         : isSet(object.hook_name)
-        ? globalThis.String(object.hook_name)
-        : "",
+          ? globalThis.String(object.hook_name)
+          : '',
       isGlobal: isSet(object.isGlobal)
         ? globalThis.Boolean(object.isGlobal)
         : isSet(object.is_global)
-        ? globalThis.Boolean(object.is_global)
-        : false,
+          ? globalThis.Boolean(object.is_global)
+          : false,
       workspaceName: isSet(object.workspaceName)
         ? globalThis.String(object.workspaceName)
         : isSet(object.workspace_name)
-        ? globalThis.String(object.workspace_name)
-        : undefined,
+          ? globalThis.String(object.workspace_name)
+          : undefined,
     };
   },
 
@@ -3099,7 +3143,7 @@ export const DeleteHookRequest: MessageFns<DeleteHookRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.hookName !== "") {
+    if (message.hookName !== '') {
       obj.hookName = message.hookName;
     }
     if (message.isGlobal !== false) {
@@ -3116,10 +3160,11 @@ export const DeleteHookRequest: MessageFns<DeleteHookRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<DeleteHookRequest>, I>>(object: I): DeleteHookRequest {
     const message = createBaseDeleteHookRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.hookName = object.hookName ?? "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.hookName = object.hookName ?? '';
     message.isGlobal = object.isGlobal ?? false;
     message.workspaceName = object.workspaceName ?? undefined;
     return message;
@@ -3167,8 +3212,8 @@ export const DeleteHookResponse: MessageFns<DeleteHookResponse> = {
       hooksToggles: isSet(object.hooksToggles)
         ? HooksToggles.fromJSON(object.hooksToggles)
         : isSet(object.hooks_toggles)
-        ? HooksToggles.fromJSON(object.hooks_toggles)
-        : undefined,
+          ? HooksToggles.fromJSON(object.hooks_toggles)
+          : undefined,
     };
   },
 
@@ -3185,26 +3230,27 @@ export const DeleteHookResponse: MessageFns<DeleteHookResponse> = {
   },
   fromPartial<I extends Exact<DeepPartial<DeleteHookResponse>, I>>(object: I): DeleteHookResponse {
     const message = createBaseDeleteHookResponse();
-    message.hooksToggles = (object.hooksToggles !== undefined && object.hooksToggles !== null)
-      ? HooksToggles.fromPartial(object.hooksToggles)
-      : undefined;
+    message.hooksToggles =
+      object.hooksToggles !== undefined && object.hooksToggles !== null
+        ? HooksToggles.fromPartial(object.hooksToggles)
+        : undefined;
     return message;
   },
 };
 
 function createBaseSkillInfo(): SkillInfo {
-  return { name: "", description: "", path: "", enabled: false };
+  return { name: '', description: '', path: '', enabled: false };
 }
 
 export const SkillInfo: MessageFns<SkillInfo> = {
   encode(message: SkillInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.name !== "") {
+    if (message.name !== '') {
       writer.uint32(10).string(message.name);
     }
-    if (message.description !== "") {
+    if (message.description !== '') {
       writer.uint32(18).string(message.description);
     }
-    if (message.path !== "") {
+    if (message.path !== '') {
       writer.uint32(26).string(message.path);
     }
     if (message.enabled !== false) {
@@ -3263,22 +3309,22 @@ export const SkillInfo: MessageFns<SkillInfo> = {
 
   fromJSON(object: any): SkillInfo {
     return {
-      name: isSet(object.name) ? globalThis.String(object.name) : "",
-      description: isSet(object.description) ? globalThis.String(object.description) : "",
-      path: isSet(object.path) ? globalThis.String(object.path) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : '',
+      description: isSet(object.description) ? globalThis.String(object.description) : '',
+      path: isSet(object.path) ? globalThis.String(object.path) : '',
       enabled: isSet(object.enabled) ? globalThis.Boolean(object.enabled) : false,
     };
   },
 
   toJSON(message: SkillInfo): unknown {
     const obj: any = {};
-    if (message.name !== "") {
+    if (message.name !== '') {
       obj.name = message.name;
     }
-    if (message.description !== "") {
+    if (message.description !== '') {
       obj.description = message.description;
     }
-    if (message.path !== "") {
+    if (message.path !== '') {
       obj.path = message.path;
     }
     if (message.enabled !== false) {
@@ -3292,9 +3338,9 @@ export const SkillInfo: MessageFns<SkillInfo> = {
   },
   fromPartial<I extends Exact<DeepPartial<SkillInfo>, I>>(object: I): SkillInfo {
     const message = createBaseSkillInfo();
-    message.name = object.name ?? "";
-    message.description = object.description ?? "";
-    message.path = object.path ?? "";
+    message.name = object.name ?? '';
+    message.description = object.description ?? '';
+    message.path = object.path ?? '';
     message.enabled = object.enabled ?? false;
     return message;
   },
@@ -3352,13 +3398,13 @@ export const RefreshedSkills: MessageFns<RefreshedSkills> = {
       globalSkills: globalThis.Array.isArray(object?.globalSkills)
         ? object.globalSkills.map((e: any) => SkillInfo.fromJSON(e))
         : globalThis.Array.isArray(object?.global_skills)
-        ? object.global_skills.map((e: any) => SkillInfo.fromJSON(e))
-        : [],
+          ? object.global_skills.map((e: any) => SkillInfo.fromJSON(e))
+          : [],
       localSkills: globalThis.Array.isArray(object?.localSkills)
         ? object.localSkills.map((e: any) => SkillInfo.fromJSON(e))
         : globalThis.Array.isArray(object?.local_skills)
-        ? object.local_skills.map((e: any) => SkillInfo.fromJSON(e))
-        : [],
+          ? object.local_skills.map((e: any) => SkillInfo.fromJSON(e))
+          : [],
     };
   },
 
@@ -3390,12 +3436,22 @@ function createBaseSkillsToggles(): SkillsToggles {
 
 export const SkillsToggles: MessageFns<SkillsToggles> = {
   encode(message: SkillsToggles, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    globalThis.Object.entries(message.globalSkillsToggles).forEach(([key, value]: [string, boolean]) => {
-      SkillsToggles_GlobalSkillsTogglesEntry.encode({ key: key as any, value }, writer.uint32(10).fork()).join();
-    });
-    globalThis.Object.entries(message.localSkillsToggles).forEach(([key, value]: [string, boolean]) => {
-      SkillsToggles_LocalSkillsTogglesEntry.encode({ key: key as any, value }, writer.uint32(18).fork()).join();
-    });
+    globalThis.Object.entries(message.globalSkillsToggles).forEach(
+      ([key, value]: [string, boolean]) => {
+        SkillsToggles_GlobalSkillsTogglesEntry.encode(
+          { key: key as any, value },
+          writer.uint32(10).fork(),
+        ).join();
+      },
+    );
+    globalThis.Object.entries(message.localSkillsToggles).forEach(
+      ([key, value]: [string, boolean]) => {
+        SkillsToggles_LocalSkillsTogglesEntry.encode(
+          { key: key as any, value },
+          writer.uint32(18).fork(),
+        ).join();
+      },
+    );
     return writer;
   },
 
@@ -3441,38 +3497,38 @@ export const SkillsToggles: MessageFns<SkillsToggles> = {
     return {
       globalSkillsToggles: isObject(object.globalSkillsToggles)
         ? (globalThis.Object.entries(object.globalSkillsToggles) as [string, any][]).reduce(
-          (acc: { [key: string]: boolean }, [key, value]: [string, any]) => {
-            acc[key] = globalThis.Boolean(value);
-            return acc;
-          },
-          {},
-        )
+            (acc: { [key: string]: boolean }, [key, value]: [string, any]) => {
+              acc[key] = globalThis.Boolean(value);
+              return acc;
+            },
+            {},
+          )
         : isObject(object.global_skills_toggles)
-        ? (globalThis.Object.entries(object.global_skills_toggles) as [string, any][]).reduce(
-          (acc: { [key: string]: boolean }, [key, value]: [string, any]) => {
-            acc[key] = globalThis.Boolean(value);
-            return acc;
-          },
-          {},
-        )
-        : {},
+          ? (globalThis.Object.entries(object.global_skills_toggles) as [string, any][]).reduce(
+              (acc: { [key: string]: boolean }, [key, value]: [string, any]) => {
+                acc[key] = globalThis.Boolean(value);
+                return acc;
+              },
+              {},
+            )
+          : {},
       localSkillsToggles: isObject(object.localSkillsToggles)
         ? (globalThis.Object.entries(object.localSkillsToggles) as [string, any][]).reduce(
-          (acc: { [key: string]: boolean }, [key, value]: [string, any]) => {
-            acc[key] = globalThis.Boolean(value);
-            return acc;
-          },
-          {},
-        )
+            (acc: { [key: string]: boolean }, [key, value]: [string, any]) => {
+              acc[key] = globalThis.Boolean(value);
+              return acc;
+            },
+            {},
+          )
         : isObject(object.local_skills_toggles)
-        ? (globalThis.Object.entries(object.local_skills_toggles) as [string, any][]).reduce(
-          (acc: { [key: string]: boolean }, [key, value]: [string, any]) => {
-            acc[key] = globalThis.Boolean(value);
-            return acc;
-          },
-          {},
-        )
-        : {},
+          ? (globalThis.Object.entries(object.local_skills_toggles) as [string, any][]).reduce(
+              (acc: { [key: string]: boolean }, [key, value]: [string, any]) => {
+                acc[key] = globalThis.Boolean(value);
+                return acc;
+              },
+              {},
+            )
+          : {},
     };
   },
 
@@ -3504,186 +3560,202 @@ export const SkillsToggles: MessageFns<SkillsToggles> = {
   },
   fromPartial<I extends Exact<DeepPartial<SkillsToggles>, I>>(object: I): SkillsToggles {
     const message = createBaseSkillsToggles();
-    message.globalSkillsToggles = (globalThis.Object.entries(object.globalSkillsToggles ?? {}) as [string, boolean][])
-      .reduce((acc: { [key: string]: boolean }, [key, value]: [string, boolean]) => {
-        if (value !== undefined) {
-          acc[key] = globalThis.Boolean(value);
-        }
-        return acc;
-      }, {});
-    message.localSkillsToggles = (globalThis.Object.entries(object.localSkillsToggles ?? {}) as [string, boolean][])
-      .reduce((acc: { [key: string]: boolean }, [key, value]: [string, boolean]) => {
-        if (value !== undefined) {
-          acc[key] = globalThis.Boolean(value);
-        }
-        return acc;
-      }, {});
+    message.globalSkillsToggles = (
+      globalThis.Object.entries(object.globalSkillsToggles ?? {}) as [string, boolean][]
+    ).reduce((acc: { [key: string]: boolean }, [key, value]: [string, boolean]) => {
+      if (value !== undefined) {
+        acc[key] = globalThis.Boolean(value);
+      }
+      return acc;
+    }, {});
+    message.localSkillsToggles = (
+      globalThis.Object.entries(object.localSkillsToggles ?? {}) as [string, boolean][]
+    ).reduce((acc: { [key: string]: boolean }, [key, value]: [string, boolean]) => {
+      if (value !== undefined) {
+        acc[key] = globalThis.Boolean(value);
+      }
+      return acc;
+    }, {});
     return message;
   },
 };
 
 function createBaseSkillsToggles_GlobalSkillsTogglesEntry(): SkillsToggles_GlobalSkillsTogglesEntry {
-  return { key: "", value: false };
+  return { key: '', value: false };
 }
 
-export const SkillsToggles_GlobalSkillsTogglesEntry: MessageFns<SkillsToggles_GlobalSkillsTogglesEntry> = {
-  encode(message: SkillsToggles_GlobalSkillsTogglesEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.key !== "") {
-      writer.uint32(10).string(message.key);
-    }
-    if (message.value !== false) {
-      writer.uint32(16).bool(message.value);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): SkillsToggles_GlobalSkillsTogglesEntry {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSkillsToggles_GlobalSkillsTogglesEntry();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.key = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 16) {
-            break;
-          }
-
-          message.value = reader.bool();
-          continue;
-        }
+export const SkillsToggles_GlobalSkillsTogglesEntry: MessageFns<SkillsToggles_GlobalSkillsTogglesEntry> =
+  {
+    encode(
+      message: SkillsToggles_GlobalSkillsTogglesEntry,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.key !== '') {
+        writer.uint32(10).string(message.key);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.value !== false) {
+        writer.uint32(16).bool(message.value);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      return writer;
+    },
 
-  fromJSON(object: any): SkillsToggles_GlobalSkillsTogglesEntry {
-    return {
-      key: isSet(object.key) ? globalThis.String(object.key) : "",
-      value: isSet(object.value) ? globalThis.Boolean(object.value) : false,
-    };
-  },
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): SkillsToggles_GlobalSkillsTogglesEntry {
+      const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSkillsToggles_GlobalSkillsTogglesEntry();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
 
-  toJSON(message: SkillsToggles_GlobalSkillsTogglesEntry): unknown {
-    const obj: any = {};
-    if (message.key !== "") {
-      obj.key = message.key;
-    }
-    if (message.value !== false) {
-      obj.value = message.value;
-    }
-    return obj;
-  },
+            message.key = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
 
-  create<I extends Exact<DeepPartial<SkillsToggles_GlobalSkillsTogglesEntry>, I>>(
-    base?: I,
-  ): SkillsToggles_GlobalSkillsTogglesEntry {
-    return SkillsToggles_GlobalSkillsTogglesEntry.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<SkillsToggles_GlobalSkillsTogglesEntry>, I>>(
-    object: I,
-  ): SkillsToggles_GlobalSkillsTogglesEntry {
-    const message = createBaseSkillsToggles_GlobalSkillsTogglesEntry();
-    message.key = object.key ?? "";
-    message.value = object.value ?? false;
-    return message;
-  },
-};
+            message.value = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): SkillsToggles_GlobalSkillsTogglesEntry {
+      return {
+        key: isSet(object.key) ? globalThis.String(object.key) : '',
+        value: isSet(object.value) ? globalThis.Boolean(object.value) : false,
+      };
+    },
+
+    toJSON(message: SkillsToggles_GlobalSkillsTogglesEntry): unknown {
+      const obj: any = {};
+      if (message.key !== '') {
+        obj.key = message.key;
+      }
+      if (message.value !== false) {
+        obj.value = message.value;
+      }
+      return obj;
+    },
+
+    create<I extends Exact<DeepPartial<SkillsToggles_GlobalSkillsTogglesEntry>, I>>(
+      base?: I,
+    ): SkillsToggles_GlobalSkillsTogglesEntry {
+      return SkillsToggles_GlobalSkillsTogglesEntry.fromPartial(base ?? ({} as any));
+    },
+    fromPartial<I extends Exact<DeepPartial<SkillsToggles_GlobalSkillsTogglesEntry>, I>>(
+      object: I,
+    ): SkillsToggles_GlobalSkillsTogglesEntry {
+      const message = createBaseSkillsToggles_GlobalSkillsTogglesEntry();
+      message.key = object.key ?? '';
+      message.value = object.value ?? false;
+      return message;
+    },
+  };
 
 function createBaseSkillsToggles_LocalSkillsTogglesEntry(): SkillsToggles_LocalSkillsTogglesEntry {
-  return { key: "", value: false };
+  return { key: '', value: false };
 }
 
-export const SkillsToggles_LocalSkillsTogglesEntry: MessageFns<SkillsToggles_LocalSkillsTogglesEntry> = {
-  encode(message: SkillsToggles_LocalSkillsTogglesEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.key !== "") {
-      writer.uint32(10).string(message.key);
-    }
-    if (message.value !== false) {
-      writer.uint32(16).bool(message.value);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): SkillsToggles_LocalSkillsTogglesEntry {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSkillsToggles_LocalSkillsTogglesEntry();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.key = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 16) {
-            break;
-          }
-
-          message.value = reader.bool();
-          continue;
-        }
+export const SkillsToggles_LocalSkillsTogglesEntry: MessageFns<SkillsToggles_LocalSkillsTogglesEntry> =
+  {
+    encode(
+      message: SkillsToggles_LocalSkillsTogglesEntry,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.key !== '') {
+        writer.uint32(10).string(message.key);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.value !== false) {
+        writer.uint32(16).bool(message.value);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      return writer;
+    },
 
-  fromJSON(object: any): SkillsToggles_LocalSkillsTogglesEntry {
-    return {
-      key: isSet(object.key) ? globalThis.String(object.key) : "",
-      value: isSet(object.value) ? globalThis.Boolean(object.value) : false,
-    };
-  },
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): SkillsToggles_LocalSkillsTogglesEntry {
+      const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSkillsToggles_LocalSkillsTogglesEntry();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
 
-  toJSON(message: SkillsToggles_LocalSkillsTogglesEntry): unknown {
-    const obj: any = {};
-    if (message.key !== "") {
-      obj.key = message.key;
-    }
-    if (message.value !== false) {
-      obj.value = message.value;
-    }
-    return obj;
-  },
+            message.key = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
 
-  create<I extends Exact<DeepPartial<SkillsToggles_LocalSkillsTogglesEntry>, I>>(
-    base?: I,
-  ): SkillsToggles_LocalSkillsTogglesEntry {
-    return SkillsToggles_LocalSkillsTogglesEntry.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<SkillsToggles_LocalSkillsTogglesEntry>, I>>(
-    object: I,
-  ): SkillsToggles_LocalSkillsTogglesEntry {
-    const message = createBaseSkillsToggles_LocalSkillsTogglesEntry();
-    message.key = object.key ?? "";
-    message.value = object.value ?? false;
-    return message;
-  },
-};
+            message.value = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): SkillsToggles_LocalSkillsTogglesEntry {
+      return {
+        key: isSet(object.key) ? globalThis.String(object.key) : '',
+        value: isSet(object.value) ? globalThis.Boolean(object.value) : false,
+      };
+    },
+
+    toJSON(message: SkillsToggles_LocalSkillsTogglesEntry): unknown {
+      const obj: any = {};
+      if (message.key !== '') {
+        obj.key = message.key;
+      }
+      if (message.value !== false) {
+        obj.value = message.value;
+      }
+      return obj;
+    },
+
+    create<I extends Exact<DeepPartial<SkillsToggles_LocalSkillsTogglesEntry>, I>>(
+      base?: I,
+    ): SkillsToggles_LocalSkillsTogglesEntry {
+      return SkillsToggles_LocalSkillsTogglesEntry.fromPartial(base ?? ({} as any));
+    },
+    fromPartial<I extends Exact<DeepPartial<SkillsToggles_LocalSkillsTogglesEntry>, I>>(
+      object: I,
+    ): SkillsToggles_LocalSkillsTogglesEntry {
+      const message = createBaseSkillsToggles_LocalSkillsTogglesEntry();
+      message.key = object.key ?? '';
+      message.value = object.value ?? false;
+      return message;
+    },
+  };
 
 function createBaseToggleSkillRequest(): ToggleSkillRequest {
-  return { metadata: undefined, skillPath: "", isGlobal: false, enabled: false };
+  return { metadata: undefined, skillPath: '', isGlobal: false, enabled: false };
 }
 
 export const ToggleSkillRequest: MessageFns<ToggleSkillRequest> = {
@@ -3691,7 +3763,7 @@ export const ToggleSkillRequest: MessageFns<ToggleSkillRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.skillPath !== "") {
+    if (message.skillPath !== '') {
       writer.uint32(18).string(message.skillPath);
     }
     if (message.isGlobal !== false) {
@@ -3757,13 +3829,13 @@ export const ToggleSkillRequest: MessageFns<ToggleSkillRequest> = {
       skillPath: isSet(object.skillPath)
         ? globalThis.String(object.skillPath)
         : isSet(object.skill_path)
-        ? globalThis.String(object.skill_path)
-        : "",
+          ? globalThis.String(object.skill_path)
+          : '',
       isGlobal: isSet(object.isGlobal)
         ? globalThis.Boolean(object.isGlobal)
         : isSet(object.is_global)
-        ? globalThis.Boolean(object.is_global)
-        : false,
+          ? globalThis.Boolean(object.is_global)
+          : false,
       enabled: isSet(object.enabled) ? globalThis.Boolean(object.enabled) : false,
     };
   },
@@ -3773,7 +3845,7 @@ export const ToggleSkillRequest: MessageFns<ToggleSkillRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.skillPath !== "") {
+    if (message.skillPath !== '') {
       obj.skillPath = message.skillPath;
     }
     if (message.isGlobal !== false) {
@@ -3790,10 +3862,11 @@ export const ToggleSkillRequest: MessageFns<ToggleSkillRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<ToggleSkillRequest>, I>>(object: I): ToggleSkillRequest {
     const message = createBaseToggleSkillRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.skillPath = object.skillPath ?? "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.skillPath = object.skillPath ?? '';
     message.isGlobal = object.isGlobal ?? false;
     message.enabled = object.enabled ?? false;
     return message;
@@ -3801,7 +3874,7 @@ export const ToggleSkillRequest: MessageFns<ToggleSkillRequest> = {
 };
 
 function createBaseCreateSkillRequest(): CreateSkillRequest {
-  return { metadata: undefined, skillName: "", isGlobal: false };
+  return { metadata: undefined, skillName: '', isGlobal: false };
 }
 
 export const CreateSkillRequest: MessageFns<CreateSkillRequest> = {
@@ -3809,7 +3882,7 @@ export const CreateSkillRequest: MessageFns<CreateSkillRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.skillName !== "") {
+    if (message.skillName !== '') {
       writer.uint32(18).string(message.skillName);
     }
     if (message.isGlobal !== false) {
@@ -3864,13 +3937,13 @@ export const CreateSkillRequest: MessageFns<CreateSkillRequest> = {
       skillName: isSet(object.skillName)
         ? globalThis.String(object.skillName)
         : isSet(object.skill_name)
-        ? globalThis.String(object.skill_name)
-        : "",
+          ? globalThis.String(object.skill_name)
+          : '',
       isGlobal: isSet(object.isGlobal)
         ? globalThis.Boolean(object.isGlobal)
         : isSet(object.is_global)
-        ? globalThis.Boolean(object.is_global)
-        : false,
+          ? globalThis.Boolean(object.is_global)
+          : false,
     };
   },
 
@@ -3879,7 +3952,7 @@ export const CreateSkillRequest: MessageFns<CreateSkillRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.skillName !== "") {
+    if (message.skillName !== '') {
       obj.skillName = message.skillName;
     }
     if (message.isGlobal !== false) {
@@ -3893,17 +3966,18 @@ export const CreateSkillRequest: MessageFns<CreateSkillRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<CreateSkillRequest>, I>>(object: I): CreateSkillRequest {
     const message = createBaseCreateSkillRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.skillName = object.skillName ?? "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.skillName = object.skillName ?? '';
     message.isGlobal = object.isGlobal ?? false;
     return message;
   },
 };
 
 function createBaseDeleteSkillRequest(): DeleteSkillRequest {
-  return { metadata: undefined, skillPath: "", isGlobal: false };
+  return { metadata: undefined, skillPath: '', isGlobal: false };
 }
 
 export const DeleteSkillRequest: MessageFns<DeleteSkillRequest> = {
@@ -3911,7 +3985,7 @@ export const DeleteSkillRequest: MessageFns<DeleteSkillRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.skillPath !== "") {
+    if (message.skillPath !== '') {
       writer.uint32(18).string(message.skillPath);
     }
     if (message.isGlobal !== false) {
@@ -3966,13 +4040,13 @@ export const DeleteSkillRequest: MessageFns<DeleteSkillRequest> = {
       skillPath: isSet(object.skillPath)
         ? globalThis.String(object.skillPath)
         : isSet(object.skill_path)
-        ? globalThis.String(object.skill_path)
-        : "",
+          ? globalThis.String(object.skill_path)
+          : '',
       isGlobal: isSet(object.isGlobal)
         ? globalThis.Boolean(object.isGlobal)
         : isSet(object.is_global)
-        ? globalThis.Boolean(object.is_global)
-        : false,
+          ? globalThis.Boolean(object.is_global)
+          : false,
     };
   },
 
@@ -3981,7 +4055,7 @@ export const DeleteSkillRequest: MessageFns<DeleteSkillRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.skillPath !== "") {
+    if (message.skillPath !== '') {
       obj.skillPath = message.skillPath;
     }
     if (message.isGlobal !== false) {
@@ -3995,10 +4069,11 @@ export const DeleteSkillRequest: MessageFns<DeleteSkillRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<DeleteSkillRequest>, I>>(object: I): DeleteSkillRequest {
     const message = createBaseDeleteSkillRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.skillPath = object.skillPath ?? "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.skillPath = object.skillPath ?? '';
     message.isGlobal = object.isGlobal ?? false;
     return message;
   },
@@ -4007,12 +4082,12 @@ export const DeleteSkillRequest: MessageFns<DeleteSkillRequest> = {
 /** Service for file-related operations */
 export type FileServiceDefinition = typeof FileServiceDefinition;
 export const FileServiceDefinition = {
-  name: "FileService",
-  fullName: "cline.FileService",
+  name: 'FileService',
+  fullName: 'cline.FileService',
   methods: {
     /** Copies text to clipboard */
     copyToClipboard: {
-      name: "copyToClipboard",
+      name: 'copyToClipboard',
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -4021,7 +4096,7 @@ export const FileServiceDefinition = {
     },
     /** Opens a file in the editor */
     openFile: {
-      name: "openFile",
+      name: 'openFile',
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -4030,7 +4105,7 @@ export const FileServiceDefinition = {
     },
     /** Opens an image in the system viewer */
     openImage: {
-      name: "openImage",
+      name: 'openImage',
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -4039,7 +4114,7 @@ export const FileServiceDefinition = {
     },
     /** Opens a mention (file, path, git commit, problem, terminal, or URL) */
     openMention: {
-      name: "openMention",
+      name: 'openMention',
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -4048,7 +4123,7 @@ export const FileServiceDefinition = {
     },
     /** Deletes a rule file from either global or workspace rules directory */
     deleteRuleFile: {
-      name: "deleteRuleFile",
+      name: 'deleteRuleFile',
       requestType: RuleFileRequest,
       requestStream: false,
       responseType: RuleFile,
@@ -4057,7 +4132,7 @@ export const FileServiceDefinition = {
     },
     /** Creates a rule file from either global or workspace rules directory */
     createRuleFile: {
-      name: "createRuleFile",
+      name: 'createRuleFile',
       requestType: RuleFileRequest,
       requestStream: false,
       responseType: RuleFile,
@@ -4066,7 +4141,7 @@ export const FileServiceDefinition = {
     },
     /** Search git commits in the workspace */
     searchCommits: {
-      name: "searchCommits",
+      name: 'searchCommits',
       requestType: StringRequest,
       requestStream: false,
       responseType: GitCommits,
@@ -4075,7 +4150,7 @@ export const FileServiceDefinition = {
     },
     /** Select images and other files from the file system and returns as data URLs & paths respectively */
     selectFiles: {
-      name: "selectFiles",
+      name: 'selectFiles',
       requestType: BooleanRequest,
       requestStream: false,
       responseType: StringArrays,
@@ -4084,7 +4159,7 @@ export const FileServiceDefinition = {
     },
     /** Convert URIs to workspace-relative paths */
     getRelativePaths: {
-      name: "getRelativePaths",
+      name: 'getRelativePaths',
       requestType: RelativePathsRequest,
       requestStream: false,
       responseType: RelativePaths,
@@ -4093,7 +4168,7 @@ export const FileServiceDefinition = {
     },
     /** Search for files in the workspace with fuzzy matching */
     searchFiles: {
-      name: "searchFiles",
+      name: 'searchFiles',
       requestType: FileSearchRequest,
       requestStream: false,
       responseType: FileSearchResults,
@@ -4102,7 +4177,7 @@ export const FileServiceDefinition = {
     },
     /** Toggle a Cline rule (enable or disable) */
     toggleClineRule: {
-      name: "toggleClineRule",
+      name: 'toggleClineRule',
       requestType: ToggleClineRuleRequest,
       requestStream: false,
       responseType: ToggleClineRules,
@@ -4111,7 +4186,7 @@ export const FileServiceDefinition = {
     },
     /** Toggle a Cursor rule (enable or disable) */
     toggleCursorRule: {
-      name: "toggleCursorRule",
+      name: 'toggleCursorRule',
       requestType: ToggleCursorRuleRequest,
       requestStream: false,
       responseType: ClineRulesToggles,
@@ -4120,7 +4195,7 @@ export const FileServiceDefinition = {
     },
     /** Toggle a Windsurf rule (enable or disable) */
     toggleWindsurfRule: {
-      name: "toggleWindsurfRule",
+      name: 'toggleWindsurfRule',
       requestType: ToggleWindsurfRuleRequest,
       requestStream: false,
       responseType: ClineRulesToggles,
@@ -4129,7 +4204,7 @@ export const FileServiceDefinition = {
     },
     /** Toggle an Agents rule (enable or disable) */
     toggleAgentsRule: {
-      name: "toggleAgentsRule",
+      name: 'toggleAgentsRule',
       requestType: ToggleAgentsRuleRequest,
       requestStream: false,
       responseType: ClineRulesToggles,
@@ -4138,7 +4213,7 @@ export const FileServiceDefinition = {
     },
     /** Refreshes all rule toggles (Cline, External, and Workflows) */
     refreshRules: {
-      name: "refreshRules",
+      name: 'refreshRules',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: RefreshedRules,
@@ -4147,7 +4222,7 @@ export const FileServiceDefinition = {
     },
     /** Opens a task's conversation history file on disk */
     openDiskConversationHistory: {
-      name: "openDiskConversationHistory",
+      name: 'openDiskConversationHistory',
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -4156,7 +4231,7 @@ export const FileServiceDefinition = {
     },
     /** Toggles a workflow on or off */
     toggleWorkflow: {
-      name: "toggleWorkflow",
+      name: 'toggleWorkflow',
       requestType: ToggleWorkflowRequest,
       requestStream: false,
       responseType: ClineRulesToggles,
@@ -4165,7 +4240,7 @@ export const FileServiceDefinition = {
     },
     /** Check if file exists in the project */
     ifFileExistsRelativePath: {
-      name: "ifFileExistsRelativePath",
+      name: 'ifFileExistsRelativePath',
       requestType: StringRequest,
       requestStream: false,
       responseType: BooleanResponse,
@@ -4174,7 +4249,7 @@ export const FileServiceDefinition = {
     },
     /** Open a file in editor by a relative path */
     openFileRelativePath: {
-      name: "openFileRelativePath",
+      name: 'openFileRelativePath',
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -4183,7 +4258,7 @@ export const FileServiceDefinition = {
     },
     /** Opens or creates a focus chain checklist markdown file for editing */
     openFocusChainFile: {
-      name: "openFocusChainFile",
+      name: 'openFocusChainFile',
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -4192,7 +4267,7 @@ export const FileServiceDefinition = {
     },
     /** Refreshes all hook toggles (discovers hooks and their enabled state) */
     refreshHooks: {
-      name: "refreshHooks",
+      name: 'refreshHooks',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: HooksToggles,
@@ -4201,7 +4276,7 @@ export const FileServiceDefinition = {
     },
     /** Toggles a hook on or off via chmod +x/-x */
     toggleHook: {
-      name: "toggleHook",
+      name: 'toggleHook',
       requestType: ToggleHookRequest,
       requestStream: false,
       responseType: ToggleHookResponse,
@@ -4210,7 +4285,7 @@ export const FileServiceDefinition = {
     },
     /** Creates a new hook from template */
     createHook: {
-      name: "createHook",
+      name: 'createHook',
       requestType: CreateHookRequest,
       requestStream: false,
       responseType: CreateHookResponse,
@@ -4219,7 +4294,7 @@ export const FileServiceDefinition = {
     },
     /** Deletes an existing hook file */
     deleteHook: {
-      name: "deleteHook",
+      name: 'deleteHook',
       requestType: DeleteHookRequest,
       requestStream: false,
       responseType: DeleteHookResponse,
@@ -4228,7 +4303,7 @@ export const FileServiceDefinition = {
     },
     /** Refreshes all skill toggles (discovers skills and their enabled state) */
     refreshSkills: {
-      name: "refreshSkills",
+      name: 'refreshSkills',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: RefreshedSkills,
@@ -4237,7 +4312,7 @@ export const FileServiceDefinition = {
     },
     /** Toggles a skill on or off */
     toggleSkill: {
-      name: "toggleSkill",
+      name: 'toggleSkill',
       requestType: ToggleSkillRequest,
       requestStream: false,
       responseType: SkillsToggles,
@@ -4246,7 +4321,7 @@ export const FileServiceDefinition = {
     },
     /** Creates a new skill from template */
     createSkillFile: {
-      name: "createSkillFile",
+      name: 'createSkillFile',
       requestType: CreateSkillRequest,
       requestStream: false,
       responseType: SkillsToggles,
@@ -4255,7 +4330,7 @@ export const FileServiceDefinition = {
     },
     /** Deletes an existing skill directory */
     deleteSkillFile: {
-      name: "deleteSkillFile",
+      name: 'deleteSkillFile',
       requestType: DeleteSkillRequest,
       requestStream: false,
       responseType: SkillsToggles,
@@ -4267,18 +4342,23 @@ export const FileServiceDefinition = {
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-type Exact<P, I extends P> = P extends Builtin ? P
+type Exact<P, I extends P> = P extends Builtin
+  ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function isObject(value: any): boolean {
-  return typeof value === "object" && value !== null;
+  return typeof value === 'object' && value !== null;
 }
 
 function isSet(value: any): boolean {

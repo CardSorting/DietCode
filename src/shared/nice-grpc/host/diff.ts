@@ -5,17 +5,13 @@
 // source: host/diff.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Metadata } from "../cline/common";
+import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+import { Metadata } from '../cline/common';
 
 export interface OpenDiffRequest {
-  metadata?:
-    | Metadata
-    | undefined;
+  metadata?: Metadata | undefined;
   /** The absolute path of the document being edited. */
-  path?:
-    | string
-    | undefined;
+  path?: string | undefined;
   /** The new content for the file. */
   content?: string | undefined;
 }
@@ -42,16 +38,14 @@ export interface ReplaceTextRequest {
   endLine?: number | undefined;
 }
 
-export interface ReplaceTextResponse {
-}
+export type ReplaceTextResponse = {};
 
 export interface ScrollDiffRequest {
   diffId?: string | undefined;
   line?: number | undefined;
 }
 
-export interface ScrollDiffResponse {
-}
+export type ScrollDiffResponse = {};
 
 export interface TruncateDocumentRequest {
   metadata?: Metadata | undefined;
@@ -59,22 +53,18 @@ export interface TruncateDocumentRequest {
   endLine?: number | undefined;
 }
 
-export interface TruncateDocumentResponse {
-}
+export type TruncateDocumentResponse = {};
 
-export interface CloseAllDiffsRequest {
-}
+export type CloseAllDiffsRequest = {};
 
-export interface CloseAllDiffsResponse {
-}
+export type CloseAllDiffsResponse = {};
 
 export interface SaveDocumentRequest {
   metadata?: Metadata | undefined;
   diffId?: string | undefined;
 }
 
-export interface SaveDocumentResponse {
-}
+export type SaveDocumentResponse = {};
 
 export interface OpenMultiFileDiffRequest {
   title?: string | undefined;
@@ -88,8 +78,7 @@ export interface ContentDiff {
   rightContent?: string | undefined;
 }
 
-export interface OpenMultiFileDiffResponse {
-}
+export type OpenMultiFileDiffResponse = {};
 
 function createBaseOpenDiffRequest(): OpenDiffRequest {
   return { metadata: undefined, path: undefined, content: undefined };
@@ -176,9 +165,10 @@ export const OpenDiffRequest: MessageFns<OpenDiffRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<OpenDiffRequest>, I>>(object: I): OpenDiffRequest {
     const message = createBaseOpenDiffRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
     message.path = object.path ?? undefined;
     message.content = object.content ?? undefined;
     return message;
@@ -226,8 +216,8 @@ export const OpenDiffResponse: MessageFns<OpenDiffResponse> = {
       diffId: isSet(object.diffId)
         ? globalThis.String(object.diffId)
         : isSet(object.diff_id)
-        ? globalThis.String(object.diff_id)
-        : undefined,
+          ? globalThis.String(object.diff_id)
+          : undefined,
     };
   },
 
@@ -302,8 +292,8 @@ export const GetDocumentTextRequest: MessageFns<GetDocumentTextRequest> = {
       diffId: isSet(object.diffId)
         ? globalThis.String(object.diffId)
         : isSet(object.diff_id)
-        ? globalThis.String(object.diff_id)
-        : undefined,
+          ? globalThis.String(object.diff_id)
+          : undefined,
     };
   },
 
@@ -318,14 +308,19 @@ export const GetDocumentTextRequest: MessageFns<GetDocumentTextRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetDocumentTextRequest>, I>>(base?: I): GetDocumentTextRequest {
+  create<I extends Exact<DeepPartial<GetDocumentTextRequest>, I>>(
+    base?: I,
+  ): GetDocumentTextRequest {
     return GetDocumentTextRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetDocumentTextRequest>, I>>(object: I): GetDocumentTextRequest {
+  fromPartial<I extends Exact<DeepPartial<GetDocumentTextRequest>, I>>(
+    object: I,
+  ): GetDocumentTextRequest {
     const message = createBaseGetDocumentTextRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
     message.diffId = object.diffId ?? undefined;
     return message;
   },
@@ -336,7 +331,10 @@ function createBaseGetDocumentTextResponse(): GetDocumentTextResponse {
 }
 
 export const GetDocumentTextResponse: MessageFns<GetDocumentTextResponse> = {
-  encode(message: GetDocumentTextResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetDocumentTextResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.content !== undefined) {
       writer.uint32(10).string(message.content);
     }
@@ -379,10 +377,14 @@ export const GetDocumentTextResponse: MessageFns<GetDocumentTextResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetDocumentTextResponse>, I>>(base?: I): GetDocumentTextResponse {
+  create<I extends Exact<DeepPartial<GetDocumentTextResponse>, I>>(
+    base?: I,
+  ): GetDocumentTextResponse {
     return GetDocumentTextResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetDocumentTextResponse>, I>>(object: I): GetDocumentTextResponse {
+  fromPartial<I extends Exact<DeepPartial<GetDocumentTextResponse>, I>>(
+    object: I,
+  ): GetDocumentTextResponse {
     const message = createBaseGetDocumentTextResponse();
     message.content = object.content ?? undefined;
     return message;
@@ -390,7 +392,13 @@ export const GetDocumentTextResponse: MessageFns<GetDocumentTextResponse> = {
 };
 
 function createBaseReplaceTextRequest(): ReplaceTextRequest {
-  return { metadata: undefined, diffId: undefined, content: undefined, startLine: undefined, endLine: undefined };
+  return {
+    metadata: undefined,
+    diffId: undefined,
+    content: undefined,
+    startLine: undefined,
+    endLine: undefined,
+  };
 }
 
 export const ReplaceTextRequest: MessageFns<ReplaceTextRequest> = {
@@ -475,19 +483,19 @@ export const ReplaceTextRequest: MessageFns<ReplaceTextRequest> = {
       diffId: isSet(object.diffId)
         ? globalThis.String(object.diffId)
         : isSet(object.diff_id)
-        ? globalThis.String(object.diff_id)
-        : undefined,
+          ? globalThis.String(object.diff_id)
+          : undefined,
       content: isSet(object.content) ? globalThis.String(object.content) : undefined,
       startLine: isSet(object.startLine)
         ? globalThis.Number(object.startLine)
         : isSet(object.start_line)
-        ? globalThis.Number(object.start_line)
-        : undefined,
+          ? globalThis.Number(object.start_line)
+          : undefined,
       endLine: isSet(object.endLine)
         ? globalThis.Number(object.endLine)
         : isSet(object.end_line)
-        ? globalThis.Number(object.end_line)
-        : undefined,
+          ? globalThis.Number(object.end_line)
+          : undefined,
     };
   },
 
@@ -516,9 +524,10 @@ export const ReplaceTextRequest: MessageFns<ReplaceTextRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<ReplaceTextRequest>, I>>(object: I): ReplaceTextRequest {
     const message = createBaseReplaceTextRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
     message.diffId = object.diffId ?? undefined;
     message.content = object.content ?? undefined;
     message.startLine = object.startLine ?? undefined;
@@ -622,8 +631,8 @@ export const ScrollDiffRequest: MessageFns<ScrollDiffRequest> = {
       diffId: isSet(object.diffId)
         ? globalThis.String(object.diffId)
         : isSet(object.diff_id)
-        ? globalThis.String(object.diff_id)
-        : undefined,
+          ? globalThis.String(object.diff_id)
+          : undefined,
       line: isSet(object.line) ? globalThis.Number(object.line) : undefined,
     };
   },
@@ -698,7 +707,10 @@ function createBaseTruncateDocumentRequest(): TruncateDocumentRequest {
 }
 
 export const TruncateDocumentRequest: MessageFns<TruncateDocumentRequest> = {
-  encode(message: TruncateDocumentRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: TruncateDocumentRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
@@ -757,13 +769,13 @@ export const TruncateDocumentRequest: MessageFns<TruncateDocumentRequest> = {
       diffId: isSet(object.diffId)
         ? globalThis.String(object.diffId)
         : isSet(object.diff_id)
-        ? globalThis.String(object.diff_id)
-        : undefined,
+          ? globalThis.String(object.diff_id)
+          : undefined,
       endLine: isSet(object.endLine)
         ? globalThis.Number(object.endLine)
         : isSet(object.end_line)
-        ? globalThis.Number(object.end_line)
-        : undefined,
+          ? globalThis.Number(object.end_line)
+          : undefined,
     };
   },
 
@@ -781,14 +793,19 @@ export const TruncateDocumentRequest: MessageFns<TruncateDocumentRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<TruncateDocumentRequest>, I>>(base?: I): TruncateDocumentRequest {
+  create<I extends Exact<DeepPartial<TruncateDocumentRequest>, I>>(
+    base?: I,
+  ): TruncateDocumentRequest {
     return TruncateDocumentRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<TruncateDocumentRequest>, I>>(object: I): TruncateDocumentRequest {
+  fromPartial<I extends Exact<DeepPartial<TruncateDocumentRequest>, I>>(
+    object: I,
+  ): TruncateDocumentRequest {
     const message = createBaseTruncateDocumentRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
     message.diffId = object.diffId ?? undefined;
     message.endLine = object.endLine ?? undefined;
     return message;
@@ -829,10 +846,14 @@ export const TruncateDocumentResponse: MessageFns<TruncateDocumentResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<TruncateDocumentResponse>, I>>(base?: I): TruncateDocumentResponse {
+  create<I extends Exact<DeepPartial<TruncateDocumentResponse>, I>>(
+    base?: I,
+  ): TruncateDocumentResponse {
     return TruncateDocumentResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<TruncateDocumentResponse>, I>>(_: I): TruncateDocumentResponse {
+  fromPartial<I extends Exact<DeepPartial<TruncateDocumentResponse>, I>>(
+    _: I,
+  ): TruncateDocumentResponse {
     const message = createBaseTruncateDocumentResponse();
     return message;
   },
@@ -977,8 +998,8 @@ export const SaveDocumentRequest: MessageFns<SaveDocumentRequest> = {
       diffId: isSet(object.diffId)
         ? globalThis.String(object.diffId)
         : isSet(object.diff_id)
-        ? globalThis.String(object.diff_id)
-        : undefined,
+          ? globalThis.String(object.diff_id)
+          : undefined,
     };
   },
 
@@ -996,11 +1017,14 @@ export const SaveDocumentRequest: MessageFns<SaveDocumentRequest> = {
   create<I extends Exact<DeepPartial<SaveDocumentRequest>, I>>(base?: I): SaveDocumentRequest {
     return SaveDocumentRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SaveDocumentRequest>, I>>(object: I): SaveDocumentRequest {
+  fromPartial<I extends Exact<DeepPartial<SaveDocumentRequest>, I>>(
+    object: I,
+  ): SaveDocumentRequest {
     const message = createBaseSaveDocumentRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
     message.diffId = object.diffId ?? undefined;
     return message;
   },
@@ -1054,7 +1078,10 @@ function createBaseOpenMultiFileDiffRequest(): OpenMultiFileDiffRequest {
 }
 
 export const OpenMultiFileDiffRequest: MessageFns<OpenMultiFileDiffRequest> = {
-  encode(message: OpenMultiFileDiffRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: OpenMultiFileDiffRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.title !== undefined) {
       writer.uint32(10).string(message.title);
     }
@@ -1099,7 +1126,9 @@ export const OpenMultiFileDiffRequest: MessageFns<OpenMultiFileDiffRequest> = {
   fromJSON(object: any): OpenMultiFileDiffRequest {
     return {
       title: isSet(object.title) ? globalThis.String(object.title) : undefined,
-      diffs: globalThis.Array.isArray(object?.diffs) ? object.diffs.map((e: any) => ContentDiff.fromJSON(e)) : [],
+      diffs: globalThis.Array.isArray(object?.diffs)
+        ? object.diffs.map((e: any) => ContentDiff.fromJSON(e))
+        : [],
     };
   },
 
@@ -1114,10 +1143,14 @@ export const OpenMultiFileDiffRequest: MessageFns<OpenMultiFileDiffRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<OpenMultiFileDiffRequest>, I>>(base?: I): OpenMultiFileDiffRequest {
+  create<I extends Exact<DeepPartial<OpenMultiFileDiffRequest>, I>>(
+    base?: I,
+  ): OpenMultiFileDiffRequest {
     return OpenMultiFileDiffRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<OpenMultiFileDiffRequest>, I>>(object: I): OpenMultiFileDiffRequest {
+  fromPartial<I extends Exact<DeepPartial<OpenMultiFileDiffRequest>, I>>(
+    object: I,
+  ): OpenMultiFileDiffRequest {
     const message = createBaseOpenMultiFileDiffRequest();
     message.title = object.title ?? undefined;
     message.diffs = object.diffs?.map((e) => ContentDiff.fromPartial(e)) || [];
@@ -1188,18 +1221,18 @@ export const ContentDiff: MessageFns<ContentDiff> = {
       filePath: isSet(object.filePath)
         ? globalThis.String(object.filePath)
         : isSet(object.file_path)
-        ? globalThis.String(object.file_path)
-        : undefined,
+          ? globalThis.String(object.file_path)
+          : undefined,
       leftContent: isSet(object.leftContent)
         ? globalThis.String(object.leftContent)
         : isSet(object.left_content)
-        ? globalThis.String(object.left_content)
-        : undefined,
+          ? globalThis.String(object.left_content)
+          : undefined,
       rightContent: isSet(object.rightContent)
         ? globalThis.String(object.rightContent)
         : isSet(object.right_content)
-        ? globalThis.String(object.right_content)
-        : undefined,
+          ? globalThis.String(object.right_content)
+          : undefined,
     };
   },
 
@@ -1263,10 +1296,14 @@ export const OpenMultiFileDiffResponse: MessageFns<OpenMultiFileDiffResponse> = 
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<OpenMultiFileDiffResponse>, I>>(base?: I): OpenMultiFileDiffResponse {
+  create<I extends Exact<DeepPartial<OpenMultiFileDiffResponse>, I>>(
+    base?: I,
+  ): OpenMultiFileDiffResponse {
     return OpenMultiFileDiffResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<OpenMultiFileDiffResponse>, I>>(_: I): OpenMultiFileDiffResponse {
+  fromPartial<I extends Exact<DeepPartial<OpenMultiFileDiffResponse>, I>>(
+    _: I,
+  ): OpenMultiFileDiffResponse {
     const message = createBaseOpenMultiFileDiffResponse();
     return message;
   },
@@ -1275,12 +1312,12 @@ export const OpenMultiFileDiffResponse: MessageFns<OpenMultiFileDiffResponse> = 
 /** Provides methods for diff views. */
 export type DiffServiceDefinition = typeof DiffServiceDefinition;
 export const DiffServiceDefinition = {
-  name: "DiffService",
-  fullName: "host.DiffService",
+  name: 'DiffService',
+  fullName: 'host.DiffService',
   methods: {
     /** Open the diff view/editor. */
     openDiff: {
-      name: "openDiff",
+      name: 'openDiff',
       requestType: OpenDiffRequest,
       requestStream: false,
       responseType: OpenDiffResponse,
@@ -1289,7 +1326,7 @@ export const DiffServiceDefinition = {
     },
     /** Get the contents of the diff view. */
     getDocumentText: {
-      name: "getDocumentText",
+      name: 'getDocumentText',
       requestType: GetDocumentTextRequest,
       requestStream: false,
       responseType: GetDocumentTextResponse,
@@ -1298,7 +1335,7 @@ export const DiffServiceDefinition = {
     },
     /** Replace a text selection in the diff. */
     replaceText: {
-      name: "replaceText",
+      name: 'replaceText',
       requestType: ReplaceTextRequest,
       requestStream: false,
       responseType: ReplaceTextResponse,
@@ -1306,7 +1343,7 @@ export const DiffServiceDefinition = {
       options: {},
     },
     scrollDiff: {
-      name: "scrollDiff",
+      name: 'scrollDiff',
       requestType: ScrollDiffRequest,
       requestStream: false,
       responseType: ScrollDiffResponse,
@@ -1315,7 +1352,7 @@ export const DiffServiceDefinition = {
     },
     /** Truncate the diff document. */
     truncateDocument: {
-      name: "truncateDocument",
+      name: 'truncateDocument',
       requestType: TruncateDocumentRequest,
       requestStream: false,
       responseType: TruncateDocumentResponse,
@@ -1324,7 +1361,7 @@ export const DiffServiceDefinition = {
     },
     /** Save the diff document. */
     saveDocument: {
-      name: "saveDocument",
+      name: 'saveDocument',
       requestType: SaveDocumentRequest,
       requestStream: false,
       responseType: SaveDocumentResponse,
@@ -1336,7 +1373,7 @@ export const DiffServiceDefinition = {
      * Any diff editors with unsaved content should not be closed.
      */
     closeAllDiffs: {
-      name: "closeAllDiffs",
+      name: 'closeAllDiffs',
       requestType: CloseAllDiffsRequest,
       requestStream: false,
       responseType: CloseAllDiffsResponse,
@@ -1348,7 +1385,7 @@ export const DiffServiceDefinition = {
      * Content is passed as in-memory data, not read from the file system.
      */
     openMultiFileDiff: {
-      name: "openMultiFileDiff",
+      name: 'openMultiFileDiff',
       requestType: OpenMultiFileDiffRequest,
       requestStream: false,
       responseType: OpenMultiFileDiffResponse,
@@ -1360,14 +1397,19 @@ export const DiffServiceDefinition = {
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-type Exact<P, I extends P> = P extends Builtin ? P
+type Exact<P, I extends P> = P extends Builtin
+  ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function isSet(value: any): boolean {

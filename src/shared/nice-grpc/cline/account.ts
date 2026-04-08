@@ -5,8 +5,8 @@
 // source: cline/account.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Empty, EmptyRequest, Metadata, String, StringRequest } from "./common";
+import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+import { Empty, EmptyRequest, Metadata, String, StringRequest } from './common';
 
 export interface AuthStateChangedRequest {
   metadata: Metadata | undefined;
@@ -22,9 +22,7 @@ export interface UserInfo {
   uid: string;
   displayName?: string | undefined;
   email?: string | undefined;
-  photoUrl?:
-    | string
-    | undefined;
+  photoUrl?: string | undefined;
   /** Cline app base URL */
   appBaseUrl?: string | undefined;
 }
@@ -110,7 +108,10 @@ function createBaseAuthStateChangedRequest(): AuthStateChangedRequest {
 }
 
 export const AuthStateChangedRequest: MessageFns<AuthStateChangedRequest> = {
-  encode(message: AuthStateChangedRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: AuthStateChangedRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
@@ -170,15 +171,23 @@ export const AuthStateChangedRequest: MessageFns<AuthStateChangedRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<AuthStateChangedRequest>, I>>(base?: I): AuthStateChangedRequest {
+  create<I extends Exact<DeepPartial<AuthStateChangedRequest>, I>>(
+    base?: I,
+  ): AuthStateChangedRequest {
     return AuthStateChangedRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<AuthStateChangedRequest>, I>>(object: I): AuthStateChangedRequest {
+  fromPartial<I extends Exact<DeepPartial<AuthStateChangedRequest>, I>>(
+    object: I,
+  ): AuthStateChangedRequest {
     const message = createBaseAuthStateChangedRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.user = (object.user !== undefined && object.user !== null) ? UserInfo.fromPartial(object.user) : undefined;
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.user =
+      object.user !== undefined && object.user !== null
+        ? UserInfo.fromPartial(object.user)
+        : undefined;
     return message;
   },
 };
@@ -236,18 +245,27 @@ export const AuthState: MessageFns<AuthState> = {
   },
   fromPartial<I extends Exact<DeepPartial<AuthState>, I>>(object: I): AuthState {
     const message = createBaseAuthState();
-    message.user = (object.user !== undefined && object.user !== null) ? UserInfo.fromPartial(object.user) : undefined;
+    message.user =
+      object.user !== undefined && object.user !== null
+        ? UserInfo.fromPartial(object.user)
+        : undefined;
     return message;
   },
 };
 
 function createBaseUserInfo(): UserInfo {
-  return { uid: "", displayName: undefined, email: undefined, photoUrl: undefined, appBaseUrl: undefined };
+  return {
+    uid: '',
+    displayName: undefined,
+    email: undefined,
+    photoUrl: undefined,
+    appBaseUrl: undefined,
+  };
 }
 
 export const UserInfo: MessageFns<UserInfo> = {
   encode(message: UserInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.uid !== "") {
+    if (message.uid !== '') {
       writer.uint32(10).string(message.uid);
     }
     if (message.displayName !== undefined) {
@@ -323,29 +341,29 @@ export const UserInfo: MessageFns<UserInfo> = {
 
   fromJSON(object: any): UserInfo {
     return {
-      uid: isSet(object.uid) ? globalThis.String(object.uid) : "",
+      uid: isSet(object.uid) ? globalThis.String(object.uid) : '',
       displayName: isSet(object.displayName)
         ? globalThis.String(object.displayName)
         : isSet(object.display_name)
-        ? globalThis.String(object.display_name)
-        : undefined,
+          ? globalThis.String(object.display_name)
+          : undefined,
       email: isSet(object.email) ? globalThis.String(object.email) : undefined,
       photoUrl: isSet(object.photoUrl)
         ? globalThis.String(object.photoUrl)
         : isSet(object.photo_url)
-        ? globalThis.String(object.photo_url)
-        : undefined,
+          ? globalThis.String(object.photo_url)
+          : undefined,
       appBaseUrl: isSet(object.appBaseUrl)
         ? globalThis.String(object.appBaseUrl)
         : isSet(object.app_base_url)
-        ? globalThis.String(object.app_base_url)
-        : undefined,
+          ? globalThis.String(object.app_base_url)
+          : undefined,
     };
   },
 
   toJSON(message: UserInfo): unknown {
     const obj: any = {};
-    if (message.uid !== "") {
+    if (message.uid !== '') {
       obj.uid = message.uid;
     }
     if (message.displayName !== undefined) {
@@ -368,7 +386,7 @@ export const UserInfo: MessageFns<UserInfo> = {
   },
   fromPartial<I extends Exact<DeepPartial<UserInfo>, I>>(object: I): UserInfo {
     const message = createBaseUserInfo();
-    message.uid = object.uid ?? "";
+    message.uid = object.uid ?? '';
     message.displayName = object.displayName ?? undefined;
     message.email = object.email ?? undefined;
     message.photoUrl = object.photoUrl ?? undefined;
@@ -378,7 +396,7 @@ export const UserInfo: MessageFns<UserInfo> = {
 };
 
 function createBaseUserOrganization(): UserOrganization {
-  return { active: false, memberId: "", name: "", organizationId: "", roles: [] };
+  return { active: false, memberId: '', name: '', organizationId: '', roles: [] };
 }
 
 export const UserOrganization: MessageFns<UserOrganization> = {
@@ -386,13 +404,13 @@ export const UserOrganization: MessageFns<UserOrganization> = {
     if (message.active !== false) {
       writer.uint32(8).bool(message.active);
     }
-    if (message.memberId !== "") {
+    if (message.memberId !== '') {
       writer.uint32(18).string(message.memberId);
     }
-    if (message.name !== "") {
+    if (message.name !== '') {
       writer.uint32(26).string(message.name);
     }
-    if (message.organizationId !== "") {
+    if (message.organizationId !== '') {
       writer.uint32(34).string(message.organizationId);
     }
     for (const v of message.roles) {
@@ -463,14 +481,14 @@ export const UserOrganization: MessageFns<UserOrganization> = {
       memberId: isSet(object.memberId)
         ? globalThis.String(object.memberId)
         : isSet(object.member_id)
-        ? globalThis.String(object.member_id)
-        : "",
-      name: isSet(object.name) ? globalThis.String(object.name) : "",
+          ? globalThis.String(object.member_id)
+          : '',
+      name: isSet(object.name) ? globalThis.String(object.name) : '',
       organizationId: isSet(object.organizationId)
         ? globalThis.String(object.organizationId)
         : isSet(object.organization_id)
-        ? globalThis.String(object.organization_id)
-        : "",
+          ? globalThis.String(object.organization_id)
+          : '',
       roles: globalThis.Array.isArray(object?.roles)
         ? object.roles.map((e: any) => globalThis.String(e))
         : [],
@@ -482,13 +500,13 @@ export const UserOrganization: MessageFns<UserOrganization> = {
     if (message.active !== false) {
       obj.active = message.active;
     }
-    if (message.memberId !== "") {
+    if (message.memberId !== '') {
       obj.memberId = message.memberId;
     }
-    if (message.name !== "") {
+    if (message.name !== '') {
       obj.name = message.name;
     }
-    if (message.organizationId !== "") {
+    if (message.organizationId !== '') {
       obj.organizationId = message.organizationId;
     }
     if (message.roles?.length) {
@@ -503,9 +521,9 @@ export const UserOrganization: MessageFns<UserOrganization> = {
   fromPartial<I extends Exact<DeepPartial<UserOrganization>, I>>(object: I): UserOrganization {
     const message = createBaseUserOrganization();
     message.active = object.active ?? false;
-    message.memberId = object.memberId ?? "";
-    message.name = object.name ?? "";
-    message.organizationId = object.organizationId ?? "";
+    message.memberId = object.memberId ?? '';
+    message.name = object.name ?? '';
+    message.organizationId = object.organizationId ?? '';
     message.roles = object.roles?.map((e) => e) || [];
     return message;
   },
@@ -516,7 +534,10 @@ function createBaseUserOrganizationsResponse(): UserOrganizationsResponse {
 }
 
 export const UserOrganizationsResponse: MessageFns<UserOrganizationsResponse> = {
-  encode(message: UserOrganizationsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: UserOrganizationsResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.organizations) {
       UserOrganization.encode(v!, writer.uint32(10).fork()).join();
     }
@@ -563,10 +584,14 @@ export const UserOrganizationsResponse: MessageFns<UserOrganizationsResponse> = 
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<UserOrganizationsResponse>, I>>(base?: I): UserOrganizationsResponse {
+  create<I extends Exact<DeepPartial<UserOrganizationsResponse>, I>>(
+    base?: I,
+  ): UserOrganizationsResponse {
     return UserOrganizationsResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<UserOrganizationsResponse>, I>>(object: I): UserOrganizationsResponse {
+  fromPartial<I extends Exact<DeepPartial<UserOrganizationsResponse>, I>>(
+    object: I,
+  ): UserOrganizationsResponse {
     const message = createBaseUserOrganizationsResponse();
     message.organizations = object.organizations?.map((e) => UserOrganization.fromPartial(e)) || [];
     return message;
@@ -578,7 +603,10 @@ function createBaseUserOrganizationUpdateRequest(): UserOrganizationUpdateReques
 }
 
 export const UserOrganizationUpdateRequest: MessageFns<UserOrganizationUpdateRequest> = {
-  encode(message: UserOrganizationUpdateRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: UserOrganizationUpdateRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.organizationId !== undefined) {
       writer.uint32(10).string(message.organizationId);
     }
@@ -614,8 +642,8 @@ export const UserOrganizationUpdateRequest: MessageFns<UserOrganizationUpdateReq
       organizationId: isSet(object.organizationId)
         ? globalThis.String(object.organizationId)
         : isSet(object.organization_id)
-        ? globalThis.String(object.organization_id)
-        : undefined,
+          ? globalThis.String(object.organization_id)
+          : undefined,
     };
   },
 
@@ -627,7 +655,9 @@ export const UserOrganizationUpdateRequest: MessageFns<UserOrganizationUpdateReq
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<UserOrganizationUpdateRequest>, I>>(base?: I): UserOrganizationUpdateRequest {
+  create<I extends Exact<DeepPartial<UserOrganizationUpdateRequest>, I>>(
+    base?: I,
+  ): UserOrganizationUpdateRequest {
     return UserOrganizationUpdateRequest.fromPartial(base ?? ({} as any));
   },
   fromPartial<I extends Exact<DeepPartial<UserOrganizationUpdateRequest>, I>>(
@@ -703,13 +733,13 @@ export const UserCreditsData: MessageFns<UserCreditsData> = {
       usageTransactions: globalThis.Array.isArray(object?.usageTransactions)
         ? object.usageTransactions.map((e: any) => UsageTransaction.fromJSON(e))
         : globalThis.Array.isArray(object?.usage_transactions)
-        ? object.usage_transactions.map((e: any) => UsageTransaction.fromJSON(e))
-        : [],
+          ? object.usage_transactions.map((e: any) => UsageTransaction.fromJSON(e))
+          : [],
       paymentTransactions: globalThis.Array.isArray(object?.paymentTransactions)
         ? object.paymentTransactions.map((e: any) => PaymentTransaction.fromJSON(e))
         : globalThis.Array.isArray(object?.payment_transactions)
-        ? object.payment_transactions.map((e: any) => PaymentTransaction.fromJSON(e))
-        : [],
+          ? object.payment_transactions.map((e: any) => PaymentTransaction.fromJSON(e))
+          : [],
     };
   },
 
@@ -722,7 +752,9 @@ export const UserCreditsData: MessageFns<UserCreditsData> = {
       obj.usageTransactions = message.usageTransactions.map((e) => UsageTransaction.toJSON(e));
     }
     if (message.paymentTransactions?.length) {
-      obj.paymentTransactions = message.paymentTransactions.map((e) => PaymentTransaction.toJSON(e));
+      obj.paymentTransactions = message.paymentTransactions.map((e) =>
+        PaymentTransaction.toJSON(e),
+      );
     }
     return obj;
   },
@@ -732,22 +764,28 @@ export const UserCreditsData: MessageFns<UserCreditsData> = {
   },
   fromPartial<I extends Exact<DeepPartial<UserCreditsData>, I>>(object: I): UserCreditsData {
     const message = createBaseUserCreditsData();
-    message.balance = (object.balance !== undefined && object.balance !== null)
-      ? UserCreditsBalance.fromPartial(object.balance)
-      : undefined;
-    message.usageTransactions = object.usageTransactions?.map((e) => UsageTransaction.fromPartial(e)) || [];
-    message.paymentTransactions = object.paymentTransactions?.map((e) => PaymentTransaction.fromPartial(e)) || [];
+    message.balance =
+      object.balance !== undefined && object.balance !== null
+        ? UserCreditsBalance.fromPartial(object.balance)
+        : undefined;
+    message.usageTransactions =
+      object.usageTransactions?.map((e) => UsageTransaction.fromPartial(e)) || [];
+    message.paymentTransactions =
+      object.paymentTransactions?.map((e) => PaymentTransaction.fromPartial(e)) || [];
     return message;
   },
 };
 
 function createBaseGetOrganizationCreditsRequest(): GetOrganizationCreditsRequest {
-  return { organizationId: "" };
+  return { organizationId: '' };
 }
 
 export const GetOrganizationCreditsRequest: MessageFns<GetOrganizationCreditsRequest> = {
-  encode(message: GetOrganizationCreditsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.organizationId !== "") {
+  encode(
+    message: GetOrganizationCreditsRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.organizationId !== '') {
       writer.uint32(10).string(message.organizationId);
     }
     return writer;
@@ -782,41 +820,46 @@ export const GetOrganizationCreditsRequest: MessageFns<GetOrganizationCreditsReq
       organizationId: isSet(object.organizationId)
         ? globalThis.String(object.organizationId)
         : isSet(object.organization_id)
-        ? globalThis.String(object.organization_id)
-        : "",
+          ? globalThis.String(object.organization_id)
+          : '',
     };
   },
 
   toJSON(message: GetOrganizationCreditsRequest): unknown {
     const obj: any = {};
-    if (message.organizationId !== "") {
+    if (message.organizationId !== '') {
       obj.organizationId = message.organizationId;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetOrganizationCreditsRequest>, I>>(base?: I): GetOrganizationCreditsRequest {
+  create<I extends Exact<DeepPartial<GetOrganizationCreditsRequest>, I>>(
+    base?: I,
+  ): GetOrganizationCreditsRequest {
     return GetOrganizationCreditsRequest.fromPartial(base ?? ({} as any));
   },
   fromPartial<I extends Exact<DeepPartial<GetOrganizationCreditsRequest>, I>>(
     object: I,
   ): GetOrganizationCreditsRequest {
     const message = createBaseGetOrganizationCreditsRequest();
-    message.organizationId = object.organizationId ?? "";
+    message.organizationId = object.organizationId ?? '';
     return message;
   },
 };
 
 function createBaseOrganizationCreditsData(): OrganizationCreditsData {
-  return { balance: undefined, organizationId: "", usageTransactions: [] };
+  return { balance: undefined, organizationId: '', usageTransactions: [] };
 }
 
 export const OrganizationCreditsData: MessageFns<OrganizationCreditsData> = {
-  encode(message: OrganizationCreditsData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: OrganizationCreditsData,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.balance !== undefined) {
       UserCreditsBalance.encode(message.balance, writer.uint32(10).fork()).join();
     }
-    if (message.organizationId !== "") {
+    if (message.organizationId !== '') {
       writer.uint32(18).string(message.organizationId);
     }
     for (const v of message.usageTransactions) {
@@ -853,7 +896,9 @@ export const OrganizationCreditsData: MessageFns<OrganizationCreditsData> = {
             break;
           }
 
-          message.usageTransactions.push(OrganizationUsageTransaction.decode(reader, reader.uint32()));
+          message.usageTransactions.push(
+            OrganizationUsageTransaction.decode(reader, reader.uint32()),
+          );
           continue;
         }
       }
@@ -871,13 +916,13 @@ export const OrganizationCreditsData: MessageFns<OrganizationCreditsData> = {
       organizationId: isSet(object.organizationId)
         ? globalThis.String(object.organizationId)
         : isSet(object.organization_id)
-        ? globalThis.String(object.organization_id)
-        : "",
+          ? globalThis.String(object.organization_id)
+          : '',
       usageTransactions: globalThis.Array.isArray(object?.usageTransactions)
         ? object.usageTransactions.map((e: any) => OrganizationUsageTransaction.fromJSON(e))
         : globalThis.Array.isArray(object?.usage_transactions)
-        ? object.usage_transactions.map((e: any) => OrganizationUsageTransaction.fromJSON(e))
-        : [],
+          ? object.usage_transactions.map((e: any) => OrganizationUsageTransaction.fromJSON(e))
+          : [],
     };
   },
 
@@ -886,25 +931,33 @@ export const OrganizationCreditsData: MessageFns<OrganizationCreditsData> = {
     if (message.balance !== undefined) {
       obj.balance = UserCreditsBalance.toJSON(message.balance);
     }
-    if (message.organizationId !== "") {
+    if (message.organizationId !== '') {
       obj.organizationId = message.organizationId;
     }
     if (message.usageTransactions?.length) {
-      obj.usageTransactions = message.usageTransactions.map((e) => OrganizationUsageTransaction.toJSON(e));
+      obj.usageTransactions = message.usageTransactions.map((e) =>
+        OrganizationUsageTransaction.toJSON(e),
+      );
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<OrganizationCreditsData>, I>>(base?: I): OrganizationCreditsData {
+  create<I extends Exact<DeepPartial<OrganizationCreditsData>, I>>(
+    base?: I,
+  ): OrganizationCreditsData {
     return OrganizationCreditsData.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<OrganizationCreditsData>, I>>(object: I): OrganizationCreditsData {
+  fromPartial<I extends Exact<DeepPartial<OrganizationCreditsData>, I>>(
+    object: I,
+  ): OrganizationCreditsData {
     const message = createBaseOrganizationCreditsData();
-    message.balance = (object.balance !== undefined && object.balance !== null)
-      ? UserCreditsBalance.fromPartial(object.balance)
-      : undefined;
-    message.organizationId = object.organizationId ?? "";
-    message.usageTransactions = object.usageTransactions?.map((e) => OrganizationUsageTransaction.fromPartial(e)) || [];
+    message.balance =
+      object.balance !== undefined && object.balance !== null
+        ? UserCreditsBalance.fromPartial(object.balance)
+        : undefined;
+    message.organizationId = object.organizationId ?? '';
+    message.usageTransactions =
+      object.usageTransactions?.map((e) => OrganizationUsageTransaction.fromPartial(e)) || [];
     return message;
   },
 };
@@ -950,8 +1003,8 @@ export const UserCreditsBalance: MessageFns<UserCreditsBalance> = {
       currentBalance: isSet(object.currentBalance)
         ? globalThis.Number(object.currentBalance)
         : isSet(object.current_balance)
-        ? globalThis.Number(object.current_balance)
-        : 0,
+          ? globalThis.Number(object.current_balance)
+          : 0,
     };
   },
 
@@ -975,31 +1028,31 @@ export const UserCreditsBalance: MessageFns<UserCreditsBalance> = {
 
 function createBaseUsageTransaction(): UsageTransaction {
   return {
-    aiInferenceProviderName: "",
-    aiModelName: "",
-    aiModelTypeName: "",
+    aiInferenceProviderName: '',
+    aiModelName: '',
+    aiModelTypeName: '',
     completionTokens: 0,
     costUsd: 0,
-    createdAt: "",
+    createdAt: '',
     creditsUsed: 0,
-    generationId: "",
-    organizationId: "",
+    generationId: '',
+    organizationId: '',
     promptTokens: 0,
     totalTokens: 0,
-    userId: "",
-    operation: "",
+    userId: '',
+    operation: '',
   };
 }
 
 export const UsageTransaction: MessageFns<UsageTransaction> = {
   encode(message: UsageTransaction, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.aiInferenceProviderName !== "") {
+    if (message.aiInferenceProviderName !== '') {
       writer.uint32(10).string(message.aiInferenceProviderName);
     }
-    if (message.aiModelName !== "") {
+    if (message.aiModelName !== '') {
       writer.uint32(18).string(message.aiModelName);
     }
-    if (message.aiModelTypeName !== "") {
+    if (message.aiModelTypeName !== '') {
       writer.uint32(26).string(message.aiModelTypeName);
     }
     if (message.completionTokens !== 0) {
@@ -1008,16 +1061,16 @@ export const UsageTransaction: MessageFns<UsageTransaction> = {
     if (message.costUsd !== 0) {
       writer.uint32(41).double(message.costUsd);
     }
-    if (message.createdAt !== "") {
+    if (message.createdAt !== '') {
       writer.uint32(50).string(message.createdAt);
     }
     if (message.creditsUsed !== 0) {
       writer.uint32(57).double(message.creditsUsed);
     }
-    if (message.generationId !== "") {
+    if (message.generationId !== '') {
       writer.uint32(66).string(message.generationId);
     }
-    if (message.organizationId !== "") {
+    if (message.organizationId !== '') {
       writer.uint32(74).string(message.organizationId);
     }
     if (message.promptTokens !== 0) {
@@ -1026,10 +1079,10 @@ export const UsageTransaction: MessageFns<UsageTransaction> = {
     if (message.totalTokens !== 0) {
       writer.uint32(88).int32(message.totalTokens);
     }
-    if (message.userId !== "") {
+    if (message.userId !== '') {
       writer.uint32(98).string(message.userId);
     }
-    if (message.operation !== "") {
+    if (message.operation !== '') {
       writer.uint32(106).string(message.operation);
     }
     return writer;
@@ -1160,76 +1213,76 @@ export const UsageTransaction: MessageFns<UsageTransaction> = {
       aiInferenceProviderName: isSet(object.aiInferenceProviderName)
         ? globalThis.String(object.aiInferenceProviderName)
         : isSet(object.ai_inference_provider_name)
-        ? globalThis.String(object.ai_inference_provider_name)
-        : "",
+          ? globalThis.String(object.ai_inference_provider_name)
+          : '',
       aiModelName: isSet(object.aiModelName)
         ? globalThis.String(object.aiModelName)
         : isSet(object.ai_model_name)
-        ? globalThis.String(object.ai_model_name)
-        : "",
+          ? globalThis.String(object.ai_model_name)
+          : '',
       aiModelTypeName: isSet(object.aiModelTypeName)
         ? globalThis.String(object.aiModelTypeName)
         : isSet(object.ai_model_type_name)
-        ? globalThis.String(object.ai_model_type_name)
-        : "",
+          ? globalThis.String(object.ai_model_type_name)
+          : '',
       completionTokens: isSet(object.completionTokens)
         ? globalThis.Number(object.completionTokens)
         : isSet(object.completion_tokens)
-        ? globalThis.Number(object.completion_tokens)
-        : 0,
+          ? globalThis.Number(object.completion_tokens)
+          : 0,
       costUsd: isSet(object.costUsd)
         ? globalThis.Number(object.costUsd)
         : isSet(object.cost_usd)
-        ? globalThis.Number(object.cost_usd)
-        : 0,
+          ? globalThis.Number(object.cost_usd)
+          : 0,
       createdAt: isSet(object.createdAt)
         ? globalThis.String(object.createdAt)
         : isSet(object.created_at)
-        ? globalThis.String(object.created_at)
-        : "",
+          ? globalThis.String(object.created_at)
+          : '',
       creditsUsed: isSet(object.creditsUsed)
         ? globalThis.Number(object.creditsUsed)
         : isSet(object.credits_used)
-        ? globalThis.Number(object.credits_used)
-        : 0,
+          ? globalThis.Number(object.credits_used)
+          : 0,
       generationId: isSet(object.generationId)
         ? globalThis.String(object.generationId)
         : isSet(object.generation_id)
-        ? globalThis.String(object.generation_id)
-        : "",
+          ? globalThis.String(object.generation_id)
+          : '',
       organizationId: isSet(object.organizationId)
         ? globalThis.String(object.organizationId)
         : isSet(object.organization_id)
-        ? globalThis.String(object.organization_id)
-        : "",
+          ? globalThis.String(object.organization_id)
+          : '',
       promptTokens: isSet(object.promptTokens)
         ? globalThis.Number(object.promptTokens)
         : isSet(object.prompt_tokens)
-        ? globalThis.Number(object.prompt_tokens)
-        : 0,
+          ? globalThis.Number(object.prompt_tokens)
+          : 0,
       totalTokens: isSet(object.totalTokens)
         ? globalThis.Number(object.totalTokens)
         : isSet(object.total_tokens)
-        ? globalThis.Number(object.total_tokens)
-        : 0,
+          ? globalThis.Number(object.total_tokens)
+          : 0,
       userId: isSet(object.userId)
         ? globalThis.String(object.userId)
         : isSet(object.user_id)
-        ? globalThis.String(object.user_id)
-        : "",
-      operation: isSet(object.operation) ? globalThis.String(object.operation) : "",
+          ? globalThis.String(object.user_id)
+          : '',
+      operation: isSet(object.operation) ? globalThis.String(object.operation) : '',
     };
   },
 
   toJSON(message: UsageTransaction): unknown {
     const obj: any = {};
-    if (message.aiInferenceProviderName !== "") {
+    if (message.aiInferenceProviderName !== '') {
       obj.aiInferenceProviderName = message.aiInferenceProviderName;
     }
-    if (message.aiModelName !== "") {
+    if (message.aiModelName !== '') {
       obj.aiModelName = message.aiModelName;
     }
-    if (message.aiModelTypeName !== "") {
+    if (message.aiModelTypeName !== '') {
       obj.aiModelTypeName = message.aiModelTypeName;
     }
     if (message.completionTokens !== 0) {
@@ -1238,16 +1291,16 @@ export const UsageTransaction: MessageFns<UsageTransaction> = {
     if (message.costUsd !== 0) {
       obj.costUsd = message.costUsd;
     }
-    if (message.createdAt !== "") {
+    if (message.createdAt !== '') {
       obj.createdAt = message.createdAt;
     }
     if (message.creditsUsed !== 0) {
       obj.creditsUsed = message.creditsUsed;
     }
-    if (message.generationId !== "") {
+    if (message.generationId !== '') {
       obj.generationId = message.generationId;
     }
-    if (message.organizationId !== "") {
+    if (message.organizationId !== '') {
       obj.organizationId = message.organizationId;
     }
     if (message.promptTokens !== 0) {
@@ -1256,10 +1309,10 @@ export const UsageTransaction: MessageFns<UsageTransaction> = {
     if (message.totalTokens !== 0) {
       obj.totalTokens = Math.round(message.totalTokens);
     }
-    if (message.userId !== "") {
+    if (message.userId !== '') {
       obj.userId = message.userId;
     }
-    if (message.operation !== "") {
+    if (message.operation !== '') {
       obj.operation = message.operation;
     }
     return obj;
@@ -1270,33 +1323,33 @@ export const UsageTransaction: MessageFns<UsageTransaction> = {
   },
   fromPartial<I extends Exact<DeepPartial<UsageTransaction>, I>>(object: I): UsageTransaction {
     const message = createBaseUsageTransaction();
-    message.aiInferenceProviderName = object.aiInferenceProviderName ?? "";
-    message.aiModelName = object.aiModelName ?? "";
-    message.aiModelTypeName = object.aiModelTypeName ?? "";
+    message.aiInferenceProviderName = object.aiInferenceProviderName ?? '';
+    message.aiModelName = object.aiModelName ?? '';
+    message.aiModelTypeName = object.aiModelTypeName ?? '';
     message.completionTokens = object.completionTokens ?? 0;
     message.costUsd = object.costUsd ?? 0;
-    message.createdAt = object.createdAt ?? "";
+    message.createdAt = object.createdAt ?? '';
     message.creditsUsed = object.creditsUsed ?? 0;
-    message.generationId = object.generationId ?? "";
-    message.organizationId = object.organizationId ?? "";
+    message.generationId = object.generationId ?? '';
+    message.organizationId = object.organizationId ?? '';
     message.promptTokens = object.promptTokens ?? 0;
     message.totalTokens = object.totalTokens ?? 0;
-    message.userId = object.userId ?? "";
-    message.operation = object.operation ?? "";
+    message.userId = object.userId ?? '';
+    message.operation = object.operation ?? '';
     return message;
   },
 };
 
 function createBasePaymentTransaction(): PaymentTransaction {
-  return { paidAt: "", creatorId: "", amountCents: 0, credits: 0 };
+  return { paidAt: '', creatorId: '', amountCents: 0, credits: 0 };
 }
 
 export const PaymentTransaction: MessageFns<PaymentTransaction> = {
   encode(message: PaymentTransaction, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.paidAt !== "") {
+    if (message.paidAt !== '') {
       writer.uint32(10).string(message.paidAt);
     }
-    if (message.creatorId !== "") {
+    if (message.creatorId !== '') {
       writer.uint32(18).string(message.creatorId);
     }
     if (message.amountCents !== 0) {
@@ -1361,28 +1414,28 @@ export const PaymentTransaction: MessageFns<PaymentTransaction> = {
       paidAt: isSet(object.paidAt)
         ? globalThis.String(object.paidAt)
         : isSet(object.paid_at)
-        ? globalThis.String(object.paid_at)
-        : "",
+          ? globalThis.String(object.paid_at)
+          : '',
       creatorId: isSet(object.creatorId)
         ? globalThis.String(object.creatorId)
         : isSet(object.creator_id)
-        ? globalThis.String(object.creator_id)
-        : "",
+          ? globalThis.String(object.creator_id)
+          : '',
       amountCents: isSet(object.amountCents)
         ? globalThis.Number(object.amountCents)
         : isSet(object.amount_cents)
-        ? globalThis.Number(object.amount_cents)
-        : 0,
+          ? globalThis.Number(object.amount_cents)
+          : 0,
       credits: isSet(object.credits) ? globalThis.Number(object.credits) : 0,
     };
   },
 
   toJSON(message: PaymentTransaction): unknown {
     const obj: any = {};
-    if (message.paidAt !== "") {
+    if (message.paidAt !== '') {
       obj.paidAt = message.paidAt;
     }
-    if (message.creatorId !== "") {
+    if (message.creatorId !== '') {
       obj.creatorId = message.creatorId;
     }
     if (message.amountCents !== 0) {
@@ -1399,8 +1452,8 @@ export const PaymentTransaction: MessageFns<PaymentTransaction> = {
   },
   fromPartial<I extends Exact<DeepPartial<PaymentTransaction>, I>>(object: I): PaymentTransaction {
     const message = createBasePaymentTransaction();
-    message.paidAt = object.paidAt ?? "";
-    message.creatorId = object.creatorId ?? "";
+    message.paidAt = object.paidAt ?? '';
+    message.creatorId = object.creatorId ?? '';
     message.amountCents = object.amountCents ?? 0;
     message.credits = object.credits ?? 0;
     return message;
@@ -1409,31 +1462,34 @@ export const PaymentTransaction: MessageFns<PaymentTransaction> = {
 
 function createBaseOrganizationUsageTransaction(): OrganizationUsageTransaction {
   return {
-    aiInferenceProviderName: "",
-    aiModelName: "",
-    aiModelTypeName: "",
+    aiInferenceProviderName: '',
+    aiModelName: '',
+    aiModelTypeName: '',
     completionTokens: 0,
     costUsd: 0,
-    createdAt: "",
+    createdAt: '',
     creditsUsed: 0,
-    generationId: "",
-    organizationId: "",
+    generationId: '',
+    organizationId: '',
     promptTokens: 0,
     totalTokens: 0,
-    userId: "",
-    operation: "",
+    userId: '',
+    operation: '',
   };
 }
 
 export const OrganizationUsageTransaction: MessageFns<OrganizationUsageTransaction> = {
-  encode(message: OrganizationUsageTransaction, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.aiInferenceProviderName !== "") {
+  encode(
+    message: OrganizationUsageTransaction,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.aiInferenceProviderName !== '') {
       writer.uint32(10).string(message.aiInferenceProviderName);
     }
-    if (message.aiModelName !== "") {
+    if (message.aiModelName !== '') {
       writer.uint32(18).string(message.aiModelName);
     }
-    if (message.aiModelTypeName !== "") {
+    if (message.aiModelTypeName !== '') {
       writer.uint32(26).string(message.aiModelTypeName);
     }
     if (message.completionTokens !== 0) {
@@ -1442,16 +1498,16 @@ export const OrganizationUsageTransaction: MessageFns<OrganizationUsageTransacti
     if (message.costUsd !== 0) {
       writer.uint32(41).double(message.costUsd);
     }
-    if (message.createdAt !== "") {
+    if (message.createdAt !== '') {
       writer.uint32(50).string(message.createdAt);
     }
     if (message.creditsUsed !== 0) {
       writer.uint32(57).double(message.creditsUsed);
     }
-    if (message.generationId !== "") {
+    if (message.generationId !== '') {
       writer.uint32(66).string(message.generationId);
     }
-    if (message.organizationId !== "") {
+    if (message.organizationId !== '') {
       writer.uint32(74).string(message.organizationId);
     }
     if (message.promptTokens !== 0) {
@@ -1460,10 +1516,10 @@ export const OrganizationUsageTransaction: MessageFns<OrganizationUsageTransacti
     if (message.totalTokens !== 0) {
       writer.uint32(88).int32(message.totalTokens);
     }
-    if (message.userId !== "") {
+    if (message.userId !== '') {
       writer.uint32(98).string(message.userId);
     }
-    if (message.operation !== "") {
+    if (message.operation !== '') {
       writer.uint32(106).string(message.operation);
     }
     return writer;
@@ -1594,76 +1650,76 @@ export const OrganizationUsageTransaction: MessageFns<OrganizationUsageTransacti
       aiInferenceProviderName: isSet(object.aiInferenceProviderName)
         ? globalThis.String(object.aiInferenceProviderName)
         : isSet(object.ai_inference_provider_name)
-        ? globalThis.String(object.ai_inference_provider_name)
-        : "",
+          ? globalThis.String(object.ai_inference_provider_name)
+          : '',
       aiModelName: isSet(object.aiModelName)
         ? globalThis.String(object.aiModelName)
         : isSet(object.ai_model_name)
-        ? globalThis.String(object.ai_model_name)
-        : "",
+          ? globalThis.String(object.ai_model_name)
+          : '',
       aiModelTypeName: isSet(object.aiModelTypeName)
         ? globalThis.String(object.aiModelTypeName)
         : isSet(object.ai_model_type_name)
-        ? globalThis.String(object.ai_model_type_name)
-        : "",
+          ? globalThis.String(object.ai_model_type_name)
+          : '',
       completionTokens: isSet(object.completionTokens)
         ? globalThis.Number(object.completionTokens)
         : isSet(object.completion_tokens)
-        ? globalThis.Number(object.completion_tokens)
-        : 0,
+          ? globalThis.Number(object.completion_tokens)
+          : 0,
       costUsd: isSet(object.costUsd)
         ? globalThis.Number(object.costUsd)
         : isSet(object.cost_usd)
-        ? globalThis.Number(object.cost_usd)
-        : 0,
+          ? globalThis.Number(object.cost_usd)
+          : 0,
       createdAt: isSet(object.createdAt)
         ? globalThis.String(object.createdAt)
         : isSet(object.created_at)
-        ? globalThis.String(object.created_at)
-        : "",
+          ? globalThis.String(object.created_at)
+          : '',
       creditsUsed: isSet(object.creditsUsed)
         ? globalThis.Number(object.creditsUsed)
         : isSet(object.credits_used)
-        ? globalThis.Number(object.credits_used)
-        : 0,
+          ? globalThis.Number(object.credits_used)
+          : 0,
       generationId: isSet(object.generationId)
         ? globalThis.String(object.generationId)
         : isSet(object.generation_id)
-        ? globalThis.String(object.generation_id)
-        : "",
+          ? globalThis.String(object.generation_id)
+          : '',
       organizationId: isSet(object.organizationId)
         ? globalThis.String(object.organizationId)
         : isSet(object.organization_id)
-        ? globalThis.String(object.organization_id)
-        : "",
+          ? globalThis.String(object.organization_id)
+          : '',
       promptTokens: isSet(object.promptTokens)
         ? globalThis.Number(object.promptTokens)
         : isSet(object.prompt_tokens)
-        ? globalThis.Number(object.prompt_tokens)
-        : 0,
+          ? globalThis.Number(object.prompt_tokens)
+          : 0,
       totalTokens: isSet(object.totalTokens)
         ? globalThis.Number(object.totalTokens)
         : isSet(object.total_tokens)
-        ? globalThis.Number(object.total_tokens)
-        : 0,
+          ? globalThis.Number(object.total_tokens)
+          : 0,
       userId: isSet(object.userId)
         ? globalThis.String(object.userId)
         : isSet(object.user_id)
-        ? globalThis.String(object.user_id)
-        : "",
-      operation: isSet(object.operation) ? globalThis.String(object.operation) : "",
+          ? globalThis.String(object.user_id)
+          : '',
+      operation: isSet(object.operation) ? globalThis.String(object.operation) : '',
     };
   },
 
   toJSON(message: OrganizationUsageTransaction): unknown {
     const obj: any = {};
-    if (message.aiInferenceProviderName !== "") {
+    if (message.aiInferenceProviderName !== '') {
       obj.aiInferenceProviderName = message.aiInferenceProviderName;
     }
-    if (message.aiModelName !== "") {
+    if (message.aiModelName !== '') {
       obj.aiModelName = message.aiModelName;
     }
-    if (message.aiModelTypeName !== "") {
+    if (message.aiModelTypeName !== '') {
       obj.aiModelTypeName = message.aiModelTypeName;
     }
     if (message.completionTokens !== 0) {
@@ -1672,16 +1728,16 @@ export const OrganizationUsageTransaction: MessageFns<OrganizationUsageTransacti
     if (message.costUsd !== 0) {
       obj.costUsd = message.costUsd;
     }
-    if (message.createdAt !== "") {
+    if (message.createdAt !== '') {
       obj.createdAt = message.createdAt;
     }
     if (message.creditsUsed !== 0) {
       obj.creditsUsed = message.creditsUsed;
     }
-    if (message.generationId !== "") {
+    if (message.generationId !== '') {
       obj.generationId = message.generationId;
     }
-    if (message.organizationId !== "") {
+    if (message.organizationId !== '') {
       obj.organizationId = message.organizationId;
     }
     if (message.promptTokens !== 0) {
@@ -1690,33 +1746,37 @@ export const OrganizationUsageTransaction: MessageFns<OrganizationUsageTransacti
     if (message.totalTokens !== 0) {
       obj.totalTokens = Math.round(message.totalTokens);
     }
-    if (message.userId !== "") {
+    if (message.userId !== '') {
       obj.userId = message.userId;
     }
-    if (message.operation !== "") {
+    if (message.operation !== '') {
       obj.operation = message.operation;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<OrganizationUsageTransaction>, I>>(base?: I): OrganizationUsageTransaction {
+  create<I extends Exact<DeepPartial<OrganizationUsageTransaction>, I>>(
+    base?: I,
+  ): OrganizationUsageTransaction {
     return OrganizationUsageTransaction.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<OrganizationUsageTransaction>, I>>(object: I): OrganizationUsageTransaction {
+  fromPartial<I extends Exact<DeepPartial<OrganizationUsageTransaction>, I>>(
+    object: I,
+  ): OrganizationUsageTransaction {
     const message = createBaseOrganizationUsageTransaction();
-    message.aiInferenceProviderName = object.aiInferenceProviderName ?? "";
-    message.aiModelName = object.aiModelName ?? "";
-    message.aiModelTypeName = object.aiModelTypeName ?? "";
+    message.aiInferenceProviderName = object.aiInferenceProviderName ?? '';
+    message.aiModelName = object.aiModelName ?? '';
+    message.aiModelTypeName = object.aiModelTypeName ?? '';
     message.completionTokens = object.completionTokens ?? 0;
     message.costUsd = object.costUsd ?? 0;
-    message.createdAt = object.createdAt ?? "";
+    message.createdAt = object.createdAt ?? '';
     message.creditsUsed = object.creditsUsed ?? 0;
-    message.generationId = object.generationId ?? "";
-    message.organizationId = object.organizationId ?? "";
+    message.generationId = object.generationId ?? '';
+    message.organizationId = object.organizationId ?? '';
     message.promptTokens = object.promptTokens ?? 0;
     message.totalTokens = object.totalTokens ?? 0;
-    message.userId = object.userId ?? "";
-    message.operation = object.operation ?? "";
+    message.userId = object.userId ?? '';
+    message.operation = object.operation ?? '';
     return message;
   },
 };
@@ -1724,8 +1784,8 @@ export const OrganizationUsageTransaction: MessageFns<OrganizationUsageTransacti
 /** Service for account-related operations */
 export type AccountServiceDefinition = typeof AccountServiceDefinition;
 export const AccountServiceDefinition = {
-  name: "AccountService",
-  fullName: "cline.AccountService",
+  name: 'AccountService',
+  fullName: 'cline.AccountService',
   methods: {
     /**
      * Handles the user clicking the login link in the UI.
@@ -1733,7 +1793,7 @@ export const AccountServiceDefinition = {
      * and opens the authentication URL in the external browser.
      */
     accountLoginClicked: {
-      name: "accountLoginClicked",
+      name: 'accountLoginClicked',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: String,
@@ -1745,7 +1805,7 @@ export const AccountServiceDefinition = {
      * Clears API keys and user state.
      */
     accountLogoutClicked: {
-      name: "accountLogoutClicked",
+      name: 'accountLogoutClicked',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -1754,7 +1814,7 @@ export const AccountServiceDefinition = {
     },
     /** Subscribe to auth status update events (when authentication state changes) */
     subscribeToAuthStatusUpdate: {
-      name: "subscribeToAuthStatusUpdate",
+      name: 'subscribeToAuthStatusUpdate',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: AuthState,
@@ -1766,7 +1826,7 @@ export const AccountServiceDefinition = {
      * Updates the user info in global state and returns the updated value.
      */
     authStateChanged: {
-      name: "authStateChanged",
+      name: 'authStateChanged',
       requestType: AuthStateChangedRequest,
       requestStream: false,
       responseType: AuthState,
@@ -1778,7 +1838,7 @@ export const AccountServiceDefinition = {
      * (balance, usage transactions, payment transactions)
      */
     getUserCredits: {
-      name: "getUserCredits",
+      name: 'getUserCredits',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: UserCreditsData,
@@ -1786,7 +1846,7 @@ export const AccountServiceDefinition = {
       options: {},
     },
     getOrganizationCredits: {
-      name: "getOrganizationCredits",
+      name: 'getOrganizationCredits',
       requestType: GetOrganizationCreditsRequest,
       requestStream: false,
       responseType: OrganizationCreditsData,
@@ -1798,7 +1858,7 @@ export const AccountServiceDefinition = {
      * Returns a list of UserOrganization objects
      */
     getUserOrganizations: {
-      name: "getUserOrganizations",
+      name: 'getUserOrganizations',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: UserOrganizationsResponse,
@@ -1806,7 +1866,7 @@ export const AccountServiceDefinition = {
       options: {},
     },
     setUserOrganization: {
-      name: "setUserOrganization",
+      name: 'setUserOrganization',
       requestType: UserOrganizationUpdateRequest,
       requestStream: false,
       responseType: Empty,
@@ -1814,7 +1874,7 @@ export const AccountServiceDefinition = {
       options: {},
     },
     openrouterAuthClicked: {
-      name: "openrouterAuthClicked",
+      name: 'openrouterAuthClicked',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -1822,7 +1882,7 @@ export const AccountServiceDefinition = {
       options: {},
     },
     requestyAuthClicked: {
-      name: "requestyAuthClicked",
+      name: 'requestyAuthClicked',
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -1830,7 +1890,7 @@ export const AccountServiceDefinition = {
       options: {},
     },
     hicapAuthClicked: {
-      name: "hicapAuthClicked",
+      name: 'hicapAuthClicked',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -1839,7 +1899,7 @@ export const AccountServiceDefinition = {
     },
     /** Returns a link the webview can use to redirect back to the user's IDE. */
     getRedirectUrl: {
-      name: "getRedirectUrl",
+      name: 'getRedirectUrl',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: String,
@@ -1851,7 +1911,7 @@ export const AccountServiceDefinition = {
      * Starts the OAuth flow and opens browser for user to sign in with ChatGPT Plus/Pro
      */
     openAiCodexSignIn: {
-      name: "openAiCodexSignIn",
+      name: 'openAiCodexSignIn',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -1860,7 +1920,7 @@ export const AccountServiceDefinition = {
     },
     /** Signs out of OpenAI Codex and clears stored credentials */
     openAiCodexSignOut: {
-      name: "openAiCodexSignOut",
+      name: 'openAiCodexSignOut',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -1872,14 +1932,19 @@ export const AccountServiceDefinition = {
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-type Exact<P, I extends P> = P extends Builtin ? P
+type Exact<P, I extends P> = P extends Builtin
+  ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function isSet(value: any): boolean {

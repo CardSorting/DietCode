@@ -5,7 +5,7 @@
 // source: host/window.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
 
 export enum ShowMessageType {
   ERROR = 0,
@@ -17,16 +17,14 @@ export enum ShowMessageType {
 export function showMessageTypeFromJSON(object: any): ShowMessageType {
   switch (object) {
     case 0:
-    case "ERROR":
+    case 'ERROR':
       return ShowMessageType.ERROR;
     case 1:
-    case "INFORMATION":
+    case 'INFORMATION':
       return ShowMessageType.INFORMATION;
     case 2:
-    case "WARNING":
+    case 'WARNING':
       return ShowMessageType.WARNING;
-    case -1:
-    case "UNRECOGNIZED":
     default:
       return ShowMessageType.UNRECOGNIZED;
   }
@@ -35,14 +33,13 @@ export function showMessageTypeFromJSON(object: any): ShowMessageType {
 export function showMessageTypeToJSON(object: ShowMessageType): string {
   switch (object) {
     case ShowMessageType.ERROR:
-      return "ERROR";
+      return 'ERROR';
     case ShowMessageType.INFORMATION:
-      return "INFORMATION";
+      return 'INFORMATION';
     case ShowMessageType.WARNING:
-      return "WARNING";
-    case ShowMessageType.UNRECOGNIZED:
+      return 'WARNING';
     default:
-      return "UNRECOGNIZED";
+      return 'UNRECOGNIZED';
   }
 }
 
@@ -99,9 +96,7 @@ export interface ShowSaveDialogRequest {
 }
 
 export interface ShowSaveDialogOptions {
-  defaultPath?:
-    | string
-    | undefined;
+  defaultPath?: string | undefined;
   /**
    * A map of file types to extensions, e.g
    * "Text Files": { "extensions": ["txt", "md"] }
@@ -138,8 +133,7 @@ export interface OpenFileRequest {
   filePath: string;
 }
 
-export interface OpenFileResponse {
-}
+export type OpenFileResponse = {};
 
 export interface OpenSettingsRequest {
   /**
@@ -156,37 +150,36 @@ export interface OpenSettingsRequest {
   query?: string | undefined;
 }
 
-export interface OpenSettingsResponse {
-}
+export type OpenSettingsResponse = {};
 
-export interface GetOpenTabsRequest {
-}
+export type GetOpenTabsRequest = {};
 
 export interface GetOpenTabsResponse {
   paths: string[];
 }
 
-export interface GetVisibleTabsRequest {
-}
+export type GetVisibleTabsRequest = {};
 
 export interface GetVisibleTabsResponse {
   paths: string[];
 }
 
-export interface GetActiveEditorRequest {
-}
+export type GetActiveEditorRequest = {};
 
 export interface GetActiveEditorResponse {
   filePath?: string | undefined;
 }
 
 function createBaseShowTextDocumentRequest(): ShowTextDocumentRequest {
-  return { path: "", options: undefined };
+  return { path: '', options: undefined };
 }
 
 export const ShowTextDocumentRequest: MessageFns<ShowTextDocumentRequest> = {
-  encode(message: ShowTextDocumentRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.path !== "") {
+  encode(
+    message: ShowTextDocumentRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.path !== '') {
       writer.uint32(18).string(message.path);
     }
     if (message.options !== undefined) {
@@ -229,14 +222,14 @@ export const ShowTextDocumentRequest: MessageFns<ShowTextDocumentRequest> = {
 
   fromJSON(object: any): ShowTextDocumentRequest {
     return {
-      path: isSet(object.path) ? globalThis.String(object.path) : "",
+      path: isSet(object.path) ? globalThis.String(object.path) : '',
       options: isSet(object.options) ? ShowTextDocumentOptions.fromJSON(object.options) : undefined,
     };
   },
 
   toJSON(message: ShowTextDocumentRequest): unknown {
     const obj: any = {};
-    if (message.path !== "") {
+    if (message.path !== '') {
       obj.path = message.path;
     }
     if (message.options !== undefined) {
@@ -245,15 +238,20 @@ export const ShowTextDocumentRequest: MessageFns<ShowTextDocumentRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ShowTextDocumentRequest>, I>>(base?: I): ShowTextDocumentRequest {
+  create<I extends Exact<DeepPartial<ShowTextDocumentRequest>, I>>(
+    base?: I,
+  ): ShowTextDocumentRequest {
     return ShowTextDocumentRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ShowTextDocumentRequest>, I>>(object: I): ShowTextDocumentRequest {
+  fromPartial<I extends Exact<DeepPartial<ShowTextDocumentRequest>, I>>(
+    object: I,
+  ): ShowTextDocumentRequest {
     const message = createBaseShowTextDocumentRequest();
-    message.path = object.path ?? "";
-    message.options = (object.options !== undefined && object.options !== null)
-      ? ShowTextDocumentOptions.fromPartial(object.options)
-      : undefined;
+    message.path = object.path ?? '';
+    message.options =
+      object.options !== undefined && object.options !== null
+        ? ShowTextDocumentOptions.fromPartial(object.options)
+        : undefined;
     return message;
   },
 };
@@ -263,7 +261,10 @@ function createBaseShowTextDocumentOptions(): ShowTextDocumentOptions {
 }
 
 export const ShowTextDocumentOptions: MessageFns<ShowTextDocumentOptions> = {
-  encode(message: ShowTextDocumentOptions, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ShowTextDocumentOptions,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.preview !== undefined) {
       writer.uint32(8).bool(message.preview);
     }
@@ -322,13 +323,13 @@ export const ShowTextDocumentOptions: MessageFns<ShowTextDocumentOptions> = {
       preserveFocus: isSet(object.preserveFocus)
         ? globalThis.Boolean(object.preserveFocus)
         : isSet(object.preserve_focus)
-        ? globalThis.Boolean(object.preserve_focus)
-        : undefined,
+          ? globalThis.Boolean(object.preserve_focus)
+          : undefined,
       viewColumn: isSet(object.viewColumn)
         ? globalThis.Number(object.viewColumn)
         : isSet(object.view_column)
-        ? globalThis.Number(object.view_column)
-        : undefined,
+          ? globalThis.Number(object.view_column)
+          : undefined,
     };
   },
 
@@ -346,10 +347,14 @@ export const ShowTextDocumentOptions: MessageFns<ShowTextDocumentOptions> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ShowTextDocumentOptions>, I>>(base?: I): ShowTextDocumentOptions {
+  create<I extends Exact<DeepPartial<ShowTextDocumentOptions>, I>>(
+    base?: I,
+  ): ShowTextDocumentOptions {
     return ShowTextDocumentOptions.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ShowTextDocumentOptions>, I>>(object: I): ShowTextDocumentOptions {
+  fromPartial<I extends Exact<DeepPartial<ShowTextDocumentOptions>, I>>(
+    object: I,
+  ): ShowTextDocumentOptions {
     const message = createBaseShowTextDocumentOptions();
     message.preview = object.preview ?? undefined;
     message.preserveFocus = object.preserveFocus ?? undefined;
@@ -359,12 +364,12 @@ export const ShowTextDocumentOptions: MessageFns<ShowTextDocumentOptions> = {
 };
 
 function createBaseTextEditorInfo(): TextEditorInfo {
-  return { documentPath: "", viewColumn: undefined, isActive: false };
+  return { documentPath: '', viewColumn: undefined, isActive: false };
 }
 
 export const TextEditorInfo: MessageFns<TextEditorInfo> = {
   encode(message: TextEditorInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.documentPath !== "") {
+    if (message.documentPath !== '') {
       writer.uint32(10).string(message.documentPath);
     }
     if (message.viewColumn !== undefined) {
@@ -421,24 +426,24 @@ export const TextEditorInfo: MessageFns<TextEditorInfo> = {
       documentPath: isSet(object.documentPath)
         ? globalThis.String(object.documentPath)
         : isSet(object.document_path)
-        ? globalThis.String(object.document_path)
-        : "",
+          ? globalThis.String(object.document_path)
+          : '',
       viewColumn: isSet(object.viewColumn)
         ? globalThis.Number(object.viewColumn)
         : isSet(object.view_column)
-        ? globalThis.Number(object.view_column)
-        : undefined,
+          ? globalThis.Number(object.view_column)
+          : undefined,
       isActive: isSet(object.isActive)
         ? globalThis.Boolean(object.isActive)
         : isSet(object.is_active)
-        ? globalThis.Boolean(object.is_active)
-        : false,
+          ? globalThis.Boolean(object.is_active)
+          : false,
     };
   },
 
   toJSON(message: TextEditorInfo): unknown {
     const obj: any = {};
-    if (message.documentPath !== "") {
+    if (message.documentPath !== '') {
       obj.documentPath = message.documentPath;
     }
     if (message.viewColumn !== undefined) {
@@ -455,7 +460,7 @@ export const TextEditorInfo: MessageFns<TextEditorInfo> = {
   },
   fromPartial<I extends Exact<DeepPartial<TextEditorInfo>, I>>(object: I): TextEditorInfo {
     const message = createBaseTextEditorInfo();
-    message.documentPath = object.documentPath ?? "";
+    message.documentPath = object.documentPath ?? '';
     message.viewColumn = object.viewColumn ?? undefined;
     message.isActive = object.isActive ?? false;
     return message;
@@ -467,7 +472,10 @@ function createBaseShowOpenDialogueRequest(): ShowOpenDialogueRequest {
 }
 
 export const ShowOpenDialogueRequest: MessageFns<ShowOpenDialogueRequest> = {
-  encode(message: ShowOpenDialogueRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ShowOpenDialogueRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.canSelectMany !== undefined) {
       writer.uint32(16).bool(message.canSelectMany);
     }
@@ -525,14 +533,16 @@ export const ShowOpenDialogueRequest: MessageFns<ShowOpenDialogueRequest> = {
       canSelectMany: isSet(object.canSelectMany)
         ? globalThis.Boolean(object.canSelectMany)
         : isSet(object.can_select_many)
-        ? globalThis.Boolean(object.can_select_many)
-        : undefined,
+          ? globalThis.Boolean(object.can_select_many)
+          : undefined,
       openLabel: isSet(object.openLabel)
         ? globalThis.String(object.openLabel)
         : isSet(object.open_label)
-        ? globalThis.String(object.open_label)
+          ? globalThis.String(object.open_label)
+          : undefined,
+      filters: isSet(object.filters)
+        ? ShowOpenDialogueFilterOption.fromJSON(object.filters)
         : undefined,
-      filters: isSet(object.filters) ? ShowOpenDialogueFilterOption.fromJSON(object.filters) : undefined,
     };
   },
 
@@ -550,16 +560,21 @@ export const ShowOpenDialogueRequest: MessageFns<ShowOpenDialogueRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ShowOpenDialogueRequest>, I>>(base?: I): ShowOpenDialogueRequest {
+  create<I extends Exact<DeepPartial<ShowOpenDialogueRequest>, I>>(
+    base?: I,
+  ): ShowOpenDialogueRequest {
     return ShowOpenDialogueRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ShowOpenDialogueRequest>, I>>(object: I): ShowOpenDialogueRequest {
+  fromPartial<I extends Exact<DeepPartial<ShowOpenDialogueRequest>, I>>(
+    object: I,
+  ): ShowOpenDialogueRequest {
     const message = createBaseShowOpenDialogueRequest();
     message.canSelectMany = object.canSelectMany ?? undefined;
     message.openLabel = object.openLabel ?? undefined;
-    message.filters = (object.filters !== undefined && object.filters !== null)
-      ? ShowOpenDialogueFilterOption.fromPartial(object.filters)
-      : undefined;
+    message.filters =
+      object.filters !== undefined && object.filters !== null
+        ? ShowOpenDialogueFilterOption.fromPartial(object.filters)
+        : undefined;
     return message;
   },
 };
@@ -569,7 +584,10 @@ function createBaseShowOpenDialogueFilterOption(): ShowOpenDialogueFilterOption 
 }
 
 export const ShowOpenDialogueFilterOption: MessageFns<ShowOpenDialogueFilterOption> = {
-  encode(message: ShowOpenDialogueFilterOption, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ShowOpenDialogueFilterOption,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.files) {
       writer.uint32(10).string(v!);
     }
@@ -601,7 +619,11 @@ export const ShowOpenDialogueFilterOption: MessageFns<ShowOpenDialogueFilterOpti
   },
 
   fromJSON(object: any): ShowOpenDialogueFilterOption {
-    return { files: globalThis.Array.isArray(object?.files) ? object.files.map((e: any) => globalThis.String(e)) : [] };
+    return {
+      files: globalThis.Array.isArray(object?.files)
+        ? object.files.map((e: any) => globalThis.String(e))
+        : [],
+    };
   },
 
   toJSON(message: ShowOpenDialogueFilterOption): unknown {
@@ -612,10 +634,14 @@ export const ShowOpenDialogueFilterOption: MessageFns<ShowOpenDialogueFilterOpti
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ShowOpenDialogueFilterOption>, I>>(base?: I): ShowOpenDialogueFilterOption {
+  create<I extends Exact<DeepPartial<ShowOpenDialogueFilterOption>, I>>(
+    base?: I,
+  ): ShowOpenDialogueFilterOption {
     return ShowOpenDialogueFilterOption.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ShowOpenDialogueFilterOption>, I>>(object: I): ShowOpenDialogueFilterOption {
+  fromPartial<I extends Exact<DeepPartial<ShowOpenDialogueFilterOption>, I>>(
+    object: I,
+  ): ShowOpenDialogueFilterOption {
     const message = createBaseShowOpenDialogueFilterOption();
     message.files = object.files?.map((e) => e) || [];
     return message;
@@ -659,7 +685,11 @@ export const SelectedResources: MessageFns<SelectedResources> = {
   },
 
   fromJSON(object: any): SelectedResources {
-    return { paths: globalThis.Array.isArray(object?.paths) ? object.paths.map((e: any) => globalThis.String(e)) : [] };
+    return {
+      paths: globalThis.Array.isArray(object?.paths)
+        ? object.paths.map((e: any) => globalThis.String(e))
+        : [],
+    };
   },
 
   toJSON(message: SelectedResources): unknown {
@@ -681,7 +711,7 @@ export const SelectedResources: MessageFns<SelectedResources> = {
 };
 
 function createBaseShowMessageRequest(): ShowMessageRequest {
-  return { type: 0, message: "", options: undefined };
+  return { type: 0, message: '', options: undefined };
 }
 
 export const ShowMessageRequest: MessageFns<ShowMessageRequest> = {
@@ -689,7 +719,7 @@ export const ShowMessageRequest: MessageFns<ShowMessageRequest> = {
     if (message.type !== 0) {
       writer.uint32(8).int32(message.type);
     }
-    if (message.message !== "") {
+    if (message.message !== '') {
       writer.uint32(18).string(message.message);
     }
     if (message.options !== undefined) {
@@ -741,8 +771,10 @@ export const ShowMessageRequest: MessageFns<ShowMessageRequest> = {
   fromJSON(object: any): ShowMessageRequest {
     return {
       type: isSet(object.type) ? showMessageTypeFromJSON(object.type) : 0,
-      message: isSet(object.message) ? globalThis.String(object.message) : "",
-      options: isSet(object.options) ? ShowMessageRequestOptions.fromJSON(object.options) : undefined,
+      message: isSet(object.message) ? globalThis.String(object.message) : '',
+      options: isSet(object.options)
+        ? ShowMessageRequestOptions.fromJSON(object.options)
+        : undefined,
     };
   },
 
@@ -751,7 +783,7 @@ export const ShowMessageRequest: MessageFns<ShowMessageRequest> = {
     if (message.type !== 0) {
       obj.type = showMessageTypeToJSON(message.type);
     }
-    if (message.message !== "") {
+    if (message.message !== '') {
       obj.message = message.message;
     }
     if (message.options !== undefined) {
@@ -766,10 +798,11 @@ export const ShowMessageRequest: MessageFns<ShowMessageRequest> = {
   fromPartial<I extends Exact<DeepPartial<ShowMessageRequest>, I>>(object: I): ShowMessageRequest {
     const message = createBaseShowMessageRequest();
     message.type = object.type ?? 0;
-    message.message = object.message ?? "";
-    message.options = (object.options !== undefined && object.options !== null)
-      ? ShowMessageRequestOptions.fromPartial(object.options)
-      : undefined;
+    message.message = object.message ?? '';
+    message.options =
+      object.options !== undefined && object.options !== null
+        ? ShowMessageRequestOptions.fromPartial(object.options)
+        : undefined;
     return message;
   },
 };
@@ -779,7 +812,10 @@ function createBaseShowMessageRequestOptions(): ShowMessageRequestOptions {
 }
 
 export const ShowMessageRequestOptions: MessageFns<ShowMessageRequestOptions> = {
-  encode(message: ShowMessageRequestOptions, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ShowMessageRequestOptions,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.items) {
       writer.uint32(10).string(v!);
     }
@@ -834,7 +870,9 @@ export const ShowMessageRequestOptions: MessageFns<ShowMessageRequestOptions> = 
 
   fromJSON(object: any): ShowMessageRequestOptions {
     return {
-      items: globalThis.Array.isArray(object?.items) ? object.items.map((e: any) => globalThis.String(e)) : [],
+      items: globalThis.Array.isArray(object?.items)
+        ? object.items.map((e: any) => globalThis.String(e))
+        : [],
       modal: isSet(object.modal) ? globalThis.Boolean(object.modal) : undefined,
       detail: isSet(object.detail) ? globalThis.String(object.detail) : undefined,
     };
@@ -854,10 +892,14 @@ export const ShowMessageRequestOptions: MessageFns<ShowMessageRequestOptions> = 
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ShowMessageRequestOptions>, I>>(base?: I): ShowMessageRequestOptions {
+  create<I extends Exact<DeepPartial<ShowMessageRequestOptions>, I>>(
+    base?: I,
+  ): ShowMessageRequestOptions {
     return ShowMessageRequestOptions.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ShowMessageRequestOptions>, I>>(object: I): ShowMessageRequestOptions {
+  fromPartial<I extends Exact<DeepPartial<ShowMessageRequestOptions>, I>>(
+    object: I,
+  ): ShowMessageRequestOptions {
     const message = createBaseShowMessageRequestOptions();
     message.items = object.items?.map((e) => e) || [];
     message.modal = object.modal ?? undefined;
@@ -907,8 +949,8 @@ export const SelectedResponse: MessageFns<SelectedResponse> = {
       selectedOption: isSet(object.selectedOption)
         ? globalThis.String(object.selectedOption)
         : isSet(object.selected_option)
-        ? globalThis.String(object.selected_option)
-        : undefined,
+          ? globalThis.String(object.selected_option)
+          : undefined,
     };
   },
 
@@ -967,7 +1009,9 @@ export const ShowSaveDialogRequest: MessageFns<ShowSaveDialogRequest> = {
   },
 
   fromJSON(object: any): ShowSaveDialogRequest {
-    return { options: isSet(object.options) ? ShowSaveDialogOptions.fromJSON(object.options) : undefined };
+    return {
+      options: isSet(object.options) ? ShowSaveDialogOptions.fromJSON(object.options) : undefined,
+    };
   },
 
   toJSON(message: ShowSaveDialogRequest): unknown {
@@ -981,11 +1025,14 @@ export const ShowSaveDialogRequest: MessageFns<ShowSaveDialogRequest> = {
   create<I extends Exact<DeepPartial<ShowSaveDialogRequest>, I>>(base?: I): ShowSaveDialogRequest {
     return ShowSaveDialogRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ShowSaveDialogRequest>, I>>(object: I): ShowSaveDialogRequest {
+  fromPartial<I extends Exact<DeepPartial<ShowSaveDialogRequest>, I>>(
+    object: I,
+  ): ShowSaveDialogRequest {
     const message = createBaseShowSaveDialogRequest();
-    message.options = (object.options !== undefined && object.options !== null)
-      ? ShowSaveDialogOptions.fromPartial(object.options)
-      : undefined;
+    message.options =
+      object.options !== undefined && object.options !== null
+        ? ShowSaveDialogOptions.fromPartial(object.options)
+        : undefined;
     return message;
   },
 };
@@ -999,9 +1046,14 @@ export const ShowSaveDialogOptions: MessageFns<ShowSaveDialogOptions> = {
     if (message.defaultPath !== undefined) {
       writer.uint32(10).string(message.defaultPath);
     }
-    globalThis.Object.entries(message.filters).forEach(([key, value]: [string, FileExtensionList]) => {
-      ShowSaveDialogOptions_FiltersEntry.encode({ key: key as any, value }, writer.uint32(18).fork()).join();
-    });
+    globalThis.Object.entries(message.filters).forEach(
+      ([key, value]: [string, FileExtensionList]) => {
+        ShowSaveDialogOptions_FiltersEntry.encode(
+          { key: key as any, value },
+          writer.uint32(18).fork(),
+        ).join();
+      },
+    );
     return writer;
   },
 
@@ -1045,16 +1097,16 @@ export const ShowSaveDialogOptions: MessageFns<ShowSaveDialogOptions> = {
       defaultPath: isSet(object.defaultPath)
         ? globalThis.String(object.defaultPath)
         : isSet(object.default_path)
-        ? globalThis.String(object.default_path)
-        : undefined,
+          ? globalThis.String(object.default_path)
+          : undefined,
       filters: isObject(object.filters)
         ? (globalThis.Object.entries(object.filters) as [string, any][]).reduce(
-          (acc: { [key: string]: FileExtensionList }, [key, value]: [string, any]) => {
-            acc[key] = FileExtensionList.fromJSON(value);
-            return acc;
-          },
-          {},
-        )
+            (acc: { [key: string]: FileExtensionList }, [key, value]: [string, any]) => {
+              acc[key] = FileExtensionList.fromJSON(value);
+              return acc;
+            },
+            {},
+          )
         : {},
     };
   },
@@ -1079,10 +1131,14 @@ export const ShowSaveDialogOptions: MessageFns<ShowSaveDialogOptions> = {
   create<I extends Exact<DeepPartial<ShowSaveDialogOptions>, I>>(base?: I): ShowSaveDialogOptions {
     return ShowSaveDialogOptions.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ShowSaveDialogOptions>, I>>(object: I): ShowSaveDialogOptions {
+  fromPartial<I extends Exact<DeepPartial<ShowSaveDialogOptions>, I>>(
+    object: I,
+  ): ShowSaveDialogOptions {
     const message = createBaseShowSaveDialogOptions();
     message.defaultPath = object.defaultPath ?? undefined;
-    message.filters = (globalThis.Object.entries(object.filters ?? {}) as [string, FileExtensionList][]).reduce(
+    message.filters = (
+      globalThis.Object.entries(object.filters ?? {}) as [string, FileExtensionList][]
+    ).reduce(
       (acc: { [key: string]: FileExtensionList }, [key, value]: [string, FileExtensionList]) => {
         if (value !== undefined) {
           acc[key] = FileExtensionList.fromPartial(value);
@@ -1096,12 +1152,15 @@ export const ShowSaveDialogOptions: MessageFns<ShowSaveDialogOptions> = {
 };
 
 function createBaseShowSaveDialogOptions_FiltersEntry(): ShowSaveDialogOptions_FiltersEntry {
-  return { key: "", value: undefined };
+  return { key: '', value: undefined };
 }
 
 export const ShowSaveDialogOptions_FiltersEntry: MessageFns<ShowSaveDialogOptions_FiltersEntry> = {
-  encode(message: ShowSaveDialogOptions_FiltersEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.key !== "") {
+  encode(
+    message: ShowSaveDialogOptions_FiltersEntry,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.key !== '') {
       writer.uint32(10).string(message.key);
     }
     if (message.value !== undefined) {
@@ -1144,14 +1203,14 @@ export const ShowSaveDialogOptions_FiltersEntry: MessageFns<ShowSaveDialogOption
 
   fromJSON(object: any): ShowSaveDialogOptions_FiltersEntry {
     return {
-      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      key: isSet(object.key) ? globalThis.String(object.key) : '',
       value: isSet(object.value) ? FileExtensionList.fromJSON(object.value) : undefined,
     };
   },
 
   toJSON(message: ShowSaveDialogOptions_FiltersEntry): unknown {
     const obj: any = {};
-    if (message.key !== "") {
+    if (message.key !== '') {
       obj.key = message.key;
     }
     if (message.value !== undefined) {
@@ -1169,10 +1228,11 @@ export const ShowSaveDialogOptions_FiltersEntry: MessageFns<ShowSaveDialogOption
     object: I,
   ): ShowSaveDialogOptions_FiltersEntry {
     const message = createBaseShowSaveDialogOptions_FiltersEntry();
-    message.key = object.key ?? "";
-    message.value = (object.value !== undefined && object.value !== null)
-      ? FileExtensionList.fromPartial(object.value)
-      : undefined;
+    message.key = object.key ?? '';
+    message.value =
+      object.value !== undefined && object.value !== null
+        ? FileExtensionList.fromPartial(object.value)
+        : undefined;
     return message;
   },
 };
@@ -1280,8 +1340,8 @@ export const ShowSaveDialogResponse: MessageFns<ShowSaveDialogResponse> = {
       selectedPath: isSet(object.selectedPath)
         ? globalThis.String(object.selectedPath)
         : isSet(object.selected_path)
-        ? globalThis.String(object.selected_path)
-        : undefined,
+          ? globalThis.String(object.selected_path)
+          : undefined,
     };
   },
 
@@ -1293,10 +1353,14 @@ export const ShowSaveDialogResponse: MessageFns<ShowSaveDialogResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ShowSaveDialogResponse>, I>>(base?: I): ShowSaveDialogResponse {
+  create<I extends Exact<DeepPartial<ShowSaveDialogResponse>, I>>(
+    base?: I,
+  ): ShowSaveDialogResponse {
     return ShowSaveDialogResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ShowSaveDialogResponse>, I>>(object: I): ShowSaveDialogResponse {
+  fromPartial<I extends Exact<DeepPartial<ShowSaveDialogResponse>, I>>(
+    object: I,
+  ): ShowSaveDialogResponse {
     const message = createBaseShowSaveDialogResponse();
     message.selectedPath = object.selectedPath ?? undefined;
     return message;
@@ -1304,12 +1368,12 @@ export const ShowSaveDialogResponse: MessageFns<ShowSaveDialogResponse> = {
 };
 
 function createBaseShowInputBoxRequest(): ShowInputBoxRequest {
-  return { title: "", prompt: undefined, value: undefined };
+  return { title: '', prompt: undefined, value: undefined };
 }
 
 export const ShowInputBoxRequest: MessageFns<ShowInputBoxRequest> = {
   encode(message: ShowInputBoxRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.title !== "") {
+    if (message.title !== '') {
       writer.uint32(10).string(message.title);
     }
     if (message.prompt !== undefined) {
@@ -1363,7 +1427,7 @@ export const ShowInputBoxRequest: MessageFns<ShowInputBoxRequest> = {
 
   fromJSON(object: any): ShowInputBoxRequest {
     return {
-      title: isSet(object.title) ? globalThis.String(object.title) : "",
+      title: isSet(object.title) ? globalThis.String(object.title) : '',
       prompt: isSet(object.prompt) ? globalThis.String(object.prompt) : undefined,
       value: isSet(object.value) ? globalThis.String(object.value) : undefined,
     };
@@ -1371,7 +1435,7 @@ export const ShowInputBoxRequest: MessageFns<ShowInputBoxRequest> = {
 
   toJSON(message: ShowInputBoxRequest): unknown {
     const obj: any = {};
-    if (message.title !== "") {
+    if (message.title !== '') {
       obj.title = message.title;
     }
     if (message.prompt !== undefined) {
@@ -1386,9 +1450,11 @@ export const ShowInputBoxRequest: MessageFns<ShowInputBoxRequest> = {
   create<I extends Exact<DeepPartial<ShowInputBoxRequest>, I>>(base?: I): ShowInputBoxRequest {
     return ShowInputBoxRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ShowInputBoxRequest>, I>>(object: I): ShowInputBoxRequest {
+  fromPartial<I extends Exact<DeepPartial<ShowInputBoxRequest>, I>>(
+    object: I,
+  ): ShowInputBoxRequest {
     const message = createBaseShowInputBoxRequest();
-    message.title = object.title ?? "";
+    message.title = object.title ?? '';
     message.prompt = object.prompt ?? undefined;
     message.value = object.value ?? undefined;
     return message;
@@ -1446,7 +1512,9 @@ export const ShowInputBoxResponse: MessageFns<ShowInputBoxResponse> = {
   create<I extends Exact<DeepPartial<ShowInputBoxResponse>, I>>(base?: I): ShowInputBoxResponse {
     return ShowInputBoxResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ShowInputBoxResponse>, I>>(object: I): ShowInputBoxResponse {
+  fromPartial<I extends Exact<DeepPartial<ShowInputBoxResponse>, I>>(
+    object: I,
+  ): ShowInputBoxResponse {
     const message = createBaseShowInputBoxResponse();
     message.response = object.response ?? undefined;
     return message;
@@ -1454,12 +1522,12 @@ export const ShowInputBoxResponse: MessageFns<ShowInputBoxResponse> = {
 };
 
 function createBaseOpenFileRequest(): OpenFileRequest {
-  return { filePath: "" };
+  return { filePath: '' };
 }
 
 export const OpenFileRequest: MessageFns<OpenFileRequest> = {
   encode(message: OpenFileRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.filePath !== "") {
+    if (message.filePath !== '') {
       writer.uint32(10).string(message.filePath);
     }
     return writer;
@@ -1494,14 +1562,14 @@ export const OpenFileRequest: MessageFns<OpenFileRequest> = {
       filePath: isSet(object.filePath)
         ? globalThis.String(object.filePath)
         : isSet(object.file_path)
-        ? globalThis.String(object.file_path)
-        : "",
+          ? globalThis.String(object.file_path)
+          : '',
     };
   },
 
   toJSON(message: OpenFileRequest): unknown {
     const obj: any = {};
-    if (message.filePath !== "") {
+    if (message.filePath !== '') {
       obj.filePath = message.filePath;
     }
     return obj;
@@ -1512,7 +1580,7 @@ export const OpenFileRequest: MessageFns<OpenFileRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<OpenFileRequest>, I>>(object: I): OpenFileRequest {
     const message = createBaseOpenFileRequest();
-    message.filePath = object.filePath ?? "";
+    message.filePath = object.filePath ?? '';
     return message;
   },
 };
@@ -1611,7 +1679,9 @@ export const OpenSettingsRequest: MessageFns<OpenSettingsRequest> = {
   create<I extends Exact<DeepPartial<OpenSettingsRequest>, I>>(base?: I): OpenSettingsRequest {
     return OpenSettingsRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<OpenSettingsRequest>, I>>(object: I): OpenSettingsRequest {
+  fromPartial<I extends Exact<DeepPartial<OpenSettingsRequest>, I>>(
+    object: I,
+  ): OpenSettingsRequest {
     const message = createBaseOpenSettingsRequest();
     message.query = object.query ?? undefined;
     return message;
@@ -1741,7 +1811,11 @@ export const GetOpenTabsResponse: MessageFns<GetOpenTabsResponse> = {
   },
 
   fromJSON(object: any): GetOpenTabsResponse {
-    return { paths: globalThis.Array.isArray(object?.paths) ? object.paths.map((e: any) => globalThis.String(e)) : [] };
+    return {
+      paths: globalThis.Array.isArray(object?.paths)
+        ? object.paths.map((e: any) => globalThis.String(e))
+        : [],
+    };
   },
 
   toJSON(message: GetOpenTabsResponse): unknown {
@@ -1755,7 +1829,9 @@ export const GetOpenTabsResponse: MessageFns<GetOpenTabsResponse> = {
   create<I extends Exact<DeepPartial<GetOpenTabsResponse>, I>>(base?: I): GetOpenTabsResponse {
     return GetOpenTabsResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetOpenTabsResponse>, I>>(object: I): GetOpenTabsResponse {
+  fromPartial<I extends Exact<DeepPartial<GetOpenTabsResponse>, I>>(
+    object: I,
+  ): GetOpenTabsResponse {
     const message = createBaseGetOpenTabsResponse();
     message.paths = object.paths?.map((e) => e) || [];
     return message;
@@ -1842,7 +1918,11 @@ export const GetVisibleTabsResponse: MessageFns<GetVisibleTabsResponse> = {
   },
 
   fromJSON(object: any): GetVisibleTabsResponse {
-    return { paths: globalThis.Array.isArray(object?.paths) ? object.paths.map((e: any) => globalThis.String(e)) : [] };
+    return {
+      paths: globalThis.Array.isArray(object?.paths)
+        ? object.paths.map((e: any) => globalThis.String(e))
+        : [],
+    };
   },
 
   toJSON(message: GetVisibleTabsResponse): unknown {
@@ -1853,10 +1933,14 @@ export const GetVisibleTabsResponse: MessageFns<GetVisibleTabsResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetVisibleTabsResponse>, I>>(base?: I): GetVisibleTabsResponse {
+  create<I extends Exact<DeepPartial<GetVisibleTabsResponse>, I>>(
+    base?: I,
+  ): GetVisibleTabsResponse {
     return GetVisibleTabsResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetVisibleTabsResponse>, I>>(object: I): GetVisibleTabsResponse {
+  fromPartial<I extends Exact<DeepPartial<GetVisibleTabsResponse>, I>>(
+    object: I,
+  ): GetVisibleTabsResponse {
     const message = createBaseGetVisibleTabsResponse();
     message.paths = object.paths?.map((e) => e) || [];
     return message;
@@ -1897,10 +1981,14 @@ export const GetActiveEditorRequest: MessageFns<GetActiveEditorRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetActiveEditorRequest>, I>>(base?: I): GetActiveEditorRequest {
+  create<I extends Exact<DeepPartial<GetActiveEditorRequest>, I>>(
+    base?: I,
+  ): GetActiveEditorRequest {
     return GetActiveEditorRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetActiveEditorRequest>, I>>(_: I): GetActiveEditorRequest {
+  fromPartial<I extends Exact<DeepPartial<GetActiveEditorRequest>, I>>(
+    _: I,
+  ): GetActiveEditorRequest {
     const message = createBaseGetActiveEditorRequest();
     return message;
   },
@@ -1911,7 +1999,10 @@ function createBaseGetActiveEditorResponse(): GetActiveEditorResponse {
 }
 
 export const GetActiveEditorResponse: MessageFns<GetActiveEditorResponse> = {
-  encode(message: GetActiveEditorResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetActiveEditorResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.filePath !== undefined) {
       writer.uint32(10).string(message.filePath);
     }
@@ -1947,8 +2038,8 @@ export const GetActiveEditorResponse: MessageFns<GetActiveEditorResponse> = {
       filePath: isSet(object.filePath)
         ? globalThis.String(object.filePath)
         : isSet(object.file_path)
-        ? globalThis.String(object.file_path)
-        : undefined,
+          ? globalThis.String(object.file_path)
+          : undefined,
     };
   },
 
@@ -1960,10 +2051,14 @@ export const GetActiveEditorResponse: MessageFns<GetActiveEditorResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetActiveEditorResponse>, I>>(base?: I): GetActiveEditorResponse {
+  create<I extends Exact<DeepPartial<GetActiveEditorResponse>, I>>(
+    base?: I,
+  ): GetActiveEditorResponse {
     return GetActiveEditorResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetActiveEditorResponse>, I>>(object: I): GetActiveEditorResponse {
+  fromPartial<I extends Exact<DeepPartial<GetActiveEditorResponse>, I>>(
+    object: I,
+  ): GetActiveEditorResponse {
     const message = createBaseGetActiveEditorResponse();
     message.filePath = object.filePath ?? undefined;
     return message;
@@ -1973,12 +2068,12 @@ export const GetActiveEditorResponse: MessageFns<GetActiveEditorResponse> = {
 /** Provides methods for working with IDE windows and editors. */
 export type WindowServiceDefinition = typeof WindowServiceDefinition;
 export const WindowServiceDefinition = {
-  name: "WindowService",
-  fullName: "host.WindowService",
+  name: 'WindowService',
+  fullName: 'host.WindowService',
   methods: {
     /** Opens a text document in the IDE editor and returns editor information. */
     showTextDocument: {
-      name: "showTextDocument",
+      name: 'showTextDocument',
       requestType: ShowTextDocumentRequest,
       requestStream: false,
       responseType: TextEditorInfo,
@@ -1987,7 +2082,7 @@ export const WindowServiceDefinition = {
     },
     /** Shows the open file dialogue / file picker. */
     showOpenDialogue: {
-      name: "showOpenDialogue",
+      name: 'showOpenDialogue',
       requestType: ShowOpenDialogueRequest,
       requestStream: false,
       responseType: SelectedResources,
@@ -1996,7 +2091,7 @@ export const WindowServiceDefinition = {
     },
     /** Shows a notification. */
     showMessage: {
-      name: "showMessage",
+      name: 'showMessage',
       requestType: ShowMessageRequest,
       requestStream: false,
       responseType: SelectedResponse,
@@ -2005,7 +2100,7 @@ export const WindowServiceDefinition = {
     },
     /** Prompts the user for input and returns the response. */
     showInputBox: {
-      name: "showInputBox",
+      name: 'showInputBox',
       requestType: ShowInputBoxRequest,
       requestStream: false,
       responseType: ShowInputBoxResponse,
@@ -2014,7 +2109,7 @@ export const WindowServiceDefinition = {
     },
     /** Shows the file save dialogue / file picker. */
     showSaveDialog: {
-      name: "showSaveDialog",
+      name: 'showSaveDialog',
       requestType: ShowSaveDialogRequest,
       requestStream: false,
       responseType: ShowSaveDialogResponse,
@@ -2023,7 +2118,7 @@ export const WindowServiceDefinition = {
     },
     /** Opens a file in the IDE. */
     openFile: {
-      name: "openFile",
+      name: 'openFile',
       requestType: OpenFileRequest,
       requestStream: false,
       responseType: OpenFileResponse,
@@ -2032,7 +2127,7 @@ export const WindowServiceDefinition = {
     },
     /** Opens the host settings UI, optionally focusing a specific query/section. */
     openSettings: {
-      name: "openSettings",
+      name: 'openSettings',
       requestType: OpenSettingsRequest,
       requestStream: false,
       responseType: OpenSettingsResponse,
@@ -2041,7 +2136,7 @@ export const WindowServiceDefinition = {
     },
     /** Returns the open tabs. */
     getOpenTabs: {
-      name: "getOpenTabs",
+      name: 'getOpenTabs',
       requestType: GetOpenTabsRequest,
       requestStream: false,
       responseType: GetOpenTabsResponse,
@@ -2050,7 +2145,7 @@ export const WindowServiceDefinition = {
     },
     /** Returns the visible tabs. */
     getVisibleTabs: {
-      name: "getVisibleTabs",
+      name: 'getVisibleTabs',
       requestType: GetVisibleTabsRequest,
       requestStream: false,
       responseType: GetVisibleTabsResponse,
@@ -2059,7 +2154,7 @@ export const WindowServiceDefinition = {
     },
     /** Returns information about the current editor */
     getActiveEditor: {
-      name: "getActiveEditor",
+      name: 'getActiveEditor',
       requestType: GetActiveEditorRequest,
       requestStream: false,
       responseType: GetActiveEditorResponse,
@@ -2071,18 +2166,23 @@ export const WindowServiceDefinition = {
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-type Exact<P, I extends P> = P extends Builtin ? P
+type Exact<P, I extends P> = P extends Builtin
+  ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function isObject(value: any): boolean {
-  return typeof value === "object" && value !== null;
+  return typeof value === 'object' && value !== null;
 }
 
 function isSet(value: any): boolean {

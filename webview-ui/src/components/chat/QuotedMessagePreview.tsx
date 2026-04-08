@@ -1,6 +1,6 @@
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
-import React from "react"
-import styled from "styled-components"
+import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
+import type React from 'react';
+import styled from 'styled-components';
 
 const PreviewContainer = styled.div`
 	background-color: var(--vscode-input-background); /* Outer box matches text area */
@@ -12,7 +12,7 @@ const PreviewContainer = styled.div`
 	display: flex;
 	/* flex-direction: column; */ /* No longer needed as Label is removed */
 	position: relative; /* Keep for button positioning */
-`
+`;
 
 // Removed Label component
 
@@ -25,7 +25,7 @@ const ContentRow = styled.div`
 	align-items: flex-start; /* Align items to the top */
 	justify-content: space-between;
 	width: 100%;
-`
+`;
 
 const TextContainer = styled.div`
 	grow: 1;
@@ -41,7 +41,7 @@ const TextContainer = styled.div`
 	opacity: 0.9; /* Slightly muted text */
 	line-height: 1.4; /* Improve readability */
 	max-height: calc(1.4 * var(--vscode-editor-font-size) * 3); /* approx 3 lines */
-`
+`;
 
 const DismissButton = styled(VSCodeButton)`
 	/* margin-left: auto; */ /* Removed as ContentRow handles spacing */
@@ -53,7 +53,7 @@ const DismissButton = styled(VSCodeButton)`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-`
+`;
 
 const ReplyIcon = styled.span`
 	color: var(--vscode-descriptionForeground);
@@ -61,29 +61,33 @@ const ReplyIcon = styled.span`
 	shrink: 0;
 	font-size: 13px; /* Make icon even smaller */
 	/* transform: translateY(-1px); */ /* Removed vertical transform */
-`
+`;
 
 interface QuotedMessagePreviewProps {
-	text: string
-	onDismiss: () => void
-	isFocused?: boolean
+  text: string;
+  onDismiss: () => void;
+  isFocused?: boolean;
 }
 
-const QuotedMessagePreview: React.FC<QuotedMessagePreviewProps> = ({ text, onDismiss, isFocused }) => {
-	const _cardClassName = `reply-card ${isFocused ? "reply-card--focused" : ""}`
+const QuotedMessagePreview: React.FC<QuotedMessagePreviewProps> = ({
+  text,
+  onDismiss,
+  isFocused,
+}) => {
+  const _cardClassName = `reply-card ${isFocused ? 'reply-card--focused' : ''}`;
 
-	return (
-		<PreviewContainer>
-			{/* Removed Label */}
-			<ContentRow>
-				<ReplyIcon className="codicon codicon-reply"></ReplyIcon>
-				<TextContainer title={text}>{text}</TextContainer>
-				<DismissButton appearance="icon" aria-label="Dismiss quote" onClick={onDismiss}>
-					<span className="codicon codicon-close"></span>
-				</DismissButton>
-			</ContentRow>
-		</PreviewContainer>
-	)
-}
+  return (
+    <PreviewContainer>
+      {/* Removed Label */}
+      <ContentRow>
+        <ReplyIcon className="codicon codicon-reply" />
+        <TextContainer title={text}>{text}</TextContainer>
+        <DismissButton appearance="icon" aria-label="Dismiss quote" onClick={onDismiss}>
+          <span className="codicon codicon-close" />
+        </DismissButton>
+      </ContentRow>
+    </PreviewContainer>
+  );
+};
 
-export default QuotedMessagePreview
+export default QuotedMessagePreview;

@@ -7,49 +7,57 @@
  * Feature flags settings that control how feature flags are retrieved
  */
 export interface FeatureFlagsSettings {
-	/** Whether feature flags are enabled */
-	enabled: boolean
-	/** Optional timeout for feature flag requests */
-	timeout?: number
+  /** Whether feature flags are enabled */
+  enabled: boolean;
+  /** Optional timeout for feature flag requests */
+  timeout?: number;
 }
 
 type JsonType =
-	| string
-	| number
-	| boolean
-	| null
-	| {
-			[key: string]: JsonType
-	  }
-	| Array<JsonType>
-	| JsonType[]
-export type FeatureFlagPayload = string | number | boolean | { [key: string]: JsonType } | JsonType[] | null
+  | string
+  | number
+  | boolean
+  | null
+  | {
+      [key: string]: JsonType;
+    }
+  | Array<JsonType>
+  | JsonType[];
+export type FeatureFlagPayload =
+  | string
+  | number
+  | boolean
+  | { [key: string]: JsonType }
+  | JsonType[]
+  | null;
 export type FeatureFlagsAndPayloads = {
-	featureFlags?: Record<string, FeatureFlagPayload>
-	featureFlagPayloads?: Record<string, FeatureFlagPayload>
-}
+  featureFlags?: Record<string, FeatureFlagPayload>;
+  featureFlagPayloads?: Record<string, FeatureFlagPayload>;
+};
 
 /**
  * Abstract interface for feature flags providers
  * Any feature flags provider must implement this interface
  */
 export interface IFeatureFlagsProvider {
-	getAllFlagsAndPayloads(options: { flagKeys?: string[] }): Promise<FeatureFlagsAndPayloads | undefined>
+  getAllFlagsAndPayloads(options: { flagKeys?: string[] }): Promise<
+    FeatureFlagsAndPayloads | undefined
+  >;
 
-	/**
-	 * Check if the provider is enabled and ready
-	 * @returns Boolean indicating whether the provider is enabled
-	 */
-	isEnabled(): boolean
+  /**
+   * Check if the provider is enabled and ready
+   * @returns Boolean indicating whether the provider is enabled
+   */
+  isEnabled(): boolean;
 
-	/**
-	 * Get current feature flags settings
-	 * @returns Current feature flags settings
-	 */
-	getSettings(): FeatureFlagsSettings
+  /**
+   * Get current feature flags settings
+   * @returns Current feature flags settings
+   */
+  getSettings(): FeatureFlagsSettings;
 
-	/**
-	 * Clean up resources when the provider is disposed
-	 */
-	dispose(): Promise<void>
+  /**
+   * Clean up resources when the provider is disposed
+   */
+  dispose(): Promise<void>;
 }

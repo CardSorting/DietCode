@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react"
-import { useDebounceEffect } from "@/utils/useDebounceEffect"
+import { useDebounceEffect } from '@/utils/useDebounceEffect';
+import { useEffect, useRef, useState } from 'react';
 
 /**
  * A custom hook that provides debounced input handling to prevent jumpy text inputs
@@ -11,32 +11,32 @@ import { useDebounceEffect } from "@/utils/useDebounceEffect"
  * @returns A tuple of [currentValue, setValue] similar to useState
  */
 export function useDebouncedInput<T>(
-	initialValue: T,
-	onChange: (value: T) => void,
-	debounceMs: number = 100,
+  initialValue: T,
+  onChange: (value: T) => void,
+  debounceMs = 100,
 ): [T, (value: T) => void] {
-	// Local state to prevent jumpy input - initialize once
-	const [localValue, setLocalValue] = useState(initialValue)
+  // Local state to prevent jumpy input - initialize once
+  const [localValue, setLocalValue] = useState(initialValue);
 
-	// Track previous initialValue to detect external changes
-	const prevInitialValueRef = useRef<T>(initialValue)
+  // Track previous initialValue to detect external changes
+  const prevInitialValueRef = useRef<T>(initialValue);
 
-	// Sync local state when initialValue changes externally (e.g., when switching Plan/Act tabs)
-	useEffect(() => {
-		if (prevInitialValueRef.current !== initialValue) {
-			setLocalValue(initialValue)
-			prevInitialValueRef.current = initialValue
-		}
-	}, [initialValue])
+  // Sync local state when initialValue changes externally (e.g., when switching Plan/Act tabs)
+  useEffect(() => {
+    if (prevInitialValueRef.current !== initialValue) {
+      setLocalValue(initialValue);
+      prevInitialValueRef.current = initialValue;
+    }
+  }, [initialValue]);
 
-	// Debounced backend save - saves after user stops changing value
-	useDebounceEffect(
-		() => {
-			onChange(localValue)
-		},
-		debounceMs,
-		[localValue],
-	)
+  // Debounced backend save - saves after user stops changing value
+  useDebounceEffect(
+    () => {
+      onChange(localValue);
+    },
+    debounceMs,
+    [localValue],
+  );
 
-	return [localValue, setLocalValue]
+  return [localValue, setLocalValue];
 }

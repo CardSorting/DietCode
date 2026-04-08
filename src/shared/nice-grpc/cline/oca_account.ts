@@ -5,8 +5,8 @@
 // source: cline/oca_account.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Empty, EmptyRequest, String } from "./common";
+import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+import { Empty, EmptyRequest, String } from './common';
 
 export interface OcaAuthState {
   user?: OcaUserInfo | undefined;
@@ -73,8 +73,8 @@ export const OcaAuthState: MessageFns<OcaAuthState> = {
       apiKey: isSet(object.apiKey)
         ? globalThis.String(object.apiKey)
         : isSet(object.api_key)
-        ? globalThis.String(object.api_key)
-        : undefined,
+          ? globalThis.String(object.api_key)
+          : undefined,
     };
   },
 
@@ -94,21 +94,22 @@ export const OcaAuthState: MessageFns<OcaAuthState> = {
   },
   fromPartial<I extends Exact<DeepPartial<OcaAuthState>, I>>(object: I): OcaAuthState {
     const message = createBaseOcaAuthState();
-    message.user = (object.user !== undefined && object.user !== null)
-      ? OcaUserInfo.fromPartial(object.user)
-      : undefined;
+    message.user =
+      object.user !== undefined && object.user !== null
+        ? OcaUserInfo.fromPartial(object.user)
+        : undefined;
     message.apiKey = object.apiKey ?? undefined;
     return message;
   },
 };
 
 function createBaseOcaUserInfo(): OcaUserInfo {
-  return { uid: "", displayName: undefined, email: undefined };
+  return { uid: '', displayName: undefined, email: undefined };
 }
 
 export const OcaUserInfo: MessageFns<OcaUserInfo> = {
   encode(message: OcaUserInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.uid !== "") {
+    if (message.uid !== '') {
       writer.uint32(10).string(message.uid);
     }
     if (message.displayName !== undefined) {
@@ -162,19 +163,19 @@ export const OcaUserInfo: MessageFns<OcaUserInfo> = {
 
   fromJSON(object: any): OcaUserInfo {
     return {
-      uid: isSet(object.uid) ? globalThis.String(object.uid) : "",
+      uid: isSet(object.uid) ? globalThis.String(object.uid) : '',
       displayName: isSet(object.displayName)
         ? globalThis.String(object.displayName)
         : isSet(object.display_name)
-        ? globalThis.String(object.display_name)
-        : undefined,
+          ? globalThis.String(object.display_name)
+          : undefined,
       email: isSet(object.email) ? globalThis.String(object.email) : undefined,
     };
   },
 
   toJSON(message: OcaUserInfo): unknown {
     const obj: any = {};
-    if (message.uid !== "") {
+    if (message.uid !== '') {
       obj.uid = message.uid;
     }
     if (message.displayName !== undefined) {
@@ -191,7 +192,7 @@ export const OcaUserInfo: MessageFns<OcaUserInfo> = {
   },
   fromPartial<I extends Exact<DeepPartial<OcaUserInfo>, I>>(object: I): OcaUserInfo {
     const message = createBaseOcaUserInfo();
-    message.uid = object.uid ?? "";
+    message.uid = object.uid ?? '';
     message.displayName = object.displayName ?? undefined;
     message.email = object.email ?? undefined;
     return message;
@@ -201,8 +202,8 @@ export const OcaUserInfo: MessageFns<OcaUserInfo> = {
 /** Service for account-related operations */
 export type OcaAccountServiceDefinition = typeof OcaAccountServiceDefinition;
 export const OcaAccountServiceDefinition = {
-  name: "OcaAccountService",
-  fullName: "cline.OcaAccountService",
+  name: 'OcaAccountService',
+  fullName: 'cline.OcaAccountService',
   methods: {
     /**
      * Handles the user clicking the login link in the UI.
@@ -210,7 +211,7 @@ export const OcaAccountServiceDefinition = {
      * and opens the authentication URL in the external browser.
      */
     ocaAccountLoginClicked: {
-      name: "ocaAccountLoginClicked",
+      name: 'ocaAccountLoginClicked',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: String,
@@ -222,7 +223,7 @@ export const OcaAccountServiceDefinition = {
      * Clears API keys and user state.
      */
     ocaAccountLogoutClicked: {
-      name: "ocaAccountLogoutClicked",
+      name: 'ocaAccountLogoutClicked',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -231,7 +232,7 @@ export const OcaAccountServiceDefinition = {
     },
     /** Subscribe to auth status update events (when authentication state changes) */
     ocaSubscribeToAuthStatusUpdate: {
-      name: "ocaSubscribeToAuthStatusUpdate",
+      name: 'ocaSubscribeToAuthStatusUpdate',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OcaAuthState,
@@ -243,14 +244,19 @@ export const OcaAccountServiceDefinition = {
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-type Exact<P, I extends P> = P extends Builtin ? P
+type Exact<P, I extends P> = P extends Builtin
+  ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function isSet(value: any): boolean {

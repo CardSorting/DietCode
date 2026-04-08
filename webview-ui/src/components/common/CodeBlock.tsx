@@ -1,17 +1,19 @@
-import { memo, useEffect } from "react"
-import { useRemark } from "react-remark"
-import rehypeHighlight, { Options } from "rehype-highlight"
-import styled from "styled-components"
-import { visit } from "unist-util-visit"
-import "./codeblock-parser.css"
+import { memo, useEffect } from 'react';
+import { useRemark } from 'react-remark';
+import rehypeHighlight, { type Options } from 'rehype-highlight';
+import styled from 'styled-components';
+import { visit } from 'unist-util-visit';
+import './codeblock-parser.css';
 
-export const CODE_BLOCK_BG_COLOR = "var(--vscode-editor-background, --vscode-sideBar-background, rgb(30 30 30))"
+export const CODE_BLOCK_BG_COLOR =
+  'var(--vscode-editor-background, --vscode-sideBar-background, rgb(30 30 30))';
 
-export const TERMINAL_CODE_BLOCK_BG_COLOR = "var(--vscode-editor-background, --vscode-sideBar-background, rgb(30 30 30))"
+export const TERMINAL_CODE_BLOCK_BG_COLOR =
+  'var(--vscode-editor-background, --vscode-sideBar-background, rgb(30 30 30))';
 
 // Theme-aware background colors for expanded/collapsed states
-export const CHAT_ROW_EXPANDED_BG_COLOR = "var(--vscode-editor-background)"
-export const CHAT_ROW_COLLAPSED_BG_COLOR = "var(--vscode-sideBar-background)"
+export const CHAT_ROW_EXPANDED_BG_COLOR = 'var(--vscode-editor-background)';
+export const CHAT_ROW_COLLAPSED_BG_COLOR = 'var(--vscode-sideBar-background)';
 
 /*
 overflowX: auto + inner div with padding results in an issue where the top/left/bottom padding renders but the right padding inside does not count as overflow as the width of the element is not exceeded. Once the inner div is outside the boundaries of the parent it counts as overflow.
@@ -22,14 +24,14 @@ minWidth: "max-content",
 */
 
 interface CodeBlockProps {
-	source?: string
-	forceWrap?: boolean
+  source?: string;
+  forceWrap?: boolean;
 }
 
 const StyledMarkdown = styled.div<{ forceWrap: boolean }>`
 	${({ forceWrap }) =>
-		forceWrap &&
-		`
+    forceWrap &&
+    `
     pre, code {
       white-space: pre-wrap;
       word-break: break-all;
@@ -41,7 +43,7 @@ const StyledMarkdown = styled.div<{ forceWrap: boolean }>`
 		background-color: ${CODE_BLOCK_BG_COLOR};
 		border-radius: 5px;
 		margin: 0;
-		min-width: ${({ forceWrap }) => (forceWrap ? "auto" : "max-content")};
+		min-width: ${({ forceWrap }) => (forceWrap ? 'auto' : 'max-content')};
 		padding: 10px 10px;
 	}
 
@@ -97,7 +99,7 @@ const StyledMarkdown = styled.div<{ forceWrap: boolean }>`
 	ul {
 		line-height: 1.5;
 	}
-`
+`;
 
 const StyledPre = styled.pre<{ theme: any }>`
 	& .hljs {
@@ -105,62 +107,63 @@ const StyledPre = styled.pre<{ theme: any }>`
 	}
 
 	${(props) =>
-		Object.keys(props.theme)
-			.map((key, _index) => {
-				return `
+    Object.keys(props.theme)
+      .map((key, _index) => {
+        return `
       & ${key} {
         color: ${props.theme[key]};
       }
-    `
-			})
-			.join("")}
-`
+    `;
+      })
+      .join('')}
+`;
 
 const CodeBlock = memo(({ source, forceWrap = false }: CodeBlockProps) => {
-	const [reactContent, setMarkdownSource] = useRemark({
-		remarkPlugins: [
-			() => {
-				return (tree) => {
-					visit(tree, "code", (node: any) => {
-						if (!node.lang) {
-							node.lang = "javascript"
-						} else if (node.lang.includes(".")) {
-							// if the language is a file, get the extension
-							node.lang = node.lang.split(".").slice(-1)[0]
-						}
-					})
-				}
-			},
-		],
-		rehypePlugins: [
-			rehypeHighlight as any,
-			{
-				// languages: {},
-			} as Options,
-		],
-		rehypeReactOptions: {
-			components: {
-				pre: ({ node, ...preProps }: any) => <StyledPre {...preProps} />,
-			},
-		},
-	})
+  const [reactContent, setMarkdownSource] = useRemark({
+    remarkPlugins: [
+      () => {
+        return (tree) => {
+          visit(tree, 'code', (node: any) => {
+            if (!node.lang) {
+              node.lang = 'javascript';
+            } else if (node.lang.includes('.')) {
+              // if the language is a file, get the extension
+              node.lang = node.lang.split('.').slice(-1)[0];
+            }
+          });
+        };
+      },
+    ],
+    rehypePlugins: [
+      rehypeHighlight as any,
+      {
+        // languages: {},
+      } as Options,
+    ],
+    rehypeReactOptions: {
+      components: {
+        pre: ({ node, ...preProps }: any) => <StyledPre {...preProps} />,
+      },
+    },
+  });
 
-	useEffect(() => {
-		setMarkdownSource(source || "")
-	}, [source, setMarkdownSource])
+  useEffect(() => {
+    setMarkdownSource(source || '');
+  }, [source, setMarkdownSource]);
 
-	return (
-		<div
-			style={{
-				overflowY: forceWrap ? "visible" : "auto",
-				maxHeight: forceWrap ? "none" : "100%",
-				backgroundColor: CODE_BLOCK_BG_COLOR,
-			}}>
-			<StyledMarkdown className="ph-no-capture markdown" forceWrap={forceWrap}>
-				{reactContent}
-			</StyledMarkdown>
-		</div>
-	)
-})
+  return (
+    <div
+      style={{
+        overflowY: forceWrap ? 'visible' : 'auto',
+        maxHeight: forceWrap ? 'none' : '100%',
+        backgroundColor: CODE_BLOCK_BG_COLOR,
+      }}
+    >
+      <StyledMarkdown className="ph-no-capture markdown" forceWrap={forceWrap}>
+        {reactContent}
+      </StyledMarkdown>
+    </div>
+  );
+});
 
-export default CodeBlock
+export default CodeBlock;

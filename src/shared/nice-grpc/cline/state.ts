@@ -5,20 +5,28 @@
 // source: cline/state.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { BrowserSettings, Viewport } from "./browser";
-import { Boolean, BooleanRequest, Empty, EmptyRequest, Int64Request, Metadata, StringRequest } from "./common";
+import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+import { BrowserSettings, Viewport } from './browser';
 import {
-  ApiProvider,
-  apiProviderFromJSON,
-  apiProviderToJSON,
+  Boolean,
+  BooleanRequest,
+  Empty,
+  EmptyRequest,
+  Int64Request,
+  Metadata,
+  StringRequest,
+} from './common';
+import {
+  type ApiProvider,
   LanguageModelChatSelector,
   LiteLLMModelInfo,
   ModelsApiConfiguration,
   OcaModelInfo,
   OpenAiCompatibleModelInfo,
   OpenRouterModelInfo,
-} from "./models";
+  apiProviderFromJSON,
+  apiProviderToJSON,
+} from './models';
 
 export enum PlanActMode {
   PLAN = 0,
@@ -29,13 +37,11 @@ export enum PlanActMode {
 export function planActModeFromJSON(object: any): PlanActMode {
   switch (object) {
     case 0:
-    case "PLAN":
+    case 'PLAN':
       return PlanActMode.PLAN;
     case 1:
-    case "ACT":
+    case 'ACT':
       return PlanActMode.ACT;
-    case -1:
-    case "UNRECOGNIZED":
     default:
       return PlanActMode.UNRECOGNIZED;
   }
@@ -44,12 +50,11 @@ export function planActModeFromJSON(object: any): PlanActMode {
 export function planActModeToJSON(object: PlanActMode): string {
   switch (object) {
     case PlanActMode.PLAN:
-      return "PLAN";
+      return 'PLAN';
     case PlanActMode.ACT:
-      return "ACT";
-    case PlanActMode.UNRECOGNIZED:
+      return 'ACT';
     default:
-      return "UNRECOGNIZED";
+      return 'UNRECOGNIZED';
   }
 }
 
@@ -63,16 +68,14 @@ export enum OpenaiReasoningEffort {
 export function openaiReasoningEffortFromJSON(object: any): OpenaiReasoningEffort {
   switch (object) {
     case 0:
-    case "LOW":
+    case 'LOW':
       return OpenaiReasoningEffort.LOW;
     case 1:
-    case "MEDIUM":
+    case 'MEDIUM':
       return OpenaiReasoningEffort.MEDIUM;
     case 2:
-    case "HIGH":
+    case 'HIGH':
       return OpenaiReasoningEffort.HIGH;
-    case -1:
-    case "UNRECOGNIZED":
     default:
       return OpenaiReasoningEffort.UNRECOGNIZED;
   }
@@ -81,14 +84,13 @@ export function openaiReasoningEffortFromJSON(object: any): OpenaiReasoningEffor
 export function openaiReasoningEffortToJSON(object: OpenaiReasoningEffort): string {
   switch (object) {
     case OpenaiReasoningEffort.LOW:
-      return "LOW";
+      return 'LOW';
     case OpenaiReasoningEffort.MEDIUM:
-      return "MEDIUM";
+      return 'MEDIUM';
     case OpenaiReasoningEffort.HIGH:
-      return "HIGH";
-    case OpenaiReasoningEffort.UNRECOGNIZED:
+      return 'HIGH';
     default:
-      return "UNRECOGNIZED";
+      return 'UNRECOGNIZED';
   }
 }
 
@@ -102,16 +104,14 @@ export enum McpDisplayMode {
 export function mcpDisplayModeFromJSON(object: any): McpDisplayMode {
   switch (object) {
     case 0:
-    case "RICH":
+    case 'RICH':
       return McpDisplayMode.RICH;
     case 1:
-    case "PLAIN":
+    case 'PLAIN':
       return McpDisplayMode.PLAIN;
     case 2:
-    case "MARKDOWN":
+    case 'MARKDOWN':
       return McpDisplayMode.MARKDOWN;
-    case -1:
-    case "UNRECOGNIZED":
     default:
       return McpDisplayMode.UNRECOGNIZED;
   }
@@ -120,14 +120,13 @@ export function mcpDisplayModeFromJSON(object: any): McpDisplayMode {
 export function mcpDisplayModeToJSON(object: McpDisplayMode): string {
   switch (object) {
     case McpDisplayMode.RICH:
-      return "RICH";
+      return 'RICH';
     case McpDisplayMode.PLAIN:
-      return "PLAIN";
+      return 'PLAIN';
     case McpDisplayMode.MARKDOWN:
-      return "MARKDOWN";
-    case McpDisplayMode.UNRECOGNIZED:
+      return 'MARKDOWN';
     default:
-      return "UNRECOGNIZED";
+      return 'UNRECOGNIZED';
   }
 }
 
@@ -141,16 +140,14 @@ export enum TelemetrySettingEnum {
 export function telemetrySettingEnumFromJSON(object: any): TelemetrySettingEnum {
   switch (object) {
     case 0:
-    case "UNSET":
+    case 'UNSET':
       return TelemetrySettingEnum.UNSET;
     case 1:
-    case "ENABLED":
+    case 'ENABLED':
       return TelemetrySettingEnum.ENABLED;
     case 2:
-    case "DISABLED":
+    case 'DISABLED':
       return TelemetrySettingEnum.DISABLED;
-    case -1:
-    case "UNRECOGNIZED":
     default:
       return TelemetrySettingEnum.UNRECOGNIZED;
   }
@@ -159,14 +156,13 @@ export function telemetrySettingEnumFromJSON(object: any): TelemetrySettingEnum 
 export function telemetrySettingEnumToJSON(object: TelemetrySettingEnum): string {
   switch (object) {
     case TelemetrySettingEnum.UNSET:
-      return "UNSET";
+      return 'UNSET';
     case TelemetrySettingEnum.ENABLED:
-      return "ENABLED";
+      return 'ENABLED';
     case TelemetrySettingEnum.DISABLED:
-      return "DISABLED";
-    case TelemetrySettingEnum.UNRECOGNIZED:
+      return 'DISABLED';
     default:
-      return "UNRECOGNIZED";
+      return 'UNRECOGNIZED';
   }
 }
 
@@ -723,43 +719,43 @@ export const AutoApprovalActions: MessageFns<AutoApprovalActions> = {
       readFiles: isSet(object.readFiles)
         ? globalThis.Boolean(object.readFiles)
         : isSet(object.read_files)
-        ? globalThis.Boolean(object.read_files)
-        : undefined,
+          ? globalThis.Boolean(object.read_files)
+          : undefined,
       readFilesExternally: isSet(object.readFilesExternally)
         ? globalThis.Boolean(object.readFilesExternally)
         : isSet(object.read_files_externally)
-        ? globalThis.Boolean(object.read_files_externally)
-        : undefined,
+          ? globalThis.Boolean(object.read_files_externally)
+          : undefined,
       editFiles: isSet(object.editFiles)
         ? globalThis.Boolean(object.editFiles)
         : isSet(object.edit_files)
-        ? globalThis.Boolean(object.edit_files)
-        : undefined,
+          ? globalThis.Boolean(object.edit_files)
+          : undefined,
       editFilesExternally: isSet(object.editFilesExternally)
         ? globalThis.Boolean(object.editFilesExternally)
         : isSet(object.edit_files_externally)
-        ? globalThis.Boolean(object.edit_files_externally)
-        : undefined,
+          ? globalThis.Boolean(object.edit_files_externally)
+          : undefined,
       executeSafeCommands: isSet(object.executeSafeCommands)
         ? globalThis.Boolean(object.executeSafeCommands)
         : isSet(object.execute_safe_commands)
-        ? globalThis.Boolean(object.execute_safe_commands)
-        : undefined,
+          ? globalThis.Boolean(object.execute_safe_commands)
+          : undefined,
       executeAllCommands: isSet(object.executeAllCommands)
         ? globalThis.Boolean(object.executeAllCommands)
         : isSet(object.execute_all_commands)
-        ? globalThis.Boolean(object.execute_all_commands)
-        : undefined,
+          ? globalThis.Boolean(object.execute_all_commands)
+          : undefined,
       useBrowser: isSet(object.useBrowser)
         ? globalThis.Boolean(object.useBrowser)
         : isSet(object.use_browser)
-        ? globalThis.Boolean(object.use_browser)
-        : undefined,
+          ? globalThis.Boolean(object.use_browser)
+          : undefined,
       useMcp: isSet(object.useMcp)
         ? globalThis.Boolean(object.useMcp)
         : isSet(object.use_mcp)
-        ? globalThis.Boolean(object.use_mcp)
-        : undefined,
+          ? globalThis.Boolean(object.use_mcp)
+          : undefined,
     };
   },
 
@@ -795,7 +791,9 @@ export const AutoApprovalActions: MessageFns<AutoApprovalActions> = {
   create<I extends Exact<DeepPartial<AutoApprovalActions>, I>>(base?: I): AutoApprovalActions {
     return AutoApprovalActions.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<AutoApprovalActions>, I>>(object: I): AutoApprovalActions {
+  fromPartial<I extends Exact<DeepPartial<AutoApprovalActions>, I>>(
+    object: I,
+  ): AutoApprovalActions {
     const message = createBaseAutoApprovalActions();
     message.readFiles = object.readFiles ?? undefined;
     message.readFilesExternally = object.readFilesExternally ?? undefined;
@@ -874,8 +872,8 @@ export const AutoApprovalSettings: MessageFns<AutoApprovalSettings> = {
       enableNotifications: isSet(object.enableNotifications)
         ? globalThis.Boolean(object.enableNotifications)
         : isSet(object.enable_notifications)
-        ? globalThis.Boolean(object.enable_notifications)
-        : undefined,
+          ? globalThis.Boolean(object.enable_notifications)
+          : undefined,
     };
   },
 
@@ -896,12 +894,15 @@ export const AutoApprovalSettings: MessageFns<AutoApprovalSettings> = {
   create<I extends Exact<DeepPartial<AutoApprovalSettings>, I>>(base?: I): AutoApprovalSettings {
     return AutoApprovalSettings.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<AutoApprovalSettings>, I>>(object: I): AutoApprovalSettings {
+  fromPartial<I extends Exact<DeepPartial<AutoApprovalSettings>, I>>(
+    object: I,
+  ): AutoApprovalSettings {
     const message = createBaseAutoApprovalSettings();
     message.version = object.version ?? 0;
-    message.actions = (object.actions !== undefined && object.actions !== null)
-      ? AutoApprovalActions.fromPartial(object.actions)
-      : undefined;
+    message.actions =
+      object.actions !== undefined && object.actions !== null
+        ? AutoApprovalActions.fromPartial(object.actions)
+        : undefined;
     message.enableNotifications = object.enableNotifications ?? undefined;
     return message;
   },
@@ -1490,233 +1491,233 @@ export const Secrets: MessageFns<Secrets> = {
       apiKey: isSet(object.apiKey)
         ? globalThis.String(object.apiKey)
         : isSet(object.api_key)
-        ? globalThis.String(object.api_key)
-        : undefined,
+          ? globalThis.String(object.api_key)
+          : undefined,
       clineAccountId: isSet(object.clineAccountId)
         ? globalThis.String(object.clineAccountId)
         : isSet(object.cline_account_id)
-        ? globalThis.String(object.cline_account_id)
-        : undefined,
+          ? globalThis.String(object.cline_account_id)
+          : undefined,
       openRouterApiKey: isSet(object.openRouterApiKey)
         ? globalThis.String(object.openRouterApiKey)
         : isSet(object.open_router_api_key)
-        ? globalThis.String(object.open_router_api_key)
-        : undefined,
+          ? globalThis.String(object.open_router_api_key)
+          : undefined,
       awsAccessKey: isSet(object.awsAccessKey)
         ? globalThis.String(object.awsAccessKey)
         : isSet(object.aws_access_key)
-        ? globalThis.String(object.aws_access_key)
-        : undefined,
+          ? globalThis.String(object.aws_access_key)
+          : undefined,
       awsSecretKey: isSet(object.awsSecretKey)
         ? globalThis.String(object.awsSecretKey)
         : isSet(object.aws_secret_key)
-        ? globalThis.String(object.aws_secret_key)
-        : undefined,
+          ? globalThis.String(object.aws_secret_key)
+          : undefined,
       awsSessionToken: isSet(object.awsSessionToken)
         ? globalThis.String(object.awsSessionToken)
         : isSet(object.aws_session_token)
-        ? globalThis.String(object.aws_session_token)
-        : undefined,
+          ? globalThis.String(object.aws_session_token)
+          : undefined,
       awsBedrockApiKey: isSet(object.awsBedrockApiKey)
         ? globalThis.String(object.awsBedrockApiKey)
         : isSet(object.aws_bedrock_api_key)
-        ? globalThis.String(object.aws_bedrock_api_key)
-        : undefined,
+          ? globalThis.String(object.aws_bedrock_api_key)
+          : undefined,
       openAiApiKey: isSet(object.openAiApiKey)
         ? globalThis.String(object.openAiApiKey)
         : isSet(object.open_ai_api_key)
-        ? globalThis.String(object.open_ai_api_key)
-        : undefined,
+          ? globalThis.String(object.open_ai_api_key)
+          : undefined,
       geminiApiKey: isSet(object.geminiApiKey)
         ? globalThis.String(object.geminiApiKey)
         : isSet(object.gemini_api_key)
-        ? globalThis.String(object.gemini_api_key)
-        : undefined,
+          ? globalThis.String(object.gemini_api_key)
+          : undefined,
       openAiNativeApiKey: isSet(object.openAiNativeApiKey)
         ? globalThis.String(object.openAiNativeApiKey)
         : isSet(object.open_ai_native_api_key)
-        ? globalThis.String(object.open_ai_native_api_key)
-        : undefined,
+          ? globalThis.String(object.open_ai_native_api_key)
+          : undefined,
       ollamaApiKey: isSet(object.ollamaApiKey)
         ? globalThis.String(object.ollamaApiKey)
         : isSet(object.ollama_api_key)
-        ? globalThis.String(object.ollama_api_key)
-        : undefined,
+          ? globalThis.String(object.ollama_api_key)
+          : undefined,
       deepSeekApiKey: isSet(object.deepSeekApiKey)
         ? globalThis.String(object.deepSeekApiKey)
         : isSet(object.deep_seek_api_key)
-        ? globalThis.String(object.deep_seek_api_key)
-        : undefined,
+          ? globalThis.String(object.deep_seek_api_key)
+          : undefined,
       requestyApiKey: isSet(object.requestyApiKey)
         ? globalThis.String(object.requestyApiKey)
         : isSet(object.requesty_api_key)
-        ? globalThis.String(object.requesty_api_key)
-        : undefined,
+          ? globalThis.String(object.requesty_api_key)
+          : undefined,
       togetherApiKey: isSet(object.togetherApiKey)
         ? globalThis.String(object.togetherApiKey)
         : isSet(object.together_api_key)
-        ? globalThis.String(object.together_api_key)
-        : undefined,
+          ? globalThis.String(object.together_api_key)
+          : undefined,
       fireworksApiKey: isSet(object.fireworksApiKey)
         ? globalThis.String(object.fireworksApiKey)
         : isSet(object.fireworks_api_key)
-        ? globalThis.String(object.fireworks_api_key)
-        : undefined,
+          ? globalThis.String(object.fireworks_api_key)
+          : undefined,
       qwenApiKey: isSet(object.qwenApiKey)
         ? globalThis.String(object.qwenApiKey)
         : isSet(object.qwen_api_key)
-        ? globalThis.String(object.qwen_api_key)
-        : undefined,
+          ? globalThis.String(object.qwen_api_key)
+          : undefined,
       doubaoApiKey: isSet(object.doubaoApiKey)
         ? globalThis.String(object.doubaoApiKey)
         : isSet(object.doubao_api_key)
-        ? globalThis.String(object.doubao_api_key)
-        : undefined,
+          ? globalThis.String(object.doubao_api_key)
+          : undefined,
       mistralApiKey: isSet(object.mistralApiKey)
         ? globalThis.String(object.mistralApiKey)
         : isSet(object.mistral_api_key)
-        ? globalThis.String(object.mistral_api_key)
-        : undefined,
+          ? globalThis.String(object.mistral_api_key)
+          : undefined,
       liteLlmApiKey: isSet(object.liteLlmApiKey)
         ? globalThis.String(object.liteLlmApiKey)
         : isSet(object.lite_llm_api_key)
-        ? globalThis.String(object.lite_llm_api_key)
-        : undefined,
+          ? globalThis.String(object.lite_llm_api_key)
+          : undefined,
       authNonce: isSet(object.authNonce)
         ? globalThis.String(object.authNonce)
         : isSet(object.auth_nonce)
-        ? globalThis.String(object.auth_nonce)
-        : undefined,
+          ? globalThis.String(object.auth_nonce)
+          : undefined,
       asksageApiKey: isSet(object.asksageApiKey)
         ? globalThis.String(object.asksageApiKey)
         : isSet(object.asksage_api_key)
-        ? globalThis.String(object.asksage_api_key)
-        : undefined,
+          ? globalThis.String(object.asksage_api_key)
+          : undefined,
       xaiApiKey: isSet(object.xaiApiKey)
         ? globalThis.String(object.xaiApiKey)
         : isSet(object.xai_api_key)
-        ? globalThis.String(object.xai_api_key)
-        : undefined,
+          ? globalThis.String(object.xai_api_key)
+          : undefined,
       moonshotApiKey: isSet(object.moonshotApiKey)
         ? globalThis.String(object.moonshotApiKey)
         : isSet(object.moonshot_api_key)
-        ? globalThis.String(object.moonshot_api_key)
-        : undefined,
+          ? globalThis.String(object.moonshot_api_key)
+          : undefined,
       zaiApiKey: isSet(object.zaiApiKey)
         ? globalThis.String(object.zaiApiKey)
         : isSet(object.zai_api_key)
-        ? globalThis.String(object.zai_api_key)
-        : undefined,
+          ? globalThis.String(object.zai_api_key)
+          : undefined,
       huggingFaceApiKey: isSet(object.huggingFaceApiKey)
         ? globalThis.String(object.huggingFaceApiKey)
         : isSet(object.hugging_face_api_key)
-        ? globalThis.String(object.hugging_face_api_key)
-        : undefined,
+          ? globalThis.String(object.hugging_face_api_key)
+          : undefined,
       nebiusApiKey: isSet(object.nebiusApiKey)
         ? globalThis.String(object.nebiusApiKey)
         : isSet(object.nebius_api_key)
-        ? globalThis.String(object.nebius_api_key)
-        : undefined,
+          ? globalThis.String(object.nebius_api_key)
+          : undefined,
       sambanovaApiKey: isSet(object.sambanovaApiKey)
         ? globalThis.String(object.sambanovaApiKey)
         : isSet(object.sambanova_api_key)
-        ? globalThis.String(object.sambanova_api_key)
-        : undefined,
+          ? globalThis.String(object.sambanova_api_key)
+          : undefined,
       cerebrasApiKey: isSet(object.cerebrasApiKey)
         ? globalThis.String(object.cerebrasApiKey)
         : isSet(object.cerebras_api_key)
-        ? globalThis.String(object.cerebras_api_key)
-        : undefined,
+          ? globalThis.String(object.cerebras_api_key)
+          : undefined,
       sapAiCoreClientId: isSet(object.sapAiCoreClientId)
         ? globalThis.String(object.sapAiCoreClientId)
         : isSet(object.sap_ai_core_client_id)
-        ? globalThis.String(object.sap_ai_core_client_id)
-        : undefined,
+          ? globalThis.String(object.sap_ai_core_client_id)
+          : undefined,
       sapAiCoreClientSecret: isSet(object.sapAiCoreClientSecret)
         ? globalThis.String(object.sapAiCoreClientSecret)
         : isSet(object.sap_ai_core_client_secret)
-        ? globalThis.String(object.sap_ai_core_client_secret)
-        : undefined,
+          ? globalThis.String(object.sap_ai_core_client_secret)
+          : undefined,
       groqApiKey: isSet(object.groqApiKey)
         ? globalThis.String(object.groqApiKey)
         : isSet(object.groq_api_key)
-        ? globalThis.String(object.groq_api_key)
-        : undefined,
+          ? globalThis.String(object.groq_api_key)
+          : undefined,
       huaweiCloudMaasApiKey: isSet(object.huaweiCloudMaasApiKey)
         ? globalThis.String(object.huaweiCloudMaasApiKey)
         : isSet(object.huawei_cloud_maas_api_key)
-        ? globalThis.String(object.huawei_cloud_maas_api_key)
-        : undefined,
+          ? globalThis.String(object.huawei_cloud_maas_api_key)
+          : undefined,
       basetenApiKey: isSet(object.basetenApiKey)
         ? globalThis.String(object.basetenApiKey)
         : isSet(object.baseten_api_key)
-        ? globalThis.String(object.baseten_api_key)
-        : undefined,
+          ? globalThis.String(object.baseten_api_key)
+          : undefined,
       vercelAiGatewayApiKey: isSet(object.vercelAiGatewayApiKey)
         ? globalThis.String(object.vercelAiGatewayApiKey)
         : isSet(object.vercel_ai_gateway_api_key)
-        ? globalThis.String(object.vercel_ai_gateway_api_key)
-        : undefined,
+          ? globalThis.String(object.vercel_ai_gateway_api_key)
+          : undefined,
       difyApiKey: isSet(object.difyApiKey)
         ? globalThis.String(object.difyApiKey)
         : isSet(object.dify_api_key)
-        ? globalThis.String(object.dify_api_key)
-        : undefined,
+          ? globalThis.String(object.dify_api_key)
+          : undefined,
       minimaxApiKey: isSet(object.minimaxApiKey)
         ? globalThis.String(object.minimaxApiKey)
         : isSet(object.minimax_api_key)
-        ? globalThis.String(object.minimax_api_key)
-        : undefined,
+          ? globalThis.String(object.minimax_api_key)
+          : undefined,
       hicapApiKey: isSet(object.hicapApiKey)
         ? globalThis.String(object.hicapApiKey)
         : isSet(object.hicap_api_key)
-        ? globalThis.String(object.hicap_api_key)
-        : undefined,
+          ? globalThis.String(object.hicap_api_key)
+          : undefined,
       aihubmixApiKey: isSet(object.aihubmixApiKey)
         ? globalThis.String(object.aihubmixApiKey)
         : isSet(object.aihubmix_api_key)
-        ? globalThis.String(object.aihubmix_api_key)
-        : undefined,
+          ? globalThis.String(object.aihubmix_api_key)
+          : undefined,
       nousResearchApiKey: isSet(object.nousResearchApiKey)
         ? globalThis.String(object.nousResearchApiKey)
         : isSet(object.nous_research_api_key)
-        ? globalThis.String(object.nous_research_api_key)
-        : undefined,
+          ? globalThis.String(object.nous_research_api_key)
+          : undefined,
       remoteLiteLlmApiKey: isSet(object.remoteLiteLlmApiKey)
         ? globalThis.String(object.remoteLiteLlmApiKey)
         : isSet(object.remote_lite_llm_api_key)
-        ? globalThis.String(object.remote_lite_llm_api_key)
-        : undefined,
+          ? globalThis.String(object.remote_lite_llm_api_key)
+          : undefined,
       ocaApiKey: isSet(object.ocaApiKey)
         ? globalThis.String(object.ocaApiKey)
         : isSet(object.oca_api_key)
-        ? globalThis.String(object.oca_api_key)
-        : undefined,
+          ? globalThis.String(object.oca_api_key)
+          : undefined,
       ocaRefreshToken: isSet(object.ocaRefreshToken)
         ? globalThis.String(object.ocaRefreshToken)
         : isSet(object.oca_refresh_token)
-        ? globalThis.String(object.oca_refresh_token)
-        : undefined,
+          ? globalThis.String(object.oca_refresh_token)
+          : undefined,
       mcpOAuthSecrets: isSet(object.mcpOAuthSecrets)
         ? globalThis.String(object.mcpOAuthSecrets)
         : isSet(object.mcp_o_auth_secrets)
-        ? globalThis.String(object.mcp_o_auth_secrets)
-        : undefined,
+          ? globalThis.String(object.mcp_o_auth_secrets)
+          : undefined,
       clineApiKey: isSet(object.clineApiKey)
         ? globalThis.String(object.clineApiKey)
         : isSet(object.cline_api_key)
-        ? globalThis.String(object.cline_api_key)
-        : undefined,
+          ? globalThis.String(object.cline_api_key)
+          : undefined,
       openaiCodexOauthCredentials: isSet(object.openaiCodexOauthCredentials)
         ? globalThis.String(object.openaiCodexOauthCredentials)
         : isSet(object.openai_codex_oauth_credentials)
-        ? globalThis.String(object.openai_codex_oauth_credentials)
-        : undefined,
+          ? globalThis.String(object.openai_codex_oauth_credentials)
+          : undefined,
       wandbApiKey: isSet(object.wandbApiKey)
         ? globalThis.String(object.wandbApiKey)
         : isSet(object.wandb_api_key)
-        ? globalThis.String(object.wandb_api_key)
-        : undefined,
+          ? globalThis.String(object.wandb_api_key)
+          : undefined,
     };
   },
 
@@ -2242,7 +2243,10 @@ export const Settings: MessageFns<Settings> = {
       writer.uint32(386).string(message.planModeVerbosity);
     }
     if (message.planModeVsCodeLmModelSelector !== undefined) {
-      LanguageModelChatSelector.encode(message.planModeVsCodeLmModelSelector, writer.uint32(394).fork()).join();
+      LanguageModelChatSelector.encode(
+        message.planModeVsCodeLmModelSelector,
+        writer.uint32(394).fork(),
+      ).join();
     }
     if (message.planModeAwsBedrockCustomSelected !== undefined) {
       writer.uint32(400).bool(message.planModeAwsBedrockCustomSelected);
@@ -2254,13 +2258,19 @@ export const Settings: MessageFns<Settings> = {
       writer.uint32(418).string(message.planModeOpenRouterModelId);
     }
     if (message.planModeOpenRouterModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.planModeOpenRouterModelInfo, writer.uint32(426).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.planModeOpenRouterModelInfo,
+        writer.uint32(426).fork(),
+      ).join();
     }
     if (message.planModeOpenAiModelId !== undefined) {
       writer.uint32(434).string(message.planModeOpenAiModelId);
     }
     if (message.planModeOpenAiModelInfo !== undefined) {
-      OpenAiCompatibleModelInfo.encode(message.planModeOpenAiModelInfo, writer.uint32(442).fork()).join();
+      OpenAiCompatibleModelInfo.encode(
+        message.planModeOpenAiModelInfo,
+        writer.uint32(442).fork(),
+      ).join();
     }
     if (message.planModeOllamaModelId !== undefined) {
       writer.uint32(450).string(message.planModeOllamaModelId);
@@ -2278,7 +2288,10 @@ export const Settings: MessageFns<Settings> = {
       writer.uint32(482).string(message.planModeRequestyModelId);
     }
     if (message.planModeRequestyModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.planModeRequestyModelInfo, writer.uint32(490).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.planModeRequestyModelInfo,
+        writer.uint32(490).fork(),
+      ).join();
     }
     if (message.planModeTogetherModelId !== undefined) {
       writer.uint32(498).string(message.planModeTogetherModelId);
@@ -2302,19 +2315,28 @@ export const Settings: MessageFns<Settings> = {
       writer.uint32(546).string(message.planModeBasetenModelId);
     }
     if (message.planModeBasetenModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.planModeBasetenModelInfo, writer.uint32(554).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.planModeBasetenModelInfo,
+        writer.uint32(554).fork(),
+      ).join();
     }
     if (message.planModeHuggingFaceModelId !== undefined) {
       writer.uint32(562).string(message.planModeHuggingFaceModelId);
     }
     if (message.planModeHuggingFaceModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.planModeHuggingFaceModelInfo, writer.uint32(570).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.planModeHuggingFaceModelInfo,
+        writer.uint32(570).fork(),
+      ).join();
     }
     if (message.planModeHuaweiCloudMaasModelId !== undefined) {
       writer.uint32(578).string(message.planModeHuaweiCloudMaasModelId);
     }
     if (message.planModeHuaweiCloudMaasModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.planModeHuaweiCloudMaasModelInfo, writer.uint32(586).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.planModeHuaweiCloudMaasModelInfo,
+        writer.uint32(586).fork(),
+      ).join();
     }
     if (message.planModeOcaModelId !== undefined) {
       writer.uint32(594).string(message.planModeOcaModelId);
@@ -2329,7 +2351,10 @@ export const Settings: MessageFns<Settings> = {
       writer.uint32(618).string(message.planModeAihubmixModelId);
     }
     if (message.planModeAihubmixModelInfo !== undefined) {
-      OpenAiCompatibleModelInfo.encode(message.planModeAihubmixModelInfo, writer.uint32(626).fork()).join();
+      OpenAiCompatibleModelInfo.encode(
+        message.planModeAihubmixModelInfo,
+        writer.uint32(626).fork(),
+      ).join();
     }
     if (message.planModeHicapModelId !== undefined) {
       writer.uint32(634).string(message.planModeHicapModelId);
@@ -2344,7 +2369,10 @@ export const Settings: MessageFns<Settings> = {
       writer.uint32(658).string(message.planModeVercelAiGatewayModelId);
     }
     if (message.planModeVercelAiGatewayModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.planModeVercelAiGatewayModelInfo, writer.uint32(666).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.planModeVercelAiGatewayModelInfo,
+        writer.uint32(666).fork(),
+      ).join();
     }
     if (message.actModeApiModelId !== undefined) {
       writer.uint32(674).string(message.actModeApiModelId);
@@ -2362,7 +2390,10 @@ export const Settings: MessageFns<Settings> = {
       writer.uint32(706).string(message.actModeVerbosity);
     }
     if (message.actModeVsCodeLmModelSelector !== undefined) {
-      LanguageModelChatSelector.encode(message.actModeVsCodeLmModelSelector, writer.uint32(714).fork()).join();
+      LanguageModelChatSelector.encode(
+        message.actModeVsCodeLmModelSelector,
+        writer.uint32(714).fork(),
+      ).join();
     }
     if (message.actModeAwsBedrockCustomSelected !== undefined) {
       writer.uint32(720).bool(message.actModeAwsBedrockCustomSelected);
@@ -2374,13 +2405,19 @@ export const Settings: MessageFns<Settings> = {
       writer.uint32(738).string(message.actModeOpenRouterModelId);
     }
     if (message.actModeOpenRouterModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.actModeOpenRouterModelInfo, writer.uint32(746).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.actModeOpenRouterModelInfo,
+        writer.uint32(746).fork(),
+      ).join();
     }
     if (message.actModeOpenAiModelId !== undefined) {
       writer.uint32(754).string(message.actModeOpenAiModelId);
     }
     if (message.actModeOpenAiModelInfo !== undefined) {
-      OpenAiCompatibleModelInfo.encode(message.actModeOpenAiModelInfo, writer.uint32(762).fork()).join();
+      OpenAiCompatibleModelInfo.encode(
+        message.actModeOpenAiModelInfo,
+        writer.uint32(762).fork(),
+      ).join();
     }
     if (message.actModeOllamaModelId !== undefined) {
       writer.uint32(770).string(message.actModeOllamaModelId);
@@ -2398,7 +2435,10 @@ export const Settings: MessageFns<Settings> = {
       writer.uint32(802).string(message.actModeRequestyModelId);
     }
     if (message.actModeRequestyModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.actModeRequestyModelInfo, writer.uint32(810).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.actModeRequestyModelInfo,
+        writer.uint32(810).fork(),
+      ).join();
     }
     if (message.actModeTogetherModelId !== undefined) {
       writer.uint32(818).string(message.actModeTogetherModelId);
@@ -2428,13 +2468,19 @@ export const Settings: MessageFns<Settings> = {
       writer.uint32(882).string(message.actModeHuggingFaceModelId);
     }
     if (message.actModeHuggingFaceModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.actModeHuggingFaceModelInfo, writer.uint32(890).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.actModeHuggingFaceModelInfo,
+        writer.uint32(890).fork(),
+      ).join();
     }
     if (message.actModeHuaweiCloudMaasModelId !== undefined) {
       writer.uint32(898).string(message.actModeHuaweiCloudMaasModelId);
     }
     if (message.actModeHuaweiCloudMaasModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.actModeHuaweiCloudMaasModelInfo, writer.uint32(906).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.actModeHuaweiCloudMaasModelInfo,
+        writer.uint32(906).fork(),
+      ).join();
     }
     if (message.actModeOcaModelId !== undefined) {
       writer.uint32(914).string(message.actModeOcaModelId);
@@ -2449,7 +2495,10 @@ export const Settings: MessageFns<Settings> = {
       writer.uint32(938).string(message.actModeAihubmixModelId);
     }
     if (message.actModeAihubmixModelInfo !== undefined) {
-      OpenAiCompatibleModelInfo.encode(message.actModeAihubmixModelInfo, writer.uint32(946).fork()).join();
+      OpenAiCompatibleModelInfo.encode(
+        message.actModeAihubmixModelInfo,
+        writer.uint32(946).fork(),
+      ).join();
     }
     if (message.actModeHicapModelId !== undefined) {
       writer.uint32(954).string(message.actModeHicapModelId);
@@ -2464,7 +2513,10 @@ export const Settings: MessageFns<Settings> = {
       writer.uint32(978).string(message.actModeVercelAiGatewayModelId);
     }
     if (message.actModeVercelAiGatewayModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.actModeVercelAiGatewayModelInfo, writer.uint32(986).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.actModeVercelAiGatewayModelInfo,
+        writer.uint32(986).fork(),
+      ).join();
     }
     if (message.planModeApiProvider !== undefined) {
       writer.uint32(992).int32(message.planModeApiProvider);
@@ -2605,7 +2657,10 @@ export const Settings: MessageFns<Settings> = {
       writer.uint32(1408).bool(message.doubleCheckCompletionEnabled);
     }
     globalThis.Object.entries(message.openAiHeaders).forEach(([key, value]: [string, string]) => {
-      Settings_OpenAiHeadersEntry.encode({ key: key as any, value }, writer.uint32(1418).fork()).join();
+      Settings_OpenAiHeadersEntry.encode(
+        { key: key as any, value },
+        writer.uint32(1418).fork(),
+      ).join();
     });
     if (message.planModeClineModelId !== undefined) {
       writer.uint32(1426).string(message.planModeClineModelId);
@@ -3016,7 +3071,10 @@ export const Settings: MessageFns<Settings> = {
             break;
           }
 
-          message.planModeVsCodeLmModelSelector = LanguageModelChatSelector.decode(reader, reader.uint32());
+          message.planModeVsCodeLmModelSelector = LanguageModelChatSelector.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 50: {
@@ -3064,7 +3122,10 @@ export const Settings: MessageFns<Settings> = {
             break;
           }
 
-          message.planModeOpenAiModelInfo = OpenAiCompatibleModelInfo.decode(reader, reader.uint32());
+          message.planModeOpenAiModelInfo = OpenAiCompatibleModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 56: {
@@ -3192,7 +3253,10 @@ export const Settings: MessageFns<Settings> = {
             break;
           }
 
-          message.planModeHuggingFaceModelInfo = OpenRouterModelInfo.decode(reader, reader.uint32());
+          message.planModeHuggingFaceModelInfo = OpenRouterModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 72: {
@@ -3208,7 +3272,10 @@ export const Settings: MessageFns<Settings> = {
             break;
           }
 
-          message.planModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.decode(reader, reader.uint32());
+          message.planModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 74: {
@@ -3248,7 +3315,10 @@ export const Settings: MessageFns<Settings> = {
             break;
           }
 
-          message.planModeAihubmixModelInfo = OpenAiCompatibleModelInfo.decode(reader, reader.uint32());
+          message.planModeAihubmixModelInfo = OpenAiCompatibleModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 79: {
@@ -3288,7 +3358,10 @@ export const Settings: MessageFns<Settings> = {
             break;
           }
 
-          message.planModeVercelAiGatewayModelInfo = OpenRouterModelInfo.decode(reader, reader.uint32());
+          message.planModeVercelAiGatewayModelInfo = OpenRouterModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 84: {
@@ -3336,7 +3409,10 @@ export const Settings: MessageFns<Settings> = {
             break;
           }
 
-          message.actModeVsCodeLmModelSelector = LanguageModelChatSelector.decode(reader, reader.uint32());
+          message.actModeVsCodeLmModelSelector = LanguageModelChatSelector.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 90: {
@@ -3384,7 +3460,10 @@ export const Settings: MessageFns<Settings> = {
             break;
           }
 
-          message.actModeOpenAiModelInfo = OpenAiCompatibleModelInfo.decode(reader, reader.uint32());
+          message.actModeOpenAiModelInfo = OpenAiCompatibleModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 96: {
@@ -3528,7 +3607,10 @@ export const Settings: MessageFns<Settings> = {
             break;
           }
 
-          message.actModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.decode(reader, reader.uint32());
+          message.actModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 114: {
@@ -3568,7 +3650,10 @@ export const Settings: MessageFns<Settings> = {
             break;
           }
 
-          message.actModeAihubmixModelInfo = OpenAiCompatibleModelInfo.decode(reader, reader.uint32());
+          message.actModeAihubmixModelInfo = OpenAiCompatibleModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 119: {
@@ -3608,7 +3693,10 @@ export const Settings: MessageFns<Settings> = {
             break;
           }
 
-          message.actModeVercelAiGatewayModelInfo = OpenRouterModelInfo.decode(reader, reader.uint32());
+          message.actModeVercelAiGatewayModelInfo = OpenRouterModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 124: {
@@ -4052,886 +4140,886 @@ export const Settings: MessageFns<Settings> = {
       liteLlmBaseUrl: isSet(object.liteLlmBaseUrl)
         ? globalThis.String(object.liteLlmBaseUrl)
         : isSet(object.lite_llm_base_url)
-        ? globalThis.String(object.lite_llm_base_url)
-        : undefined,
+          ? globalThis.String(object.lite_llm_base_url)
+          : undefined,
       liteLlmUsePromptCache: isSet(object.liteLlmUsePromptCache)
         ? globalThis.Boolean(object.liteLlmUsePromptCache)
         : isSet(object.lite_llm_use_prompt_cache)
-        ? globalThis.Boolean(object.lite_llm_use_prompt_cache)
-        : undefined,
+          ? globalThis.Boolean(object.lite_llm_use_prompt_cache)
+          : undefined,
       anthropicBaseUrl: isSet(object.anthropicBaseUrl)
         ? globalThis.String(object.anthropicBaseUrl)
         : isSet(object.anthropic_base_url)
-        ? globalThis.String(object.anthropic_base_url)
-        : undefined,
+          ? globalThis.String(object.anthropic_base_url)
+          : undefined,
       openRouterProviderSorting: isSet(object.openRouterProviderSorting)
         ? globalThis.String(object.openRouterProviderSorting)
         : isSet(object.open_router_provider_sorting)
-        ? globalThis.String(object.open_router_provider_sorting)
-        : undefined,
+          ? globalThis.String(object.open_router_provider_sorting)
+          : undefined,
       awsRegion: isSet(object.awsRegion)
         ? globalThis.String(object.awsRegion)
         : isSet(object.aws_region)
-        ? globalThis.String(object.aws_region)
-        : undefined,
+          ? globalThis.String(object.aws_region)
+          : undefined,
       awsUseCrossRegionInference: isSet(object.awsUseCrossRegionInference)
         ? globalThis.Boolean(object.awsUseCrossRegionInference)
         : isSet(object.aws_use_cross_region_inference)
-        ? globalThis.Boolean(object.aws_use_cross_region_inference)
-        : undefined,
+          ? globalThis.Boolean(object.aws_use_cross_region_inference)
+          : undefined,
       awsUseGlobalInference: isSet(object.awsUseGlobalInference)
         ? globalThis.Boolean(object.awsUseGlobalInference)
         : isSet(object.aws_use_global_inference)
-        ? globalThis.Boolean(object.aws_use_global_inference)
-        : undefined,
+          ? globalThis.Boolean(object.aws_use_global_inference)
+          : undefined,
       awsBedrockUsePromptCache: isSet(object.awsBedrockUsePromptCache)
         ? globalThis.Boolean(object.awsBedrockUsePromptCache)
         : isSet(object.aws_bedrock_use_prompt_cache)
-        ? globalThis.Boolean(object.aws_bedrock_use_prompt_cache)
-        : undefined,
+          ? globalThis.Boolean(object.aws_bedrock_use_prompt_cache)
+          : undefined,
       awsAuthentication: isSet(object.awsAuthentication)
         ? globalThis.String(object.awsAuthentication)
         : isSet(object.aws_authentication)
-        ? globalThis.String(object.aws_authentication)
-        : undefined,
+          ? globalThis.String(object.aws_authentication)
+          : undefined,
       awsUseProfile: isSet(object.awsUseProfile)
         ? globalThis.Boolean(object.awsUseProfile)
         : isSet(object.aws_use_profile)
-        ? globalThis.Boolean(object.aws_use_profile)
-        : undefined,
+          ? globalThis.Boolean(object.aws_use_profile)
+          : undefined,
       awsProfile: isSet(object.awsProfile)
         ? globalThis.String(object.awsProfile)
         : isSet(object.aws_profile)
-        ? globalThis.String(object.aws_profile)
-        : undefined,
+          ? globalThis.String(object.aws_profile)
+          : undefined,
       awsBedrockEndpoint: isSet(object.awsBedrockEndpoint)
         ? globalThis.String(object.awsBedrockEndpoint)
         : isSet(object.aws_bedrock_endpoint)
-        ? globalThis.String(object.aws_bedrock_endpoint)
-        : undefined,
+          ? globalThis.String(object.aws_bedrock_endpoint)
+          : undefined,
       claudeCodePath: isSet(object.claudeCodePath)
         ? globalThis.String(object.claudeCodePath)
         : isSet(object.claude_code_path)
-        ? globalThis.String(object.claude_code_path)
-        : undefined,
+          ? globalThis.String(object.claude_code_path)
+          : undefined,
       vertexProjectId: isSet(object.vertexProjectId)
         ? globalThis.String(object.vertexProjectId)
         : isSet(object.vertex_project_id)
-        ? globalThis.String(object.vertex_project_id)
-        : undefined,
+          ? globalThis.String(object.vertex_project_id)
+          : undefined,
       vertexRegion: isSet(object.vertexRegion)
         ? globalThis.String(object.vertexRegion)
         : isSet(object.vertex_region)
-        ? globalThis.String(object.vertex_region)
-        : undefined,
+          ? globalThis.String(object.vertex_region)
+          : undefined,
       openAiBaseUrl: isSet(object.openAiBaseUrl)
         ? globalThis.String(object.openAiBaseUrl)
         : isSet(object.open_ai_base_url)
-        ? globalThis.String(object.open_ai_base_url)
-        : undefined,
+          ? globalThis.String(object.open_ai_base_url)
+          : undefined,
       ollamaBaseUrl: isSet(object.ollamaBaseUrl)
         ? globalThis.String(object.ollamaBaseUrl)
         : isSet(object.ollama_base_url)
-        ? globalThis.String(object.ollama_base_url)
-        : undefined,
+          ? globalThis.String(object.ollama_base_url)
+          : undefined,
       ollamaApiOptionsCtxNum: isSet(object.ollamaApiOptionsCtxNum)
         ? globalThis.String(object.ollamaApiOptionsCtxNum)
         : isSet(object.ollama_api_options_ctx_num)
-        ? globalThis.String(object.ollama_api_options_ctx_num)
-        : undefined,
+          ? globalThis.String(object.ollama_api_options_ctx_num)
+          : undefined,
       lmStudioBaseUrl: isSet(object.lmStudioBaseUrl)
         ? globalThis.String(object.lmStudioBaseUrl)
         : isSet(object.lm_studio_base_url)
-        ? globalThis.String(object.lm_studio_base_url)
-        : undefined,
+          ? globalThis.String(object.lm_studio_base_url)
+          : undefined,
       lmStudioMaxTokens: isSet(object.lmStudioMaxTokens)
         ? globalThis.String(object.lmStudioMaxTokens)
         : isSet(object.lm_studio_max_tokens)
-        ? globalThis.String(object.lm_studio_max_tokens)
-        : undefined,
+          ? globalThis.String(object.lm_studio_max_tokens)
+          : undefined,
       geminiBaseUrl: isSet(object.geminiBaseUrl)
         ? globalThis.String(object.geminiBaseUrl)
         : isSet(object.gemini_base_url)
-        ? globalThis.String(object.gemini_base_url)
-        : undefined,
+          ? globalThis.String(object.gemini_base_url)
+          : undefined,
       requestyBaseUrl: isSet(object.requestyBaseUrl)
         ? globalThis.String(object.requestyBaseUrl)
         : isSet(object.requesty_base_url)
-        ? globalThis.String(object.requesty_base_url)
-        : undefined,
+          ? globalThis.String(object.requesty_base_url)
+          : undefined,
       fireworksModelMaxCompletionTokens: isSet(object.fireworksModelMaxCompletionTokens)
         ? globalThis.Number(object.fireworksModelMaxCompletionTokens)
         : isSet(object.fireworks_model_max_completion_tokens)
-        ? globalThis.Number(object.fireworks_model_max_completion_tokens)
-        : undefined,
+          ? globalThis.Number(object.fireworks_model_max_completion_tokens)
+          : undefined,
       fireworksModelMaxTokens: isSet(object.fireworksModelMaxTokens)
         ? globalThis.Number(object.fireworksModelMaxTokens)
         : isSet(object.fireworks_model_max_tokens)
-        ? globalThis.Number(object.fireworks_model_max_tokens)
-        : undefined,
+          ? globalThis.Number(object.fireworks_model_max_tokens)
+          : undefined,
       qwenCodeOauthPath: isSet(object.qwenCodeOauthPath)
         ? globalThis.String(object.qwenCodeOauthPath)
         : isSet(object.qwen_code_oauth_path)
-        ? globalThis.String(object.qwen_code_oauth_path)
-        : undefined,
+          ? globalThis.String(object.qwen_code_oauth_path)
+          : undefined,
       azureApiVersion: isSet(object.azureApiVersion)
         ? globalThis.String(object.azureApiVersion)
         : isSet(object.azure_api_version)
-        ? globalThis.String(object.azure_api_version)
-        : undefined,
+          ? globalThis.String(object.azure_api_version)
+          : undefined,
       azureIdentity: isSet(object.azureIdentity)
         ? globalThis.Boolean(object.azureIdentity)
         : isSet(object.azure_identity)
-        ? globalThis.Boolean(object.azure_identity)
-        : undefined,
+          ? globalThis.Boolean(object.azure_identity)
+          : undefined,
       qwenApiLine: isSet(object.qwenApiLine)
         ? globalThis.String(object.qwenApiLine)
         : isSet(object.qwen_api_line)
-        ? globalThis.String(object.qwen_api_line)
-        : undefined,
+          ? globalThis.String(object.qwen_api_line)
+          : undefined,
       moonshotApiLine: isSet(object.moonshotApiLine)
         ? globalThis.String(object.moonshotApiLine)
         : isSet(object.moonshot_api_line)
-        ? globalThis.String(object.moonshot_api_line)
-        : undefined,
+          ? globalThis.String(object.moonshot_api_line)
+          : undefined,
       asksageApiUrl: isSet(object.asksageApiUrl)
         ? globalThis.String(object.asksageApiUrl)
         : isSet(object.asksage_api_url)
-        ? globalThis.String(object.asksage_api_url)
-        : undefined,
+          ? globalThis.String(object.asksage_api_url)
+          : undefined,
       requestTimeoutMs: isSet(object.requestTimeoutMs)
         ? globalThis.Number(object.requestTimeoutMs)
         : isSet(object.request_timeout_ms)
-        ? globalThis.Number(object.request_timeout_ms)
-        : undefined,
+          ? globalThis.Number(object.request_timeout_ms)
+          : undefined,
       sapAiResourceGroup: isSet(object.sapAiResourceGroup)
         ? globalThis.String(object.sapAiResourceGroup)
         : isSet(object.sap_ai_resource_group)
-        ? globalThis.String(object.sap_ai_resource_group)
-        : undefined,
+          ? globalThis.String(object.sap_ai_resource_group)
+          : undefined,
       sapAiCoreTokenUrl: isSet(object.sapAiCoreTokenUrl)
         ? globalThis.String(object.sapAiCoreTokenUrl)
         : isSet(object.sap_ai_core_token_url)
-        ? globalThis.String(object.sap_ai_core_token_url)
-        : undefined,
+          ? globalThis.String(object.sap_ai_core_token_url)
+          : undefined,
       sapAiCoreBaseUrl: isSet(object.sapAiCoreBaseUrl)
         ? globalThis.String(object.sapAiCoreBaseUrl)
         : isSet(object.sap_ai_core_base_url)
-        ? globalThis.String(object.sap_ai_core_base_url)
-        : undefined,
+          ? globalThis.String(object.sap_ai_core_base_url)
+          : undefined,
       sapAiCoreUseOrchestrationMode: isSet(object.sapAiCoreUseOrchestrationMode)
         ? globalThis.Boolean(object.sapAiCoreUseOrchestrationMode)
         : isSet(object.sap_ai_core_use_orchestration_mode)
-        ? globalThis.Boolean(object.sap_ai_core_use_orchestration_mode)
-        : undefined,
+          ? globalThis.Boolean(object.sap_ai_core_use_orchestration_mode)
+          : undefined,
       difyBaseUrl: isSet(object.difyBaseUrl)
         ? globalThis.String(object.difyBaseUrl)
         : isSet(object.dify_base_url)
-        ? globalThis.String(object.dify_base_url)
-        : undefined,
+          ? globalThis.String(object.dify_base_url)
+          : undefined,
       zaiApiLine: isSet(object.zaiApiLine)
         ? globalThis.String(object.zaiApiLine)
         : isSet(object.zai_api_line)
-        ? globalThis.String(object.zai_api_line)
-        : undefined,
+          ? globalThis.String(object.zai_api_line)
+          : undefined,
       ocaBaseUrl: isSet(object.ocaBaseUrl)
         ? globalThis.String(object.ocaBaseUrl)
         : isSet(object.oca_base_url)
-        ? globalThis.String(object.oca_base_url)
-        : undefined,
+          ? globalThis.String(object.oca_base_url)
+          : undefined,
       minimaxApiLine: isSet(object.minimaxApiLine)
         ? globalThis.String(object.minimaxApiLine)
         : isSet(object.minimax_api_line)
-        ? globalThis.String(object.minimax_api_line)
-        : undefined,
+          ? globalThis.String(object.minimax_api_line)
+          : undefined,
       ocaMode: isSet(object.ocaMode)
         ? globalThis.String(object.ocaMode)
         : isSet(object.oca_mode)
-        ? globalThis.String(object.oca_mode)
-        : undefined,
+          ? globalThis.String(object.oca_mode)
+          : undefined,
       aihubmixBaseUrl: isSet(object.aihubmixBaseUrl)
         ? globalThis.String(object.aihubmixBaseUrl)
         : isSet(object.aihubmix_base_url)
-        ? globalThis.String(object.aihubmix_base_url)
-        : undefined,
+          ? globalThis.String(object.aihubmix_base_url)
+          : undefined,
       aihubmixAppCode: isSet(object.aihubmixAppCode)
         ? globalThis.String(object.aihubmixAppCode)
         : isSet(object.aihubmix_app_code)
-        ? globalThis.String(object.aihubmix_app_code)
-        : undefined,
+          ? globalThis.String(object.aihubmix_app_code)
+          : undefined,
       planModeApiModelId: isSet(object.planModeApiModelId)
         ? globalThis.String(object.planModeApiModelId)
         : isSet(object.plan_mode_api_model_id)
-        ? globalThis.String(object.plan_mode_api_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_api_model_id)
+          : undefined,
       planModeThinkingBudgetTokens: isSet(object.planModeThinkingBudgetTokens)
         ? globalThis.Number(object.planModeThinkingBudgetTokens)
         : isSet(object.plan_mode_thinking_budget_tokens)
-        ? globalThis.Number(object.plan_mode_thinking_budget_tokens)
-        : undefined,
+          ? globalThis.Number(object.plan_mode_thinking_budget_tokens)
+          : undefined,
       geminiPlanModeThinkingLevel: isSet(object.geminiPlanModeThinkingLevel)
         ? globalThis.String(object.geminiPlanModeThinkingLevel)
         : isSet(object.gemini_plan_mode_thinking_level)
-        ? globalThis.String(object.gemini_plan_mode_thinking_level)
-        : undefined,
+          ? globalThis.String(object.gemini_plan_mode_thinking_level)
+          : undefined,
       planModeReasoningEffort: isSet(object.planModeReasoningEffort)
         ? globalThis.String(object.planModeReasoningEffort)
         : isSet(object.plan_mode_reasoning_effort)
-        ? globalThis.String(object.plan_mode_reasoning_effort)
-        : undefined,
+          ? globalThis.String(object.plan_mode_reasoning_effort)
+          : undefined,
       planModeVerbosity: isSet(object.planModeVerbosity)
         ? globalThis.String(object.planModeVerbosity)
         : isSet(object.plan_mode_verbosity)
-        ? globalThis.String(object.plan_mode_verbosity)
-        : undefined,
+          ? globalThis.String(object.plan_mode_verbosity)
+          : undefined,
       planModeVsCodeLmModelSelector: isSet(object.planModeVsCodeLmModelSelector)
         ? LanguageModelChatSelector.fromJSON(object.planModeVsCodeLmModelSelector)
         : isSet(object.plan_mode_vs_code_lm_model_selector)
-        ? LanguageModelChatSelector.fromJSON(object.plan_mode_vs_code_lm_model_selector)
-        : undefined,
+          ? LanguageModelChatSelector.fromJSON(object.plan_mode_vs_code_lm_model_selector)
+          : undefined,
       planModeAwsBedrockCustomSelected: isSet(object.planModeAwsBedrockCustomSelected)
         ? globalThis.Boolean(object.planModeAwsBedrockCustomSelected)
         : isSet(object.plan_mode_aws_bedrock_custom_selected)
-        ? globalThis.Boolean(object.plan_mode_aws_bedrock_custom_selected)
-        : undefined,
+          ? globalThis.Boolean(object.plan_mode_aws_bedrock_custom_selected)
+          : undefined,
       planModeAwsBedrockCustomModelBaseId: isSet(object.planModeAwsBedrockCustomModelBaseId)
         ? globalThis.String(object.planModeAwsBedrockCustomModelBaseId)
         : isSet(object.plan_mode_aws_bedrock_custom_model_base_id)
-        ? globalThis.String(object.plan_mode_aws_bedrock_custom_model_base_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_aws_bedrock_custom_model_base_id)
+          : undefined,
       planModeOpenRouterModelId: isSet(object.planModeOpenRouterModelId)
         ? globalThis.String(object.planModeOpenRouterModelId)
         : isSet(object.plan_mode_open_router_model_id)
-        ? globalThis.String(object.plan_mode_open_router_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_open_router_model_id)
+          : undefined,
       planModeOpenRouterModelInfo: isSet(object.planModeOpenRouterModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeOpenRouterModelInfo)
         : isSet(object.plan_mode_open_router_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_open_router_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_open_router_model_info)
+          : undefined,
       planModeOpenAiModelId: isSet(object.planModeOpenAiModelId)
         ? globalThis.String(object.planModeOpenAiModelId)
         : isSet(object.plan_mode_open_ai_model_id)
-        ? globalThis.String(object.plan_mode_open_ai_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_open_ai_model_id)
+          : undefined,
       planModeOpenAiModelInfo: isSet(object.planModeOpenAiModelInfo)
         ? OpenAiCompatibleModelInfo.fromJSON(object.planModeOpenAiModelInfo)
         : isSet(object.plan_mode_open_ai_model_info)
-        ? OpenAiCompatibleModelInfo.fromJSON(object.plan_mode_open_ai_model_info)
-        : undefined,
+          ? OpenAiCompatibleModelInfo.fromJSON(object.plan_mode_open_ai_model_info)
+          : undefined,
       planModeOllamaModelId: isSet(object.planModeOllamaModelId)
         ? globalThis.String(object.planModeOllamaModelId)
         : isSet(object.plan_mode_ollama_model_id)
-        ? globalThis.String(object.plan_mode_ollama_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_ollama_model_id)
+          : undefined,
       planModeLmStudioModelId: isSet(object.planModeLmStudioModelId)
         ? globalThis.String(object.planModeLmStudioModelId)
         : isSet(object.plan_mode_lm_studio_model_id)
-        ? globalThis.String(object.plan_mode_lm_studio_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_lm_studio_model_id)
+          : undefined,
       planModeLiteLlmModelId: isSet(object.planModeLiteLlmModelId)
         ? globalThis.String(object.planModeLiteLlmModelId)
         : isSet(object.plan_mode_lite_llm_model_id)
-        ? globalThis.String(object.plan_mode_lite_llm_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_lite_llm_model_id)
+          : undefined,
       planModeLiteLlmModelInfo: isSet(object.planModeLiteLlmModelInfo)
         ? LiteLLMModelInfo.fromJSON(object.planModeLiteLlmModelInfo)
         : isSet(object.plan_mode_lite_llm_model_info)
-        ? LiteLLMModelInfo.fromJSON(object.plan_mode_lite_llm_model_info)
-        : undefined,
+          ? LiteLLMModelInfo.fromJSON(object.plan_mode_lite_llm_model_info)
+          : undefined,
       planModeRequestyModelId: isSet(object.planModeRequestyModelId)
         ? globalThis.String(object.planModeRequestyModelId)
         : isSet(object.plan_mode_requesty_model_id)
-        ? globalThis.String(object.plan_mode_requesty_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_requesty_model_id)
+          : undefined,
       planModeRequestyModelInfo: isSet(object.planModeRequestyModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeRequestyModelInfo)
         : isSet(object.plan_mode_requesty_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_requesty_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_requesty_model_info)
+          : undefined,
       planModeTogetherModelId: isSet(object.planModeTogetherModelId)
         ? globalThis.String(object.planModeTogetherModelId)
         : isSet(object.plan_mode_together_model_id)
-        ? globalThis.String(object.plan_mode_together_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_together_model_id)
+          : undefined,
       planModeFireworksModelId: isSet(object.planModeFireworksModelId)
         ? globalThis.String(object.planModeFireworksModelId)
         : isSet(object.plan_mode_fireworks_model_id)
-        ? globalThis.String(object.plan_mode_fireworks_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_fireworks_model_id)
+          : undefined,
       planModeSapAiCoreModelId: isSet(object.planModeSapAiCoreModelId)
         ? globalThis.String(object.planModeSapAiCoreModelId)
         : isSet(object.plan_mode_sap_ai_core_model_id)
-        ? globalThis.String(object.plan_mode_sap_ai_core_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_sap_ai_core_model_id)
+          : undefined,
       planModeSapAiCoreDeploymentId: isSet(object.planModeSapAiCoreDeploymentId)
         ? globalThis.String(object.planModeSapAiCoreDeploymentId)
         : isSet(object.plan_mode_sap_ai_core_deployment_id)
-        ? globalThis.String(object.plan_mode_sap_ai_core_deployment_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_sap_ai_core_deployment_id)
+          : undefined,
       planModeGroqModelId: isSet(object.planModeGroqModelId)
         ? globalThis.String(object.planModeGroqModelId)
         : isSet(object.plan_mode_groq_model_id)
-        ? globalThis.String(object.plan_mode_groq_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_groq_model_id)
+          : undefined,
       planModeGroqModelInfo: isSet(object.planModeGroqModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeGroqModelInfo)
         : isSet(object.plan_mode_groq_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_groq_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_groq_model_info)
+          : undefined,
       planModeBasetenModelId: isSet(object.planModeBasetenModelId)
         ? globalThis.String(object.planModeBasetenModelId)
         : isSet(object.plan_mode_baseten_model_id)
-        ? globalThis.String(object.plan_mode_baseten_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_baseten_model_id)
+          : undefined,
       planModeBasetenModelInfo: isSet(object.planModeBasetenModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeBasetenModelInfo)
         : isSet(object.plan_mode_baseten_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_baseten_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_baseten_model_info)
+          : undefined,
       planModeHuggingFaceModelId: isSet(object.planModeHuggingFaceModelId)
         ? globalThis.String(object.planModeHuggingFaceModelId)
         : isSet(object.plan_mode_hugging_face_model_id)
-        ? globalThis.String(object.plan_mode_hugging_face_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_hugging_face_model_id)
+          : undefined,
       planModeHuggingFaceModelInfo: isSet(object.planModeHuggingFaceModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeHuggingFaceModelInfo)
         : isSet(object.plan_mode_hugging_face_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_hugging_face_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_hugging_face_model_info)
+          : undefined,
       planModeHuaweiCloudMaasModelId: isSet(object.planModeHuaweiCloudMaasModelId)
         ? globalThis.String(object.planModeHuaweiCloudMaasModelId)
         : isSet(object.plan_mode_huawei_cloud_maas_model_id)
-        ? globalThis.String(object.plan_mode_huawei_cloud_maas_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_huawei_cloud_maas_model_id)
+          : undefined,
       planModeHuaweiCloudMaasModelInfo: isSet(object.planModeHuaweiCloudMaasModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeHuaweiCloudMaasModelInfo)
         : isSet(object.plan_mode_huawei_cloud_maas_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_huawei_cloud_maas_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_huawei_cloud_maas_model_info)
+          : undefined,
       planModeOcaModelId: isSet(object.planModeOcaModelId)
         ? globalThis.String(object.planModeOcaModelId)
         : isSet(object.plan_mode_oca_model_id)
-        ? globalThis.String(object.plan_mode_oca_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_oca_model_id)
+          : undefined,
       planModeOcaModelInfo: isSet(object.planModeOcaModelInfo)
         ? OcaModelInfo.fromJSON(object.planModeOcaModelInfo)
         : isSet(object.plan_mode_oca_model_info)
-        ? OcaModelInfo.fromJSON(object.plan_mode_oca_model_info)
-        : undefined,
+          ? OcaModelInfo.fromJSON(object.plan_mode_oca_model_info)
+          : undefined,
       planModeOcaReasoningEffort: isSet(object.planModeOcaReasoningEffort)
         ? globalThis.String(object.planModeOcaReasoningEffort)
         : isSet(object.plan_mode_oca_reasoning_effort)
-        ? globalThis.String(object.plan_mode_oca_reasoning_effort)
-        : undefined,
+          ? globalThis.String(object.plan_mode_oca_reasoning_effort)
+          : undefined,
       planModeAihubmixModelId: isSet(object.planModeAihubmixModelId)
         ? globalThis.String(object.planModeAihubmixModelId)
         : isSet(object.plan_mode_aihubmix_model_id)
-        ? globalThis.String(object.plan_mode_aihubmix_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_aihubmix_model_id)
+          : undefined,
       planModeAihubmixModelInfo: isSet(object.planModeAihubmixModelInfo)
         ? OpenAiCompatibleModelInfo.fromJSON(object.planModeAihubmixModelInfo)
         : isSet(object.plan_mode_aihubmix_model_info)
-        ? OpenAiCompatibleModelInfo.fromJSON(object.plan_mode_aihubmix_model_info)
-        : undefined,
+          ? OpenAiCompatibleModelInfo.fromJSON(object.plan_mode_aihubmix_model_info)
+          : undefined,
       planModeHicapModelId: isSet(object.planModeHicapModelId)
         ? globalThis.String(object.planModeHicapModelId)
         : isSet(object.plan_mode_hicap_model_id)
-        ? globalThis.String(object.plan_mode_hicap_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_hicap_model_id)
+          : undefined,
       planModeHicapModelInfo: isSet(object.planModeHicapModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeHicapModelInfo)
         : isSet(object.plan_mode_hicap_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_hicap_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_hicap_model_info)
+          : undefined,
       planModeNousResearchModelId: isSet(object.planModeNousResearchModelId)
         ? globalThis.String(object.planModeNousResearchModelId)
         : isSet(object.plan_mode_nous_research_model_id)
-        ? globalThis.String(object.plan_mode_nous_research_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_nous_research_model_id)
+          : undefined,
       planModeVercelAiGatewayModelId: isSet(object.planModeVercelAiGatewayModelId)
         ? globalThis.String(object.planModeVercelAiGatewayModelId)
         : isSet(object.plan_mode_vercel_ai_gateway_model_id)
-        ? globalThis.String(object.plan_mode_vercel_ai_gateway_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_vercel_ai_gateway_model_id)
+          : undefined,
       planModeVercelAiGatewayModelInfo: isSet(object.planModeVercelAiGatewayModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeVercelAiGatewayModelInfo)
         : isSet(object.plan_mode_vercel_ai_gateway_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_vercel_ai_gateway_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_vercel_ai_gateway_model_info)
+          : undefined,
       actModeApiModelId: isSet(object.actModeApiModelId)
         ? globalThis.String(object.actModeApiModelId)
         : isSet(object.act_mode_api_model_id)
-        ? globalThis.String(object.act_mode_api_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_api_model_id)
+          : undefined,
       actModeThinkingBudgetTokens: isSet(object.actModeThinkingBudgetTokens)
         ? globalThis.Number(object.actModeThinkingBudgetTokens)
         : isSet(object.act_mode_thinking_budget_tokens)
-        ? globalThis.Number(object.act_mode_thinking_budget_tokens)
-        : undefined,
+          ? globalThis.Number(object.act_mode_thinking_budget_tokens)
+          : undefined,
       geminiActModeThinkingLevel: isSet(object.geminiActModeThinkingLevel)
         ? globalThis.String(object.geminiActModeThinkingLevel)
         : isSet(object.gemini_act_mode_thinking_level)
-        ? globalThis.String(object.gemini_act_mode_thinking_level)
-        : undefined,
+          ? globalThis.String(object.gemini_act_mode_thinking_level)
+          : undefined,
       actModeReasoningEffort: isSet(object.actModeReasoningEffort)
         ? globalThis.String(object.actModeReasoningEffort)
         : isSet(object.act_mode_reasoning_effort)
-        ? globalThis.String(object.act_mode_reasoning_effort)
-        : undefined,
+          ? globalThis.String(object.act_mode_reasoning_effort)
+          : undefined,
       actModeVerbosity: isSet(object.actModeVerbosity)
         ? globalThis.String(object.actModeVerbosity)
         : isSet(object.act_mode_verbosity)
-        ? globalThis.String(object.act_mode_verbosity)
-        : undefined,
+          ? globalThis.String(object.act_mode_verbosity)
+          : undefined,
       actModeVsCodeLmModelSelector: isSet(object.actModeVsCodeLmModelSelector)
         ? LanguageModelChatSelector.fromJSON(object.actModeVsCodeLmModelSelector)
         : isSet(object.act_mode_vs_code_lm_model_selector)
-        ? LanguageModelChatSelector.fromJSON(object.act_mode_vs_code_lm_model_selector)
-        : undefined,
+          ? LanguageModelChatSelector.fromJSON(object.act_mode_vs_code_lm_model_selector)
+          : undefined,
       actModeAwsBedrockCustomSelected: isSet(object.actModeAwsBedrockCustomSelected)
         ? globalThis.Boolean(object.actModeAwsBedrockCustomSelected)
         : isSet(object.act_mode_aws_bedrock_custom_selected)
-        ? globalThis.Boolean(object.act_mode_aws_bedrock_custom_selected)
-        : undefined,
+          ? globalThis.Boolean(object.act_mode_aws_bedrock_custom_selected)
+          : undefined,
       actModeAwsBedrockCustomModelBaseId: isSet(object.actModeAwsBedrockCustomModelBaseId)
         ? globalThis.String(object.actModeAwsBedrockCustomModelBaseId)
         : isSet(object.act_mode_aws_bedrock_custom_model_base_id)
-        ? globalThis.String(object.act_mode_aws_bedrock_custom_model_base_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_aws_bedrock_custom_model_base_id)
+          : undefined,
       actModeOpenRouterModelId: isSet(object.actModeOpenRouterModelId)
         ? globalThis.String(object.actModeOpenRouterModelId)
         : isSet(object.act_mode_open_router_model_id)
-        ? globalThis.String(object.act_mode_open_router_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_open_router_model_id)
+          : undefined,
       actModeOpenRouterModelInfo: isSet(object.actModeOpenRouterModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeOpenRouterModelInfo)
         : isSet(object.act_mode_open_router_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_open_router_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_open_router_model_info)
+          : undefined,
       actModeOpenAiModelId: isSet(object.actModeOpenAiModelId)
         ? globalThis.String(object.actModeOpenAiModelId)
         : isSet(object.act_mode_open_ai_model_id)
-        ? globalThis.String(object.act_mode_open_ai_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_open_ai_model_id)
+          : undefined,
       actModeOpenAiModelInfo: isSet(object.actModeOpenAiModelInfo)
         ? OpenAiCompatibleModelInfo.fromJSON(object.actModeOpenAiModelInfo)
         : isSet(object.act_mode_open_ai_model_info)
-        ? OpenAiCompatibleModelInfo.fromJSON(object.act_mode_open_ai_model_info)
-        : undefined,
+          ? OpenAiCompatibleModelInfo.fromJSON(object.act_mode_open_ai_model_info)
+          : undefined,
       actModeOllamaModelId: isSet(object.actModeOllamaModelId)
         ? globalThis.String(object.actModeOllamaModelId)
         : isSet(object.act_mode_ollama_model_id)
-        ? globalThis.String(object.act_mode_ollama_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_ollama_model_id)
+          : undefined,
       actModeLmStudioModelId: isSet(object.actModeLmStudioModelId)
         ? globalThis.String(object.actModeLmStudioModelId)
         : isSet(object.act_mode_lm_studio_model_id)
-        ? globalThis.String(object.act_mode_lm_studio_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_lm_studio_model_id)
+          : undefined,
       actModeLiteLlmModelId: isSet(object.actModeLiteLlmModelId)
         ? globalThis.String(object.actModeLiteLlmModelId)
         : isSet(object.act_mode_lite_llm_model_id)
-        ? globalThis.String(object.act_mode_lite_llm_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_lite_llm_model_id)
+          : undefined,
       actModeLiteLlmModelInfo: isSet(object.actModeLiteLlmModelInfo)
         ? LiteLLMModelInfo.fromJSON(object.actModeLiteLlmModelInfo)
         : isSet(object.act_mode_lite_llm_model_info)
-        ? LiteLLMModelInfo.fromJSON(object.act_mode_lite_llm_model_info)
-        : undefined,
+          ? LiteLLMModelInfo.fromJSON(object.act_mode_lite_llm_model_info)
+          : undefined,
       actModeRequestyModelId: isSet(object.actModeRequestyModelId)
         ? globalThis.String(object.actModeRequestyModelId)
         : isSet(object.act_mode_requesty_model_id)
-        ? globalThis.String(object.act_mode_requesty_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_requesty_model_id)
+          : undefined,
       actModeRequestyModelInfo: isSet(object.actModeRequestyModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeRequestyModelInfo)
         : isSet(object.act_mode_requesty_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_requesty_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_requesty_model_info)
+          : undefined,
       actModeTogetherModelId: isSet(object.actModeTogetherModelId)
         ? globalThis.String(object.actModeTogetherModelId)
         : isSet(object.act_mode_together_model_id)
-        ? globalThis.String(object.act_mode_together_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_together_model_id)
+          : undefined,
       actModeFireworksModelId: isSet(object.actModeFireworksModelId)
         ? globalThis.String(object.actModeFireworksModelId)
         : isSet(object.act_mode_fireworks_model_id)
-        ? globalThis.String(object.act_mode_fireworks_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_fireworks_model_id)
+          : undefined,
       actModeSapAiCoreModelId: isSet(object.actModeSapAiCoreModelId)
         ? globalThis.String(object.actModeSapAiCoreModelId)
         : isSet(object.act_mode_sap_ai_core_model_id)
-        ? globalThis.String(object.act_mode_sap_ai_core_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_sap_ai_core_model_id)
+          : undefined,
       actModeSapAiCoreDeploymentId: isSet(object.actModeSapAiCoreDeploymentId)
         ? globalThis.String(object.actModeSapAiCoreDeploymentId)
         : isSet(object.act_mode_sap_ai_core_deployment_id)
-        ? globalThis.String(object.act_mode_sap_ai_core_deployment_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_sap_ai_core_deployment_id)
+          : undefined,
       actModeGroqModelId: isSet(object.actModeGroqModelId)
         ? globalThis.String(object.actModeGroqModelId)
         : isSet(object.act_mode_groq_model_id)
-        ? globalThis.String(object.act_mode_groq_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_groq_model_id)
+          : undefined,
       actModeGroqModelInfo: isSet(object.actModeGroqModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeGroqModelInfo)
         : isSet(object.act_mode_groq_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_groq_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_groq_model_info)
+          : undefined,
       actModeBasetenModelId: isSet(object.actModeBasetenModelId)
         ? globalThis.String(object.actModeBasetenModelId)
         : isSet(object.act_mode_baseten_model_id)
-        ? globalThis.String(object.act_mode_baseten_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_baseten_model_id)
+          : undefined,
       actModeBasetenModelInfo: isSet(object.actModeBasetenModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeBasetenModelInfo)
         : isSet(object.act_mode_baseten_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_baseten_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_baseten_model_info)
+          : undefined,
       actModeHuggingFaceModelId: isSet(object.actModeHuggingFaceModelId)
         ? globalThis.String(object.actModeHuggingFaceModelId)
         : isSet(object.act_mode_hugging_face_model_id)
-        ? globalThis.String(object.act_mode_hugging_face_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_hugging_face_model_id)
+          : undefined,
       actModeHuggingFaceModelInfo: isSet(object.actModeHuggingFaceModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeHuggingFaceModelInfo)
         : isSet(object.act_mode_hugging_face_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_hugging_face_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_hugging_face_model_info)
+          : undefined,
       actModeHuaweiCloudMaasModelId: isSet(object.actModeHuaweiCloudMaasModelId)
         ? globalThis.String(object.actModeHuaweiCloudMaasModelId)
         : isSet(object.act_mode_huawei_cloud_maas_model_id)
-        ? globalThis.String(object.act_mode_huawei_cloud_maas_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_huawei_cloud_maas_model_id)
+          : undefined,
       actModeHuaweiCloudMaasModelInfo: isSet(object.actModeHuaweiCloudMaasModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeHuaweiCloudMaasModelInfo)
         : isSet(object.act_mode_huawei_cloud_maas_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_huawei_cloud_maas_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_huawei_cloud_maas_model_info)
+          : undefined,
       actModeOcaModelId: isSet(object.actModeOcaModelId)
         ? globalThis.String(object.actModeOcaModelId)
         : isSet(object.act_mode_oca_model_id)
-        ? globalThis.String(object.act_mode_oca_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_oca_model_id)
+          : undefined,
       actModeOcaModelInfo: isSet(object.actModeOcaModelInfo)
         ? OcaModelInfo.fromJSON(object.actModeOcaModelInfo)
         : isSet(object.act_mode_oca_model_info)
-        ? OcaModelInfo.fromJSON(object.act_mode_oca_model_info)
-        : undefined,
+          ? OcaModelInfo.fromJSON(object.act_mode_oca_model_info)
+          : undefined,
       actModeOcaReasoningEffort: isSet(object.actModeOcaReasoningEffort)
         ? globalThis.String(object.actModeOcaReasoningEffort)
         : isSet(object.act_mode_oca_reasoning_effort)
-        ? globalThis.String(object.act_mode_oca_reasoning_effort)
-        : undefined,
+          ? globalThis.String(object.act_mode_oca_reasoning_effort)
+          : undefined,
       actModeAihubmixModelId: isSet(object.actModeAihubmixModelId)
         ? globalThis.String(object.actModeAihubmixModelId)
         : isSet(object.act_mode_aihubmix_model_id)
-        ? globalThis.String(object.act_mode_aihubmix_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_aihubmix_model_id)
+          : undefined,
       actModeAihubmixModelInfo: isSet(object.actModeAihubmixModelInfo)
         ? OpenAiCompatibleModelInfo.fromJSON(object.actModeAihubmixModelInfo)
         : isSet(object.act_mode_aihubmix_model_info)
-        ? OpenAiCompatibleModelInfo.fromJSON(object.act_mode_aihubmix_model_info)
-        : undefined,
+          ? OpenAiCompatibleModelInfo.fromJSON(object.act_mode_aihubmix_model_info)
+          : undefined,
       actModeHicapModelId: isSet(object.actModeHicapModelId)
         ? globalThis.String(object.actModeHicapModelId)
         : isSet(object.act_mode_hicap_model_id)
-        ? globalThis.String(object.act_mode_hicap_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_hicap_model_id)
+          : undefined,
       actModeHicapModelInfo: isSet(object.actModeHicapModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeHicapModelInfo)
         : isSet(object.act_mode_hicap_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_hicap_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_hicap_model_info)
+          : undefined,
       actModeNousResearchModelId: isSet(object.actModeNousResearchModelId)
         ? globalThis.String(object.actModeNousResearchModelId)
         : isSet(object.act_mode_nous_research_model_id)
-        ? globalThis.String(object.act_mode_nous_research_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_nous_research_model_id)
+          : undefined,
       actModeVercelAiGatewayModelId: isSet(object.actModeVercelAiGatewayModelId)
         ? globalThis.String(object.actModeVercelAiGatewayModelId)
         : isSet(object.act_mode_vercel_ai_gateway_model_id)
-        ? globalThis.String(object.act_mode_vercel_ai_gateway_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_vercel_ai_gateway_model_id)
+          : undefined,
       actModeVercelAiGatewayModelInfo: isSet(object.actModeVercelAiGatewayModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeVercelAiGatewayModelInfo)
         : isSet(object.act_mode_vercel_ai_gateway_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_vercel_ai_gateway_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_vercel_ai_gateway_model_info)
+          : undefined,
       planModeApiProvider: isSet(object.planModeApiProvider)
         ? apiProviderFromJSON(object.planModeApiProvider)
         : isSet(object.plan_mode_api_provider)
-        ? apiProviderFromJSON(object.plan_mode_api_provider)
-        : undefined,
+          ? apiProviderFromJSON(object.plan_mode_api_provider)
+          : undefined,
       actModeApiProvider: isSet(object.actModeApiProvider)
         ? apiProviderFromJSON(object.actModeApiProvider)
         : isSet(object.act_mode_api_provider)
-        ? apiProviderFromJSON(object.act_mode_api_provider)
-        : undefined,
+          ? apiProviderFromJSON(object.act_mode_api_provider)
+          : undefined,
       hicapModelId: isSet(object.hicapModelId)
         ? globalThis.String(object.hicapModelId)
         : isSet(object.hicap_model_id)
-        ? globalThis.String(object.hicap_model_id)
-        : undefined,
+          ? globalThis.String(object.hicap_model_id)
+          : undefined,
       lmStudioModelId: isSet(object.lmStudioModelId)
         ? globalThis.String(object.lmStudioModelId)
         : isSet(object.lm_studio_model_id)
-        ? globalThis.String(object.lm_studio_model_id)
-        : undefined,
+          ? globalThis.String(object.lm_studio_model_id)
+          : undefined,
       autoApprovalSettings: isSet(object.autoApprovalSettings)
         ? AutoApprovalSettings.fromJSON(object.autoApprovalSettings)
         : isSet(object.auto_approval_settings)
-        ? AutoApprovalSettings.fromJSON(object.auto_approval_settings)
-        : undefined,
+          ? AutoApprovalSettings.fromJSON(object.auto_approval_settings)
+          : undefined,
       globalClineRulesToggles: isSet(object.globalClineRulesToggles)
         ? globalThis.String(object.globalClineRulesToggles)
         : isSet(object.global_cline_rules_toggles)
-        ? globalThis.String(object.global_cline_rules_toggles)
-        : undefined,
+          ? globalThis.String(object.global_cline_rules_toggles)
+          : undefined,
       globalWorkflowToggles: isSet(object.globalWorkflowToggles)
         ? globalThis.String(object.globalWorkflowToggles)
         : isSet(object.global_workflow_toggles)
-        ? globalThis.String(object.global_workflow_toggles)
-        : undefined,
+          ? globalThis.String(object.global_workflow_toggles)
+          : undefined,
       globalSkillsToggles: isSet(object.globalSkillsToggles)
         ? globalThis.String(object.globalSkillsToggles)
         : isSet(object.global_skills_toggles)
-        ? globalThis.String(object.global_skills_toggles)
-        : undefined,
+          ? globalThis.String(object.global_skills_toggles)
+          : undefined,
       browserSettings: isSet(object.browserSettings)
         ? BrowserSettings.fromJSON(object.browserSettings)
         : isSet(object.browser_settings)
-        ? BrowserSettings.fromJSON(object.browser_settings)
-        : undefined,
+          ? BrowserSettings.fromJSON(object.browser_settings)
+          : undefined,
       telemetrySetting: isSet(object.telemetrySetting)
         ? globalThis.String(object.telemetrySetting)
         : isSet(object.telemetry_setting)
-        ? globalThis.String(object.telemetry_setting)
-        : undefined,
+          ? globalThis.String(object.telemetry_setting)
+          : undefined,
       planActSeparateModelsSetting: isSet(object.planActSeparateModelsSetting)
         ? globalThis.Boolean(object.planActSeparateModelsSetting)
         : isSet(object.plan_act_separate_models_setting)
-        ? globalThis.Boolean(object.plan_act_separate_models_setting)
-        : undefined,
+          ? globalThis.Boolean(object.plan_act_separate_models_setting)
+          : undefined,
       enableCheckpointsSetting: isSet(object.enableCheckpointsSetting)
         ? globalThis.Boolean(object.enableCheckpointsSetting)
         : isSet(object.enable_checkpoints_setting)
-        ? globalThis.Boolean(object.enable_checkpoints_setting)
-        : undefined,
+          ? globalThis.Boolean(object.enable_checkpoints_setting)
+          : undefined,
       shellIntegrationTimeout: isSet(object.shellIntegrationTimeout)
         ? globalThis.Number(object.shellIntegrationTimeout)
         : isSet(object.shell_integration_timeout)
-        ? globalThis.Number(object.shell_integration_timeout)
-        : undefined,
+          ? globalThis.Number(object.shell_integration_timeout)
+          : undefined,
       defaultTerminalProfile: isSet(object.defaultTerminalProfile)
         ? globalThis.String(object.defaultTerminalProfile)
         : isSet(object.default_terminal_profile)
-        ? globalThis.String(object.default_terminal_profile)
-        : undefined,
+          ? globalThis.String(object.default_terminal_profile)
+          : undefined,
       terminalOutputLineLimit: isSet(object.terminalOutputLineLimit)
         ? globalThis.Number(object.terminalOutputLineLimit)
         : isSet(object.terminal_output_line_limit)
-        ? globalThis.Number(object.terminal_output_line_limit)
-        : undefined,
+          ? globalThis.Number(object.terminal_output_line_limit)
+          : undefined,
       maxConsecutiveMistakes: isSet(object.maxConsecutiveMistakes)
         ? globalThis.Number(object.maxConsecutiveMistakes)
         : isSet(object.max_consecutive_mistakes)
-        ? globalThis.Number(object.max_consecutive_mistakes)
-        : undefined,
+          ? globalThis.Number(object.max_consecutive_mistakes)
+          : undefined,
       strictPlanModeEnabled: isSet(object.strictPlanModeEnabled)
         ? globalThis.Boolean(object.strictPlanModeEnabled)
         : isSet(object.strict_plan_mode_enabled)
-        ? globalThis.Boolean(object.strict_plan_mode_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.strict_plan_mode_enabled)
+          : undefined,
       yoloModeToggled: isSet(object.yoloModeToggled)
         ? globalThis.Boolean(object.yoloModeToggled)
         : isSet(object.yolo_mode_toggled)
-        ? globalThis.Boolean(object.yolo_mode_toggled)
-        : undefined,
+          ? globalThis.Boolean(object.yolo_mode_toggled)
+          : undefined,
       useAutoCondense: isSet(object.useAutoCondense)
         ? globalThis.Boolean(object.useAutoCondense)
         : isSet(object.use_auto_condense)
-        ? globalThis.Boolean(object.use_auto_condense)
-        : undefined,
+          ? globalThis.Boolean(object.use_auto_condense)
+          : undefined,
       clineWebToolsEnabled: isSet(object.clineWebToolsEnabled)
         ? globalThis.Boolean(object.clineWebToolsEnabled)
         : isSet(object.cline_web_tools_enabled)
-        ? globalThis.Boolean(object.cline_web_tools_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.cline_web_tools_enabled)
+          : undefined,
       preferredLanguage: isSet(object.preferredLanguage)
         ? globalThis.String(object.preferredLanguage)
         : isSet(object.preferred_language)
-        ? globalThis.String(object.preferred_language)
-        : undefined,
+          ? globalThis.String(object.preferred_language)
+          : undefined,
       mode: isSet(object.mode) ? planActModeFromJSON(object.mode) : undefined,
       focusChainSettings: isSet(object.focusChainSettings)
         ? FocusChainSettings.fromJSON(object.focusChainSettings)
         : isSet(object.focus_chain_settings)
-        ? FocusChainSettings.fromJSON(object.focus_chain_settings)
-        : undefined,
+          ? FocusChainSettings.fromJSON(object.focus_chain_settings)
+          : undefined,
       customPrompt: isSet(object.customPrompt)
         ? globalThis.String(object.customPrompt)
         : isSet(object.custom_prompt)
-        ? globalThis.String(object.custom_prompt)
-        : undefined,
+          ? globalThis.String(object.custom_prompt)
+          : undefined,
       hooksEnabled: isSet(object.hooksEnabled)
         ? globalThis.Boolean(object.hooksEnabled)
         : isSet(object.hooks_enabled)
-        ? globalThis.Boolean(object.hooks_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.hooks_enabled)
+          : undefined,
       subagentsEnabled: isSet(object.subagentsEnabled)
         ? globalThis.Boolean(object.subagentsEnabled)
         : isSet(object.subagents_enabled)
-        ? globalThis.Boolean(object.subagents_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.subagents_enabled)
+          : undefined,
       enableParallelToolCalling: isSet(object.enableParallelToolCalling)
         ? globalThis.Boolean(object.enableParallelToolCalling)
         : isSet(object.enable_parallel_tool_calling)
-        ? globalThis.Boolean(object.enable_parallel_tool_calling)
-        : undefined,
+          ? globalThis.Boolean(object.enable_parallel_tool_calling)
+          : undefined,
       backgroundEditEnabled: isSet(object.backgroundEditEnabled)
         ? globalThis.Boolean(object.backgroundEditEnabled)
         : isSet(object.background_edit_enabled)
-        ? globalThis.Boolean(object.background_edit_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.background_edit_enabled)
+          : undefined,
       optOutOfRemoteConfig: isSet(object.optOutOfRemoteConfig)
         ? globalThis.Boolean(object.optOutOfRemoteConfig)
         : isSet(object.opt_out_of_remote_config)
-        ? globalThis.Boolean(object.opt_out_of_remote_config)
-        : undefined,
+          ? globalThis.Boolean(object.opt_out_of_remote_config)
+          : undefined,
       openTelemetryEnabled: isSet(object.openTelemetryEnabled)
         ? globalThis.Boolean(object.openTelemetryEnabled)
         : isSet(object.open_telemetry_enabled)
-        ? globalThis.Boolean(object.open_telemetry_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.open_telemetry_enabled)
+          : undefined,
       openTelemetryMetricsExporter: isSet(object.openTelemetryMetricsExporter)
         ? globalThis.String(object.openTelemetryMetricsExporter)
         : isSet(object.open_telemetry_metrics_exporter)
-        ? globalThis.String(object.open_telemetry_metrics_exporter)
-        : undefined,
+          ? globalThis.String(object.open_telemetry_metrics_exporter)
+          : undefined,
       openTelemetryLogsExporter: isSet(object.openTelemetryLogsExporter)
         ? globalThis.String(object.openTelemetryLogsExporter)
         : isSet(object.open_telemetry_logs_exporter)
-        ? globalThis.String(object.open_telemetry_logs_exporter)
-        : undefined,
+          ? globalThis.String(object.open_telemetry_logs_exporter)
+          : undefined,
       openTelemetryOtlpProtocol: isSet(object.openTelemetryOtlpProtocol)
         ? globalThis.String(object.openTelemetryOtlpProtocol)
         : isSet(object.open_telemetry_otlp_protocol)
-        ? globalThis.String(object.open_telemetry_otlp_protocol)
-        : undefined,
+          ? globalThis.String(object.open_telemetry_otlp_protocol)
+          : undefined,
       openTelemetryOtlpEndpoint: isSet(object.openTelemetryOtlpEndpoint)
         ? globalThis.String(object.openTelemetryOtlpEndpoint)
         : isSet(object.open_telemetry_otlp_endpoint)
-        ? globalThis.String(object.open_telemetry_otlp_endpoint)
-        : undefined,
+          ? globalThis.String(object.open_telemetry_otlp_endpoint)
+          : undefined,
       openTelemetryOtlpMetricsProtocol: isSet(object.openTelemetryOtlpMetricsProtocol)
         ? globalThis.String(object.openTelemetryOtlpMetricsProtocol)
         : isSet(object.open_telemetry_otlp_metrics_protocol)
-        ? globalThis.String(object.open_telemetry_otlp_metrics_protocol)
-        : undefined,
+          ? globalThis.String(object.open_telemetry_otlp_metrics_protocol)
+          : undefined,
       openTelemetryOtlpMetricsEndpoint: isSet(object.openTelemetryOtlpMetricsEndpoint)
         ? globalThis.String(object.openTelemetryOtlpMetricsEndpoint)
         : isSet(object.open_telemetry_otlp_metrics_endpoint)
-        ? globalThis.String(object.open_telemetry_otlp_metrics_endpoint)
-        : undefined,
+          ? globalThis.String(object.open_telemetry_otlp_metrics_endpoint)
+          : undefined,
       openTelemetryOtlpLogsProtocol: isSet(object.openTelemetryOtlpLogsProtocol)
         ? globalThis.String(object.openTelemetryOtlpLogsProtocol)
         : isSet(object.open_telemetry_otlp_logs_protocol)
-        ? globalThis.String(object.open_telemetry_otlp_logs_protocol)
-        : undefined,
+          ? globalThis.String(object.open_telemetry_otlp_logs_protocol)
+          : undefined,
       openTelemetryOtlpLogsEndpoint: isSet(object.openTelemetryOtlpLogsEndpoint)
         ? globalThis.String(object.openTelemetryOtlpLogsEndpoint)
         : isSet(object.open_telemetry_otlp_logs_endpoint)
-        ? globalThis.String(object.open_telemetry_otlp_logs_endpoint)
-        : undefined,
+          ? globalThis.String(object.open_telemetry_otlp_logs_endpoint)
+          : undefined,
       openTelemetryMetricExportInterval: isSet(object.openTelemetryMetricExportInterval)
         ? globalThis.Number(object.openTelemetryMetricExportInterval)
         : isSet(object.open_telemetry_metric_export_interval)
-        ? globalThis.Number(object.open_telemetry_metric_export_interval)
-        : undefined,
+          ? globalThis.Number(object.open_telemetry_metric_export_interval)
+          : undefined,
       openTelemetryOtlpInsecure: isSet(object.openTelemetryOtlpInsecure)
         ? globalThis.Boolean(object.openTelemetryOtlpInsecure)
         : isSet(object.open_telemetry_otlp_insecure)
-        ? globalThis.Boolean(object.open_telemetry_otlp_insecure)
-        : undefined,
+          ? globalThis.Boolean(object.open_telemetry_otlp_insecure)
+          : undefined,
       openTelemetryLogBatchSize: isSet(object.openTelemetryLogBatchSize)
         ? globalThis.Number(object.openTelemetryLogBatchSize)
         : isSet(object.open_telemetry_log_batch_size)
-        ? globalThis.Number(object.open_telemetry_log_batch_size)
-        : undefined,
+          ? globalThis.Number(object.open_telemetry_log_batch_size)
+          : undefined,
       openTelemetryLogBatchTimeout: isSet(object.openTelemetryLogBatchTimeout)
         ? globalThis.Number(object.openTelemetryLogBatchTimeout)
         : isSet(object.open_telemetry_log_batch_timeout)
-        ? globalThis.Number(object.open_telemetry_log_batch_timeout)
-        : undefined,
+          ? globalThis.Number(object.open_telemetry_log_batch_timeout)
+          : undefined,
       openTelemetryLogMaxQueueSize: isSet(object.openTelemetryLogMaxQueueSize)
         ? globalThis.Number(object.openTelemetryLogMaxQueueSize)
         : isSet(object.open_telemetry_log_max_queue_size)
-        ? globalThis.Number(object.open_telemetry_log_max_queue_size)
-        : undefined,
+          ? globalThis.Number(object.open_telemetry_log_max_queue_size)
+          : undefined,
       worktreesEnabled: isSet(object.worktreesEnabled)
         ? globalThis.Boolean(object.worktreesEnabled)
         : isSet(object.worktrees_enabled)
-        ? globalThis.Boolean(object.worktrees_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.worktrees_enabled)
+          : undefined,
       autoApproveAllToggled: isSet(object.autoApproveAllToggled)
         ? globalThis.Boolean(object.autoApproveAllToggled)
         : isSet(object.auto_approve_all_toggled)
-        ? globalThis.Boolean(object.auto_approve_all_toggled)
-        : undefined,
+          ? globalThis.Boolean(object.auto_approve_all_toggled)
+          : undefined,
       doubleCheckCompletionEnabled: isSet(object.doubleCheckCompletionEnabled)
         ? globalThis.Boolean(object.doubleCheckCompletionEnabled)
         : isSet(object.double_check_completion_enabled)
-        ? globalThis.Boolean(object.double_check_completion_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.double_check_completion_enabled)
+          : undefined,
       openAiHeaders: isObject(object.openAiHeaders)
         ? (globalThis.Object.entries(object.openAiHeaders) as [string, any][]).reduce(
-          (acc: { [key: string]: string }, [key, value]: [string, any]) => {
-            acc[key] = globalThis.String(value);
-            return acc;
-          },
-          {},
-        )
+            (acc: { [key: string]: string }, [key, value]: [string, any]) => {
+              acc[key] = globalThis.String(value);
+              return acc;
+            },
+            {},
+          )
         : isObject(object.open_ai_headers)
-        ? (globalThis.Object.entries(object.open_ai_headers) as [string, any][]).reduce(
-          (acc: { [key: string]: string }, [key, value]: [string, any]) => {
-            acc[key] = globalThis.String(value);
-            return acc;
-          },
-          {},
-        )
-        : {},
+          ? (globalThis.Object.entries(object.open_ai_headers) as [string, any][]).reduce(
+              (acc: { [key: string]: string }, [key, value]: [string, any]) => {
+                acc[key] = globalThis.String(value);
+                return acc;
+              },
+              {},
+            )
+          : {},
       planModeClineModelId: isSet(object.planModeClineModelId)
         ? globalThis.String(object.planModeClineModelId)
         : isSet(object.plan_mode_cline_model_id)
-        ? globalThis.String(object.plan_mode_cline_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_cline_model_id)
+          : undefined,
       planModeClineModelInfo: isSet(object.planModeClineModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeClineModelInfo)
         : isSet(object.plan_mode_cline_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_cline_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_cline_model_info)
+          : undefined,
       actModeClineModelId: isSet(object.actModeClineModelId)
         ? globalThis.String(object.actModeClineModelId)
         : isSet(object.act_mode_cline_model_id)
-        ? globalThis.String(object.act_mode_cline_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_cline_model_id)
+          : undefined,
       actModeClineModelInfo: isSet(object.actModeClineModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeClineModelInfo)
         : isSet(object.act_mode_cline_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_cline_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_cline_model_info)
+          : undefined,
       showFeatureTips: isSet(object.showFeatureTips)
         ? globalThis.Boolean(object.showFeatureTips)
         : isSet(object.show_feature_tips)
-        ? globalThis.Boolean(object.show_feature_tips)
-        : undefined,
+          ? globalThis.Boolean(object.show_feature_tips)
+          : undefined,
       lazyTeammateModeEnabled: isSet(object.lazyTeammateModeEnabled)
         ? globalThis.Boolean(object.lazyTeammateModeEnabled)
         : isSet(object.lazy_teammate_mode_enabled)
-        ? globalThis.Boolean(object.lazy_teammate_mode_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.lazy_teammate_mode_enabled)
+          : undefined,
     };
   },
 
@@ -5079,7 +5167,9 @@ export const Settings: MessageFns<Settings> = {
       obj.planModeVerbosity = message.planModeVerbosity;
     }
     if (message.planModeVsCodeLmModelSelector !== undefined) {
-      obj.planModeVsCodeLmModelSelector = LanguageModelChatSelector.toJSON(message.planModeVsCodeLmModelSelector);
+      obj.planModeVsCodeLmModelSelector = LanguageModelChatSelector.toJSON(
+        message.planModeVsCodeLmModelSelector,
+      );
     }
     if (message.planModeAwsBedrockCustomSelected !== undefined) {
       obj.planModeAwsBedrockCustomSelected = message.planModeAwsBedrockCustomSelected;
@@ -5091,13 +5181,17 @@ export const Settings: MessageFns<Settings> = {
       obj.planModeOpenRouterModelId = message.planModeOpenRouterModelId;
     }
     if (message.planModeOpenRouterModelInfo !== undefined) {
-      obj.planModeOpenRouterModelInfo = OpenRouterModelInfo.toJSON(message.planModeOpenRouterModelInfo);
+      obj.planModeOpenRouterModelInfo = OpenRouterModelInfo.toJSON(
+        message.planModeOpenRouterModelInfo,
+      );
     }
     if (message.planModeOpenAiModelId !== undefined) {
       obj.planModeOpenAiModelId = message.planModeOpenAiModelId;
     }
     if (message.planModeOpenAiModelInfo !== undefined) {
-      obj.planModeOpenAiModelInfo = OpenAiCompatibleModelInfo.toJSON(message.planModeOpenAiModelInfo);
+      obj.planModeOpenAiModelInfo = OpenAiCompatibleModelInfo.toJSON(
+        message.planModeOpenAiModelInfo,
+      );
     }
     if (message.planModeOllamaModelId !== undefined) {
       obj.planModeOllamaModelId = message.planModeOllamaModelId;
@@ -5145,13 +5239,17 @@ export const Settings: MessageFns<Settings> = {
       obj.planModeHuggingFaceModelId = message.planModeHuggingFaceModelId;
     }
     if (message.planModeHuggingFaceModelInfo !== undefined) {
-      obj.planModeHuggingFaceModelInfo = OpenRouterModelInfo.toJSON(message.planModeHuggingFaceModelInfo);
+      obj.planModeHuggingFaceModelInfo = OpenRouterModelInfo.toJSON(
+        message.planModeHuggingFaceModelInfo,
+      );
     }
     if (message.planModeHuaweiCloudMaasModelId !== undefined) {
       obj.planModeHuaweiCloudMaasModelId = message.planModeHuaweiCloudMaasModelId;
     }
     if (message.planModeHuaweiCloudMaasModelInfo !== undefined) {
-      obj.planModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.toJSON(message.planModeHuaweiCloudMaasModelInfo);
+      obj.planModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.toJSON(
+        message.planModeHuaweiCloudMaasModelInfo,
+      );
     }
     if (message.planModeOcaModelId !== undefined) {
       obj.planModeOcaModelId = message.planModeOcaModelId;
@@ -5166,7 +5264,9 @@ export const Settings: MessageFns<Settings> = {
       obj.planModeAihubmixModelId = message.planModeAihubmixModelId;
     }
     if (message.planModeAihubmixModelInfo !== undefined) {
-      obj.planModeAihubmixModelInfo = OpenAiCompatibleModelInfo.toJSON(message.planModeAihubmixModelInfo);
+      obj.planModeAihubmixModelInfo = OpenAiCompatibleModelInfo.toJSON(
+        message.planModeAihubmixModelInfo,
+      );
     }
     if (message.planModeHicapModelId !== undefined) {
       obj.planModeHicapModelId = message.planModeHicapModelId;
@@ -5181,7 +5281,9 @@ export const Settings: MessageFns<Settings> = {
       obj.planModeVercelAiGatewayModelId = message.planModeVercelAiGatewayModelId;
     }
     if (message.planModeVercelAiGatewayModelInfo !== undefined) {
-      obj.planModeVercelAiGatewayModelInfo = OpenRouterModelInfo.toJSON(message.planModeVercelAiGatewayModelInfo);
+      obj.planModeVercelAiGatewayModelInfo = OpenRouterModelInfo.toJSON(
+        message.planModeVercelAiGatewayModelInfo,
+      );
     }
     if (message.actModeApiModelId !== undefined) {
       obj.actModeApiModelId = message.actModeApiModelId;
@@ -5199,7 +5301,9 @@ export const Settings: MessageFns<Settings> = {
       obj.actModeVerbosity = message.actModeVerbosity;
     }
     if (message.actModeVsCodeLmModelSelector !== undefined) {
-      obj.actModeVsCodeLmModelSelector = LanguageModelChatSelector.toJSON(message.actModeVsCodeLmModelSelector);
+      obj.actModeVsCodeLmModelSelector = LanguageModelChatSelector.toJSON(
+        message.actModeVsCodeLmModelSelector,
+      );
     }
     if (message.actModeAwsBedrockCustomSelected !== undefined) {
       obj.actModeAwsBedrockCustomSelected = message.actModeAwsBedrockCustomSelected;
@@ -5211,7 +5315,9 @@ export const Settings: MessageFns<Settings> = {
       obj.actModeOpenRouterModelId = message.actModeOpenRouterModelId;
     }
     if (message.actModeOpenRouterModelInfo !== undefined) {
-      obj.actModeOpenRouterModelInfo = OpenRouterModelInfo.toJSON(message.actModeOpenRouterModelInfo);
+      obj.actModeOpenRouterModelInfo = OpenRouterModelInfo.toJSON(
+        message.actModeOpenRouterModelInfo,
+      );
     }
     if (message.actModeOpenAiModelId !== undefined) {
       obj.actModeOpenAiModelId = message.actModeOpenAiModelId;
@@ -5265,13 +5371,17 @@ export const Settings: MessageFns<Settings> = {
       obj.actModeHuggingFaceModelId = message.actModeHuggingFaceModelId;
     }
     if (message.actModeHuggingFaceModelInfo !== undefined) {
-      obj.actModeHuggingFaceModelInfo = OpenRouterModelInfo.toJSON(message.actModeHuggingFaceModelInfo);
+      obj.actModeHuggingFaceModelInfo = OpenRouterModelInfo.toJSON(
+        message.actModeHuggingFaceModelInfo,
+      );
     }
     if (message.actModeHuaweiCloudMaasModelId !== undefined) {
       obj.actModeHuaweiCloudMaasModelId = message.actModeHuaweiCloudMaasModelId;
     }
     if (message.actModeHuaweiCloudMaasModelInfo !== undefined) {
-      obj.actModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.toJSON(message.actModeHuaweiCloudMaasModelInfo);
+      obj.actModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.toJSON(
+        message.actModeHuaweiCloudMaasModelInfo,
+      );
     }
     if (message.actModeOcaModelId !== undefined) {
       obj.actModeOcaModelId = message.actModeOcaModelId;
@@ -5286,7 +5396,9 @@ export const Settings: MessageFns<Settings> = {
       obj.actModeAihubmixModelId = message.actModeAihubmixModelId;
     }
     if (message.actModeAihubmixModelInfo !== undefined) {
-      obj.actModeAihubmixModelInfo = OpenAiCompatibleModelInfo.toJSON(message.actModeAihubmixModelInfo);
+      obj.actModeAihubmixModelInfo = OpenAiCompatibleModelInfo.toJSON(
+        message.actModeAihubmixModelInfo,
+      );
     }
     if (message.actModeHicapModelId !== undefined) {
       obj.actModeHicapModelId = message.actModeHicapModelId;
@@ -5301,7 +5413,9 @@ export const Settings: MessageFns<Settings> = {
       obj.actModeVercelAiGatewayModelId = message.actModeVercelAiGatewayModelId;
     }
     if (message.actModeVercelAiGatewayModelInfo !== undefined) {
-      obj.actModeVercelAiGatewayModelInfo = OpenRouterModelInfo.toJSON(message.actModeVercelAiGatewayModelInfo);
+      obj.actModeVercelAiGatewayModelInfo = OpenRouterModelInfo.toJSON(
+        message.actModeVercelAiGatewayModelInfo,
+      );
     }
     if (message.planModeApiProvider !== undefined) {
       obj.planModeApiProvider = apiProviderToJSON(message.planModeApiProvider);
@@ -5498,7 +5612,8 @@ export const Settings: MessageFns<Settings> = {
     message.lmStudioMaxTokens = object.lmStudioMaxTokens ?? undefined;
     message.geminiBaseUrl = object.geminiBaseUrl ?? undefined;
     message.requestyBaseUrl = object.requestyBaseUrl ?? undefined;
-    message.fireworksModelMaxCompletionTokens = object.fireworksModelMaxCompletionTokens ?? undefined;
+    message.fireworksModelMaxCompletionTokens =
+      object.fireworksModelMaxCompletionTokens ?? undefined;
     message.fireworksModelMaxTokens = object.fireworksModelMaxTokens ?? undefined;
     message.qwenCodeOauthPath = object.qwenCodeOauthPath ?? undefined;
     message.azureApiVersion = object.azureApiVersion ?? undefined;
@@ -5524,31 +5639,34 @@ export const Settings: MessageFns<Settings> = {
     message.planModeReasoningEffort = object.planModeReasoningEffort ?? undefined;
     message.planModeVerbosity = object.planModeVerbosity ?? undefined;
     message.planModeVsCodeLmModelSelector =
-      (object.planModeVsCodeLmModelSelector !== undefined && object.planModeVsCodeLmModelSelector !== null)
+      object.planModeVsCodeLmModelSelector !== undefined &&
+      object.planModeVsCodeLmModelSelector !== null
         ? LanguageModelChatSelector.fromPartial(object.planModeVsCodeLmModelSelector)
         : undefined;
     message.planModeAwsBedrockCustomSelected = object.planModeAwsBedrockCustomSelected ?? undefined;
-    message.planModeAwsBedrockCustomModelBaseId = object.planModeAwsBedrockCustomModelBaseId ?? undefined;
+    message.planModeAwsBedrockCustomModelBaseId =
+      object.planModeAwsBedrockCustomModelBaseId ?? undefined;
     message.planModeOpenRouterModelId = object.planModeOpenRouterModelId ?? undefined;
     message.planModeOpenRouterModelInfo =
-      (object.planModeOpenRouterModelInfo !== undefined && object.planModeOpenRouterModelInfo !== null)
+      object.planModeOpenRouterModelInfo !== undefined &&
+      object.planModeOpenRouterModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeOpenRouterModelInfo)
         : undefined;
     message.planModeOpenAiModelId = object.planModeOpenAiModelId ?? undefined;
     message.planModeOpenAiModelInfo =
-      (object.planModeOpenAiModelInfo !== undefined && object.planModeOpenAiModelInfo !== null)
+      object.planModeOpenAiModelInfo !== undefined && object.planModeOpenAiModelInfo !== null
         ? OpenAiCompatibleModelInfo.fromPartial(object.planModeOpenAiModelInfo)
         : undefined;
     message.planModeOllamaModelId = object.planModeOllamaModelId ?? undefined;
     message.planModeLmStudioModelId = object.planModeLmStudioModelId ?? undefined;
     message.planModeLiteLlmModelId = object.planModeLiteLlmModelId ?? undefined;
     message.planModeLiteLlmModelInfo =
-      (object.planModeLiteLlmModelInfo !== undefined && object.planModeLiteLlmModelInfo !== null)
+      object.planModeLiteLlmModelInfo !== undefined && object.planModeLiteLlmModelInfo !== null
         ? LiteLLMModelInfo.fromPartial(object.planModeLiteLlmModelInfo)
         : undefined;
     message.planModeRequestyModelId = object.planModeRequestyModelId ?? undefined;
     message.planModeRequestyModelInfo =
-      (object.planModeRequestyModelInfo !== undefined && object.planModeRequestyModelInfo !== null)
+      object.planModeRequestyModelInfo !== undefined && object.planModeRequestyModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeRequestyModelInfo)
         : undefined;
     message.planModeTogetherModelId = object.planModeTogetherModelId ?? undefined;
@@ -5557,43 +5675,47 @@ export const Settings: MessageFns<Settings> = {
     message.planModeSapAiCoreDeploymentId = object.planModeSapAiCoreDeploymentId ?? undefined;
     message.planModeGroqModelId = object.planModeGroqModelId ?? undefined;
     message.planModeGroqModelInfo =
-      (object.planModeGroqModelInfo !== undefined && object.planModeGroqModelInfo !== null)
+      object.planModeGroqModelInfo !== undefined && object.planModeGroqModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeGroqModelInfo)
         : undefined;
     message.planModeBasetenModelId = object.planModeBasetenModelId ?? undefined;
     message.planModeBasetenModelInfo =
-      (object.planModeBasetenModelInfo !== undefined && object.planModeBasetenModelInfo !== null)
+      object.planModeBasetenModelInfo !== undefined && object.planModeBasetenModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeBasetenModelInfo)
         : undefined;
     message.planModeHuggingFaceModelId = object.planModeHuggingFaceModelId ?? undefined;
     message.planModeHuggingFaceModelInfo =
-      (object.planModeHuggingFaceModelInfo !== undefined && object.planModeHuggingFaceModelInfo !== null)
+      object.planModeHuggingFaceModelInfo !== undefined &&
+      object.planModeHuggingFaceModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeHuggingFaceModelInfo)
         : undefined;
     message.planModeHuaweiCloudMaasModelId = object.planModeHuaweiCloudMaasModelId ?? undefined;
     message.planModeHuaweiCloudMaasModelInfo =
-      (object.planModeHuaweiCloudMaasModelInfo !== undefined && object.planModeHuaweiCloudMaasModelInfo !== null)
+      object.planModeHuaweiCloudMaasModelInfo !== undefined &&
+      object.planModeHuaweiCloudMaasModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeHuaweiCloudMaasModelInfo)
         : undefined;
     message.planModeOcaModelId = object.planModeOcaModelId ?? undefined;
-    message.planModeOcaModelInfo = (object.planModeOcaModelInfo !== undefined && object.planModeOcaModelInfo !== null)
-      ? OcaModelInfo.fromPartial(object.planModeOcaModelInfo)
-      : undefined;
+    message.planModeOcaModelInfo =
+      object.planModeOcaModelInfo !== undefined && object.planModeOcaModelInfo !== null
+        ? OcaModelInfo.fromPartial(object.planModeOcaModelInfo)
+        : undefined;
     message.planModeOcaReasoningEffort = object.planModeOcaReasoningEffort ?? undefined;
     message.planModeAihubmixModelId = object.planModeAihubmixModelId ?? undefined;
     message.planModeAihubmixModelInfo =
-      (object.planModeAihubmixModelInfo !== undefined && object.planModeAihubmixModelInfo !== null)
+      object.planModeAihubmixModelInfo !== undefined && object.planModeAihubmixModelInfo !== null
         ? OpenAiCompatibleModelInfo.fromPartial(object.planModeAihubmixModelInfo)
         : undefined;
     message.planModeHicapModelId = object.planModeHicapModelId ?? undefined;
     message.planModeHicapModelInfo =
-      (object.planModeHicapModelInfo !== undefined && object.planModeHicapModelInfo !== null)
+      object.planModeHicapModelInfo !== undefined && object.planModeHicapModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeHicapModelInfo)
         : undefined;
     message.planModeNousResearchModelId = object.planModeNousResearchModelId ?? undefined;
     message.planModeVercelAiGatewayModelId = object.planModeVercelAiGatewayModelId ?? undefined;
     message.planModeVercelAiGatewayModelInfo =
-      (object.planModeVercelAiGatewayModelInfo !== undefined && object.planModeVercelAiGatewayModelInfo !== null)
+      object.planModeVercelAiGatewayModelInfo !== undefined &&
+      object.planModeVercelAiGatewayModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeVercelAiGatewayModelInfo)
         : undefined;
     message.actModeApiModelId = object.actModeApiModelId ?? undefined;
@@ -5602,31 +5724,33 @@ export const Settings: MessageFns<Settings> = {
     message.actModeReasoningEffort = object.actModeReasoningEffort ?? undefined;
     message.actModeVerbosity = object.actModeVerbosity ?? undefined;
     message.actModeVsCodeLmModelSelector =
-      (object.actModeVsCodeLmModelSelector !== undefined && object.actModeVsCodeLmModelSelector !== null)
+      object.actModeVsCodeLmModelSelector !== undefined &&
+      object.actModeVsCodeLmModelSelector !== null
         ? LanguageModelChatSelector.fromPartial(object.actModeVsCodeLmModelSelector)
         : undefined;
     message.actModeAwsBedrockCustomSelected = object.actModeAwsBedrockCustomSelected ?? undefined;
-    message.actModeAwsBedrockCustomModelBaseId = object.actModeAwsBedrockCustomModelBaseId ?? undefined;
+    message.actModeAwsBedrockCustomModelBaseId =
+      object.actModeAwsBedrockCustomModelBaseId ?? undefined;
     message.actModeOpenRouterModelId = object.actModeOpenRouterModelId ?? undefined;
     message.actModeOpenRouterModelInfo =
-      (object.actModeOpenRouterModelInfo !== undefined && object.actModeOpenRouterModelInfo !== null)
+      object.actModeOpenRouterModelInfo !== undefined && object.actModeOpenRouterModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.actModeOpenRouterModelInfo)
         : undefined;
     message.actModeOpenAiModelId = object.actModeOpenAiModelId ?? undefined;
     message.actModeOpenAiModelInfo =
-      (object.actModeOpenAiModelInfo !== undefined && object.actModeOpenAiModelInfo !== null)
+      object.actModeOpenAiModelInfo !== undefined && object.actModeOpenAiModelInfo !== null
         ? OpenAiCompatibleModelInfo.fromPartial(object.actModeOpenAiModelInfo)
         : undefined;
     message.actModeOllamaModelId = object.actModeOllamaModelId ?? undefined;
     message.actModeLmStudioModelId = object.actModeLmStudioModelId ?? undefined;
     message.actModeLiteLlmModelId = object.actModeLiteLlmModelId ?? undefined;
     message.actModeLiteLlmModelInfo =
-      (object.actModeLiteLlmModelInfo !== undefined && object.actModeLiteLlmModelInfo !== null)
+      object.actModeLiteLlmModelInfo !== undefined && object.actModeLiteLlmModelInfo !== null
         ? LiteLLMModelInfo.fromPartial(object.actModeLiteLlmModelInfo)
         : undefined;
     message.actModeRequestyModelId = object.actModeRequestyModelId ?? undefined;
     message.actModeRequestyModelInfo =
-      (object.actModeRequestyModelInfo !== undefined && object.actModeRequestyModelInfo !== null)
+      object.actModeRequestyModelInfo !== undefined && object.actModeRequestyModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.actModeRequestyModelInfo)
         : undefined;
     message.actModeTogetherModelId = object.actModeTogetherModelId ?? undefined;
@@ -5634,58 +5758,65 @@ export const Settings: MessageFns<Settings> = {
     message.actModeSapAiCoreModelId = object.actModeSapAiCoreModelId ?? undefined;
     message.actModeSapAiCoreDeploymentId = object.actModeSapAiCoreDeploymentId ?? undefined;
     message.actModeGroqModelId = object.actModeGroqModelId ?? undefined;
-    message.actModeGroqModelInfo = (object.actModeGroqModelInfo !== undefined && object.actModeGroqModelInfo !== null)
-      ? OpenRouterModelInfo.fromPartial(object.actModeGroqModelInfo)
-      : undefined;
+    message.actModeGroqModelInfo =
+      object.actModeGroqModelInfo !== undefined && object.actModeGroqModelInfo !== null
+        ? OpenRouterModelInfo.fromPartial(object.actModeGroqModelInfo)
+        : undefined;
     message.actModeBasetenModelId = object.actModeBasetenModelId ?? undefined;
     message.actModeBasetenModelInfo =
-      (object.actModeBasetenModelInfo !== undefined && object.actModeBasetenModelInfo !== null)
+      object.actModeBasetenModelInfo !== undefined && object.actModeBasetenModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.actModeBasetenModelInfo)
         : undefined;
     message.actModeHuggingFaceModelId = object.actModeHuggingFaceModelId ?? undefined;
     message.actModeHuggingFaceModelInfo =
-      (object.actModeHuggingFaceModelInfo !== undefined && object.actModeHuggingFaceModelInfo !== null)
+      object.actModeHuggingFaceModelInfo !== undefined &&
+      object.actModeHuggingFaceModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.actModeHuggingFaceModelInfo)
         : undefined;
     message.actModeHuaweiCloudMaasModelId = object.actModeHuaweiCloudMaasModelId ?? undefined;
     message.actModeHuaweiCloudMaasModelInfo =
-      (object.actModeHuaweiCloudMaasModelInfo !== undefined && object.actModeHuaweiCloudMaasModelInfo !== null)
+      object.actModeHuaweiCloudMaasModelInfo !== undefined &&
+      object.actModeHuaweiCloudMaasModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.actModeHuaweiCloudMaasModelInfo)
         : undefined;
     message.actModeOcaModelId = object.actModeOcaModelId ?? undefined;
-    message.actModeOcaModelInfo = (object.actModeOcaModelInfo !== undefined && object.actModeOcaModelInfo !== null)
-      ? OcaModelInfo.fromPartial(object.actModeOcaModelInfo)
-      : undefined;
+    message.actModeOcaModelInfo =
+      object.actModeOcaModelInfo !== undefined && object.actModeOcaModelInfo !== null
+        ? OcaModelInfo.fromPartial(object.actModeOcaModelInfo)
+        : undefined;
     message.actModeOcaReasoningEffort = object.actModeOcaReasoningEffort ?? undefined;
     message.actModeAihubmixModelId = object.actModeAihubmixModelId ?? undefined;
     message.actModeAihubmixModelInfo =
-      (object.actModeAihubmixModelInfo !== undefined && object.actModeAihubmixModelInfo !== null)
+      object.actModeAihubmixModelInfo !== undefined && object.actModeAihubmixModelInfo !== null
         ? OpenAiCompatibleModelInfo.fromPartial(object.actModeAihubmixModelInfo)
         : undefined;
     message.actModeHicapModelId = object.actModeHicapModelId ?? undefined;
     message.actModeHicapModelInfo =
-      (object.actModeHicapModelInfo !== undefined && object.actModeHicapModelInfo !== null)
+      object.actModeHicapModelInfo !== undefined && object.actModeHicapModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.actModeHicapModelInfo)
         : undefined;
     message.actModeNousResearchModelId = object.actModeNousResearchModelId ?? undefined;
     message.actModeVercelAiGatewayModelId = object.actModeVercelAiGatewayModelId ?? undefined;
     message.actModeVercelAiGatewayModelInfo =
-      (object.actModeVercelAiGatewayModelInfo !== undefined && object.actModeVercelAiGatewayModelInfo !== null)
+      object.actModeVercelAiGatewayModelInfo !== undefined &&
+      object.actModeVercelAiGatewayModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.actModeVercelAiGatewayModelInfo)
         : undefined;
     message.planModeApiProvider = object.planModeApiProvider ?? undefined;
     message.actModeApiProvider = object.actModeApiProvider ?? undefined;
     message.hicapModelId = object.hicapModelId ?? undefined;
     message.lmStudioModelId = object.lmStudioModelId ?? undefined;
-    message.autoApprovalSettings = (object.autoApprovalSettings !== undefined && object.autoApprovalSettings !== null)
-      ? AutoApprovalSettings.fromPartial(object.autoApprovalSettings)
-      : undefined;
+    message.autoApprovalSettings =
+      object.autoApprovalSettings !== undefined && object.autoApprovalSettings !== null
+        ? AutoApprovalSettings.fromPartial(object.autoApprovalSettings)
+        : undefined;
     message.globalClineRulesToggles = object.globalClineRulesToggles ?? undefined;
     message.globalWorkflowToggles = object.globalWorkflowToggles ?? undefined;
     message.globalSkillsToggles = object.globalSkillsToggles ?? undefined;
-    message.browserSettings = (object.browserSettings !== undefined && object.browserSettings !== null)
-      ? BrowserSettings.fromPartial(object.browserSettings)
-      : undefined;
+    message.browserSettings =
+      object.browserSettings !== undefined && object.browserSettings !== null
+        ? BrowserSettings.fromPartial(object.browserSettings)
+        : undefined;
     message.telemetrySetting = object.telemetrySetting ?? undefined;
     message.planActSeparateModelsSetting = object.planActSeparateModelsSetting ?? undefined;
     message.enableCheckpointsSetting = object.enableCheckpointsSetting ?? undefined;
@@ -5699,9 +5830,10 @@ export const Settings: MessageFns<Settings> = {
     message.clineWebToolsEnabled = object.clineWebToolsEnabled ?? undefined;
     message.preferredLanguage = object.preferredLanguage ?? undefined;
     message.mode = object.mode ?? undefined;
-    message.focusChainSettings = (object.focusChainSettings !== undefined && object.focusChainSettings !== null)
-      ? FocusChainSettings.fromPartial(object.focusChainSettings)
-      : undefined;
+    message.focusChainSettings =
+      object.focusChainSettings !== undefined && object.focusChainSettings !== null
+        ? FocusChainSettings.fromPartial(object.focusChainSettings)
+        : undefined;
     message.customPrompt = object.customPrompt ?? undefined;
     message.hooksEnabled = object.hooksEnabled ?? undefined;
     message.subagentsEnabled = object.subagentsEnabled ?? undefined;
@@ -5717,7 +5849,8 @@ export const Settings: MessageFns<Settings> = {
     message.openTelemetryOtlpMetricsEndpoint = object.openTelemetryOtlpMetricsEndpoint ?? undefined;
     message.openTelemetryOtlpLogsProtocol = object.openTelemetryOtlpLogsProtocol ?? undefined;
     message.openTelemetryOtlpLogsEndpoint = object.openTelemetryOtlpLogsEndpoint ?? undefined;
-    message.openTelemetryMetricExportInterval = object.openTelemetryMetricExportInterval ?? undefined;
+    message.openTelemetryMetricExportInterval =
+      object.openTelemetryMetricExportInterval ?? undefined;
     message.openTelemetryOtlpInsecure = object.openTelemetryOtlpInsecure ?? undefined;
     message.openTelemetryLogBatchSize = object.openTelemetryLogBatchSize ?? undefined;
     message.openTelemetryLogBatchTimeout = object.openTelemetryLogBatchTimeout ?? undefined;
@@ -5725,23 +5858,22 @@ export const Settings: MessageFns<Settings> = {
     message.worktreesEnabled = object.worktreesEnabled ?? undefined;
     message.autoApproveAllToggled = object.autoApproveAllToggled ?? undefined;
     message.doubleCheckCompletionEnabled = object.doubleCheckCompletionEnabled ?? undefined;
-    message.openAiHeaders = (globalThis.Object.entries(object.openAiHeaders ?? {}) as [string, string][]).reduce(
-      (acc: { [key: string]: string }, [key, value]: [string, string]) => {
-        if (value !== undefined) {
-          acc[key] = globalThis.String(value);
-        }
-        return acc;
-      },
-      {},
-    );
+    message.openAiHeaders = (
+      globalThis.Object.entries(object.openAiHeaders ?? {}) as [string, string][]
+    ).reduce((acc: { [key: string]: string }, [key, value]: [string, string]) => {
+      if (value !== undefined) {
+        acc[key] = globalThis.String(value);
+      }
+      return acc;
+    }, {});
     message.planModeClineModelId = object.planModeClineModelId ?? undefined;
     message.planModeClineModelInfo =
-      (object.planModeClineModelInfo !== undefined && object.planModeClineModelInfo !== null)
+      object.planModeClineModelInfo !== undefined && object.planModeClineModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeClineModelInfo)
         : undefined;
     message.actModeClineModelId = object.actModeClineModelId ?? undefined;
     message.actModeClineModelInfo =
-      (object.actModeClineModelInfo !== undefined && object.actModeClineModelInfo !== null)
+      object.actModeClineModelInfo !== undefined && object.actModeClineModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.actModeClineModelInfo)
         : undefined;
     message.showFeatureTips = object.showFeatureTips ?? undefined;
@@ -5751,15 +5883,18 @@ export const Settings: MessageFns<Settings> = {
 };
 
 function createBaseSettings_OpenAiHeadersEntry(): Settings_OpenAiHeadersEntry {
-  return { key: "", value: "" };
+  return { key: '', value: '' };
 }
 
 export const Settings_OpenAiHeadersEntry: MessageFns<Settings_OpenAiHeadersEntry> = {
-  encode(message: Settings_OpenAiHeadersEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.key !== "") {
+  encode(
+    message: Settings_OpenAiHeadersEntry,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.key !== '') {
       writer.uint32(10).string(message.key);
     }
-    if (message.value !== "") {
+    if (message.value !== '') {
       writer.uint32(18).string(message.value);
     }
     return writer;
@@ -5799,40 +5934,44 @@ export const Settings_OpenAiHeadersEntry: MessageFns<Settings_OpenAiHeadersEntry
 
   fromJSON(object: any): Settings_OpenAiHeadersEntry {
     return {
-      key: isSet(object.key) ? globalThis.String(object.key) : "",
-      value: isSet(object.value) ? globalThis.String(object.value) : "",
+      key: isSet(object.key) ? globalThis.String(object.key) : '',
+      value: isSet(object.value) ? globalThis.String(object.value) : '',
     };
   },
 
   toJSON(message: Settings_OpenAiHeadersEntry): unknown {
     const obj: any = {};
-    if (message.key !== "") {
+    if (message.key !== '') {
       obj.key = message.key;
     }
-    if (message.value !== "") {
+    if (message.value !== '') {
       obj.value = message.value;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<Settings_OpenAiHeadersEntry>, I>>(base?: I): Settings_OpenAiHeadersEntry {
+  create<I extends Exact<DeepPartial<Settings_OpenAiHeadersEntry>, I>>(
+    base?: I,
+  ): Settings_OpenAiHeadersEntry {
     return Settings_OpenAiHeadersEntry.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Settings_OpenAiHeadersEntry>, I>>(object: I): Settings_OpenAiHeadersEntry {
+  fromPartial<I extends Exact<DeepPartial<Settings_OpenAiHeadersEntry>, I>>(
+    object: I,
+  ): Settings_OpenAiHeadersEntry {
     const message = createBaseSettings_OpenAiHeadersEntry();
-    message.key = object.key ?? "";
-    message.value = object.value ?? "";
+    message.key = object.key ?? '';
+    message.value = object.value ?? '';
     return message;
   },
 };
 
 function createBaseState(): State {
-  return { stateJson: "" };
+  return { stateJson: '' };
 }
 
 export const State: MessageFns<State> = {
   encode(message: State, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.stateJson !== "") {
+    if (message.stateJson !== '') {
       writer.uint32(10).string(message.stateJson);
     }
     return writer;
@@ -5867,14 +6006,14 @@ export const State: MessageFns<State> = {
       stateJson: isSet(object.stateJson)
         ? globalThis.String(object.stateJson)
         : isSet(object.state_json)
-        ? globalThis.String(object.state_json)
-        : "",
+          ? globalThis.String(object.state_json)
+          : '',
     };
   },
 
   toJSON(message: State): unknown {
     const obj: any = {};
-    if (message.stateJson !== "") {
+    if (message.stateJson !== '') {
       obj.stateJson = message.stateJson;
     }
     return obj;
@@ -5885,7 +6024,7 @@ export const State: MessageFns<State> = {
   },
   fromPartial<I extends Exact<DeepPartial<State>, I>>(object: I): State {
     const message = createBaseState();
-    message.stateJson = object.stateJson ?? "";
+    message.stateJson = object.stateJson ?? '';
     return message;
   },
 };
@@ -5953,15 +6092,15 @@ export const TerminalProfiles: MessageFns<TerminalProfiles> = {
 };
 
 function createBaseTerminalProfile(): TerminalProfile {
-  return { id: "", name: "", path: undefined, description: undefined };
+  return { id: '', name: '', path: undefined, description: undefined };
 }
 
 export const TerminalProfile: MessageFns<TerminalProfile> = {
   encode(message: TerminalProfile, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== "") {
+    if (message.id !== '') {
       writer.uint32(10).string(message.id);
     }
-    if (message.name !== "") {
+    if (message.name !== '') {
       writer.uint32(18).string(message.name);
     }
     if (message.path !== undefined) {
@@ -6023,8 +6162,8 @@ export const TerminalProfile: MessageFns<TerminalProfile> = {
 
   fromJSON(object: any): TerminalProfile {
     return {
-      id: isSet(object.id) ? globalThis.String(object.id) : "",
-      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      id: isSet(object.id) ? globalThis.String(object.id) : '',
+      name: isSet(object.name) ? globalThis.String(object.name) : '',
       path: isSet(object.path) ? globalThis.String(object.path) : undefined,
       description: isSet(object.description) ? globalThis.String(object.description) : undefined,
     };
@@ -6032,10 +6171,10 @@ export const TerminalProfile: MessageFns<TerminalProfile> = {
 
   toJSON(message: TerminalProfile): unknown {
     const obj: any = {};
-    if (message.id !== "") {
+    if (message.id !== '') {
       obj.id = message.id;
     }
-    if (message.name !== "") {
+    if (message.name !== '') {
       obj.name = message.name;
     }
     if (message.path !== undefined) {
@@ -6052,8 +6191,8 @@ export const TerminalProfile: MessageFns<TerminalProfile> = {
   },
   fromPartial<I extends Exact<DeepPartial<TerminalProfile>, I>>(object: I): TerminalProfile {
     const message = createBaseTerminalProfile();
-    message.id = object.id ?? "";
-    message.name = object.name ?? "";
+    message.id = object.id ?? '';
+    message.name = object.name ?? '';
     message.path = object.path ?? undefined;
     message.description = object.description ?? undefined;
     return message;
@@ -6065,7 +6204,10 @@ function createBaseTerminalProfileUpdateResponse(): TerminalProfileUpdateRespons
 }
 
 export const TerminalProfileUpdateResponse: MessageFns<TerminalProfileUpdateResponse> = {
-  encode(message: TerminalProfileUpdateResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: TerminalProfileUpdateResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.closedCount !== 0) {
       writer.uint32(8).int32(message.closedCount);
     }
@@ -6123,18 +6265,18 @@ export const TerminalProfileUpdateResponse: MessageFns<TerminalProfileUpdateResp
       closedCount: isSet(object.closedCount)
         ? globalThis.Number(object.closedCount)
         : isSet(object.closed_count)
-        ? globalThis.Number(object.closed_count)
-        : 0,
+          ? globalThis.Number(object.closed_count)
+          : 0,
       busyTerminalsCount: isSet(object.busyTerminalsCount)
         ? globalThis.Number(object.busyTerminalsCount)
         : isSet(object.busy_terminals_count)
-        ? globalThis.Number(object.busy_terminals_count)
-        : 0,
+          ? globalThis.Number(object.busy_terminals_count)
+          : 0,
       hasBusyTerminals: isSet(object.hasBusyTerminals)
         ? globalThis.Boolean(object.hasBusyTerminals)
         : isSet(object.has_busy_terminals)
-        ? globalThis.Boolean(object.has_busy_terminals)
-        : false,
+          ? globalThis.Boolean(object.has_busy_terminals)
+          : false,
     };
   },
 
@@ -6152,7 +6294,9 @@ export const TerminalProfileUpdateResponse: MessageFns<TerminalProfileUpdateResp
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<TerminalProfileUpdateResponse>, I>>(base?: I): TerminalProfileUpdateResponse {
+  create<I extends Exact<DeepPartial<TerminalProfileUpdateResponse>, I>>(
+    base?: I,
+  ): TerminalProfileUpdateResponse {
     return TerminalProfileUpdateResponse.fromPartial(base ?? ({} as any));
   },
   fromPartial<I extends Exact<DeepPartial<TerminalProfileUpdateResponse>, I>>(
@@ -6171,7 +6315,10 @@ function createBaseTogglePlanActModeRequest(): TogglePlanActModeRequest {
 }
 
 export const TogglePlanActModeRequest: MessageFns<TogglePlanActModeRequest> = {
-  encode(message: TogglePlanActModeRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: TogglePlanActModeRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
@@ -6231,8 +6378,8 @@ export const TogglePlanActModeRequest: MessageFns<TogglePlanActModeRequest> = {
       chatContent: isSet(object.chatContent)
         ? ChatContent.fromJSON(object.chatContent)
         : isSet(object.chat_content)
-        ? ChatContent.fromJSON(object.chat_content)
-        : undefined,
+          ? ChatContent.fromJSON(object.chat_content)
+          : undefined,
     };
   },
 
@@ -6250,18 +6397,24 @@ export const TogglePlanActModeRequest: MessageFns<TogglePlanActModeRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<TogglePlanActModeRequest>, I>>(base?: I): TogglePlanActModeRequest {
+  create<I extends Exact<DeepPartial<TogglePlanActModeRequest>, I>>(
+    base?: I,
+  ): TogglePlanActModeRequest {
     return TogglePlanActModeRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<TogglePlanActModeRequest>, I>>(object: I): TogglePlanActModeRequest {
+  fromPartial<I extends Exact<DeepPartial<TogglePlanActModeRequest>, I>>(
+    object: I,
+  ): TogglePlanActModeRequest {
     const message = createBaseTogglePlanActModeRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
     message.mode = object.mode ?? 0;
-    message.chatContent = (object.chatContent !== undefined && object.chatContent !== null)
-      ? ChatContent.fromPartial(object.chatContent)
-      : undefined;
+    message.chatContent =
+      object.chatContent !== undefined && object.chatContent !== null
+        ? ChatContent.fromPartial(object.chatContent)
+        : undefined;
     return message;
   },
 };
@@ -6327,8 +6480,12 @@ export const ChatContent: MessageFns<ChatContent> = {
   fromJSON(object: any): ChatContent {
     return {
       message: isSet(object.message) ? globalThis.String(object.message) : undefined,
-      images: globalThis.Array.isArray(object?.images) ? object.images.map((e: any) => globalThis.String(e)) : [],
-      files: globalThis.Array.isArray(object?.files) ? object.files.map((e: any) => globalThis.String(e)) : [],
+      images: globalThis.Array.isArray(object?.images)
+        ? object.images.map((e: any) => globalThis.String(e))
+        : [],
+      files: globalThis.Array.isArray(object?.files)
+        ? object.files.map((e: any) => globalThis.String(e))
+        : [],
     };
   },
 
@@ -6428,9 +6585,10 @@ export const ResetStateRequest: MessageFns<ResetStateRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<ResetStateRequest>, I>>(object: I): ResetStateRequest {
     const message = createBaseResetStateRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
     message.global = object.global ?? undefined;
     return message;
   },
@@ -6441,7 +6599,10 @@ function createBaseAutoApprovalSettingsRequest(): AutoApprovalSettingsRequest {
 }
 
 export const AutoApprovalSettingsRequest: MessageFns<AutoApprovalSettingsRequest> = {
-  encode(message: AutoApprovalSettingsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: AutoApprovalSettingsRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
@@ -6513,8 +6674,8 @@ export const AutoApprovalSettingsRequest: MessageFns<AutoApprovalSettingsRequest
       enableNotifications: isSet(object.enableNotifications)
         ? globalThis.Boolean(object.enableNotifications)
         : isSet(object.enable_notifications)
-        ? globalThis.Boolean(object.enable_notifications)
-        : false,
+          ? globalThis.Boolean(object.enable_notifications)
+          : false,
     };
   },
 
@@ -6535,18 +6696,24 @@ export const AutoApprovalSettingsRequest: MessageFns<AutoApprovalSettingsRequest
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<AutoApprovalSettingsRequest>, I>>(base?: I): AutoApprovalSettingsRequest {
+  create<I extends Exact<DeepPartial<AutoApprovalSettingsRequest>, I>>(
+    base?: I,
+  ): AutoApprovalSettingsRequest {
     return AutoApprovalSettingsRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<AutoApprovalSettingsRequest>, I>>(object: I): AutoApprovalSettingsRequest {
+  fromPartial<I extends Exact<DeepPartial<AutoApprovalSettingsRequest>, I>>(
+    object: I,
+  ): AutoApprovalSettingsRequest {
     const message = createBaseAutoApprovalSettingsRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
     message.version = object.version ?? 0;
-    message.actions = (object.actions !== undefined && object.actions !== null)
-      ? AutoApprovalActions.fromPartial(object.actions)
-      : undefined;
+    message.actions =
+      object.actions !== undefined && object.actions !== null
+        ? AutoApprovalActions.fromPartial(object.actions)
+        : undefined;
     message.enableNotifications = object.enableNotifications ?? false;
     return message;
   },
@@ -6557,7 +6724,10 @@ function createBaseTelemetrySettingRequest(): TelemetrySettingRequest {
 }
 
 export const TelemetrySettingRequest: MessageFns<TelemetrySettingRequest> = {
-  encode(message: TelemetrySettingRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: TelemetrySettingRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
@@ -6617,14 +6787,19 @@ export const TelemetrySettingRequest: MessageFns<TelemetrySettingRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<TelemetrySettingRequest>, I>>(base?: I): TelemetrySettingRequest {
+  create<I extends Exact<DeepPartial<TelemetrySettingRequest>, I>>(
+    base?: I,
+  ): TelemetrySettingRequest {
     return TelemetrySettingRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<TelemetrySettingRequest>, I>>(object: I): TelemetrySettingRequest {
+  fromPartial<I extends Exact<DeepPartial<TelemetrySettingRequest>, I>>(
+    object: I,
+  ): TelemetrySettingRequest {
     const message = createBaseTelemetrySettingRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
     message.setting = object.setting ?? 0;
     return message;
   },
@@ -6734,28 +6909,28 @@ export const BrowserSettingsUpdate: MessageFns<BrowserSettingsUpdate> = {
       remoteBrowserHost: isSet(object.remoteBrowserHost)
         ? globalThis.String(object.remoteBrowserHost)
         : isSet(object.remote_browser_host)
-        ? globalThis.String(object.remote_browser_host)
-        : undefined,
+          ? globalThis.String(object.remote_browser_host)
+          : undefined,
       remoteBrowserEnabled: isSet(object.remoteBrowserEnabled)
         ? globalThis.Boolean(object.remoteBrowserEnabled)
         : isSet(object.remote_browser_enabled)
-        ? globalThis.Boolean(object.remote_browser_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.remote_browser_enabled)
+          : undefined,
       chromeExecutablePath: isSet(object.chromeExecutablePath)
         ? globalThis.String(object.chromeExecutablePath)
         : isSet(object.chrome_executable_path)
-        ? globalThis.String(object.chrome_executable_path)
-        : undefined,
+          ? globalThis.String(object.chrome_executable_path)
+          : undefined,
       disableToolUse: isSet(object.disableToolUse)
         ? globalThis.Boolean(object.disableToolUse)
         : isSet(object.disable_tool_use)
-        ? globalThis.Boolean(object.disable_tool_use)
-        : undefined,
+          ? globalThis.Boolean(object.disable_tool_use)
+          : undefined,
       customArgs: isSet(object.customArgs)
         ? globalThis.String(object.customArgs)
         : isSet(object.custom_args)
-        ? globalThis.String(object.custom_args)
-        : undefined,
+          ? globalThis.String(object.custom_args)
+          : undefined,
     };
   },
 
@@ -6785,11 +6960,14 @@ export const BrowserSettingsUpdate: MessageFns<BrowserSettingsUpdate> = {
   create<I extends Exact<DeepPartial<BrowserSettingsUpdate>, I>>(base?: I): BrowserSettingsUpdate {
     return BrowserSettingsUpdate.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<BrowserSettingsUpdate>, I>>(object: I): BrowserSettingsUpdate {
+  fromPartial<I extends Exact<DeepPartial<BrowserSettingsUpdate>, I>>(
+    object: I,
+  ): BrowserSettingsUpdate {
     const message = createBaseBrowserSettingsUpdate();
-    message.viewport = (object.viewport !== undefined && object.viewport !== null)
-      ? Viewport.fromPartial(object.viewport)
-      : undefined;
+    message.viewport =
+      object.viewport !== undefined && object.viewport !== null
+        ? Viewport.fromPartial(object.viewport)
+        : undefined;
     message.remoteBrowserHost = object.remoteBrowserHost ?? undefined;
     message.remoteBrowserEnabled = object.remoteBrowserEnabled ?? undefined;
     message.chromeExecutablePath = object.chromeExecutablePath ?? undefined;
@@ -6804,7 +6982,10 @@ function createBaseUpdateSettingsRequestCli(): UpdateSettingsRequestCli {
 }
 
 export const UpdateSettingsRequestCli: MessageFns<UpdateSettingsRequestCli> = {
-  encode(message: UpdateSettingsRequestCli, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: UpdateSettingsRequestCli,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
@@ -6894,20 +7075,27 @@ export const UpdateSettingsRequestCli: MessageFns<UpdateSettingsRequestCli> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<UpdateSettingsRequestCli>, I>>(base?: I): UpdateSettingsRequestCli {
+  create<I extends Exact<DeepPartial<UpdateSettingsRequestCli>, I>>(
+    base?: I,
+  ): UpdateSettingsRequestCli {
     return UpdateSettingsRequestCli.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<UpdateSettingsRequestCli>, I>>(object: I): UpdateSettingsRequestCli {
+  fromPartial<I extends Exact<DeepPartial<UpdateSettingsRequestCli>, I>>(
+    object: I,
+  ): UpdateSettingsRequestCli {
     const message = createBaseUpdateSettingsRequestCli();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.settings = (object.settings !== undefined && object.settings !== null)
-      ? Settings.fromPartial(object.settings)
-      : undefined;
-    message.secrets = (object.secrets !== undefined && object.secrets !== null)
-      ? Secrets.fromPartial(object.secrets)
-      : undefined;
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.settings =
+      object.settings !== undefined && object.settings !== null
+        ? Settings.fromPartial(object.settings)
+        : undefined;
+    message.secrets =
+      object.secrets !== undefined && object.secrets !== null
+        ? Secrets.fromPartial(object.secrets)
+        : undefined;
     message.environment = object.environment ?? undefined;
     return message;
   },
@@ -6918,7 +7106,10 @@ function createBaseUpdateTaskSettingsRequest(): UpdateTaskSettingsRequest {
 }
 
 export const UpdateTaskSettingsRequest: MessageFns<UpdateTaskSettingsRequest> = {
-  encode(message: UpdateTaskSettingsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: UpdateTaskSettingsRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
@@ -6978,8 +7169,8 @@ export const UpdateTaskSettingsRequest: MessageFns<UpdateTaskSettingsRequest> = 
       taskId: isSet(object.taskId)
         ? globalThis.String(object.taskId)
         : isSet(object.task_id)
-        ? globalThis.String(object.task_id)
-        : undefined,
+          ? globalThis.String(object.task_id)
+          : undefined,
     };
   },
 
@@ -6997,17 +7188,23 @@ export const UpdateTaskSettingsRequest: MessageFns<UpdateTaskSettingsRequest> = 
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<UpdateTaskSettingsRequest>, I>>(base?: I): UpdateTaskSettingsRequest {
+  create<I extends Exact<DeepPartial<UpdateTaskSettingsRequest>, I>>(
+    base?: I,
+  ): UpdateTaskSettingsRequest {
     return UpdateTaskSettingsRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<UpdateTaskSettingsRequest>, I>>(object: I): UpdateTaskSettingsRequest {
+  fromPartial<I extends Exact<DeepPartial<UpdateTaskSettingsRequest>, I>>(
+    object: I,
+  ): UpdateTaskSettingsRequest {
     const message = createBaseUpdateTaskSettingsRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.settings = (object.settings !== undefined && object.settings !== null)
-      ? Settings.fromPartial(object.settings)
-      : undefined;
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.settings =
+      object.settings !== undefined && object.settings !== null
+        ? Settings.fromPartial(object.settings)
+        : undefined;
     message.taskId = object.taskId ?? undefined;
     return message;
   },
@@ -7501,184 +7698,184 @@ export const UpdateSettingsRequest: MessageFns<UpdateSettingsRequest> = {
       apiConfiguration: isSet(object.apiConfiguration)
         ? ModelsApiConfiguration.fromJSON(object.apiConfiguration)
         : isSet(object.api_configuration)
-        ? ModelsApiConfiguration.fromJSON(object.api_configuration)
-        : undefined,
+          ? ModelsApiConfiguration.fromJSON(object.api_configuration)
+          : undefined,
       telemetrySetting: isSet(object.telemetrySetting)
         ? globalThis.String(object.telemetrySetting)
         : isSet(object.telemetry_setting)
-        ? globalThis.String(object.telemetry_setting)
-        : undefined,
+          ? globalThis.String(object.telemetry_setting)
+          : undefined,
       planActSeparateModelsSetting: isSet(object.planActSeparateModelsSetting)
         ? globalThis.Boolean(object.planActSeparateModelsSetting)
         : isSet(object.plan_act_separate_models_setting)
-        ? globalThis.Boolean(object.plan_act_separate_models_setting)
-        : undefined,
+          ? globalThis.Boolean(object.plan_act_separate_models_setting)
+          : undefined,
       enableCheckpointsSetting: isSet(object.enableCheckpointsSetting)
         ? globalThis.Boolean(object.enableCheckpointsSetting)
         : isSet(object.enable_checkpoints_setting)
-        ? globalThis.Boolean(object.enable_checkpoints_setting)
-        : undefined,
+          ? globalThis.Boolean(object.enable_checkpoints_setting)
+          : undefined,
       mcpMarketplaceEnabled: isSet(object.mcpMarketplaceEnabled)
         ? globalThis.Boolean(object.mcpMarketplaceEnabled)
         : isSet(object.mcp_marketplace_enabled)
-        ? globalThis.Boolean(object.mcp_marketplace_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.mcp_marketplace_enabled)
+          : undefined,
       shellIntegrationTimeout: isSet(object.shellIntegrationTimeout)
         ? globalThis.Number(object.shellIntegrationTimeout)
         : isSet(object.shell_integration_timeout)
-        ? globalThis.Number(object.shell_integration_timeout)
-        : undefined,
+          ? globalThis.Number(object.shell_integration_timeout)
+          : undefined,
       terminalReuseEnabled: isSet(object.terminalReuseEnabled)
         ? globalThis.Boolean(object.terminalReuseEnabled)
         : isSet(object.terminal_reuse_enabled)
-        ? globalThis.Boolean(object.terminal_reuse_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.terminal_reuse_enabled)
+          : undefined,
       mcpResponsesCollapsed: isSet(object.mcpResponsesCollapsed)
         ? globalThis.Boolean(object.mcpResponsesCollapsed)
         : isSet(object.mcp_responses_collapsed)
-        ? globalThis.Boolean(object.mcp_responses_collapsed)
-        : undefined,
+          ? globalThis.Boolean(object.mcp_responses_collapsed)
+          : undefined,
       mcpDisplayMode: isSet(object.mcpDisplayMode)
         ? mcpDisplayModeFromJSON(object.mcpDisplayMode)
         : isSet(object.mcp_display_mode)
-        ? mcpDisplayModeFromJSON(object.mcp_display_mode)
-        : undefined,
+          ? mcpDisplayModeFromJSON(object.mcp_display_mode)
+          : undefined,
       terminalOutputLineLimit: isSet(object.terminalOutputLineLimit)
         ? globalThis.Number(object.terminalOutputLineLimit)
         : isSet(object.terminal_output_line_limit)
-        ? globalThis.Number(object.terminal_output_line_limit)
-        : undefined,
+          ? globalThis.Number(object.terminal_output_line_limit)
+          : undefined,
       mode: isSet(object.mode) ? planActModeFromJSON(object.mode) : undefined,
       preferredLanguage: isSet(object.preferredLanguage)
         ? globalThis.String(object.preferredLanguage)
         : isSet(object.preferred_language)
-        ? globalThis.String(object.preferred_language)
-        : undefined,
+          ? globalThis.String(object.preferred_language)
+          : undefined,
       strictPlanModeEnabled: isSet(object.strictPlanModeEnabled)
         ? globalThis.Boolean(object.strictPlanModeEnabled)
         : isSet(object.strict_plan_mode_enabled)
-        ? globalThis.Boolean(object.strict_plan_mode_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.strict_plan_mode_enabled)
+          : undefined,
       focusChainSettings: isSet(object.focusChainSettings)
         ? FocusChainSettings.fromJSON(object.focusChainSettings)
         : isSet(object.focus_chain_settings)
-        ? FocusChainSettings.fromJSON(object.focus_chain_settings)
-        : undefined,
+          ? FocusChainSettings.fromJSON(object.focus_chain_settings)
+          : undefined,
       useAutoCondense: isSet(object.useAutoCondense)
         ? globalThis.Boolean(object.useAutoCondense)
         : isSet(object.use_auto_condense)
-        ? globalThis.Boolean(object.use_auto_condense)
-        : undefined,
+          ? globalThis.Boolean(object.use_auto_condense)
+          : undefined,
       customPrompt: isSet(object.customPrompt)
         ? globalThis.String(object.customPrompt)
         : isSet(object.custom_prompt)
-        ? globalThis.String(object.custom_prompt)
-        : undefined,
+          ? globalThis.String(object.custom_prompt)
+          : undefined,
       browserSettings: isSet(object.browserSettings)
         ? BrowserSettingsUpdate.fromJSON(object.browserSettings)
         : isSet(object.browser_settings)
-        ? BrowserSettingsUpdate.fromJSON(object.browser_settings)
-        : undefined,
+          ? BrowserSettingsUpdate.fromJSON(object.browser_settings)
+          : undefined,
       defaultTerminalProfile: isSet(object.defaultTerminalProfile)
         ? globalThis.String(object.defaultTerminalProfile)
         : isSet(object.default_terminal_profile)
-        ? globalThis.String(object.default_terminal_profile)
-        : undefined,
+          ? globalThis.String(object.default_terminal_profile)
+          : undefined,
       yoloModeToggled: isSet(object.yoloModeToggled)
         ? globalThis.Boolean(object.yoloModeToggled)
         : isSet(object.yolo_mode_toggled)
-        ? globalThis.Boolean(object.yolo_mode_toggled)
-        : undefined,
+          ? globalThis.Boolean(object.yolo_mode_toggled)
+          : undefined,
       multiRootEnabled: isSet(object.multiRootEnabled)
         ? globalThis.Boolean(object.multiRootEnabled)
         : isSet(object.multi_root_enabled)
-        ? globalThis.Boolean(object.multi_root_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.multi_root_enabled)
+          : undefined,
       hooksEnabled: isSet(object.hooksEnabled)
         ? globalThis.Boolean(object.hooksEnabled)
         : isSet(object.hooks_enabled)
-        ? globalThis.Boolean(object.hooks_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.hooks_enabled)
+          : undefined,
       vscodeTerminalExecutionMode: isSet(object.vscodeTerminalExecutionMode)
         ? globalThis.String(object.vscodeTerminalExecutionMode)
         : isSet(object.vscode_terminal_execution_mode)
-        ? globalThis.String(object.vscode_terminal_execution_mode)
-        : undefined,
+          ? globalThis.String(object.vscode_terminal_execution_mode)
+          : undefined,
       maxConsecutiveMistakes: isSet(object.maxConsecutiveMistakes)
         ? globalThis.Number(object.maxConsecutiveMistakes)
         : isSet(object.max_consecutive_mistakes)
-        ? globalThis.Number(object.max_consecutive_mistakes)
-        : undefined,
+          ? globalThis.Number(object.max_consecutive_mistakes)
+          : undefined,
       subagentsEnabled: isSet(object.subagentsEnabled)
         ? globalThis.Boolean(object.subagentsEnabled)
         : isSet(object.subagents_enabled)
-        ? globalThis.Boolean(object.subagents_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.subagents_enabled)
+          : undefined,
       subagentTerminalOutputLineLimit: isSet(object.subagentTerminalOutputLineLimit)
         ? globalThis.Number(object.subagentTerminalOutputLineLimit)
         : isSet(object.subagent_terminal_output_line_limit)
-        ? globalThis.Number(object.subagent_terminal_output_line_limit)
-        : undefined,
+          ? globalThis.Number(object.subagent_terminal_output_line_limit)
+          : undefined,
       clineEnv: isSet(object.clineEnv)
         ? globalThis.String(object.clineEnv)
         : isSet(object.cline_env)
-        ? globalThis.String(object.cline_env)
-        : undefined,
+          ? globalThis.String(object.cline_env)
+          : undefined,
       nativeToolCallEnabled: isSet(object.nativeToolCallEnabled)
         ? globalThis.Boolean(object.nativeToolCallEnabled)
         : isSet(object.native_tool_call_enabled)
-        ? globalThis.Boolean(object.native_tool_call_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.native_tool_call_enabled)
+          : undefined,
       onboardingModels: isSet(object.onboardingModels)
         ? OnboardingModelGroup.fromJSON(object.onboardingModels)
         : isSet(object.onboarding_models)
-        ? OnboardingModelGroup.fromJSON(object.onboarding_models)
-        : undefined,
+          ? OnboardingModelGroup.fromJSON(object.onboarding_models)
+          : undefined,
       clineWebToolsEnabled: isSet(object.clineWebToolsEnabled)
         ? globalThis.Boolean(object.clineWebToolsEnabled)
         : isSet(object.cline_web_tools_enabled)
-        ? globalThis.Boolean(object.cline_web_tools_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.cline_web_tools_enabled)
+          : undefined,
       enableParallelToolCalling: isSet(object.enableParallelToolCalling)
         ? globalThis.Boolean(object.enableParallelToolCalling)
         : isSet(object.enable_parallel_tool_calling)
-        ? globalThis.Boolean(object.enable_parallel_tool_calling)
-        : undefined,
+          ? globalThis.Boolean(object.enable_parallel_tool_calling)
+          : undefined,
       backgroundEditEnabled: isSet(object.backgroundEditEnabled)
         ? globalThis.Boolean(object.backgroundEditEnabled)
         : isSet(object.background_edit_enabled)
-        ? globalThis.Boolean(object.background_edit_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.background_edit_enabled)
+          : undefined,
       ocaReasoningEffort: isSet(object.ocaReasoningEffort)
         ? globalThis.String(object.ocaReasoningEffort)
         : isSet(object.oca_reasoning_effort)
-        ? globalThis.String(object.oca_reasoning_effort)
-        : undefined,
+          ? globalThis.String(object.oca_reasoning_effort)
+          : undefined,
       optOutOfRemoteConfig: isSet(object.optOutOfRemoteConfig)
         ? globalThis.Boolean(object.optOutOfRemoteConfig)
         : isSet(object.opt_out_of_remote_config)
-        ? globalThis.Boolean(object.opt_out_of_remote_config)
-        : undefined,
+          ? globalThis.Boolean(object.opt_out_of_remote_config)
+          : undefined,
       worktreesEnabled: isSet(object.worktreesEnabled)
         ? globalThis.Boolean(object.worktreesEnabled)
         : isSet(object.worktrees_enabled)
-        ? globalThis.Boolean(object.worktrees_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.worktrees_enabled)
+          : undefined,
       doubleCheckCompletionEnabled: isSet(object.doubleCheckCompletionEnabled)
         ? globalThis.Boolean(object.doubleCheckCompletionEnabled)
         : isSet(object.double_check_completion_enabled)
-        ? globalThis.Boolean(object.double_check_completion_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.double_check_completion_enabled)
+          : undefined,
       showFeatureTips: isSet(object.showFeatureTips)
         ? globalThis.Boolean(object.showFeatureTips)
         : isSet(object.show_feature_tips)
-        ? globalThis.Boolean(object.show_feature_tips)
-        : undefined,
+          ? globalThis.Boolean(object.show_feature_tips)
+          : undefined,
       lazyTeammateModeEnabled: isSet(object.lazyTeammateModeEnabled)
         ? globalThis.Boolean(object.lazyTeammateModeEnabled)
         : isSet(object.lazy_teammate_mode_enabled)
-        ? globalThis.Boolean(object.lazy_teammate_mode_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.lazy_teammate_mode_enabled)
+          : undefined,
     };
   },
 
@@ -7804,14 +8001,18 @@ export const UpdateSettingsRequest: MessageFns<UpdateSettingsRequest> = {
   create<I extends Exact<DeepPartial<UpdateSettingsRequest>, I>>(base?: I): UpdateSettingsRequest {
     return UpdateSettingsRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<UpdateSettingsRequest>, I>>(object: I): UpdateSettingsRequest {
+  fromPartial<I extends Exact<DeepPartial<UpdateSettingsRequest>, I>>(
+    object: I,
+  ): UpdateSettingsRequest {
     const message = createBaseUpdateSettingsRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.apiConfiguration = (object.apiConfiguration !== undefined && object.apiConfiguration !== null)
-      ? ModelsApiConfiguration.fromPartial(object.apiConfiguration)
-      : undefined;
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.apiConfiguration =
+      object.apiConfiguration !== undefined && object.apiConfiguration !== null
+        ? ModelsApiConfiguration.fromPartial(object.apiConfiguration)
+        : undefined;
     message.telemetrySetting = object.telemetrySetting ?? undefined;
     message.planActSeparateModelsSetting = object.planActSeparateModelsSetting ?? undefined;
     message.enableCheckpointsSetting = object.enableCheckpointsSetting ?? undefined;
@@ -7824,14 +8025,16 @@ export const UpdateSettingsRequest: MessageFns<UpdateSettingsRequest> = {
     message.mode = object.mode ?? undefined;
     message.preferredLanguage = object.preferredLanguage ?? undefined;
     message.strictPlanModeEnabled = object.strictPlanModeEnabled ?? undefined;
-    message.focusChainSettings = (object.focusChainSettings !== undefined && object.focusChainSettings !== null)
-      ? FocusChainSettings.fromPartial(object.focusChainSettings)
-      : undefined;
+    message.focusChainSettings =
+      object.focusChainSettings !== undefined && object.focusChainSettings !== null
+        ? FocusChainSettings.fromPartial(object.focusChainSettings)
+        : undefined;
     message.useAutoCondense = object.useAutoCondense ?? undefined;
     message.customPrompt = object.customPrompt ?? undefined;
-    message.browserSettings = (object.browserSettings !== undefined && object.browserSettings !== null)
-      ? BrowserSettingsUpdate.fromPartial(object.browserSettings)
-      : undefined;
+    message.browserSettings =
+      object.browserSettings !== undefined && object.browserSettings !== null
+        ? BrowserSettingsUpdate.fromPartial(object.browserSettings)
+        : undefined;
     message.defaultTerminalProfile = object.defaultTerminalProfile ?? undefined;
     message.yoloModeToggled = object.yoloModeToggled ?? undefined;
     message.multiRootEnabled = object.multiRootEnabled ?? undefined;
@@ -7842,9 +8045,10 @@ export const UpdateSettingsRequest: MessageFns<UpdateSettingsRequest> = {
     message.subagentTerminalOutputLineLimit = object.subagentTerminalOutputLineLimit ?? undefined;
     message.clineEnv = object.clineEnv ?? undefined;
     message.nativeToolCallEnabled = object.nativeToolCallEnabled ?? undefined;
-    message.onboardingModels = (object.onboardingModels !== undefined && object.onboardingModels !== null)
-      ? OnboardingModelGroup.fromPartial(object.onboardingModels)
-      : undefined;
+    message.onboardingModels =
+      object.onboardingModels !== undefined && object.onboardingModels !== null
+        ? OnboardingModelGroup.fromPartial(object.onboardingModels)
+        : undefined;
     message.clineWebToolsEnabled = object.clineWebToolsEnabled ?? undefined;
     message.enableParallelToolCalling = object.enableParallelToolCalling ?? undefined;
     message.backgroundEditEnabled = object.backgroundEditEnabled ?? undefined;
@@ -7862,69 +8066,76 @@ function createBaseUpdateTerminalConnectionTimeoutRequest(): UpdateTerminalConne
   return { timeoutMs: undefined };
 }
 
-export const UpdateTerminalConnectionTimeoutRequest: MessageFns<UpdateTerminalConnectionTimeoutRequest> = {
-  encode(message: UpdateTerminalConnectionTimeoutRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.timeoutMs !== undefined) {
-      writer.uint32(8).int32(message.timeoutMs);
-    }
-    return writer;
-  },
+export const UpdateTerminalConnectionTimeoutRequest: MessageFns<UpdateTerminalConnectionTimeoutRequest> =
+  {
+    encode(
+      message: UpdateTerminalConnectionTimeoutRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.timeoutMs !== undefined) {
+        writer.uint32(8).int32(message.timeoutMs);
+      }
+      return writer;
+    },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): UpdateTerminalConnectionTimeoutRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseUpdateTerminalConnectionTimeoutRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): UpdateTerminalConnectionTimeoutRequest {
+      const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseUpdateTerminalConnectionTimeoutRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.timeoutMs = reader.int32();
+            continue;
           }
-
-          message.timeoutMs = reader.int32();
-          continue;
         }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      return message;
+    },
+
+    fromJSON(object: any): UpdateTerminalConnectionTimeoutRequest {
+      return {
+        timeoutMs: isSet(object.timeoutMs)
+          ? globalThis.Number(object.timeoutMs)
+          : isSet(object.timeout_ms)
+            ? globalThis.Number(object.timeout_ms)
+            : undefined,
+      };
+    },
+
+    toJSON(message: UpdateTerminalConnectionTimeoutRequest): unknown {
+      const obj: any = {};
+      if (message.timeoutMs !== undefined) {
+        obj.timeoutMs = Math.round(message.timeoutMs);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      return obj;
+    },
 
-  fromJSON(object: any): UpdateTerminalConnectionTimeoutRequest {
-    return {
-      timeoutMs: isSet(object.timeoutMs)
-        ? globalThis.Number(object.timeoutMs)
-        : isSet(object.timeout_ms)
-        ? globalThis.Number(object.timeout_ms)
-        : undefined,
-    };
-  },
-
-  toJSON(message: UpdateTerminalConnectionTimeoutRequest): unknown {
-    const obj: any = {};
-    if (message.timeoutMs !== undefined) {
-      obj.timeoutMs = Math.round(message.timeoutMs);
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<UpdateTerminalConnectionTimeoutRequest>, I>>(
-    base?: I,
-  ): UpdateTerminalConnectionTimeoutRequest {
-    return UpdateTerminalConnectionTimeoutRequest.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<UpdateTerminalConnectionTimeoutRequest>, I>>(
-    object: I,
-  ): UpdateTerminalConnectionTimeoutRequest {
-    const message = createBaseUpdateTerminalConnectionTimeoutRequest();
-    message.timeoutMs = object.timeoutMs ?? undefined;
-    return message;
-  },
-};
+    create<I extends Exact<DeepPartial<UpdateTerminalConnectionTimeoutRequest>, I>>(
+      base?: I,
+    ): UpdateTerminalConnectionTimeoutRequest {
+      return UpdateTerminalConnectionTimeoutRequest.fromPartial(base ?? ({} as any));
+    },
+    fromPartial<I extends Exact<DeepPartial<UpdateTerminalConnectionTimeoutRequest>, I>>(
+      object: I,
+    ): UpdateTerminalConnectionTimeoutRequest {
+      const message = createBaseUpdateTerminalConnectionTimeoutRequest();
+      message.timeoutMs = object.timeoutMs ?? undefined;
+      return message;
+    },
+  };
 
 function createBaseFocusChainSettings(): FocusChainSettings {
   return { enabled: false, remindClineInterval: 0 };
@@ -7979,8 +8190,8 @@ export const FocusChainSettings: MessageFns<FocusChainSettings> = {
       remindClineInterval: isSet(object.remindClineInterval)
         ? globalThis.Number(object.remindClineInterval)
         : isSet(object.remind_cline_interval)
-        ? globalThis.Number(object.remind_cline_interval)
-        : 0,
+          ? globalThis.Number(object.remind_cline_interval)
+          : 0,
     };
   },
 
@@ -8010,69 +8221,76 @@ function createBaseUpdateTerminalConnectionTimeoutResponse(): UpdateTerminalConn
   return { timeoutMs: undefined };
 }
 
-export const UpdateTerminalConnectionTimeoutResponse: MessageFns<UpdateTerminalConnectionTimeoutResponse> = {
-  encode(message: UpdateTerminalConnectionTimeoutResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.timeoutMs !== undefined) {
-      writer.uint32(8).int32(message.timeoutMs);
-    }
-    return writer;
-  },
+export const UpdateTerminalConnectionTimeoutResponse: MessageFns<UpdateTerminalConnectionTimeoutResponse> =
+  {
+    encode(
+      message: UpdateTerminalConnectionTimeoutResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.timeoutMs !== undefined) {
+        writer.uint32(8).int32(message.timeoutMs);
+      }
+      return writer;
+    },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): UpdateTerminalConnectionTimeoutResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseUpdateTerminalConnectionTimeoutResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): UpdateTerminalConnectionTimeoutResponse {
+      const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseUpdateTerminalConnectionTimeoutResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.timeoutMs = reader.int32();
+            continue;
           }
-
-          message.timeoutMs = reader.int32();
-          continue;
         }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      return message;
+    },
+
+    fromJSON(object: any): UpdateTerminalConnectionTimeoutResponse {
+      return {
+        timeoutMs: isSet(object.timeoutMs)
+          ? globalThis.Number(object.timeoutMs)
+          : isSet(object.timeout_ms)
+            ? globalThis.Number(object.timeout_ms)
+            : undefined,
+      };
+    },
+
+    toJSON(message: UpdateTerminalConnectionTimeoutResponse): unknown {
+      const obj: any = {};
+      if (message.timeoutMs !== undefined) {
+        obj.timeoutMs = Math.round(message.timeoutMs);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      return obj;
+    },
 
-  fromJSON(object: any): UpdateTerminalConnectionTimeoutResponse {
-    return {
-      timeoutMs: isSet(object.timeoutMs)
-        ? globalThis.Number(object.timeoutMs)
-        : isSet(object.timeout_ms)
-        ? globalThis.Number(object.timeout_ms)
-        : undefined,
-    };
-  },
-
-  toJSON(message: UpdateTerminalConnectionTimeoutResponse): unknown {
-    const obj: any = {};
-    if (message.timeoutMs !== undefined) {
-      obj.timeoutMs = Math.round(message.timeoutMs);
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<UpdateTerminalConnectionTimeoutResponse>, I>>(
-    base?: I,
-  ): UpdateTerminalConnectionTimeoutResponse {
-    return UpdateTerminalConnectionTimeoutResponse.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<UpdateTerminalConnectionTimeoutResponse>, I>>(
-    object: I,
-  ): UpdateTerminalConnectionTimeoutResponse {
-    const message = createBaseUpdateTerminalConnectionTimeoutResponse();
-    message.timeoutMs = object.timeoutMs ?? undefined;
-    return message;
-  },
-};
+    create<I extends Exact<DeepPartial<UpdateTerminalConnectionTimeoutResponse>, I>>(
+      base?: I,
+    ): UpdateTerminalConnectionTimeoutResponse {
+      return UpdateTerminalConnectionTimeoutResponse.fromPartial(base ?? ({} as any));
+    },
+    fromPartial<I extends Exact<DeepPartial<UpdateTerminalConnectionTimeoutResponse>, I>>(
+      object: I,
+    ): UpdateTerminalConnectionTimeoutResponse {
+      const message = createBaseUpdateTerminalConnectionTimeoutResponse();
+      message.timeoutMs = object.timeoutMs ?? undefined;
+      return message;
+    },
+  };
 
 function createBaseProcessInfo(): ProcessInfo {
   return { processId: 0, version: undefined, uptimeMs: undefined };
@@ -8137,14 +8355,14 @@ export const ProcessInfo: MessageFns<ProcessInfo> = {
       processId: isSet(object.processId)
         ? globalThis.Number(object.processId)
         : isSet(object.process_id)
-        ? globalThis.Number(object.process_id)
-        : 0,
+          ? globalThis.Number(object.process_id)
+          : 0,
       version: isSet(object.version) ? globalThis.String(object.version) : undefined,
       uptimeMs: isSet(object.uptimeMs)
         ? globalThis.Number(object.uptimeMs)
         : isSet(object.uptime_ms)
-        ? globalThis.Number(object.uptime_ms)
-        : undefined,
+          ? globalThis.Number(object.uptime_ms)
+          : undefined,
     };
   },
 
@@ -8179,7 +8397,10 @@ function createBaseOnboardingProgressRequest(): OnboardingProgressRequest {
 }
 
 export const OnboardingProgressRequest: MessageFns<OnboardingProgressRequest> = {
-  encode(message: OnboardingProgressRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: OnboardingProgressRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.step !== 0) {
       writer.uint32(8).int32(message.step);
     }
@@ -8251,8 +8472,8 @@ export const OnboardingProgressRequest: MessageFns<OnboardingProgressRequest> = 
       modelSelected: isSet(object.modelSelected)
         ? globalThis.String(object.modelSelected)
         : isSet(object.model_selected)
-        ? globalThis.String(object.model_selected)
-        : undefined,
+          ? globalThis.String(object.model_selected)
+          : undefined,
     };
   },
 
@@ -8273,10 +8494,14 @@ export const OnboardingProgressRequest: MessageFns<OnboardingProgressRequest> = 
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<OnboardingProgressRequest>, I>>(base?: I): OnboardingProgressRequest {
+  create<I extends Exact<DeepPartial<OnboardingProgressRequest>, I>>(
+    base?: I,
+  ): OnboardingProgressRequest {
     return OnboardingProgressRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<OnboardingProgressRequest>, I>>(object: I): OnboardingProgressRequest {
+  fromPartial<I extends Exact<DeepPartial<OnboardingProgressRequest>, I>>(
+    object: I,
+  ): OnboardingProgressRequest {
     const message = createBaseOnboardingProgressRequest();
     message.step = object.step ?? 0;
     message.action = object.action ?? undefined;
@@ -8341,7 +8566,9 @@ export const OnboardingModelGroup: MessageFns<OnboardingModelGroup> = {
   create<I extends Exact<DeepPartial<OnboardingModelGroup>, I>>(base?: I): OnboardingModelGroup {
     return OnboardingModelGroup.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<OnboardingModelGroup>, I>>(object: I): OnboardingModelGroup {
+  fromPartial<I extends Exact<DeepPartial<OnboardingModelGroup>, I>>(
+    object: I,
+  ): OnboardingModelGroup {
     const message = createBaseOnboardingModelGroup();
     message.models = object.models?.map((e) => OnboardingModel.fromPartial(e)) || [];
     return message;
@@ -8349,15 +8576,15 @@ export const OnboardingModelGroup: MessageFns<OnboardingModelGroup> = {
 };
 
 function createBaseOnboardingModel(): OnboardingModel {
-  return { id: "", name: "", score: 0, latency: 0, badge: "", group: "", info: undefined };
+  return { id: '', name: '', score: 0, latency: 0, badge: '', group: '', info: undefined };
 }
 
 export const OnboardingModel: MessageFns<OnboardingModel> = {
   encode(message: OnboardingModel, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== "") {
+    if (message.id !== '') {
       writer.uint32(10).string(message.id);
     }
-    if (message.name !== "") {
+    if (message.name !== '') {
       writer.uint32(18).string(message.name);
     }
     if (message.score !== 0) {
@@ -8366,10 +8593,10 @@ export const OnboardingModel: MessageFns<OnboardingModel> = {
     if (message.latency !== 0) {
       writer.uint32(32).int32(message.latency);
     }
-    if (message.badge !== "") {
+    if (message.badge !== '') {
       writer.uint32(42).string(message.badge);
     }
-    if (message.group !== "") {
+    if (message.group !== '') {
       writer.uint32(50).string(message.group);
     }
     if (message.info !== undefined) {
@@ -8452,22 +8679,22 @@ export const OnboardingModel: MessageFns<OnboardingModel> = {
 
   fromJSON(object: any): OnboardingModel {
     return {
-      id: isSet(object.id) ? globalThis.String(object.id) : "",
-      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      id: isSet(object.id) ? globalThis.String(object.id) : '',
+      name: isSet(object.name) ? globalThis.String(object.name) : '',
       score: isSet(object.score) ? globalThis.Number(object.score) : 0,
       latency: isSet(object.latency) ? globalThis.Number(object.latency) : 0,
-      badge: isSet(object.badge) ? globalThis.String(object.badge) : "",
-      group: isSet(object.group) ? globalThis.String(object.group) : "",
+      badge: isSet(object.badge) ? globalThis.String(object.badge) : '',
+      group: isSet(object.group) ? globalThis.String(object.group) : '',
       info: isSet(object.info) ? OpenRouterModelInfo.fromJSON(object.info) : undefined,
     };
   },
 
   toJSON(message: OnboardingModel): unknown {
     const obj: any = {};
-    if (message.id !== "") {
+    if (message.id !== '') {
       obj.id = message.id;
     }
-    if (message.name !== "") {
+    if (message.name !== '') {
       obj.name = message.name;
     }
     if (message.score !== 0) {
@@ -8476,10 +8703,10 @@ export const OnboardingModel: MessageFns<OnboardingModel> = {
     if (message.latency !== 0) {
       obj.latency = Math.round(message.latency);
     }
-    if (message.badge !== "") {
+    if (message.badge !== '') {
       obj.badge = message.badge;
     }
-    if (message.group !== "") {
+    if (message.group !== '') {
       obj.group = message.group;
     }
     if (message.info !== undefined) {
@@ -8493,29 +8720,33 @@ export const OnboardingModel: MessageFns<OnboardingModel> = {
   },
   fromPartial<I extends Exact<DeepPartial<OnboardingModel>, I>>(object: I): OnboardingModel {
     const message = createBaseOnboardingModel();
-    message.id = object.id ?? "";
-    message.name = object.name ?? "";
+    message.id = object.id ?? '';
+    message.name = object.name ?? '';
     message.score = object.score ?? 0;
     message.latency = object.latency ?? 0;
-    message.badge = object.badge ?? "";
-    message.group = object.group ?? "";
-    message.info = (object.info !== undefined && object.info !== null)
-      ? OpenRouterModelInfo.fromPartial(object.info)
-      : undefined;
+    message.badge = object.badge ?? '';
+    message.group = object.group ?? '';
+    message.info =
+      object.info !== undefined && object.info !== null
+        ? OpenRouterModelInfo.fromPartial(object.info)
+        : undefined;
     return message;
   },
 };
 
 function createBaseTrackBannerEventRequest(): TrackBannerEventRequest {
-  return { bannerId: "", eventType: "" };
+  return { bannerId: '', eventType: '' };
 }
 
 export const TrackBannerEventRequest: MessageFns<TrackBannerEventRequest> = {
-  encode(message: TrackBannerEventRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.bannerId !== "") {
+  encode(
+    message: TrackBannerEventRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.bannerId !== '') {
       writer.uint32(10).string(message.bannerId);
     }
-    if (message.eventType !== "") {
+    if (message.eventType !== '') {
       writer.uint32(18).string(message.eventType);
     }
     return writer;
@@ -8558,34 +8789,38 @@ export const TrackBannerEventRequest: MessageFns<TrackBannerEventRequest> = {
       bannerId: isSet(object.bannerId)
         ? globalThis.String(object.bannerId)
         : isSet(object.banner_id)
-        ? globalThis.String(object.banner_id)
-        : "",
+          ? globalThis.String(object.banner_id)
+          : '',
       eventType: isSet(object.eventType)
         ? globalThis.String(object.eventType)
         : isSet(object.event_type)
-        ? globalThis.String(object.event_type)
-        : "",
+          ? globalThis.String(object.event_type)
+          : '',
     };
   },
 
   toJSON(message: TrackBannerEventRequest): unknown {
     const obj: any = {};
-    if (message.bannerId !== "") {
+    if (message.bannerId !== '') {
       obj.bannerId = message.bannerId;
     }
-    if (message.eventType !== "") {
+    if (message.eventType !== '') {
       obj.eventType = message.eventType;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<TrackBannerEventRequest>, I>>(base?: I): TrackBannerEventRequest {
+  create<I extends Exact<DeepPartial<TrackBannerEventRequest>, I>>(
+    base?: I,
+  ): TrackBannerEventRequest {
     return TrackBannerEventRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<TrackBannerEventRequest>, I>>(object: I): TrackBannerEventRequest {
+  fromPartial<I extends Exact<DeepPartial<TrackBannerEventRequest>, I>>(
+    object: I,
+  ): TrackBannerEventRequest {
     const message = createBaseTrackBannerEventRequest();
-    message.bannerId = object.bannerId ?? "";
-    message.eventType = object.eventType ?? "";
+    message.bannerId = object.bannerId ?? '';
+    message.eventType = object.eventType ?? '';
     return message;
   },
 };
@@ -8673,7 +8908,9 @@ export const TestConnectionResult: MessageFns<TestConnectionResult> = {
   create<I extends Exact<DeepPartial<TestConnectionResult>, I>>(base?: I): TestConnectionResult {
     return TestConnectionResult.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<TestConnectionResult>, I>>(object: I): TestConnectionResult {
+  fromPartial<I extends Exact<DeepPartial<TestConnectionResult>, I>>(
+    object: I,
+  ): TestConnectionResult {
     const message = createBaseTestConnectionResult();
     message.success = object.success ?? false;
     message.message = object.message ?? undefined;
@@ -8684,11 +8921,11 @@ export const TestConnectionResult: MessageFns<TestConnectionResult> = {
 
 export type StateServiceDefinition = typeof StateServiceDefinition;
 export const StateServiceDefinition = {
-  name: "StateService",
-  fullName: "cline.StateService",
+  name: 'StateService',
+  fullName: 'cline.StateService',
   methods: {
     getLatestState: {
-      name: "getLatestState",
+      name: 'getLatestState',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: State,
@@ -8696,7 +8933,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     updateTerminalConnectionTimeout: {
-      name: "updateTerminalConnectionTimeout",
+      name: 'updateTerminalConnectionTimeout',
       requestType: UpdateTerminalConnectionTimeoutRequest,
       requestStream: false,
       responseType: UpdateTerminalConnectionTimeoutResponse,
@@ -8704,7 +8941,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     updateTerminalReuseEnabled: {
-      name: "updateTerminalReuseEnabled",
+      name: 'updateTerminalReuseEnabled',
       requestType: BooleanRequest,
       requestStream: false,
       responseType: Empty,
@@ -8712,7 +8949,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     getAvailableTerminalProfiles: {
-      name: "getAvailableTerminalProfiles",
+      name: 'getAvailableTerminalProfiles',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: TerminalProfiles,
@@ -8720,7 +8957,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     subscribeToState: {
-      name: "subscribeToState",
+      name: 'subscribeToState',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: State,
@@ -8728,7 +8965,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     toggleFavoriteModel: {
-      name: "toggleFavoriteModel",
+      name: 'toggleFavoriteModel',
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -8736,7 +8973,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     resetState: {
-      name: "resetState",
+      name: 'resetState',
       requestType: ResetStateRequest,
       requestStream: false,
       responseType: Empty,
@@ -8744,7 +8981,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     togglePlanActModeProto: {
-      name: "togglePlanActModeProto",
+      name: 'togglePlanActModeProto',
       requestType: TogglePlanActModeRequest,
       requestStream: false,
       responseType: Boolean,
@@ -8752,7 +8989,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     updateAutoApprovalSettings: {
-      name: "updateAutoApprovalSettings",
+      name: 'updateAutoApprovalSettings',
       requestType: AutoApprovalSettingsRequest,
       requestStream: false,
       responseType: Empty,
@@ -8760,7 +8997,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     updateSettings: {
-      name: "updateSettings",
+      name: 'updateSettings',
       requestType: UpdateSettingsRequest,
       requestStream: false,
       responseType: Empty,
@@ -8768,7 +9005,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     updateSettingsCli: {
-      name: "updateSettingsCli",
+      name: 'updateSettingsCli',
       requestType: UpdateSettingsRequestCli,
       requestStream: false,
       responseType: Empty,
@@ -8776,7 +9013,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     updateTaskSettings: {
-      name: "updateTaskSettings",
+      name: 'updateTaskSettings',
       requestType: UpdateTaskSettingsRequest,
       requestStream: false,
       responseType: Empty,
@@ -8784,7 +9021,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     updateTelemetrySetting: {
-      name: "updateTelemetrySetting",
+      name: 'updateTelemetrySetting',
       requestType: TelemetrySettingRequest,
       requestStream: false,
       responseType: Empty,
@@ -8792,7 +9029,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     captureOnboardingProgress: {
-      name: "captureOnboardingProgress",
+      name: 'captureOnboardingProgress',
       requestType: OnboardingProgressRequest,
       requestStream: false,
       responseType: Empty,
@@ -8800,7 +9037,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     setWelcomeViewCompleted: {
-      name: "setWelcomeViewCompleted",
+      name: 'setWelcomeViewCompleted',
       requestType: BooleanRequest,
       requestStream: false,
       responseType: Empty,
@@ -8808,7 +9045,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     updateInfoBannerVersion: {
-      name: "updateInfoBannerVersion",
+      name: 'updateInfoBannerVersion',
       requestType: Int64Request,
       requestStream: false,
       responseType: Empty,
@@ -8816,7 +9053,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     updateModelBannerVersion: {
-      name: "updateModelBannerVersion",
+      name: 'updateModelBannerVersion',
       requestType: Int64Request,
       requestStream: false,
       responseType: Empty,
@@ -8824,7 +9061,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     updateCliBannerVersion: {
-      name: "updateCliBannerVersion",
+      name: 'updateCliBannerVersion',
       requestType: Int64Request,
       requestStream: false,
       responseType: Empty,
@@ -8832,7 +9069,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     dismissBanner: {
-      name: "dismissBanner",
+      name: 'dismissBanner',
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -8840,7 +9077,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     trackBannerEvent: {
-      name: "trackBannerEvent",
+      name: 'trackBannerEvent',
       requestType: TrackBannerEventRequest,
       requestStream: false,
       responseType: Empty,
@@ -8848,7 +9085,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     installClineCli: {
-      name: "installClineCli",
+      name: 'installClineCli',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -8856,7 +9093,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     checkCliInstallation: {
-      name: "checkCliInstallation",
+      name: 'checkCliInstallation',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Boolean,
@@ -8864,7 +9101,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     getProcessInfo: {
-      name: "getProcessInfo",
+      name: 'getProcessInfo',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: ProcessInfo,
@@ -8872,7 +9109,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     flushPendingState: {
-      name: "flushPendingState",
+      name: 'flushPendingState',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -8880,7 +9117,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     refreshRemoteConfig: {
-      name: "refreshRemoteConfig",
+      name: 'refreshRemoteConfig',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -8888,7 +9125,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     testOtelConnection: {
-      name: "testOtelConnection",
+      name: 'testOtelConnection',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: TestConnectionResult,
@@ -8896,7 +9133,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     testPromptUploading: {
-      name: "testPromptUploading",
+      name: 'testPromptUploading',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: TestConnectionResult,
@@ -8908,29 +9145,34 @@ export const StateServiceDefinition = {
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-type Exact<P, I extends P> = P extends Builtin ? P
+type Exact<P, I extends P> = P extends Builtin
+  ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function longToNumber(int64: { toString(): string }): number {
   const num = globalThis.Number(int64.toString());
   if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+    throw new globalThis.Error('Value is larger than Number.MAX_SAFE_INTEGER');
   }
   if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
+    throw new globalThis.Error('Value is smaller than Number.MIN_SAFE_INTEGER');
   }
   return num;
 }
 
 function isObject(value: any): boolean {
-  return typeof value === "object" && value !== null;
+  return typeof value === 'object' && value !== null;
 }
 
 function isSet(value: any): boolean {

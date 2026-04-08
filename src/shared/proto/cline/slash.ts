@@ -5,8 +5,8 @@
 // source: cline/slash.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Empty, EmptyRequest, StringRequest } from "./common";
+import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+import { Empty, EmptyRequest, StringRequest } from './common';
 
 /** Slash command definition for autocomplete */
 export interface SlashCommandInfo {
@@ -26,18 +26,18 @@ export interface SlashCommandsResponse {
 }
 
 function createBaseSlashCommandInfo(): SlashCommandInfo {
-  return { name: "", description: "", section: "", cliCompatible: false };
+  return { name: '', description: '', section: '', cliCompatible: false };
 }
 
 export const SlashCommandInfo: MessageFns<SlashCommandInfo> = {
   encode(message: SlashCommandInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.name !== "") {
+    if (message.name !== '') {
       writer.uint32(10).string(message.name);
     }
-    if (message.description !== "") {
+    if (message.description !== '') {
       writer.uint32(18).string(message.description);
     }
-    if (message.section !== "") {
+    if (message.section !== '') {
       writer.uint32(26).string(message.section);
     }
     if (message.cliCompatible !== false) {
@@ -96,26 +96,26 @@ export const SlashCommandInfo: MessageFns<SlashCommandInfo> = {
 
   fromJSON(object: any): SlashCommandInfo {
     return {
-      name: isSet(object.name) ? globalThis.String(object.name) : "",
-      description: isSet(object.description) ? globalThis.String(object.description) : "",
-      section: isSet(object.section) ? globalThis.String(object.section) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : '',
+      description: isSet(object.description) ? globalThis.String(object.description) : '',
+      section: isSet(object.section) ? globalThis.String(object.section) : '',
       cliCompatible: isSet(object.cliCompatible)
         ? globalThis.Boolean(object.cliCompatible)
         : isSet(object.cli_compatible)
-        ? globalThis.Boolean(object.cli_compatible)
-        : false,
+          ? globalThis.Boolean(object.cli_compatible)
+          : false,
     };
   },
 
   toJSON(message: SlashCommandInfo): unknown {
     const obj: any = {};
-    if (message.name !== "") {
+    if (message.name !== '') {
       obj.name = message.name;
     }
-    if (message.description !== "") {
+    if (message.description !== '') {
       obj.description = message.description;
     }
-    if (message.section !== "") {
+    if (message.section !== '') {
       obj.section = message.section;
     }
     if (message.cliCompatible !== false) {
@@ -129,9 +129,9 @@ export const SlashCommandInfo: MessageFns<SlashCommandInfo> = {
   },
   fromPartial<I extends Exact<DeepPartial<SlashCommandInfo>, I>>(object: I): SlashCommandInfo {
     const message = createBaseSlashCommandInfo();
-    message.name = object.name ?? "";
-    message.description = object.description ?? "";
-    message.section = object.section ?? "";
+    message.name = object.name ?? '';
+    message.description = object.description ?? '';
+    message.section = object.section ?? '';
     message.cliCompatible = object.cliCompatible ?? false;
     return message;
   },
@@ -192,7 +192,9 @@ export const SlashCommandsResponse: MessageFns<SlashCommandsResponse> = {
   create<I extends Exact<DeepPartial<SlashCommandsResponse>, I>>(base?: I): SlashCommandsResponse {
     return SlashCommandsResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SlashCommandsResponse>, I>>(object: I): SlashCommandsResponse {
+  fromPartial<I extends Exact<DeepPartial<SlashCommandsResponse>, I>>(
+    object: I,
+  ): SlashCommandsResponse {
     const message = createBaseSlashCommandsResponse();
     message.commands = object.commands?.map((e) => SlashCommandInfo.fromPartial(e)) || [];
     return message;
@@ -202,12 +204,12 @@ export const SlashCommandsResponse: MessageFns<SlashCommandsResponse> = {
 /** SlashService provides methods for managing slash commands */
 export type SlashServiceDefinition = typeof SlashServiceDefinition;
 export const SlashServiceDefinition = {
-  name: "SlashService",
-  fullName: "cline.SlashService",
+  name: 'SlashService',
+  fullName: 'cline.SlashService',
   methods: {
     /** Sends button click message */
     reportBug: {
-      name: "reportBug",
+      name: 'reportBug',
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -215,7 +217,7 @@ export const SlashServiceDefinition = {
       options: {},
     },
     condense: {
-      name: "condense",
+      name: 'condense',
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -224,7 +226,7 @@ export const SlashServiceDefinition = {
     },
     /** Get available slash commands for autocomplete (used by CLI) */
     getAvailableSlashCommands: {
-      name: "getAvailableSlashCommands",
+      name: 'getAvailableSlashCommands',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: SlashCommandsResponse,
@@ -236,14 +238,19 @@ export const SlashServiceDefinition = {
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-type Exact<P, I extends P> = P extends Builtin ? P
+type Exact<P, I extends P> = P extends Builtin
+  ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function isSet(value: any): boolean {

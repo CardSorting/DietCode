@@ -1,7 +1,7 @@
-import { EmptyRequest, StringRequest } from "@shared/nice-grpc/cline/common.ts"
-import { ShowMessageType } from "@shared/nice-grpc/host/window.ts"
-import { HostProvider } from "@/hosts/host-provider"
-import { Logger } from "@/shared/services/Logger"
+import { HostProvider } from '@/hosts/host-provider';
+import { Logger } from '@/shared/services/Logger';
+import { EmptyRequest, StringRequest } from '@shared/nice-grpc/cline/common.ts';
+import { ShowMessageType } from '@shared/nice-grpc/host/window.ts';
 
 /**
  * Writes text to the system clipboard
@@ -10,12 +10,12 @@ import { Logger } from "@/shared/services/Logger"
  * @throws Error if the operation fails
  */
 export async function writeTextToClipboard(text: string): Promise<void> {
-	try {
-		await HostProvider.env.clipboardWriteText(StringRequest.create({ value: text }))
-	} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : String(error)
-		throw new Error(`Failed to write to clipboard: ${errorMessage}`)
-	}
+  try {
+    await HostProvider.env.clipboardWriteText(StringRequest.create({ value: text }));
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to write to clipboard: ${errorMessage}`);
+  }
 }
 
 /**
@@ -24,13 +24,13 @@ export async function writeTextToClipboard(text: string): Promise<void> {
  * @throws Error if the operation fails
  */
 export async function readTextFromClipboard(): Promise<string> {
-	try {
-		const response = await HostProvider.env.clipboardReadText(EmptyRequest.create({}))
-		return response.value
-	} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : String(error)
-		throw new Error(`Failed to read from clipboard: ${errorMessage}`)
-	}
+  try {
+    const response = await HostProvider.env.clipboardReadText(EmptyRequest.create({}));
+    return response.value;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to read from clipboard: ${errorMessage}`);
+  }
 }
 
 /**
@@ -41,21 +41,21 @@ export async function readTextFromClipboard(): Promise<string> {
  * @returns Promise that resolves when the operation is complete
  */
 export async function openExternal(url: string): Promise<void> {
-	Logger.log("Opening browser:", url)
-	try {
-		await HostProvider.env.openExternal(StringRequest.create({ value: url }))
-	} catch (error) {
-		// Fallback for hosts that don't implement openExternal (e.g., JetBrains plugin)
-		Logger.warn(`Host openExternal RPC failed, falling back to 'open' package: ${error}`)
-		try {
-			const open = (await import("open")).default
-			await open(url)
-		} catch (fallbackError) {
-			Logger.error(`Fallback 'open' also failed: ${fallbackError}`)
-			HostProvider.window.showMessage({
-				type: ShowMessageType.ERROR,
-				message: `Failed to open URL: ${url}`,
-			})
-		}
-	}
+  Logger.log('Opening browser:', url);
+  try {
+    await HostProvider.env.openExternal(StringRequest.create({ value: url }));
+  } catch (error) {
+    // Fallback for hosts that don't implement openExternal (e.g., JetBrains plugin)
+    Logger.warn(`Host openExternal RPC failed, falling back to 'open' package: ${error}`);
+    try {
+      const open = (await import('open')).default;
+      await open(url);
+    } catch (fallbackError) {
+      Logger.error(`Fallback 'open' also failed: ${fallbackError}`);
+      HostProvider.window.showMessage({
+        type: ShowMessageType.ERROR,
+        message: `Failed to open URL: ${url}`,
+      });
+    }
+  }
 }

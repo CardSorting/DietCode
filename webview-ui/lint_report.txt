@@ -1,0 +1,303 @@
+src/../../../cline-main/src/core/api/adapters/__tests__/adapters.test.ts:396:5 lint/complexity/noForEach ━━━━━━━━━━
+
+  × Prefer for...of instead of forEach.
+  
+    394 │     ];
+    395 │ 
+  > 396 │     testCases.forEach((testCase) => {
+        │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 397 │       it(testCase.name, () => {
+         ...
+  > 447 │       });
+  > 448 │     });
+        │     ^^
+    449 │ 
+    450 │     it('should preserve tool_result blocks when tool_use is converted', () => {
+  
+  i forEach may lead to performance issues when working with large arrays. When combined with functions like filter or map, this causes multiple iterations over the same type.
+  
+
+src/../../../cline-main/src/core/api/adapters/__tests__/adapters.test.ts:923:5 lint/complexity/noForEach ━━━━━━━━━━
+
+  × Prefer for...of instead of forEach.
+  
+    921 │     ];
+    922 │ 
+  > 923 │     testCases.forEach((testCase) => {
+        │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 924 │       it(testCase.name, () => {
+         ...
+  > 958 │       });
+  > 959 │     });
+        │     ^^
+    960 │ 
+    961 │     it('should use final_file_content to generate apply_patch for write_to_file', () => {
+  
+  i forEach may lead to performance issues when working with large arrays. When combined with functions like filter or map, this causes multiple iterations over the same type.
+  
+
+src/../../../cline-main/src/core/api/adapters/diff-editors.ts:99:53 lint/style/noNonNullAssertion ━━━━━━━━━━
+
+  ! Forbidden non-null assertion.
+  
+     97 │   if (action === 'Add') {
+     98 │     // Extract the content after the file line
+   > 99 │     const contentAfterFile = patchContent.substring(fileMatch.index! + fileMatch[0].length);
+        │                                                     ^^^^^^^^^^^^^^^^
+    100 │     return {
+    101 │       name: 'write_to_file',
+  
+
+src/../../../cline-main/src/core/api/adapters/diff-editors.ts:111:60 lint/style/noNonNullAssertion ━━━━━━━━━━
+
+  ! Forbidden non-null assertion.
+  
+    109 │   // If it's Update or Delete, convert to replace_in_file
+    110 │   if (action === 'Update' || action === 'Delete') {
+  > 111 │     const diff = convertPatchToDiff(patchContent.substring(fileMatch.index! + fileMatch[0].length));
+        │                                                            ^^^^^^^^^^^^^^^^
+    112 │     return {
+    113 │       name: 'replace_in_file',
+  
+
+src/../../../cline-main/src/core/api/adapters/diff-editors.ts:452:7 lint/suspicious/noImplicitAnyLet ━━━━━━━━━━
+
+  × This variable implicitly has the any type.
+  
+    450 │   // Match all SEARCH/REPLACE blocks
+    451 │   const blockRegex = /------- SEARCH\s*\n([\s\S]*?)\n=======\s*\n([\s\S]*?)\n\+{7} REPLACE/g;
+  > 452 │   let match;
+        │       ^^^^^
+    453 │ 
+    454 │   while ((match = blockRegex.exec(diff)) !== null) {
+  
+  i Variable declarations without type annotation and initialization implicitly have the any type. Declare a type or initialize the variable with some value.
+  
+
+src/../../../cline-main/src/core/api/adapters/diff-editors.ts:454:11 lint/suspicious/noAssignInExpressions ━━━━━━━━━━
+
+  × The assignment should not be in an expression.
+  
+    452 │   let match;
+    453 │ 
+  > 454 │   while ((match = blockRegex.exec(diff)) !== null) {
+        │           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    455 │     const searchContent = match[1];
+    456 │     const replaceContent = match[2];
+  
+  i The use of assignments in expressions is confusing.
+    Expressions are often considered as side-effect free.
+  
+
+src/../../../cline-main/src/core/api/providers/__tests__/sapaicore.test.ts:82:7 lint/complexity/noForEach ━━━━━━━━━━
+
+  × Prefer for...of instead of forEach.
+  
+    80 │       ];
+    81 │ 
+  > 82 │       modelVariants.forEach((modelId) => {
+       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 83 │         const testHandler = new SapAiCoreHandler({
+        ...
+  > 90 │         model.info.should.have.property('contextWindow');
+  > 91 │       });
+       │       ^^
+    92 │     });
+    93 │   });
+  
+  i forEach may lead to performance issues when working with large arrays. When combined with functions like filter or map, this causes multiple iterations over the same type.
+  
+
+src/../../../cline-main/src/core/api/providers/mistral.ts:47:15 lint/complexity/noForEach ━━━━━━━━━━
+
+  × Prefer for...of instead of forEach.
+  
+    45 │             // Handle both string/URL and Request object inputs
+    46 │             if (input instanceof Request) {
+  > 47 │               Object.keys(externalHeaders).forEach((key) => {
+       │               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 48 │                 if (!input.headers.has(key)) {
+  > 49 │                   input.headers.set(key, externalHeaders[key]);
+  > 50 │                 }
+  > 51 │               });
+       │               ^^
+    52 │               return fetch(input.url, {
+    53 │                 method: input.method,
+  
+  i forEach may lead to performance issues when working with large arrays. When combined with functions like filter or map, this causes multiple iterations over the same type.
+  
+
+src/../../../cline-main/src/core/api/providers/__tests__/bedrock.test.ts:64:7 lint/complexity/noForEach ━━━━━━━━━━
+
+  × Prefer for...of instead of forEach.
+  
+    62 │     afterEach(() => {
+    63 │       // Restore original values after each test
+  > 64 │       Object.entries(originalEnv).forEach(([key, value]) => {
+       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 65 │         if (value === undefined) {
+        ...
+  > 69 │         }
+  > 70 │       });
+       │       ^^
+    71 │     });
+    72 │ 
+  
+  i forEach may lead to performance issues when working with large arrays. When combined with functions like filter or map, this causes multiple iterations over the same type.
+  
+
+src/../../../cline-main/src/core/api/providers/__tests__/bedrock.test.ts:1114:39 lint/correctness/useYield ━━━━━━━━━━
+
+  × This generator function doesn't contain yield.
+  
+    1112 │       let capturedCommand: any = null;
+    1113 │       const originalExecuteConverseStream = handler.executeConverseStream.bind(handler);
+  > 1114 │       handler.executeConverseStream = async function* (command: any, modelInfo: any) {
+         │                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 1115 │         capturedCommand = command;
+  > 1116 │         // Yield nothing — we just want to capture the command
+  > 1117 │       };
+         │       ^
+    1118 │ 
+    1119 │       const tools = [
+  
+
+src/../../../cline-main/src/core/api/providers/qwen-code.ts:182:58 lint/style/noNonNullAssertion ━━━━━━━━━━
+
+  ! Forbidden non-null assertion.
+  
+    180 │       if (error.status === 401) {
+    181 │         // Token expired, refresh and retry
+  > 182 │         this.credentials = await this.refreshAccessToken(this.credentials!);
+        │                                                          ^^^^^^^^^^^^^^^^^
+    183 │         const client = this.ensureClient();
+    184 │         client.apiKey = this.credentials.access_token;
+  
+
+src/../../../cline-main/src/core/api/providers/vscode-lm.ts:332:19 lint/suspicious/noControlCharactersInRegex ━━━━━━━━━━
+
+  × Unexpected control character in a regular expression.
+  
+    331 │         // Remove ANSI escape sequences
+  > 332 │         .replace(/\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])/g, '') // Full set of ANSI sequences
+        │                   ^^^^
+    333 │         .replace(/\x9B[0-?]*[ -/]*[@-~]/g, '') // CSI sequences
+    334 │ 
+  
+  i Control characters are unusual and potentially incorrect inputs, so they are disallowed.
+  
+
+src/../../../cline-main/src/core/api/providers/vscode-lm.ts:336:19 lint/suspicious/noControlCharactersInRegex ━━━━━━━━━━
+
+  × Unexpected control character in a regular expression.
+  
+    335 │         // Remove terminal title setting sequences and other OSC sequences
+  > 336 │         .replace(/\x1B\][0-9;]*(?:\x07|\x1B\\)/g, '')
+        │                   ^^^^
+    337 │ 
+    338 │         // Remove control characters
+  
+  i Control characters are unusual and potentially incorrect inputs, so they are disallowed.
+  
+
+src/../../../cline-main/src/core/api/providers/vscode-lm.ts:336:35 lint/suspicious/noControlCharactersInRegex ━━━━━━━━━━
+
+  × Unexpected control character in a regular expression.
+  
+    335 │         // Remove terminal title setting sequences and other OSC sequences
+  > 336 │         .replace(/\x1B\][0-9;]*(?:\x07|\x1B\\)/g, '')
+        │                                   ^^^^
+    337 │ 
+    338 │         // Remove control characters
+  
+  i Control characters are unusual and potentially incorrect inputs, so they are disallowed.
+  
+
+src/../../../cline-main/src/core/api/providers/vscode-lm.ts:336:40 lint/suspicious/noControlCharactersInRegex ━━━━━━━━━━
+
+  × Unexpected control character in a regular expression.
+  
+    335 │         // Remove terminal title setting sequences and other OSC sequences
+  > 336 │         .replace(/\x1B\][0-9;]*(?:\x07|\x1B\\)/g, '')
+        │                                        ^^^^
+    337 │ 
+    338 │         // Remove control characters
+  
+  i Control characters are unusual and potentially incorrect inputs, so they are disallowed.
+  
+
+src/../../../cline-main/src/core/api/providers/vscode-lm.ts:339:20 lint/suspicious/noControlCharactersInRegex ━━━━━━━━━━
+
+  × Unexpected control character in a regular expression.
+  
+    338 │         // Remove control characters
+  > 339 │         .replace(/[\x00-\x09\x0B-\x0C\x0E-\x1F\x7F]/g, '')
+        │                    ^^^^
+    340 │ 
+    341 │         // Remove VS Code escape sequences
+  
+  i Control characters are unusual and potentially incorrect inputs, so they are disallowed.
+  
+
+src/../../../cline-main/src/core/api/providers/vscode-lm.ts:339:25 lint/suspicious/noControlCharactersInRegex ━━━━━━━━━━
+
+  × Unexpected control character in a regular expression.
+  
+    338 │         // Remove control characters
+  > 339 │         .replace(/[\x00-\x09\x0B-\x0C\x0E-\x1F\x7F]/g, '')
+        │                         ^^^^
+    340 │ 
+    341 │         // Remove VS Code escape sequences
+  
+  i Control characters are unusual and potentially incorrect inputs, so they are disallowed.
+  
+
+src/../../../cline-main/src/core/api/providers/vscode-lm.ts:339:29 lint/suspicious/noControlCharactersInRegex ━━━━━━━━━━
+
+  × Unexpected control character in a regular expression.
+  
+    338 │         // Remove control characters
+  > 339 │         .replace(/[\x00-\x09\x0B-\x0C\x0E-\x1F\x7F]/g, '')
+        │                             ^^^^
+    340 │ 
+    341 │         // Remove VS Code escape sequences
+  
+  i Control characters are unusual and potentially incorrect inputs, so they are disallowed.
+  
+
+src/../../../cline-main/src/core/api/providers/vscode-lm.ts:339:34 lint/suspicious/noControlCharactersInRegex ━━━━━━━━━━
+
+  × Unexpected control character in a regular expression.
+  
+    338 │         // Remove control characters
+  > 339 │         .replace(/[\x00-\x09\x0B-\x0C\x0E-\x1F\x7F]/g, '')
+        │                                  ^^^^
+    340 │ 
+    341 │         // Remove VS Code escape sequences
+  
+  i Control characters are unusual and potentially incorrect inputs, so they are disallowed.
+  
+
+src/../../../cline-main/src/core/api/providers/vscode-lm.ts:339:38 lint/suspicious/noControlCharactersInRegex ━━━━━━━━━━
+
+  × Unexpected control character in a regular expression.
+  
+    338 │         // Remove control characters
+  > 339 │         .replace(/[\x00-\x09\x0B-\x0C\x0E-\x1F\x7F]/g, '')
+        │                                      ^^^^
+    340 │ 
+    341 │         // Remove VS Code escape sequences
+  
+  i Control characters are unusual and potentially incorrect inputs, so they are disallowed.
+  
+
+The number of diagnostics exceeds the number allowed by Biome.
+Diagnostics not shown: 959.
+Checked 1284 files in 368ms. No fixes applied.
+Found 704 errors.
+Found 257 warnings.
+lint ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+

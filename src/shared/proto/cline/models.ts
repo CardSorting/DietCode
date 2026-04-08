@@ -5,9 +5,9 @@
 // source: cline/models.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { FieldMask } from "../google/protobuf/field_mask";
-import { Empty, EmptyRequest, Metadata, StringArray, StringRequest } from "./common";
+import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+import { FieldMask } from '../google/protobuf/field_mask';
+import { Empty, EmptyRequest, Metadata, StringArray, StringRequest } from './common';
 
 /** API Provider enumeration */
 export enum ApiProvider {
@@ -59,133 +59,131 @@ export enum ApiProvider {
 export function apiProviderFromJSON(object: any): ApiProvider {
   switch (object) {
     case 0:
-    case "ANTHROPIC":
+    case 'ANTHROPIC':
       return ApiProvider.ANTHROPIC;
     case 1:
-    case "OPENROUTER":
+    case 'OPENROUTER':
       return ApiProvider.OPENROUTER;
     case 2:
-    case "BEDROCK":
+    case 'BEDROCK':
       return ApiProvider.BEDROCK;
     case 3:
-    case "VERTEX":
+    case 'VERTEX':
       return ApiProvider.VERTEX;
     case 4:
-    case "OPENAI":
+    case 'OPENAI':
       return ApiProvider.OPENAI;
     case 5:
-    case "OLLAMA":
+    case 'OLLAMA':
       return ApiProvider.OLLAMA;
     case 6:
-    case "LMSTUDIO":
+    case 'LMSTUDIO':
       return ApiProvider.LMSTUDIO;
     case 7:
-    case "GEMINI":
+    case 'GEMINI':
       return ApiProvider.GEMINI;
     case 8:
-    case "OPENAI_NATIVE":
+    case 'OPENAI_NATIVE':
       return ApiProvider.OPENAI_NATIVE;
     case 9:
-    case "REQUESTY":
+    case 'REQUESTY':
       return ApiProvider.REQUESTY;
     case 10:
-    case "TOGETHER":
+    case 'TOGETHER':
       return ApiProvider.TOGETHER;
     case 11:
-    case "DEEPSEEK":
+    case 'DEEPSEEK':
       return ApiProvider.DEEPSEEK;
     case 12:
-    case "QWEN":
+    case 'QWEN':
       return ApiProvider.QWEN;
     case 13:
-    case "DOUBAO":
+    case 'DOUBAO':
       return ApiProvider.DOUBAO;
     case 14:
-    case "MISTRAL":
+    case 'MISTRAL':
       return ApiProvider.MISTRAL;
     case 15:
-    case "VSCODE_LM":
+    case 'VSCODE_LM':
       return ApiProvider.VSCODE_LM;
     case 16:
-    case "CLINE":
+    case 'CLINE':
       return ApiProvider.CLINE;
     case 17:
-    case "LITELLM":
+    case 'LITELLM':
       return ApiProvider.LITELLM;
     case 18:
-    case "NEBIUS":
+    case 'NEBIUS':
       return ApiProvider.NEBIUS;
     case 19:
-    case "FIREWORKS":
+    case 'FIREWORKS':
       return ApiProvider.FIREWORKS;
     case 20:
-    case "ASKSAGE":
+    case 'ASKSAGE':
       return ApiProvider.ASKSAGE;
     case 21:
-    case "XAI":
+    case 'XAI':
       return ApiProvider.XAI;
     case 22:
-    case "SAMBANOVA":
+    case 'SAMBANOVA':
       return ApiProvider.SAMBANOVA;
     case 23:
-    case "CEREBRAS":
+    case 'CEREBRAS':
       return ApiProvider.CEREBRAS;
     case 24:
-    case "GROQ":
+    case 'GROQ':
       return ApiProvider.GROQ;
     case 25:
-    case "SAPAICORE":
+    case 'SAPAICORE':
       return ApiProvider.SAPAICORE;
     case 26:
-    case "CLAUDE_CODE":
+    case 'CLAUDE_CODE':
       return ApiProvider.CLAUDE_CODE;
     case 27:
-    case "MOONSHOT":
+    case 'MOONSHOT':
       return ApiProvider.MOONSHOT;
     case 28:
-    case "HUGGINGFACE":
+    case 'HUGGINGFACE':
       return ApiProvider.HUGGINGFACE;
     case 29:
-    case "HUAWEI_CLOUD_MAAS":
+    case 'HUAWEI_CLOUD_MAAS':
       return ApiProvider.HUAWEI_CLOUD_MAAS;
     case 30:
-    case "BASETEN":
+    case 'BASETEN':
       return ApiProvider.BASETEN;
     case 31:
-    case "ZAI":
+    case 'ZAI':
       return ApiProvider.ZAI;
     case 32:
-    case "VERCEL_AI_GATEWAY":
+    case 'VERCEL_AI_GATEWAY':
       return ApiProvider.VERCEL_AI_GATEWAY;
     case 33:
-    case "QWEN_CODE":
+    case 'QWEN_CODE':
       return ApiProvider.QWEN_CODE;
     case 34:
-    case "DIFY":
+    case 'DIFY':
       return ApiProvider.DIFY;
     case 35:
-    case "OCA":
+    case 'OCA':
       return ApiProvider.OCA;
     case 36:
-    case "MINIMAX":
+    case 'MINIMAX':
       return ApiProvider.MINIMAX;
     case 37:
-    case "HICAP":
+    case 'HICAP':
       return ApiProvider.HICAP;
     case 38:
-    case "AIHUBMIX":
+    case 'AIHUBMIX':
       return ApiProvider.AIHUBMIX;
     case 39:
-    case "NOUSRESEARCH":
+    case 'NOUSRESEARCH':
       return ApiProvider.NOUSRESEARCH;
     case 40:
-    case "OPENAI_CODEX":
+    case 'OPENAI_CODEX':
       return ApiProvider.OPENAI_CODEX;
     case 41:
-    case "WANDB":
+    case 'WANDB':
       return ApiProvider.WANDB;
-    case -1:
-    case "UNRECOGNIZED":
     default:
       return ApiProvider.UNRECOGNIZED;
   }
@@ -194,92 +192,91 @@ export function apiProviderFromJSON(object: any): ApiProvider {
 export function apiProviderToJSON(object: ApiProvider): string {
   switch (object) {
     case ApiProvider.ANTHROPIC:
-      return "ANTHROPIC";
+      return 'ANTHROPIC';
     case ApiProvider.OPENROUTER:
-      return "OPENROUTER";
+      return 'OPENROUTER';
     case ApiProvider.BEDROCK:
-      return "BEDROCK";
+      return 'BEDROCK';
     case ApiProvider.VERTEX:
-      return "VERTEX";
+      return 'VERTEX';
     case ApiProvider.OPENAI:
-      return "OPENAI";
+      return 'OPENAI';
     case ApiProvider.OLLAMA:
-      return "OLLAMA";
+      return 'OLLAMA';
     case ApiProvider.LMSTUDIO:
-      return "LMSTUDIO";
+      return 'LMSTUDIO';
     case ApiProvider.GEMINI:
-      return "GEMINI";
+      return 'GEMINI';
     case ApiProvider.OPENAI_NATIVE:
-      return "OPENAI_NATIVE";
+      return 'OPENAI_NATIVE';
     case ApiProvider.REQUESTY:
-      return "REQUESTY";
+      return 'REQUESTY';
     case ApiProvider.TOGETHER:
-      return "TOGETHER";
+      return 'TOGETHER';
     case ApiProvider.DEEPSEEK:
-      return "DEEPSEEK";
+      return 'DEEPSEEK';
     case ApiProvider.QWEN:
-      return "QWEN";
+      return 'QWEN';
     case ApiProvider.DOUBAO:
-      return "DOUBAO";
+      return 'DOUBAO';
     case ApiProvider.MISTRAL:
-      return "MISTRAL";
+      return 'MISTRAL';
     case ApiProvider.VSCODE_LM:
-      return "VSCODE_LM";
+      return 'VSCODE_LM';
     case ApiProvider.CLINE:
-      return "CLINE";
+      return 'CLINE';
     case ApiProvider.LITELLM:
-      return "LITELLM";
+      return 'LITELLM';
     case ApiProvider.NEBIUS:
-      return "NEBIUS";
+      return 'NEBIUS';
     case ApiProvider.FIREWORKS:
-      return "FIREWORKS";
+      return 'FIREWORKS';
     case ApiProvider.ASKSAGE:
-      return "ASKSAGE";
+      return 'ASKSAGE';
     case ApiProvider.XAI:
-      return "XAI";
+      return 'XAI';
     case ApiProvider.SAMBANOVA:
-      return "SAMBANOVA";
+      return 'SAMBANOVA';
     case ApiProvider.CEREBRAS:
-      return "CEREBRAS";
+      return 'CEREBRAS';
     case ApiProvider.GROQ:
-      return "GROQ";
+      return 'GROQ';
     case ApiProvider.SAPAICORE:
-      return "SAPAICORE";
+      return 'SAPAICORE';
     case ApiProvider.CLAUDE_CODE:
-      return "CLAUDE_CODE";
+      return 'CLAUDE_CODE';
     case ApiProvider.MOONSHOT:
-      return "MOONSHOT";
+      return 'MOONSHOT';
     case ApiProvider.HUGGINGFACE:
-      return "HUGGINGFACE";
+      return 'HUGGINGFACE';
     case ApiProvider.HUAWEI_CLOUD_MAAS:
-      return "HUAWEI_CLOUD_MAAS";
+      return 'HUAWEI_CLOUD_MAAS';
     case ApiProvider.BASETEN:
-      return "BASETEN";
+      return 'BASETEN';
     case ApiProvider.ZAI:
-      return "ZAI";
+      return 'ZAI';
     case ApiProvider.VERCEL_AI_GATEWAY:
-      return "VERCEL_AI_GATEWAY";
+      return 'VERCEL_AI_GATEWAY';
     case ApiProvider.QWEN_CODE:
-      return "QWEN_CODE";
+      return 'QWEN_CODE';
     case ApiProvider.DIFY:
-      return "DIFY";
+      return 'DIFY';
     case ApiProvider.OCA:
-      return "OCA";
+      return 'OCA';
     case ApiProvider.MINIMAX:
-      return "MINIMAX";
+      return 'MINIMAX';
     case ApiProvider.HICAP:
-      return "HICAP";
+      return 'HICAP';
     case ApiProvider.AIHUBMIX:
-      return "AIHUBMIX";
+      return 'AIHUBMIX';
     case ApiProvider.NOUSRESEARCH:
-      return "NOUSRESEARCH";
+      return 'NOUSRESEARCH';
     case ApiProvider.OPENAI_CODEX:
-      return "OPENAI_CODEX";
+      return 'OPENAI_CODEX';
     case ApiProvider.WANDB:
-      return "WANDB";
-    case ApiProvider.UNRECOGNIZED:
+      return 'WANDB';
     default:
-      return "UNRECOGNIZED";
+      return 'UNRECOGNIZED';
   }
 }
 
@@ -296,25 +293,23 @@ export enum ApiFormat {
 export function apiFormatFromJSON(object: any): ApiFormat {
   switch (object) {
     case 0:
-    case "ANTHROPIC_CHAT":
+    case 'ANTHROPIC_CHAT':
       return ApiFormat.ANTHROPIC_CHAT;
     case 1:
-    case "GEMINI_CHAT":
+    case 'GEMINI_CHAT':
       return ApiFormat.GEMINI_CHAT;
     case 2:
-    case "OPENAI_CHAT":
+    case 'OPENAI_CHAT':
       return ApiFormat.OPENAI_CHAT;
     case 3:
-    case "R1_CHAT":
+    case 'R1_CHAT':
       return ApiFormat.R1_CHAT;
     case 4:
-    case "OPENAI_RESPONSES":
+    case 'OPENAI_RESPONSES':
       return ApiFormat.OPENAI_RESPONSES;
     case 5:
-    case "OPENAI_RESPONSES_WEBSOCKET_MODE":
+    case 'OPENAI_RESPONSES_WEBSOCKET_MODE':
       return ApiFormat.OPENAI_RESPONSES_WEBSOCKET_MODE;
-    case -1:
-    case "UNRECOGNIZED":
     default:
       return ApiFormat.UNRECOGNIZED;
   }
@@ -323,20 +318,19 @@ export function apiFormatFromJSON(object: any): ApiFormat {
 export function apiFormatToJSON(object: ApiFormat): string {
   switch (object) {
     case ApiFormat.ANTHROPIC_CHAT:
-      return "ANTHROPIC_CHAT";
+      return 'ANTHROPIC_CHAT';
     case ApiFormat.GEMINI_CHAT:
-      return "GEMINI_CHAT";
+      return 'GEMINI_CHAT';
     case ApiFormat.OPENAI_CHAT:
-      return "OPENAI_CHAT";
+      return 'OPENAI_CHAT';
     case ApiFormat.R1_CHAT:
-      return "R1_CHAT";
+      return 'R1_CHAT';
     case ApiFormat.OPENAI_RESPONSES:
-      return "OPENAI_RESPONSES";
+      return 'OPENAI_RESPONSES';
     case ApiFormat.OPENAI_RESPONSES_WEBSOCKET_MODE:
-      return "OPENAI_RESPONSES_WEBSOCKET_MODE";
-    case ApiFormat.UNRECOGNIZED:
+      return 'OPENAI_RESPONSES_WEBSOCKET_MODE';
     default:
-      return "UNRECOGNIZED";
+      return 'UNRECOGNIZED';
   }
 }
 
@@ -364,13 +358,9 @@ export interface PriceTier {
 /** Thinking configuration for models that support thinking/reasoning */
 export interface ThinkingConfig {
   /** Max allowed thinking budget tokens */
-  maxBudget?:
-    | number
-    | undefined;
+  maxBudget?: number | undefined;
   /** Output price per million tokens when budget > 0 */
-  outputPrice?:
-    | number
-    | undefined;
+  outputPrice?: number | undefined;
   /** Optional: Tiered output price when budget > 0 */
   outputPriceTiers: PriceTier[];
 }
@@ -544,9 +534,7 @@ export interface ModelsApiOptions {
   minimaxApiLine?: string | undefined;
   aihubmixBaseUrl?: string | undefined;
   aihubmixAppCode?: string | undefined;
-  azureIdentity?:
-    | boolean
-    | undefined;
+  azureIdentity?: boolean | undefined;
   /** Plan mode configurations */
   planModeApiProvider?: ApiProvider | undefined;
   planModeApiModelId?: string | undefined;
@@ -584,9 +572,7 @@ export interface ModelsApiOptions {
   planModeAihubmixModelId?: string | undefined;
   planModeAihubmixModelInfo?: OpenAiCompatibleModelInfo | undefined;
   planModeClineModelId?: string | undefined;
-  planModeClineModelInfo?:
-    | OpenRouterModelInfo
-    | undefined;
+  planModeClineModelInfo?: OpenRouterModelInfo | undefined;
   /** Act mode configurations */
   actModeApiProvider?: ApiProvider | undefined;
   actModeApiModelId?: string | undefined;
@@ -647,9 +633,7 @@ export interface ApiConfiguration {
 /** Request for updating API configuration (new - uses separate options and secrets) */
 export interface UpdateApiConfigurationRequestNew {
   metadata: Metadata | undefined;
-  updates:
-    | ApiConfiguration
-    | undefined;
+  updates: ApiConfiguration | undefined;
   /**
    * Required field mask specifying which fields to update.
    * Field paths use dot notation with camelCase field names:
@@ -666,16 +650,12 @@ export interface UpdateApiConfigurationRequestNew {
  * Only fields specified in update_mask will be updated from api_configuration
  */
 export interface UpdateApiConfigurationPartialRequest {
-  metadata:
-    | Metadata
-    | undefined;
+  metadata: Metadata | undefined;
   /**
    * The API configuration with values to update.
    * Only fields listed in update_mask will be applied from this configuration.
    */
-  apiConfiguration:
-    | ModelsApiConfiguration
-    | undefined;
+  apiConfiguration: ModelsApiConfiguration | undefined;
   /**
    * Mask specifying which top-level fields from api_configuration to update.
    * Field names should use camelCase (e.g., "apiKey", "planModeApiProvider").
@@ -687,69 +667,39 @@ export interface UpdateApiConfigurationPartialRequest {
 /** Model info for OCA (OpenAI-compatible) models exposed by the OCA provider */
 export interface OcaModelInfo {
   /** Maximum completion tokens per request supported by this model */
-  maxTokens?:
-    | number
-    | undefined;
+  maxTokens?: number | undefined;
   /** Total context window in tokens (input + output) */
-  contextWindow?:
-    | number
-    | undefined;
+  contextWindow?: number | undefined;
   /** Whether the model supports image inputs */
-  supportsImages?:
-    | boolean
-    | undefined;
+  supportsImages?: boolean | undefined;
   /** Whether prompt caching is supported for this model */
   supportsPromptCache: boolean;
   /** Price per million input tokens (USD unless otherwise specified by provider) */
-  inputPrice?:
-    | number
-    | undefined;
+  inputPrice?: number | undefined;
   /** Price per million output tokens (USD unless otherwise specified by provider) */
-  outputPrice?:
-    | number
-    | undefined;
+  outputPrice?: number | undefined;
   /** Thinking/reasoning configuration if the model supports it */
-  thinkingConfig?:
-    | ThinkingConfig
-    | undefined;
+  thinkingConfig?: ThinkingConfig | undefined;
   /** Price per million tokens for prompt cache writes */
-  cacheWritesPrice?:
-    | number
-    | undefined;
+  cacheWritesPrice?: number | undefined;
   /** Price per million tokens for prompt cache reads */
-  cacheReadsPrice?:
-    | number
-    | undefined;
+  cacheReadsPrice?: number | undefined;
   /** Human-readable model description */
-  description?:
-    | string
-    | undefined;
+  description?: string | undefined;
   /** Recommended default temperature for this model */
-  temperature?:
-    | number
-    | undefined;
+  temperature?: number | undefined;
   /** Optional survey content to display in the UI */
-  surveyContent?:
-    | string
-    | undefined;
+  surveyContent?: string | undefined;
   /** Identifier for the survey associated with this model */
-  surveyId?:
-    | string
-    | undefined;
+  surveyId?: string | undefined;
   /** Optional banner content (e.g., deprecation or promotion notes) */
-  banner?:
-    | string
-    | undefined;
+  banner?: string | undefined;
   /** Canonical model identifier as reported by OCA */
   modelName: string;
   /** The API format used by this model */
-  apiFormat?:
-    | ApiFormat
-    | undefined;
+  apiFormat?: ApiFormat | undefined;
   /** Supports reasoning */
-  supportsReasoning?:
-    | boolean
-    | undefined;
+  supportsReasoning?: boolean | undefined;
   /** reasoning effort options */
   reasoningEffortOptions: string[];
 }
@@ -896,9 +846,7 @@ export interface ModelsApiConfiguration {
   aihubmixAppCode?: string | undefined;
   nousResearchApiKey?: string | undefined;
   azureIdentity?: boolean | undefined;
-  wandbApiKey?:
-    | string
-    | undefined;
+  wandbApiKey?: string | undefined;
   /** Plan mode configurations */
   planModeApiProvider?: ApiProvider | undefined;
   planModeApiModelId?: string | undefined;
@@ -941,9 +889,7 @@ export interface ModelsApiConfiguration {
   planModeNousResearchModelId?: string | undefined;
   geminiPlanModeThinkingLevel?: string | undefined;
   planModeClineModelId?: string | undefined;
-  planModeClineModelInfo?:
-    | OpenRouterModelInfo
-    | undefined;
+  planModeClineModelInfo?: OpenRouterModelInfo | undefined;
   /** Act mode configurations */
   actModeApiProvider?: ApiProvider | undefined;
   actModeApiModelId?: string | undefined;
@@ -1049,7 +995,9 @@ export const VsCodeLmModelsArray: MessageFns<VsCodeLmModelsArray> = {
   create<I extends Exact<DeepPartial<VsCodeLmModelsArray>, I>>(base?: I): VsCodeLmModelsArray {
     return VsCodeLmModelsArray.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<VsCodeLmModelsArray>, I>>(object: I): VsCodeLmModelsArray {
+  fromPartial<I extends Exact<DeepPartial<VsCodeLmModelsArray>, I>>(
+    object: I,
+  ): VsCodeLmModelsArray {
     const message = createBaseVsCodeLmModelsArray();
     message.models = object.models?.map((e) => LanguageModelChatSelector.fromPartial(e)) || [];
     return message;
@@ -1061,7 +1009,10 @@ function createBaseLanguageModelChatSelector(): LanguageModelChatSelector {
 }
 
 export const LanguageModelChatSelector: MessageFns<LanguageModelChatSelector> = {
-  encode(message: LanguageModelChatSelector, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: LanguageModelChatSelector,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.vendor !== undefined) {
       writer.uint32(10).string(message.vendor);
     }
@@ -1151,10 +1102,14 @@ export const LanguageModelChatSelector: MessageFns<LanguageModelChatSelector> = 
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<LanguageModelChatSelector>, I>>(base?: I): LanguageModelChatSelector {
+  create<I extends Exact<DeepPartial<LanguageModelChatSelector>, I>>(
+    base?: I,
+  ): LanguageModelChatSelector {
     return LanguageModelChatSelector.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<LanguageModelChatSelector>, I>>(object: I): LanguageModelChatSelector {
+  fromPartial<I extends Exact<DeepPartial<LanguageModelChatSelector>, I>>(
+    object: I,
+  ): LanguageModelChatSelector {
     const message = createBaseLanguageModelChatSelector();
     message.vendor = object.vendor ?? undefined;
     message.family = object.family ?? undefined;
@@ -1216,8 +1171,8 @@ export const PriceTier: MessageFns<PriceTier> = {
       tokenLimit: isSet(object.tokenLimit)
         ? globalThis.Number(object.tokenLimit)
         : isSet(object.token_limit)
-        ? globalThis.Number(object.token_limit)
-        : 0,
+          ? globalThis.Number(object.token_limit)
+          : 0,
       price: isSet(object.price) ? globalThis.Number(object.price) : 0,
     };
   },
@@ -1307,18 +1262,18 @@ export const ThinkingConfig: MessageFns<ThinkingConfig> = {
       maxBudget: isSet(object.maxBudget)
         ? globalThis.Number(object.maxBudget)
         : isSet(object.max_budget)
-        ? globalThis.Number(object.max_budget)
-        : undefined,
+          ? globalThis.Number(object.max_budget)
+          : undefined,
       outputPrice: isSet(object.outputPrice)
         ? globalThis.Number(object.outputPrice)
         : isSet(object.output_price)
-        ? globalThis.Number(object.output_price)
-        : undefined,
+          ? globalThis.Number(object.output_price)
+          : undefined,
       outputPriceTiers: globalThis.Array.isArray(object?.outputPriceTiers)
         ? object.outputPriceTiers.map((e: any) => PriceTier.fromJSON(e))
         : globalThis.Array.isArray(object?.output_price_tiers)
-        ? object.output_price_tiers.map((e: any) => PriceTier.fromJSON(e))
-        : [],
+          ? object.output_price_tiers.map((e: any) => PriceTier.fromJSON(e))
+          : [],
     };
   },
 
@@ -1439,28 +1394,28 @@ export const ModelTier: MessageFns<ModelTier> = {
       contextWindow: isSet(object.contextWindow)
         ? globalThis.Number(object.contextWindow)
         : isSet(object.context_window)
-        ? globalThis.Number(object.context_window)
-        : 0,
+          ? globalThis.Number(object.context_window)
+          : 0,
       inputPrice: isSet(object.inputPrice)
         ? globalThis.Number(object.inputPrice)
         : isSet(object.input_price)
-        ? globalThis.Number(object.input_price)
-        : undefined,
+          ? globalThis.Number(object.input_price)
+          : undefined,
       outputPrice: isSet(object.outputPrice)
         ? globalThis.Number(object.outputPrice)
         : isSet(object.output_price)
-        ? globalThis.Number(object.output_price)
-        : undefined,
+          ? globalThis.Number(object.output_price)
+          : undefined,
       cacheWritesPrice: isSet(object.cacheWritesPrice)
         ? globalThis.Number(object.cacheWritesPrice)
         : isSet(object.cache_writes_price)
-        ? globalThis.Number(object.cache_writes_price)
-        : undefined,
+          ? globalThis.Number(object.cache_writes_price)
+          : undefined,
       cacheReadsPrice: isSet(object.cacheReadsPrice)
         ? globalThis.Number(object.cacheReadsPrice)
         : isSet(object.cache_reads_price)
-        ? globalThis.Number(object.cache_reads_price)
-        : undefined,
+          ? globalThis.Number(object.cache_reads_price)
+          : undefined,
     };
   },
 
@@ -1721,54 +1676,54 @@ export const OpenRouterModelInfo: MessageFns<OpenRouterModelInfo> = {
       maxTokens: isSet(object.maxTokens)
         ? globalThis.Number(object.maxTokens)
         : isSet(object.max_tokens)
-        ? globalThis.Number(object.max_tokens)
-        : undefined,
+          ? globalThis.Number(object.max_tokens)
+          : undefined,
       contextWindow: isSet(object.contextWindow)
         ? globalThis.Number(object.contextWindow)
         : isSet(object.context_window)
-        ? globalThis.Number(object.context_window)
-        : undefined,
+          ? globalThis.Number(object.context_window)
+          : undefined,
       supportsImages: isSet(object.supportsImages)
         ? globalThis.Boolean(object.supportsImages)
         : isSet(object.supports_images)
-        ? globalThis.Boolean(object.supports_images)
-        : undefined,
+          ? globalThis.Boolean(object.supports_images)
+          : undefined,
       supportsPromptCache: isSet(object.supportsPromptCache)
         ? globalThis.Boolean(object.supportsPromptCache)
         : isSet(object.supports_prompt_cache)
-        ? globalThis.Boolean(object.supports_prompt_cache)
-        : false,
+          ? globalThis.Boolean(object.supports_prompt_cache)
+          : false,
       inputPrice: isSet(object.inputPrice)
         ? globalThis.Number(object.inputPrice)
         : isSet(object.input_price)
-        ? globalThis.Number(object.input_price)
-        : undefined,
+          ? globalThis.Number(object.input_price)
+          : undefined,
       outputPrice: isSet(object.outputPrice)
         ? globalThis.Number(object.outputPrice)
         : isSet(object.output_price)
-        ? globalThis.Number(object.output_price)
-        : undefined,
+          ? globalThis.Number(object.output_price)
+          : undefined,
       cacheWritesPrice: isSet(object.cacheWritesPrice)
         ? globalThis.Number(object.cacheWritesPrice)
         : isSet(object.cache_writes_price)
-        ? globalThis.Number(object.cache_writes_price)
-        : undefined,
+          ? globalThis.Number(object.cache_writes_price)
+          : undefined,
       cacheReadsPrice: isSet(object.cacheReadsPrice)
         ? globalThis.Number(object.cacheReadsPrice)
         : isSet(object.cache_reads_price)
-        ? globalThis.Number(object.cache_reads_price)
-        : undefined,
+          ? globalThis.Number(object.cache_reads_price)
+          : undefined,
       description: isSet(object.description) ? globalThis.String(object.description) : undefined,
       thinkingConfig: isSet(object.thinkingConfig)
         ? ThinkingConfig.fromJSON(object.thinkingConfig)
         : isSet(object.thinking_config)
-        ? ThinkingConfig.fromJSON(object.thinking_config)
-        : undefined,
+          ? ThinkingConfig.fromJSON(object.thinking_config)
+          : undefined,
       supportsGlobalEndpoint: isSet(object.supportsGlobalEndpoint)
         ? globalThis.Boolean(object.supportsGlobalEndpoint)
         : isSet(object.supports_global_endpoint)
-        ? globalThis.Boolean(object.supports_global_endpoint)
-        : undefined,
+          ? globalThis.Boolean(object.supports_global_endpoint)
+          : undefined,
       tiers: globalThis.Array.isArray(object?.tiers)
         ? object.tiers.map((e: any) => ModelTier.fromJSON(e))
         : [],
@@ -1777,13 +1732,13 @@ export const OpenRouterModelInfo: MessageFns<OpenRouterModelInfo> = {
       supportsReasoning: isSet(object.supportsReasoning)
         ? globalThis.Boolean(object.supportsReasoning)
         : isSet(object.supports_reasoning)
-        ? globalThis.Boolean(object.supports_reasoning)
-        : undefined,
+          ? globalThis.Boolean(object.supports_reasoning)
+          : undefined,
       apiFormat: isSet(object.apiFormat)
         ? apiFormatFromJSON(object.apiFormat)
         : isSet(object.api_format)
-        ? apiFormatFromJSON(object.api_format)
-        : undefined,
+          ? apiFormatFromJSON(object.api_format)
+          : undefined,
     };
   },
 
@@ -1843,7 +1798,9 @@ export const OpenRouterModelInfo: MessageFns<OpenRouterModelInfo> = {
   create<I extends Exact<DeepPartial<OpenRouterModelInfo>, I>>(base?: I): OpenRouterModelInfo {
     return OpenRouterModelInfo.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<OpenRouterModelInfo>, I>>(object: I): OpenRouterModelInfo {
+  fromPartial<I extends Exact<DeepPartial<OpenRouterModelInfo>, I>>(
+    object: I,
+  ): OpenRouterModelInfo {
     const message = createBaseOpenRouterModelInfo();
     message.maxTokens = object.maxTokens ?? undefined;
     message.contextWindow = object.contextWindow ?? undefined;
@@ -1854,9 +1811,10 @@ export const OpenRouterModelInfo: MessageFns<OpenRouterModelInfo> = {
     message.cacheWritesPrice = object.cacheWritesPrice ?? undefined;
     message.cacheReadsPrice = object.cacheReadsPrice ?? undefined;
     message.description = object.description ?? undefined;
-    message.thinkingConfig = (object.thinkingConfig !== undefined && object.thinkingConfig !== null)
-      ? ThinkingConfig.fromPartial(object.thinkingConfig)
-      : undefined;
+    message.thinkingConfig =
+      object.thinkingConfig !== undefined && object.thinkingConfig !== null
+        ? ThinkingConfig.fromPartial(object.thinkingConfig)
+        : undefined;
     message.supportsGlobalEndpoint = object.supportsGlobalEndpoint ?? undefined;
     message.tiers = object.tiers?.map((e) => ModelTier.fromPartial(e)) || [];
     message.name = object.name ?? undefined;
@@ -1872,10 +1830,18 @@ function createBaseOpenRouterCompatibleModelInfo(): OpenRouterCompatibleModelInf
 }
 
 export const OpenRouterCompatibleModelInfo: MessageFns<OpenRouterCompatibleModelInfo> = {
-  encode(message: OpenRouterCompatibleModelInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    globalThis.Object.entries(message.models).forEach(([key, value]: [string, OpenRouterModelInfo]) => {
-      OpenRouterCompatibleModelInfo_ModelsEntry.encode({ key: key as any, value }, writer.uint32(10).fork()).join();
-    });
+  encode(
+    message: OpenRouterCompatibleModelInfo,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    globalThis.Object.entries(message.models).forEach(
+      ([key, value]: [string, OpenRouterModelInfo]) => {
+        OpenRouterCompatibleModelInfo_ModelsEntry.encode(
+          { key: key as any, value },
+          writer.uint32(10).fork(),
+        ).join();
+      },
+    );
     return writer;
   },
 
@@ -1910,12 +1876,12 @@ export const OpenRouterCompatibleModelInfo: MessageFns<OpenRouterCompatibleModel
     return {
       models: isObject(object.models)
         ? (globalThis.Object.entries(object.models) as [string, any][]).reduce(
-          (acc: { [key: string]: OpenRouterModelInfo }, [key, value]: [string, any]) => {
-            acc[key] = OpenRouterModelInfo.fromJSON(value);
-            return acc;
-          },
-          {},
-        )
+            (acc: { [key: string]: OpenRouterModelInfo }, [key, value]: [string, any]) => {
+              acc[key] = OpenRouterModelInfo.fromJSON(value);
+              return acc;
+            },
+            {},
+          )
         : {},
     };
   },
@@ -1934,15 +1900,22 @@ export const OpenRouterCompatibleModelInfo: MessageFns<OpenRouterCompatibleModel
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<OpenRouterCompatibleModelInfo>, I>>(base?: I): OpenRouterCompatibleModelInfo {
+  create<I extends Exact<DeepPartial<OpenRouterCompatibleModelInfo>, I>>(
+    base?: I,
+  ): OpenRouterCompatibleModelInfo {
     return OpenRouterCompatibleModelInfo.fromPartial(base ?? ({} as any));
   },
   fromPartial<I extends Exact<DeepPartial<OpenRouterCompatibleModelInfo>, I>>(
     object: I,
   ): OpenRouterCompatibleModelInfo {
     const message = createBaseOpenRouterCompatibleModelInfo();
-    message.models = (globalThis.Object.entries(object.models ?? {}) as [string, OpenRouterModelInfo][]).reduce(
-      (acc: { [key: string]: OpenRouterModelInfo }, [key, value]: [string, OpenRouterModelInfo]) => {
+    message.models = (
+      globalThis.Object.entries(object.models ?? {}) as [string, OpenRouterModelInfo][]
+    ).reduce(
+      (
+        acc: { [key: string]: OpenRouterModelInfo },
+        [key, value]: [string, OpenRouterModelInfo],
+      ) => {
         if (value !== undefined) {
           acc[key] = OpenRouterModelInfo.fromPartial(value);
         }
@@ -1955,100 +1928,108 @@ export const OpenRouterCompatibleModelInfo: MessageFns<OpenRouterCompatibleModel
 };
 
 function createBaseOpenRouterCompatibleModelInfo_ModelsEntry(): OpenRouterCompatibleModelInfo_ModelsEntry {
-  return { key: "", value: undefined };
+  return { key: '', value: undefined };
 }
 
-export const OpenRouterCompatibleModelInfo_ModelsEntry: MessageFns<OpenRouterCompatibleModelInfo_ModelsEntry> = {
-  encode(message: OpenRouterCompatibleModelInfo_ModelsEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.key !== "") {
-      writer.uint32(10).string(message.key);
-    }
-    if (message.value !== undefined) {
-      OpenRouterModelInfo.encode(message.value, writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): OpenRouterCompatibleModelInfo_ModelsEntry {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseOpenRouterCompatibleModelInfo_ModelsEntry();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.key = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.value = OpenRouterModelInfo.decode(reader, reader.uint32());
-          continue;
-        }
+export const OpenRouterCompatibleModelInfo_ModelsEntry: MessageFns<OpenRouterCompatibleModelInfo_ModelsEntry> =
+  {
+    encode(
+      message: OpenRouterCompatibleModelInfo_ModelsEntry,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.key !== '') {
+        writer.uint32(10).string(message.key);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.value !== undefined) {
+        OpenRouterModelInfo.encode(message.value, writer.uint32(18).fork()).join();
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      return writer;
+    },
 
-  fromJSON(object: any): OpenRouterCompatibleModelInfo_ModelsEntry {
-    return {
-      key: isSet(object.key) ? globalThis.String(object.key) : "",
-      value: isSet(object.value) ? OpenRouterModelInfo.fromJSON(object.value) : undefined,
-    };
-  },
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): OpenRouterCompatibleModelInfo_ModelsEntry {
+      const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseOpenRouterCompatibleModelInfo_ModelsEntry();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
 
-  toJSON(message: OpenRouterCompatibleModelInfo_ModelsEntry): unknown {
-    const obj: any = {};
-    if (message.key !== "") {
-      obj.key = message.key;
-    }
-    if (message.value !== undefined) {
-      obj.value = OpenRouterModelInfo.toJSON(message.value);
-    }
-    return obj;
-  },
+            message.key = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
 
-  create<I extends Exact<DeepPartial<OpenRouterCompatibleModelInfo_ModelsEntry>, I>>(
-    base?: I,
-  ): OpenRouterCompatibleModelInfo_ModelsEntry {
-    return OpenRouterCompatibleModelInfo_ModelsEntry.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<OpenRouterCompatibleModelInfo_ModelsEntry>, I>>(
-    object: I,
-  ): OpenRouterCompatibleModelInfo_ModelsEntry {
-    const message = createBaseOpenRouterCompatibleModelInfo_ModelsEntry();
-    message.key = object.key ?? "";
-    message.value = (object.value !== undefined && object.value !== null)
-      ? OpenRouterModelInfo.fromPartial(object.value)
-      : undefined;
-    return message;
-  },
-};
+            message.value = OpenRouterModelInfo.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): OpenRouterCompatibleModelInfo_ModelsEntry {
+      return {
+        key: isSet(object.key) ? globalThis.String(object.key) : '',
+        value: isSet(object.value) ? OpenRouterModelInfo.fromJSON(object.value) : undefined,
+      };
+    },
+
+    toJSON(message: OpenRouterCompatibleModelInfo_ModelsEntry): unknown {
+      const obj: any = {};
+      if (message.key !== '') {
+        obj.key = message.key;
+      }
+      if (message.value !== undefined) {
+        obj.value = OpenRouterModelInfo.toJSON(message.value);
+      }
+      return obj;
+    },
+
+    create<I extends Exact<DeepPartial<OpenRouterCompatibleModelInfo_ModelsEntry>, I>>(
+      base?: I,
+    ): OpenRouterCompatibleModelInfo_ModelsEntry {
+      return OpenRouterCompatibleModelInfo_ModelsEntry.fromPartial(base ?? ({} as any));
+    },
+    fromPartial<I extends Exact<DeepPartial<OpenRouterCompatibleModelInfo_ModelsEntry>, I>>(
+      object: I,
+    ): OpenRouterCompatibleModelInfo_ModelsEntry {
+      const message = createBaseOpenRouterCompatibleModelInfo_ModelsEntry();
+      message.key = object.key ?? '';
+      message.value =
+        object.value !== undefined && object.value !== null
+          ? OpenRouterModelInfo.fromPartial(object.value)
+          : undefined;
+      return message;
+    },
+  };
 
 function createBaseClineRecommendedModel(): ClineRecommendedModel {
-  return { id: "", name: "", description: "", tags: [] };
+  return { id: '', name: '', description: '', tags: [] };
 }
 
 export const ClineRecommendedModel: MessageFns<ClineRecommendedModel> = {
   encode(message: ClineRecommendedModel, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== "") {
+    if (message.id !== '') {
       writer.uint32(10).string(message.id);
     }
-    if (message.name !== "") {
+    if (message.name !== '') {
       writer.uint32(18).string(message.name);
     }
-    if (message.description !== "") {
+    if (message.description !== '') {
       writer.uint32(26).string(message.description);
     }
     for (const v of message.tags) {
@@ -2107,22 +2088,24 @@ export const ClineRecommendedModel: MessageFns<ClineRecommendedModel> = {
 
   fromJSON(object: any): ClineRecommendedModel {
     return {
-      id: isSet(object.id) ? globalThis.String(object.id) : "",
-      name: isSet(object.name) ? globalThis.String(object.name) : "",
-      description: isSet(object.description) ? globalThis.String(object.description) : "",
-      tags: globalThis.Array.isArray(object?.tags) ? object.tags.map((e: any) => globalThis.String(e)) : [],
+      id: isSet(object.id) ? globalThis.String(object.id) : '',
+      name: isSet(object.name) ? globalThis.String(object.name) : '',
+      description: isSet(object.description) ? globalThis.String(object.description) : '',
+      tags: globalThis.Array.isArray(object?.tags)
+        ? object.tags.map((e: any) => globalThis.String(e))
+        : [],
     };
   },
 
   toJSON(message: ClineRecommendedModel): unknown {
     const obj: any = {};
-    if (message.id !== "") {
+    if (message.id !== '') {
       obj.id = message.id;
     }
-    if (message.name !== "") {
+    if (message.name !== '') {
       obj.name = message.name;
     }
-    if (message.description !== "") {
+    if (message.description !== '') {
       obj.description = message.description;
     }
     if (message.tags?.length) {
@@ -2134,11 +2117,13 @@ export const ClineRecommendedModel: MessageFns<ClineRecommendedModel> = {
   create<I extends Exact<DeepPartial<ClineRecommendedModel>, I>>(base?: I): ClineRecommendedModel {
     return ClineRecommendedModel.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ClineRecommendedModel>, I>>(object: I): ClineRecommendedModel {
+  fromPartial<I extends Exact<DeepPartial<ClineRecommendedModel>, I>>(
+    object: I,
+  ): ClineRecommendedModel {
     const message = createBaseClineRecommendedModel();
-    message.id = object.id ?? "";
-    message.name = object.name ?? "";
-    message.description = object.description ?? "";
+    message.id = object.id ?? '';
+    message.name = object.name ?? '';
+    message.description = object.description ?? '';
     message.tags = object.tags?.map((e) => e) || [];
     return message;
   },
@@ -2149,7 +2134,10 @@ function createBaseClineRecommendedModelsResponse(): ClineRecommendedModelsRespo
 }
 
 export const ClineRecommendedModelsResponse: MessageFns<ClineRecommendedModelsResponse> = {
-  encode(message: ClineRecommendedModelsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ClineRecommendedModelsResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.recommended) {
       ClineRecommendedModel.encode(v!, writer.uint32(10).fork()).join();
     }
@@ -2213,21 +2201,24 @@ export const ClineRecommendedModelsResponse: MessageFns<ClineRecommendedModelsRe
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ClineRecommendedModelsResponse>, I>>(base?: I): ClineRecommendedModelsResponse {
+  create<I extends Exact<DeepPartial<ClineRecommendedModelsResponse>, I>>(
+    base?: I,
+  ): ClineRecommendedModelsResponse {
     return ClineRecommendedModelsResponse.fromPartial(base ?? ({} as any));
   },
   fromPartial<I extends Exact<DeepPartial<ClineRecommendedModelsResponse>, I>>(
     object: I,
   ): ClineRecommendedModelsResponse {
     const message = createBaseClineRecommendedModelsResponse();
-    message.recommended = object.recommended?.map((e) => ClineRecommendedModel.fromPartial(e)) || [];
+    message.recommended =
+      object.recommended?.map((e) => ClineRecommendedModel.fromPartial(e)) || [];
     message.free = object.free?.map((e) => ClineRecommendedModel.fromPartial(e)) || [];
     return message;
   },
 };
 
 function createBaseOpenAiModelsRequest(): OpenAiModelsRequest {
-  return { metadata: undefined, baseUrl: "", apiKey: "" };
+  return { metadata: undefined, baseUrl: '', apiKey: '' };
 }
 
 export const OpenAiModelsRequest: MessageFns<OpenAiModelsRequest> = {
@@ -2235,10 +2226,10 @@ export const OpenAiModelsRequest: MessageFns<OpenAiModelsRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.baseUrl !== "") {
+    if (message.baseUrl !== '') {
       writer.uint32(18).string(message.baseUrl);
     }
-    if (message.apiKey !== "") {
+    if (message.apiKey !== '') {
       writer.uint32(26).string(message.apiKey);
     }
     return writer;
@@ -2290,13 +2281,13 @@ export const OpenAiModelsRequest: MessageFns<OpenAiModelsRequest> = {
       baseUrl: isSet(object.baseUrl)
         ? globalThis.String(object.baseUrl)
         : isSet(object.base_url)
-        ? globalThis.String(object.base_url)
-        : "",
+          ? globalThis.String(object.base_url)
+          : '',
       apiKey: isSet(object.apiKey)
         ? globalThis.String(object.apiKey)
         : isSet(object.api_key)
-        ? globalThis.String(object.api_key)
-        : "",
+          ? globalThis.String(object.api_key)
+          : '',
     };
   },
 
@@ -2305,10 +2296,10 @@ export const OpenAiModelsRequest: MessageFns<OpenAiModelsRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.baseUrl !== "") {
+    if (message.baseUrl !== '') {
       obj.baseUrl = message.baseUrl;
     }
-    if (message.apiKey !== "") {
+    if (message.apiKey !== '') {
       obj.apiKey = message.apiKey;
     }
     return obj;
@@ -2317,19 +2308,29 @@ export const OpenAiModelsRequest: MessageFns<OpenAiModelsRequest> = {
   create<I extends Exact<DeepPartial<OpenAiModelsRequest>, I>>(base?: I): OpenAiModelsRequest {
     return OpenAiModelsRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<OpenAiModelsRequest>, I>>(object: I): OpenAiModelsRequest {
+  fromPartial<I extends Exact<DeepPartial<OpenAiModelsRequest>, I>>(
+    object: I,
+  ): OpenAiModelsRequest {
     const message = createBaseOpenAiModelsRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.baseUrl = object.baseUrl ?? "";
-    message.apiKey = object.apiKey ?? "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.baseUrl = object.baseUrl ?? '';
+    message.apiKey = object.apiKey ?? '';
     return message;
   },
 };
 
 function createBaseSapAiCoreModelsRequest(): SapAiCoreModelsRequest {
-  return { metadata: undefined, clientId: "", clientSecret: "", baseUrl: "", tokenUrl: "", resourceGroup: "" };
+  return {
+    metadata: undefined,
+    clientId: '',
+    clientSecret: '',
+    baseUrl: '',
+    tokenUrl: '',
+    resourceGroup: '',
+  };
 }
 
 export const SapAiCoreModelsRequest: MessageFns<SapAiCoreModelsRequest> = {
@@ -2337,19 +2338,19 @@ export const SapAiCoreModelsRequest: MessageFns<SapAiCoreModelsRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.clientId !== "") {
+    if (message.clientId !== '') {
       writer.uint32(18).string(message.clientId);
     }
-    if (message.clientSecret !== "") {
+    if (message.clientSecret !== '') {
       writer.uint32(26).string(message.clientSecret);
     }
-    if (message.baseUrl !== "") {
+    if (message.baseUrl !== '') {
       writer.uint32(34).string(message.baseUrl);
     }
-    if (message.tokenUrl !== "") {
+    if (message.tokenUrl !== '') {
       writer.uint32(42).string(message.tokenUrl);
     }
-    if (message.resourceGroup !== "") {
+    if (message.resourceGroup !== '') {
       writer.uint32(50).string(message.resourceGroup);
     }
     return writer;
@@ -2425,28 +2426,28 @@ export const SapAiCoreModelsRequest: MessageFns<SapAiCoreModelsRequest> = {
       clientId: isSet(object.clientId)
         ? globalThis.String(object.clientId)
         : isSet(object.client_id)
-        ? globalThis.String(object.client_id)
-        : "",
+          ? globalThis.String(object.client_id)
+          : '',
       clientSecret: isSet(object.clientSecret)
         ? globalThis.String(object.clientSecret)
         : isSet(object.client_secret)
-        ? globalThis.String(object.client_secret)
-        : "",
+          ? globalThis.String(object.client_secret)
+          : '',
       baseUrl: isSet(object.baseUrl)
         ? globalThis.String(object.baseUrl)
         : isSet(object.base_url)
-        ? globalThis.String(object.base_url)
-        : "",
+          ? globalThis.String(object.base_url)
+          : '',
       tokenUrl: isSet(object.tokenUrl)
         ? globalThis.String(object.tokenUrl)
         : isSet(object.token_url)
-        ? globalThis.String(object.token_url)
-        : "",
+          ? globalThis.String(object.token_url)
+          : '',
       resourceGroup: isSet(object.resourceGroup)
         ? globalThis.String(object.resourceGroup)
         : isSet(object.resource_group)
-        ? globalThis.String(object.resource_group)
-        : "",
+          ? globalThis.String(object.resource_group)
+          : '',
     };
   },
 
@@ -2455,51 +2456,59 @@ export const SapAiCoreModelsRequest: MessageFns<SapAiCoreModelsRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.clientId !== "") {
+    if (message.clientId !== '') {
       obj.clientId = message.clientId;
     }
-    if (message.clientSecret !== "") {
+    if (message.clientSecret !== '') {
       obj.clientSecret = message.clientSecret;
     }
-    if (message.baseUrl !== "") {
+    if (message.baseUrl !== '') {
       obj.baseUrl = message.baseUrl;
     }
-    if (message.tokenUrl !== "") {
+    if (message.tokenUrl !== '') {
       obj.tokenUrl = message.tokenUrl;
     }
-    if (message.resourceGroup !== "") {
+    if (message.resourceGroup !== '') {
       obj.resourceGroup = message.resourceGroup;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SapAiCoreModelsRequest>, I>>(base?: I): SapAiCoreModelsRequest {
+  create<I extends Exact<DeepPartial<SapAiCoreModelsRequest>, I>>(
+    base?: I,
+  ): SapAiCoreModelsRequest {
     return SapAiCoreModelsRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SapAiCoreModelsRequest>, I>>(object: I): SapAiCoreModelsRequest {
+  fromPartial<I extends Exact<DeepPartial<SapAiCoreModelsRequest>, I>>(
+    object: I,
+  ): SapAiCoreModelsRequest {
     const message = createBaseSapAiCoreModelsRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.clientId = object.clientId ?? "";
-    message.clientSecret = object.clientSecret ?? "";
-    message.baseUrl = object.baseUrl ?? "";
-    message.tokenUrl = object.tokenUrl ?? "";
-    message.resourceGroup = object.resourceGroup ?? "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.clientId = object.clientId ?? '';
+    message.clientSecret = object.clientSecret ?? '';
+    message.baseUrl = object.baseUrl ?? '';
+    message.tokenUrl = object.tokenUrl ?? '';
+    message.resourceGroup = object.resourceGroup ?? '';
     return message;
   },
 };
 
 function createBaseSapAiCoreModelDeployment(): SapAiCoreModelDeployment {
-  return { modelName: "", deploymentId: "" };
+  return { modelName: '', deploymentId: '' };
 }
 
 export const SapAiCoreModelDeployment: MessageFns<SapAiCoreModelDeployment> = {
-  encode(message: SapAiCoreModelDeployment, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.modelName !== "") {
+  encode(
+    message: SapAiCoreModelDeployment,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.modelName !== '') {
       writer.uint32(10).string(message.modelName);
     }
-    if (message.deploymentId !== "") {
+    if (message.deploymentId !== '') {
       writer.uint32(18).string(message.deploymentId);
     }
     return writer;
@@ -2542,34 +2551,38 @@ export const SapAiCoreModelDeployment: MessageFns<SapAiCoreModelDeployment> = {
       modelName: isSet(object.modelName)
         ? globalThis.String(object.modelName)
         : isSet(object.model_name)
-        ? globalThis.String(object.model_name)
-        : "",
+          ? globalThis.String(object.model_name)
+          : '',
       deploymentId: isSet(object.deploymentId)
         ? globalThis.String(object.deploymentId)
         : isSet(object.deployment_id)
-        ? globalThis.String(object.deployment_id)
-        : "",
+          ? globalThis.String(object.deployment_id)
+          : '',
     };
   },
 
   toJSON(message: SapAiCoreModelDeployment): unknown {
     const obj: any = {};
-    if (message.modelName !== "") {
+    if (message.modelName !== '') {
       obj.modelName = message.modelName;
     }
-    if (message.deploymentId !== "") {
+    if (message.deploymentId !== '') {
       obj.deploymentId = message.deploymentId;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SapAiCoreModelDeployment>, I>>(base?: I): SapAiCoreModelDeployment {
+  create<I extends Exact<DeepPartial<SapAiCoreModelDeployment>, I>>(
+    base?: I,
+  ): SapAiCoreModelDeployment {
     return SapAiCoreModelDeployment.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SapAiCoreModelDeployment>, I>>(object: I): SapAiCoreModelDeployment {
+  fromPartial<I extends Exact<DeepPartial<SapAiCoreModelDeployment>, I>>(
+    object: I,
+  ): SapAiCoreModelDeployment {
     const message = createBaseSapAiCoreModelDeployment();
-    message.modelName = object.modelName ?? "";
-    message.deploymentId = object.deploymentId ?? "";
+    message.modelName = object.modelName ?? '';
+    message.deploymentId = object.deploymentId ?? '';
     return message;
   },
 };
@@ -2579,7 +2592,10 @@ function createBaseSapAiCoreModelsResponse(): SapAiCoreModelsResponse {
 }
 
 export const SapAiCoreModelsResponse: MessageFns<SapAiCoreModelsResponse> = {
-  encode(message: SapAiCoreModelsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: SapAiCoreModelsResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.deployments) {
       SapAiCoreModelDeployment.encode(v!, writer.uint32(10).fork()).join();
     }
@@ -2629,8 +2645,8 @@ export const SapAiCoreModelsResponse: MessageFns<SapAiCoreModelsResponse> = {
       orchestrationAvailable: isSet(object.orchestrationAvailable)
         ? globalThis.Boolean(object.orchestrationAvailable)
         : isSet(object.orchestration_available)
-        ? globalThis.Boolean(object.orchestration_available)
-        : false,
+          ? globalThis.Boolean(object.orchestration_available)
+          : false,
     };
   },
 
@@ -2645,12 +2661,17 @@ export const SapAiCoreModelsResponse: MessageFns<SapAiCoreModelsResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SapAiCoreModelsResponse>, I>>(base?: I): SapAiCoreModelsResponse {
+  create<I extends Exact<DeepPartial<SapAiCoreModelsResponse>, I>>(
+    base?: I,
+  ): SapAiCoreModelsResponse {
     return SapAiCoreModelsResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SapAiCoreModelsResponse>, I>>(object: I): SapAiCoreModelsResponse {
+  fromPartial<I extends Exact<DeepPartial<SapAiCoreModelsResponse>, I>>(
+    object: I,
+  ): SapAiCoreModelsResponse {
     const message = createBaseSapAiCoreModelsResponse();
-    message.deployments = object.deployments?.map((e) => SapAiCoreModelDeployment.fromPartial(e)) || [];
+    message.deployments =
+      object.deployments?.map((e) => SapAiCoreModelDeployment.fromPartial(e)) || [];
     message.orchestrationAvailable = object.orchestrationAvailable ?? false;
     return message;
   },
@@ -3155,198 +3176,198 @@ export const ModelsApiSecrets: MessageFns<ModelsApiSecrets> = {
       apiKey: isSet(object.apiKey)
         ? globalThis.String(object.apiKey)
         : isSet(object.api_key)
-        ? globalThis.String(object.api_key)
-        : undefined,
+          ? globalThis.String(object.api_key)
+          : undefined,
       clineApiKey: isSet(object.clineApiKey)
         ? globalThis.String(object.clineApiKey)
         : isSet(object.cline_api_key)
-        ? globalThis.String(object.cline_api_key)
-        : undefined,
+          ? globalThis.String(object.cline_api_key)
+          : undefined,
       liteLlmApiKey: isSet(object.liteLlmApiKey)
         ? globalThis.String(object.liteLlmApiKey)
         : isSet(object.lite_llm_api_key)
-        ? globalThis.String(object.lite_llm_api_key)
-        : undefined,
+          ? globalThis.String(object.lite_llm_api_key)
+          : undefined,
       openRouterApiKey: isSet(object.openRouterApiKey)
         ? globalThis.String(object.openRouterApiKey)
         : isSet(object.open_router_api_key)
-        ? globalThis.String(object.open_router_api_key)
-        : undefined,
+          ? globalThis.String(object.open_router_api_key)
+          : undefined,
       awsAccessKey: isSet(object.awsAccessKey)
         ? globalThis.String(object.awsAccessKey)
         : isSet(object.aws_access_key)
-        ? globalThis.String(object.aws_access_key)
-        : undefined,
+          ? globalThis.String(object.aws_access_key)
+          : undefined,
       awsSecretKey: isSet(object.awsSecretKey)
         ? globalThis.String(object.awsSecretKey)
         : isSet(object.aws_secret_key)
-        ? globalThis.String(object.aws_secret_key)
-        : undefined,
+          ? globalThis.String(object.aws_secret_key)
+          : undefined,
       awsSessionToken: isSet(object.awsSessionToken)
         ? globalThis.String(object.awsSessionToken)
         : isSet(object.aws_session_token)
-        ? globalThis.String(object.aws_session_token)
-        : undefined,
+          ? globalThis.String(object.aws_session_token)
+          : undefined,
       awsBedrockApiKey: isSet(object.awsBedrockApiKey)
         ? globalThis.String(object.awsBedrockApiKey)
         : isSet(object.aws_bedrock_api_key)
-        ? globalThis.String(object.aws_bedrock_api_key)
-        : undefined,
+          ? globalThis.String(object.aws_bedrock_api_key)
+          : undefined,
       openAiApiKey: isSet(object.openAiApiKey)
         ? globalThis.String(object.openAiApiKey)
         : isSet(object.open_ai_api_key)
-        ? globalThis.String(object.open_ai_api_key)
-        : undefined,
+          ? globalThis.String(object.open_ai_api_key)
+          : undefined,
       ollamaApiKey: isSet(object.ollamaApiKey)
         ? globalThis.String(object.ollamaApiKey)
         : isSet(object.ollama_api_key)
-        ? globalThis.String(object.ollama_api_key)
-        : undefined,
+          ? globalThis.String(object.ollama_api_key)
+          : undefined,
       geminiApiKey: isSet(object.geminiApiKey)
         ? globalThis.String(object.geminiApiKey)
         : isSet(object.gemini_api_key)
-        ? globalThis.String(object.gemini_api_key)
-        : undefined,
+          ? globalThis.String(object.gemini_api_key)
+          : undefined,
       openAiNativeApiKey: isSet(object.openAiNativeApiKey)
         ? globalThis.String(object.openAiNativeApiKey)
         : isSet(object.open_ai_native_api_key)
-        ? globalThis.String(object.open_ai_native_api_key)
-        : undefined,
+          ? globalThis.String(object.open_ai_native_api_key)
+          : undefined,
       deepSeekApiKey: isSet(object.deepSeekApiKey)
         ? globalThis.String(object.deepSeekApiKey)
         : isSet(object.deep_seek_api_key)
-        ? globalThis.String(object.deep_seek_api_key)
-        : undefined,
+          ? globalThis.String(object.deep_seek_api_key)
+          : undefined,
       requestyApiKey: isSet(object.requestyApiKey)
         ? globalThis.String(object.requestyApiKey)
         : isSet(object.requesty_api_key)
-        ? globalThis.String(object.requesty_api_key)
-        : undefined,
+          ? globalThis.String(object.requesty_api_key)
+          : undefined,
       togetherApiKey: isSet(object.togetherApiKey)
         ? globalThis.String(object.togetherApiKey)
         : isSet(object.together_api_key)
-        ? globalThis.String(object.together_api_key)
-        : undefined,
+          ? globalThis.String(object.together_api_key)
+          : undefined,
       fireworksApiKey: isSet(object.fireworksApiKey)
         ? globalThis.String(object.fireworksApiKey)
         : isSet(object.fireworks_api_key)
-        ? globalThis.String(object.fireworks_api_key)
-        : undefined,
+          ? globalThis.String(object.fireworks_api_key)
+          : undefined,
       qwenApiKey: isSet(object.qwenApiKey)
         ? globalThis.String(object.qwenApiKey)
         : isSet(object.qwen_api_key)
-        ? globalThis.String(object.qwen_api_key)
-        : undefined,
+          ? globalThis.String(object.qwen_api_key)
+          : undefined,
       doubaoApiKey: isSet(object.doubaoApiKey)
         ? globalThis.String(object.doubaoApiKey)
         : isSet(object.doubao_api_key)
-        ? globalThis.String(object.doubao_api_key)
-        : undefined,
+          ? globalThis.String(object.doubao_api_key)
+          : undefined,
       mistralApiKey: isSet(object.mistralApiKey)
         ? globalThis.String(object.mistralApiKey)
         : isSet(object.mistral_api_key)
-        ? globalThis.String(object.mistral_api_key)
-        : undefined,
+          ? globalThis.String(object.mistral_api_key)
+          : undefined,
       nebiusApiKey: isSet(object.nebiusApiKey)
         ? globalThis.String(object.nebiusApiKey)
         : isSet(object.nebius_api_key)
-        ? globalThis.String(object.nebius_api_key)
-        : undefined,
+          ? globalThis.String(object.nebius_api_key)
+          : undefined,
       asksageApiKey: isSet(object.asksageApiKey)
         ? globalThis.String(object.asksageApiKey)
         : isSet(object.asksage_api_key)
-        ? globalThis.String(object.asksage_api_key)
-        : undefined,
+          ? globalThis.String(object.asksage_api_key)
+          : undefined,
       xaiApiKey: isSet(object.xaiApiKey)
         ? globalThis.String(object.xaiApiKey)
         : isSet(object.xai_api_key)
-        ? globalThis.String(object.xai_api_key)
-        : undefined,
+          ? globalThis.String(object.xai_api_key)
+          : undefined,
       sambanovaApiKey: isSet(object.sambanovaApiKey)
         ? globalThis.String(object.sambanovaApiKey)
         : isSet(object.sambanova_api_key)
-        ? globalThis.String(object.sambanova_api_key)
-        : undefined,
+          ? globalThis.String(object.sambanova_api_key)
+          : undefined,
       cerebrasApiKey: isSet(object.cerebrasApiKey)
         ? globalThis.String(object.cerebrasApiKey)
         : isSet(object.cerebras_api_key)
-        ? globalThis.String(object.cerebras_api_key)
-        : undefined,
+          ? globalThis.String(object.cerebras_api_key)
+          : undefined,
       sapAiCoreClientId: isSet(object.sapAiCoreClientId)
         ? globalThis.String(object.sapAiCoreClientId)
         : isSet(object.sap_ai_core_client_id)
-        ? globalThis.String(object.sap_ai_core_client_id)
-        : undefined,
+          ? globalThis.String(object.sap_ai_core_client_id)
+          : undefined,
       sapAiCoreClientSecret: isSet(object.sapAiCoreClientSecret)
         ? globalThis.String(object.sapAiCoreClientSecret)
         : isSet(object.sap_ai_core_client_secret)
-        ? globalThis.String(object.sap_ai_core_client_secret)
-        : undefined,
+          ? globalThis.String(object.sap_ai_core_client_secret)
+          : undefined,
       moonshotApiKey: isSet(object.moonshotApiKey)
         ? globalThis.String(object.moonshotApiKey)
         : isSet(object.moonshot_api_key)
-        ? globalThis.String(object.moonshot_api_key)
-        : undefined,
+          ? globalThis.String(object.moonshot_api_key)
+          : undefined,
       clineAccountId: isSet(object.clineAccountId)
         ? globalThis.String(object.clineAccountId)
         : isSet(object.cline_account_id)
-        ? globalThis.String(object.cline_account_id)
-        : undefined,
+          ? globalThis.String(object.cline_account_id)
+          : undefined,
       groqApiKey: isSet(object.groqApiKey)
         ? globalThis.String(object.groqApiKey)
         : isSet(object.groq_api_key)
-        ? globalThis.String(object.groq_api_key)
-        : undefined,
+          ? globalThis.String(object.groq_api_key)
+          : undefined,
       huggingFaceApiKey: isSet(object.huggingFaceApiKey)
         ? globalThis.String(object.huggingFaceApiKey)
         : isSet(object.hugging_face_api_key)
-        ? globalThis.String(object.hugging_face_api_key)
-        : undefined,
+          ? globalThis.String(object.hugging_face_api_key)
+          : undefined,
       huaweiCloudMaasApiKey: isSet(object.huaweiCloudMaasApiKey)
         ? globalThis.String(object.huaweiCloudMaasApiKey)
         : isSet(object.huawei_cloud_maas_api_key)
-        ? globalThis.String(object.huawei_cloud_maas_api_key)
-        : undefined,
+          ? globalThis.String(object.huawei_cloud_maas_api_key)
+          : undefined,
       basetenApiKey: isSet(object.basetenApiKey)
         ? globalThis.String(object.basetenApiKey)
         : isSet(object.baseten_api_key)
-        ? globalThis.String(object.baseten_api_key)
-        : undefined,
+          ? globalThis.String(object.baseten_api_key)
+          : undefined,
       zaiApiKey: isSet(object.zaiApiKey)
         ? globalThis.String(object.zaiApiKey)
         : isSet(object.zai_api_key)
-        ? globalThis.String(object.zai_api_key)
-        : undefined,
+          ? globalThis.String(object.zai_api_key)
+          : undefined,
       vercelAiGatewayApiKey: isSet(object.vercelAiGatewayApiKey)
         ? globalThis.String(object.vercelAiGatewayApiKey)
         : isSet(object.vercel_ai_gateway_api_key)
-        ? globalThis.String(object.vercel_ai_gateway_api_key)
-        : undefined,
+          ? globalThis.String(object.vercel_ai_gateway_api_key)
+          : undefined,
       difyApiKey: isSet(object.difyApiKey)
         ? globalThis.String(object.difyApiKey)
         : isSet(object.dify_api_key)
-        ? globalThis.String(object.dify_api_key)
-        : undefined,
+          ? globalThis.String(object.dify_api_key)
+          : undefined,
       ocaApiKey: isSet(object.ocaApiKey)
         ? globalThis.String(object.ocaApiKey)
         : isSet(object.oca_api_key)
-        ? globalThis.String(object.oca_api_key)
-        : undefined,
+          ? globalThis.String(object.oca_api_key)
+          : undefined,
       ocaRefreshToken: isSet(object.ocaRefreshToken)
         ? globalThis.String(object.ocaRefreshToken)
         : isSet(object.oca_refresh_token)
-        ? globalThis.String(object.oca_refresh_token)
-        : undefined,
+          ? globalThis.String(object.oca_refresh_token)
+          : undefined,
       minimaxApiKey: isSet(object.minimaxApiKey)
         ? globalThis.String(object.minimaxApiKey)
         : isSet(object.minimax_api_key)
-        ? globalThis.String(object.minimax_api_key)
-        : undefined,
+          ? globalThis.String(object.minimax_api_key)
+          : undefined,
       aihubmixApiKey: isSet(object.aihubmixApiKey)
         ? globalThis.String(object.aihubmixApiKey)
         : isSet(object.aihubmix_api_key)
-        ? globalThis.String(object.aihubmix_api_key)
-        : undefined,
+          ? globalThis.String(object.aihubmix_api_key)
+          : undefined,
     };
   },
 
@@ -3655,7 +3676,10 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
       writer.uint32(24).bool(message.liteLlmUsePromptCache);
     }
     globalThis.Object.entries(message.openAiHeaders).forEach(([key, value]: [string, string]) => {
-      ModelsApiOptions_OpenAiHeadersEntry.encode({ key: key as any, value }, writer.uint32(34).fork()).join();
+      ModelsApiOptions_OpenAiHeadersEntry.encode(
+        { key: key as any, value },
+        writer.uint32(34).fork(),
+      ).join();
     });
     if (message.anthropicBaseUrl !== undefined) {
       writer.uint32(42).string(message.anthropicBaseUrl);
@@ -3790,7 +3814,10 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
       writer.uint32(826).string(message.planModeReasoningEffort);
     }
     if (message.planModeVsCodeLmModelSelector !== undefined) {
-      LanguageModelChatSelector.encode(message.planModeVsCodeLmModelSelector, writer.uint32(834).fork()).join();
+      LanguageModelChatSelector.encode(
+        message.planModeVsCodeLmModelSelector,
+        writer.uint32(834).fork(),
+      ).join();
     }
     if (message.planModeAwsBedrockCustomSelected !== undefined) {
       writer.uint32(840).bool(message.planModeAwsBedrockCustomSelected);
@@ -3802,13 +3829,19 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
       writer.uint32(858).string(message.planModeOpenRouterModelId);
     }
     if (message.planModeOpenRouterModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.planModeOpenRouterModelInfo, writer.uint32(866).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.planModeOpenRouterModelInfo,
+        writer.uint32(866).fork(),
+      ).join();
     }
     if (message.planModeOpenAiModelId !== undefined) {
       writer.uint32(874).string(message.planModeOpenAiModelId);
     }
     if (message.planModeOpenAiModelInfo !== undefined) {
-      OpenAiCompatibleModelInfo.encode(message.planModeOpenAiModelInfo, writer.uint32(882).fork()).join();
+      OpenAiCompatibleModelInfo.encode(
+        message.planModeOpenAiModelInfo,
+        writer.uint32(882).fork(),
+      ).join();
     }
     if (message.planModeOllamaModelId !== undefined) {
       writer.uint32(890).string(message.planModeOllamaModelId);
@@ -3826,7 +3859,10 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
       writer.uint32(922).string(message.planModeRequestyModelId);
     }
     if (message.planModeRequestyModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.planModeRequestyModelInfo, writer.uint32(930).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.planModeRequestyModelInfo,
+        writer.uint32(930).fork(),
+      ).join();
     }
     if (message.planModeTogetherModelId !== undefined) {
       writer.uint32(938).string(message.planModeTogetherModelId);
@@ -3850,25 +3886,37 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
       writer.uint32(986).string(message.planModeHuggingFaceModelId);
     }
     if (message.planModeHuggingFaceModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.planModeHuggingFaceModelInfo, writer.uint32(994).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.planModeHuggingFaceModelInfo,
+        writer.uint32(994).fork(),
+      ).join();
     }
     if (message.planModeHuaweiCloudMaasModelId !== undefined) {
       writer.uint32(1002).string(message.planModeHuaweiCloudMaasModelId);
     }
     if (message.planModeHuaweiCloudMaasModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.planModeHuaweiCloudMaasModelInfo, writer.uint32(1010).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.planModeHuaweiCloudMaasModelInfo,
+        writer.uint32(1010).fork(),
+      ).join();
     }
     if (message.planModeBasetenModelId !== undefined) {
       writer.uint32(1018).string(message.planModeBasetenModelId);
     }
     if (message.planModeBasetenModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.planModeBasetenModelInfo, writer.uint32(1026).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.planModeBasetenModelInfo,
+        writer.uint32(1026).fork(),
+      ).join();
     }
     if (message.planModeVercelAiGatewayModelId !== undefined) {
       writer.uint32(1034).string(message.planModeVercelAiGatewayModelId);
     }
     if (message.planModeVercelAiGatewayModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.planModeVercelAiGatewayModelInfo, writer.uint32(1042).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.planModeVercelAiGatewayModelInfo,
+        writer.uint32(1042).fork(),
+      ).join();
     }
     if (message.planModeOcaModelId !== undefined) {
       writer.uint32(1050).string(message.planModeOcaModelId);
@@ -3880,7 +3928,10 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
       writer.uint32(1066).string(message.planModeAihubmixModelId);
     }
     if (message.planModeAihubmixModelInfo !== undefined) {
-      OpenAiCompatibleModelInfo.encode(message.planModeAihubmixModelInfo, writer.uint32(1074).fork()).join();
+      OpenAiCompatibleModelInfo.encode(
+        message.planModeAihubmixModelInfo,
+        writer.uint32(1074).fork(),
+      ).join();
     }
     if (message.planModeClineModelId !== undefined) {
       writer.uint32(1082).string(message.planModeClineModelId);
@@ -3901,7 +3952,10 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
       writer.uint32(1626).string(message.actModeReasoningEffort);
     }
     if (message.actModeVsCodeLmModelSelector !== undefined) {
-      LanguageModelChatSelector.encode(message.actModeVsCodeLmModelSelector, writer.uint32(1634).fork()).join();
+      LanguageModelChatSelector.encode(
+        message.actModeVsCodeLmModelSelector,
+        writer.uint32(1634).fork(),
+      ).join();
     }
     if (message.actModeAwsBedrockCustomSelected !== undefined) {
       writer.uint32(1640).bool(message.actModeAwsBedrockCustomSelected);
@@ -3913,13 +3967,19 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
       writer.uint32(1658).string(message.actModeOpenRouterModelId);
     }
     if (message.actModeOpenRouterModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.actModeOpenRouterModelInfo, writer.uint32(1666).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.actModeOpenRouterModelInfo,
+        writer.uint32(1666).fork(),
+      ).join();
     }
     if (message.actModeOpenAiModelId !== undefined) {
       writer.uint32(1674).string(message.actModeOpenAiModelId);
     }
     if (message.actModeOpenAiModelInfo !== undefined) {
-      OpenAiCompatibleModelInfo.encode(message.actModeOpenAiModelInfo, writer.uint32(1682).fork()).join();
+      OpenAiCompatibleModelInfo.encode(
+        message.actModeOpenAiModelInfo,
+        writer.uint32(1682).fork(),
+      ).join();
     }
     if (message.actModeOllamaModelId !== undefined) {
       writer.uint32(1690).string(message.actModeOllamaModelId);
@@ -3937,7 +3997,10 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
       writer.uint32(1722).string(message.actModeRequestyModelId);
     }
     if (message.actModeRequestyModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.actModeRequestyModelInfo, writer.uint32(1730).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.actModeRequestyModelInfo,
+        writer.uint32(1730).fork(),
+      ).join();
     }
     if (message.actModeTogetherModelId !== undefined) {
       writer.uint32(1738).string(message.actModeTogetherModelId);
@@ -3961,25 +4024,37 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
       writer.uint32(1786).string(message.actModeHuggingFaceModelId);
     }
     if (message.actModeHuggingFaceModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.actModeHuggingFaceModelInfo, writer.uint32(1794).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.actModeHuggingFaceModelInfo,
+        writer.uint32(1794).fork(),
+      ).join();
     }
     if (message.actModeHuaweiCloudMaasModelId !== undefined) {
       writer.uint32(1802).string(message.actModeHuaweiCloudMaasModelId);
     }
     if (message.actModeHuaweiCloudMaasModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.actModeHuaweiCloudMaasModelInfo, writer.uint32(1810).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.actModeHuaweiCloudMaasModelInfo,
+        writer.uint32(1810).fork(),
+      ).join();
     }
     if (message.actModeBasetenModelId !== undefined) {
       writer.uint32(1818).string(message.actModeBasetenModelId);
     }
     if (message.actModeBasetenModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.actModeBasetenModelInfo, writer.uint32(1826).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.actModeBasetenModelInfo,
+        writer.uint32(1826).fork(),
+      ).join();
     }
     if (message.actModeVercelAiGatewayModelId !== undefined) {
       writer.uint32(1834).string(message.actModeVercelAiGatewayModelId);
     }
     if (message.actModeVercelAiGatewayModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.actModeVercelAiGatewayModelInfo, writer.uint32(1842).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.actModeVercelAiGatewayModelInfo,
+        writer.uint32(1842).fork(),
+      ).join();
     }
     if (message.actModeOcaModelId !== undefined) {
       writer.uint32(1850).string(message.actModeOcaModelId);
@@ -3991,7 +4066,10 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
       writer.uint32(1866).string(message.actModeAihubmixModelId);
     }
     if (message.actModeAihubmixModelInfo !== undefined) {
-      OpenAiCompatibleModelInfo.encode(message.actModeAihubmixModelInfo, writer.uint32(1874).fork()).join();
+      OpenAiCompatibleModelInfo.encode(
+        message.actModeAihubmixModelInfo,
+        writer.uint32(1874).fork(),
+      ).join();
     }
     if (message.actModeClineModelId !== undefined) {
       writer.uint32(1882).string(message.actModeClineModelId);
@@ -4401,7 +4479,10 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
             break;
           }
 
-          message.planModeVsCodeLmModelSelector = LanguageModelChatSelector.decode(reader, reader.uint32());
+          message.planModeVsCodeLmModelSelector = LanguageModelChatSelector.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 105: {
@@ -4449,7 +4530,10 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
             break;
           }
 
-          message.planModeOpenAiModelInfo = OpenAiCompatibleModelInfo.decode(reader, reader.uint32());
+          message.planModeOpenAiModelInfo = OpenAiCompatibleModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 111: {
@@ -4561,7 +4645,10 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
             break;
           }
 
-          message.planModeHuggingFaceModelInfo = OpenRouterModelInfo.decode(reader, reader.uint32());
+          message.planModeHuggingFaceModelInfo = OpenRouterModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 125: {
@@ -4577,7 +4664,10 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
             break;
           }
 
-          message.planModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.decode(reader, reader.uint32());
+          message.planModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 127: {
@@ -4609,7 +4699,10 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
             break;
           }
 
-          message.planModeVercelAiGatewayModelInfo = OpenRouterModelInfo.decode(reader, reader.uint32());
+          message.planModeVercelAiGatewayModelInfo = OpenRouterModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 131: {
@@ -4641,7 +4734,10 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
             break;
           }
 
-          message.planModeAihubmixModelInfo = OpenAiCompatibleModelInfo.decode(reader, reader.uint32());
+          message.planModeAihubmixModelInfo = OpenAiCompatibleModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 135: {
@@ -4697,7 +4793,10 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
             break;
           }
 
-          message.actModeVsCodeLmModelSelector = LanguageModelChatSelector.decode(reader, reader.uint32());
+          message.actModeVsCodeLmModelSelector = LanguageModelChatSelector.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 205: {
@@ -4745,7 +4844,10 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
             break;
           }
 
-          message.actModeOpenAiModelInfo = OpenAiCompatibleModelInfo.decode(reader, reader.uint32());
+          message.actModeOpenAiModelInfo = OpenAiCompatibleModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 211: {
@@ -4873,7 +4975,10 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
             break;
           }
 
-          message.actModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.decode(reader, reader.uint32());
+          message.actModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 227: {
@@ -4905,7 +5010,10 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
             break;
           }
 
-          message.actModeVercelAiGatewayModelInfo = OpenRouterModelInfo.decode(reader, reader.uint32());
+          message.actModeVercelAiGatewayModelInfo = OpenRouterModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 231: {
@@ -4937,7 +5045,10 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
             break;
           }
 
-          message.actModeAihubmixModelInfo = OpenAiCompatibleModelInfo.decode(reader, reader.uint32());
+          message.actModeAihubmixModelInfo = OpenAiCompatibleModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 235: {
@@ -4971,600 +5082,600 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
       liteLlmBaseUrl: isSet(object.liteLlmBaseUrl)
         ? globalThis.String(object.liteLlmBaseUrl)
         : isSet(object.lite_llm_base_url)
-        ? globalThis.String(object.lite_llm_base_url)
-        : undefined,
+          ? globalThis.String(object.lite_llm_base_url)
+          : undefined,
       liteLlmUsePromptCache: isSet(object.liteLlmUsePromptCache)
         ? globalThis.Boolean(object.liteLlmUsePromptCache)
         : isSet(object.lite_llm_use_prompt_cache)
-        ? globalThis.Boolean(object.lite_llm_use_prompt_cache)
-        : undefined,
+          ? globalThis.Boolean(object.lite_llm_use_prompt_cache)
+          : undefined,
       openAiHeaders: isObject(object.openAiHeaders)
         ? (globalThis.Object.entries(object.openAiHeaders) as [string, any][]).reduce(
-          (acc: { [key: string]: string }, [key, value]: [string, any]) => {
-            acc[key] = globalThis.String(value);
-            return acc;
-          },
-          {},
-        )
+            (acc: { [key: string]: string }, [key, value]: [string, any]) => {
+              acc[key] = globalThis.String(value);
+              return acc;
+            },
+            {},
+          )
         : isObject(object.open_ai_headers)
-        ? (globalThis.Object.entries(object.open_ai_headers) as [string, any][]).reduce(
-          (acc: { [key: string]: string }, [key, value]: [string, any]) => {
-            acc[key] = globalThis.String(value);
-            return acc;
-          },
-          {},
-        )
-        : {},
+          ? (globalThis.Object.entries(object.open_ai_headers) as [string, any][]).reduce(
+              (acc: { [key: string]: string }, [key, value]: [string, any]) => {
+                acc[key] = globalThis.String(value);
+                return acc;
+              },
+              {},
+            )
+          : {},
       anthropicBaseUrl: isSet(object.anthropicBaseUrl)
         ? globalThis.String(object.anthropicBaseUrl)
         : isSet(object.anthropic_base_url)
-        ? globalThis.String(object.anthropic_base_url)
-        : undefined,
+          ? globalThis.String(object.anthropic_base_url)
+          : undefined,
       openRouterProviderSorting: isSet(object.openRouterProviderSorting)
         ? globalThis.String(object.openRouterProviderSorting)
         : isSet(object.open_router_provider_sorting)
-        ? globalThis.String(object.open_router_provider_sorting)
-        : undefined,
+          ? globalThis.String(object.open_router_provider_sorting)
+          : undefined,
       awsRegion: isSet(object.awsRegion)
         ? globalThis.String(object.awsRegion)
         : isSet(object.aws_region)
-        ? globalThis.String(object.aws_region)
-        : undefined,
+          ? globalThis.String(object.aws_region)
+          : undefined,
       awsUseCrossRegionInference: isSet(object.awsUseCrossRegionInference)
         ? globalThis.Boolean(object.awsUseCrossRegionInference)
         : isSet(object.aws_use_cross_region_inference)
-        ? globalThis.Boolean(object.aws_use_cross_region_inference)
-        : undefined,
+          ? globalThis.Boolean(object.aws_use_cross_region_inference)
+          : undefined,
       awsBedrockUsePromptCache: isSet(object.awsBedrockUsePromptCache)
         ? globalThis.Boolean(object.awsBedrockUsePromptCache)
         : isSet(object.aws_bedrock_use_prompt_cache)
-        ? globalThis.Boolean(object.aws_bedrock_use_prompt_cache)
-        : undefined,
+          ? globalThis.Boolean(object.aws_bedrock_use_prompt_cache)
+          : undefined,
       awsUseProfile: isSet(object.awsUseProfile)
         ? globalThis.Boolean(object.awsUseProfile)
         : isSet(object.aws_use_profile)
-        ? globalThis.Boolean(object.aws_use_profile)
-        : undefined,
+          ? globalThis.Boolean(object.aws_use_profile)
+          : undefined,
       awsProfile: isSet(object.awsProfile)
         ? globalThis.String(object.awsProfile)
         : isSet(object.aws_profile)
-        ? globalThis.String(object.aws_profile)
-        : undefined,
+          ? globalThis.String(object.aws_profile)
+          : undefined,
       awsBedrockEndpoint: isSet(object.awsBedrockEndpoint)
         ? globalThis.String(object.awsBedrockEndpoint)
         : isSet(object.aws_bedrock_endpoint)
-        ? globalThis.String(object.aws_bedrock_endpoint)
-        : undefined,
+          ? globalThis.String(object.aws_bedrock_endpoint)
+          : undefined,
       claudeCodePath: isSet(object.claudeCodePath)
         ? globalThis.String(object.claudeCodePath)
         : isSet(object.claude_code_path)
-        ? globalThis.String(object.claude_code_path)
-        : undefined,
+          ? globalThis.String(object.claude_code_path)
+          : undefined,
       vertexProjectId: isSet(object.vertexProjectId)
         ? globalThis.String(object.vertexProjectId)
         : isSet(object.vertex_project_id)
-        ? globalThis.String(object.vertex_project_id)
-        : undefined,
+          ? globalThis.String(object.vertex_project_id)
+          : undefined,
       vertexRegion: isSet(object.vertexRegion)
         ? globalThis.String(object.vertexRegion)
         : isSet(object.vertex_region)
-        ? globalThis.String(object.vertex_region)
-        : undefined,
+          ? globalThis.String(object.vertex_region)
+          : undefined,
       openAiBaseUrl: isSet(object.openAiBaseUrl)
         ? globalThis.String(object.openAiBaseUrl)
         : isSet(object.open_ai_base_url)
-        ? globalThis.String(object.open_ai_base_url)
-        : undefined,
+          ? globalThis.String(object.open_ai_base_url)
+          : undefined,
       ollamaBaseUrl: isSet(object.ollamaBaseUrl)
         ? globalThis.String(object.ollamaBaseUrl)
         : isSet(object.ollama_base_url)
-        ? globalThis.String(object.ollama_base_url)
-        : undefined,
+          ? globalThis.String(object.ollama_base_url)
+          : undefined,
       ollamaApiOptionsCtxNum: isSet(object.ollamaApiOptionsCtxNum)
         ? globalThis.String(object.ollamaApiOptionsCtxNum)
         : isSet(object.ollama_api_options_ctx_num)
-        ? globalThis.String(object.ollama_api_options_ctx_num)
-        : undefined,
+          ? globalThis.String(object.ollama_api_options_ctx_num)
+          : undefined,
       lmStudioBaseUrl: isSet(object.lmStudioBaseUrl)
         ? globalThis.String(object.lmStudioBaseUrl)
         : isSet(object.lm_studio_base_url)
-        ? globalThis.String(object.lm_studio_base_url)
-        : undefined,
+          ? globalThis.String(object.lm_studio_base_url)
+          : undefined,
       geminiBaseUrl: isSet(object.geminiBaseUrl)
         ? globalThis.String(object.geminiBaseUrl)
         : isSet(object.gemini_base_url)
-        ? globalThis.String(object.gemini_base_url)
-        : undefined,
+          ? globalThis.String(object.gemini_base_url)
+          : undefined,
       requestyBaseUrl: isSet(object.requestyBaseUrl)
         ? globalThis.String(object.requestyBaseUrl)
         : isSet(object.requesty_base_url)
-        ? globalThis.String(object.requesty_base_url)
-        : undefined,
+          ? globalThis.String(object.requesty_base_url)
+          : undefined,
       fireworksModelMaxCompletionTokens: isSet(object.fireworksModelMaxCompletionTokens)
         ? globalThis.Number(object.fireworksModelMaxCompletionTokens)
         : isSet(object.fireworks_model_max_completion_tokens)
-        ? globalThis.Number(object.fireworks_model_max_completion_tokens)
-        : undefined,
+          ? globalThis.Number(object.fireworks_model_max_completion_tokens)
+          : undefined,
       fireworksModelMaxTokens: isSet(object.fireworksModelMaxTokens)
         ? globalThis.Number(object.fireworksModelMaxTokens)
         : isSet(object.fireworks_model_max_tokens)
-        ? globalThis.Number(object.fireworks_model_max_tokens)
-        : undefined,
+          ? globalThis.Number(object.fireworks_model_max_tokens)
+          : undefined,
       azureApiVersion: isSet(object.azureApiVersion)
         ? globalThis.String(object.azureApiVersion)
         : isSet(object.azure_api_version)
-        ? globalThis.String(object.azure_api_version)
-        : undefined,
+          ? globalThis.String(object.azure_api_version)
+          : undefined,
       qwenApiLine: isSet(object.qwenApiLine)
         ? globalThis.String(object.qwenApiLine)
         : isSet(object.qwen_api_line)
-        ? globalThis.String(object.qwen_api_line)
-        : undefined,
+          ? globalThis.String(object.qwen_api_line)
+          : undefined,
       asksageApiUrl: isSet(object.asksageApiUrl)
         ? globalThis.String(object.asksageApiUrl)
         : isSet(object.asksage_api_url)
-        ? globalThis.String(object.asksage_api_url)
-        : undefined,
+          ? globalThis.String(object.asksage_api_url)
+          : undefined,
       requestTimeoutMs: isSet(object.requestTimeoutMs)
         ? globalThis.Number(object.requestTimeoutMs)
         : isSet(object.request_timeout_ms)
-        ? globalThis.Number(object.request_timeout_ms)
-        : undefined,
+          ? globalThis.Number(object.request_timeout_ms)
+          : undefined,
       sapAiResourceGroup: isSet(object.sapAiResourceGroup)
         ? globalThis.String(object.sapAiResourceGroup)
         : isSet(object.sap_ai_resource_group)
-        ? globalThis.String(object.sap_ai_resource_group)
-        : undefined,
+          ? globalThis.String(object.sap_ai_resource_group)
+          : undefined,
       sapAiCoreTokenUrl: isSet(object.sapAiCoreTokenUrl)
         ? globalThis.String(object.sapAiCoreTokenUrl)
         : isSet(object.sap_ai_core_token_url)
-        ? globalThis.String(object.sap_ai_core_token_url)
-        : undefined,
+          ? globalThis.String(object.sap_ai_core_token_url)
+          : undefined,
       sapAiCoreBaseUrl: isSet(object.sapAiCoreBaseUrl)
         ? globalThis.String(object.sapAiCoreBaseUrl)
         : isSet(object.sap_ai_core_base_url)
-        ? globalThis.String(object.sap_ai_core_base_url)
-        : undefined,
+          ? globalThis.String(object.sap_ai_core_base_url)
+          : undefined,
       sapAiCoreUseOrchestrationMode: isSet(object.sapAiCoreUseOrchestrationMode)
         ? globalThis.Boolean(object.sapAiCoreUseOrchestrationMode)
         : isSet(object.sap_ai_core_use_orchestration_mode)
-        ? globalThis.Boolean(object.sap_ai_core_use_orchestration_mode)
-        : undefined,
+          ? globalThis.Boolean(object.sap_ai_core_use_orchestration_mode)
+          : undefined,
       moonshotApiLine: isSet(object.moonshotApiLine)
         ? globalThis.String(object.moonshotApiLine)
         : isSet(object.moonshot_api_line)
-        ? globalThis.String(object.moonshot_api_line)
-        : undefined,
+          ? globalThis.String(object.moonshot_api_line)
+          : undefined,
       awsAuthentication: isSet(object.awsAuthentication)
         ? globalThis.String(object.awsAuthentication)
         : isSet(object.aws_authentication)
-        ? globalThis.String(object.aws_authentication)
-        : undefined,
+          ? globalThis.String(object.aws_authentication)
+          : undefined,
       zaiApiLine: isSet(object.zaiApiLine)
         ? globalThis.String(object.zaiApiLine)
         : isSet(object.zai_api_line)
-        ? globalThis.String(object.zai_api_line)
-        : undefined,
+          ? globalThis.String(object.zai_api_line)
+          : undefined,
       lmStudioMaxTokens: isSet(object.lmStudioMaxTokens)
         ? globalThis.String(object.lmStudioMaxTokens)
         : isSet(object.lm_studio_max_tokens)
-        ? globalThis.String(object.lm_studio_max_tokens)
-        : undefined,
+          ? globalThis.String(object.lm_studio_max_tokens)
+          : undefined,
       qwenCodeOauthPath: isSet(object.qwenCodeOauthPath)
         ? globalThis.String(object.qwenCodeOauthPath)
         : isSet(object.qwen_code_oauth_path)
-        ? globalThis.String(object.qwen_code_oauth_path)
-        : undefined,
+          ? globalThis.String(object.qwen_code_oauth_path)
+          : undefined,
       difyBaseUrl: isSet(object.difyBaseUrl)
         ? globalThis.String(object.difyBaseUrl)
         : isSet(object.dify_base_url)
-        ? globalThis.String(object.dify_base_url)
-        : undefined,
+          ? globalThis.String(object.dify_base_url)
+          : undefined,
       ocaBaseUrl: isSet(object.ocaBaseUrl)
         ? globalThis.String(object.ocaBaseUrl)
         : isSet(object.oca_base_url)
-        ? globalThis.String(object.oca_base_url)
-        : undefined,
+          ? globalThis.String(object.oca_base_url)
+          : undefined,
       ocaMode: isSet(object.ocaMode)
         ? globalThis.String(object.ocaMode)
         : isSet(object.oca_mode)
-        ? globalThis.String(object.oca_mode)
-        : undefined,
+          ? globalThis.String(object.oca_mode)
+          : undefined,
       awsUseGlobalInference: isSet(object.awsUseGlobalInference)
         ? globalThis.Boolean(object.awsUseGlobalInference)
         : isSet(object.aws_use_global_inference)
-        ? globalThis.Boolean(object.aws_use_global_inference)
-        : undefined,
+          ? globalThis.Boolean(object.aws_use_global_inference)
+          : undefined,
       minimaxApiLine: isSet(object.minimaxApiLine)
         ? globalThis.String(object.minimaxApiLine)
         : isSet(object.minimax_api_line)
-        ? globalThis.String(object.minimax_api_line)
-        : undefined,
+          ? globalThis.String(object.minimax_api_line)
+          : undefined,
       aihubmixBaseUrl: isSet(object.aihubmixBaseUrl)
         ? globalThis.String(object.aihubmixBaseUrl)
         : isSet(object.aihubmix_base_url)
-        ? globalThis.String(object.aihubmix_base_url)
-        : undefined,
+          ? globalThis.String(object.aihubmix_base_url)
+          : undefined,
       aihubmixAppCode: isSet(object.aihubmixAppCode)
         ? globalThis.String(object.aihubmixAppCode)
         : isSet(object.aihubmix_app_code)
-        ? globalThis.String(object.aihubmix_app_code)
-        : undefined,
+          ? globalThis.String(object.aihubmix_app_code)
+          : undefined,
       azureIdentity: isSet(object.azureIdentity)
         ? globalThis.Boolean(object.azureIdentity)
         : isSet(object.azure_identity)
-        ? globalThis.Boolean(object.azure_identity)
-        : undefined,
+          ? globalThis.Boolean(object.azure_identity)
+          : undefined,
       planModeApiProvider: isSet(object.planModeApiProvider)
         ? apiProviderFromJSON(object.planModeApiProvider)
         : isSet(object.plan_mode_api_provider)
-        ? apiProviderFromJSON(object.plan_mode_api_provider)
-        : undefined,
+          ? apiProviderFromJSON(object.plan_mode_api_provider)
+          : undefined,
       planModeApiModelId: isSet(object.planModeApiModelId)
         ? globalThis.String(object.planModeApiModelId)
         : isSet(object.plan_mode_api_model_id)
-        ? globalThis.String(object.plan_mode_api_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_api_model_id)
+          : undefined,
       planModeThinkingBudgetTokens: isSet(object.planModeThinkingBudgetTokens)
         ? globalThis.Number(object.planModeThinkingBudgetTokens)
         : isSet(object.plan_mode_thinking_budget_tokens)
-        ? globalThis.Number(object.plan_mode_thinking_budget_tokens)
-        : undefined,
+          ? globalThis.Number(object.plan_mode_thinking_budget_tokens)
+          : undefined,
       planModeReasoningEffort: isSet(object.planModeReasoningEffort)
         ? globalThis.String(object.planModeReasoningEffort)
         : isSet(object.plan_mode_reasoning_effort)
-        ? globalThis.String(object.plan_mode_reasoning_effort)
-        : undefined,
+          ? globalThis.String(object.plan_mode_reasoning_effort)
+          : undefined,
       planModeVsCodeLmModelSelector: isSet(object.planModeVsCodeLmModelSelector)
         ? LanguageModelChatSelector.fromJSON(object.planModeVsCodeLmModelSelector)
         : isSet(object.plan_mode_vs_code_lm_model_selector)
-        ? LanguageModelChatSelector.fromJSON(object.plan_mode_vs_code_lm_model_selector)
-        : undefined,
+          ? LanguageModelChatSelector.fromJSON(object.plan_mode_vs_code_lm_model_selector)
+          : undefined,
       planModeAwsBedrockCustomSelected: isSet(object.planModeAwsBedrockCustomSelected)
         ? globalThis.Boolean(object.planModeAwsBedrockCustomSelected)
         : isSet(object.plan_mode_aws_bedrock_custom_selected)
-        ? globalThis.Boolean(object.plan_mode_aws_bedrock_custom_selected)
-        : undefined,
+          ? globalThis.Boolean(object.plan_mode_aws_bedrock_custom_selected)
+          : undefined,
       planModeAwsBedrockCustomModelBaseId: isSet(object.planModeAwsBedrockCustomModelBaseId)
         ? globalThis.String(object.planModeAwsBedrockCustomModelBaseId)
         : isSet(object.plan_mode_aws_bedrock_custom_model_base_id)
-        ? globalThis.String(object.plan_mode_aws_bedrock_custom_model_base_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_aws_bedrock_custom_model_base_id)
+          : undefined,
       planModeOpenRouterModelId: isSet(object.planModeOpenRouterModelId)
         ? globalThis.String(object.planModeOpenRouterModelId)
         : isSet(object.plan_mode_open_router_model_id)
-        ? globalThis.String(object.plan_mode_open_router_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_open_router_model_id)
+          : undefined,
       planModeOpenRouterModelInfo: isSet(object.planModeOpenRouterModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeOpenRouterModelInfo)
         : isSet(object.plan_mode_open_router_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_open_router_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_open_router_model_info)
+          : undefined,
       planModeOpenAiModelId: isSet(object.planModeOpenAiModelId)
         ? globalThis.String(object.planModeOpenAiModelId)
         : isSet(object.plan_mode_open_ai_model_id)
-        ? globalThis.String(object.plan_mode_open_ai_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_open_ai_model_id)
+          : undefined,
       planModeOpenAiModelInfo: isSet(object.planModeOpenAiModelInfo)
         ? OpenAiCompatibleModelInfo.fromJSON(object.planModeOpenAiModelInfo)
         : isSet(object.plan_mode_open_ai_model_info)
-        ? OpenAiCompatibleModelInfo.fromJSON(object.plan_mode_open_ai_model_info)
-        : undefined,
+          ? OpenAiCompatibleModelInfo.fromJSON(object.plan_mode_open_ai_model_info)
+          : undefined,
       planModeOllamaModelId: isSet(object.planModeOllamaModelId)
         ? globalThis.String(object.planModeOllamaModelId)
         : isSet(object.plan_mode_ollama_model_id)
-        ? globalThis.String(object.plan_mode_ollama_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_ollama_model_id)
+          : undefined,
       planModeLmStudioModelId: isSet(object.planModeLmStudioModelId)
         ? globalThis.String(object.planModeLmStudioModelId)
         : isSet(object.plan_mode_lm_studio_model_id)
-        ? globalThis.String(object.plan_mode_lm_studio_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_lm_studio_model_id)
+          : undefined,
       planModeLiteLlmModelId: isSet(object.planModeLiteLlmModelId)
         ? globalThis.String(object.planModeLiteLlmModelId)
         : isSet(object.plan_mode_lite_llm_model_id)
-        ? globalThis.String(object.plan_mode_lite_llm_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_lite_llm_model_id)
+          : undefined,
       planModeLiteLlmModelInfo: isSet(object.planModeLiteLlmModelInfo)
         ? LiteLLMModelInfo.fromJSON(object.planModeLiteLlmModelInfo)
         : isSet(object.plan_mode_lite_llm_model_info)
-        ? LiteLLMModelInfo.fromJSON(object.plan_mode_lite_llm_model_info)
-        : undefined,
+          ? LiteLLMModelInfo.fromJSON(object.plan_mode_lite_llm_model_info)
+          : undefined,
       planModeRequestyModelId: isSet(object.planModeRequestyModelId)
         ? globalThis.String(object.planModeRequestyModelId)
         : isSet(object.plan_mode_requesty_model_id)
-        ? globalThis.String(object.plan_mode_requesty_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_requesty_model_id)
+          : undefined,
       planModeRequestyModelInfo: isSet(object.planModeRequestyModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeRequestyModelInfo)
         : isSet(object.plan_mode_requesty_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_requesty_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_requesty_model_info)
+          : undefined,
       planModeTogetherModelId: isSet(object.planModeTogetherModelId)
         ? globalThis.String(object.planModeTogetherModelId)
         : isSet(object.plan_mode_together_model_id)
-        ? globalThis.String(object.plan_mode_together_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_together_model_id)
+          : undefined,
       planModeFireworksModelId: isSet(object.planModeFireworksModelId)
         ? globalThis.String(object.planModeFireworksModelId)
         : isSet(object.plan_mode_fireworks_model_id)
-        ? globalThis.String(object.plan_mode_fireworks_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_fireworks_model_id)
+          : undefined,
       planModeSapAiCoreModelId: isSet(object.planModeSapAiCoreModelId)
         ? globalThis.String(object.planModeSapAiCoreModelId)
         : isSet(object.plan_mode_sap_ai_core_model_id)
-        ? globalThis.String(object.plan_mode_sap_ai_core_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_sap_ai_core_model_id)
+          : undefined,
       planModeSapAiCoreDeploymentId: isSet(object.planModeSapAiCoreDeploymentId)
         ? globalThis.String(object.planModeSapAiCoreDeploymentId)
         : isSet(object.plan_mode_sap_ai_core_deployment_id)
-        ? globalThis.String(object.plan_mode_sap_ai_core_deployment_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_sap_ai_core_deployment_id)
+          : undefined,
       planModeGroqModelId: isSet(object.planModeGroqModelId)
         ? globalThis.String(object.planModeGroqModelId)
         : isSet(object.plan_mode_groq_model_id)
-        ? globalThis.String(object.plan_mode_groq_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_groq_model_id)
+          : undefined,
       planModeGroqModelInfo: isSet(object.planModeGroqModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeGroqModelInfo)
         : isSet(object.plan_mode_groq_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_groq_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_groq_model_info)
+          : undefined,
       planModeHuggingFaceModelId: isSet(object.planModeHuggingFaceModelId)
         ? globalThis.String(object.planModeHuggingFaceModelId)
         : isSet(object.plan_mode_hugging_face_model_id)
-        ? globalThis.String(object.plan_mode_hugging_face_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_hugging_face_model_id)
+          : undefined,
       planModeHuggingFaceModelInfo: isSet(object.planModeHuggingFaceModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeHuggingFaceModelInfo)
         : isSet(object.plan_mode_hugging_face_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_hugging_face_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_hugging_face_model_info)
+          : undefined,
       planModeHuaweiCloudMaasModelId: isSet(object.planModeHuaweiCloudMaasModelId)
         ? globalThis.String(object.planModeHuaweiCloudMaasModelId)
         : isSet(object.plan_mode_huawei_cloud_maas_model_id)
-        ? globalThis.String(object.plan_mode_huawei_cloud_maas_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_huawei_cloud_maas_model_id)
+          : undefined,
       planModeHuaweiCloudMaasModelInfo: isSet(object.planModeHuaweiCloudMaasModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeHuaweiCloudMaasModelInfo)
         : isSet(object.plan_mode_huawei_cloud_maas_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_huawei_cloud_maas_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_huawei_cloud_maas_model_info)
+          : undefined,
       planModeBasetenModelId: isSet(object.planModeBasetenModelId)
         ? globalThis.String(object.planModeBasetenModelId)
         : isSet(object.plan_mode_baseten_model_id)
-        ? globalThis.String(object.plan_mode_baseten_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_baseten_model_id)
+          : undefined,
       planModeBasetenModelInfo: isSet(object.planModeBasetenModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeBasetenModelInfo)
         : isSet(object.plan_mode_baseten_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_baseten_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_baseten_model_info)
+          : undefined,
       planModeVercelAiGatewayModelId: isSet(object.planModeVercelAiGatewayModelId)
         ? globalThis.String(object.planModeVercelAiGatewayModelId)
         : isSet(object.plan_mode_vercel_ai_gateway_model_id)
-        ? globalThis.String(object.plan_mode_vercel_ai_gateway_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_vercel_ai_gateway_model_id)
+          : undefined,
       planModeVercelAiGatewayModelInfo: isSet(object.planModeVercelAiGatewayModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeVercelAiGatewayModelInfo)
         : isSet(object.plan_mode_vercel_ai_gateway_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_vercel_ai_gateway_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_vercel_ai_gateway_model_info)
+          : undefined,
       planModeOcaModelId: isSet(object.planModeOcaModelId)
         ? globalThis.String(object.planModeOcaModelId)
         : isSet(object.plan_mode_oca_model_id)
-        ? globalThis.String(object.plan_mode_oca_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_oca_model_id)
+          : undefined,
       planModeOcaModelInfo: isSet(object.planModeOcaModelInfo)
         ? OcaModelInfo.fromJSON(object.planModeOcaModelInfo)
         : isSet(object.plan_mode_oca_model_info)
-        ? OcaModelInfo.fromJSON(object.plan_mode_oca_model_info)
-        : undefined,
+          ? OcaModelInfo.fromJSON(object.plan_mode_oca_model_info)
+          : undefined,
       planModeAihubmixModelId: isSet(object.planModeAihubmixModelId)
         ? globalThis.String(object.planModeAihubmixModelId)
         : isSet(object.plan_mode_aihubmix_model_id)
-        ? globalThis.String(object.plan_mode_aihubmix_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_aihubmix_model_id)
+          : undefined,
       planModeAihubmixModelInfo: isSet(object.planModeAihubmixModelInfo)
         ? OpenAiCompatibleModelInfo.fromJSON(object.planModeAihubmixModelInfo)
         : isSet(object.plan_mode_aihubmix_model_info)
-        ? OpenAiCompatibleModelInfo.fromJSON(object.plan_mode_aihubmix_model_info)
-        : undefined,
+          ? OpenAiCompatibleModelInfo.fromJSON(object.plan_mode_aihubmix_model_info)
+          : undefined,
       planModeClineModelId: isSet(object.planModeClineModelId)
         ? globalThis.String(object.planModeClineModelId)
         : isSet(object.plan_mode_cline_model_id)
-        ? globalThis.String(object.plan_mode_cline_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_cline_model_id)
+          : undefined,
       planModeClineModelInfo: isSet(object.planModeClineModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeClineModelInfo)
         : isSet(object.plan_mode_cline_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_cline_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_cline_model_info)
+          : undefined,
       actModeApiProvider: isSet(object.actModeApiProvider)
         ? apiProviderFromJSON(object.actModeApiProvider)
         : isSet(object.act_mode_api_provider)
-        ? apiProviderFromJSON(object.act_mode_api_provider)
-        : undefined,
+          ? apiProviderFromJSON(object.act_mode_api_provider)
+          : undefined,
       actModeApiModelId: isSet(object.actModeApiModelId)
         ? globalThis.String(object.actModeApiModelId)
         : isSet(object.act_mode_api_model_id)
-        ? globalThis.String(object.act_mode_api_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_api_model_id)
+          : undefined,
       actModeThinkingBudgetTokens: isSet(object.actModeThinkingBudgetTokens)
         ? globalThis.Number(object.actModeThinkingBudgetTokens)
         : isSet(object.act_mode_thinking_budget_tokens)
-        ? globalThis.Number(object.act_mode_thinking_budget_tokens)
-        : undefined,
+          ? globalThis.Number(object.act_mode_thinking_budget_tokens)
+          : undefined,
       actModeReasoningEffort: isSet(object.actModeReasoningEffort)
         ? globalThis.String(object.actModeReasoningEffort)
         : isSet(object.act_mode_reasoning_effort)
-        ? globalThis.String(object.act_mode_reasoning_effort)
-        : undefined,
+          ? globalThis.String(object.act_mode_reasoning_effort)
+          : undefined,
       actModeVsCodeLmModelSelector: isSet(object.actModeVsCodeLmModelSelector)
         ? LanguageModelChatSelector.fromJSON(object.actModeVsCodeLmModelSelector)
         : isSet(object.act_mode_vs_code_lm_model_selector)
-        ? LanguageModelChatSelector.fromJSON(object.act_mode_vs_code_lm_model_selector)
-        : undefined,
+          ? LanguageModelChatSelector.fromJSON(object.act_mode_vs_code_lm_model_selector)
+          : undefined,
       actModeAwsBedrockCustomSelected: isSet(object.actModeAwsBedrockCustomSelected)
         ? globalThis.Boolean(object.actModeAwsBedrockCustomSelected)
         : isSet(object.act_mode_aws_bedrock_custom_selected)
-        ? globalThis.Boolean(object.act_mode_aws_bedrock_custom_selected)
-        : undefined,
+          ? globalThis.Boolean(object.act_mode_aws_bedrock_custom_selected)
+          : undefined,
       actModeAwsBedrockCustomModelBaseId: isSet(object.actModeAwsBedrockCustomModelBaseId)
         ? globalThis.String(object.actModeAwsBedrockCustomModelBaseId)
         : isSet(object.act_mode_aws_bedrock_custom_model_base_id)
-        ? globalThis.String(object.act_mode_aws_bedrock_custom_model_base_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_aws_bedrock_custom_model_base_id)
+          : undefined,
       actModeOpenRouterModelId: isSet(object.actModeOpenRouterModelId)
         ? globalThis.String(object.actModeOpenRouterModelId)
         : isSet(object.act_mode_open_router_model_id)
-        ? globalThis.String(object.act_mode_open_router_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_open_router_model_id)
+          : undefined,
       actModeOpenRouterModelInfo: isSet(object.actModeOpenRouterModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeOpenRouterModelInfo)
         : isSet(object.act_mode_open_router_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_open_router_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_open_router_model_info)
+          : undefined,
       actModeOpenAiModelId: isSet(object.actModeOpenAiModelId)
         ? globalThis.String(object.actModeOpenAiModelId)
         : isSet(object.act_mode_open_ai_model_id)
-        ? globalThis.String(object.act_mode_open_ai_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_open_ai_model_id)
+          : undefined,
       actModeOpenAiModelInfo: isSet(object.actModeOpenAiModelInfo)
         ? OpenAiCompatibleModelInfo.fromJSON(object.actModeOpenAiModelInfo)
         : isSet(object.act_mode_open_ai_model_info)
-        ? OpenAiCompatibleModelInfo.fromJSON(object.act_mode_open_ai_model_info)
-        : undefined,
+          ? OpenAiCompatibleModelInfo.fromJSON(object.act_mode_open_ai_model_info)
+          : undefined,
       actModeOllamaModelId: isSet(object.actModeOllamaModelId)
         ? globalThis.String(object.actModeOllamaModelId)
         : isSet(object.act_mode_ollama_model_id)
-        ? globalThis.String(object.act_mode_ollama_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_ollama_model_id)
+          : undefined,
       actModeLmStudioModelId: isSet(object.actModeLmStudioModelId)
         ? globalThis.String(object.actModeLmStudioModelId)
         : isSet(object.act_mode_lm_studio_model_id)
-        ? globalThis.String(object.act_mode_lm_studio_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_lm_studio_model_id)
+          : undefined,
       actModeLiteLlmModelId: isSet(object.actModeLiteLlmModelId)
         ? globalThis.String(object.actModeLiteLlmModelId)
         : isSet(object.act_mode_lite_llm_model_id)
-        ? globalThis.String(object.act_mode_lite_llm_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_lite_llm_model_id)
+          : undefined,
       actModeLiteLlmModelInfo: isSet(object.actModeLiteLlmModelInfo)
         ? LiteLLMModelInfo.fromJSON(object.actModeLiteLlmModelInfo)
         : isSet(object.act_mode_lite_llm_model_info)
-        ? LiteLLMModelInfo.fromJSON(object.act_mode_lite_llm_model_info)
-        : undefined,
+          ? LiteLLMModelInfo.fromJSON(object.act_mode_lite_llm_model_info)
+          : undefined,
       actModeRequestyModelId: isSet(object.actModeRequestyModelId)
         ? globalThis.String(object.actModeRequestyModelId)
         : isSet(object.act_mode_requesty_model_id)
-        ? globalThis.String(object.act_mode_requesty_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_requesty_model_id)
+          : undefined,
       actModeRequestyModelInfo: isSet(object.actModeRequestyModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeRequestyModelInfo)
         : isSet(object.act_mode_requesty_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_requesty_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_requesty_model_info)
+          : undefined,
       actModeTogetherModelId: isSet(object.actModeTogetherModelId)
         ? globalThis.String(object.actModeTogetherModelId)
         : isSet(object.act_mode_together_model_id)
-        ? globalThis.String(object.act_mode_together_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_together_model_id)
+          : undefined,
       actModeFireworksModelId: isSet(object.actModeFireworksModelId)
         ? globalThis.String(object.actModeFireworksModelId)
         : isSet(object.act_mode_fireworks_model_id)
-        ? globalThis.String(object.act_mode_fireworks_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_fireworks_model_id)
+          : undefined,
       actModeSapAiCoreModelId: isSet(object.actModeSapAiCoreModelId)
         ? globalThis.String(object.actModeSapAiCoreModelId)
         : isSet(object.act_mode_sap_ai_core_model_id)
-        ? globalThis.String(object.act_mode_sap_ai_core_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_sap_ai_core_model_id)
+          : undefined,
       actModeSapAiCoreDeploymentId: isSet(object.actModeSapAiCoreDeploymentId)
         ? globalThis.String(object.actModeSapAiCoreDeploymentId)
         : isSet(object.act_mode_sap_ai_core_deployment_id)
-        ? globalThis.String(object.act_mode_sap_ai_core_deployment_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_sap_ai_core_deployment_id)
+          : undefined,
       actModeGroqModelId: isSet(object.actModeGroqModelId)
         ? globalThis.String(object.actModeGroqModelId)
         : isSet(object.act_mode_groq_model_id)
-        ? globalThis.String(object.act_mode_groq_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_groq_model_id)
+          : undefined,
       actModeGroqModelInfo: isSet(object.actModeGroqModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeGroqModelInfo)
         : isSet(object.act_mode_groq_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_groq_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_groq_model_info)
+          : undefined,
       actModeHuggingFaceModelId: isSet(object.actModeHuggingFaceModelId)
         ? globalThis.String(object.actModeHuggingFaceModelId)
         : isSet(object.act_mode_hugging_face_model_id)
-        ? globalThis.String(object.act_mode_hugging_face_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_hugging_face_model_id)
+          : undefined,
       actModeHuggingFaceModelInfo: isSet(object.actModeHuggingFaceModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeHuggingFaceModelInfo)
         : isSet(object.act_mode_hugging_face_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_hugging_face_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_hugging_face_model_info)
+          : undefined,
       actModeHuaweiCloudMaasModelId: isSet(object.actModeHuaweiCloudMaasModelId)
         ? globalThis.String(object.actModeHuaweiCloudMaasModelId)
         : isSet(object.act_mode_huawei_cloud_maas_model_id)
-        ? globalThis.String(object.act_mode_huawei_cloud_maas_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_huawei_cloud_maas_model_id)
+          : undefined,
       actModeHuaweiCloudMaasModelInfo: isSet(object.actModeHuaweiCloudMaasModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeHuaweiCloudMaasModelInfo)
         : isSet(object.act_mode_huawei_cloud_maas_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_huawei_cloud_maas_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_huawei_cloud_maas_model_info)
+          : undefined,
       actModeBasetenModelId: isSet(object.actModeBasetenModelId)
         ? globalThis.String(object.actModeBasetenModelId)
         : isSet(object.act_mode_baseten_model_id)
-        ? globalThis.String(object.act_mode_baseten_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_baseten_model_id)
+          : undefined,
       actModeBasetenModelInfo: isSet(object.actModeBasetenModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeBasetenModelInfo)
         : isSet(object.act_mode_baseten_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_baseten_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_baseten_model_info)
+          : undefined,
       actModeVercelAiGatewayModelId: isSet(object.actModeVercelAiGatewayModelId)
         ? globalThis.String(object.actModeVercelAiGatewayModelId)
         : isSet(object.act_mode_vercel_ai_gateway_model_id)
-        ? globalThis.String(object.act_mode_vercel_ai_gateway_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_vercel_ai_gateway_model_id)
+          : undefined,
       actModeVercelAiGatewayModelInfo: isSet(object.actModeVercelAiGatewayModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeVercelAiGatewayModelInfo)
         : isSet(object.act_mode_vercel_ai_gateway_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_vercel_ai_gateway_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_vercel_ai_gateway_model_info)
+          : undefined,
       actModeOcaModelId: isSet(object.actModeOcaModelId)
         ? globalThis.String(object.actModeOcaModelId)
         : isSet(object.act_mode_oca_model_id)
-        ? globalThis.String(object.act_mode_oca_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_oca_model_id)
+          : undefined,
       actModeOcaModelInfo: isSet(object.actModeOcaModelInfo)
         ? OcaModelInfo.fromJSON(object.actModeOcaModelInfo)
         : isSet(object.act_mode_oca_model_info)
-        ? OcaModelInfo.fromJSON(object.act_mode_oca_model_info)
-        : undefined,
+          ? OcaModelInfo.fromJSON(object.act_mode_oca_model_info)
+          : undefined,
       actModeAihubmixModelId: isSet(object.actModeAihubmixModelId)
         ? globalThis.String(object.actModeAihubmixModelId)
         : isSet(object.act_mode_aihubmix_model_id)
-        ? globalThis.String(object.act_mode_aihubmix_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_aihubmix_model_id)
+          : undefined,
       actModeAihubmixModelInfo: isSet(object.actModeAihubmixModelInfo)
         ? OpenAiCompatibleModelInfo.fromJSON(object.actModeAihubmixModelInfo)
         : isSet(object.act_mode_aihubmix_model_info)
-        ? OpenAiCompatibleModelInfo.fromJSON(object.act_mode_aihubmix_model_info)
-        : undefined,
+          ? OpenAiCompatibleModelInfo.fromJSON(object.act_mode_aihubmix_model_info)
+          : undefined,
       actModeClineModelId: isSet(object.actModeClineModelId)
         ? globalThis.String(object.actModeClineModelId)
         : isSet(object.act_mode_cline_model_id)
-        ? globalThis.String(object.act_mode_cline_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_cline_model_id)
+          : undefined,
       actModeClineModelInfo: isSet(object.actModeClineModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeClineModelInfo)
         : isSet(object.act_mode_cline_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_cline_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_cline_model_info)
+          : undefined,
     };
   },
 
@@ -5721,7 +5832,9 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
       obj.planModeReasoningEffort = message.planModeReasoningEffort;
     }
     if (message.planModeVsCodeLmModelSelector !== undefined) {
-      obj.planModeVsCodeLmModelSelector = LanguageModelChatSelector.toJSON(message.planModeVsCodeLmModelSelector);
+      obj.planModeVsCodeLmModelSelector = LanguageModelChatSelector.toJSON(
+        message.planModeVsCodeLmModelSelector,
+      );
     }
     if (message.planModeAwsBedrockCustomSelected !== undefined) {
       obj.planModeAwsBedrockCustomSelected = message.planModeAwsBedrockCustomSelected;
@@ -5733,13 +5846,17 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
       obj.planModeOpenRouterModelId = message.planModeOpenRouterModelId;
     }
     if (message.planModeOpenRouterModelInfo !== undefined) {
-      obj.planModeOpenRouterModelInfo = OpenRouterModelInfo.toJSON(message.planModeOpenRouterModelInfo);
+      obj.planModeOpenRouterModelInfo = OpenRouterModelInfo.toJSON(
+        message.planModeOpenRouterModelInfo,
+      );
     }
     if (message.planModeOpenAiModelId !== undefined) {
       obj.planModeOpenAiModelId = message.planModeOpenAiModelId;
     }
     if (message.planModeOpenAiModelInfo !== undefined) {
-      obj.planModeOpenAiModelInfo = OpenAiCompatibleModelInfo.toJSON(message.planModeOpenAiModelInfo);
+      obj.planModeOpenAiModelInfo = OpenAiCompatibleModelInfo.toJSON(
+        message.planModeOpenAiModelInfo,
+      );
     }
     if (message.planModeOllamaModelId !== undefined) {
       obj.planModeOllamaModelId = message.planModeOllamaModelId;
@@ -5781,13 +5898,17 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
       obj.planModeHuggingFaceModelId = message.planModeHuggingFaceModelId;
     }
     if (message.planModeHuggingFaceModelInfo !== undefined) {
-      obj.planModeHuggingFaceModelInfo = OpenRouterModelInfo.toJSON(message.planModeHuggingFaceModelInfo);
+      obj.planModeHuggingFaceModelInfo = OpenRouterModelInfo.toJSON(
+        message.planModeHuggingFaceModelInfo,
+      );
     }
     if (message.planModeHuaweiCloudMaasModelId !== undefined) {
       obj.planModeHuaweiCloudMaasModelId = message.planModeHuaweiCloudMaasModelId;
     }
     if (message.planModeHuaweiCloudMaasModelInfo !== undefined) {
-      obj.planModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.toJSON(message.planModeHuaweiCloudMaasModelInfo);
+      obj.planModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.toJSON(
+        message.planModeHuaweiCloudMaasModelInfo,
+      );
     }
     if (message.planModeBasetenModelId !== undefined) {
       obj.planModeBasetenModelId = message.planModeBasetenModelId;
@@ -5799,7 +5920,9 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
       obj.planModeVercelAiGatewayModelId = message.planModeVercelAiGatewayModelId;
     }
     if (message.planModeVercelAiGatewayModelInfo !== undefined) {
-      obj.planModeVercelAiGatewayModelInfo = OpenRouterModelInfo.toJSON(message.planModeVercelAiGatewayModelInfo);
+      obj.planModeVercelAiGatewayModelInfo = OpenRouterModelInfo.toJSON(
+        message.planModeVercelAiGatewayModelInfo,
+      );
     }
     if (message.planModeOcaModelId !== undefined) {
       obj.planModeOcaModelId = message.planModeOcaModelId;
@@ -5811,7 +5934,9 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
       obj.planModeAihubmixModelId = message.planModeAihubmixModelId;
     }
     if (message.planModeAihubmixModelInfo !== undefined) {
-      obj.planModeAihubmixModelInfo = OpenAiCompatibleModelInfo.toJSON(message.planModeAihubmixModelInfo);
+      obj.planModeAihubmixModelInfo = OpenAiCompatibleModelInfo.toJSON(
+        message.planModeAihubmixModelInfo,
+      );
     }
     if (message.planModeClineModelId !== undefined) {
       obj.planModeClineModelId = message.planModeClineModelId;
@@ -5832,7 +5957,9 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
       obj.actModeReasoningEffort = message.actModeReasoningEffort;
     }
     if (message.actModeVsCodeLmModelSelector !== undefined) {
-      obj.actModeVsCodeLmModelSelector = LanguageModelChatSelector.toJSON(message.actModeVsCodeLmModelSelector);
+      obj.actModeVsCodeLmModelSelector = LanguageModelChatSelector.toJSON(
+        message.actModeVsCodeLmModelSelector,
+      );
     }
     if (message.actModeAwsBedrockCustomSelected !== undefined) {
       obj.actModeAwsBedrockCustomSelected = message.actModeAwsBedrockCustomSelected;
@@ -5844,7 +5971,9 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
       obj.actModeOpenRouterModelId = message.actModeOpenRouterModelId;
     }
     if (message.actModeOpenRouterModelInfo !== undefined) {
-      obj.actModeOpenRouterModelInfo = OpenRouterModelInfo.toJSON(message.actModeOpenRouterModelInfo);
+      obj.actModeOpenRouterModelInfo = OpenRouterModelInfo.toJSON(
+        message.actModeOpenRouterModelInfo,
+      );
     }
     if (message.actModeOpenAiModelId !== undefined) {
       obj.actModeOpenAiModelId = message.actModeOpenAiModelId;
@@ -5892,13 +6021,17 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
       obj.actModeHuggingFaceModelId = message.actModeHuggingFaceModelId;
     }
     if (message.actModeHuggingFaceModelInfo !== undefined) {
-      obj.actModeHuggingFaceModelInfo = OpenRouterModelInfo.toJSON(message.actModeHuggingFaceModelInfo);
+      obj.actModeHuggingFaceModelInfo = OpenRouterModelInfo.toJSON(
+        message.actModeHuggingFaceModelInfo,
+      );
     }
     if (message.actModeHuaweiCloudMaasModelId !== undefined) {
       obj.actModeHuaweiCloudMaasModelId = message.actModeHuaweiCloudMaasModelId;
     }
     if (message.actModeHuaweiCloudMaasModelInfo !== undefined) {
-      obj.actModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.toJSON(message.actModeHuaweiCloudMaasModelInfo);
+      obj.actModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.toJSON(
+        message.actModeHuaweiCloudMaasModelInfo,
+      );
     }
     if (message.actModeBasetenModelId !== undefined) {
       obj.actModeBasetenModelId = message.actModeBasetenModelId;
@@ -5910,7 +6043,9 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
       obj.actModeVercelAiGatewayModelId = message.actModeVercelAiGatewayModelId;
     }
     if (message.actModeVercelAiGatewayModelInfo !== undefined) {
-      obj.actModeVercelAiGatewayModelInfo = OpenRouterModelInfo.toJSON(message.actModeVercelAiGatewayModelInfo);
+      obj.actModeVercelAiGatewayModelInfo = OpenRouterModelInfo.toJSON(
+        message.actModeVercelAiGatewayModelInfo,
+      );
     }
     if (message.actModeOcaModelId !== undefined) {
       obj.actModeOcaModelId = message.actModeOcaModelId;
@@ -5922,7 +6057,9 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
       obj.actModeAihubmixModelId = message.actModeAihubmixModelId;
     }
     if (message.actModeAihubmixModelInfo !== undefined) {
-      obj.actModeAihubmixModelInfo = OpenAiCompatibleModelInfo.toJSON(message.actModeAihubmixModelInfo);
+      obj.actModeAihubmixModelInfo = OpenAiCompatibleModelInfo.toJSON(
+        message.actModeAihubmixModelInfo,
+      );
     }
     if (message.actModeClineModelId !== undefined) {
       obj.actModeClineModelId = message.actModeClineModelId;
@@ -5941,15 +6078,14 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
     message.ulid = object.ulid ?? undefined;
     message.liteLlmBaseUrl = object.liteLlmBaseUrl ?? undefined;
     message.liteLlmUsePromptCache = object.liteLlmUsePromptCache ?? undefined;
-    message.openAiHeaders = (globalThis.Object.entries(object.openAiHeaders ?? {}) as [string, string][]).reduce(
-      (acc: { [key: string]: string }, [key, value]: [string, string]) => {
-        if (value !== undefined) {
-          acc[key] = globalThis.String(value);
-        }
-        return acc;
-      },
-      {},
-    );
+    message.openAiHeaders = (
+      globalThis.Object.entries(object.openAiHeaders ?? {}) as [string, string][]
+    ).reduce((acc: { [key: string]: string }, [key, value]: [string, string]) => {
+      if (value !== undefined) {
+        acc[key] = globalThis.String(value);
+      }
+      return acc;
+    }, {});
     message.anthropicBaseUrl = object.anthropicBaseUrl ?? undefined;
     message.openRouterProviderSorting = object.openRouterProviderSorting ?? undefined;
     message.awsRegion = object.awsRegion ?? undefined;
@@ -5967,7 +6103,8 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
     message.lmStudioBaseUrl = object.lmStudioBaseUrl ?? undefined;
     message.geminiBaseUrl = object.geminiBaseUrl ?? undefined;
     message.requestyBaseUrl = object.requestyBaseUrl ?? undefined;
-    message.fireworksModelMaxCompletionTokens = object.fireworksModelMaxCompletionTokens ?? undefined;
+    message.fireworksModelMaxCompletionTokens =
+      object.fireworksModelMaxCompletionTokens ?? undefined;
     message.fireworksModelMaxTokens = object.fireworksModelMaxTokens ?? undefined;
     message.azureApiVersion = object.azureApiVersion ?? undefined;
     message.qwenApiLine = object.qwenApiLine ?? undefined;
@@ -5995,31 +6132,34 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
     message.planModeThinkingBudgetTokens = object.planModeThinkingBudgetTokens ?? undefined;
     message.planModeReasoningEffort = object.planModeReasoningEffort ?? undefined;
     message.planModeVsCodeLmModelSelector =
-      (object.planModeVsCodeLmModelSelector !== undefined && object.planModeVsCodeLmModelSelector !== null)
+      object.planModeVsCodeLmModelSelector !== undefined &&
+      object.planModeVsCodeLmModelSelector !== null
         ? LanguageModelChatSelector.fromPartial(object.planModeVsCodeLmModelSelector)
         : undefined;
     message.planModeAwsBedrockCustomSelected = object.planModeAwsBedrockCustomSelected ?? undefined;
-    message.planModeAwsBedrockCustomModelBaseId = object.planModeAwsBedrockCustomModelBaseId ?? undefined;
+    message.planModeAwsBedrockCustomModelBaseId =
+      object.planModeAwsBedrockCustomModelBaseId ?? undefined;
     message.planModeOpenRouterModelId = object.planModeOpenRouterModelId ?? undefined;
     message.planModeOpenRouterModelInfo =
-      (object.planModeOpenRouterModelInfo !== undefined && object.planModeOpenRouterModelInfo !== null)
+      object.planModeOpenRouterModelInfo !== undefined &&
+      object.planModeOpenRouterModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeOpenRouterModelInfo)
         : undefined;
     message.planModeOpenAiModelId = object.planModeOpenAiModelId ?? undefined;
     message.planModeOpenAiModelInfo =
-      (object.planModeOpenAiModelInfo !== undefined && object.planModeOpenAiModelInfo !== null)
+      object.planModeOpenAiModelInfo !== undefined && object.planModeOpenAiModelInfo !== null
         ? OpenAiCompatibleModelInfo.fromPartial(object.planModeOpenAiModelInfo)
         : undefined;
     message.planModeOllamaModelId = object.planModeOllamaModelId ?? undefined;
     message.planModeLmStudioModelId = object.planModeLmStudioModelId ?? undefined;
     message.planModeLiteLlmModelId = object.planModeLiteLlmModelId ?? undefined;
     message.planModeLiteLlmModelInfo =
-      (object.planModeLiteLlmModelInfo !== undefined && object.planModeLiteLlmModelInfo !== null)
+      object.planModeLiteLlmModelInfo !== undefined && object.planModeLiteLlmModelInfo !== null
         ? LiteLLMModelInfo.fromPartial(object.planModeLiteLlmModelInfo)
         : undefined;
     message.planModeRequestyModelId = object.planModeRequestyModelId ?? undefined;
     message.planModeRequestyModelInfo =
-      (object.planModeRequestyModelInfo !== undefined && object.planModeRequestyModelInfo !== null)
+      object.planModeRequestyModelInfo !== undefined && object.planModeRequestyModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeRequestyModelInfo)
         : undefined;
     message.planModeTogetherModelId = object.planModeTogetherModelId ?? undefined;
@@ -6028,41 +6168,45 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
     message.planModeSapAiCoreDeploymentId = object.planModeSapAiCoreDeploymentId ?? undefined;
     message.planModeGroqModelId = object.planModeGroqModelId ?? undefined;
     message.planModeGroqModelInfo =
-      (object.planModeGroqModelInfo !== undefined && object.planModeGroqModelInfo !== null)
+      object.planModeGroqModelInfo !== undefined && object.planModeGroqModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeGroqModelInfo)
         : undefined;
     message.planModeHuggingFaceModelId = object.planModeHuggingFaceModelId ?? undefined;
     message.planModeHuggingFaceModelInfo =
-      (object.planModeHuggingFaceModelInfo !== undefined && object.planModeHuggingFaceModelInfo !== null)
+      object.planModeHuggingFaceModelInfo !== undefined &&
+      object.planModeHuggingFaceModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeHuggingFaceModelInfo)
         : undefined;
     message.planModeHuaweiCloudMaasModelId = object.planModeHuaweiCloudMaasModelId ?? undefined;
     message.planModeHuaweiCloudMaasModelInfo =
-      (object.planModeHuaweiCloudMaasModelInfo !== undefined && object.planModeHuaweiCloudMaasModelInfo !== null)
+      object.planModeHuaweiCloudMaasModelInfo !== undefined &&
+      object.planModeHuaweiCloudMaasModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeHuaweiCloudMaasModelInfo)
         : undefined;
     message.planModeBasetenModelId = object.planModeBasetenModelId ?? undefined;
     message.planModeBasetenModelInfo =
-      (object.planModeBasetenModelInfo !== undefined && object.planModeBasetenModelInfo !== null)
+      object.planModeBasetenModelInfo !== undefined && object.planModeBasetenModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeBasetenModelInfo)
         : undefined;
     message.planModeVercelAiGatewayModelId = object.planModeVercelAiGatewayModelId ?? undefined;
     message.planModeVercelAiGatewayModelInfo =
-      (object.planModeVercelAiGatewayModelInfo !== undefined && object.planModeVercelAiGatewayModelInfo !== null)
+      object.planModeVercelAiGatewayModelInfo !== undefined &&
+      object.planModeVercelAiGatewayModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeVercelAiGatewayModelInfo)
         : undefined;
     message.planModeOcaModelId = object.planModeOcaModelId ?? undefined;
-    message.planModeOcaModelInfo = (object.planModeOcaModelInfo !== undefined && object.planModeOcaModelInfo !== null)
-      ? OcaModelInfo.fromPartial(object.planModeOcaModelInfo)
-      : undefined;
+    message.planModeOcaModelInfo =
+      object.planModeOcaModelInfo !== undefined && object.planModeOcaModelInfo !== null
+        ? OcaModelInfo.fromPartial(object.planModeOcaModelInfo)
+        : undefined;
     message.planModeAihubmixModelId = object.planModeAihubmixModelId ?? undefined;
     message.planModeAihubmixModelInfo =
-      (object.planModeAihubmixModelInfo !== undefined && object.planModeAihubmixModelInfo !== null)
+      object.planModeAihubmixModelInfo !== undefined && object.planModeAihubmixModelInfo !== null
         ? OpenAiCompatibleModelInfo.fromPartial(object.planModeAihubmixModelInfo)
         : undefined;
     message.planModeClineModelId = object.planModeClineModelId ?? undefined;
     message.planModeClineModelInfo =
-      (object.planModeClineModelInfo !== undefined && object.planModeClineModelInfo !== null)
+      object.planModeClineModelInfo !== undefined && object.planModeClineModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeClineModelInfo)
         : undefined;
     message.actModeApiProvider = object.actModeApiProvider ?? undefined;
@@ -6070,31 +6214,33 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
     message.actModeThinkingBudgetTokens = object.actModeThinkingBudgetTokens ?? undefined;
     message.actModeReasoningEffort = object.actModeReasoningEffort ?? undefined;
     message.actModeVsCodeLmModelSelector =
-      (object.actModeVsCodeLmModelSelector !== undefined && object.actModeVsCodeLmModelSelector !== null)
+      object.actModeVsCodeLmModelSelector !== undefined &&
+      object.actModeVsCodeLmModelSelector !== null
         ? LanguageModelChatSelector.fromPartial(object.actModeVsCodeLmModelSelector)
         : undefined;
     message.actModeAwsBedrockCustomSelected = object.actModeAwsBedrockCustomSelected ?? undefined;
-    message.actModeAwsBedrockCustomModelBaseId = object.actModeAwsBedrockCustomModelBaseId ?? undefined;
+    message.actModeAwsBedrockCustomModelBaseId =
+      object.actModeAwsBedrockCustomModelBaseId ?? undefined;
     message.actModeOpenRouterModelId = object.actModeOpenRouterModelId ?? undefined;
     message.actModeOpenRouterModelInfo =
-      (object.actModeOpenRouterModelInfo !== undefined && object.actModeOpenRouterModelInfo !== null)
+      object.actModeOpenRouterModelInfo !== undefined && object.actModeOpenRouterModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.actModeOpenRouterModelInfo)
         : undefined;
     message.actModeOpenAiModelId = object.actModeOpenAiModelId ?? undefined;
     message.actModeOpenAiModelInfo =
-      (object.actModeOpenAiModelInfo !== undefined && object.actModeOpenAiModelInfo !== null)
+      object.actModeOpenAiModelInfo !== undefined && object.actModeOpenAiModelInfo !== null
         ? OpenAiCompatibleModelInfo.fromPartial(object.actModeOpenAiModelInfo)
         : undefined;
     message.actModeOllamaModelId = object.actModeOllamaModelId ?? undefined;
     message.actModeLmStudioModelId = object.actModeLmStudioModelId ?? undefined;
     message.actModeLiteLlmModelId = object.actModeLiteLlmModelId ?? undefined;
     message.actModeLiteLlmModelInfo =
-      (object.actModeLiteLlmModelInfo !== undefined && object.actModeLiteLlmModelInfo !== null)
+      object.actModeLiteLlmModelInfo !== undefined && object.actModeLiteLlmModelInfo !== null
         ? LiteLLMModelInfo.fromPartial(object.actModeLiteLlmModelInfo)
         : undefined;
     message.actModeRequestyModelId = object.actModeRequestyModelId ?? undefined;
     message.actModeRequestyModelInfo =
-      (object.actModeRequestyModelInfo !== undefined && object.actModeRequestyModelInfo !== null)
+      object.actModeRequestyModelInfo !== undefined && object.actModeRequestyModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.actModeRequestyModelInfo)
         : undefined;
     message.actModeTogetherModelId = object.actModeTogetherModelId ?? undefined;
@@ -6102,41 +6248,46 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
     message.actModeSapAiCoreModelId = object.actModeSapAiCoreModelId ?? undefined;
     message.actModeSapAiCoreDeploymentId = object.actModeSapAiCoreDeploymentId ?? undefined;
     message.actModeGroqModelId = object.actModeGroqModelId ?? undefined;
-    message.actModeGroqModelInfo = (object.actModeGroqModelInfo !== undefined && object.actModeGroqModelInfo !== null)
-      ? OpenRouterModelInfo.fromPartial(object.actModeGroqModelInfo)
-      : undefined;
+    message.actModeGroqModelInfo =
+      object.actModeGroqModelInfo !== undefined && object.actModeGroqModelInfo !== null
+        ? OpenRouterModelInfo.fromPartial(object.actModeGroqModelInfo)
+        : undefined;
     message.actModeHuggingFaceModelId = object.actModeHuggingFaceModelId ?? undefined;
     message.actModeHuggingFaceModelInfo =
-      (object.actModeHuggingFaceModelInfo !== undefined && object.actModeHuggingFaceModelInfo !== null)
+      object.actModeHuggingFaceModelInfo !== undefined &&
+      object.actModeHuggingFaceModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.actModeHuggingFaceModelInfo)
         : undefined;
     message.actModeHuaweiCloudMaasModelId = object.actModeHuaweiCloudMaasModelId ?? undefined;
     message.actModeHuaweiCloudMaasModelInfo =
-      (object.actModeHuaweiCloudMaasModelInfo !== undefined && object.actModeHuaweiCloudMaasModelInfo !== null)
+      object.actModeHuaweiCloudMaasModelInfo !== undefined &&
+      object.actModeHuaweiCloudMaasModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.actModeHuaweiCloudMaasModelInfo)
         : undefined;
     message.actModeBasetenModelId = object.actModeBasetenModelId ?? undefined;
     message.actModeBasetenModelInfo =
-      (object.actModeBasetenModelInfo !== undefined && object.actModeBasetenModelInfo !== null)
+      object.actModeBasetenModelInfo !== undefined && object.actModeBasetenModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.actModeBasetenModelInfo)
         : undefined;
     message.actModeVercelAiGatewayModelId = object.actModeVercelAiGatewayModelId ?? undefined;
     message.actModeVercelAiGatewayModelInfo =
-      (object.actModeVercelAiGatewayModelInfo !== undefined && object.actModeVercelAiGatewayModelInfo !== null)
+      object.actModeVercelAiGatewayModelInfo !== undefined &&
+      object.actModeVercelAiGatewayModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.actModeVercelAiGatewayModelInfo)
         : undefined;
     message.actModeOcaModelId = object.actModeOcaModelId ?? undefined;
-    message.actModeOcaModelInfo = (object.actModeOcaModelInfo !== undefined && object.actModeOcaModelInfo !== null)
-      ? OcaModelInfo.fromPartial(object.actModeOcaModelInfo)
-      : undefined;
+    message.actModeOcaModelInfo =
+      object.actModeOcaModelInfo !== undefined && object.actModeOcaModelInfo !== null
+        ? OcaModelInfo.fromPartial(object.actModeOcaModelInfo)
+        : undefined;
     message.actModeAihubmixModelId = object.actModeAihubmixModelId ?? undefined;
     message.actModeAihubmixModelInfo =
-      (object.actModeAihubmixModelInfo !== undefined && object.actModeAihubmixModelInfo !== null)
+      object.actModeAihubmixModelInfo !== undefined && object.actModeAihubmixModelInfo !== null
         ? OpenAiCompatibleModelInfo.fromPartial(object.actModeAihubmixModelInfo)
         : undefined;
     message.actModeClineModelId = object.actModeClineModelId ?? undefined;
     message.actModeClineModelInfo =
-      (object.actModeClineModelInfo !== undefined && object.actModeClineModelInfo !== null)
+      object.actModeClineModelInfo !== undefined && object.actModeClineModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.actModeClineModelInfo)
         : undefined;
     return message;
@@ -6144,91 +6295,98 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
 };
 
 function createBaseModelsApiOptions_OpenAiHeadersEntry(): ModelsApiOptions_OpenAiHeadersEntry {
-  return { key: "", value: "" };
+  return { key: '', value: '' };
 }
 
-export const ModelsApiOptions_OpenAiHeadersEntry: MessageFns<ModelsApiOptions_OpenAiHeadersEntry> = {
-  encode(message: ModelsApiOptions_OpenAiHeadersEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.key !== "") {
-      writer.uint32(10).string(message.key);
-    }
-    if (message.value !== "") {
-      writer.uint32(18).string(message.value);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): ModelsApiOptions_OpenAiHeadersEntry {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseModelsApiOptions_OpenAiHeadersEntry();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.key = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.value = reader.string();
-          continue;
-        }
+export const ModelsApiOptions_OpenAiHeadersEntry: MessageFns<ModelsApiOptions_OpenAiHeadersEntry> =
+  {
+    encode(
+      message: ModelsApiOptions_OpenAiHeadersEntry,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.key !== '') {
+        writer.uint32(10).string(message.key);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.value !== '') {
+        writer.uint32(18).string(message.value);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      return writer;
+    },
 
-  fromJSON(object: any): ModelsApiOptions_OpenAiHeadersEntry {
-    return {
-      key: isSet(object.key) ? globalThis.String(object.key) : "",
-      value: isSet(object.value) ? globalThis.String(object.value) : "",
-    };
-  },
+    decode(input: BinaryReader | Uint8Array, length?: number): ModelsApiOptions_OpenAiHeadersEntry {
+      const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseModelsApiOptions_OpenAiHeadersEntry();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
 
-  toJSON(message: ModelsApiOptions_OpenAiHeadersEntry): unknown {
-    const obj: any = {};
-    if (message.key !== "") {
-      obj.key = message.key;
-    }
-    if (message.value !== "") {
-      obj.value = message.value;
-    }
-    return obj;
-  },
+            message.key = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
 
-  create<I extends Exact<DeepPartial<ModelsApiOptions_OpenAiHeadersEntry>, I>>(
-    base?: I,
-  ): ModelsApiOptions_OpenAiHeadersEntry {
-    return ModelsApiOptions_OpenAiHeadersEntry.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<ModelsApiOptions_OpenAiHeadersEntry>, I>>(
-    object: I,
-  ): ModelsApiOptions_OpenAiHeadersEntry {
-    const message = createBaseModelsApiOptions_OpenAiHeadersEntry();
-    message.key = object.key ?? "";
-    message.value = object.value ?? "";
-    return message;
-  },
-};
+            message.value = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): ModelsApiOptions_OpenAiHeadersEntry {
+      return {
+        key: isSet(object.key) ? globalThis.String(object.key) : '',
+        value: isSet(object.value) ? globalThis.String(object.value) : '',
+      };
+    },
+
+    toJSON(message: ModelsApiOptions_OpenAiHeadersEntry): unknown {
+      const obj: any = {};
+      if (message.key !== '') {
+        obj.key = message.key;
+      }
+      if (message.value !== '') {
+        obj.value = message.value;
+      }
+      return obj;
+    },
+
+    create<I extends Exact<DeepPartial<ModelsApiOptions_OpenAiHeadersEntry>, I>>(
+      base?: I,
+    ): ModelsApiOptions_OpenAiHeadersEntry {
+      return ModelsApiOptions_OpenAiHeadersEntry.fromPartial(base ?? ({} as any));
+    },
+    fromPartial<I extends Exact<DeepPartial<ModelsApiOptions_OpenAiHeadersEntry>, I>>(
+      object: I,
+    ): ModelsApiOptions_OpenAiHeadersEntry {
+      const message = createBaseModelsApiOptions_OpenAiHeadersEntry();
+      message.key = object.key ?? '';
+      message.value = object.value ?? '';
+      return message;
+    },
+  };
 
 function createBaseUpdateApiConfigurationRequest(): UpdateApiConfigurationRequest {
   return { metadata: undefined, apiConfiguration: undefined };
 }
 
 export const UpdateApiConfigurationRequest: MessageFns<UpdateApiConfigurationRequest> = {
-  encode(message: UpdateApiConfigurationRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: UpdateApiConfigurationRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
@@ -6276,8 +6434,8 @@ export const UpdateApiConfigurationRequest: MessageFns<UpdateApiConfigurationReq
       apiConfiguration: isSet(object.apiConfiguration)
         ? ModelsApiConfiguration.fromJSON(object.apiConfiguration)
         : isSet(object.api_configuration)
-        ? ModelsApiConfiguration.fromJSON(object.api_configuration)
-        : undefined,
+          ? ModelsApiConfiguration.fromJSON(object.api_configuration)
+          : undefined,
     };
   },
 
@@ -6292,19 +6450,23 @@ export const UpdateApiConfigurationRequest: MessageFns<UpdateApiConfigurationReq
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<UpdateApiConfigurationRequest>, I>>(base?: I): UpdateApiConfigurationRequest {
+  create<I extends Exact<DeepPartial<UpdateApiConfigurationRequest>, I>>(
+    base?: I,
+  ): UpdateApiConfigurationRequest {
     return UpdateApiConfigurationRequest.fromPartial(base ?? ({} as any));
   },
   fromPartial<I extends Exact<DeepPartial<UpdateApiConfigurationRequest>, I>>(
     object: I,
   ): UpdateApiConfigurationRequest {
     const message = createBaseUpdateApiConfigurationRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.apiConfiguration = (object.apiConfiguration !== undefined && object.apiConfiguration !== null)
-      ? ModelsApiConfiguration.fromPartial(object.apiConfiguration)
-      : undefined;
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.apiConfiguration =
+      object.apiConfiguration !== undefined && object.apiConfiguration !== null
+        ? ModelsApiConfiguration.fromPartial(object.apiConfiguration)
+        : undefined;
     return message;
   },
 };
@@ -6379,12 +6541,14 @@ export const ApiConfiguration: MessageFns<ApiConfiguration> = {
   },
   fromPartial<I extends Exact<DeepPartial<ApiConfiguration>, I>>(object: I): ApiConfiguration {
     const message = createBaseApiConfiguration();
-    message.options = (object.options !== undefined && object.options !== null)
-      ? ModelsApiOptions.fromPartial(object.options)
-      : undefined;
-    message.secrets = (object.secrets !== undefined && object.secrets !== null)
-      ? ModelsApiSecrets.fromPartial(object.secrets)
-      : undefined;
+    message.options =
+      object.options !== undefined && object.options !== null
+        ? ModelsApiOptions.fromPartial(object.options)
+        : undefined;
+    message.secrets =
+      object.secrets !== undefined && object.secrets !== null
+        ? ModelsApiSecrets.fromPartial(object.secrets)
+        : undefined;
     return message;
   },
 };
@@ -6394,7 +6558,10 @@ function createBaseUpdateApiConfigurationRequestNew(): UpdateApiConfigurationReq
 }
 
 export const UpdateApiConfigurationRequestNew: MessageFns<UpdateApiConfigurationRequestNew> = {
-  encode(message: UpdateApiConfigurationRequestNew, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: UpdateApiConfigurationRequestNew,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
@@ -6454,8 +6621,8 @@ export const UpdateApiConfigurationRequestNew: MessageFns<UpdateApiConfiguration
       updateMask: globalThis.Array.isArray(object?.updateMask)
         ? object.updateMask.map((e: any) => globalThis.String(e))
         : globalThis.Array.isArray(object?.update_mask)
-        ? object.update_mask.map((e: any) => globalThis.String(e))
-        : [],
+          ? object.update_mask.map((e: any) => globalThis.String(e))
+          : [],
     };
   },
 
@@ -6482,12 +6649,14 @@ export const UpdateApiConfigurationRequestNew: MessageFns<UpdateApiConfiguration
     object: I,
   ): UpdateApiConfigurationRequestNew {
     const message = createBaseUpdateApiConfigurationRequestNew();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.updates = (object.updates !== undefined && object.updates !== null)
-      ? ApiConfiguration.fromPartial(object.updates)
-      : undefined;
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.updates =
+      object.updates !== undefined && object.updates !== null
+        ? ApiConfiguration.fromPartial(object.updates)
+        : undefined;
     message.updateMask = object.updateMask?.map((e) => e) || [];
     return message;
   },
@@ -6497,109 +6666,118 @@ function createBaseUpdateApiConfigurationPartialRequest(): UpdateApiConfiguratio
   return { metadata: undefined, apiConfiguration: undefined, updateMask: undefined };
 }
 
-export const UpdateApiConfigurationPartialRequest: MessageFns<UpdateApiConfigurationPartialRequest> = {
-  encode(message: UpdateApiConfigurationPartialRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.metadata !== undefined) {
-      Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
-    }
-    if (message.apiConfiguration !== undefined) {
-      ModelsApiConfiguration.encode(message.apiConfiguration, writer.uint32(18).fork()).join();
-    }
-    if (message.updateMask !== undefined) {
-      FieldMask.encode(FieldMask.wrap(message.updateMask), writer.uint32(26).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): UpdateApiConfigurationPartialRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseUpdateApiConfigurationPartialRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.metadata = Metadata.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.apiConfiguration = ModelsApiConfiguration.decode(reader, reader.uint32());
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.updateMask = FieldMask.unwrap(FieldMask.decode(reader, reader.uint32()));
-          continue;
-        }
+export const UpdateApiConfigurationPartialRequest: MessageFns<UpdateApiConfigurationPartialRequest> =
+  {
+    encode(
+      message: UpdateApiConfigurationPartialRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.metadata !== undefined) {
+        Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.apiConfiguration !== undefined) {
+        ModelsApiConfiguration.encode(message.apiConfiguration, writer.uint32(18).fork()).join();
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      if (message.updateMask !== undefined) {
+        FieldMask.encode(FieldMask.wrap(message.updateMask), writer.uint32(26).fork()).join();
+      }
+      return writer;
+    },
 
-  fromJSON(object: any): UpdateApiConfigurationPartialRequest {
-    return {
-      metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
-      apiConfiguration: isSet(object.apiConfiguration)
-        ? ModelsApiConfiguration.fromJSON(object.apiConfiguration)
-        : isSet(object.api_configuration)
-        ? ModelsApiConfiguration.fromJSON(object.api_configuration)
-        : undefined,
-      updateMask: isSet(object.updateMask)
-        ? FieldMask.unwrap(FieldMask.fromJSON(object.updateMask))
-        : isSet(object.update_mask)
-        ? FieldMask.unwrap(FieldMask.fromJSON(object.update_mask))
-        : undefined,
-    };
-  },
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): UpdateApiConfigurationPartialRequest {
+      const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseUpdateApiConfigurationPartialRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
 
-  toJSON(message: UpdateApiConfigurationPartialRequest): unknown {
-    const obj: any = {};
-    if (message.metadata !== undefined) {
-      obj.metadata = Metadata.toJSON(message.metadata);
-    }
-    if (message.apiConfiguration !== undefined) {
-      obj.apiConfiguration = ModelsApiConfiguration.toJSON(message.apiConfiguration);
-    }
-    if (message.updateMask !== undefined) {
-      obj.updateMask = FieldMask.toJSON(FieldMask.wrap(message.updateMask));
-    }
-    return obj;
-  },
+            message.metadata = Metadata.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
 
-  create<I extends Exact<DeepPartial<UpdateApiConfigurationPartialRequest>, I>>(
-    base?: I,
-  ): UpdateApiConfigurationPartialRequest {
-    return UpdateApiConfigurationPartialRequest.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<UpdateApiConfigurationPartialRequest>, I>>(
-    object: I,
-  ): UpdateApiConfigurationPartialRequest {
-    const message = createBaseUpdateApiConfigurationPartialRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.apiConfiguration = (object.apiConfiguration !== undefined && object.apiConfiguration !== null)
-      ? ModelsApiConfiguration.fromPartial(object.apiConfiguration)
-      : undefined;
-    message.updateMask = object.updateMask ?? undefined;
-    return message;
-  },
-};
+            message.apiConfiguration = ModelsApiConfiguration.decode(reader, reader.uint32());
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.updateMask = FieldMask.unwrap(FieldMask.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): UpdateApiConfigurationPartialRequest {
+      return {
+        metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
+        apiConfiguration: isSet(object.apiConfiguration)
+          ? ModelsApiConfiguration.fromJSON(object.apiConfiguration)
+          : isSet(object.api_configuration)
+            ? ModelsApiConfiguration.fromJSON(object.api_configuration)
+            : undefined,
+        updateMask: isSet(object.updateMask)
+          ? FieldMask.unwrap(FieldMask.fromJSON(object.updateMask))
+          : isSet(object.update_mask)
+            ? FieldMask.unwrap(FieldMask.fromJSON(object.update_mask))
+            : undefined,
+      };
+    },
+
+    toJSON(message: UpdateApiConfigurationPartialRequest): unknown {
+      const obj: any = {};
+      if (message.metadata !== undefined) {
+        obj.metadata = Metadata.toJSON(message.metadata);
+      }
+      if (message.apiConfiguration !== undefined) {
+        obj.apiConfiguration = ModelsApiConfiguration.toJSON(message.apiConfiguration);
+      }
+      if (message.updateMask !== undefined) {
+        obj.updateMask = FieldMask.toJSON(FieldMask.wrap(message.updateMask));
+      }
+      return obj;
+    },
+
+    create<I extends Exact<DeepPartial<UpdateApiConfigurationPartialRequest>, I>>(
+      base?: I,
+    ): UpdateApiConfigurationPartialRequest {
+      return UpdateApiConfigurationPartialRequest.fromPartial(base ?? ({} as any));
+    },
+    fromPartial<I extends Exact<DeepPartial<UpdateApiConfigurationPartialRequest>, I>>(
+      object: I,
+    ): UpdateApiConfigurationPartialRequest {
+      const message = createBaseUpdateApiConfigurationPartialRequest();
+      message.metadata =
+        object.metadata !== undefined && object.metadata !== null
+          ? Metadata.fromPartial(object.metadata)
+          : undefined;
+      message.apiConfiguration =
+        object.apiConfiguration !== undefined && object.apiConfiguration !== null
+          ? ModelsApiConfiguration.fromPartial(object.apiConfiguration)
+          : undefined;
+      message.updateMask = object.updateMask ?? undefined;
+      return message;
+    },
+  };
 
 function createBaseOcaModelInfo(): OcaModelInfo {
   return {
@@ -6617,7 +6795,7 @@ function createBaseOcaModelInfo(): OcaModelInfo {
     surveyContent: undefined,
     surveyId: undefined,
     banner: undefined,
-    modelName: "",
+    modelName: '',
     apiFormat: undefined,
     supportsReasoning: undefined,
     reasoningEffortOptions: [],
@@ -6668,7 +6846,7 @@ export const OcaModelInfo: MessageFns<OcaModelInfo> = {
     if (message.banner !== undefined) {
       writer.uint32(130).string(message.banner);
     }
-    if (message.modelName !== "") {
+    if (message.modelName !== '') {
       writer.uint32(138).string(message.modelName);
     }
     if (message.apiFormat !== undefined) {
@@ -6848,81 +7026,81 @@ export const OcaModelInfo: MessageFns<OcaModelInfo> = {
       maxTokens: isSet(object.maxTokens)
         ? globalThis.Number(object.maxTokens)
         : isSet(object.max_tokens)
-        ? globalThis.Number(object.max_tokens)
-        : undefined,
+          ? globalThis.Number(object.max_tokens)
+          : undefined,
       contextWindow: isSet(object.contextWindow)
         ? globalThis.Number(object.contextWindow)
         : isSet(object.context_window)
-        ? globalThis.Number(object.context_window)
-        : undefined,
+          ? globalThis.Number(object.context_window)
+          : undefined,
       supportsImages: isSet(object.supportsImages)
         ? globalThis.Boolean(object.supportsImages)
         : isSet(object.supports_images)
-        ? globalThis.Boolean(object.supports_images)
-        : undefined,
+          ? globalThis.Boolean(object.supports_images)
+          : undefined,
       supportsPromptCache: isSet(object.supportsPromptCache)
         ? globalThis.Boolean(object.supportsPromptCache)
         : isSet(object.supports_prompt_cache)
-        ? globalThis.Boolean(object.supports_prompt_cache)
-        : false,
+          ? globalThis.Boolean(object.supports_prompt_cache)
+          : false,
       inputPrice: isSet(object.inputPrice)
         ? globalThis.Number(object.inputPrice)
         : isSet(object.input_price)
-        ? globalThis.Number(object.input_price)
-        : undefined,
+          ? globalThis.Number(object.input_price)
+          : undefined,
       outputPrice: isSet(object.outputPrice)
         ? globalThis.Number(object.outputPrice)
         : isSet(object.output_price)
-        ? globalThis.Number(object.output_price)
-        : undefined,
+          ? globalThis.Number(object.output_price)
+          : undefined,
       thinkingConfig: isSet(object.thinkingConfig)
         ? ThinkingConfig.fromJSON(object.thinkingConfig)
         : isSet(object.thinking_config)
-        ? ThinkingConfig.fromJSON(object.thinking_config)
-        : undefined,
+          ? ThinkingConfig.fromJSON(object.thinking_config)
+          : undefined,
       cacheWritesPrice: isSet(object.cacheWritesPrice)
         ? globalThis.Number(object.cacheWritesPrice)
         : isSet(object.cache_writes_price)
-        ? globalThis.Number(object.cache_writes_price)
-        : undefined,
+          ? globalThis.Number(object.cache_writes_price)
+          : undefined,
       cacheReadsPrice: isSet(object.cacheReadsPrice)
         ? globalThis.Number(object.cacheReadsPrice)
         : isSet(object.cache_reads_price)
-        ? globalThis.Number(object.cache_reads_price)
-        : undefined,
+          ? globalThis.Number(object.cache_reads_price)
+          : undefined,
       description: isSet(object.description) ? globalThis.String(object.description) : undefined,
       temperature: isSet(object.temperature) ? globalThis.Number(object.temperature) : undefined,
       surveyContent: isSet(object.surveyContent)
         ? globalThis.String(object.surveyContent)
         : isSet(object.survey_content)
-        ? globalThis.String(object.survey_content)
-        : undefined,
+          ? globalThis.String(object.survey_content)
+          : undefined,
       surveyId: isSet(object.surveyId)
         ? globalThis.String(object.surveyId)
         : isSet(object.survey_id)
-        ? globalThis.String(object.survey_id)
-        : undefined,
+          ? globalThis.String(object.survey_id)
+          : undefined,
       banner: isSet(object.banner) ? globalThis.String(object.banner) : undefined,
       modelName: isSet(object.modelName)
         ? globalThis.String(object.modelName)
         : isSet(object.model_name)
-        ? globalThis.String(object.model_name)
-        : "",
+          ? globalThis.String(object.model_name)
+          : '',
       apiFormat: isSet(object.apiFormat)
         ? apiFormatFromJSON(object.apiFormat)
         : isSet(object.api_format)
-        ? apiFormatFromJSON(object.api_format)
-        : undefined,
+          ? apiFormatFromJSON(object.api_format)
+          : undefined,
       supportsReasoning: isSet(object.supportsReasoning)
         ? globalThis.Boolean(object.supportsReasoning)
         : isSet(object.supports_reasoning)
-        ? globalThis.Boolean(object.supports_reasoning)
-        : undefined,
+          ? globalThis.Boolean(object.supports_reasoning)
+          : undefined,
       reasoningEffortOptions: globalThis.Array.isArray(object?.reasoningEffortOptions)
         ? object.reasoningEffortOptions.map((e: any) => globalThis.String(e))
         : globalThis.Array.isArray(object?.reasoning_effort_options)
-        ? object.reasoning_effort_options.map((e: any) => globalThis.String(e))
-        : [],
+          ? object.reasoning_effort_options.map((e: any) => globalThis.String(e))
+          : [],
     };
   },
 
@@ -6970,7 +7148,7 @@ export const OcaModelInfo: MessageFns<OcaModelInfo> = {
     if (message.banner !== undefined) {
       obj.banner = message.banner;
     }
-    if (message.modelName !== "") {
+    if (message.modelName !== '') {
       obj.modelName = message.modelName;
     }
     if (message.apiFormat !== undefined) {
@@ -6996,9 +7174,10 @@ export const OcaModelInfo: MessageFns<OcaModelInfo> = {
     message.supportsPromptCache = object.supportsPromptCache ?? false;
     message.inputPrice = object.inputPrice ?? undefined;
     message.outputPrice = object.outputPrice ?? undefined;
-    message.thinkingConfig = (object.thinkingConfig !== undefined && object.thinkingConfig !== null)
-      ? ThinkingConfig.fromPartial(object.thinkingConfig)
-      : undefined;
+    message.thinkingConfig =
+      object.thinkingConfig !== undefined && object.thinkingConfig !== null
+        ? ThinkingConfig.fromPartial(object.thinkingConfig)
+        : undefined;
     message.cacheWritesPrice = object.cacheWritesPrice ?? undefined;
     message.cacheReadsPrice = object.cacheReadsPrice ?? undefined;
     message.description = object.description ?? undefined;
@@ -7006,7 +7185,7 @@ export const OcaModelInfo: MessageFns<OcaModelInfo> = {
     message.surveyContent = object.surveyContent ?? undefined;
     message.surveyId = object.surveyId ?? undefined;
     message.banner = object.banner ?? undefined;
-    message.modelName = object.modelName ?? "";
+    message.modelName = object.modelName ?? '';
     message.apiFormat = object.apiFormat ?? undefined;
     message.supportsReasoning = object.supportsReasoning ?? undefined;
     message.reasoningEffortOptions = object.reasoningEffortOptions?.map((e) => e) || [];
@@ -7021,7 +7200,10 @@ function createBaseOcaCompatibleModelInfo(): OcaCompatibleModelInfo {
 export const OcaCompatibleModelInfo: MessageFns<OcaCompatibleModelInfo> = {
   encode(message: OcaCompatibleModelInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     globalThis.Object.entries(message.models).forEach(([key, value]: [string, OcaModelInfo]) => {
-      OcaCompatibleModelInfo_ModelsEntry.encode({ key: key as any, value }, writer.uint32(10).fork()).join();
+      OcaCompatibleModelInfo_ModelsEntry.encode(
+        { key: key as any, value },
+        writer.uint32(10).fork(),
+      ).join();
     });
     if (message.error !== undefined) {
       writer.uint32(18).string(message.error);
@@ -7068,12 +7250,12 @@ export const OcaCompatibleModelInfo: MessageFns<OcaCompatibleModelInfo> = {
     return {
       models: isObject(object.models)
         ? (globalThis.Object.entries(object.models) as [string, any][]).reduce(
-          (acc: { [key: string]: OcaModelInfo }, [key, value]: [string, any]) => {
-            acc[key] = OcaModelInfo.fromJSON(value);
-            return acc;
-          },
-          {},
-        )
+            (acc: { [key: string]: OcaModelInfo }, [key, value]: [string, any]) => {
+              acc[key] = OcaModelInfo.fromJSON(value);
+              return acc;
+            },
+            {},
+          )
         : {},
       error: isSet(object.error) ? globalThis.String(object.error) : undefined,
     };
@@ -7096,32 +7278,38 @@ export const OcaCompatibleModelInfo: MessageFns<OcaCompatibleModelInfo> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<OcaCompatibleModelInfo>, I>>(base?: I): OcaCompatibleModelInfo {
+  create<I extends Exact<DeepPartial<OcaCompatibleModelInfo>, I>>(
+    base?: I,
+  ): OcaCompatibleModelInfo {
     return OcaCompatibleModelInfo.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<OcaCompatibleModelInfo>, I>>(object: I): OcaCompatibleModelInfo {
+  fromPartial<I extends Exact<DeepPartial<OcaCompatibleModelInfo>, I>>(
+    object: I,
+  ): OcaCompatibleModelInfo {
     const message = createBaseOcaCompatibleModelInfo();
-    message.models = (globalThis.Object.entries(object.models ?? {}) as [string, OcaModelInfo][]).reduce(
-      (acc: { [key: string]: OcaModelInfo }, [key, value]: [string, OcaModelInfo]) => {
-        if (value !== undefined) {
-          acc[key] = OcaModelInfo.fromPartial(value);
-        }
-        return acc;
-      },
-      {},
-    );
+    message.models = (
+      globalThis.Object.entries(object.models ?? {}) as [string, OcaModelInfo][]
+    ).reduce((acc: { [key: string]: OcaModelInfo }, [key, value]: [string, OcaModelInfo]) => {
+      if (value !== undefined) {
+        acc[key] = OcaModelInfo.fromPartial(value);
+      }
+      return acc;
+    }, {});
     message.error = object.error ?? undefined;
     return message;
   },
 };
 
 function createBaseOcaCompatibleModelInfo_ModelsEntry(): OcaCompatibleModelInfo_ModelsEntry {
-  return { key: "", value: undefined };
+  return { key: '', value: undefined };
 }
 
 export const OcaCompatibleModelInfo_ModelsEntry: MessageFns<OcaCompatibleModelInfo_ModelsEntry> = {
-  encode(message: OcaCompatibleModelInfo_ModelsEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.key !== "") {
+  encode(
+    message: OcaCompatibleModelInfo_ModelsEntry,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.key !== '') {
       writer.uint32(10).string(message.key);
     }
     if (message.value !== undefined) {
@@ -7164,14 +7352,14 @@ export const OcaCompatibleModelInfo_ModelsEntry: MessageFns<OcaCompatibleModelIn
 
   fromJSON(object: any): OcaCompatibleModelInfo_ModelsEntry {
     return {
-      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      key: isSet(object.key) ? globalThis.String(object.key) : '',
       value: isSet(object.value) ? OcaModelInfo.fromJSON(object.value) : undefined,
     };
   },
 
   toJSON(message: OcaCompatibleModelInfo_ModelsEntry): unknown {
     const obj: any = {};
-    if (message.key !== "") {
+    if (message.key !== '') {
       obj.key = message.key;
     }
     if (message.value !== undefined) {
@@ -7189,10 +7377,11 @@ export const OcaCompatibleModelInfo_ModelsEntry: MessageFns<OcaCompatibleModelIn
     object: I,
   ): OcaCompatibleModelInfo_ModelsEntry {
     const message = createBaseOcaCompatibleModelInfo_ModelsEntry();
-    message.key = object.key ?? "";
-    message.value = (object.value !== undefined && object.value !== null)
-      ? OcaModelInfo.fromPartial(object.value)
-      : undefined;
+    message.key = object.key ?? '';
+    message.value =
+      object.value !== undefined && object.value !== null
+        ? OcaModelInfo.fromPartial(object.value)
+        : undefined;
     return message;
   },
 };
@@ -7218,7 +7407,10 @@ function createBaseOpenAiCompatibleModelInfo(): OpenAiCompatibleModelInfo {
 }
 
 export const OpenAiCompatibleModelInfo: MessageFns<OpenAiCompatibleModelInfo> = {
-  encode(message: OpenAiCompatibleModelInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: OpenAiCompatibleModelInfo,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.maxTokens !== undefined) {
       writer.uint32(8).int64(message.maxTokens);
     }
@@ -7408,53 +7600,53 @@ export const OpenAiCompatibleModelInfo: MessageFns<OpenAiCompatibleModelInfo> = 
       maxTokens: isSet(object.maxTokens)
         ? globalThis.Number(object.maxTokens)
         : isSet(object.max_tokens)
-        ? globalThis.Number(object.max_tokens)
-        : undefined,
+          ? globalThis.Number(object.max_tokens)
+          : undefined,
       contextWindow: isSet(object.contextWindow)
         ? globalThis.Number(object.contextWindow)
         : isSet(object.context_window)
-        ? globalThis.Number(object.context_window)
-        : undefined,
+          ? globalThis.Number(object.context_window)
+          : undefined,
       supportsImages: isSet(object.supportsImages)
         ? globalThis.Boolean(object.supportsImages)
         : isSet(object.supports_images)
-        ? globalThis.Boolean(object.supports_images)
-        : undefined,
+          ? globalThis.Boolean(object.supports_images)
+          : undefined,
       supportsPromptCache: isSet(object.supportsPromptCache)
         ? globalThis.Boolean(object.supportsPromptCache)
         : isSet(object.supports_prompt_cache)
-        ? globalThis.Boolean(object.supports_prompt_cache)
-        : false,
+          ? globalThis.Boolean(object.supports_prompt_cache)
+          : false,
       inputPrice: isSet(object.inputPrice)
         ? globalThis.Number(object.inputPrice)
         : isSet(object.input_price)
-        ? globalThis.Number(object.input_price)
-        : undefined,
+          ? globalThis.Number(object.input_price)
+          : undefined,
       outputPrice: isSet(object.outputPrice)
         ? globalThis.Number(object.outputPrice)
         : isSet(object.output_price)
-        ? globalThis.Number(object.output_price)
-        : undefined,
+          ? globalThis.Number(object.output_price)
+          : undefined,
       thinkingConfig: isSet(object.thinkingConfig)
         ? ThinkingConfig.fromJSON(object.thinkingConfig)
         : isSet(object.thinking_config)
-        ? ThinkingConfig.fromJSON(object.thinking_config)
-        : undefined,
+          ? ThinkingConfig.fromJSON(object.thinking_config)
+          : undefined,
       supportsGlobalEndpoint: isSet(object.supportsGlobalEndpoint)
         ? globalThis.Boolean(object.supportsGlobalEndpoint)
         : isSet(object.supports_global_endpoint)
-        ? globalThis.Boolean(object.supports_global_endpoint)
-        : undefined,
+          ? globalThis.Boolean(object.supports_global_endpoint)
+          : undefined,
       cacheWritesPrice: isSet(object.cacheWritesPrice)
         ? globalThis.Number(object.cacheWritesPrice)
         : isSet(object.cache_writes_price)
-        ? globalThis.Number(object.cache_writes_price)
-        : undefined,
+          ? globalThis.Number(object.cache_writes_price)
+          : undefined,
       cacheReadsPrice: isSet(object.cacheReadsPrice)
         ? globalThis.Number(object.cacheReadsPrice)
         : isSet(object.cache_reads_price)
-        ? globalThis.Number(object.cache_reads_price)
-        : undefined,
+          ? globalThis.Number(object.cache_reads_price)
+          : undefined,
       description: isSet(object.description) ? globalThis.String(object.description) : undefined,
       tiers: globalThis.Array.isArray(object?.tiers)
         ? object.tiers.map((e: any) => ModelTier.fromJSON(e))
@@ -7463,13 +7655,13 @@ export const OpenAiCompatibleModelInfo: MessageFns<OpenAiCompatibleModelInfo> = 
       isR1FormatRequired: isSet(object.isR1FormatRequired)
         ? globalThis.Boolean(object.isR1FormatRequired)
         : isSet(object.is_r1_format_required)
-        ? globalThis.Boolean(object.is_r1_format_required)
-        : undefined,
+          ? globalThis.Boolean(object.is_r1_format_required)
+          : undefined,
       apiFormat: isSet(object.apiFormat)
         ? apiFormatFromJSON(object.apiFormat)
         : isSet(object.api_format)
-        ? apiFormatFromJSON(object.api_format)
-        : undefined,
+          ? apiFormatFromJSON(object.api_format)
+          : undefined,
     };
   },
 
@@ -7523,10 +7715,14 @@ export const OpenAiCompatibleModelInfo: MessageFns<OpenAiCompatibleModelInfo> = 
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<OpenAiCompatibleModelInfo>, I>>(base?: I): OpenAiCompatibleModelInfo {
+  create<I extends Exact<DeepPartial<OpenAiCompatibleModelInfo>, I>>(
+    base?: I,
+  ): OpenAiCompatibleModelInfo {
     return OpenAiCompatibleModelInfo.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<OpenAiCompatibleModelInfo>, I>>(object: I): OpenAiCompatibleModelInfo {
+  fromPartial<I extends Exact<DeepPartial<OpenAiCompatibleModelInfo>, I>>(
+    object: I,
+  ): OpenAiCompatibleModelInfo {
     const message = createBaseOpenAiCompatibleModelInfo();
     message.maxTokens = object.maxTokens ?? undefined;
     message.contextWindow = object.contextWindow ?? undefined;
@@ -7534,9 +7730,10 @@ export const OpenAiCompatibleModelInfo: MessageFns<OpenAiCompatibleModelInfo> = 
     message.supportsPromptCache = object.supportsPromptCache ?? false;
     message.inputPrice = object.inputPrice ?? undefined;
     message.outputPrice = object.outputPrice ?? undefined;
-    message.thinkingConfig = (object.thinkingConfig !== undefined && object.thinkingConfig !== null)
-      ? ThinkingConfig.fromPartial(object.thinkingConfig)
-      : undefined;
+    message.thinkingConfig =
+      object.thinkingConfig !== undefined && object.thinkingConfig !== null
+        ? ThinkingConfig.fromPartial(object.thinkingConfig)
+        : undefined;
     message.supportsGlobalEndpoint = object.supportsGlobalEndpoint ?? undefined;
     message.cacheWritesPrice = object.cacheWritesPrice ?? undefined;
     message.cacheReadsPrice = object.cacheReadsPrice ?? undefined;
@@ -7760,53 +7957,53 @@ export const LiteLLMModelInfo: MessageFns<LiteLLMModelInfo> = {
       maxTokens: isSet(object.maxTokens)
         ? globalThis.Number(object.maxTokens)
         : isSet(object.max_tokens)
-        ? globalThis.Number(object.max_tokens)
-        : undefined,
+          ? globalThis.Number(object.max_tokens)
+          : undefined,
       contextWindow: isSet(object.contextWindow)
         ? globalThis.Number(object.contextWindow)
         : isSet(object.context_window)
-        ? globalThis.Number(object.context_window)
-        : undefined,
+          ? globalThis.Number(object.context_window)
+          : undefined,
       supportsImages: isSet(object.supportsImages)
         ? globalThis.Boolean(object.supportsImages)
         : isSet(object.supports_images)
-        ? globalThis.Boolean(object.supports_images)
-        : undefined,
+          ? globalThis.Boolean(object.supports_images)
+          : undefined,
       supportsPromptCache: isSet(object.supportsPromptCache)
         ? globalThis.Boolean(object.supportsPromptCache)
         : isSet(object.supports_prompt_cache)
-        ? globalThis.Boolean(object.supports_prompt_cache)
-        : false,
+          ? globalThis.Boolean(object.supports_prompt_cache)
+          : false,
       inputPrice: isSet(object.inputPrice)
         ? globalThis.Number(object.inputPrice)
         : isSet(object.input_price)
-        ? globalThis.Number(object.input_price)
-        : undefined,
+          ? globalThis.Number(object.input_price)
+          : undefined,
       outputPrice: isSet(object.outputPrice)
         ? globalThis.Number(object.outputPrice)
         : isSet(object.output_price)
-        ? globalThis.Number(object.output_price)
-        : undefined,
+          ? globalThis.Number(object.output_price)
+          : undefined,
       thinkingConfig: isSet(object.thinkingConfig)
         ? ThinkingConfig.fromJSON(object.thinkingConfig)
         : isSet(object.thinking_config)
-        ? ThinkingConfig.fromJSON(object.thinking_config)
-        : undefined,
+          ? ThinkingConfig.fromJSON(object.thinking_config)
+          : undefined,
       supportsGlobalEndpoint: isSet(object.supportsGlobalEndpoint)
         ? globalThis.Boolean(object.supportsGlobalEndpoint)
         : isSet(object.supports_global_endpoint)
-        ? globalThis.Boolean(object.supports_global_endpoint)
-        : undefined,
+          ? globalThis.Boolean(object.supports_global_endpoint)
+          : undefined,
       cacheWritesPrice: isSet(object.cacheWritesPrice)
         ? globalThis.Number(object.cacheWritesPrice)
         : isSet(object.cache_writes_price)
-        ? globalThis.Number(object.cache_writes_price)
-        : undefined,
+          ? globalThis.Number(object.cache_writes_price)
+          : undefined,
       cacheReadsPrice: isSet(object.cacheReadsPrice)
         ? globalThis.Number(object.cacheReadsPrice)
         : isSet(object.cache_reads_price)
-        ? globalThis.Number(object.cache_reads_price)
-        : undefined,
+          ? globalThis.Number(object.cache_reads_price)
+          : undefined,
       description: isSet(object.description) ? globalThis.String(object.description) : undefined,
       tiers: globalThis.Array.isArray(object?.tiers)
         ? object.tiers.map((e: any) => ModelTier.fromJSON(e))
@@ -7815,13 +8012,13 @@ export const LiteLLMModelInfo: MessageFns<LiteLLMModelInfo> = {
       apiFormat: isSet(object.apiFormat)
         ? apiFormatFromJSON(object.apiFormat)
         : isSet(object.api_format)
-        ? apiFormatFromJSON(object.api_format)
-        : undefined,
+          ? apiFormatFromJSON(object.api_format)
+          : undefined,
       supportsReasoning: isSet(object.supportsReasoning)
         ? globalThis.Boolean(object.supportsReasoning)
         : isSet(object.supports_reasoning)
-        ? globalThis.Boolean(object.supports_reasoning)
-        : undefined,
+          ? globalThis.Boolean(object.supports_reasoning)
+          : undefined,
     };
   },
 
@@ -7886,9 +8083,10 @@ export const LiteLLMModelInfo: MessageFns<LiteLLMModelInfo> = {
     message.supportsPromptCache = object.supportsPromptCache ?? false;
     message.inputPrice = object.inputPrice ?? undefined;
     message.outputPrice = object.outputPrice ?? undefined;
-    message.thinkingConfig = (object.thinkingConfig !== undefined && object.thinkingConfig !== null)
-      ? ThinkingConfig.fromPartial(object.thinkingConfig)
-      : undefined;
+    message.thinkingConfig =
+      object.thinkingConfig !== undefined && object.thinkingConfig !== null
+        ? ThinkingConfig.fromPartial(object.thinkingConfig)
+        : undefined;
     message.supportsGlobalEndpoint = object.supportsGlobalEndpoint ?? undefined;
     message.cacheWritesPrice = object.cacheWritesPrice ?? undefined;
     message.cacheReadsPrice = object.cacheReadsPrice ?? undefined;
@@ -8098,7 +8296,10 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
       writer.uint32(48).bool(message.liteLlmUsePromptCache);
     }
     globalThis.Object.entries(message.openAiHeaders).forEach(([key, value]: [string, string]) => {
-      ModelsApiConfiguration_OpenAiHeadersEntry.encode({ key: key as any, value }, writer.uint32(58).fork()).join();
+      ModelsApiConfiguration_OpenAiHeadersEntry.encode(
+        { key: key as any, value },
+        writer.uint32(58).fork(),
+      ).join();
     });
     if (message.anthropicBaseUrl !== undefined) {
       writer.uint32(66).string(message.anthropicBaseUrl);
@@ -8353,7 +8554,10 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
       writer.uint32(826).string(message.planModeReasoningEffort);
     }
     if (message.planModeVsCodeLmModelSelector !== undefined) {
-      LanguageModelChatSelector.encode(message.planModeVsCodeLmModelSelector, writer.uint32(834).fork()).join();
+      LanguageModelChatSelector.encode(
+        message.planModeVsCodeLmModelSelector,
+        writer.uint32(834).fork(),
+      ).join();
     }
     if (message.planModeAwsBedrockCustomSelected !== undefined) {
       writer.uint32(840).bool(message.planModeAwsBedrockCustomSelected);
@@ -8365,13 +8569,19 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
       writer.uint32(858).string(message.planModeOpenRouterModelId);
     }
     if (message.planModeOpenRouterModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.planModeOpenRouterModelInfo, writer.uint32(866).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.planModeOpenRouterModelInfo,
+        writer.uint32(866).fork(),
+      ).join();
     }
     if (message.planModeOpenAiModelId !== undefined) {
       writer.uint32(874).string(message.planModeOpenAiModelId);
     }
     if (message.planModeOpenAiModelInfo !== undefined) {
-      OpenAiCompatibleModelInfo.encode(message.planModeOpenAiModelInfo, writer.uint32(882).fork()).join();
+      OpenAiCompatibleModelInfo.encode(
+        message.planModeOpenAiModelInfo,
+        writer.uint32(882).fork(),
+      ).join();
     }
     if (message.planModeOllamaModelId !== undefined) {
       writer.uint32(890).string(message.planModeOllamaModelId);
@@ -8389,7 +8599,10 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
       writer.uint32(922).string(message.planModeRequestyModelId);
     }
     if (message.planModeRequestyModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.planModeRequestyModelInfo, writer.uint32(930).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.planModeRequestyModelInfo,
+        writer.uint32(930).fork(),
+      ).join();
     }
     if (message.planModeTogetherModelId !== undefined) {
       writer.uint32(938).string(message.planModeTogetherModelId);
@@ -8413,25 +8626,37 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
       writer.uint32(986).string(message.planModeHuggingFaceModelId);
     }
     if (message.planModeHuggingFaceModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.planModeHuggingFaceModelInfo, writer.uint32(994).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.planModeHuggingFaceModelInfo,
+        writer.uint32(994).fork(),
+      ).join();
     }
     if (message.planModeHuaweiCloudMaasModelId !== undefined) {
       writer.uint32(1002).string(message.planModeHuaweiCloudMaasModelId);
     }
     if (message.planModeHuaweiCloudMaasModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.planModeHuaweiCloudMaasModelInfo, writer.uint32(1010).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.planModeHuaweiCloudMaasModelInfo,
+        writer.uint32(1010).fork(),
+      ).join();
     }
     if (message.planModeBasetenModelId !== undefined) {
       writer.uint32(1018).string(message.planModeBasetenModelId);
     }
     if (message.planModeBasetenModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.planModeBasetenModelInfo, writer.uint32(1026).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.planModeBasetenModelInfo,
+        writer.uint32(1026).fork(),
+      ).join();
     }
     if (message.planModeVercelAiGatewayModelId !== undefined) {
       writer.uint32(1034).string(message.planModeVercelAiGatewayModelId);
     }
     if (message.planModeVercelAiGatewayModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.planModeVercelAiGatewayModelInfo, writer.uint32(1042).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.planModeVercelAiGatewayModelInfo,
+        writer.uint32(1042).fork(),
+      ).join();
     }
     if (message.planModeOcaModelId !== undefined) {
       writer.uint32(1050).string(message.planModeOcaModelId);
@@ -8452,7 +8677,10 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
       writer.uint32(1090).string(message.planModeAihubmixModelId);
     }
     if (message.planModeAihubmixModelInfo !== undefined) {
-      OpenAiCompatibleModelInfo.encode(message.planModeAihubmixModelInfo, writer.uint32(1098).fork()).join();
+      OpenAiCompatibleModelInfo.encode(
+        message.planModeAihubmixModelInfo,
+        writer.uint32(1098).fork(),
+      ).join();
     }
     if (message.planModeNousResearchModelId !== undefined) {
       writer.uint32(1106).string(message.planModeNousResearchModelId);
@@ -8479,7 +8707,10 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
       writer.uint32(1626).string(message.actModeReasoningEffort);
     }
     if (message.actModeVsCodeLmModelSelector !== undefined) {
-      LanguageModelChatSelector.encode(message.actModeVsCodeLmModelSelector, writer.uint32(1634).fork()).join();
+      LanguageModelChatSelector.encode(
+        message.actModeVsCodeLmModelSelector,
+        writer.uint32(1634).fork(),
+      ).join();
     }
     if (message.actModeAwsBedrockCustomSelected !== undefined) {
       writer.uint32(1640).bool(message.actModeAwsBedrockCustomSelected);
@@ -8491,13 +8722,19 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
       writer.uint32(1658).string(message.actModeOpenRouterModelId);
     }
     if (message.actModeOpenRouterModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.actModeOpenRouterModelInfo, writer.uint32(1666).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.actModeOpenRouterModelInfo,
+        writer.uint32(1666).fork(),
+      ).join();
     }
     if (message.actModeOpenAiModelId !== undefined) {
       writer.uint32(1674).string(message.actModeOpenAiModelId);
     }
     if (message.actModeOpenAiModelInfo !== undefined) {
-      OpenAiCompatibleModelInfo.encode(message.actModeOpenAiModelInfo, writer.uint32(1682).fork()).join();
+      OpenAiCompatibleModelInfo.encode(
+        message.actModeOpenAiModelInfo,
+        writer.uint32(1682).fork(),
+      ).join();
     }
     if (message.actModeOllamaModelId !== undefined) {
       writer.uint32(1690).string(message.actModeOllamaModelId);
@@ -8515,7 +8752,10 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
       writer.uint32(1722).string(message.actModeRequestyModelId);
     }
     if (message.actModeRequestyModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.actModeRequestyModelInfo, writer.uint32(1730).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.actModeRequestyModelInfo,
+        writer.uint32(1730).fork(),
+      ).join();
     }
     if (message.actModeTogetherModelId !== undefined) {
       writer.uint32(1738).string(message.actModeTogetherModelId);
@@ -8539,25 +8779,37 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
       writer.uint32(1786).string(message.actModeHuggingFaceModelId);
     }
     if (message.actModeHuggingFaceModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.actModeHuggingFaceModelInfo, writer.uint32(1794).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.actModeHuggingFaceModelInfo,
+        writer.uint32(1794).fork(),
+      ).join();
     }
     if (message.actModeHuaweiCloudMaasModelId !== undefined) {
       writer.uint32(1802).string(message.actModeHuaweiCloudMaasModelId);
     }
     if (message.actModeHuaweiCloudMaasModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.actModeHuaweiCloudMaasModelInfo, writer.uint32(1810).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.actModeHuaweiCloudMaasModelInfo,
+        writer.uint32(1810).fork(),
+      ).join();
     }
     if (message.actModeBasetenModelId !== undefined) {
       writer.uint32(1818).string(message.actModeBasetenModelId);
     }
     if (message.actModeBasetenModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.actModeBasetenModelInfo, writer.uint32(1826).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.actModeBasetenModelInfo,
+        writer.uint32(1826).fork(),
+      ).join();
     }
     if (message.actModeVercelAiGatewayModelId !== undefined) {
       writer.uint32(1834).string(message.actModeVercelAiGatewayModelId);
     }
     if (message.actModeVercelAiGatewayModelInfo !== undefined) {
-      OpenRouterModelInfo.encode(message.actModeVercelAiGatewayModelInfo, writer.uint32(1842).fork()).join();
+      OpenRouterModelInfo.encode(
+        message.actModeVercelAiGatewayModelInfo,
+        writer.uint32(1842).fork(),
+      ).join();
     }
     if (message.actModeOcaModelId !== undefined) {
       writer.uint32(1850).string(message.actModeOcaModelId);
@@ -8578,7 +8830,10 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
       writer.uint32(1890).string(message.actModeAihubmixModelId);
     }
     if (message.actModeAihubmixModelInfo !== undefined) {
-      OpenAiCompatibleModelInfo.encode(message.actModeAihubmixModelInfo, writer.uint32(1898).fork()).join();
+      OpenAiCompatibleModelInfo.encode(
+        message.actModeAihubmixModelInfo,
+        writer.uint32(1898).fork(),
+      ).join();
     }
     if (message.actModeNousResearchModelId !== undefined) {
       writer.uint32(1906).string(message.actModeNousResearchModelId);
@@ -9338,7 +9593,10 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
             break;
           }
 
-          message.planModeVsCodeLmModelSelector = LanguageModelChatSelector.decode(reader, reader.uint32());
+          message.planModeVsCodeLmModelSelector = LanguageModelChatSelector.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 105: {
@@ -9386,7 +9644,10 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
             break;
           }
 
-          message.planModeOpenAiModelInfo = OpenAiCompatibleModelInfo.decode(reader, reader.uint32());
+          message.planModeOpenAiModelInfo = OpenAiCompatibleModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 111: {
@@ -9498,7 +9759,10 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
             break;
           }
 
-          message.planModeHuggingFaceModelInfo = OpenRouterModelInfo.decode(reader, reader.uint32());
+          message.planModeHuggingFaceModelInfo = OpenRouterModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 125: {
@@ -9514,7 +9778,10 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
             break;
           }
 
-          message.planModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.decode(reader, reader.uint32());
+          message.planModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 127: {
@@ -9546,7 +9813,10 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
             break;
           }
 
-          message.planModeVercelAiGatewayModelInfo = OpenRouterModelInfo.decode(reader, reader.uint32());
+          message.planModeVercelAiGatewayModelInfo = OpenRouterModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 131: {
@@ -9602,7 +9872,10 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
             break;
           }
 
-          message.planModeAihubmixModelInfo = OpenAiCompatibleModelInfo.decode(reader, reader.uint32());
+          message.planModeAihubmixModelInfo = OpenAiCompatibleModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 138: {
@@ -9674,7 +9947,10 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
             break;
           }
 
-          message.actModeVsCodeLmModelSelector = LanguageModelChatSelector.decode(reader, reader.uint32());
+          message.actModeVsCodeLmModelSelector = LanguageModelChatSelector.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 205: {
@@ -9722,7 +9998,10 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
             break;
           }
 
-          message.actModeOpenAiModelInfo = OpenAiCompatibleModelInfo.decode(reader, reader.uint32());
+          message.actModeOpenAiModelInfo = OpenAiCompatibleModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 211: {
@@ -9850,7 +10129,10 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
             break;
           }
 
-          message.actModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.decode(reader, reader.uint32());
+          message.actModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 227: {
@@ -9882,7 +10164,10 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
             break;
           }
 
-          message.actModeVercelAiGatewayModelInfo = OpenRouterModelInfo.decode(reader, reader.uint32());
+          message.actModeVercelAiGatewayModelInfo = OpenRouterModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 231: {
@@ -9938,7 +10223,10 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
             break;
           }
 
-          message.actModeAihubmixModelInfo = OpenAiCompatibleModelInfo.decode(reader, reader.uint32());
+          message.actModeAihubmixModelInfo = OpenAiCompatibleModelInfo.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 238: {
@@ -9987,866 +10275,866 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
       apiKey: isSet(object.apiKey)
         ? globalThis.String(object.apiKey)
         : isSet(object.api_key)
-        ? globalThis.String(object.api_key)
-        : undefined,
+          ? globalThis.String(object.api_key)
+          : undefined,
       clineApiKey: isSet(object.clineApiKey)
         ? globalThis.String(object.clineApiKey)
         : isSet(object.cline_api_key)
-        ? globalThis.String(object.cline_api_key)
-        : undefined,
+          ? globalThis.String(object.cline_api_key)
+          : undefined,
       ulid: isSet(object.ulid) ? globalThis.String(object.ulid) : undefined,
       liteLlmBaseUrl: isSet(object.liteLlmBaseUrl)
         ? globalThis.String(object.liteLlmBaseUrl)
         : isSet(object.lite_llm_base_url)
-        ? globalThis.String(object.lite_llm_base_url)
-        : undefined,
+          ? globalThis.String(object.lite_llm_base_url)
+          : undefined,
       liteLlmApiKey: isSet(object.liteLlmApiKey)
         ? globalThis.String(object.liteLlmApiKey)
         : isSet(object.lite_llm_api_key)
-        ? globalThis.String(object.lite_llm_api_key)
-        : undefined,
+          ? globalThis.String(object.lite_llm_api_key)
+          : undefined,
       liteLlmUsePromptCache: isSet(object.liteLlmUsePromptCache)
         ? globalThis.Boolean(object.liteLlmUsePromptCache)
         : isSet(object.lite_llm_use_prompt_cache)
-        ? globalThis.Boolean(object.lite_llm_use_prompt_cache)
-        : undefined,
+          ? globalThis.Boolean(object.lite_llm_use_prompt_cache)
+          : undefined,
       openAiHeaders: isObject(object.openAiHeaders)
         ? (globalThis.Object.entries(object.openAiHeaders) as [string, any][]).reduce(
-          (acc: { [key: string]: string }, [key, value]: [string, any]) => {
-            acc[key] = globalThis.String(value);
-            return acc;
-          },
-          {},
-        )
+            (acc: { [key: string]: string }, [key, value]: [string, any]) => {
+              acc[key] = globalThis.String(value);
+              return acc;
+            },
+            {},
+          )
         : isObject(object.open_ai_headers)
-        ? (globalThis.Object.entries(object.open_ai_headers) as [string, any][]).reduce(
-          (acc: { [key: string]: string }, [key, value]: [string, any]) => {
-            acc[key] = globalThis.String(value);
-            return acc;
-          },
-          {},
-        )
-        : {},
+          ? (globalThis.Object.entries(object.open_ai_headers) as [string, any][]).reduce(
+              (acc: { [key: string]: string }, [key, value]: [string, any]) => {
+                acc[key] = globalThis.String(value);
+                return acc;
+              },
+              {},
+            )
+          : {},
       anthropicBaseUrl: isSet(object.anthropicBaseUrl)
         ? globalThis.String(object.anthropicBaseUrl)
         : isSet(object.anthropic_base_url)
-        ? globalThis.String(object.anthropic_base_url)
-        : undefined,
+          ? globalThis.String(object.anthropic_base_url)
+          : undefined,
       openRouterApiKey: isSet(object.openRouterApiKey)
         ? globalThis.String(object.openRouterApiKey)
         : isSet(object.open_router_api_key)
-        ? globalThis.String(object.open_router_api_key)
-        : undefined,
+          ? globalThis.String(object.open_router_api_key)
+          : undefined,
       openRouterProviderSorting: isSet(object.openRouterProviderSorting)
         ? globalThis.String(object.openRouterProviderSorting)
         : isSet(object.open_router_provider_sorting)
-        ? globalThis.String(object.open_router_provider_sorting)
-        : undefined,
+          ? globalThis.String(object.open_router_provider_sorting)
+          : undefined,
       awsAccessKey: isSet(object.awsAccessKey)
         ? globalThis.String(object.awsAccessKey)
         : isSet(object.aws_access_key)
-        ? globalThis.String(object.aws_access_key)
-        : undefined,
+          ? globalThis.String(object.aws_access_key)
+          : undefined,
       awsSecretKey: isSet(object.awsSecretKey)
         ? globalThis.String(object.awsSecretKey)
         : isSet(object.aws_secret_key)
-        ? globalThis.String(object.aws_secret_key)
-        : undefined,
+          ? globalThis.String(object.aws_secret_key)
+          : undefined,
       awsSessionToken: isSet(object.awsSessionToken)
         ? globalThis.String(object.awsSessionToken)
         : isSet(object.aws_session_token)
-        ? globalThis.String(object.aws_session_token)
-        : undefined,
+          ? globalThis.String(object.aws_session_token)
+          : undefined,
       awsRegion: isSet(object.awsRegion)
         ? globalThis.String(object.awsRegion)
         : isSet(object.aws_region)
-        ? globalThis.String(object.aws_region)
-        : undefined,
+          ? globalThis.String(object.aws_region)
+          : undefined,
       awsUseCrossRegionInference: isSet(object.awsUseCrossRegionInference)
         ? globalThis.Boolean(object.awsUseCrossRegionInference)
         : isSet(object.aws_use_cross_region_inference)
-        ? globalThis.Boolean(object.aws_use_cross_region_inference)
-        : undefined,
+          ? globalThis.Boolean(object.aws_use_cross_region_inference)
+          : undefined,
       awsBedrockUsePromptCache: isSet(object.awsBedrockUsePromptCache)
         ? globalThis.Boolean(object.awsBedrockUsePromptCache)
         : isSet(object.aws_bedrock_use_prompt_cache)
-        ? globalThis.Boolean(object.aws_bedrock_use_prompt_cache)
-        : undefined,
+          ? globalThis.Boolean(object.aws_bedrock_use_prompt_cache)
+          : undefined,
       awsUseProfile: isSet(object.awsUseProfile)
         ? globalThis.Boolean(object.awsUseProfile)
         : isSet(object.aws_use_profile)
-        ? globalThis.Boolean(object.aws_use_profile)
-        : undefined,
+          ? globalThis.Boolean(object.aws_use_profile)
+          : undefined,
       awsProfile: isSet(object.awsProfile)
         ? globalThis.String(object.awsProfile)
         : isSet(object.aws_profile)
-        ? globalThis.String(object.aws_profile)
-        : undefined,
+          ? globalThis.String(object.aws_profile)
+          : undefined,
       awsBedrockEndpoint: isSet(object.awsBedrockEndpoint)
         ? globalThis.String(object.awsBedrockEndpoint)
         : isSet(object.aws_bedrock_endpoint)
-        ? globalThis.String(object.aws_bedrock_endpoint)
-        : undefined,
+          ? globalThis.String(object.aws_bedrock_endpoint)
+          : undefined,
       claudeCodePath: isSet(object.claudeCodePath)
         ? globalThis.String(object.claudeCodePath)
         : isSet(object.claude_code_path)
-        ? globalThis.String(object.claude_code_path)
-        : undefined,
+          ? globalThis.String(object.claude_code_path)
+          : undefined,
       vertexProjectId: isSet(object.vertexProjectId)
         ? globalThis.String(object.vertexProjectId)
         : isSet(object.vertex_project_id)
-        ? globalThis.String(object.vertex_project_id)
-        : undefined,
+          ? globalThis.String(object.vertex_project_id)
+          : undefined,
       vertexRegion: isSet(object.vertexRegion)
         ? globalThis.String(object.vertexRegion)
         : isSet(object.vertex_region)
-        ? globalThis.String(object.vertex_region)
-        : undefined,
+          ? globalThis.String(object.vertex_region)
+          : undefined,
       openAiBaseUrl: isSet(object.openAiBaseUrl)
         ? globalThis.String(object.openAiBaseUrl)
         : isSet(object.open_ai_base_url)
-        ? globalThis.String(object.open_ai_base_url)
-        : undefined,
+          ? globalThis.String(object.open_ai_base_url)
+          : undefined,
       openAiApiKey: isSet(object.openAiApiKey)
         ? globalThis.String(object.openAiApiKey)
         : isSet(object.open_ai_api_key)
-        ? globalThis.String(object.open_ai_api_key)
-        : undefined,
+          ? globalThis.String(object.open_ai_api_key)
+          : undefined,
       ollamaBaseUrl: isSet(object.ollamaBaseUrl)
         ? globalThis.String(object.ollamaBaseUrl)
         : isSet(object.ollama_base_url)
-        ? globalThis.String(object.ollama_base_url)
-        : undefined,
+          ? globalThis.String(object.ollama_base_url)
+          : undefined,
       ollamaApiOptionsCtxNum: isSet(object.ollamaApiOptionsCtxNum)
         ? globalThis.String(object.ollamaApiOptionsCtxNum)
         : isSet(object.ollama_api_options_ctx_num)
-        ? globalThis.String(object.ollama_api_options_ctx_num)
-        : undefined,
+          ? globalThis.String(object.ollama_api_options_ctx_num)
+          : undefined,
       lmStudioBaseUrl: isSet(object.lmStudioBaseUrl)
         ? globalThis.String(object.lmStudioBaseUrl)
         : isSet(object.lm_studio_base_url)
-        ? globalThis.String(object.lm_studio_base_url)
-        : undefined,
+          ? globalThis.String(object.lm_studio_base_url)
+          : undefined,
       geminiApiKey: isSet(object.geminiApiKey)
         ? globalThis.String(object.geminiApiKey)
         : isSet(object.gemini_api_key)
-        ? globalThis.String(object.gemini_api_key)
-        : undefined,
+          ? globalThis.String(object.gemini_api_key)
+          : undefined,
       geminiBaseUrl: isSet(object.geminiBaseUrl)
         ? globalThis.String(object.geminiBaseUrl)
         : isSet(object.gemini_base_url)
-        ? globalThis.String(object.gemini_base_url)
-        : undefined,
+          ? globalThis.String(object.gemini_base_url)
+          : undefined,
       openAiNativeApiKey: isSet(object.openAiNativeApiKey)
         ? globalThis.String(object.openAiNativeApiKey)
         : isSet(object.open_ai_native_api_key)
-        ? globalThis.String(object.open_ai_native_api_key)
-        : undefined,
+          ? globalThis.String(object.open_ai_native_api_key)
+          : undefined,
       deepSeekApiKey: isSet(object.deepSeekApiKey)
         ? globalThis.String(object.deepSeekApiKey)
         : isSet(object.deep_seek_api_key)
-        ? globalThis.String(object.deep_seek_api_key)
-        : undefined,
+          ? globalThis.String(object.deep_seek_api_key)
+          : undefined,
       requestyApiKey: isSet(object.requestyApiKey)
         ? globalThis.String(object.requestyApiKey)
         : isSet(object.requesty_api_key)
-        ? globalThis.String(object.requesty_api_key)
-        : undefined,
+          ? globalThis.String(object.requesty_api_key)
+          : undefined,
       requestyBaseUrl: isSet(object.requestyBaseUrl)
         ? globalThis.String(object.requestyBaseUrl)
         : isSet(object.requesty_base_url)
-        ? globalThis.String(object.requesty_base_url)
-        : undefined,
+          ? globalThis.String(object.requesty_base_url)
+          : undefined,
       togetherApiKey: isSet(object.togetherApiKey)
         ? globalThis.String(object.togetherApiKey)
         : isSet(object.together_api_key)
-        ? globalThis.String(object.together_api_key)
-        : undefined,
+          ? globalThis.String(object.together_api_key)
+          : undefined,
       fireworksApiKey: isSet(object.fireworksApiKey)
         ? globalThis.String(object.fireworksApiKey)
         : isSet(object.fireworks_api_key)
-        ? globalThis.String(object.fireworks_api_key)
-        : undefined,
+          ? globalThis.String(object.fireworks_api_key)
+          : undefined,
       fireworksModelMaxCompletionTokens: isSet(object.fireworksModelMaxCompletionTokens)
         ? globalThis.Number(object.fireworksModelMaxCompletionTokens)
         : isSet(object.fireworks_model_max_completion_tokens)
-        ? globalThis.Number(object.fireworks_model_max_completion_tokens)
-        : undefined,
+          ? globalThis.Number(object.fireworks_model_max_completion_tokens)
+          : undefined,
       fireworksModelMaxTokens: isSet(object.fireworksModelMaxTokens)
         ? globalThis.Number(object.fireworksModelMaxTokens)
         : isSet(object.fireworks_model_max_tokens)
-        ? globalThis.Number(object.fireworks_model_max_tokens)
-        : undefined,
+          ? globalThis.Number(object.fireworks_model_max_tokens)
+          : undefined,
       qwenApiKey: isSet(object.qwenApiKey)
         ? globalThis.String(object.qwenApiKey)
         : isSet(object.qwen_api_key)
-        ? globalThis.String(object.qwen_api_key)
-        : undefined,
+          ? globalThis.String(object.qwen_api_key)
+          : undefined,
       doubaoApiKey: isSet(object.doubaoApiKey)
         ? globalThis.String(object.doubaoApiKey)
         : isSet(object.doubao_api_key)
-        ? globalThis.String(object.doubao_api_key)
-        : undefined,
+          ? globalThis.String(object.doubao_api_key)
+          : undefined,
       mistralApiKey: isSet(object.mistralApiKey)
         ? globalThis.String(object.mistralApiKey)
         : isSet(object.mistral_api_key)
-        ? globalThis.String(object.mistral_api_key)
-        : undefined,
+          ? globalThis.String(object.mistral_api_key)
+          : undefined,
       azureApiVersion: isSet(object.azureApiVersion)
         ? globalThis.String(object.azureApiVersion)
         : isSet(object.azure_api_version)
-        ? globalThis.String(object.azure_api_version)
-        : undefined,
+          ? globalThis.String(object.azure_api_version)
+          : undefined,
       qwenApiLine: isSet(object.qwenApiLine)
         ? globalThis.String(object.qwenApiLine)
         : isSet(object.qwen_api_line)
-        ? globalThis.String(object.qwen_api_line)
-        : undefined,
+          ? globalThis.String(object.qwen_api_line)
+          : undefined,
       nebiusApiKey: isSet(object.nebiusApiKey)
         ? globalThis.String(object.nebiusApiKey)
         : isSet(object.nebius_api_key)
-        ? globalThis.String(object.nebius_api_key)
-        : undefined,
+          ? globalThis.String(object.nebius_api_key)
+          : undefined,
       asksageApiUrl: isSet(object.asksageApiUrl)
         ? globalThis.String(object.asksageApiUrl)
         : isSet(object.asksage_api_url)
-        ? globalThis.String(object.asksage_api_url)
-        : undefined,
+          ? globalThis.String(object.asksage_api_url)
+          : undefined,
       asksageApiKey: isSet(object.asksageApiKey)
         ? globalThis.String(object.asksageApiKey)
         : isSet(object.asksage_api_key)
-        ? globalThis.String(object.asksage_api_key)
-        : undefined,
+          ? globalThis.String(object.asksage_api_key)
+          : undefined,
       xaiApiKey: isSet(object.xaiApiKey)
         ? globalThis.String(object.xaiApiKey)
         : isSet(object.xai_api_key)
-        ? globalThis.String(object.xai_api_key)
-        : undefined,
+          ? globalThis.String(object.xai_api_key)
+          : undefined,
       sambanovaApiKey: isSet(object.sambanovaApiKey)
         ? globalThis.String(object.sambanovaApiKey)
         : isSet(object.sambanova_api_key)
-        ? globalThis.String(object.sambanova_api_key)
-        : undefined,
+          ? globalThis.String(object.sambanova_api_key)
+          : undefined,
       cerebrasApiKey: isSet(object.cerebrasApiKey)
         ? globalThis.String(object.cerebrasApiKey)
         : isSet(object.cerebras_api_key)
-        ? globalThis.String(object.cerebras_api_key)
-        : undefined,
+          ? globalThis.String(object.cerebras_api_key)
+          : undefined,
       requestTimeoutMs: isSet(object.requestTimeoutMs)
         ? globalThis.Number(object.requestTimeoutMs)
         : isSet(object.request_timeout_ms)
-        ? globalThis.Number(object.request_timeout_ms)
-        : undefined,
+          ? globalThis.Number(object.request_timeout_ms)
+          : undefined,
       sapAiCoreClientId: isSet(object.sapAiCoreClientId)
         ? globalThis.String(object.sapAiCoreClientId)
         : isSet(object.sap_ai_core_client_id)
-        ? globalThis.String(object.sap_ai_core_client_id)
-        : undefined,
+          ? globalThis.String(object.sap_ai_core_client_id)
+          : undefined,
       sapAiCoreClientSecret: isSet(object.sapAiCoreClientSecret)
         ? globalThis.String(object.sapAiCoreClientSecret)
         : isSet(object.sap_ai_core_client_secret)
-        ? globalThis.String(object.sap_ai_core_client_secret)
-        : undefined,
+          ? globalThis.String(object.sap_ai_core_client_secret)
+          : undefined,
       sapAiResourceGroup: isSet(object.sapAiResourceGroup)
         ? globalThis.String(object.sapAiResourceGroup)
         : isSet(object.sap_ai_resource_group)
-        ? globalThis.String(object.sap_ai_resource_group)
-        : undefined,
+          ? globalThis.String(object.sap_ai_resource_group)
+          : undefined,
       sapAiCoreTokenUrl: isSet(object.sapAiCoreTokenUrl)
         ? globalThis.String(object.sapAiCoreTokenUrl)
         : isSet(object.sap_ai_core_token_url)
-        ? globalThis.String(object.sap_ai_core_token_url)
-        : undefined,
+          ? globalThis.String(object.sap_ai_core_token_url)
+          : undefined,
       sapAiCoreBaseUrl: isSet(object.sapAiCoreBaseUrl)
         ? globalThis.String(object.sapAiCoreBaseUrl)
         : isSet(object.sap_ai_core_base_url)
-        ? globalThis.String(object.sap_ai_core_base_url)
-        : undefined,
+          ? globalThis.String(object.sap_ai_core_base_url)
+          : undefined,
       sapAiCoreUseOrchestrationMode: isSet(object.sapAiCoreUseOrchestrationMode)
         ? globalThis.Boolean(object.sapAiCoreUseOrchestrationMode)
         : isSet(object.sap_ai_core_use_orchestration_mode)
-        ? globalThis.Boolean(object.sap_ai_core_use_orchestration_mode)
-        : undefined,
+          ? globalThis.Boolean(object.sap_ai_core_use_orchestration_mode)
+          : undefined,
       moonshotApiKey: isSet(object.moonshotApiKey)
         ? globalThis.String(object.moonshotApiKey)
         : isSet(object.moonshot_api_key)
-        ? globalThis.String(object.moonshot_api_key)
-        : undefined,
+          ? globalThis.String(object.moonshot_api_key)
+          : undefined,
       moonshotApiLine: isSet(object.moonshotApiLine)
         ? globalThis.String(object.moonshotApiLine)
         : isSet(object.moonshot_api_line)
-        ? globalThis.String(object.moonshot_api_line)
-        : undefined,
+          ? globalThis.String(object.moonshot_api_line)
+          : undefined,
       awsAuthentication: isSet(object.awsAuthentication)
         ? globalThis.String(object.awsAuthentication)
         : isSet(object.aws_authentication)
-        ? globalThis.String(object.aws_authentication)
-        : undefined,
+          ? globalThis.String(object.aws_authentication)
+          : undefined,
       awsBedrockApiKey: isSet(object.awsBedrockApiKey)
         ? globalThis.String(object.awsBedrockApiKey)
         : isSet(object.aws_bedrock_api_key)
-        ? globalThis.String(object.aws_bedrock_api_key)
-        : undefined,
+          ? globalThis.String(object.aws_bedrock_api_key)
+          : undefined,
       clineAccountId: isSet(object.clineAccountId)
         ? globalThis.String(object.clineAccountId)
         : isSet(object.cline_account_id)
-        ? globalThis.String(object.cline_account_id)
-        : undefined,
+          ? globalThis.String(object.cline_account_id)
+          : undefined,
       groqApiKey: isSet(object.groqApiKey)
         ? globalThis.String(object.groqApiKey)
         : isSet(object.groq_api_key)
-        ? globalThis.String(object.groq_api_key)
-        : undefined,
+          ? globalThis.String(object.groq_api_key)
+          : undefined,
       huggingFaceApiKey: isSet(object.huggingFaceApiKey)
         ? globalThis.String(object.huggingFaceApiKey)
         : isSet(object.hugging_face_api_key)
-        ? globalThis.String(object.hugging_face_api_key)
-        : undefined,
+          ? globalThis.String(object.hugging_face_api_key)
+          : undefined,
       huaweiCloudMaasApiKey: isSet(object.huaweiCloudMaasApiKey)
         ? globalThis.String(object.huaweiCloudMaasApiKey)
         : isSet(object.huawei_cloud_maas_api_key)
-        ? globalThis.String(object.huawei_cloud_maas_api_key)
-        : undefined,
+          ? globalThis.String(object.huawei_cloud_maas_api_key)
+          : undefined,
       basetenApiKey: isSet(object.basetenApiKey)
         ? globalThis.String(object.basetenApiKey)
         : isSet(object.baseten_api_key)
-        ? globalThis.String(object.baseten_api_key)
-        : undefined,
+          ? globalThis.String(object.baseten_api_key)
+          : undefined,
       ollamaApiKey: isSet(object.ollamaApiKey)
         ? globalThis.String(object.ollamaApiKey)
         : isSet(object.ollama_api_key)
-        ? globalThis.String(object.ollama_api_key)
-        : undefined,
+          ? globalThis.String(object.ollama_api_key)
+          : undefined,
       zaiApiKey: isSet(object.zaiApiKey)
         ? globalThis.String(object.zaiApiKey)
         : isSet(object.zai_api_key)
-        ? globalThis.String(object.zai_api_key)
-        : undefined,
+          ? globalThis.String(object.zai_api_key)
+          : undefined,
       zaiApiLine: isSet(object.zaiApiLine)
         ? globalThis.String(object.zaiApiLine)
         : isSet(object.zai_api_line)
-        ? globalThis.String(object.zai_api_line)
-        : undefined,
+          ? globalThis.String(object.zai_api_line)
+          : undefined,
       lmStudioMaxTokens: isSet(object.lmStudioMaxTokens)
         ? globalThis.String(object.lmStudioMaxTokens)
         : isSet(object.lm_studio_max_tokens)
-        ? globalThis.String(object.lm_studio_max_tokens)
-        : undefined,
+          ? globalThis.String(object.lm_studio_max_tokens)
+          : undefined,
       vercelAiGatewayApiKey: isSet(object.vercelAiGatewayApiKey)
         ? globalThis.String(object.vercelAiGatewayApiKey)
         : isSet(object.vercel_ai_gateway_api_key)
-        ? globalThis.String(object.vercel_ai_gateway_api_key)
-        : undefined,
+          ? globalThis.String(object.vercel_ai_gateway_api_key)
+          : undefined,
       qwenCodeOauthPath: isSet(object.qwenCodeOauthPath)
         ? globalThis.String(object.qwenCodeOauthPath)
         : isSet(object.qwen_code_oauth_path)
-        ? globalThis.String(object.qwen_code_oauth_path)
-        : undefined,
+          ? globalThis.String(object.qwen_code_oauth_path)
+          : undefined,
       difyApiKey: isSet(object.difyApiKey)
         ? globalThis.String(object.difyApiKey)
         : isSet(object.dify_api_key)
-        ? globalThis.String(object.dify_api_key)
-        : undefined,
+          ? globalThis.String(object.dify_api_key)
+          : undefined,
       difyBaseUrl: isSet(object.difyBaseUrl)
         ? globalThis.String(object.difyBaseUrl)
         : isSet(object.dify_base_url)
-        ? globalThis.String(object.dify_base_url)
-        : undefined,
+          ? globalThis.String(object.dify_base_url)
+          : undefined,
       ocaBaseUrl: isSet(object.ocaBaseUrl)
         ? globalThis.String(object.ocaBaseUrl)
         : isSet(object.oca_base_url)
-        ? globalThis.String(object.oca_base_url)
-        : undefined,
+          ? globalThis.String(object.oca_base_url)
+          : undefined,
       ocaApiKey: isSet(object.ocaApiKey)
         ? globalThis.String(object.ocaApiKey)
         : isSet(object.oca_api_key)
-        ? globalThis.String(object.oca_api_key)
-        : undefined,
+          ? globalThis.String(object.oca_api_key)
+          : undefined,
       ocaRefreshToken: isSet(object.ocaRefreshToken)
         ? globalThis.String(object.ocaRefreshToken)
         : isSet(object.oca_refresh_token)
-        ? globalThis.String(object.oca_refresh_token)
-        : undefined,
+          ? globalThis.String(object.oca_refresh_token)
+          : undefined,
       ocaMode: isSet(object.ocaMode)
         ? globalThis.String(object.ocaMode)
         : isSet(object.oca_mode)
-        ? globalThis.String(object.oca_mode)
-        : undefined,
+          ? globalThis.String(object.oca_mode)
+          : undefined,
       awsUseGlobalInference: isSet(object.awsUseGlobalInference)
         ? globalThis.Boolean(object.awsUseGlobalInference)
         : isSet(object.aws_use_global_inference)
-        ? globalThis.Boolean(object.aws_use_global_inference)
-        : undefined,
+          ? globalThis.Boolean(object.aws_use_global_inference)
+          : undefined,
       minimaxApiKey: isSet(object.minimaxApiKey)
         ? globalThis.String(object.minimaxApiKey)
         : isSet(object.minimax_api_key)
-        ? globalThis.String(object.minimax_api_key)
-        : undefined,
+          ? globalThis.String(object.minimax_api_key)
+          : undefined,
       minimaxApiLine: isSet(object.minimaxApiLine)
         ? globalThis.String(object.minimaxApiLine)
         : isSet(object.minimax_api_line)
-        ? globalThis.String(object.minimax_api_line)
-        : undefined,
+          ? globalThis.String(object.minimax_api_line)
+          : undefined,
       hicapModelId: isSet(object.hicapModelId)
         ? globalThis.String(object.hicapModelId)
         : isSet(object.hicap_model_id)
-        ? globalThis.String(object.hicap_model_id)
-        : undefined,
+          ? globalThis.String(object.hicap_model_id)
+          : undefined,
       hicapApiKey: isSet(object.hicapApiKey)
         ? globalThis.String(object.hicapApiKey)
         : isSet(object.hicap_api_key)
-        ? globalThis.String(object.hicap_api_key)
-        : undefined,
+          ? globalThis.String(object.hicap_api_key)
+          : undefined,
       aihubmixApiKey: isSet(object.aihubmixApiKey)
         ? globalThis.String(object.aihubmixApiKey)
         : isSet(object.aihubmix_api_key)
-        ? globalThis.String(object.aihubmix_api_key)
-        : undefined,
+          ? globalThis.String(object.aihubmix_api_key)
+          : undefined,
       aihubmixBaseUrl: isSet(object.aihubmixBaseUrl)
         ? globalThis.String(object.aihubmixBaseUrl)
         : isSet(object.aihubmix_base_url)
-        ? globalThis.String(object.aihubmix_base_url)
-        : undefined,
+          ? globalThis.String(object.aihubmix_base_url)
+          : undefined,
       aihubmixAppCode: isSet(object.aihubmixAppCode)
         ? globalThis.String(object.aihubmixAppCode)
         : isSet(object.aihubmix_app_code)
-        ? globalThis.String(object.aihubmix_app_code)
-        : undefined,
+          ? globalThis.String(object.aihubmix_app_code)
+          : undefined,
       nousResearchApiKey: isSet(object.nousResearchApiKey)
         ? globalThis.String(object.nousResearchApiKey)
         : isSet(object.nous_research_api_key)
-        ? globalThis.String(object.nous_research_api_key)
-        : undefined,
+          ? globalThis.String(object.nous_research_api_key)
+          : undefined,
       azureIdentity: isSet(object.azureIdentity)
         ? globalThis.Boolean(object.azureIdentity)
         : isSet(object.azure_identity)
-        ? globalThis.Boolean(object.azure_identity)
-        : undefined,
+          ? globalThis.Boolean(object.azure_identity)
+          : undefined,
       wandbApiKey: isSet(object.wandbApiKey)
         ? globalThis.String(object.wandbApiKey)
         : isSet(object.wandb_api_key)
-        ? globalThis.String(object.wandb_api_key)
-        : undefined,
+          ? globalThis.String(object.wandb_api_key)
+          : undefined,
       planModeApiProvider: isSet(object.planModeApiProvider)
         ? apiProviderFromJSON(object.planModeApiProvider)
         : isSet(object.plan_mode_api_provider)
-        ? apiProviderFromJSON(object.plan_mode_api_provider)
-        : undefined,
+          ? apiProviderFromJSON(object.plan_mode_api_provider)
+          : undefined,
       planModeApiModelId: isSet(object.planModeApiModelId)
         ? globalThis.String(object.planModeApiModelId)
         : isSet(object.plan_mode_api_model_id)
-        ? globalThis.String(object.plan_mode_api_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_api_model_id)
+          : undefined,
       planModeThinkingBudgetTokens: isSet(object.planModeThinkingBudgetTokens)
         ? globalThis.Number(object.planModeThinkingBudgetTokens)
         : isSet(object.plan_mode_thinking_budget_tokens)
-        ? globalThis.Number(object.plan_mode_thinking_budget_tokens)
-        : undefined,
+          ? globalThis.Number(object.plan_mode_thinking_budget_tokens)
+          : undefined,
       planModeReasoningEffort: isSet(object.planModeReasoningEffort)
         ? globalThis.String(object.planModeReasoningEffort)
         : isSet(object.plan_mode_reasoning_effort)
-        ? globalThis.String(object.plan_mode_reasoning_effort)
-        : undefined,
+          ? globalThis.String(object.plan_mode_reasoning_effort)
+          : undefined,
       planModeVsCodeLmModelSelector: isSet(object.planModeVsCodeLmModelSelector)
         ? LanguageModelChatSelector.fromJSON(object.planModeVsCodeLmModelSelector)
         : isSet(object.plan_mode_vs_code_lm_model_selector)
-        ? LanguageModelChatSelector.fromJSON(object.plan_mode_vs_code_lm_model_selector)
-        : undefined,
+          ? LanguageModelChatSelector.fromJSON(object.plan_mode_vs_code_lm_model_selector)
+          : undefined,
       planModeAwsBedrockCustomSelected: isSet(object.planModeAwsBedrockCustomSelected)
         ? globalThis.Boolean(object.planModeAwsBedrockCustomSelected)
         : isSet(object.plan_mode_aws_bedrock_custom_selected)
-        ? globalThis.Boolean(object.plan_mode_aws_bedrock_custom_selected)
-        : undefined,
+          ? globalThis.Boolean(object.plan_mode_aws_bedrock_custom_selected)
+          : undefined,
       planModeAwsBedrockCustomModelBaseId: isSet(object.planModeAwsBedrockCustomModelBaseId)
         ? globalThis.String(object.planModeAwsBedrockCustomModelBaseId)
         : isSet(object.plan_mode_aws_bedrock_custom_model_base_id)
-        ? globalThis.String(object.plan_mode_aws_bedrock_custom_model_base_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_aws_bedrock_custom_model_base_id)
+          : undefined,
       planModeOpenRouterModelId: isSet(object.planModeOpenRouterModelId)
         ? globalThis.String(object.planModeOpenRouterModelId)
         : isSet(object.plan_mode_open_router_model_id)
-        ? globalThis.String(object.plan_mode_open_router_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_open_router_model_id)
+          : undefined,
       planModeOpenRouterModelInfo: isSet(object.planModeOpenRouterModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeOpenRouterModelInfo)
         : isSet(object.plan_mode_open_router_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_open_router_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_open_router_model_info)
+          : undefined,
       planModeOpenAiModelId: isSet(object.planModeOpenAiModelId)
         ? globalThis.String(object.planModeOpenAiModelId)
         : isSet(object.plan_mode_open_ai_model_id)
-        ? globalThis.String(object.plan_mode_open_ai_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_open_ai_model_id)
+          : undefined,
       planModeOpenAiModelInfo: isSet(object.planModeOpenAiModelInfo)
         ? OpenAiCompatibleModelInfo.fromJSON(object.planModeOpenAiModelInfo)
         : isSet(object.plan_mode_open_ai_model_info)
-        ? OpenAiCompatibleModelInfo.fromJSON(object.plan_mode_open_ai_model_info)
-        : undefined,
+          ? OpenAiCompatibleModelInfo.fromJSON(object.plan_mode_open_ai_model_info)
+          : undefined,
       planModeOllamaModelId: isSet(object.planModeOllamaModelId)
         ? globalThis.String(object.planModeOllamaModelId)
         : isSet(object.plan_mode_ollama_model_id)
-        ? globalThis.String(object.plan_mode_ollama_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_ollama_model_id)
+          : undefined,
       planModeLmStudioModelId: isSet(object.planModeLmStudioModelId)
         ? globalThis.String(object.planModeLmStudioModelId)
         : isSet(object.plan_mode_lm_studio_model_id)
-        ? globalThis.String(object.plan_mode_lm_studio_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_lm_studio_model_id)
+          : undefined,
       planModeLiteLlmModelId: isSet(object.planModeLiteLlmModelId)
         ? globalThis.String(object.planModeLiteLlmModelId)
         : isSet(object.plan_mode_lite_llm_model_id)
-        ? globalThis.String(object.plan_mode_lite_llm_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_lite_llm_model_id)
+          : undefined,
       planModeLiteLlmModelInfo: isSet(object.planModeLiteLlmModelInfo)
         ? LiteLLMModelInfo.fromJSON(object.planModeLiteLlmModelInfo)
         : isSet(object.plan_mode_lite_llm_model_info)
-        ? LiteLLMModelInfo.fromJSON(object.plan_mode_lite_llm_model_info)
-        : undefined,
+          ? LiteLLMModelInfo.fromJSON(object.plan_mode_lite_llm_model_info)
+          : undefined,
       planModeRequestyModelId: isSet(object.planModeRequestyModelId)
         ? globalThis.String(object.planModeRequestyModelId)
         : isSet(object.plan_mode_requesty_model_id)
-        ? globalThis.String(object.plan_mode_requesty_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_requesty_model_id)
+          : undefined,
       planModeRequestyModelInfo: isSet(object.planModeRequestyModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeRequestyModelInfo)
         : isSet(object.plan_mode_requesty_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_requesty_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_requesty_model_info)
+          : undefined,
       planModeTogetherModelId: isSet(object.planModeTogetherModelId)
         ? globalThis.String(object.planModeTogetherModelId)
         : isSet(object.plan_mode_together_model_id)
-        ? globalThis.String(object.plan_mode_together_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_together_model_id)
+          : undefined,
       planModeFireworksModelId: isSet(object.planModeFireworksModelId)
         ? globalThis.String(object.planModeFireworksModelId)
         : isSet(object.plan_mode_fireworks_model_id)
-        ? globalThis.String(object.plan_mode_fireworks_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_fireworks_model_id)
+          : undefined,
       planModeSapAiCoreModelId: isSet(object.planModeSapAiCoreModelId)
         ? globalThis.String(object.planModeSapAiCoreModelId)
         : isSet(object.plan_mode_sap_ai_core_model_id)
-        ? globalThis.String(object.plan_mode_sap_ai_core_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_sap_ai_core_model_id)
+          : undefined,
       planModeSapAiCoreDeploymentId: isSet(object.planModeSapAiCoreDeploymentId)
         ? globalThis.String(object.planModeSapAiCoreDeploymentId)
         : isSet(object.plan_mode_sap_ai_core_deployment_id)
-        ? globalThis.String(object.plan_mode_sap_ai_core_deployment_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_sap_ai_core_deployment_id)
+          : undefined,
       planModeGroqModelId: isSet(object.planModeGroqModelId)
         ? globalThis.String(object.planModeGroqModelId)
         : isSet(object.plan_mode_groq_model_id)
-        ? globalThis.String(object.plan_mode_groq_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_groq_model_id)
+          : undefined,
       planModeGroqModelInfo: isSet(object.planModeGroqModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeGroqModelInfo)
         : isSet(object.plan_mode_groq_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_groq_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_groq_model_info)
+          : undefined,
       planModeHuggingFaceModelId: isSet(object.planModeHuggingFaceModelId)
         ? globalThis.String(object.planModeHuggingFaceModelId)
         : isSet(object.plan_mode_hugging_face_model_id)
-        ? globalThis.String(object.plan_mode_hugging_face_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_hugging_face_model_id)
+          : undefined,
       planModeHuggingFaceModelInfo: isSet(object.planModeHuggingFaceModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeHuggingFaceModelInfo)
         : isSet(object.plan_mode_hugging_face_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_hugging_face_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_hugging_face_model_info)
+          : undefined,
       planModeHuaweiCloudMaasModelId: isSet(object.planModeHuaweiCloudMaasModelId)
         ? globalThis.String(object.planModeHuaweiCloudMaasModelId)
         : isSet(object.plan_mode_huawei_cloud_maas_model_id)
-        ? globalThis.String(object.plan_mode_huawei_cloud_maas_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_huawei_cloud_maas_model_id)
+          : undefined,
       planModeHuaweiCloudMaasModelInfo: isSet(object.planModeHuaweiCloudMaasModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeHuaweiCloudMaasModelInfo)
         : isSet(object.plan_mode_huawei_cloud_maas_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_huawei_cloud_maas_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_huawei_cloud_maas_model_info)
+          : undefined,
       planModeBasetenModelId: isSet(object.planModeBasetenModelId)
         ? globalThis.String(object.planModeBasetenModelId)
         : isSet(object.plan_mode_baseten_model_id)
-        ? globalThis.String(object.plan_mode_baseten_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_baseten_model_id)
+          : undefined,
       planModeBasetenModelInfo: isSet(object.planModeBasetenModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeBasetenModelInfo)
         : isSet(object.plan_mode_baseten_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_baseten_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_baseten_model_info)
+          : undefined,
       planModeVercelAiGatewayModelId: isSet(object.planModeVercelAiGatewayModelId)
         ? globalThis.String(object.planModeVercelAiGatewayModelId)
         : isSet(object.plan_mode_vercel_ai_gateway_model_id)
-        ? globalThis.String(object.plan_mode_vercel_ai_gateway_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_vercel_ai_gateway_model_id)
+          : undefined,
       planModeVercelAiGatewayModelInfo: isSet(object.planModeVercelAiGatewayModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeVercelAiGatewayModelInfo)
         : isSet(object.plan_mode_vercel_ai_gateway_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_vercel_ai_gateway_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_vercel_ai_gateway_model_info)
+          : undefined,
       planModeOcaModelId: isSet(object.planModeOcaModelId)
         ? globalThis.String(object.planModeOcaModelId)
         : isSet(object.plan_mode_oca_model_id)
-        ? globalThis.String(object.plan_mode_oca_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_oca_model_id)
+          : undefined,
       planModeOcaModelInfo: isSet(object.planModeOcaModelInfo)
         ? OcaModelInfo.fromJSON(object.planModeOcaModelInfo)
         : isSet(object.plan_mode_oca_model_info)
-        ? OcaModelInfo.fromJSON(object.plan_mode_oca_model_info)
-        : undefined,
+          ? OcaModelInfo.fromJSON(object.plan_mode_oca_model_info)
+          : undefined,
       planModeOcaReasoningEffort: isSet(object.planModeOcaReasoningEffort)
         ? globalThis.String(object.planModeOcaReasoningEffort)
         : isSet(object.plan_mode_oca_reasoning_effort)
-        ? globalThis.String(object.plan_mode_oca_reasoning_effort)
-        : undefined,
+          ? globalThis.String(object.plan_mode_oca_reasoning_effort)
+          : undefined,
       planModeHicapModelId: isSet(object.planModeHicapModelId)
         ? globalThis.String(object.planModeHicapModelId)
         : isSet(object.plan_mode_hicap_model_id)
-        ? globalThis.String(object.plan_mode_hicap_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_hicap_model_id)
+          : undefined,
       planModeHicapModelInfo: isSet(object.planModeHicapModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeHicapModelInfo)
         : isSet(object.plan_mode_hicap_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_hicap_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_hicap_model_info)
+          : undefined,
       planModeAihubmixModelId: isSet(object.planModeAihubmixModelId)
         ? globalThis.String(object.planModeAihubmixModelId)
         : isSet(object.plan_mode_aihubmix_model_id)
-        ? globalThis.String(object.plan_mode_aihubmix_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_aihubmix_model_id)
+          : undefined,
       planModeAihubmixModelInfo: isSet(object.planModeAihubmixModelInfo)
         ? OpenAiCompatibleModelInfo.fromJSON(object.planModeAihubmixModelInfo)
         : isSet(object.plan_mode_aihubmix_model_info)
-        ? OpenAiCompatibleModelInfo.fromJSON(object.plan_mode_aihubmix_model_info)
-        : undefined,
+          ? OpenAiCompatibleModelInfo.fromJSON(object.plan_mode_aihubmix_model_info)
+          : undefined,
       planModeNousResearchModelId: isSet(object.planModeNousResearchModelId)
         ? globalThis.String(object.planModeNousResearchModelId)
         : isSet(object.plan_mode_nous_research_model_id)
-        ? globalThis.String(object.plan_mode_nous_research_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_nous_research_model_id)
+          : undefined,
       geminiPlanModeThinkingLevel: isSet(object.geminiPlanModeThinkingLevel)
         ? globalThis.String(object.geminiPlanModeThinkingLevel)
         : isSet(object.gemini_plan_mode_thinking_level)
-        ? globalThis.String(object.gemini_plan_mode_thinking_level)
-        : undefined,
+          ? globalThis.String(object.gemini_plan_mode_thinking_level)
+          : undefined,
       planModeClineModelId: isSet(object.planModeClineModelId)
         ? globalThis.String(object.planModeClineModelId)
         : isSet(object.plan_mode_cline_model_id)
-        ? globalThis.String(object.plan_mode_cline_model_id)
-        : undefined,
+          ? globalThis.String(object.plan_mode_cline_model_id)
+          : undefined,
       planModeClineModelInfo: isSet(object.planModeClineModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.planModeClineModelInfo)
         : isSet(object.plan_mode_cline_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.plan_mode_cline_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.plan_mode_cline_model_info)
+          : undefined,
       actModeApiProvider: isSet(object.actModeApiProvider)
         ? apiProviderFromJSON(object.actModeApiProvider)
         : isSet(object.act_mode_api_provider)
-        ? apiProviderFromJSON(object.act_mode_api_provider)
-        : undefined,
+          ? apiProviderFromJSON(object.act_mode_api_provider)
+          : undefined,
       actModeApiModelId: isSet(object.actModeApiModelId)
         ? globalThis.String(object.actModeApiModelId)
         : isSet(object.act_mode_api_model_id)
-        ? globalThis.String(object.act_mode_api_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_api_model_id)
+          : undefined,
       actModeThinkingBudgetTokens: isSet(object.actModeThinkingBudgetTokens)
         ? globalThis.Number(object.actModeThinkingBudgetTokens)
         : isSet(object.act_mode_thinking_budget_tokens)
-        ? globalThis.Number(object.act_mode_thinking_budget_tokens)
-        : undefined,
+          ? globalThis.Number(object.act_mode_thinking_budget_tokens)
+          : undefined,
       actModeReasoningEffort: isSet(object.actModeReasoningEffort)
         ? globalThis.String(object.actModeReasoningEffort)
         : isSet(object.act_mode_reasoning_effort)
-        ? globalThis.String(object.act_mode_reasoning_effort)
-        : undefined,
+          ? globalThis.String(object.act_mode_reasoning_effort)
+          : undefined,
       actModeVsCodeLmModelSelector: isSet(object.actModeVsCodeLmModelSelector)
         ? LanguageModelChatSelector.fromJSON(object.actModeVsCodeLmModelSelector)
         : isSet(object.act_mode_vs_code_lm_model_selector)
-        ? LanguageModelChatSelector.fromJSON(object.act_mode_vs_code_lm_model_selector)
-        : undefined,
+          ? LanguageModelChatSelector.fromJSON(object.act_mode_vs_code_lm_model_selector)
+          : undefined,
       actModeAwsBedrockCustomSelected: isSet(object.actModeAwsBedrockCustomSelected)
         ? globalThis.Boolean(object.actModeAwsBedrockCustomSelected)
         : isSet(object.act_mode_aws_bedrock_custom_selected)
-        ? globalThis.Boolean(object.act_mode_aws_bedrock_custom_selected)
-        : undefined,
+          ? globalThis.Boolean(object.act_mode_aws_bedrock_custom_selected)
+          : undefined,
       actModeAwsBedrockCustomModelBaseId: isSet(object.actModeAwsBedrockCustomModelBaseId)
         ? globalThis.String(object.actModeAwsBedrockCustomModelBaseId)
         : isSet(object.act_mode_aws_bedrock_custom_model_base_id)
-        ? globalThis.String(object.act_mode_aws_bedrock_custom_model_base_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_aws_bedrock_custom_model_base_id)
+          : undefined,
       actModeOpenRouterModelId: isSet(object.actModeOpenRouterModelId)
         ? globalThis.String(object.actModeOpenRouterModelId)
         : isSet(object.act_mode_open_router_model_id)
-        ? globalThis.String(object.act_mode_open_router_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_open_router_model_id)
+          : undefined,
       actModeOpenRouterModelInfo: isSet(object.actModeOpenRouterModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeOpenRouterModelInfo)
         : isSet(object.act_mode_open_router_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_open_router_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_open_router_model_info)
+          : undefined,
       actModeOpenAiModelId: isSet(object.actModeOpenAiModelId)
         ? globalThis.String(object.actModeOpenAiModelId)
         : isSet(object.act_mode_open_ai_model_id)
-        ? globalThis.String(object.act_mode_open_ai_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_open_ai_model_id)
+          : undefined,
       actModeOpenAiModelInfo: isSet(object.actModeOpenAiModelInfo)
         ? OpenAiCompatibleModelInfo.fromJSON(object.actModeOpenAiModelInfo)
         : isSet(object.act_mode_open_ai_model_info)
-        ? OpenAiCompatibleModelInfo.fromJSON(object.act_mode_open_ai_model_info)
-        : undefined,
+          ? OpenAiCompatibleModelInfo.fromJSON(object.act_mode_open_ai_model_info)
+          : undefined,
       actModeOllamaModelId: isSet(object.actModeOllamaModelId)
         ? globalThis.String(object.actModeOllamaModelId)
         : isSet(object.act_mode_ollama_model_id)
-        ? globalThis.String(object.act_mode_ollama_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_ollama_model_id)
+          : undefined,
       actModeLmStudioModelId: isSet(object.actModeLmStudioModelId)
         ? globalThis.String(object.actModeLmStudioModelId)
         : isSet(object.act_mode_lm_studio_model_id)
-        ? globalThis.String(object.act_mode_lm_studio_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_lm_studio_model_id)
+          : undefined,
       actModeLiteLlmModelId: isSet(object.actModeLiteLlmModelId)
         ? globalThis.String(object.actModeLiteLlmModelId)
         : isSet(object.act_mode_lite_llm_model_id)
-        ? globalThis.String(object.act_mode_lite_llm_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_lite_llm_model_id)
+          : undefined,
       actModeLiteLlmModelInfo: isSet(object.actModeLiteLlmModelInfo)
         ? LiteLLMModelInfo.fromJSON(object.actModeLiteLlmModelInfo)
         : isSet(object.act_mode_lite_llm_model_info)
-        ? LiteLLMModelInfo.fromJSON(object.act_mode_lite_llm_model_info)
-        : undefined,
+          ? LiteLLMModelInfo.fromJSON(object.act_mode_lite_llm_model_info)
+          : undefined,
       actModeRequestyModelId: isSet(object.actModeRequestyModelId)
         ? globalThis.String(object.actModeRequestyModelId)
         : isSet(object.act_mode_requesty_model_id)
-        ? globalThis.String(object.act_mode_requesty_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_requesty_model_id)
+          : undefined,
       actModeRequestyModelInfo: isSet(object.actModeRequestyModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeRequestyModelInfo)
         : isSet(object.act_mode_requesty_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_requesty_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_requesty_model_info)
+          : undefined,
       actModeTogetherModelId: isSet(object.actModeTogetherModelId)
         ? globalThis.String(object.actModeTogetherModelId)
         : isSet(object.act_mode_together_model_id)
-        ? globalThis.String(object.act_mode_together_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_together_model_id)
+          : undefined,
       actModeFireworksModelId: isSet(object.actModeFireworksModelId)
         ? globalThis.String(object.actModeFireworksModelId)
         : isSet(object.act_mode_fireworks_model_id)
-        ? globalThis.String(object.act_mode_fireworks_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_fireworks_model_id)
+          : undefined,
       actModeSapAiCoreModelId: isSet(object.actModeSapAiCoreModelId)
         ? globalThis.String(object.actModeSapAiCoreModelId)
         : isSet(object.act_mode_sap_ai_core_model_id)
-        ? globalThis.String(object.act_mode_sap_ai_core_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_sap_ai_core_model_id)
+          : undefined,
       actModeSapAiCoreDeploymentId: isSet(object.actModeSapAiCoreDeploymentId)
         ? globalThis.String(object.actModeSapAiCoreDeploymentId)
         : isSet(object.act_mode_sap_ai_core_deployment_id)
-        ? globalThis.String(object.act_mode_sap_ai_core_deployment_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_sap_ai_core_deployment_id)
+          : undefined,
       actModeGroqModelId: isSet(object.actModeGroqModelId)
         ? globalThis.String(object.actModeGroqModelId)
         : isSet(object.act_mode_groq_model_id)
-        ? globalThis.String(object.act_mode_groq_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_groq_model_id)
+          : undefined,
       actModeGroqModelInfo: isSet(object.actModeGroqModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeGroqModelInfo)
         : isSet(object.act_mode_groq_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_groq_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_groq_model_info)
+          : undefined,
       actModeHuggingFaceModelId: isSet(object.actModeHuggingFaceModelId)
         ? globalThis.String(object.actModeHuggingFaceModelId)
         : isSet(object.act_mode_hugging_face_model_id)
-        ? globalThis.String(object.act_mode_hugging_face_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_hugging_face_model_id)
+          : undefined,
       actModeHuggingFaceModelInfo: isSet(object.actModeHuggingFaceModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeHuggingFaceModelInfo)
         : isSet(object.act_mode_hugging_face_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_hugging_face_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_hugging_face_model_info)
+          : undefined,
       actModeHuaweiCloudMaasModelId: isSet(object.actModeHuaweiCloudMaasModelId)
         ? globalThis.String(object.actModeHuaweiCloudMaasModelId)
         : isSet(object.act_mode_huawei_cloud_maas_model_id)
-        ? globalThis.String(object.act_mode_huawei_cloud_maas_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_huawei_cloud_maas_model_id)
+          : undefined,
       actModeHuaweiCloudMaasModelInfo: isSet(object.actModeHuaweiCloudMaasModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeHuaweiCloudMaasModelInfo)
         : isSet(object.act_mode_huawei_cloud_maas_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_huawei_cloud_maas_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_huawei_cloud_maas_model_info)
+          : undefined,
       actModeBasetenModelId: isSet(object.actModeBasetenModelId)
         ? globalThis.String(object.actModeBasetenModelId)
         : isSet(object.act_mode_baseten_model_id)
-        ? globalThis.String(object.act_mode_baseten_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_baseten_model_id)
+          : undefined,
       actModeBasetenModelInfo: isSet(object.actModeBasetenModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeBasetenModelInfo)
         : isSet(object.act_mode_baseten_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_baseten_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_baseten_model_info)
+          : undefined,
       actModeVercelAiGatewayModelId: isSet(object.actModeVercelAiGatewayModelId)
         ? globalThis.String(object.actModeVercelAiGatewayModelId)
         : isSet(object.act_mode_vercel_ai_gateway_model_id)
-        ? globalThis.String(object.act_mode_vercel_ai_gateway_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_vercel_ai_gateway_model_id)
+          : undefined,
       actModeVercelAiGatewayModelInfo: isSet(object.actModeVercelAiGatewayModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeVercelAiGatewayModelInfo)
         : isSet(object.act_mode_vercel_ai_gateway_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_vercel_ai_gateway_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_vercel_ai_gateway_model_info)
+          : undefined,
       actModeOcaModelId: isSet(object.actModeOcaModelId)
         ? globalThis.String(object.actModeOcaModelId)
         : isSet(object.act_mode_oca_model_id)
-        ? globalThis.String(object.act_mode_oca_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_oca_model_id)
+          : undefined,
       actModeOcaModelInfo: isSet(object.actModeOcaModelInfo)
         ? OcaModelInfo.fromJSON(object.actModeOcaModelInfo)
         : isSet(object.act_mode_oca_model_info)
-        ? OcaModelInfo.fromJSON(object.act_mode_oca_model_info)
-        : undefined,
+          ? OcaModelInfo.fromJSON(object.act_mode_oca_model_info)
+          : undefined,
       actModeOcaReasoningEffort: isSet(object.actModeOcaReasoningEffort)
         ? globalThis.String(object.actModeOcaReasoningEffort)
         : isSet(object.act_mode_oca_reasoning_effort)
-        ? globalThis.String(object.act_mode_oca_reasoning_effort)
-        : undefined,
+          ? globalThis.String(object.act_mode_oca_reasoning_effort)
+          : undefined,
       actModeHicapModelId: isSet(object.actModeHicapModelId)
         ? globalThis.String(object.actModeHicapModelId)
         : isSet(object.act_mode_hicap_model_id)
-        ? globalThis.String(object.act_mode_hicap_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_hicap_model_id)
+          : undefined,
       actModeHicapModelInfo: isSet(object.actModeHicapModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeHicapModelInfo)
         : isSet(object.act_mode_hicap_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_hicap_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_hicap_model_info)
+          : undefined,
       actModeAihubmixModelId: isSet(object.actModeAihubmixModelId)
         ? globalThis.String(object.actModeAihubmixModelId)
         : isSet(object.act_mode_aihubmix_model_id)
-        ? globalThis.String(object.act_mode_aihubmix_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_aihubmix_model_id)
+          : undefined,
       actModeAihubmixModelInfo: isSet(object.actModeAihubmixModelInfo)
         ? OpenAiCompatibleModelInfo.fromJSON(object.actModeAihubmixModelInfo)
         : isSet(object.act_mode_aihubmix_model_info)
-        ? OpenAiCompatibleModelInfo.fromJSON(object.act_mode_aihubmix_model_info)
-        : undefined,
+          ? OpenAiCompatibleModelInfo.fromJSON(object.act_mode_aihubmix_model_info)
+          : undefined,
       actModeNousResearchModelId: isSet(object.actModeNousResearchModelId)
         ? globalThis.String(object.actModeNousResearchModelId)
         : isSet(object.act_mode_nous_research_model_id)
-        ? globalThis.String(object.act_mode_nous_research_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_nous_research_model_id)
+          : undefined,
       geminiActModeThinkingLevel: isSet(object.geminiActModeThinkingLevel)
         ? globalThis.String(object.geminiActModeThinkingLevel)
         : isSet(object.gemini_act_mode_thinking_level)
-        ? globalThis.String(object.gemini_act_mode_thinking_level)
-        : undefined,
+          ? globalThis.String(object.gemini_act_mode_thinking_level)
+          : undefined,
       actModeClineModelId: isSet(object.actModeClineModelId)
         ? globalThis.String(object.actModeClineModelId)
         : isSet(object.act_mode_cline_model_id)
-        ? globalThis.String(object.act_mode_cline_model_id)
-        : undefined,
+          ? globalThis.String(object.act_mode_cline_model_id)
+          : undefined,
       actModeClineModelInfo: isSet(object.actModeClineModelInfo)
         ? OpenRouterModelInfo.fromJSON(object.actModeClineModelInfo)
         : isSet(object.act_mode_cline_model_info)
-        ? OpenRouterModelInfo.fromJSON(object.act_mode_cline_model_info)
-        : undefined,
+          ? OpenRouterModelInfo.fromJSON(object.act_mode_cline_model_info)
+          : undefined,
     };
   },
 
@@ -11132,7 +11420,9 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
       obj.planModeReasoningEffort = message.planModeReasoningEffort;
     }
     if (message.planModeVsCodeLmModelSelector !== undefined) {
-      obj.planModeVsCodeLmModelSelector = LanguageModelChatSelector.toJSON(message.planModeVsCodeLmModelSelector);
+      obj.planModeVsCodeLmModelSelector = LanguageModelChatSelector.toJSON(
+        message.planModeVsCodeLmModelSelector,
+      );
     }
     if (message.planModeAwsBedrockCustomSelected !== undefined) {
       obj.planModeAwsBedrockCustomSelected = message.planModeAwsBedrockCustomSelected;
@@ -11144,13 +11434,17 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
       obj.planModeOpenRouterModelId = message.planModeOpenRouterModelId;
     }
     if (message.planModeOpenRouterModelInfo !== undefined) {
-      obj.planModeOpenRouterModelInfo = OpenRouterModelInfo.toJSON(message.planModeOpenRouterModelInfo);
+      obj.planModeOpenRouterModelInfo = OpenRouterModelInfo.toJSON(
+        message.planModeOpenRouterModelInfo,
+      );
     }
     if (message.planModeOpenAiModelId !== undefined) {
       obj.planModeOpenAiModelId = message.planModeOpenAiModelId;
     }
     if (message.planModeOpenAiModelInfo !== undefined) {
-      obj.planModeOpenAiModelInfo = OpenAiCompatibleModelInfo.toJSON(message.planModeOpenAiModelInfo);
+      obj.planModeOpenAiModelInfo = OpenAiCompatibleModelInfo.toJSON(
+        message.planModeOpenAiModelInfo,
+      );
     }
     if (message.planModeOllamaModelId !== undefined) {
       obj.planModeOllamaModelId = message.planModeOllamaModelId;
@@ -11192,13 +11486,17 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
       obj.planModeHuggingFaceModelId = message.planModeHuggingFaceModelId;
     }
     if (message.planModeHuggingFaceModelInfo !== undefined) {
-      obj.planModeHuggingFaceModelInfo = OpenRouterModelInfo.toJSON(message.planModeHuggingFaceModelInfo);
+      obj.planModeHuggingFaceModelInfo = OpenRouterModelInfo.toJSON(
+        message.planModeHuggingFaceModelInfo,
+      );
     }
     if (message.planModeHuaweiCloudMaasModelId !== undefined) {
       obj.planModeHuaweiCloudMaasModelId = message.planModeHuaweiCloudMaasModelId;
     }
     if (message.planModeHuaweiCloudMaasModelInfo !== undefined) {
-      obj.planModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.toJSON(message.planModeHuaweiCloudMaasModelInfo);
+      obj.planModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.toJSON(
+        message.planModeHuaweiCloudMaasModelInfo,
+      );
     }
     if (message.planModeBasetenModelId !== undefined) {
       obj.planModeBasetenModelId = message.planModeBasetenModelId;
@@ -11210,7 +11508,9 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
       obj.planModeVercelAiGatewayModelId = message.planModeVercelAiGatewayModelId;
     }
     if (message.planModeVercelAiGatewayModelInfo !== undefined) {
-      obj.planModeVercelAiGatewayModelInfo = OpenRouterModelInfo.toJSON(message.planModeVercelAiGatewayModelInfo);
+      obj.planModeVercelAiGatewayModelInfo = OpenRouterModelInfo.toJSON(
+        message.planModeVercelAiGatewayModelInfo,
+      );
     }
     if (message.planModeOcaModelId !== undefined) {
       obj.planModeOcaModelId = message.planModeOcaModelId;
@@ -11231,7 +11531,9 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
       obj.planModeAihubmixModelId = message.planModeAihubmixModelId;
     }
     if (message.planModeAihubmixModelInfo !== undefined) {
-      obj.planModeAihubmixModelInfo = OpenAiCompatibleModelInfo.toJSON(message.planModeAihubmixModelInfo);
+      obj.planModeAihubmixModelInfo = OpenAiCompatibleModelInfo.toJSON(
+        message.planModeAihubmixModelInfo,
+      );
     }
     if (message.planModeNousResearchModelId !== undefined) {
       obj.planModeNousResearchModelId = message.planModeNousResearchModelId;
@@ -11258,7 +11560,9 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
       obj.actModeReasoningEffort = message.actModeReasoningEffort;
     }
     if (message.actModeVsCodeLmModelSelector !== undefined) {
-      obj.actModeVsCodeLmModelSelector = LanguageModelChatSelector.toJSON(message.actModeVsCodeLmModelSelector);
+      obj.actModeVsCodeLmModelSelector = LanguageModelChatSelector.toJSON(
+        message.actModeVsCodeLmModelSelector,
+      );
     }
     if (message.actModeAwsBedrockCustomSelected !== undefined) {
       obj.actModeAwsBedrockCustomSelected = message.actModeAwsBedrockCustomSelected;
@@ -11270,7 +11574,9 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
       obj.actModeOpenRouterModelId = message.actModeOpenRouterModelId;
     }
     if (message.actModeOpenRouterModelInfo !== undefined) {
-      obj.actModeOpenRouterModelInfo = OpenRouterModelInfo.toJSON(message.actModeOpenRouterModelInfo);
+      obj.actModeOpenRouterModelInfo = OpenRouterModelInfo.toJSON(
+        message.actModeOpenRouterModelInfo,
+      );
     }
     if (message.actModeOpenAiModelId !== undefined) {
       obj.actModeOpenAiModelId = message.actModeOpenAiModelId;
@@ -11318,13 +11624,17 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
       obj.actModeHuggingFaceModelId = message.actModeHuggingFaceModelId;
     }
     if (message.actModeHuggingFaceModelInfo !== undefined) {
-      obj.actModeHuggingFaceModelInfo = OpenRouterModelInfo.toJSON(message.actModeHuggingFaceModelInfo);
+      obj.actModeHuggingFaceModelInfo = OpenRouterModelInfo.toJSON(
+        message.actModeHuggingFaceModelInfo,
+      );
     }
     if (message.actModeHuaweiCloudMaasModelId !== undefined) {
       obj.actModeHuaweiCloudMaasModelId = message.actModeHuaweiCloudMaasModelId;
     }
     if (message.actModeHuaweiCloudMaasModelInfo !== undefined) {
-      obj.actModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.toJSON(message.actModeHuaweiCloudMaasModelInfo);
+      obj.actModeHuaweiCloudMaasModelInfo = OpenRouterModelInfo.toJSON(
+        message.actModeHuaweiCloudMaasModelInfo,
+      );
     }
     if (message.actModeBasetenModelId !== undefined) {
       obj.actModeBasetenModelId = message.actModeBasetenModelId;
@@ -11336,7 +11646,9 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
       obj.actModeVercelAiGatewayModelId = message.actModeVercelAiGatewayModelId;
     }
     if (message.actModeVercelAiGatewayModelInfo !== undefined) {
-      obj.actModeVercelAiGatewayModelInfo = OpenRouterModelInfo.toJSON(message.actModeVercelAiGatewayModelInfo);
+      obj.actModeVercelAiGatewayModelInfo = OpenRouterModelInfo.toJSON(
+        message.actModeVercelAiGatewayModelInfo,
+      );
     }
     if (message.actModeOcaModelId !== undefined) {
       obj.actModeOcaModelId = message.actModeOcaModelId;
@@ -11357,7 +11669,9 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
       obj.actModeAihubmixModelId = message.actModeAihubmixModelId;
     }
     if (message.actModeAihubmixModelInfo !== undefined) {
-      obj.actModeAihubmixModelInfo = OpenAiCompatibleModelInfo.toJSON(message.actModeAihubmixModelInfo);
+      obj.actModeAihubmixModelInfo = OpenAiCompatibleModelInfo.toJSON(
+        message.actModeAihubmixModelInfo,
+      );
     }
     if (message.actModeNousResearchModelId !== undefined) {
       obj.actModeNousResearchModelId = message.actModeNousResearchModelId;
@@ -11374,10 +11688,14 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ModelsApiConfiguration>, I>>(base?: I): ModelsApiConfiguration {
+  create<I extends Exact<DeepPartial<ModelsApiConfiguration>, I>>(
+    base?: I,
+  ): ModelsApiConfiguration {
     return ModelsApiConfiguration.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ModelsApiConfiguration>, I>>(object: I): ModelsApiConfiguration {
+  fromPartial<I extends Exact<DeepPartial<ModelsApiConfiguration>, I>>(
+    object: I,
+  ): ModelsApiConfiguration {
     const message = createBaseModelsApiConfiguration();
     message.apiKey = object.apiKey ?? undefined;
     message.clineApiKey = object.clineApiKey ?? undefined;
@@ -11385,15 +11703,14 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
     message.liteLlmBaseUrl = object.liteLlmBaseUrl ?? undefined;
     message.liteLlmApiKey = object.liteLlmApiKey ?? undefined;
     message.liteLlmUsePromptCache = object.liteLlmUsePromptCache ?? undefined;
-    message.openAiHeaders = (globalThis.Object.entries(object.openAiHeaders ?? {}) as [string, string][]).reduce(
-      (acc: { [key: string]: string }, [key, value]: [string, string]) => {
-        if (value !== undefined) {
-          acc[key] = globalThis.String(value);
-        }
-        return acc;
-      },
-      {},
-    );
+    message.openAiHeaders = (
+      globalThis.Object.entries(object.openAiHeaders ?? {}) as [string, string][]
+    ).reduce((acc: { [key: string]: string }, [key, value]: [string, string]) => {
+      if (value !== undefined) {
+        acc[key] = globalThis.String(value);
+      }
+      return acc;
+    }, {});
     message.anthropicBaseUrl = object.anthropicBaseUrl ?? undefined;
     message.openRouterApiKey = object.openRouterApiKey ?? undefined;
     message.openRouterProviderSorting = object.openRouterProviderSorting ?? undefined;
@@ -11422,7 +11739,8 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
     message.requestyBaseUrl = object.requestyBaseUrl ?? undefined;
     message.togetherApiKey = object.togetherApiKey ?? undefined;
     message.fireworksApiKey = object.fireworksApiKey ?? undefined;
-    message.fireworksModelMaxCompletionTokens = object.fireworksModelMaxCompletionTokens ?? undefined;
+    message.fireworksModelMaxCompletionTokens =
+      object.fireworksModelMaxCompletionTokens ?? undefined;
     message.fireworksModelMaxTokens = object.fireworksModelMaxTokens ?? undefined;
     message.qwenApiKey = object.qwenApiKey ?? undefined;
     message.doubaoApiKey = object.doubaoApiKey ?? undefined;
@@ -11479,31 +11797,34 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
     message.planModeThinkingBudgetTokens = object.planModeThinkingBudgetTokens ?? undefined;
     message.planModeReasoningEffort = object.planModeReasoningEffort ?? undefined;
     message.planModeVsCodeLmModelSelector =
-      (object.planModeVsCodeLmModelSelector !== undefined && object.planModeVsCodeLmModelSelector !== null)
+      object.planModeVsCodeLmModelSelector !== undefined &&
+      object.planModeVsCodeLmModelSelector !== null
         ? LanguageModelChatSelector.fromPartial(object.planModeVsCodeLmModelSelector)
         : undefined;
     message.planModeAwsBedrockCustomSelected = object.planModeAwsBedrockCustomSelected ?? undefined;
-    message.planModeAwsBedrockCustomModelBaseId = object.planModeAwsBedrockCustomModelBaseId ?? undefined;
+    message.planModeAwsBedrockCustomModelBaseId =
+      object.planModeAwsBedrockCustomModelBaseId ?? undefined;
     message.planModeOpenRouterModelId = object.planModeOpenRouterModelId ?? undefined;
     message.planModeOpenRouterModelInfo =
-      (object.planModeOpenRouterModelInfo !== undefined && object.planModeOpenRouterModelInfo !== null)
+      object.planModeOpenRouterModelInfo !== undefined &&
+      object.planModeOpenRouterModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeOpenRouterModelInfo)
         : undefined;
     message.planModeOpenAiModelId = object.planModeOpenAiModelId ?? undefined;
     message.planModeOpenAiModelInfo =
-      (object.planModeOpenAiModelInfo !== undefined && object.planModeOpenAiModelInfo !== null)
+      object.planModeOpenAiModelInfo !== undefined && object.planModeOpenAiModelInfo !== null
         ? OpenAiCompatibleModelInfo.fromPartial(object.planModeOpenAiModelInfo)
         : undefined;
     message.planModeOllamaModelId = object.planModeOllamaModelId ?? undefined;
     message.planModeLmStudioModelId = object.planModeLmStudioModelId ?? undefined;
     message.planModeLiteLlmModelId = object.planModeLiteLlmModelId ?? undefined;
     message.planModeLiteLlmModelInfo =
-      (object.planModeLiteLlmModelInfo !== undefined && object.planModeLiteLlmModelInfo !== null)
+      object.planModeLiteLlmModelInfo !== undefined && object.planModeLiteLlmModelInfo !== null
         ? LiteLLMModelInfo.fromPartial(object.planModeLiteLlmModelInfo)
         : undefined;
     message.planModeRequestyModelId = object.planModeRequestyModelId ?? undefined;
     message.planModeRequestyModelInfo =
-      (object.planModeRequestyModelInfo !== undefined && object.planModeRequestyModelInfo !== null)
+      object.planModeRequestyModelInfo !== undefined && object.planModeRequestyModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeRequestyModelInfo)
         : undefined;
     message.planModeTogetherModelId = object.planModeTogetherModelId ?? undefined;
@@ -11512,49 +11833,53 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
     message.planModeSapAiCoreDeploymentId = object.planModeSapAiCoreDeploymentId ?? undefined;
     message.planModeGroqModelId = object.planModeGroqModelId ?? undefined;
     message.planModeGroqModelInfo =
-      (object.planModeGroqModelInfo !== undefined && object.planModeGroqModelInfo !== null)
+      object.planModeGroqModelInfo !== undefined && object.planModeGroqModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeGroqModelInfo)
         : undefined;
     message.planModeHuggingFaceModelId = object.planModeHuggingFaceModelId ?? undefined;
     message.planModeHuggingFaceModelInfo =
-      (object.planModeHuggingFaceModelInfo !== undefined && object.planModeHuggingFaceModelInfo !== null)
+      object.planModeHuggingFaceModelInfo !== undefined &&
+      object.planModeHuggingFaceModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeHuggingFaceModelInfo)
         : undefined;
     message.planModeHuaweiCloudMaasModelId = object.planModeHuaweiCloudMaasModelId ?? undefined;
     message.planModeHuaweiCloudMaasModelInfo =
-      (object.planModeHuaweiCloudMaasModelInfo !== undefined && object.planModeHuaweiCloudMaasModelInfo !== null)
+      object.planModeHuaweiCloudMaasModelInfo !== undefined &&
+      object.planModeHuaweiCloudMaasModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeHuaweiCloudMaasModelInfo)
         : undefined;
     message.planModeBasetenModelId = object.planModeBasetenModelId ?? undefined;
     message.planModeBasetenModelInfo =
-      (object.planModeBasetenModelInfo !== undefined && object.planModeBasetenModelInfo !== null)
+      object.planModeBasetenModelInfo !== undefined && object.planModeBasetenModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeBasetenModelInfo)
         : undefined;
     message.planModeVercelAiGatewayModelId = object.planModeVercelAiGatewayModelId ?? undefined;
     message.planModeVercelAiGatewayModelInfo =
-      (object.planModeVercelAiGatewayModelInfo !== undefined && object.planModeVercelAiGatewayModelInfo !== null)
+      object.planModeVercelAiGatewayModelInfo !== undefined &&
+      object.planModeVercelAiGatewayModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeVercelAiGatewayModelInfo)
         : undefined;
     message.planModeOcaModelId = object.planModeOcaModelId ?? undefined;
-    message.planModeOcaModelInfo = (object.planModeOcaModelInfo !== undefined && object.planModeOcaModelInfo !== null)
-      ? OcaModelInfo.fromPartial(object.planModeOcaModelInfo)
-      : undefined;
+    message.planModeOcaModelInfo =
+      object.planModeOcaModelInfo !== undefined && object.planModeOcaModelInfo !== null
+        ? OcaModelInfo.fromPartial(object.planModeOcaModelInfo)
+        : undefined;
     message.planModeOcaReasoningEffort = object.planModeOcaReasoningEffort ?? undefined;
     message.planModeHicapModelId = object.planModeHicapModelId ?? undefined;
     message.planModeHicapModelInfo =
-      (object.planModeHicapModelInfo !== undefined && object.planModeHicapModelInfo !== null)
+      object.planModeHicapModelInfo !== undefined && object.planModeHicapModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeHicapModelInfo)
         : undefined;
     message.planModeAihubmixModelId = object.planModeAihubmixModelId ?? undefined;
     message.planModeAihubmixModelInfo =
-      (object.planModeAihubmixModelInfo !== undefined && object.planModeAihubmixModelInfo !== null)
+      object.planModeAihubmixModelInfo !== undefined && object.planModeAihubmixModelInfo !== null
         ? OpenAiCompatibleModelInfo.fromPartial(object.planModeAihubmixModelInfo)
         : undefined;
     message.planModeNousResearchModelId = object.planModeNousResearchModelId ?? undefined;
     message.geminiPlanModeThinkingLevel = object.geminiPlanModeThinkingLevel ?? undefined;
     message.planModeClineModelId = object.planModeClineModelId ?? undefined;
     message.planModeClineModelInfo =
-      (object.planModeClineModelInfo !== undefined && object.planModeClineModelInfo !== null)
+      object.planModeClineModelInfo !== undefined && object.planModeClineModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.planModeClineModelInfo)
         : undefined;
     message.actModeApiProvider = object.actModeApiProvider ?? undefined;
@@ -11562,31 +11887,33 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
     message.actModeThinkingBudgetTokens = object.actModeThinkingBudgetTokens ?? undefined;
     message.actModeReasoningEffort = object.actModeReasoningEffort ?? undefined;
     message.actModeVsCodeLmModelSelector =
-      (object.actModeVsCodeLmModelSelector !== undefined && object.actModeVsCodeLmModelSelector !== null)
+      object.actModeVsCodeLmModelSelector !== undefined &&
+      object.actModeVsCodeLmModelSelector !== null
         ? LanguageModelChatSelector.fromPartial(object.actModeVsCodeLmModelSelector)
         : undefined;
     message.actModeAwsBedrockCustomSelected = object.actModeAwsBedrockCustomSelected ?? undefined;
-    message.actModeAwsBedrockCustomModelBaseId = object.actModeAwsBedrockCustomModelBaseId ?? undefined;
+    message.actModeAwsBedrockCustomModelBaseId =
+      object.actModeAwsBedrockCustomModelBaseId ?? undefined;
     message.actModeOpenRouterModelId = object.actModeOpenRouterModelId ?? undefined;
     message.actModeOpenRouterModelInfo =
-      (object.actModeOpenRouterModelInfo !== undefined && object.actModeOpenRouterModelInfo !== null)
+      object.actModeOpenRouterModelInfo !== undefined && object.actModeOpenRouterModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.actModeOpenRouterModelInfo)
         : undefined;
     message.actModeOpenAiModelId = object.actModeOpenAiModelId ?? undefined;
     message.actModeOpenAiModelInfo =
-      (object.actModeOpenAiModelInfo !== undefined && object.actModeOpenAiModelInfo !== null)
+      object.actModeOpenAiModelInfo !== undefined && object.actModeOpenAiModelInfo !== null
         ? OpenAiCompatibleModelInfo.fromPartial(object.actModeOpenAiModelInfo)
         : undefined;
     message.actModeOllamaModelId = object.actModeOllamaModelId ?? undefined;
     message.actModeLmStudioModelId = object.actModeLmStudioModelId ?? undefined;
     message.actModeLiteLlmModelId = object.actModeLiteLlmModelId ?? undefined;
     message.actModeLiteLlmModelInfo =
-      (object.actModeLiteLlmModelInfo !== undefined && object.actModeLiteLlmModelInfo !== null)
+      object.actModeLiteLlmModelInfo !== undefined && object.actModeLiteLlmModelInfo !== null
         ? LiteLLMModelInfo.fromPartial(object.actModeLiteLlmModelInfo)
         : undefined;
     message.actModeRequestyModelId = object.actModeRequestyModelId ?? undefined;
     message.actModeRequestyModelInfo =
-      (object.actModeRequestyModelInfo !== undefined && object.actModeRequestyModelInfo !== null)
+      object.actModeRequestyModelInfo !== undefined && object.actModeRequestyModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.actModeRequestyModelInfo)
         : undefined;
     message.actModeTogetherModelId = object.actModeTogetherModelId ?? undefined;
@@ -11594,49 +11921,54 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
     message.actModeSapAiCoreModelId = object.actModeSapAiCoreModelId ?? undefined;
     message.actModeSapAiCoreDeploymentId = object.actModeSapAiCoreDeploymentId ?? undefined;
     message.actModeGroqModelId = object.actModeGroqModelId ?? undefined;
-    message.actModeGroqModelInfo = (object.actModeGroqModelInfo !== undefined && object.actModeGroqModelInfo !== null)
-      ? OpenRouterModelInfo.fromPartial(object.actModeGroqModelInfo)
-      : undefined;
+    message.actModeGroqModelInfo =
+      object.actModeGroqModelInfo !== undefined && object.actModeGroqModelInfo !== null
+        ? OpenRouterModelInfo.fromPartial(object.actModeGroqModelInfo)
+        : undefined;
     message.actModeHuggingFaceModelId = object.actModeHuggingFaceModelId ?? undefined;
     message.actModeHuggingFaceModelInfo =
-      (object.actModeHuggingFaceModelInfo !== undefined && object.actModeHuggingFaceModelInfo !== null)
+      object.actModeHuggingFaceModelInfo !== undefined &&
+      object.actModeHuggingFaceModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.actModeHuggingFaceModelInfo)
         : undefined;
     message.actModeHuaweiCloudMaasModelId = object.actModeHuaweiCloudMaasModelId ?? undefined;
     message.actModeHuaweiCloudMaasModelInfo =
-      (object.actModeHuaweiCloudMaasModelInfo !== undefined && object.actModeHuaweiCloudMaasModelInfo !== null)
+      object.actModeHuaweiCloudMaasModelInfo !== undefined &&
+      object.actModeHuaweiCloudMaasModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.actModeHuaweiCloudMaasModelInfo)
         : undefined;
     message.actModeBasetenModelId = object.actModeBasetenModelId ?? undefined;
     message.actModeBasetenModelInfo =
-      (object.actModeBasetenModelInfo !== undefined && object.actModeBasetenModelInfo !== null)
+      object.actModeBasetenModelInfo !== undefined && object.actModeBasetenModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.actModeBasetenModelInfo)
         : undefined;
     message.actModeVercelAiGatewayModelId = object.actModeVercelAiGatewayModelId ?? undefined;
     message.actModeVercelAiGatewayModelInfo =
-      (object.actModeVercelAiGatewayModelInfo !== undefined && object.actModeVercelAiGatewayModelInfo !== null)
+      object.actModeVercelAiGatewayModelInfo !== undefined &&
+      object.actModeVercelAiGatewayModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.actModeVercelAiGatewayModelInfo)
         : undefined;
     message.actModeOcaModelId = object.actModeOcaModelId ?? undefined;
-    message.actModeOcaModelInfo = (object.actModeOcaModelInfo !== undefined && object.actModeOcaModelInfo !== null)
-      ? OcaModelInfo.fromPartial(object.actModeOcaModelInfo)
-      : undefined;
+    message.actModeOcaModelInfo =
+      object.actModeOcaModelInfo !== undefined && object.actModeOcaModelInfo !== null
+        ? OcaModelInfo.fromPartial(object.actModeOcaModelInfo)
+        : undefined;
     message.actModeOcaReasoningEffort = object.actModeOcaReasoningEffort ?? undefined;
     message.actModeHicapModelId = object.actModeHicapModelId ?? undefined;
     message.actModeHicapModelInfo =
-      (object.actModeHicapModelInfo !== undefined && object.actModeHicapModelInfo !== null)
+      object.actModeHicapModelInfo !== undefined && object.actModeHicapModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.actModeHicapModelInfo)
         : undefined;
     message.actModeAihubmixModelId = object.actModeAihubmixModelId ?? undefined;
     message.actModeAihubmixModelInfo =
-      (object.actModeAihubmixModelInfo !== undefined && object.actModeAihubmixModelInfo !== null)
+      object.actModeAihubmixModelInfo !== undefined && object.actModeAihubmixModelInfo !== null
         ? OpenAiCompatibleModelInfo.fromPartial(object.actModeAihubmixModelInfo)
         : undefined;
     message.actModeNousResearchModelId = object.actModeNousResearchModelId ?? undefined;
     message.geminiActModeThinkingLevel = object.geminiActModeThinkingLevel ?? undefined;
     message.actModeClineModelId = object.actModeClineModelId ?? undefined;
     message.actModeClineModelInfo =
-      (object.actModeClineModelInfo !== undefined && object.actModeClineModelInfo !== null)
+      object.actModeClineModelInfo !== undefined && object.actModeClineModelInfo !== null
         ? OpenRouterModelInfo.fromPartial(object.actModeClineModelInfo)
         : undefined;
     return message;
@@ -11644,94 +11976,101 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
 };
 
 function createBaseModelsApiConfiguration_OpenAiHeadersEntry(): ModelsApiConfiguration_OpenAiHeadersEntry {
-  return { key: "", value: "" };
+  return { key: '', value: '' };
 }
 
-export const ModelsApiConfiguration_OpenAiHeadersEntry: MessageFns<ModelsApiConfiguration_OpenAiHeadersEntry> = {
-  encode(message: ModelsApiConfiguration_OpenAiHeadersEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.key !== "") {
-      writer.uint32(10).string(message.key);
-    }
-    if (message.value !== "") {
-      writer.uint32(18).string(message.value);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): ModelsApiConfiguration_OpenAiHeadersEntry {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseModelsApiConfiguration_OpenAiHeadersEntry();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.key = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.value = reader.string();
-          continue;
-        }
+export const ModelsApiConfiguration_OpenAiHeadersEntry: MessageFns<ModelsApiConfiguration_OpenAiHeadersEntry> =
+  {
+    encode(
+      message: ModelsApiConfiguration_OpenAiHeadersEntry,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.key !== '') {
+        writer.uint32(10).string(message.key);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.value !== '') {
+        writer.uint32(18).string(message.value);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      return writer;
+    },
 
-  fromJSON(object: any): ModelsApiConfiguration_OpenAiHeadersEntry {
-    return {
-      key: isSet(object.key) ? globalThis.String(object.key) : "",
-      value: isSet(object.value) ? globalThis.String(object.value) : "",
-    };
-  },
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): ModelsApiConfiguration_OpenAiHeadersEntry {
+      const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseModelsApiConfiguration_OpenAiHeadersEntry();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
 
-  toJSON(message: ModelsApiConfiguration_OpenAiHeadersEntry): unknown {
-    const obj: any = {};
-    if (message.key !== "") {
-      obj.key = message.key;
-    }
-    if (message.value !== "") {
-      obj.value = message.value;
-    }
-    return obj;
-  },
+            message.key = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
 
-  create<I extends Exact<DeepPartial<ModelsApiConfiguration_OpenAiHeadersEntry>, I>>(
-    base?: I,
-  ): ModelsApiConfiguration_OpenAiHeadersEntry {
-    return ModelsApiConfiguration_OpenAiHeadersEntry.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<ModelsApiConfiguration_OpenAiHeadersEntry>, I>>(
-    object: I,
-  ): ModelsApiConfiguration_OpenAiHeadersEntry {
-    const message = createBaseModelsApiConfiguration_OpenAiHeadersEntry();
-    message.key = object.key ?? "";
-    message.value = object.value ?? "";
-    return message;
-  },
-};
+            message.value = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): ModelsApiConfiguration_OpenAiHeadersEntry {
+      return {
+        key: isSet(object.key) ? globalThis.String(object.key) : '',
+        value: isSet(object.value) ? globalThis.String(object.value) : '',
+      };
+    },
+
+    toJSON(message: ModelsApiConfiguration_OpenAiHeadersEntry): unknown {
+      const obj: any = {};
+      if (message.key !== '') {
+        obj.key = message.key;
+      }
+      if (message.value !== '') {
+        obj.value = message.value;
+      }
+      return obj;
+    },
+
+    create<I extends Exact<DeepPartial<ModelsApiConfiguration_OpenAiHeadersEntry>, I>>(
+      base?: I,
+    ): ModelsApiConfiguration_OpenAiHeadersEntry {
+      return ModelsApiConfiguration_OpenAiHeadersEntry.fromPartial(base ?? ({} as any));
+    },
+    fromPartial<I extends Exact<DeepPartial<ModelsApiConfiguration_OpenAiHeadersEntry>, I>>(
+      object: I,
+    ): ModelsApiConfiguration_OpenAiHeadersEntry {
+      const message = createBaseModelsApiConfiguration_OpenAiHeadersEntry();
+      message.key = object.key ?? '';
+      message.value = object.value ?? '';
+      return message;
+    },
+  };
 
 /** Service for model-related operations */
 export type ModelsServiceDefinition = typeof ModelsServiceDefinition;
 export const ModelsServiceDefinition = {
-  name: "ModelsService",
-  fullName: "cline.ModelsService",
+  name: 'ModelsService',
+  fullName: 'cline.ModelsService',
   methods: {
     /** Fetches available models from Ollama */
     getOllamaModels: {
-      name: "getOllamaModels",
+      name: 'getOllamaModels',
       requestType: StringRequest,
       requestStream: false,
       responseType: StringArray,
@@ -11740,7 +12079,7 @@ export const ModelsServiceDefinition = {
     },
     /** Fetches available models from LM Studio */
     getLmStudioModels: {
-      name: "getLmStudioModels",
+      name: 'getLmStudioModels',
       requestType: StringRequest,
       requestStream: false,
       responseType: StringArray,
@@ -11749,7 +12088,7 @@ export const ModelsServiceDefinition = {
     },
     /** Fetches available models from VS Code LM API */
     getVsCodeLmModels: {
-      name: "getVsCodeLmModels",
+      name: 'getVsCodeLmModels',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: VsCodeLmModelsArray,
@@ -11758,7 +12097,7 @@ export const ModelsServiceDefinition = {
     },
     /** Refreshes and returns OpenRouter models */
     refreshOpenRouterModelsRpc: {
-      name: "refreshOpenRouterModelsRpc",
+      name: 'refreshOpenRouterModelsRpc',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -11767,7 +12106,7 @@ export const ModelsServiceDefinition = {
     },
     /** Refreshes and returns recommended and free Cline models */
     refreshClineRecommendedModelsRpc: {
-      name: "refreshClineRecommendedModelsRpc",
+      name: 'refreshClineRecommendedModelsRpc',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: ClineRecommendedModelsResponse,
@@ -11776,7 +12115,7 @@ export const ModelsServiceDefinition = {
     },
     /** Refreshes and returns Cline provider models */
     refreshClineModelsRpc: {
-      name: "refreshClineModelsRpc",
+      name: 'refreshClineModelsRpc',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -11785,7 +12124,7 @@ export const ModelsServiceDefinition = {
     },
     /** Refreshes and returns Hugging Face models */
     refreshHuggingFaceModels: {
-      name: "refreshHuggingFaceModels",
+      name: 'refreshHuggingFaceModels',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -11794,7 +12133,7 @@ export const ModelsServiceDefinition = {
     },
     /** Refreshes and returns OpenAI models */
     refreshOpenAiModels: {
-      name: "refreshOpenAiModels",
+      name: 'refreshOpenAiModels',
       requestType: OpenAiModelsRequest,
       requestStream: false,
       responseType: StringArray,
@@ -11803,7 +12142,7 @@ export const ModelsServiceDefinition = {
     },
     /** Refreshes and returns Requesty models */
     refreshRequestyModels: {
-      name: "refreshRequestyModels",
+      name: 'refreshRequestyModels',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -11812,7 +12151,7 @@ export const ModelsServiceDefinition = {
     },
     /** Refreshes and returns Hicap models */
     refreshHicapModels: {
-      name: "refreshHicapModels",
+      name: 'refreshHicapModels',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -11821,7 +12160,7 @@ export const ModelsServiceDefinition = {
     },
     /** Refreshes and returns LiteLLM models */
     refreshLiteLlmModelsRpc: {
-      name: "refreshLiteLlmModelsRpc",
+      name: 'refreshLiteLlmModelsRpc',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -11830,7 +12169,7 @@ export const ModelsServiceDefinition = {
     },
     /** Subscribe to OpenRouter models updates */
     subscribeToOpenRouterModels: {
-      name: "subscribeToOpenRouterModels",
+      name: 'subscribeToOpenRouterModels',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -11839,7 +12178,7 @@ export const ModelsServiceDefinition = {
     },
     /** Subscribe to LiteLLM models updates */
     subscribeToLiteLlmModels: {
-      name: "subscribeToLiteLlmModels",
+      name: 'subscribeToLiteLlmModels',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -11848,7 +12187,7 @@ export const ModelsServiceDefinition = {
     },
     /** Updates API configuration (legacy - uses combined configuration) */
     updateApiConfigurationProto: {
-      name: "updateApiConfigurationProto",
+      name: 'updateApiConfigurationProto',
       requestType: UpdateApiConfigurationRequest,
       requestStream: false,
       responseType: Empty,
@@ -11857,7 +12196,7 @@ export const ModelsServiceDefinition = {
     },
     /** Updates API configuration (new - uses separate options and secrets) */
     updateApiConfiguration: {
-      name: "updateApiConfiguration",
+      name: 'updateApiConfiguration',
       requestType: UpdateApiConfigurationRequestNew,
       requestStream: false,
       responseType: Empty,
@@ -11866,7 +12205,7 @@ export const ModelsServiceDefinition = {
     },
     /** Updates API configuration with partial values (only updates fields that are explicitly set) */
     updateApiConfigurationPartial: {
-      name: "updateApiConfigurationPartial",
+      name: 'updateApiConfigurationPartial',
       requestType: UpdateApiConfigurationPartialRequest,
       requestStream: false,
       responseType: Empty,
@@ -11875,7 +12214,7 @@ export const ModelsServiceDefinition = {
     },
     /** Refreshes and returns Groq models */
     refreshGroqModelsRpc: {
-      name: "refreshGroqModelsRpc",
+      name: 'refreshGroqModelsRpc',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -11884,7 +12223,7 @@ export const ModelsServiceDefinition = {
     },
     /** Refreshes and returns Baseten models */
     refreshBasetenModelsRpc: {
-      name: "refreshBasetenModelsRpc",
+      name: 'refreshBasetenModelsRpc',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -11893,7 +12232,7 @@ export const ModelsServiceDefinition = {
     },
     /** Fetches available models from SAP AI Core */
     getSapAiCoreModels: {
-      name: "getSapAiCoreModels",
+      name: 'getSapAiCoreModels',
       requestType: SapAiCoreModelsRequest,
       requestStream: false,
       responseType: SapAiCoreModelsResponse,
@@ -11902,7 +12241,7 @@ export const ModelsServiceDefinition = {
     },
     /** Fetches available models from OCA */
     refreshOcaModels: {
-      name: "refreshOcaModels",
+      name: 'refreshOcaModels',
       requestType: StringRequest,
       requestStream: false,
       responseType: OcaCompatibleModelInfo,
@@ -11911,7 +12250,7 @@ export const ModelsServiceDefinition = {
     },
     /** Fetches available models from AIhubmix */
     getAihubmixModels: {
-      name: "getAihubmixModels",
+      name: 'getAihubmixModels',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -11920,7 +12259,7 @@ export const ModelsServiceDefinition = {
     },
     /** Refreshes and returns Vercel AI Gateway models */
     refreshVercelAiGatewayModelsRpc: {
-      name: "refreshVercelAiGatewayModelsRpc",
+      name: 'refreshVercelAiGatewayModelsRpc',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -11932,29 +12271,34 @@ export const ModelsServiceDefinition = {
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-type Exact<P, I extends P> = P extends Builtin ? P
+type Exact<P, I extends P> = P extends Builtin
+  ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function longToNumber(int64: { toString(): string }): number {
   const num = globalThis.Number(int64.toString());
   if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+    throw new globalThis.Error('Value is larger than Number.MAX_SAFE_INTEGER');
   }
   if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
+    throw new globalThis.Error('Value is smaller than Number.MIN_SAFE_INTEGER');
   }
   return num;
 }
 
 function isObject(value: any): boolean {
-  return typeof value === "object" && value !== null;
+  return typeof value === 'object' && value !== null;
 }
 
 function isSet(value: any): boolean {

@@ -5,7 +5,7 @@
 // source: cline/task.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
 import {
   Empty,
   EmptyRequest,
@@ -15,8 +15,8 @@ import {
   String,
   StringArrayRequest,
   StringRequest,
-} from "./common";
-import { Settings } from "./state";
+} from './common';
+import { Settings } from './state';
 
 /** Request message for creating a new task */
 export interface NewTaskRequest {
@@ -102,15 +102,13 @@ export interface DeleteAllTaskHistoryCount {
 
 /** Request for explaining changes with AI */
 export interface ExplainChangesRequest {
-  metadata:
-    | Metadata
-    | undefined;
+  metadata: Metadata | undefined;
   /** Timestamp of the completion message to explain changes for */
   messageTs: number;
 }
 
 function createBaseNewTaskRequest(): NewTaskRequest {
-  return { metadata: undefined, text: "", images: [], files: [], taskSettings: undefined };
+  return { metadata: undefined, text: '', images: [], files: [], taskSettings: undefined };
 }
 
 export const NewTaskRequest: MessageFns<NewTaskRequest> = {
@@ -118,7 +116,7 @@ export const NewTaskRequest: MessageFns<NewTaskRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.text !== "") {
+    if (message.text !== '') {
       writer.uint32(18).string(message.text);
     }
     for (const v of message.images) {
@@ -192,14 +190,18 @@ export const NewTaskRequest: MessageFns<NewTaskRequest> = {
   fromJSON(object: any): NewTaskRequest {
     return {
       metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
-      text: isSet(object.text) ? globalThis.String(object.text) : "",
-      images: globalThis.Array.isArray(object?.images) ? object.images.map((e: any) => globalThis.String(e)) : [],
-      files: globalThis.Array.isArray(object?.files) ? object.files.map((e: any) => globalThis.String(e)) : [],
+      text: isSet(object.text) ? globalThis.String(object.text) : '',
+      images: globalThis.Array.isArray(object?.images)
+        ? object.images.map((e: any) => globalThis.String(e))
+        : [],
+      files: globalThis.Array.isArray(object?.files)
+        ? object.files.map((e: any) => globalThis.String(e))
+        : [],
       taskSettings: isSet(object.taskSettings)
         ? Settings.fromJSON(object.taskSettings)
         : isSet(object.task_settings)
-        ? Settings.fromJSON(object.task_settings)
-        : undefined,
+          ? Settings.fromJSON(object.task_settings)
+          : undefined,
     };
   },
 
@@ -208,7 +210,7 @@ export const NewTaskRequest: MessageFns<NewTaskRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.text !== "") {
+    if (message.text !== '') {
       obj.text = message.text;
     }
     if (message.images?.length) {
@@ -228,21 +230,23 @@ export const NewTaskRequest: MessageFns<NewTaskRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<NewTaskRequest>, I>>(object: I): NewTaskRequest {
     const message = createBaseNewTaskRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.text = object.text ?? "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.text = object.text ?? '';
     message.images = object.images?.map((e) => e) || [];
     message.files = object.files?.map((e) => e) || [];
-    message.taskSettings = (object.taskSettings !== undefined && object.taskSettings !== null)
-      ? Settings.fromPartial(object.taskSettings)
-      : undefined;
+    message.taskSettings =
+      object.taskSettings !== undefined && object.taskSettings !== null
+        ? Settings.fromPartial(object.taskSettings)
+        : undefined;
     return message;
   },
 };
 
 function createBaseTaskFavoriteRequest(): TaskFavoriteRequest {
-  return { metadata: undefined, taskId: "", isFavorited: false };
+  return { metadata: undefined, taskId: '', isFavorited: false };
 }
 
 export const TaskFavoriteRequest: MessageFns<TaskFavoriteRequest> = {
@@ -250,7 +254,7 @@ export const TaskFavoriteRequest: MessageFns<TaskFavoriteRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.taskId !== "") {
+    if (message.taskId !== '') {
       writer.uint32(18).string(message.taskId);
     }
     if (message.isFavorited !== false) {
@@ -305,13 +309,13 @@ export const TaskFavoriteRequest: MessageFns<TaskFavoriteRequest> = {
       taskId: isSet(object.taskId)
         ? globalThis.String(object.taskId)
         : isSet(object.task_id)
-        ? globalThis.String(object.task_id)
-        : "",
+          ? globalThis.String(object.task_id)
+          : '',
       isFavorited: isSet(object.isFavorited)
         ? globalThis.Boolean(object.isFavorited)
         : isSet(object.is_favorited)
-        ? globalThis.Boolean(object.is_favorited)
-        : false,
+          ? globalThis.Boolean(object.is_favorited)
+          : false,
     };
   },
 
@@ -320,7 +324,7 @@ export const TaskFavoriteRequest: MessageFns<TaskFavoriteRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.taskId !== "") {
+    if (message.taskId !== '') {
       obj.taskId = message.taskId;
     }
     if (message.isFavorited !== false) {
@@ -332,12 +336,15 @@ export const TaskFavoriteRequest: MessageFns<TaskFavoriteRequest> = {
   create<I extends Exact<DeepPartial<TaskFavoriteRequest>, I>>(base?: I): TaskFavoriteRequest {
     return TaskFavoriteRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<TaskFavoriteRequest>, I>>(object: I): TaskFavoriteRequest {
+  fromPartial<I extends Exact<DeepPartial<TaskFavoriteRequest>, I>>(
+    object: I,
+  ): TaskFavoriteRequest {
     const message = createBaseTaskFavoriteRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.taskId = object.taskId ?? "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.taskId = object.taskId ?? '';
     message.isFavorited = object.isFavorited ?? false;
     return message;
   },
@@ -345,8 +352,8 @@ export const TaskFavoriteRequest: MessageFns<TaskFavoriteRequest> = {
 
 function createBaseTaskResponse(): TaskResponse {
   return {
-    id: "",
-    task: "",
+    id: '',
+    task: '',
     ts: 0,
     isFavorited: false,
     size: 0,
@@ -355,16 +362,16 @@ function createBaseTaskResponse(): TaskResponse {
     tokensOut: 0,
     cacheWrites: 0,
     cacheReads: 0,
-    modelId: "",
+    modelId: '',
   };
 }
 
 export const TaskResponse: MessageFns<TaskResponse> = {
   encode(message: TaskResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== "") {
+    if (message.id !== '') {
       writer.uint32(10).string(message.id);
     }
-    if (message.task !== "") {
+    if (message.task !== '') {
       writer.uint32(18).string(message.task);
     }
     if (message.ts !== 0) {
@@ -391,7 +398,7 @@ export const TaskResponse: MessageFns<TaskResponse> = {
     if (message.cacheReads !== 0) {
       writer.uint32(80).int32(message.cacheReads);
     }
-    if (message.modelId !== "") {
+    if (message.modelId !== '') {
       writer.uint32(90).string(message.modelId);
     }
     return writer;
@@ -503,54 +510,54 @@ export const TaskResponse: MessageFns<TaskResponse> = {
 
   fromJSON(object: any): TaskResponse {
     return {
-      id: isSet(object.id) ? globalThis.String(object.id) : "",
-      task: isSet(object.task) ? globalThis.String(object.task) : "",
+      id: isSet(object.id) ? globalThis.String(object.id) : '',
+      task: isSet(object.task) ? globalThis.String(object.task) : '',
       ts: isSet(object.ts) ? globalThis.Number(object.ts) : 0,
       isFavorited: isSet(object.isFavorited)
         ? globalThis.Boolean(object.isFavorited)
         : isSet(object.is_favorited)
-        ? globalThis.Boolean(object.is_favorited)
-        : false,
+          ? globalThis.Boolean(object.is_favorited)
+          : false,
       size: isSet(object.size) ? globalThis.Number(object.size) : 0,
       totalCost: isSet(object.totalCost)
         ? globalThis.Number(object.totalCost)
         : isSet(object.total_cost)
-        ? globalThis.Number(object.total_cost)
-        : 0,
+          ? globalThis.Number(object.total_cost)
+          : 0,
       tokensIn: isSet(object.tokensIn)
         ? globalThis.Number(object.tokensIn)
         : isSet(object.tokens_in)
-        ? globalThis.Number(object.tokens_in)
-        : 0,
+          ? globalThis.Number(object.tokens_in)
+          : 0,
       tokensOut: isSet(object.tokensOut)
         ? globalThis.Number(object.tokensOut)
         : isSet(object.tokens_out)
-        ? globalThis.Number(object.tokens_out)
-        : 0,
+          ? globalThis.Number(object.tokens_out)
+          : 0,
       cacheWrites: isSet(object.cacheWrites)
         ? globalThis.Number(object.cacheWrites)
         : isSet(object.cache_writes)
-        ? globalThis.Number(object.cache_writes)
-        : 0,
+          ? globalThis.Number(object.cache_writes)
+          : 0,
       cacheReads: isSet(object.cacheReads)
         ? globalThis.Number(object.cacheReads)
         : isSet(object.cache_reads)
-        ? globalThis.Number(object.cache_reads)
-        : 0,
+          ? globalThis.Number(object.cache_reads)
+          : 0,
       modelId: isSet(object.modelId)
         ? globalThis.String(object.modelId)
         : isSet(object.model_id)
-        ? globalThis.String(object.model_id)
-        : "",
+          ? globalThis.String(object.model_id)
+          : '',
     };
   },
 
   toJSON(message: TaskResponse): unknown {
     const obj: any = {};
-    if (message.id !== "") {
+    if (message.id !== '') {
       obj.id = message.id;
     }
-    if (message.task !== "") {
+    if (message.task !== '') {
       obj.task = message.task;
     }
     if (message.ts !== 0) {
@@ -577,7 +584,7 @@ export const TaskResponse: MessageFns<TaskResponse> = {
     if (message.cacheReads !== 0) {
       obj.cacheReads = Math.round(message.cacheReads);
     }
-    if (message.modelId !== "") {
+    if (message.modelId !== '') {
       obj.modelId = message.modelId;
     }
     return obj;
@@ -588,8 +595,8 @@ export const TaskResponse: MessageFns<TaskResponse> = {
   },
   fromPartial<I extends Exact<DeepPartial<TaskResponse>, I>>(object: I): TaskResponse {
     const message = createBaseTaskResponse();
-    message.id = object.id ?? "";
-    message.task = object.task ?? "";
+    message.id = object.id ?? '';
+    message.task = object.task ?? '';
     message.ts = object.ts ?? 0;
     message.isFavorited = object.isFavorited ?? false;
     message.size = object.size ?? 0;
@@ -598,13 +605,19 @@ export const TaskResponse: MessageFns<TaskResponse> = {
     message.tokensOut = object.tokensOut ?? 0;
     message.cacheWrites = object.cacheWrites ?? 0;
     message.cacheReads = object.cacheReads ?? 0;
-    message.modelId = object.modelId ?? "";
+    message.modelId = object.modelId ?? '';
     return message;
   },
 };
 
 function createBaseGetTaskHistoryRequest(): GetTaskHistoryRequest {
-  return { metadata: undefined, favoritesOnly: false, searchQuery: "", sortBy: "", currentWorkspaceOnly: false };
+  return {
+    metadata: undefined,
+    favoritesOnly: false,
+    searchQuery: '',
+    sortBy: '',
+    currentWorkspaceOnly: false,
+  };
 }
 
 export const GetTaskHistoryRequest: MessageFns<GetTaskHistoryRequest> = {
@@ -615,10 +628,10 @@ export const GetTaskHistoryRequest: MessageFns<GetTaskHistoryRequest> = {
     if (message.favoritesOnly !== false) {
       writer.uint32(16).bool(message.favoritesOnly);
     }
-    if (message.searchQuery !== "") {
+    if (message.searchQuery !== '') {
       writer.uint32(26).string(message.searchQuery);
     }
-    if (message.sortBy !== "") {
+    if (message.sortBy !== '') {
       writer.uint32(34).string(message.sortBy);
     }
     if (message.currentWorkspaceOnly !== false) {
@@ -689,23 +702,23 @@ export const GetTaskHistoryRequest: MessageFns<GetTaskHistoryRequest> = {
       favoritesOnly: isSet(object.favoritesOnly)
         ? globalThis.Boolean(object.favoritesOnly)
         : isSet(object.favorites_only)
-        ? globalThis.Boolean(object.favorites_only)
-        : false,
+          ? globalThis.Boolean(object.favorites_only)
+          : false,
       searchQuery: isSet(object.searchQuery)
         ? globalThis.String(object.searchQuery)
         : isSet(object.search_query)
-        ? globalThis.String(object.search_query)
-        : "",
+          ? globalThis.String(object.search_query)
+          : '',
       sortBy: isSet(object.sortBy)
         ? globalThis.String(object.sortBy)
         : isSet(object.sort_by)
-        ? globalThis.String(object.sort_by)
-        : "",
+          ? globalThis.String(object.sort_by)
+          : '',
       currentWorkspaceOnly: isSet(object.currentWorkspaceOnly)
         ? globalThis.Boolean(object.currentWorkspaceOnly)
         : isSet(object.current_workspace_only)
-        ? globalThis.Boolean(object.current_workspace_only)
-        : false,
+          ? globalThis.Boolean(object.current_workspace_only)
+          : false,
     };
   },
 
@@ -717,10 +730,10 @@ export const GetTaskHistoryRequest: MessageFns<GetTaskHistoryRequest> = {
     if (message.favoritesOnly !== false) {
       obj.favoritesOnly = message.favoritesOnly;
     }
-    if (message.searchQuery !== "") {
+    if (message.searchQuery !== '') {
       obj.searchQuery = message.searchQuery;
     }
-    if (message.sortBy !== "") {
+    if (message.sortBy !== '') {
       obj.sortBy = message.sortBy;
     }
     if (message.currentWorkspaceOnly !== false) {
@@ -732,14 +745,17 @@ export const GetTaskHistoryRequest: MessageFns<GetTaskHistoryRequest> = {
   create<I extends Exact<DeepPartial<GetTaskHistoryRequest>, I>>(base?: I): GetTaskHistoryRequest {
     return GetTaskHistoryRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetTaskHistoryRequest>, I>>(object: I): GetTaskHistoryRequest {
+  fromPartial<I extends Exact<DeepPartial<GetTaskHistoryRequest>, I>>(
+    object: I,
+  ): GetTaskHistoryRequest {
     const message = createBaseGetTaskHistoryRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
     message.favoritesOnly = object.favoritesOnly ?? false;
-    message.searchQuery = object.searchQuery ?? "";
-    message.sortBy = object.sortBy ?? "";
+    message.searchQuery = object.searchQuery ?? '';
+    message.sortBy = object.sortBy ?? '';
     message.currentWorkspaceOnly = object.currentWorkspaceOnly ?? false;
     return message;
   },
@@ -794,12 +810,14 @@ export const TaskHistoryArray: MessageFns<TaskHistoryArray> = {
 
   fromJSON(object: any): TaskHistoryArray {
     return {
-      tasks: globalThis.Array.isArray(object?.tasks) ? object.tasks.map((e: any) => TaskItem.fromJSON(e)) : [],
+      tasks: globalThis.Array.isArray(object?.tasks)
+        ? object.tasks.map((e: any) => TaskItem.fromJSON(e))
+        : [],
       totalCount: isSet(object.totalCount)
         ? globalThis.Number(object.totalCount)
         : isSet(object.total_count)
-        ? globalThis.Number(object.total_count)
-        : 0,
+          ? globalThis.Number(object.total_count)
+          : 0,
     };
   },
 
@@ -827,8 +845,8 @@ export const TaskHistoryArray: MessageFns<TaskHistoryArray> = {
 
 function createBaseTaskItem(): TaskItem {
   return {
-    id: "",
-    task: "",
+    id: '',
+    task: '',
     ts: 0,
     isFavorited: false,
     size: 0,
@@ -837,16 +855,16 @@ function createBaseTaskItem(): TaskItem {
     tokensOut: 0,
     cacheWrites: 0,
     cacheReads: 0,
-    modelId: "",
+    modelId: '',
   };
 }
 
 export const TaskItem: MessageFns<TaskItem> = {
   encode(message: TaskItem, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== "") {
+    if (message.id !== '') {
       writer.uint32(10).string(message.id);
     }
-    if (message.task !== "") {
+    if (message.task !== '') {
       writer.uint32(18).string(message.task);
     }
     if (message.ts !== 0) {
@@ -873,7 +891,7 @@ export const TaskItem: MessageFns<TaskItem> = {
     if (message.cacheReads !== 0) {
       writer.uint32(80).int32(message.cacheReads);
     }
-    if (message.modelId !== "") {
+    if (message.modelId !== '') {
       writer.uint32(90).string(message.modelId);
     }
     return writer;
@@ -985,54 +1003,54 @@ export const TaskItem: MessageFns<TaskItem> = {
 
   fromJSON(object: any): TaskItem {
     return {
-      id: isSet(object.id) ? globalThis.String(object.id) : "",
-      task: isSet(object.task) ? globalThis.String(object.task) : "",
+      id: isSet(object.id) ? globalThis.String(object.id) : '',
+      task: isSet(object.task) ? globalThis.String(object.task) : '',
       ts: isSet(object.ts) ? globalThis.Number(object.ts) : 0,
       isFavorited: isSet(object.isFavorited)
         ? globalThis.Boolean(object.isFavorited)
         : isSet(object.is_favorited)
-        ? globalThis.Boolean(object.is_favorited)
-        : false,
+          ? globalThis.Boolean(object.is_favorited)
+          : false,
       size: isSet(object.size) ? globalThis.Number(object.size) : 0,
       totalCost: isSet(object.totalCost)
         ? globalThis.Number(object.totalCost)
         : isSet(object.total_cost)
-        ? globalThis.Number(object.total_cost)
-        : 0,
+          ? globalThis.Number(object.total_cost)
+          : 0,
       tokensIn: isSet(object.tokensIn)
         ? globalThis.Number(object.tokensIn)
         : isSet(object.tokens_in)
-        ? globalThis.Number(object.tokens_in)
-        : 0,
+          ? globalThis.Number(object.tokens_in)
+          : 0,
       tokensOut: isSet(object.tokensOut)
         ? globalThis.Number(object.tokensOut)
         : isSet(object.tokens_out)
-        ? globalThis.Number(object.tokens_out)
-        : 0,
+          ? globalThis.Number(object.tokens_out)
+          : 0,
       cacheWrites: isSet(object.cacheWrites)
         ? globalThis.Number(object.cacheWrites)
         : isSet(object.cache_writes)
-        ? globalThis.Number(object.cache_writes)
-        : 0,
+          ? globalThis.Number(object.cache_writes)
+          : 0,
       cacheReads: isSet(object.cacheReads)
         ? globalThis.Number(object.cacheReads)
         : isSet(object.cache_reads)
-        ? globalThis.Number(object.cache_reads)
-        : 0,
+          ? globalThis.Number(object.cache_reads)
+          : 0,
       modelId: isSet(object.modelId)
         ? globalThis.String(object.modelId)
         : isSet(object.model_id)
-        ? globalThis.String(object.model_id)
-        : "",
+          ? globalThis.String(object.model_id)
+          : '',
     };
   },
 
   toJSON(message: TaskItem): unknown {
     const obj: any = {};
-    if (message.id !== "") {
+    if (message.id !== '') {
       obj.id = message.id;
     }
-    if (message.task !== "") {
+    if (message.task !== '') {
       obj.task = message.task;
     }
     if (message.ts !== 0) {
@@ -1059,7 +1077,7 @@ export const TaskItem: MessageFns<TaskItem> = {
     if (message.cacheReads !== 0) {
       obj.cacheReads = Math.round(message.cacheReads);
     }
-    if (message.modelId !== "") {
+    if (message.modelId !== '') {
       obj.modelId = message.modelId;
     }
     return obj;
@@ -1070,8 +1088,8 @@ export const TaskItem: MessageFns<TaskItem> = {
   },
   fromPartial<I extends Exact<DeepPartial<TaskItem>, I>>(object: I): TaskItem {
     const message = createBaseTaskItem();
-    message.id = object.id ?? "";
-    message.task = object.task ?? "";
+    message.id = object.id ?? '';
+    message.task = object.task ?? '';
     message.ts = object.ts ?? 0;
     message.isFavorited = object.isFavorited ?? false;
     message.size = object.size ?? 0;
@@ -1080,13 +1098,13 @@ export const TaskItem: MessageFns<TaskItem> = {
     message.tokensOut = object.tokensOut ?? 0;
     message.cacheWrites = object.cacheWrites ?? 0;
     message.cacheReads = object.cacheReads ?? 0;
-    message.modelId = object.modelId ?? "";
+    message.modelId = object.modelId ?? '';
     return message;
   },
 };
 
 function createBaseAskResponseRequest(): AskResponseRequest {
-  return { metadata: undefined, responseType: "", text: "", images: [], files: [] };
+  return { metadata: undefined, responseType: '', text: '', images: [], files: [] };
 }
 
 export const AskResponseRequest: MessageFns<AskResponseRequest> = {
@@ -1094,10 +1112,10 @@ export const AskResponseRequest: MessageFns<AskResponseRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.responseType !== "") {
+    if (message.responseType !== '') {
       writer.uint32(18).string(message.responseType);
     }
-    if (message.text !== "") {
+    if (message.text !== '') {
       writer.uint32(26).string(message.text);
     }
     for (const v of message.images) {
@@ -1171,11 +1189,15 @@ export const AskResponseRequest: MessageFns<AskResponseRequest> = {
       responseType: isSet(object.responseType)
         ? globalThis.String(object.responseType)
         : isSet(object.response_type)
-        ? globalThis.String(object.response_type)
-        : "",
-      text: isSet(object.text) ? globalThis.String(object.text) : "",
-      images: globalThis.Array.isArray(object?.images) ? object.images.map((e: any) => globalThis.String(e)) : [],
-      files: globalThis.Array.isArray(object?.files) ? object.files.map((e: any) => globalThis.String(e)) : [],
+          ? globalThis.String(object.response_type)
+          : '',
+      text: isSet(object.text) ? globalThis.String(object.text) : '',
+      images: globalThis.Array.isArray(object?.images)
+        ? object.images.map((e: any) => globalThis.String(e))
+        : [],
+      files: globalThis.Array.isArray(object?.files)
+        ? object.files.map((e: any) => globalThis.String(e))
+        : [],
     };
   },
 
@@ -1184,10 +1206,10 @@ export const AskResponseRequest: MessageFns<AskResponseRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.responseType !== "") {
+    if (message.responseType !== '') {
       obj.responseType = message.responseType;
     }
-    if (message.text !== "") {
+    if (message.text !== '') {
       obj.text = message.text;
     }
     if (message.images?.length) {
@@ -1204,11 +1226,12 @@ export const AskResponseRequest: MessageFns<AskResponseRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<AskResponseRequest>, I>>(object: I): AskResponseRequest {
     const message = createBaseAskResponseRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.responseType = object.responseType ?? "";
-    message.text = object.text ?? "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.responseType = object.responseType ?? '';
+    message.text = object.text ?? '';
     message.images = object.images?.map((e) => e) || [];
     message.files = object.files?.map((e) => e) || [];
     return message;
@@ -1216,7 +1239,7 @@ export const AskResponseRequest: MessageFns<AskResponseRequest> = {
 };
 
 function createBaseExecuteQuickWinRequest(): ExecuteQuickWinRequest {
-  return { metadata: undefined, command: "", title: "" };
+  return { metadata: undefined, command: '', title: '' };
 }
 
 export const ExecuteQuickWinRequest: MessageFns<ExecuteQuickWinRequest> = {
@@ -1224,10 +1247,10 @@ export const ExecuteQuickWinRequest: MessageFns<ExecuteQuickWinRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.command !== "") {
+    if (message.command !== '') {
       writer.uint32(18).string(message.command);
     }
-    if (message.title !== "") {
+    if (message.title !== '') {
       writer.uint32(26).string(message.title);
     }
     return writer;
@@ -1276,8 +1299,8 @@ export const ExecuteQuickWinRequest: MessageFns<ExecuteQuickWinRequest> = {
   fromJSON(object: any): ExecuteQuickWinRequest {
     return {
       metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
-      command: isSet(object.command) ? globalThis.String(object.command) : "",
-      title: isSet(object.title) ? globalThis.String(object.title) : "",
+      command: isSet(object.command) ? globalThis.String(object.command) : '',
+      title: isSet(object.title) ? globalThis.String(object.title) : '',
     };
   },
 
@@ -1286,25 +1309,30 @@ export const ExecuteQuickWinRequest: MessageFns<ExecuteQuickWinRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.command !== "") {
+    if (message.command !== '') {
       obj.command = message.command;
     }
-    if (message.title !== "") {
+    if (message.title !== '') {
       obj.title = message.title;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ExecuteQuickWinRequest>, I>>(base?: I): ExecuteQuickWinRequest {
+  create<I extends Exact<DeepPartial<ExecuteQuickWinRequest>, I>>(
+    base?: I,
+  ): ExecuteQuickWinRequest {
     return ExecuteQuickWinRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ExecuteQuickWinRequest>, I>>(object: I): ExecuteQuickWinRequest {
+  fromPartial<I extends Exact<DeepPartial<ExecuteQuickWinRequest>, I>>(
+    object: I,
+  ): ExecuteQuickWinRequest {
     const message = createBaseExecuteQuickWinRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.command = object.command ?? "";
-    message.title = object.title ?? "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.command = object.command ?? '';
+    message.title = object.title ?? '';
     return message;
   },
 };
@@ -1314,7 +1342,10 @@ function createBaseDeleteAllTaskHistoryCount(): DeleteAllTaskHistoryCount {
 }
 
 export const DeleteAllTaskHistoryCount: MessageFns<DeleteAllTaskHistoryCount> = {
-  encode(message: DeleteAllTaskHistoryCount, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: DeleteAllTaskHistoryCount,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.tasksDeleted !== 0) {
       writer.uint32(8).int32(message.tasksDeleted);
     }
@@ -1350,8 +1381,8 @@ export const DeleteAllTaskHistoryCount: MessageFns<DeleteAllTaskHistoryCount> = 
       tasksDeleted: isSet(object.tasksDeleted)
         ? globalThis.Number(object.tasksDeleted)
         : isSet(object.tasks_deleted)
-        ? globalThis.Number(object.tasks_deleted)
-        : 0,
+          ? globalThis.Number(object.tasks_deleted)
+          : 0,
     };
   },
 
@@ -1363,10 +1394,14 @@ export const DeleteAllTaskHistoryCount: MessageFns<DeleteAllTaskHistoryCount> = 
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<DeleteAllTaskHistoryCount>, I>>(base?: I): DeleteAllTaskHistoryCount {
+  create<I extends Exact<DeepPartial<DeleteAllTaskHistoryCount>, I>>(
+    base?: I,
+  ): DeleteAllTaskHistoryCount {
     return DeleteAllTaskHistoryCount.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<DeleteAllTaskHistoryCount>, I>>(object: I): DeleteAllTaskHistoryCount {
+  fromPartial<I extends Exact<DeepPartial<DeleteAllTaskHistoryCount>, I>>(
+    object: I,
+  ): DeleteAllTaskHistoryCount {
     const message = createBaseDeleteAllTaskHistoryCount();
     message.tasksDeleted = object.tasksDeleted ?? 0;
     return message;
@@ -1426,8 +1461,8 @@ export const ExplainChangesRequest: MessageFns<ExplainChangesRequest> = {
       messageTs: isSet(object.messageTs)
         ? globalThis.Number(object.messageTs)
         : isSet(object.message_ts)
-        ? globalThis.Number(object.message_ts)
-        : 0,
+          ? globalThis.Number(object.message_ts)
+          : 0,
     };
   },
 
@@ -1445,11 +1480,14 @@ export const ExplainChangesRequest: MessageFns<ExplainChangesRequest> = {
   create<I extends Exact<DeepPartial<ExplainChangesRequest>, I>>(base?: I): ExplainChangesRequest {
     return ExplainChangesRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ExplainChangesRequest>, I>>(object: I): ExplainChangesRequest {
+  fromPartial<I extends Exact<DeepPartial<ExplainChangesRequest>, I>>(
+    object: I,
+  ): ExplainChangesRequest {
     const message = createBaseExplainChangesRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
     message.messageTs = object.messageTs ?? 0;
     return message;
   },
@@ -1457,12 +1495,12 @@ export const ExplainChangesRequest: MessageFns<ExplainChangesRequest> = {
 
 export type TaskServiceDefinition = typeof TaskServiceDefinition;
 export const TaskServiceDefinition = {
-  name: "TaskService",
-  fullName: "cline.TaskService",
+  name: 'TaskService',
+  fullName: 'cline.TaskService',
   methods: {
     /** Cancels the currently running task */
     cancelTask: {
-      name: "cancelTask",
+      name: 'cancelTask',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -1471,7 +1509,7 @@ export const TaskServiceDefinition = {
     },
     /** Cancels the currently running background command */
     cancelBackgroundCommand: {
-      name: "cancelBackgroundCommand",
+      name: 'cancelBackgroundCommand',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -1480,7 +1518,7 @@ export const TaskServiceDefinition = {
     },
     /** Clears the current task */
     clearTask: {
-      name: "clearTask",
+      name: 'clearTask',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -1489,7 +1527,7 @@ export const TaskServiceDefinition = {
     },
     /** Gets the total size of all tasks */
     getTotalTasksSize: {
-      name: "getTotalTasksSize",
+      name: 'getTotalTasksSize',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Int64,
@@ -1498,7 +1536,7 @@ export const TaskServiceDefinition = {
     },
     /** Deletes multiple tasks with the given IDs */
     deleteTasksWithIds: {
-      name: "deleteTasksWithIds",
+      name: 'deleteTasksWithIds',
       requestType: StringArrayRequest,
       requestStream: false,
       responseType: Empty,
@@ -1507,7 +1545,7 @@ export const TaskServiceDefinition = {
     },
     /** Creates a new task with the given text and optional images */
     newTask: {
-      name: "newTask",
+      name: 'newTask',
       requestType: NewTaskRequest,
       requestStream: false,
       responseType: String,
@@ -1516,7 +1554,7 @@ export const TaskServiceDefinition = {
     },
     /** Shows a task with the specified ID */
     showTaskWithId: {
-      name: "showTaskWithId",
+      name: 'showTaskWithId',
       requestType: StringRequest,
       requestStream: false,
       responseType: TaskResponse,
@@ -1525,7 +1563,7 @@ export const TaskServiceDefinition = {
     },
     /** Exports a task with the given ID to markdown */
     exportTaskWithId: {
-      name: "exportTaskWithId",
+      name: 'exportTaskWithId',
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -1534,7 +1572,7 @@ export const TaskServiceDefinition = {
     },
     /** Toggles the favorite status of a task */
     toggleTaskFavorite: {
-      name: "toggleTaskFavorite",
+      name: 'toggleTaskFavorite',
       requestType: TaskFavoriteRequest,
       requestStream: false,
       responseType: Empty,
@@ -1543,7 +1581,7 @@ export const TaskServiceDefinition = {
     },
     /** Gets filtered task history */
     getTaskHistory: {
-      name: "getTaskHistory",
+      name: 'getTaskHistory',
       requestType: GetTaskHistoryRequest,
       requestStream: false,
       responseType: TaskHistoryArray,
@@ -1552,7 +1590,7 @@ export const TaskServiceDefinition = {
     },
     /** Sends a response to a previous ask operation */
     askResponse: {
-      name: "askResponse",
+      name: 'askResponse',
       requestType: AskResponseRequest,
       requestStream: false,
       responseType: Empty,
@@ -1561,7 +1599,7 @@ export const TaskServiceDefinition = {
     },
     /** Records task feedback (thumbs up/down) */
     taskFeedback: {
-      name: "taskFeedback",
+      name: 'taskFeedback',
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -1570,7 +1608,7 @@ export const TaskServiceDefinition = {
     },
     /** Shows task completion changes diff in a view */
     taskCompletionViewChanges: {
-      name: "taskCompletionViewChanges",
+      name: 'taskCompletionViewChanges',
       requestType: Int64Request,
       requestStream: false,
       responseType: Empty,
@@ -1579,7 +1617,7 @@ export const TaskServiceDefinition = {
     },
     /** Executes a quick win task with command and title */
     executeQuickWin: {
-      name: "executeQuickWin",
+      name: 'executeQuickWin',
       requestType: ExecuteQuickWinRequest,
       requestStream: false,
       responseType: Empty,
@@ -1588,7 +1626,7 @@ export const TaskServiceDefinition = {
     },
     /** Deletes all task history */
     deleteAllTaskHistory: {
-      name: "deleteAllTaskHistory",
+      name: 'deleteAllTaskHistory',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: DeleteAllTaskHistoryCount,
@@ -1597,7 +1635,7 @@ export const TaskServiceDefinition = {
     },
     /** Explains changes with AI and adds inline comments to the diff view */
     explainChanges: {
-      name: "explainChanges",
+      name: 'explainChanges',
       requestType: ExplainChangesRequest,
       requestStream: false,
       responseType: Empty,
@@ -1609,23 +1647,28 @@ export const TaskServiceDefinition = {
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-type Exact<P, I extends P> = P extends Builtin ? P
+type Exact<P, I extends P> = P extends Builtin
+  ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function longToNumber(int64: { toString(): string }): number {
   const num = globalThis.Number(int64.toString());
   if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+    throw new globalThis.Error('Value is larger than Number.MAX_SAFE_INTEGER');
   }
   if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
+    throw new globalThis.Error('Value is smaller than Number.MIN_SAFE_INTEGER');
   }
   return num;
 }

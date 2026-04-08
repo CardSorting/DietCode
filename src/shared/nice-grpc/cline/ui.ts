@@ -5,8 +5,16 @@
 // source: cline/ui.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Boolean, BooleanRequest, Empty, EmptyRequest, KeyValuePair, String, StringRequest } from "./common";
+import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+import {
+  Boolean,
+  BooleanRequest,
+  Empty,
+  EmptyRequest,
+  KeyValuePair,
+  String,
+  StringRequest,
+} from './common';
 
 /** Enum for ClineMessage type */
 export enum ClineMessageType {
@@ -18,13 +26,11 @@ export enum ClineMessageType {
 export function clineMessageTypeFromJSON(object: any): ClineMessageType {
   switch (object) {
     case 0:
-    case "ASK":
+    case 'ASK':
       return ClineMessageType.ASK;
     case 1:
-    case "SAY":
+    case 'SAY':
       return ClineMessageType.SAY;
-    case -1:
-    case "UNRECOGNIZED":
     default:
       return ClineMessageType.UNRECOGNIZED;
   }
@@ -33,12 +39,11 @@ export function clineMessageTypeFromJSON(object: any): ClineMessageType {
 export function clineMessageTypeToJSON(object: ClineMessageType): string {
   switch (object) {
     case ClineMessageType.ASK:
-      return "ASK";
+      return 'ASK';
     case ClineMessageType.SAY:
-      return "SAY";
-    case ClineMessageType.UNRECOGNIZED:
+      return 'SAY';
     default:
-      return "UNRECOGNIZED";
+      return 'UNRECOGNIZED';
   }
 }
 
@@ -68,61 +73,59 @@ export enum ClineAsk {
 export function clineAskFromJSON(object: any): ClineAsk {
   switch (object) {
     case 0:
-    case "FOLLOWUP":
+    case 'FOLLOWUP':
       return ClineAsk.FOLLOWUP;
     case 1:
-    case "PLAN_MODE_RESPOND":
+    case 'PLAN_MODE_RESPOND':
       return ClineAsk.PLAN_MODE_RESPOND;
     case 2:
-    case "COMMAND":
+    case 'COMMAND':
       return ClineAsk.COMMAND;
     case 3:
-    case "COMMAND_OUTPUT":
+    case 'COMMAND_OUTPUT':
       return ClineAsk.COMMAND_OUTPUT;
     case 4:
-    case "COMPLETION_RESULT":
+    case 'COMPLETION_RESULT':
       return ClineAsk.COMPLETION_RESULT;
     case 5:
-    case "TOOL":
+    case 'TOOL':
       return ClineAsk.TOOL;
     case 6:
-    case "API_REQ_FAILED":
+    case 'API_REQ_FAILED':
       return ClineAsk.API_REQ_FAILED;
     case 7:
-    case "RESUME_TASK":
+    case 'RESUME_TASK':
       return ClineAsk.RESUME_TASK;
     case 8:
-    case "RESUME_COMPLETED_TASK":
+    case 'RESUME_COMPLETED_TASK':
       return ClineAsk.RESUME_COMPLETED_TASK;
     case 9:
-    case "MISTAKE_LIMIT_REACHED":
+    case 'MISTAKE_LIMIT_REACHED':
       return ClineAsk.MISTAKE_LIMIT_REACHED;
     case 10:
-    case "BROWSER_ACTION_LAUNCH":
+    case 'BROWSER_ACTION_LAUNCH':
       return ClineAsk.BROWSER_ACTION_LAUNCH;
     case 11:
-    case "USE_MCP_SERVER":
+    case 'USE_MCP_SERVER':
       return ClineAsk.USE_MCP_SERVER;
     case 12:
-    case "NEW_TASK":
+    case 'NEW_TASK':
       return ClineAsk.NEW_TASK;
     case 13:
-    case "CONDENSE":
+    case 'CONDENSE':
       return ClineAsk.CONDENSE;
     case 14:
-    case "REPORT_BUG":
+    case 'REPORT_BUG':
       return ClineAsk.REPORT_BUG;
     case 15:
-    case "SUMMARIZE_TASK":
+    case 'SUMMARIZE_TASK':
       return ClineAsk.SUMMARIZE_TASK;
     case 16:
-    case "ACT_MODE_RESPOND":
+    case 'ACT_MODE_RESPOND':
       return ClineAsk.ACT_MODE_RESPOND;
     case 17:
-    case "USE_SUBAGENTS":
+    case 'USE_SUBAGENTS':
       return ClineAsk.USE_SUBAGENTS;
-    case -1:
-    case "UNRECOGNIZED":
     default:
       return ClineAsk.UNRECOGNIZED;
   }
@@ -131,44 +134,43 @@ export function clineAskFromJSON(object: any): ClineAsk {
 export function clineAskToJSON(object: ClineAsk): string {
   switch (object) {
     case ClineAsk.FOLLOWUP:
-      return "FOLLOWUP";
+      return 'FOLLOWUP';
     case ClineAsk.PLAN_MODE_RESPOND:
-      return "PLAN_MODE_RESPOND";
+      return 'PLAN_MODE_RESPOND';
     case ClineAsk.COMMAND:
-      return "COMMAND";
+      return 'COMMAND';
     case ClineAsk.COMMAND_OUTPUT:
-      return "COMMAND_OUTPUT";
+      return 'COMMAND_OUTPUT';
     case ClineAsk.COMPLETION_RESULT:
-      return "COMPLETION_RESULT";
+      return 'COMPLETION_RESULT';
     case ClineAsk.TOOL:
-      return "TOOL";
+      return 'TOOL';
     case ClineAsk.API_REQ_FAILED:
-      return "API_REQ_FAILED";
+      return 'API_REQ_FAILED';
     case ClineAsk.RESUME_TASK:
-      return "RESUME_TASK";
+      return 'RESUME_TASK';
     case ClineAsk.RESUME_COMPLETED_TASK:
-      return "RESUME_COMPLETED_TASK";
+      return 'RESUME_COMPLETED_TASK';
     case ClineAsk.MISTAKE_LIMIT_REACHED:
-      return "MISTAKE_LIMIT_REACHED";
+      return 'MISTAKE_LIMIT_REACHED';
     case ClineAsk.BROWSER_ACTION_LAUNCH:
-      return "BROWSER_ACTION_LAUNCH";
+      return 'BROWSER_ACTION_LAUNCH';
     case ClineAsk.USE_MCP_SERVER:
-      return "USE_MCP_SERVER";
+      return 'USE_MCP_SERVER';
     case ClineAsk.NEW_TASK:
-      return "NEW_TASK";
+      return 'NEW_TASK';
     case ClineAsk.CONDENSE:
-      return "CONDENSE";
+      return 'CONDENSE';
     case ClineAsk.REPORT_BUG:
-      return "REPORT_BUG";
+      return 'REPORT_BUG';
     case ClineAsk.SUMMARIZE_TASK:
-      return "SUMMARIZE_TASK";
+      return 'SUMMARIZE_TASK';
     case ClineAsk.ACT_MODE_RESPOND:
-      return "ACT_MODE_RESPOND";
+      return 'ACT_MODE_RESPOND';
     case ClineAsk.USE_SUBAGENTS:
-      return "USE_SUBAGENTS";
-    case ClineAsk.UNRECOGNIZED:
+      return 'USE_SUBAGENTS';
     default:
-      return "UNRECOGNIZED";
+      return 'UNRECOGNIZED';
   }
 }
 
@@ -217,118 +219,116 @@ export enum ClineSay {
 export function clineSayFromJSON(object: any): ClineSay {
   switch (object) {
     case 0:
-    case "TASK":
+    case 'TASK':
       return ClineSay.TASK;
     case 1:
-    case "ERROR":
+    case 'ERROR':
       return ClineSay.ERROR;
     case 2:
-    case "API_REQ_STARTED":
+    case 'API_REQ_STARTED':
       return ClineSay.API_REQ_STARTED;
     case 3:
-    case "API_REQ_FINISHED":
+    case 'API_REQ_FINISHED':
       return ClineSay.API_REQ_FINISHED;
     case 4:
-    case "TEXT":
+    case 'TEXT':
       return ClineSay.TEXT;
     case 5:
-    case "REASONING":
+    case 'REASONING':
       return ClineSay.REASONING;
     case 6:
-    case "COMPLETION_RESULT_SAY":
+    case 'COMPLETION_RESULT_SAY':
       return ClineSay.COMPLETION_RESULT_SAY;
     case 7:
-    case "USER_FEEDBACK":
+    case 'USER_FEEDBACK':
       return ClineSay.USER_FEEDBACK;
     case 8:
-    case "USER_FEEDBACK_DIFF":
+    case 'USER_FEEDBACK_DIFF':
       return ClineSay.USER_FEEDBACK_DIFF;
     case 9:
-    case "API_REQ_RETRIED":
+    case 'API_REQ_RETRIED':
       return ClineSay.API_REQ_RETRIED;
     case 10:
-    case "COMMAND_SAY":
+    case 'COMMAND_SAY':
       return ClineSay.COMMAND_SAY;
     case 11:
-    case "COMMAND_OUTPUT_SAY":
+    case 'COMMAND_OUTPUT_SAY':
       return ClineSay.COMMAND_OUTPUT_SAY;
     case 12:
-    case "TOOL_SAY":
+    case 'TOOL_SAY':
       return ClineSay.TOOL_SAY;
     case 13:
-    case "SHELL_INTEGRATION_WARNING":
+    case 'SHELL_INTEGRATION_WARNING':
       return ClineSay.SHELL_INTEGRATION_WARNING;
     case 14:
-    case "BROWSER_ACTION_LAUNCH_SAY":
+    case 'BROWSER_ACTION_LAUNCH_SAY':
       return ClineSay.BROWSER_ACTION_LAUNCH_SAY;
     case 15:
-    case "BROWSER_ACTION":
+    case 'BROWSER_ACTION':
       return ClineSay.BROWSER_ACTION;
     case 16:
-    case "BROWSER_ACTION_RESULT":
+    case 'BROWSER_ACTION_RESULT':
       return ClineSay.BROWSER_ACTION_RESULT;
     case 17:
-    case "MCP_SERVER_REQUEST_STARTED":
+    case 'MCP_SERVER_REQUEST_STARTED':
       return ClineSay.MCP_SERVER_REQUEST_STARTED;
     case 18:
-    case "MCP_SERVER_RESPONSE":
+    case 'MCP_SERVER_RESPONSE':
       return ClineSay.MCP_SERVER_RESPONSE;
     case 19:
-    case "MCP_NOTIFICATION":
+    case 'MCP_NOTIFICATION':
       return ClineSay.MCP_NOTIFICATION;
     case 20:
-    case "USE_MCP_SERVER_SAY":
+    case 'USE_MCP_SERVER_SAY':
       return ClineSay.USE_MCP_SERVER_SAY;
     case 21:
-    case "DIFF_ERROR":
+    case 'DIFF_ERROR':
       return ClineSay.DIFF_ERROR;
     case 22:
-    case "DELETED_API_REQS":
+    case 'DELETED_API_REQS':
       return ClineSay.DELETED_API_REQS;
     case 23:
-    case "CLINEIGNORE_ERROR":
+    case 'CLINEIGNORE_ERROR':
       return ClineSay.CLINEIGNORE_ERROR;
     case 24:
-    case "CHECKPOINT_CREATED":
+    case 'CHECKPOINT_CREATED':
       return ClineSay.CHECKPOINT_CREATED;
     case 25:
-    case "LOAD_MCP_DOCUMENTATION":
+    case 'LOAD_MCP_DOCUMENTATION':
       return ClineSay.LOAD_MCP_DOCUMENTATION;
     case 26:
-    case "INFO":
+    case 'INFO':
       return ClineSay.INFO;
     case 27:
-    case "TASK_PROGRESS":
+    case 'TASK_PROGRESS':
       return ClineSay.TASK_PROGRESS;
     case 28:
-    case "ERROR_RETRY":
+    case 'ERROR_RETRY':
       return ClineSay.ERROR_RETRY;
     case 29:
-    case "GENERATE_EXPLANATION":
+    case 'GENERATE_EXPLANATION':
       return ClineSay.GENERATE_EXPLANATION;
     case 30:
-    case "HOOK_STATUS":
+    case 'HOOK_STATUS':
       return ClineSay.HOOK_STATUS;
     case 31:
-    case "HOOK_OUTPUT_STREAM":
+    case 'HOOK_OUTPUT_STREAM':
       return ClineSay.HOOK_OUTPUT_STREAM;
     case 32:
-    case "COMMAND_PERMISSION_DENIED":
+    case 'COMMAND_PERMISSION_DENIED':
       return ClineSay.COMMAND_PERMISSION_DENIED;
     case 33:
-    case "CONDITIONAL_RULES_APPLIED":
+    case 'CONDITIONAL_RULES_APPLIED':
       return ClineSay.CONDITIONAL_RULES_APPLIED;
     case 34:
-    case "SUBAGENT_STATUS":
+    case 'SUBAGENT_STATUS':
       return ClineSay.SUBAGENT_STATUS;
     case 35:
-    case "USE_SUBAGENTS_SAY":
+    case 'USE_SUBAGENTS_SAY':
       return ClineSay.USE_SUBAGENTS_SAY;
     case 36:
-    case "SUBAGENT_USAGE":
+    case 'SUBAGENT_USAGE':
       return ClineSay.SUBAGENT_USAGE;
-    case -1:
-    case "UNRECOGNIZED":
     default:
       return ClineSay.UNRECOGNIZED;
   }
@@ -337,82 +337,81 @@ export function clineSayFromJSON(object: any): ClineSay {
 export function clineSayToJSON(object: ClineSay): string {
   switch (object) {
     case ClineSay.TASK:
-      return "TASK";
+      return 'TASK';
     case ClineSay.ERROR:
-      return "ERROR";
+      return 'ERROR';
     case ClineSay.API_REQ_STARTED:
-      return "API_REQ_STARTED";
+      return 'API_REQ_STARTED';
     case ClineSay.API_REQ_FINISHED:
-      return "API_REQ_FINISHED";
+      return 'API_REQ_FINISHED';
     case ClineSay.TEXT:
-      return "TEXT";
+      return 'TEXT';
     case ClineSay.REASONING:
-      return "REASONING";
+      return 'REASONING';
     case ClineSay.COMPLETION_RESULT_SAY:
-      return "COMPLETION_RESULT_SAY";
+      return 'COMPLETION_RESULT_SAY';
     case ClineSay.USER_FEEDBACK:
-      return "USER_FEEDBACK";
+      return 'USER_FEEDBACK';
     case ClineSay.USER_FEEDBACK_DIFF:
-      return "USER_FEEDBACK_DIFF";
+      return 'USER_FEEDBACK_DIFF';
     case ClineSay.API_REQ_RETRIED:
-      return "API_REQ_RETRIED";
+      return 'API_REQ_RETRIED';
     case ClineSay.COMMAND_SAY:
-      return "COMMAND_SAY";
+      return 'COMMAND_SAY';
     case ClineSay.COMMAND_OUTPUT_SAY:
-      return "COMMAND_OUTPUT_SAY";
+      return 'COMMAND_OUTPUT_SAY';
     case ClineSay.TOOL_SAY:
-      return "TOOL_SAY";
+      return 'TOOL_SAY';
     case ClineSay.SHELL_INTEGRATION_WARNING:
-      return "SHELL_INTEGRATION_WARNING";
+      return 'SHELL_INTEGRATION_WARNING';
     case ClineSay.BROWSER_ACTION_LAUNCH_SAY:
-      return "BROWSER_ACTION_LAUNCH_SAY";
+      return 'BROWSER_ACTION_LAUNCH_SAY';
     case ClineSay.BROWSER_ACTION:
-      return "BROWSER_ACTION";
+      return 'BROWSER_ACTION';
     case ClineSay.BROWSER_ACTION_RESULT:
-      return "BROWSER_ACTION_RESULT";
+      return 'BROWSER_ACTION_RESULT';
     case ClineSay.MCP_SERVER_REQUEST_STARTED:
-      return "MCP_SERVER_REQUEST_STARTED";
+      return 'MCP_SERVER_REQUEST_STARTED';
     case ClineSay.MCP_SERVER_RESPONSE:
-      return "MCP_SERVER_RESPONSE";
+      return 'MCP_SERVER_RESPONSE';
     case ClineSay.MCP_NOTIFICATION:
-      return "MCP_NOTIFICATION";
+      return 'MCP_NOTIFICATION';
     case ClineSay.USE_MCP_SERVER_SAY:
-      return "USE_MCP_SERVER_SAY";
+      return 'USE_MCP_SERVER_SAY';
     case ClineSay.DIFF_ERROR:
-      return "DIFF_ERROR";
+      return 'DIFF_ERROR';
     case ClineSay.DELETED_API_REQS:
-      return "DELETED_API_REQS";
+      return 'DELETED_API_REQS';
     case ClineSay.CLINEIGNORE_ERROR:
-      return "CLINEIGNORE_ERROR";
+      return 'CLINEIGNORE_ERROR';
     case ClineSay.CHECKPOINT_CREATED:
-      return "CHECKPOINT_CREATED";
+      return 'CHECKPOINT_CREATED';
     case ClineSay.LOAD_MCP_DOCUMENTATION:
-      return "LOAD_MCP_DOCUMENTATION";
+      return 'LOAD_MCP_DOCUMENTATION';
     case ClineSay.INFO:
-      return "INFO";
+      return 'INFO';
     case ClineSay.TASK_PROGRESS:
-      return "TASK_PROGRESS";
+      return 'TASK_PROGRESS';
     case ClineSay.ERROR_RETRY:
-      return "ERROR_RETRY";
+      return 'ERROR_RETRY';
     case ClineSay.GENERATE_EXPLANATION:
-      return "GENERATE_EXPLANATION";
+      return 'GENERATE_EXPLANATION';
     case ClineSay.HOOK_STATUS:
-      return "HOOK_STATUS";
+      return 'HOOK_STATUS';
     case ClineSay.HOOK_OUTPUT_STREAM:
-      return "HOOK_OUTPUT_STREAM";
+      return 'HOOK_OUTPUT_STREAM';
     case ClineSay.COMMAND_PERMISSION_DENIED:
-      return "COMMAND_PERMISSION_DENIED";
+      return 'COMMAND_PERMISSION_DENIED';
     case ClineSay.CONDITIONAL_RULES_APPLIED:
-      return "CONDITIONAL_RULES_APPLIED";
+      return 'CONDITIONAL_RULES_APPLIED';
     case ClineSay.SUBAGENT_STATUS:
-      return "SUBAGENT_STATUS";
+      return 'SUBAGENT_STATUS';
     case ClineSay.USE_SUBAGENTS_SAY:
-      return "USE_SUBAGENTS_SAY";
+      return 'USE_SUBAGENTS_SAY';
     case ClineSay.SUBAGENT_USAGE:
-      return "SUBAGENT_USAGE";
-    case ClineSay.UNRECOGNIZED:
+      return 'SUBAGENT_USAGE';
     default:
-      return "UNRECOGNIZED";
+      return 'UNRECOGNIZED';
   }
 }
 
@@ -433,34 +432,32 @@ export enum ClineSayToolType {
 export function clineSayToolTypeFromJSON(object: any): ClineSayToolType {
   switch (object) {
     case 0:
-    case "EDITED_EXISTING_FILE":
+    case 'EDITED_EXISTING_FILE':
       return ClineSayToolType.EDITED_EXISTING_FILE;
     case 1:
-    case "NEW_FILE_CREATED":
+    case 'NEW_FILE_CREATED':
       return ClineSayToolType.NEW_FILE_CREATED;
     case 2:
-    case "READ_FILE":
+    case 'READ_FILE':
       return ClineSayToolType.READ_FILE;
     case 3:
-    case "LIST_FILES_TOP_LEVEL":
+    case 'LIST_FILES_TOP_LEVEL':
       return ClineSayToolType.LIST_FILES_TOP_LEVEL;
     case 4:
-    case "LIST_FILES_RECURSIVE":
+    case 'LIST_FILES_RECURSIVE':
       return ClineSayToolType.LIST_FILES_RECURSIVE;
     case 5:
-    case "LIST_CODE_DEFINITION_NAMES":
+    case 'LIST_CODE_DEFINITION_NAMES':
       return ClineSayToolType.LIST_CODE_DEFINITION_NAMES;
     case 6:
-    case "SEARCH_FILES":
+    case 'SEARCH_FILES':
       return ClineSayToolType.SEARCH_FILES;
     case 7:
-    case "WEB_FETCH":
+    case 'WEB_FETCH':
       return ClineSayToolType.WEB_FETCH;
     case 8:
-    case "FILE_DELETED":
+    case 'FILE_DELETED':
       return ClineSayToolType.FILE_DELETED;
-    case -1:
-    case "UNRECOGNIZED":
     default:
       return ClineSayToolType.UNRECOGNIZED;
   }
@@ -469,26 +466,25 @@ export function clineSayToolTypeFromJSON(object: any): ClineSayToolType {
 export function clineSayToolTypeToJSON(object: ClineSayToolType): string {
   switch (object) {
     case ClineSayToolType.EDITED_EXISTING_FILE:
-      return "EDITED_EXISTING_FILE";
+      return 'EDITED_EXISTING_FILE';
     case ClineSayToolType.NEW_FILE_CREATED:
-      return "NEW_FILE_CREATED";
+      return 'NEW_FILE_CREATED';
     case ClineSayToolType.READ_FILE:
-      return "READ_FILE";
+      return 'READ_FILE';
     case ClineSayToolType.LIST_FILES_TOP_LEVEL:
-      return "LIST_FILES_TOP_LEVEL";
+      return 'LIST_FILES_TOP_LEVEL';
     case ClineSayToolType.LIST_FILES_RECURSIVE:
-      return "LIST_FILES_RECURSIVE";
+      return 'LIST_FILES_RECURSIVE';
     case ClineSayToolType.LIST_CODE_DEFINITION_NAMES:
-      return "LIST_CODE_DEFINITION_NAMES";
+      return 'LIST_CODE_DEFINITION_NAMES';
     case ClineSayToolType.SEARCH_FILES:
-      return "SEARCH_FILES";
+      return 'SEARCH_FILES';
     case ClineSayToolType.WEB_FETCH:
-      return "WEB_FETCH";
+      return 'WEB_FETCH';
     case ClineSayToolType.FILE_DELETED:
-      return "FILE_DELETED";
-    case ClineSayToolType.UNRECOGNIZED:
+      return 'FILE_DELETED';
     default:
-      return "UNRECOGNIZED";
+      return 'UNRECOGNIZED';
   }
 }
 
@@ -506,25 +502,23 @@ export enum BrowserAction {
 export function browserActionFromJSON(object: any): BrowserAction {
   switch (object) {
     case 0:
-    case "LAUNCH":
+    case 'LAUNCH':
       return BrowserAction.LAUNCH;
     case 1:
-    case "CLICK":
+    case 'CLICK':
       return BrowserAction.CLICK;
     case 2:
-    case "TYPE":
+    case 'TYPE':
       return BrowserAction.TYPE;
     case 3:
-    case "SCROLL_DOWN":
+    case 'SCROLL_DOWN':
       return BrowserAction.SCROLL_DOWN;
     case 4:
-    case "SCROLL_UP":
+    case 'SCROLL_UP':
       return BrowserAction.SCROLL_UP;
     case 5:
-    case "CLOSE":
+    case 'CLOSE':
       return BrowserAction.CLOSE;
-    case -1:
-    case "UNRECOGNIZED":
     default:
       return BrowserAction.UNRECOGNIZED;
   }
@@ -533,20 +527,19 @@ export function browserActionFromJSON(object: any): BrowserAction {
 export function browserActionToJSON(object: BrowserAction): string {
   switch (object) {
     case BrowserAction.LAUNCH:
-      return "LAUNCH";
+      return 'LAUNCH';
     case BrowserAction.CLICK:
-      return "CLICK";
+      return 'CLICK';
     case BrowserAction.TYPE:
-      return "TYPE";
+      return 'TYPE';
     case BrowserAction.SCROLL_DOWN:
-      return "SCROLL_DOWN";
+      return 'SCROLL_DOWN';
     case BrowserAction.SCROLL_UP:
-      return "SCROLL_UP";
+      return 'SCROLL_UP';
     case BrowserAction.CLOSE:
-      return "CLOSE";
-    case BrowserAction.UNRECOGNIZED:
+      return 'CLOSE';
     default:
-      return "UNRECOGNIZED";
+      return 'UNRECOGNIZED';
   }
 }
 
@@ -560,13 +553,11 @@ export enum McpServerRequestType {
 export function mcpServerRequestTypeFromJSON(object: any): McpServerRequestType {
   switch (object) {
     case 0:
-    case "USE_MCP_TOOL":
+    case 'USE_MCP_TOOL':
       return McpServerRequestType.USE_MCP_TOOL;
     case 1:
-    case "ACCESS_MCP_RESOURCE":
+    case 'ACCESS_MCP_RESOURCE':
       return McpServerRequestType.ACCESS_MCP_RESOURCE;
-    case -1:
-    case "UNRECOGNIZED":
     default:
       return McpServerRequestType.UNRECOGNIZED;
   }
@@ -575,12 +566,11 @@ export function mcpServerRequestTypeFromJSON(object: any): McpServerRequestType 
 export function mcpServerRequestTypeToJSON(object: McpServerRequestType): string {
   switch (object) {
     case McpServerRequestType.USE_MCP_TOOL:
-      return "USE_MCP_TOOL";
+      return 'USE_MCP_TOOL';
     case McpServerRequestType.ACCESS_MCP_RESOURCE:
-      return "ACCESS_MCP_RESOURCE";
-    case McpServerRequestType.UNRECOGNIZED:
+      return 'ACCESS_MCP_RESOURCE';
     default:
-      return "UNRECOGNIZED";
+      return 'UNRECOGNIZED';
   }
 }
 
@@ -595,16 +585,14 @@ export enum ClineApiReqCancelReason {
 export function clineApiReqCancelReasonFromJSON(object: any): ClineApiReqCancelReason {
   switch (object) {
     case 0:
-    case "STREAMING_FAILED":
+    case 'STREAMING_FAILED':
       return ClineApiReqCancelReason.STREAMING_FAILED;
     case 1:
-    case "USER_CANCELLED":
+    case 'USER_CANCELLED':
       return ClineApiReqCancelReason.USER_CANCELLED;
     case 2:
-    case "RETRIES_EXHAUSTED":
+    case 'RETRIES_EXHAUSTED':
       return ClineApiReqCancelReason.RETRIES_EXHAUSTED;
-    case -1:
-    case "UNRECOGNIZED":
     default:
       return ClineApiReqCancelReason.UNRECOGNIZED;
   }
@@ -613,14 +601,13 @@ export function clineApiReqCancelReasonFromJSON(object: any): ClineApiReqCancelR
 export function clineApiReqCancelReasonToJSON(object: ClineApiReqCancelReason): string {
   switch (object) {
     case ClineApiReqCancelReason.STREAMING_FAILED:
-      return "STREAMING_FAILED";
+      return 'STREAMING_FAILED';
     case ClineApiReqCancelReason.USER_CANCELLED:
-      return "USER_CANCELLED";
+      return 'USER_CANCELLED';
     case ClineApiReqCancelReason.RETRIES_EXHAUSTED:
-      return "RETRIES_EXHAUSTED";
-    case ClineApiReqCancelReason.UNRECOGNIZED:
+      return 'RETRIES_EXHAUSTED';
     default:
-      return "UNRECOGNIZED";
+      return 'UNRECOGNIZED';
   }
 }
 
@@ -725,9 +712,7 @@ export interface ClineMessage {
   isCheckpointCheckedOut: boolean;
   isOperationOutsideWorkspace: boolean;
   conversationHistoryIndex: number;
-  conversationHistoryDeletedRange:
-    | ConversationHistoryDeletedRange
-    | undefined;
+  conversationHistoryDeletedRange: ConversationHistoryDeletedRange | undefined;
   /** Additional fields for specific ask/say types */
   sayTool: ClineSayTool | undefined;
   sayBrowserAction: ClineSayBrowserAction | undefined;
@@ -750,7 +735,10 @@ function createBaseConversationHistoryDeletedRange(): ConversationHistoryDeleted
 }
 
 export const ConversationHistoryDeletedRange: MessageFns<ConversationHistoryDeletedRange> = {
-  encode(message: ConversationHistoryDeletedRange, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ConversationHistoryDeletedRange,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.startIndex !== 0) {
       writer.uint32(8).int32(message.startIndex);
     }
@@ -797,13 +785,13 @@ export const ConversationHistoryDeletedRange: MessageFns<ConversationHistoryDele
       startIndex: isSet(object.startIndex)
         ? globalThis.Number(object.startIndex)
         : isSet(object.start_index)
-        ? globalThis.Number(object.start_index)
-        : 0,
+          ? globalThis.Number(object.start_index)
+          : 0,
       endIndex: isSet(object.endIndex)
         ? globalThis.Number(object.endIndex)
         : isSet(object.end_index)
-        ? globalThis.Number(object.end_index)
-        : 0,
+          ? globalThis.Number(object.end_index)
+          : 0,
     };
   },
 
@@ -818,7 +806,9 @@ export const ConversationHistoryDeletedRange: MessageFns<ConversationHistoryDele
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ConversationHistoryDeletedRange>, I>>(base?: I): ConversationHistoryDeletedRange {
+  create<I extends Exact<DeepPartial<ConversationHistoryDeletedRange>, I>>(
+    base?: I,
+  ): ConversationHistoryDeletedRange {
     return ConversationHistoryDeletedRange.fromPartial(base ?? ({} as any));
   },
   fromPartial<I extends Exact<DeepPartial<ConversationHistoryDeletedRange>, I>>(
@@ -832,7 +822,15 @@ export const ConversationHistoryDeletedRange: MessageFns<ConversationHistoryDele
 };
 
 function createBaseClineSayTool(): ClineSayTool {
-  return { tool: 0, path: "", diff: "", content: "", regex: "", filePattern: "", operationIsLocatedInWorkspace: false };
+  return {
+    tool: 0,
+    path: '',
+    diff: '',
+    content: '',
+    regex: '',
+    filePattern: '',
+    operationIsLocatedInWorkspace: false,
+  };
 }
 
 export const ClineSayTool: MessageFns<ClineSayTool> = {
@@ -840,19 +838,19 @@ export const ClineSayTool: MessageFns<ClineSayTool> = {
     if (message.tool !== 0) {
       writer.uint32(8).int32(message.tool);
     }
-    if (message.path !== "") {
+    if (message.path !== '') {
       writer.uint32(18).string(message.path);
     }
-    if (message.diff !== "") {
+    if (message.diff !== '') {
       writer.uint32(26).string(message.diff);
     }
-    if (message.content !== "") {
+    if (message.content !== '') {
       writer.uint32(34).string(message.content);
     }
-    if (message.regex !== "") {
+    if (message.regex !== '') {
       writer.uint32(42).string(message.regex);
     }
-    if (message.filePattern !== "") {
+    if (message.filePattern !== '') {
       writer.uint32(50).string(message.filePattern);
     }
     if (message.operationIsLocatedInWorkspace !== false) {
@@ -936,20 +934,20 @@ export const ClineSayTool: MessageFns<ClineSayTool> = {
   fromJSON(object: any): ClineSayTool {
     return {
       tool: isSet(object.tool) ? clineSayToolTypeFromJSON(object.tool) : 0,
-      path: isSet(object.path) ? globalThis.String(object.path) : "",
-      diff: isSet(object.diff) ? globalThis.String(object.diff) : "",
-      content: isSet(object.content) ? globalThis.String(object.content) : "",
-      regex: isSet(object.regex) ? globalThis.String(object.regex) : "",
+      path: isSet(object.path) ? globalThis.String(object.path) : '',
+      diff: isSet(object.diff) ? globalThis.String(object.diff) : '',
+      content: isSet(object.content) ? globalThis.String(object.content) : '',
+      regex: isSet(object.regex) ? globalThis.String(object.regex) : '',
       filePattern: isSet(object.filePattern)
         ? globalThis.String(object.filePattern)
         : isSet(object.file_pattern)
-        ? globalThis.String(object.file_pattern)
-        : "",
+          ? globalThis.String(object.file_pattern)
+          : '',
       operationIsLocatedInWorkspace: isSet(object.operationIsLocatedInWorkspace)
         ? globalThis.Boolean(object.operationIsLocatedInWorkspace)
         : isSet(object.operation_is_located_in_workspace)
-        ? globalThis.Boolean(object.operation_is_located_in_workspace)
-        : false,
+          ? globalThis.Boolean(object.operation_is_located_in_workspace)
+          : false,
     };
   },
 
@@ -958,19 +956,19 @@ export const ClineSayTool: MessageFns<ClineSayTool> = {
     if (message.tool !== 0) {
       obj.tool = clineSayToolTypeToJSON(message.tool);
     }
-    if (message.path !== "") {
+    if (message.path !== '') {
       obj.path = message.path;
     }
-    if (message.diff !== "") {
+    if (message.diff !== '') {
       obj.diff = message.diff;
     }
-    if (message.content !== "") {
+    if (message.content !== '') {
       obj.content = message.content;
     }
-    if (message.regex !== "") {
+    if (message.regex !== '') {
       obj.regex = message.regex;
     }
-    if (message.filePattern !== "") {
+    if (message.filePattern !== '') {
       obj.filePattern = message.filePattern;
     }
     if (message.operationIsLocatedInWorkspace !== false) {
@@ -985,18 +983,18 @@ export const ClineSayTool: MessageFns<ClineSayTool> = {
   fromPartial<I extends Exact<DeepPartial<ClineSayTool>, I>>(object: I): ClineSayTool {
     const message = createBaseClineSayTool();
     message.tool = object.tool ?? 0;
-    message.path = object.path ?? "";
-    message.diff = object.diff ?? "";
-    message.content = object.content ?? "";
-    message.regex = object.regex ?? "";
-    message.filePattern = object.filePattern ?? "";
+    message.path = object.path ?? '';
+    message.diff = object.diff ?? '';
+    message.content = object.content ?? '';
+    message.regex = object.regex ?? '';
+    message.filePattern = object.filePattern ?? '';
     message.operationIsLocatedInWorkspace = object.operationIsLocatedInWorkspace ?? false;
     return message;
   },
 };
 
 function createBaseClineSayBrowserAction(): ClineSayBrowserAction {
-  return { action: 0, coordinate: "", text: "" };
+  return { action: 0, coordinate: '', text: '' };
 }
 
 export const ClineSayBrowserAction: MessageFns<ClineSayBrowserAction> = {
@@ -1004,10 +1002,10 @@ export const ClineSayBrowserAction: MessageFns<ClineSayBrowserAction> = {
     if (message.action !== 0) {
       writer.uint32(8).int32(message.action);
     }
-    if (message.coordinate !== "") {
+    if (message.coordinate !== '') {
       writer.uint32(18).string(message.coordinate);
     }
-    if (message.text !== "") {
+    if (message.text !== '') {
       writer.uint32(26).string(message.text);
     }
     return writer;
@@ -1056,8 +1054,8 @@ export const ClineSayBrowserAction: MessageFns<ClineSayBrowserAction> = {
   fromJSON(object: any): ClineSayBrowserAction {
     return {
       action: isSet(object.action) ? browserActionFromJSON(object.action) : 0,
-      coordinate: isSet(object.coordinate) ? globalThis.String(object.coordinate) : "",
-      text: isSet(object.text) ? globalThis.String(object.text) : "",
+      coordinate: isSet(object.coordinate) ? globalThis.String(object.coordinate) : '',
+      text: isSet(object.text) ? globalThis.String(object.text) : '',
     };
   },
 
@@ -1066,10 +1064,10 @@ export const ClineSayBrowserAction: MessageFns<ClineSayBrowserAction> = {
     if (message.action !== 0) {
       obj.action = browserActionToJSON(message.action);
     }
-    if (message.coordinate !== "") {
+    if (message.coordinate !== '') {
       obj.coordinate = message.coordinate;
     }
-    if (message.text !== "") {
+    if (message.text !== '') {
       obj.text = message.text;
     }
     return obj;
@@ -1078,31 +1076,33 @@ export const ClineSayBrowserAction: MessageFns<ClineSayBrowserAction> = {
   create<I extends Exact<DeepPartial<ClineSayBrowserAction>, I>>(base?: I): ClineSayBrowserAction {
     return ClineSayBrowserAction.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ClineSayBrowserAction>, I>>(object: I): ClineSayBrowserAction {
+  fromPartial<I extends Exact<DeepPartial<ClineSayBrowserAction>, I>>(
+    object: I,
+  ): ClineSayBrowserAction {
     const message = createBaseClineSayBrowserAction();
     message.action = object.action ?? 0;
-    message.coordinate = object.coordinate ?? "";
-    message.text = object.text ?? "";
+    message.coordinate = object.coordinate ?? '';
+    message.text = object.text ?? '';
     return message;
   },
 };
 
 function createBaseBrowserActionResult(): BrowserActionResult {
-  return { screenshot: "", logs: "", currentUrl: "", currentMousePosition: "" };
+  return { screenshot: '', logs: '', currentUrl: '', currentMousePosition: '' };
 }
 
 export const BrowserActionResult: MessageFns<BrowserActionResult> = {
   encode(message: BrowserActionResult, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.screenshot !== "") {
+    if (message.screenshot !== '') {
       writer.uint32(10).string(message.screenshot);
     }
-    if (message.logs !== "") {
+    if (message.logs !== '') {
       writer.uint32(18).string(message.logs);
     }
-    if (message.currentUrl !== "") {
+    if (message.currentUrl !== '') {
       writer.uint32(26).string(message.currentUrl);
     }
-    if (message.currentMousePosition !== "") {
+    if (message.currentMousePosition !== '') {
       writer.uint32(34).string(message.currentMousePosition);
     }
     return writer;
@@ -1158,33 +1158,33 @@ export const BrowserActionResult: MessageFns<BrowserActionResult> = {
 
   fromJSON(object: any): BrowserActionResult {
     return {
-      screenshot: isSet(object.screenshot) ? globalThis.String(object.screenshot) : "",
-      logs: isSet(object.logs) ? globalThis.String(object.logs) : "",
+      screenshot: isSet(object.screenshot) ? globalThis.String(object.screenshot) : '',
+      logs: isSet(object.logs) ? globalThis.String(object.logs) : '',
       currentUrl: isSet(object.currentUrl)
         ? globalThis.String(object.currentUrl)
         : isSet(object.current_url)
-        ? globalThis.String(object.current_url)
-        : "",
+          ? globalThis.String(object.current_url)
+          : '',
       currentMousePosition: isSet(object.currentMousePosition)
         ? globalThis.String(object.currentMousePosition)
         : isSet(object.current_mouse_position)
-        ? globalThis.String(object.current_mouse_position)
-        : "",
+          ? globalThis.String(object.current_mouse_position)
+          : '',
     };
   },
 
   toJSON(message: BrowserActionResult): unknown {
     const obj: any = {};
-    if (message.screenshot !== "") {
+    if (message.screenshot !== '') {
       obj.screenshot = message.screenshot;
     }
-    if (message.logs !== "") {
+    if (message.logs !== '') {
       obj.logs = message.logs;
     }
-    if (message.currentUrl !== "") {
+    if (message.currentUrl !== '') {
       obj.currentUrl = message.currentUrl;
     }
-    if (message.currentMousePosition !== "") {
+    if (message.currentMousePosition !== '') {
       obj.currentMousePosition = message.currentMousePosition;
     }
     return obj;
@@ -1193,35 +1193,37 @@ export const BrowserActionResult: MessageFns<BrowserActionResult> = {
   create<I extends Exact<DeepPartial<BrowserActionResult>, I>>(base?: I): BrowserActionResult {
     return BrowserActionResult.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<BrowserActionResult>, I>>(object: I): BrowserActionResult {
+  fromPartial<I extends Exact<DeepPartial<BrowserActionResult>, I>>(
+    object: I,
+  ): BrowserActionResult {
     const message = createBaseBrowserActionResult();
-    message.screenshot = object.screenshot ?? "";
-    message.logs = object.logs ?? "";
-    message.currentUrl = object.currentUrl ?? "";
-    message.currentMousePosition = object.currentMousePosition ?? "";
+    message.screenshot = object.screenshot ?? '';
+    message.logs = object.logs ?? '';
+    message.currentUrl = object.currentUrl ?? '';
+    message.currentMousePosition = object.currentMousePosition ?? '';
     return message;
   },
 };
 
 function createBaseClineAskUseMcpServer(): ClineAskUseMcpServer {
-  return { serverName: "", type: 0, toolName: "", arguments: "", uri: "" };
+  return { serverName: '', type: 0, toolName: '', arguments: '', uri: '' };
 }
 
 export const ClineAskUseMcpServer: MessageFns<ClineAskUseMcpServer> = {
   encode(message: ClineAskUseMcpServer, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.serverName !== "") {
+    if (message.serverName !== '') {
       writer.uint32(10).string(message.serverName);
     }
     if (message.type !== 0) {
       writer.uint32(16).int32(message.type);
     }
-    if (message.toolName !== "") {
+    if (message.toolName !== '') {
       writer.uint32(26).string(message.toolName);
     }
-    if (message.arguments !== "") {
+    if (message.arguments !== '') {
       writer.uint32(34).string(message.arguments);
     }
-    if (message.uri !== "") {
+    if (message.uri !== '') {
       writer.uint32(42).string(message.uri);
     }
     return writer;
@@ -1288,34 +1290,34 @@ export const ClineAskUseMcpServer: MessageFns<ClineAskUseMcpServer> = {
       serverName: isSet(object.serverName)
         ? globalThis.String(object.serverName)
         : isSet(object.server_name)
-        ? globalThis.String(object.server_name)
-        : "",
+          ? globalThis.String(object.server_name)
+          : '',
       type: isSet(object.type) ? mcpServerRequestTypeFromJSON(object.type) : 0,
       toolName: isSet(object.toolName)
         ? globalThis.String(object.toolName)
         : isSet(object.tool_name)
-        ? globalThis.String(object.tool_name)
-        : "",
-      arguments: isSet(object.arguments) ? globalThis.String(object.arguments) : "",
-      uri: isSet(object.uri) ? globalThis.String(object.uri) : "",
+          ? globalThis.String(object.tool_name)
+          : '',
+      arguments: isSet(object.arguments) ? globalThis.String(object.arguments) : '',
+      uri: isSet(object.uri) ? globalThis.String(object.uri) : '',
     };
   },
 
   toJSON(message: ClineAskUseMcpServer): unknown {
     const obj: any = {};
-    if (message.serverName !== "") {
+    if (message.serverName !== '') {
       obj.serverName = message.serverName;
     }
     if (message.type !== 0) {
       obj.type = mcpServerRequestTypeToJSON(message.type);
     }
-    if (message.toolName !== "") {
+    if (message.toolName !== '') {
       obj.toolName = message.toolName;
     }
-    if (message.arguments !== "") {
+    if (message.arguments !== '') {
       obj.arguments = message.arguments;
     }
-    if (message.uri !== "") {
+    if (message.uri !== '') {
       obj.uri = message.uri;
     }
     return obj;
@@ -1324,30 +1326,32 @@ export const ClineAskUseMcpServer: MessageFns<ClineAskUseMcpServer> = {
   create<I extends Exact<DeepPartial<ClineAskUseMcpServer>, I>>(base?: I): ClineAskUseMcpServer {
     return ClineAskUseMcpServer.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ClineAskUseMcpServer>, I>>(object: I): ClineAskUseMcpServer {
+  fromPartial<I extends Exact<DeepPartial<ClineAskUseMcpServer>, I>>(
+    object: I,
+  ): ClineAskUseMcpServer {
     const message = createBaseClineAskUseMcpServer();
-    message.serverName = object.serverName ?? "";
+    message.serverName = object.serverName ?? '';
     message.type = object.type ?? 0;
-    message.toolName = object.toolName ?? "";
-    message.arguments = object.arguments ?? "";
-    message.uri = object.uri ?? "";
+    message.toolName = object.toolName ?? '';
+    message.arguments = object.arguments ?? '';
+    message.uri = object.uri ?? '';
     return message;
   },
 };
 
 function createBaseClinePlanModeResponse(): ClinePlanModeResponse {
-  return { response: "", options: [], selected: "" };
+  return { response: '', options: [], selected: '' };
 }
 
 export const ClinePlanModeResponse: MessageFns<ClinePlanModeResponse> = {
   encode(message: ClinePlanModeResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.response !== "") {
+    if (message.response !== '') {
       writer.uint32(10).string(message.response);
     }
     for (const v of message.options) {
       writer.uint32(18).string(v!);
     }
-    if (message.selected !== "") {
+    if (message.selected !== '') {
       writer.uint32(26).string(message.selected);
     }
     return writer;
@@ -1395,21 +1399,23 @@ export const ClinePlanModeResponse: MessageFns<ClinePlanModeResponse> = {
 
   fromJSON(object: any): ClinePlanModeResponse {
     return {
-      response: isSet(object.response) ? globalThis.String(object.response) : "",
-      options: globalThis.Array.isArray(object?.options) ? object.options.map((e: any) => globalThis.String(e)) : [],
-      selected: isSet(object.selected) ? globalThis.String(object.selected) : "",
+      response: isSet(object.response) ? globalThis.String(object.response) : '',
+      options: globalThis.Array.isArray(object?.options)
+        ? object.options.map((e: any) => globalThis.String(e))
+        : [],
+      selected: isSet(object.selected) ? globalThis.String(object.selected) : '',
     };
   },
 
   toJSON(message: ClinePlanModeResponse): unknown {
     const obj: any = {};
-    if (message.response !== "") {
+    if (message.response !== '') {
       obj.response = message.response;
     }
     if (message.options?.length) {
       obj.options = message.options;
     }
-    if (message.selected !== "") {
+    if (message.selected !== '') {
       obj.selected = message.selected;
     }
     return obj;
@@ -1418,28 +1424,30 @@ export const ClinePlanModeResponse: MessageFns<ClinePlanModeResponse> = {
   create<I extends Exact<DeepPartial<ClinePlanModeResponse>, I>>(base?: I): ClinePlanModeResponse {
     return ClinePlanModeResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ClinePlanModeResponse>, I>>(object: I): ClinePlanModeResponse {
+  fromPartial<I extends Exact<DeepPartial<ClinePlanModeResponse>, I>>(
+    object: I,
+  ): ClinePlanModeResponse {
     const message = createBaseClinePlanModeResponse();
-    message.response = object.response ?? "";
+    message.response = object.response ?? '';
     message.options = object.options?.map((e) => e) || [];
-    message.selected = object.selected ?? "";
+    message.selected = object.selected ?? '';
     return message;
   },
 };
 
 function createBaseClineAskQuestion(): ClineAskQuestion {
-  return { question: "", options: [], selected: "" };
+  return { question: '', options: [], selected: '' };
 }
 
 export const ClineAskQuestion: MessageFns<ClineAskQuestion> = {
   encode(message: ClineAskQuestion, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.question !== "") {
+    if (message.question !== '') {
       writer.uint32(10).string(message.question);
     }
     for (const v of message.options) {
       writer.uint32(18).string(v!);
     }
-    if (message.selected !== "") {
+    if (message.selected !== '') {
       writer.uint32(26).string(message.selected);
     }
     return writer;
@@ -1487,21 +1495,23 @@ export const ClineAskQuestion: MessageFns<ClineAskQuestion> = {
 
   fromJSON(object: any): ClineAskQuestion {
     return {
-      question: isSet(object.question) ? globalThis.String(object.question) : "",
-      options: globalThis.Array.isArray(object?.options) ? object.options.map((e: any) => globalThis.String(e)) : [],
-      selected: isSet(object.selected) ? globalThis.String(object.selected) : "",
+      question: isSet(object.question) ? globalThis.String(object.question) : '',
+      options: globalThis.Array.isArray(object?.options)
+        ? object.options.map((e: any) => globalThis.String(e))
+        : [],
+      selected: isSet(object.selected) ? globalThis.String(object.selected) : '',
     };
   },
 
   toJSON(message: ClineAskQuestion): unknown {
     const obj: any = {};
-    if (message.question !== "") {
+    if (message.question !== '') {
       obj.question = message.question;
     }
     if (message.options?.length) {
       obj.options = message.options;
     }
-    if (message.selected !== "") {
+    if (message.selected !== '') {
       obj.selected = message.selected;
     }
     return obj;
@@ -1512,20 +1522,20 @@ export const ClineAskQuestion: MessageFns<ClineAskQuestion> = {
   },
   fromPartial<I extends Exact<DeepPartial<ClineAskQuestion>, I>>(object: I): ClineAskQuestion {
     const message = createBaseClineAskQuestion();
-    message.question = object.question ?? "";
+    message.question = object.question ?? '';
     message.options = object.options?.map((e) => e) || [];
-    message.selected = object.selected ?? "";
+    message.selected = object.selected ?? '';
     return message;
   },
 };
 
 function createBaseClineAskNewTask(): ClineAskNewTask {
-  return { context: "" };
+  return { context: '' };
 }
 
 export const ClineAskNewTask: MessageFns<ClineAskNewTask> = {
   encode(message: ClineAskNewTask, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.context !== "") {
+    if (message.context !== '') {
       writer.uint32(10).string(message.context);
     }
     return writer;
@@ -1556,12 +1566,12 @@ export const ClineAskNewTask: MessageFns<ClineAskNewTask> = {
   },
 
   fromJSON(object: any): ClineAskNewTask {
-    return { context: isSet(object.context) ? globalThis.String(object.context) : "" };
+    return { context: isSet(object.context) ? globalThis.String(object.context) : '' };
   },
 
   toJSON(message: ClineAskNewTask): unknown {
     const obj: any = {};
-    if (message.context !== "") {
+    if (message.context !== '') {
       obj.context = message.context;
     }
     return obj;
@@ -1572,13 +1582,13 @@ export const ClineAskNewTask: MessageFns<ClineAskNewTask> = {
   },
   fromPartial<I extends Exact<DeepPartial<ClineAskNewTask>, I>>(object: I): ClineAskNewTask {
     const message = createBaseClineAskNewTask();
-    message.context = object.context ?? "";
+    message.context = object.context ?? '';
     return message;
   },
 };
 
 function createBaseApiReqRetryStatus(): ApiReqRetryStatus {
-  return { attempt: 0, maxAttempts: 0, delaySec: 0, errorSnippet: "" };
+  return { attempt: 0, maxAttempts: 0, delaySec: 0, errorSnippet: '' };
 }
 
 export const ApiReqRetryStatus: MessageFns<ApiReqRetryStatus> = {
@@ -1592,7 +1602,7 @@ export const ApiReqRetryStatus: MessageFns<ApiReqRetryStatus> = {
     if (message.delaySec !== 0) {
       writer.uint32(24).int32(message.delaySec);
     }
-    if (message.errorSnippet !== "") {
+    if (message.errorSnippet !== '') {
       writer.uint32(34).string(message.errorSnippet);
     }
     return writer;
@@ -1652,18 +1662,18 @@ export const ApiReqRetryStatus: MessageFns<ApiReqRetryStatus> = {
       maxAttempts: isSet(object.maxAttempts)
         ? globalThis.Number(object.maxAttempts)
         : isSet(object.max_attempts)
-        ? globalThis.Number(object.max_attempts)
-        : 0,
+          ? globalThis.Number(object.max_attempts)
+          : 0,
       delaySec: isSet(object.delaySec)
         ? globalThis.Number(object.delaySec)
         : isSet(object.delay_sec)
-        ? globalThis.Number(object.delay_sec)
-        : 0,
+          ? globalThis.Number(object.delay_sec)
+          : 0,
       errorSnippet: isSet(object.errorSnippet)
         ? globalThis.String(object.errorSnippet)
         : isSet(object.error_snippet)
-        ? globalThis.String(object.error_snippet)
-        : "",
+          ? globalThis.String(object.error_snippet)
+          : '',
     };
   },
 
@@ -1678,7 +1688,7 @@ export const ApiReqRetryStatus: MessageFns<ApiReqRetryStatus> = {
     if (message.delaySec !== 0) {
       obj.delaySec = Math.round(message.delaySec);
     }
-    if (message.errorSnippet !== "") {
+    if (message.errorSnippet !== '') {
       obj.errorSnippet = message.errorSnippet;
     }
     return obj;
@@ -1692,28 +1702,28 @@ export const ApiReqRetryStatus: MessageFns<ApiReqRetryStatus> = {
     message.attempt = object.attempt ?? 0;
     message.maxAttempts = object.maxAttempts ?? 0;
     message.delaySec = object.delaySec ?? 0;
-    message.errorSnippet = object.errorSnippet ?? "";
+    message.errorSnippet = object.errorSnippet ?? '';
     return message;
   },
 };
 
 function createBaseClineApiReqInfo(): ClineApiReqInfo {
   return {
-    request: "",
+    request: '',
     tokensIn: 0,
     tokensOut: 0,
     cacheWrites: 0,
     cacheReads: 0,
     cost: 0,
     cancelReason: 0,
-    streamingFailedMessage: "",
+    streamingFailedMessage: '',
     retryStatus: undefined,
   };
 }
 
 export const ClineApiReqInfo: MessageFns<ClineApiReqInfo> = {
   encode(message: ClineApiReqInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.request !== "") {
+    if (message.request !== '') {
       writer.uint32(10).string(message.request);
     }
     if (message.tokensIn !== 0) {
@@ -1734,7 +1744,7 @@ export const ClineApiReqInfo: MessageFns<ClineApiReqInfo> = {
     if (message.cancelReason !== 0) {
       writer.uint32(56).int32(message.cancelReason);
     }
-    if (message.streamingFailedMessage !== "") {
+    if (message.streamingFailedMessage !== '') {
       writer.uint32(66).string(message.streamingFailedMessage);
     }
     if (message.retryStatus !== undefined) {
@@ -1833,49 +1843,49 @@ export const ClineApiReqInfo: MessageFns<ClineApiReqInfo> = {
 
   fromJSON(object: any): ClineApiReqInfo {
     return {
-      request: isSet(object.request) ? globalThis.String(object.request) : "",
+      request: isSet(object.request) ? globalThis.String(object.request) : '',
       tokensIn: isSet(object.tokensIn)
         ? globalThis.Number(object.tokensIn)
         : isSet(object.tokens_in)
-        ? globalThis.Number(object.tokens_in)
-        : 0,
+          ? globalThis.Number(object.tokens_in)
+          : 0,
       tokensOut: isSet(object.tokensOut)
         ? globalThis.Number(object.tokensOut)
         : isSet(object.tokens_out)
-        ? globalThis.Number(object.tokens_out)
-        : 0,
+          ? globalThis.Number(object.tokens_out)
+          : 0,
       cacheWrites: isSet(object.cacheWrites)
         ? globalThis.Number(object.cacheWrites)
         : isSet(object.cache_writes)
-        ? globalThis.Number(object.cache_writes)
-        : 0,
+          ? globalThis.Number(object.cache_writes)
+          : 0,
       cacheReads: isSet(object.cacheReads)
         ? globalThis.Number(object.cacheReads)
         : isSet(object.cache_reads)
-        ? globalThis.Number(object.cache_reads)
-        : 0,
+          ? globalThis.Number(object.cache_reads)
+          : 0,
       cost: isSet(object.cost) ? globalThis.Number(object.cost) : 0,
       cancelReason: isSet(object.cancelReason)
         ? clineApiReqCancelReasonFromJSON(object.cancelReason)
         : isSet(object.cancel_reason)
-        ? clineApiReqCancelReasonFromJSON(object.cancel_reason)
-        : 0,
+          ? clineApiReqCancelReasonFromJSON(object.cancel_reason)
+          : 0,
       streamingFailedMessage: isSet(object.streamingFailedMessage)
         ? globalThis.String(object.streamingFailedMessage)
         : isSet(object.streaming_failed_message)
-        ? globalThis.String(object.streaming_failed_message)
-        : "",
+          ? globalThis.String(object.streaming_failed_message)
+          : '',
       retryStatus: isSet(object.retryStatus)
         ? ApiReqRetryStatus.fromJSON(object.retryStatus)
         : isSet(object.retry_status)
-        ? ApiReqRetryStatus.fromJSON(object.retry_status)
-        : undefined,
+          ? ApiReqRetryStatus.fromJSON(object.retry_status)
+          : undefined,
     };
   },
 
   toJSON(message: ClineApiReqInfo): unknown {
     const obj: any = {};
-    if (message.request !== "") {
+    if (message.request !== '') {
       obj.request = message.request;
     }
     if (message.tokensIn !== 0) {
@@ -1896,7 +1906,7 @@ export const ClineApiReqInfo: MessageFns<ClineApiReqInfo> = {
     if (message.cancelReason !== 0) {
       obj.cancelReason = clineApiReqCancelReasonToJSON(message.cancelReason);
     }
-    if (message.streamingFailedMessage !== "") {
+    if (message.streamingFailedMessage !== '') {
       obj.streamingFailedMessage = message.streamingFailedMessage;
     }
     if (message.retryStatus !== undefined) {
@@ -1910,31 +1920,32 @@ export const ClineApiReqInfo: MessageFns<ClineApiReqInfo> = {
   },
   fromPartial<I extends Exact<DeepPartial<ClineApiReqInfo>, I>>(object: I): ClineApiReqInfo {
     const message = createBaseClineApiReqInfo();
-    message.request = object.request ?? "";
+    message.request = object.request ?? '';
     message.tokensIn = object.tokensIn ?? 0;
     message.tokensOut = object.tokensOut ?? 0;
     message.cacheWrites = object.cacheWrites ?? 0;
     message.cacheReads = object.cacheReads ?? 0;
     message.cost = object.cost ?? 0;
     message.cancelReason = object.cancelReason ?? 0;
-    message.streamingFailedMessage = object.streamingFailedMessage ?? "";
-    message.retryStatus = (object.retryStatus !== undefined && object.retryStatus !== null)
-      ? ApiReqRetryStatus.fromPartial(object.retryStatus)
-      : undefined;
+    message.streamingFailedMessage = object.streamingFailedMessage ?? '';
+    message.retryStatus =
+      object.retryStatus !== undefined && object.retryStatus !== null
+        ? ApiReqRetryStatus.fromPartial(object.retryStatus)
+        : undefined;
     return message;
   },
 };
 
 function createBaseClineModelInfo(): ClineModelInfo {
-  return { providerId: "", modelId: "" };
+  return { providerId: '', modelId: '' };
 }
 
 export const ClineModelInfo: MessageFns<ClineModelInfo> = {
   encode(message: ClineModelInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.providerId !== "") {
+    if (message.providerId !== '') {
       writer.uint32(10).string(message.providerId);
     }
-    if (message.modelId !== "") {
+    if (message.modelId !== '') {
       writer.uint32(18).string(message.modelId);
     }
     return writer;
@@ -1977,22 +1988,22 @@ export const ClineModelInfo: MessageFns<ClineModelInfo> = {
       providerId: isSet(object.providerId)
         ? globalThis.String(object.providerId)
         : isSet(object.provider_id)
-        ? globalThis.String(object.provider_id)
-        : "",
+          ? globalThis.String(object.provider_id)
+          : '',
       modelId: isSet(object.modelId)
         ? globalThis.String(object.modelId)
         : isSet(object.model_id)
-        ? globalThis.String(object.model_id)
-        : "",
+          ? globalThis.String(object.model_id)
+          : '',
     };
   },
 
   toJSON(message: ClineModelInfo): unknown {
     const obj: any = {};
-    if (message.providerId !== "") {
+    if (message.providerId !== '') {
       obj.providerId = message.providerId;
     }
-    if (message.modelId !== "") {
+    if (message.modelId !== '') {
       obj.modelId = message.modelId;
     }
     return obj;
@@ -2003,8 +2014,8 @@ export const ClineModelInfo: MessageFns<ClineModelInfo> = {
   },
   fromPartial<I extends Exact<DeepPartial<ClineModelInfo>, I>>(object: I): ClineModelInfo {
     const message = createBaseClineModelInfo();
-    message.providerId = object.providerId ?? "";
-    message.modelId = object.modelId ?? "";
+    message.providerId = object.providerId ?? '';
+    message.modelId = object.modelId ?? '';
     return message;
   },
 };
@@ -2015,12 +2026,12 @@ function createBaseClineMessage(): ClineMessage {
     type: 0,
     ask: 0,
     say: 0,
-    text: "",
-    reasoning: "",
+    text: '',
+    reasoning: '',
     images: [],
     files: [],
     partial: false,
-    lastCheckpointHash: "",
+    lastCheckpointHash: '',
     isCheckpointCheckedOut: false,
     isOperationOutsideWorkspace: false,
     conversationHistoryIndex: 0,
@@ -2051,10 +2062,10 @@ export const ClineMessage: MessageFns<ClineMessage> = {
     if (message.say !== 0) {
       writer.uint32(32).int32(message.say);
     }
-    if (message.text !== "") {
+    if (message.text !== '') {
       writer.uint32(42).string(message.text);
     }
-    if (message.reasoning !== "") {
+    if (message.reasoning !== '') {
       writer.uint32(50).string(message.reasoning);
     }
     for (const v of message.images) {
@@ -2066,7 +2077,7 @@ export const ClineMessage: MessageFns<ClineMessage> = {
     if (message.partial !== false) {
       writer.uint32(72).bool(message.partial);
     }
-    if (message.lastCheckpointHash !== "") {
+    if (message.lastCheckpointHash !== '') {
       writer.uint32(82).string(message.lastCheckpointHash);
     }
     if (message.isCheckpointCheckedOut !== false) {
@@ -2079,7 +2090,10 @@ export const ClineMessage: MessageFns<ClineMessage> = {
       writer.uint32(104).int32(message.conversationHistoryIndex);
     }
     if (message.conversationHistoryDeletedRange !== undefined) {
-      ConversationHistoryDeletedRange.encode(message.conversationHistoryDeletedRange, writer.uint32(114).fork()).join();
+      ConversationHistoryDeletedRange.encode(
+        message.conversationHistoryDeletedRange,
+        writer.uint32(114).fork(),
+      ).join();
     }
     if (message.sayTool !== undefined) {
       ClineSayTool.encode(message.sayTool, writer.uint32(122).fork()).join();
@@ -2227,7 +2241,10 @@ export const ClineMessage: MessageFns<ClineMessage> = {
             break;
           }
 
-          message.conversationHistoryDeletedRange = ConversationHistoryDeletedRange.decode(reader, reader.uint32());
+          message.conversationHistoryDeletedRange = ConversationHistoryDeletedRange.decode(
+            reader,
+            reader.uint32(),
+          );
           continue;
         }
         case 15: {
@@ -2317,81 +2334,85 @@ export const ClineMessage: MessageFns<ClineMessage> = {
       type: isSet(object.type) ? clineMessageTypeFromJSON(object.type) : 0,
       ask: isSet(object.ask) ? clineAskFromJSON(object.ask) : 0,
       say: isSet(object.say) ? clineSayFromJSON(object.say) : 0,
-      text: isSet(object.text) ? globalThis.String(object.text) : "",
-      reasoning: isSet(object.reasoning) ? globalThis.String(object.reasoning) : "",
-      images: globalThis.Array.isArray(object?.images) ? object.images.map((e: any) => globalThis.String(e)) : [],
-      files: globalThis.Array.isArray(object?.files) ? object.files.map((e: any) => globalThis.String(e)) : [],
+      text: isSet(object.text) ? globalThis.String(object.text) : '',
+      reasoning: isSet(object.reasoning) ? globalThis.String(object.reasoning) : '',
+      images: globalThis.Array.isArray(object?.images)
+        ? object.images.map((e: any) => globalThis.String(e))
+        : [],
+      files: globalThis.Array.isArray(object?.files)
+        ? object.files.map((e: any) => globalThis.String(e))
+        : [],
       partial: isSet(object.partial) ? globalThis.Boolean(object.partial) : false,
       lastCheckpointHash: isSet(object.lastCheckpointHash)
         ? globalThis.String(object.lastCheckpointHash)
         : isSet(object.last_checkpoint_hash)
-        ? globalThis.String(object.last_checkpoint_hash)
-        : "",
+          ? globalThis.String(object.last_checkpoint_hash)
+          : '',
       isCheckpointCheckedOut: isSet(object.isCheckpointCheckedOut)
         ? globalThis.Boolean(object.isCheckpointCheckedOut)
         : isSet(object.is_checkpoint_checked_out)
-        ? globalThis.Boolean(object.is_checkpoint_checked_out)
-        : false,
+          ? globalThis.Boolean(object.is_checkpoint_checked_out)
+          : false,
       isOperationOutsideWorkspace: isSet(object.isOperationOutsideWorkspace)
         ? globalThis.Boolean(object.isOperationOutsideWorkspace)
         : isSet(object.is_operation_outside_workspace)
-        ? globalThis.Boolean(object.is_operation_outside_workspace)
-        : false,
+          ? globalThis.Boolean(object.is_operation_outside_workspace)
+          : false,
       conversationHistoryIndex: isSet(object.conversationHistoryIndex)
         ? globalThis.Number(object.conversationHistoryIndex)
         : isSet(object.conversation_history_index)
-        ? globalThis.Number(object.conversation_history_index)
-        : 0,
+          ? globalThis.Number(object.conversation_history_index)
+          : 0,
       conversationHistoryDeletedRange: isSet(object.conversationHistoryDeletedRange)
         ? ConversationHistoryDeletedRange.fromJSON(object.conversationHistoryDeletedRange)
         : isSet(object.conversation_history_deleted_range)
-        ? ConversationHistoryDeletedRange.fromJSON(object.conversation_history_deleted_range)
-        : undefined,
+          ? ConversationHistoryDeletedRange.fromJSON(object.conversation_history_deleted_range)
+          : undefined,
       sayTool: isSet(object.sayTool)
         ? ClineSayTool.fromJSON(object.sayTool)
         : isSet(object.say_tool)
-        ? ClineSayTool.fromJSON(object.say_tool)
-        : undefined,
+          ? ClineSayTool.fromJSON(object.say_tool)
+          : undefined,
       sayBrowserAction: isSet(object.sayBrowserAction)
         ? ClineSayBrowserAction.fromJSON(object.sayBrowserAction)
         : isSet(object.say_browser_action)
-        ? ClineSayBrowserAction.fromJSON(object.say_browser_action)
-        : undefined,
+          ? ClineSayBrowserAction.fromJSON(object.say_browser_action)
+          : undefined,
       browserActionResult: isSet(object.browserActionResult)
         ? BrowserActionResult.fromJSON(object.browserActionResult)
         : isSet(object.browser_action_result)
-        ? BrowserActionResult.fromJSON(object.browser_action_result)
-        : undefined,
+          ? BrowserActionResult.fromJSON(object.browser_action_result)
+          : undefined,
       askUseMcpServer: isSet(object.askUseMcpServer)
         ? ClineAskUseMcpServer.fromJSON(object.askUseMcpServer)
         : isSet(object.ask_use_mcp_server)
-        ? ClineAskUseMcpServer.fromJSON(object.ask_use_mcp_server)
-        : undefined,
+          ? ClineAskUseMcpServer.fromJSON(object.ask_use_mcp_server)
+          : undefined,
       planModeResponse: isSet(object.planModeResponse)
         ? ClinePlanModeResponse.fromJSON(object.planModeResponse)
         : isSet(object.plan_mode_response)
-        ? ClinePlanModeResponse.fromJSON(object.plan_mode_response)
-        : undefined,
+          ? ClinePlanModeResponse.fromJSON(object.plan_mode_response)
+          : undefined,
       askQuestion: isSet(object.askQuestion)
         ? ClineAskQuestion.fromJSON(object.askQuestion)
         : isSet(object.ask_question)
-        ? ClineAskQuestion.fromJSON(object.ask_question)
-        : undefined,
+          ? ClineAskQuestion.fromJSON(object.ask_question)
+          : undefined,
       askNewTask: isSet(object.askNewTask)
         ? ClineAskNewTask.fromJSON(object.askNewTask)
         : isSet(object.ask_new_task)
-        ? ClineAskNewTask.fromJSON(object.ask_new_task)
-        : undefined,
+          ? ClineAskNewTask.fromJSON(object.ask_new_task)
+          : undefined,
       apiReqInfo: isSet(object.apiReqInfo)
         ? ClineApiReqInfo.fromJSON(object.apiReqInfo)
         : isSet(object.api_req_info)
-        ? ClineApiReqInfo.fromJSON(object.api_req_info)
-        : undefined,
+          ? ClineApiReqInfo.fromJSON(object.api_req_info)
+          : undefined,
       modelInfo: isSet(object.modelInfo)
         ? ClineModelInfo.fromJSON(object.modelInfo)
         : isSet(object.model_info)
-        ? ClineModelInfo.fromJSON(object.model_info)
-        : undefined,
+          ? ClineModelInfo.fromJSON(object.model_info)
+          : undefined,
     };
   },
 
@@ -2409,10 +2430,10 @@ export const ClineMessage: MessageFns<ClineMessage> = {
     if (message.say !== 0) {
       obj.say = clineSayToJSON(message.say);
     }
-    if (message.text !== "") {
+    if (message.text !== '') {
       obj.text = message.text;
     }
-    if (message.reasoning !== "") {
+    if (message.reasoning !== '') {
       obj.reasoning = message.reasoning;
     }
     if (message.images?.length) {
@@ -2424,7 +2445,7 @@ export const ClineMessage: MessageFns<ClineMessage> = {
     if (message.partial !== false) {
       obj.partial = message.partial;
     }
-    if (message.lastCheckpointHash !== "") {
+    if (message.lastCheckpointHash !== '') {
       obj.lastCheckpointHash = message.lastCheckpointHash;
     }
     if (message.isCheckpointCheckedOut !== false) {
@@ -2480,46 +2501,56 @@ export const ClineMessage: MessageFns<ClineMessage> = {
     message.type = object.type ?? 0;
     message.ask = object.ask ?? 0;
     message.say = object.say ?? 0;
-    message.text = object.text ?? "";
-    message.reasoning = object.reasoning ?? "";
+    message.text = object.text ?? '';
+    message.reasoning = object.reasoning ?? '';
     message.images = object.images?.map((e) => e) || [];
     message.files = object.files?.map((e) => e) || [];
     message.partial = object.partial ?? false;
-    message.lastCheckpointHash = object.lastCheckpointHash ?? "";
+    message.lastCheckpointHash = object.lastCheckpointHash ?? '';
     message.isCheckpointCheckedOut = object.isCheckpointCheckedOut ?? false;
     message.isOperationOutsideWorkspace = object.isOperationOutsideWorkspace ?? false;
     message.conversationHistoryIndex = object.conversationHistoryIndex ?? 0;
     message.conversationHistoryDeletedRange =
-      (object.conversationHistoryDeletedRange !== undefined && object.conversationHistoryDeletedRange !== null)
+      object.conversationHistoryDeletedRange !== undefined &&
+      object.conversationHistoryDeletedRange !== null
         ? ConversationHistoryDeletedRange.fromPartial(object.conversationHistoryDeletedRange)
         : undefined;
-    message.sayTool = (object.sayTool !== undefined && object.sayTool !== null)
-      ? ClineSayTool.fromPartial(object.sayTool)
-      : undefined;
-    message.sayBrowserAction = (object.sayBrowserAction !== undefined && object.sayBrowserAction !== null)
-      ? ClineSayBrowserAction.fromPartial(object.sayBrowserAction)
-      : undefined;
-    message.browserActionResult = (object.browserActionResult !== undefined && object.browserActionResult !== null)
-      ? BrowserActionResult.fromPartial(object.browserActionResult)
-      : undefined;
-    message.askUseMcpServer = (object.askUseMcpServer !== undefined && object.askUseMcpServer !== null)
-      ? ClineAskUseMcpServer.fromPartial(object.askUseMcpServer)
-      : undefined;
-    message.planModeResponse = (object.planModeResponse !== undefined && object.planModeResponse !== null)
-      ? ClinePlanModeResponse.fromPartial(object.planModeResponse)
-      : undefined;
-    message.askQuestion = (object.askQuestion !== undefined && object.askQuestion !== null)
-      ? ClineAskQuestion.fromPartial(object.askQuestion)
-      : undefined;
-    message.askNewTask = (object.askNewTask !== undefined && object.askNewTask !== null)
-      ? ClineAskNewTask.fromPartial(object.askNewTask)
-      : undefined;
-    message.apiReqInfo = (object.apiReqInfo !== undefined && object.apiReqInfo !== null)
-      ? ClineApiReqInfo.fromPartial(object.apiReqInfo)
-      : undefined;
-    message.modelInfo = (object.modelInfo !== undefined && object.modelInfo !== null)
-      ? ClineModelInfo.fromPartial(object.modelInfo)
-      : undefined;
+    message.sayTool =
+      object.sayTool !== undefined && object.sayTool !== null
+        ? ClineSayTool.fromPartial(object.sayTool)
+        : undefined;
+    message.sayBrowserAction =
+      object.sayBrowserAction !== undefined && object.sayBrowserAction !== null
+        ? ClineSayBrowserAction.fromPartial(object.sayBrowserAction)
+        : undefined;
+    message.browserActionResult =
+      object.browserActionResult !== undefined && object.browserActionResult !== null
+        ? BrowserActionResult.fromPartial(object.browserActionResult)
+        : undefined;
+    message.askUseMcpServer =
+      object.askUseMcpServer !== undefined && object.askUseMcpServer !== null
+        ? ClineAskUseMcpServer.fromPartial(object.askUseMcpServer)
+        : undefined;
+    message.planModeResponse =
+      object.planModeResponse !== undefined && object.planModeResponse !== null
+        ? ClinePlanModeResponse.fromPartial(object.planModeResponse)
+        : undefined;
+    message.askQuestion =
+      object.askQuestion !== undefined && object.askQuestion !== null
+        ? ClineAskQuestion.fromPartial(object.askQuestion)
+        : undefined;
+    message.askNewTask =
+      object.askNewTask !== undefined && object.askNewTask !== null
+        ? ClineAskNewTask.fromPartial(object.askNewTask)
+        : undefined;
+    message.apiReqInfo =
+      object.apiReqInfo !== undefined && object.apiReqInfo !== null
+        ? ClineApiReqInfo.fromPartial(object.apiReqInfo)
+        : undefined;
+    message.modelInfo =
+      object.modelInfo !== undefined && object.modelInfo !== null
+        ? ClineModelInfo.fromPartial(object.modelInfo)
+        : undefined;
     return message;
   },
 };
@@ -2565,8 +2596,8 @@ export const ShowWebviewEvent: MessageFns<ShowWebviewEvent> = {
       preserveEditorFocus: isSet(object.preserveEditorFocus)
         ? globalThis.Boolean(object.preserveEditorFocus)
         : isSet(object.preserve_editor_focus)
-        ? globalThis.Boolean(object.preserve_editor_focus)
-        : false,
+          ? globalThis.Boolean(object.preserve_editor_focus)
+          : false,
     };
   },
 
@@ -2591,12 +2622,12 @@ export const ShowWebviewEvent: MessageFns<ShowWebviewEvent> = {
 /** UiService provides methods for managing UI interactions */
 export type UiServiceDefinition = typeof UiServiceDefinition;
 export const UiServiceDefinition = {
-  name: "UiService",
-  fullName: "cline.UiService",
+  name: 'UiService',
+  fullName: 'cline.UiService',
   methods: {
     /** Scrolls to a specific settings section in the settings view */
     scrollToSettings: {
-      name: "scrollToSettings",
+      name: 'scrollToSettings',
       requestType: StringRequest,
       requestStream: false,
       responseType: KeyValuePair,
@@ -2605,7 +2636,7 @@ export const UiServiceDefinition = {
     },
     /** Sets the terminal execution mode (vscodeTerminal or backgroundExec) */
     setTerminalExecutionMode: {
-      name: "setTerminalExecutionMode",
+      name: 'setTerminalExecutionMode',
       requestType: BooleanRequest,
       requestStream: false,
       responseType: KeyValuePair,
@@ -2614,7 +2645,7 @@ export const UiServiceDefinition = {
     },
     /** Marks the current announcement as shown and returns whether an announcement should still be shown */
     onDidShowAnnouncement: {
-      name: "onDidShowAnnouncement",
+      name: 'onDidShowAnnouncement',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Boolean,
@@ -2623,7 +2654,7 @@ export const UiServiceDefinition = {
     },
     /** Subscribe to addToInput events (when user adds content via context menu) */
     subscribeToAddToInput: {
-      name: "subscribeToAddToInput",
+      name: 'subscribeToAddToInput',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: String,
@@ -2632,7 +2663,7 @@ export const UiServiceDefinition = {
     },
     /** Subscribe to MCP button clicked events */
     subscribeToMcpButtonClicked: {
-      name: "subscribeToMcpButtonClicked",
+      name: 'subscribeToMcpButtonClicked',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -2641,7 +2672,7 @@ export const UiServiceDefinition = {
     },
     /** Subscribe to history button click events */
     subscribeToHistoryButtonClicked: {
-      name: "subscribeToHistoryButtonClicked",
+      name: 'subscribeToHistoryButtonClicked',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -2650,7 +2681,7 @@ export const UiServiceDefinition = {
     },
     /** Subscribe to chat button clicked events (when the chat button is clicked in VSCode) */
     subscribeToChatButtonClicked: {
-      name: "subscribeToChatButtonClicked",
+      name: 'subscribeToChatButtonClicked',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -2659,7 +2690,7 @@ export const UiServiceDefinition = {
     },
     /** Subscribe to account button click events */
     subscribeToAccountButtonClicked: {
-      name: "subscribeToAccountButtonClicked",
+      name: 'subscribeToAccountButtonClicked',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -2668,7 +2699,7 @@ export const UiServiceDefinition = {
     },
     /** Subscribe to settings button clicked events */
     subscribeToSettingsButtonClicked: {
-      name: "subscribeToSettingsButtonClicked",
+      name: 'subscribeToSettingsButtonClicked',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -2677,7 +2708,7 @@ export const UiServiceDefinition = {
     },
     /** Subscribe to worktrees button clicked events */
     subscribeToWorktreesButtonClicked: {
-      name: "subscribeToWorktreesButtonClicked",
+      name: 'subscribeToWorktreesButtonClicked',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -2686,7 +2717,7 @@ export const UiServiceDefinition = {
     },
     /** Subscribe to partial message updates (streaming Cline messages as they're built) */
     subscribeToPartialMessage: {
-      name: "subscribeToPartialMessage",
+      name: 'subscribeToPartialMessage',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: ClineMessage,
@@ -2695,7 +2726,7 @@ export const UiServiceDefinition = {
     },
     /** Initialize webview when it launches */
     initializeWebview: {
-      name: "initializeWebview",
+      name: 'initializeWebview',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -2704,7 +2735,7 @@ export const UiServiceDefinition = {
     },
     /** Subscribe to relinquish control events */
     subscribeToRelinquishControl: {
-      name: "subscribeToRelinquishControl",
+      name: 'subscribeToRelinquishControl',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -2713,7 +2744,7 @@ export const UiServiceDefinition = {
     },
     /** Subscribe to show webview events */
     subscribeToShowWebview: {
-      name: "subscribeToShowWebview",
+      name: 'subscribeToShowWebview',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: ShowWebviewEvent,
@@ -2722,7 +2753,7 @@ export const UiServiceDefinition = {
     },
     /** Returns the HTML for the webview index page. This is only used by external clients, not by the vscode webview. */
     getWebviewHtml: {
-      name: "getWebviewHtml",
+      name: 'getWebviewHtml',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: String,
@@ -2731,7 +2762,7 @@ export const UiServiceDefinition = {
     },
     /** Opens a URL in the default browser */
     openUrl: {
-      name: "openUrl",
+      name: 'openUrl',
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -2740,7 +2771,7 @@ export const UiServiceDefinition = {
     },
     /** Opens the Cline walkthrough */
     openWalkthrough: {
-      name: "openWalkthrough",
+      name: 'openWalkthrough',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -2752,23 +2783,28 @@ export const UiServiceDefinition = {
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-type Exact<P, I extends P> = P extends Builtin ? P
+type Exact<P, I extends P> = P extends Builtin
+  ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function longToNumber(int64: { toString(): string }): number {
   const num = globalThis.Number(int64.toString());
   if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+    throw new globalThis.Error('Value is larger than Number.MAX_SAFE_INTEGER');
   }
   if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
+    throw new globalThis.Error('Value is smaller than Number.MIN_SAFE_INTEGER');
   }
   return num;
 }

@@ -5,7 +5,7 @@
 // source: google/protobuf/field_mask.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
 
 /**
  * `FieldMask` represents a set of symbolic field paths, for example:
@@ -250,16 +250,17 @@ export const FieldMask: MessageFns<FieldMask> & FieldMaskWrapperFns = {
 
   fromJSON(object: any): FieldMask {
     return {
-      paths: typeof object === "string"
-        ? object.split(",").filter(globalThis.Boolean)
-        : globalThis.Array.isArray(object?.paths)
-        ? object.paths.map(globalThis.String)
-        : [],
+      paths:
+        typeof object === 'string'
+          ? object.split(',').filter(globalThis.Boolean)
+          : globalThis.Array.isArray(object?.paths)
+            ? object.paths.map(globalThis.String)
+            : [],
     };
   },
 
   toJSON(message: FieldMask): string {
-    return message.paths.join(",");
+    return message.paths.join(',');
   },
 
   create<I extends Exact<DeepPartial<FieldMask>, I>>(base?: I): FieldMask {
@@ -284,14 +285,19 @@ export const FieldMask: MessageFns<FieldMask> & FieldMaskWrapperFns = {
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-type Exact<P, I extends P> = P extends Builtin ? P
+type Exact<P, I extends P> = P extends Builtin
+  ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 interface MessageFns<T> {

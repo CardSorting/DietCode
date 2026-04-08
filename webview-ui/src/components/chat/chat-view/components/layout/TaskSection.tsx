@@ -1,25 +1,25 @@
-import { ClineMessage } from "@shared/ExtensionMessage.ts"
-import React from "react"
-import TaskHeader from "@/components/chat/task-header/TaskHeader"
-import { MessageHandlers } from "../../types/chatTypes"
+import TaskHeader from '@/components/chat/task-header/TaskHeader';
+import type { ClineMessage } from '@shared/ExtensionMessage.ts';
+import type React from 'react';
+import type { MessageHandlers } from '../../types/chatTypes';
 
 interface TaskSectionProps {
-	task: ClineMessage
-	apiMetrics: {
-		totalTokensIn: number
-		totalTokensOut: number
-		totalCacheWrites?: number
-		totalCacheReads?: number
-		totalCost: number
-	}
-	lastApiReqTotalTokens?: number
-	selectedModelInfo: {
-		supportsPromptCache: boolean
-		supportsImages: boolean
-	}
-	messageHandlers: MessageHandlers
-	lastProgressMessageText?: string
-	showFocusChainPlaceholder?: boolean
+  task: ClineMessage;
+  apiMetrics: {
+    totalTokensIn: number;
+    totalTokensOut: number;
+    totalCacheWrites?: number;
+    totalCacheReads?: number;
+    totalCost: number;
+  };
+  lastApiReqTotalTokens?: number;
+  selectedModelInfo: {
+    supportsPromptCache: boolean;
+    supportsImages: boolean;
+  };
+  messageHandlers: MessageHandlers;
+  lastProgressMessageText?: string;
+  showFocusChainPlaceholder?: boolean;
 }
 
 /**
@@ -27,28 +27,28 @@ interface TaskSectionProps {
  * Includes the task header and manages task-specific UI
  */
 export const TaskSection: React.FC<TaskSectionProps> = ({
-	task,
-	apiMetrics,
-	lastApiReqTotalTokens,
-	selectedModelInfo,
-	messageHandlers,
-	lastProgressMessageText,
-	showFocusChainPlaceholder,
+  task,
+  apiMetrics,
+  lastApiReqTotalTokens,
+  selectedModelInfo,
+  messageHandlers,
+  lastProgressMessageText,
+  showFocusChainPlaceholder,
 }) => {
-	return (
-		<TaskHeader
-			cacheReads={apiMetrics.totalCacheReads}
-			cacheWrites={apiMetrics.totalCacheWrites}
-			doesModelSupportPromptCache={selectedModelInfo.supportsPromptCache}
-			lastApiReqTotalTokens={lastApiReqTotalTokens}
-			lastProgressMessageText={lastProgressMessageText}
-			onClose={messageHandlers.handleTaskCloseButtonClick}
-			onSendMessage={messageHandlers.handleSendMessage}
-			showFocusChainPlaceholder={showFocusChainPlaceholder}
-			task={task}
-			tokensIn={apiMetrics.totalTokensIn}
-			tokensOut={apiMetrics.totalTokensOut}
-			totalCost={apiMetrics.totalCost}
-		/>
-	)
-}
+  return (
+    <TaskHeader
+      cacheReads={apiMetrics.totalCacheReads}
+      cacheWrites={apiMetrics.totalCacheWrites}
+      doesModelSupportPromptCache={selectedModelInfo.supportsPromptCache}
+      lastApiReqTotalTokens={lastApiReqTotalTokens}
+      lastProgressMessageText={lastProgressMessageText}
+      onClose={messageHandlers.handleTaskCloseButtonClick}
+      onSendMessage={messageHandlers.handleSendMessage}
+      showFocusChainPlaceholder={showFocusChainPlaceholder}
+      task={task}
+      tokensIn={apiMetrics.totalTokensIn}
+      tokensOut={apiMetrics.totalTokensOut}
+      totalCost={apiMetrics.totalCost}
+    />
+  );
+};

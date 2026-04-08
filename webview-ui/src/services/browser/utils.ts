@@ -1,26 +1,26 @@
-import { fileExistsAtPath } from "@utils/fs"
-import * as fs from "fs/promises"
-import * as path from "path"
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
+import { HostProvider } from '@/hosts/host-provider';
+import { fileExistsAtPath } from '@utils/fs';
 // @ts-ignore
-import PCR from "puppeteer-chromium-resolver"
-import { launch } from "puppeteer-core"
-import { HostProvider } from "@/hosts/host-provider"
+import PCR from 'puppeteer-chromium-resolver';
+import type { launch } from 'puppeteer-core';
 
 interface PCRStats {
-	puppeteer: { launch: typeof launch }
-	executablePath: string
+  puppeteer: { launch: typeof launch };
+  executablePath: string;
 }
 
 export async function ensureChromiumExists(): Promise<PCRStats> {
-	const puppeteerDir = path.join(HostProvider.get().globalStorageFsPath, "puppeteer")
-	const dirExists = await fileExistsAtPath(puppeteerDir)
-	if (!dirExists) {
-		await fs.mkdir(puppeteerDir, { recursive: true })
-	}
-	// if chromium doesn't exist, this will download it to path.join(puppeteerDir, ".chromium-browser-snapshots")
-	// if it does exist it will return the path to existing chromium
-	const stats: PCRStats = await PCR({
-		downloadPath: puppeteerDir,
-	})
-	return stats
+  const puppeteerDir = path.join(HostProvider.get().globalStorageFsPath, 'puppeteer');
+  const dirExists = await fileExistsAtPath(puppeteerDir);
+  if (!dirExists) {
+    await fs.mkdir(puppeteerDir, { recursive: true });
+  }
+  // if chromium doesn't exist, this will download it to path.join(puppeteerDir, ".chromium-browser-snapshots")
+  // if it does exist it will return the path to existing chromium
+  const stats: PCRStats = await PCR({
+    downloadPath: puppeteerDir,
+  });
+  return stats;
 }

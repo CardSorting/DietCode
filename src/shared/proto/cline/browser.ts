@@ -5,8 +5,8 @@
 // source: cline/browser.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { EmptyRequest, Metadata, String, StringRequest } from "./common";
+import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+import { EmptyRequest, Metadata, String, StringRequest } from './common';
 
 export interface BrowserConnectionInfo {
   isConnected: boolean;
@@ -112,13 +112,13 @@ export const BrowserConnectionInfo: MessageFns<BrowserConnectionInfo> = {
       isConnected: isSet(object.isConnected)
         ? globalThis.Boolean(object.isConnected)
         : isSet(object.is_connected)
-        ? globalThis.Boolean(object.is_connected)
-        : false,
+          ? globalThis.Boolean(object.is_connected)
+          : false,
       isRemote: isSet(object.isRemote)
         ? globalThis.Boolean(object.isRemote)
         : isSet(object.is_remote)
-        ? globalThis.Boolean(object.is_remote)
-        : false,
+          ? globalThis.Boolean(object.is_remote)
+          : false,
       host: isSet(object.host) ? globalThis.String(object.host) : undefined,
     };
   },
@@ -140,7 +140,9 @@ export const BrowserConnectionInfo: MessageFns<BrowserConnectionInfo> = {
   create<I extends Exact<DeepPartial<BrowserConnectionInfo>, I>>(base?: I): BrowserConnectionInfo {
     return BrowserConnectionInfo.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<BrowserConnectionInfo>, I>>(object: I): BrowserConnectionInfo {
+  fromPartial<I extends Exact<DeepPartial<BrowserConnectionInfo>, I>>(
+    object: I,
+  ): BrowserConnectionInfo {
     const message = createBaseBrowserConnectionInfo();
     message.isConnected = object.isConnected ?? false;
     message.isRemote = object.isRemote ?? false;
@@ -150,7 +152,7 @@ export const BrowserConnectionInfo: MessageFns<BrowserConnectionInfo> = {
 };
 
 function createBaseBrowserConnection(): BrowserConnection {
-  return { success: false, message: "", endpoint: undefined };
+  return { success: false, message: '', endpoint: undefined };
 }
 
 export const BrowserConnection: MessageFns<BrowserConnection> = {
@@ -158,7 +160,7 @@ export const BrowserConnection: MessageFns<BrowserConnection> = {
     if (message.success !== false) {
       writer.uint32(8).bool(message.success);
     }
-    if (message.message !== "") {
+    if (message.message !== '') {
       writer.uint32(18).string(message.message);
     }
     if (message.endpoint !== undefined) {
@@ -210,7 +212,7 @@ export const BrowserConnection: MessageFns<BrowserConnection> = {
   fromJSON(object: any): BrowserConnection {
     return {
       success: isSet(object.success) ? globalThis.Boolean(object.success) : false,
-      message: isSet(object.message) ? globalThis.String(object.message) : "",
+      message: isSet(object.message) ? globalThis.String(object.message) : '',
       endpoint: isSet(object.endpoint) ? globalThis.String(object.endpoint) : undefined,
     };
   },
@@ -220,7 +222,7 @@ export const BrowserConnection: MessageFns<BrowserConnection> = {
     if (message.success !== false) {
       obj.success = message.success;
     }
-    if (message.message !== "") {
+    if (message.message !== '') {
       obj.message = message.message;
     }
     if (message.endpoint !== undefined) {
@@ -235,19 +237,19 @@ export const BrowserConnection: MessageFns<BrowserConnection> = {
   fromPartial<I extends Exact<DeepPartial<BrowserConnection>, I>>(object: I): BrowserConnection {
     const message = createBaseBrowserConnection();
     message.success = object.success ?? false;
-    message.message = object.message ?? "";
+    message.message = object.message ?? '';
     message.endpoint = object.endpoint ?? undefined;
     return message;
   },
 };
 
 function createBaseChromePath(): ChromePath {
-  return { path: "", isBundled: false };
+  return { path: '', isBundled: false };
 }
 
 export const ChromePath: MessageFns<ChromePath> = {
   encode(message: ChromePath, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.path !== "") {
+    if (message.path !== '') {
       writer.uint32(10).string(message.path);
     }
     if (message.isBundled !== false) {
@@ -290,18 +292,18 @@ export const ChromePath: MessageFns<ChromePath> = {
 
   fromJSON(object: any): ChromePath {
     return {
-      path: isSet(object.path) ? globalThis.String(object.path) : "",
+      path: isSet(object.path) ? globalThis.String(object.path) : '',
       isBundled: isSet(object.isBundled)
         ? globalThis.Boolean(object.isBundled)
         : isSet(object.is_bundled)
-        ? globalThis.Boolean(object.is_bundled)
-        : false,
+          ? globalThis.Boolean(object.is_bundled)
+          : false,
     };
   },
 
   toJSON(message: ChromePath): unknown {
     const obj: any = {};
-    if (message.path !== "") {
+    if (message.path !== '') {
       obj.path = message.path;
     }
     if (message.isBundled !== false) {
@@ -315,7 +317,7 @@ export const ChromePath: MessageFns<ChromePath> = {
   },
   fromPartial<I extends Exact<DeepPartial<ChromePath>, I>>(object: I): ChromePath {
     const message = createBaseChromePath();
-    message.path = object.path ?? "";
+    message.path = object.path ?? '';
     message.isBundled = object.isBundled ?? false;
     return message;
   },
@@ -501,28 +503,28 @@ export const BrowserSettings: MessageFns<BrowserSettings> = {
       remoteBrowserHost: isSet(object.remoteBrowserHost)
         ? globalThis.String(object.remoteBrowserHost)
         : isSet(object.remote_browser_host)
-        ? globalThis.String(object.remote_browser_host)
-        : undefined,
+          ? globalThis.String(object.remote_browser_host)
+          : undefined,
       remoteBrowserEnabled: isSet(object.remoteBrowserEnabled)
         ? globalThis.Boolean(object.remoteBrowserEnabled)
         : isSet(object.remote_browser_enabled)
-        ? globalThis.Boolean(object.remote_browser_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.remote_browser_enabled)
+          : undefined,
       chromeExecutablePath: isSet(object.chromeExecutablePath)
         ? globalThis.String(object.chromeExecutablePath)
         : isSet(object.chrome_executable_path)
-        ? globalThis.String(object.chrome_executable_path)
-        : undefined,
+          ? globalThis.String(object.chrome_executable_path)
+          : undefined,
       disableToolUse: isSet(object.disableToolUse)
         ? globalThis.Boolean(object.disableToolUse)
         : isSet(object.disable_tool_use)
-        ? globalThis.Boolean(object.disable_tool_use)
-        : undefined,
+          ? globalThis.Boolean(object.disable_tool_use)
+          : undefined,
       customArgs: isSet(object.customArgs)
         ? globalThis.String(object.customArgs)
         : isSet(object.custom_args)
-        ? globalThis.String(object.custom_args)
-        : undefined,
+          ? globalThis.String(object.custom_args)
+          : undefined,
     };
   },
 
@@ -554,9 +556,10 @@ export const BrowserSettings: MessageFns<BrowserSettings> = {
   },
   fromPartial<I extends Exact<DeepPartial<BrowserSettings>, I>>(object: I): BrowserSettings {
     const message = createBaseBrowserSettings();
-    message.viewport = (object.viewport !== undefined && object.viewport !== null)
-      ? Viewport.fromPartial(object.viewport)
-      : undefined;
+    message.viewport =
+      object.viewport !== undefined && object.viewport !== null
+        ? Viewport.fromPartial(object.viewport)
+        : undefined;
     message.remoteBrowserHost = object.remoteBrowserHost ?? undefined;
     message.remoteBrowserEnabled = object.remoteBrowserEnabled ?? undefined;
     message.chromeExecutablePath = object.chromeExecutablePath ?? undefined;
@@ -579,7 +582,10 @@ function createBaseUpdateBrowserSettingsRequest(): UpdateBrowserSettingsRequest 
 }
 
 export const UpdateBrowserSettingsRequest: MessageFns<UpdateBrowserSettingsRequest> = {
-  encode(message: UpdateBrowserSettingsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: UpdateBrowserSettingsRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
@@ -683,28 +689,28 @@ export const UpdateBrowserSettingsRequest: MessageFns<UpdateBrowserSettingsReque
       remoteBrowserHost: isSet(object.remoteBrowserHost)
         ? globalThis.String(object.remoteBrowserHost)
         : isSet(object.remote_browser_host)
-        ? globalThis.String(object.remote_browser_host)
-        : undefined,
+          ? globalThis.String(object.remote_browser_host)
+          : undefined,
       remoteBrowserEnabled: isSet(object.remoteBrowserEnabled)
         ? globalThis.Boolean(object.remoteBrowserEnabled)
         : isSet(object.remote_browser_enabled)
-        ? globalThis.Boolean(object.remote_browser_enabled)
-        : undefined,
+          ? globalThis.Boolean(object.remote_browser_enabled)
+          : undefined,
       chromeExecutablePath: isSet(object.chromeExecutablePath)
         ? globalThis.String(object.chromeExecutablePath)
         : isSet(object.chrome_executable_path)
-        ? globalThis.String(object.chrome_executable_path)
-        : undefined,
+          ? globalThis.String(object.chrome_executable_path)
+          : undefined,
       disableToolUse: isSet(object.disableToolUse)
         ? globalThis.Boolean(object.disableToolUse)
         : isSet(object.disable_tool_use)
-        ? globalThis.Boolean(object.disable_tool_use)
-        : undefined,
+          ? globalThis.Boolean(object.disable_tool_use)
+          : undefined,
       customArgs: isSet(object.customArgs)
         ? globalThis.String(object.customArgs)
         : isSet(object.custom_args)
-        ? globalThis.String(object.custom_args)
-        : undefined,
+          ? globalThis.String(object.custom_args)
+          : undefined,
     };
   },
 
@@ -734,17 +740,23 @@ export const UpdateBrowserSettingsRequest: MessageFns<UpdateBrowserSettingsReque
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<UpdateBrowserSettingsRequest>, I>>(base?: I): UpdateBrowserSettingsRequest {
+  create<I extends Exact<DeepPartial<UpdateBrowserSettingsRequest>, I>>(
+    base?: I,
+  ): UpdateBrowserSettingsRequest {
     return UpdateBrowserSettingsRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<UpdateBrowserSettingsRequest>, I>>(object: I): UpdateBrowserSettingsRequest {
+  fromPartial<I extends Exact<DeepPartial<UpdateBrowserSettingsRequest>, I>>(
+    object: I,
+  ): UpdateBrowserSettingsRequest {
     const message = createBaseUpdateBrowserSettingsRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.viewport = (object.viewport !== undefined && object.viewport !== null)
-      ? Viewport.fromPartial(object.viewport)
-      : undefined;
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.viewport =
+      object.viewport !== undefined && object.viewport !== null
+        ? Viewport.fromPartial(object.viewport)
+        : undefined;
     message.remoteBrowserHost = object.remoteBrowserHost ?? undefined;
     message.remoteBrowserEnabled = object.remoteBrowserEnabled ?? undefined;
     message.chromeExecutablePath = object.chromeExecutablePath ?? undefined;
@@ -756,11 +768,11 @@ export const UpdateBrowserSettingsRequest: MessageFns<UpdateBrowserSettingsReque
 
 export type BrowserServiceDefinition = typeof BrowserServiceDefinition;
 export const BrowserServiceDefinition = {
-  name: "BrowserService",
-  fullName: "cline.BrowserService",
+  name: 'BrowserService',
+  fullName: 'cline.BrowserService',
   methods: {
     getBrowserConnectionInfo: {
-      name: "getBrowserConnectionInfo",
+      name: 'getBrowserConnectionInfo',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: BrowserConnectionInfo,
@@ -768,7 +780,7 @@ export const BrowserServiceDefinition = {
       options: {},
     },
     testBrowserConnection: {
-      name: "testBrowserConnection",
+      name: 'testBrowserConnection',
       requestType: StringRequest,
       requestStream: false,
       responseType: BrowserConnection,
@@ -776,7 +788,7 @@ export const BrowserServiceDefinition = {
       options: {},
     },
     discoverBrowser: {
-      name: "discoverBrowser",
+      name: 'discoverBrowser',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: BrowserConnection,
@@ -784,7 +796,7 @@ export const BrowserServiceDefinition = {
       options: {},
     },
     getDetectedChromePath: {
-      name: "getDetectedChromePath",
+      name: 'getDetectedChromePath',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: ChromePath,
@@ -792,7 +804,7 @@ export const BrowserServiceDefinition = {
       options: {},
     },
     relaunchChromeDebugMode: {
-      name: "relaunchChromeDebugMode",
+      name: 'relaunchChromeDebugMode',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: String,
@@ -804,14 +816,19 @@ export const BrowserServiceDefinition = {
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-type Exact<P, I extends P> = P extends Builtin ? P
+type Exact<P, I extends P> = P extends Builtin
+  ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function isSet(value: any): boolean {

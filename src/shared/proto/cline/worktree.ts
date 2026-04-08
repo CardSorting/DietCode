@@ -5,8 +5,8 @@
 // source: cline/worktree.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Empty, EmptyRequest, Metadata } from "./common";
+import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+import { Empty, EmptyRequest, Metadata } from './common';
 
 /** Represents a single git worktree */
 export interface Worktree {
@@ -45,28 +45,20 @@ export interface WorktreeList {
 
 /** Request to create a new worktree */
 export interface CreateWorktreeRequest {
-  metadata:
-    | Metadata
-    | undefined;
+  metadata: Metadata | undefined;
   /** Path for the new worktree */
   path: string;
   /** Branch name (creates new if doesn't exist) */
-  branch?:
-    | string
-    | undefined;
+  branch?: string | undefined;
   /** Base branch for new branch creation */
-  baseBranch?:
-    | string
-    | undefined;
+  baseBranch?: string | undefined;
   /** Whether to create a new branch */
   createNewBranch: boolean;
 }
 
 /** Request to delete a worktree */
 export interface DeleteWorktreeRequest {
-  metadata:
-    | Metadata
-    | undefined;
+  metadata: Metadata | undefined;
   /** Path of the worktree to delete */
   path: string;
   /** Force deletion even if dirty */
@@ -79,9 +71,7 @@ export interface DeleteWorktreeRequest {
 
 /** Request to switch to a worktree */
 export interface SwitchWorktreeRequest {
-  metadata:
-    | Metadata
-    | undefined;
+  metadata: Metadata | undefined;
   /** Path of the worktree to switch to */
   path: string;
   /** Whether to open in a new window */
@@ -130,18 +120,14 @@ export interface CreateWorktreeIncludeRequest {
 
 /** Request to checkout a branch in the current worktree */
 export interface CheckoutBranchRequest {
-  metadata:
-    | Metadata
-    | undefined;
+  metadata: Metadata | undefined;
   /** Branch name to checkout */
   branch: string;
 }
 
 /** Request to merge a worktree's branch into target branch */
 export interface MergeWorktreeRequest {
-  metadata:
-    | Metadata
-    | undefined;
+  metadata: Metadata | undefined;
   /** Path of the worktree to merge */
   worktreePath: string;
   /** Branch to merge into (e.g., "main") */
@@ -173,9 +159,9 @@ export interface TrackWorktreeViewOpenedRequest {
 
 function createBaseWorktree(): Worktree {
   return {
-    path: "",
-    branch: "",
-    commitHash: "",
+    path: '',
+    branch: '',
+    commitHash: '',
     isCurrent: false,
     isBare: false,
     isDetached: false,
@@ -186,13 +172,13 @@ function createBaseWorktree(): Worktree {
 
 export const Worktree: MessageFns<Worktree> = {
   encode(message: Worktree, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.path !== "") {
+    if (message.path !== '') {
       writer.uint32(10).string(message.path);
     }
-    if (message.branch !== "") {
+    if (message.branch !== '') {
       writer.uint32(18).string(message.branch);
     }
-    if (message.commitHash !== "") {
+    if (message.commitHash !== '') {
       writer.uint32(26).string(message.commitHash);
     }
     if (message.isCurrent !== false) {
@@ -295,50 +281,50 @@ export const Worktree: MessageFns<Worktree> = {
 
   fromJSON(object: any): Worktree {
     return {
-      path: isSet(object.path) ? globalThis.String(object.path) : "",
-      branch: isSet(object.branch) ? globalThis.String(object.branch) : "",
+      path: isSet(object.path) ? globalThis.String(object.path) : '',
+      branch: isSet(object.branch) ? globalThis.String(object.branch) : '',
       commitHash: isSet(object.commitHash)
         ? globalThis.String(object.commitHash)
         : isSet(object.commit_hash)
-        ? globalThis.String(object.commit_hash)
-        : "",
+          ? globalThis.String(object.commit_hash)
+          : '',
       isCurrent: isSet(object.isCurrent)
         ? globalThis.Boolean(object.isCurrent)
         : isSet(object.is_current)
-        ? globalThis.Boolean(object.is_current)
-        : false,
+          ? globalThis.Boolean(object.is_current)
+          : false,
       isBare: isSet(object.isBare)
         ? globalThis.Boolean(object.isBare)
         : isSet(object.is_bare)
-        ? globalThis.Boolean(object.is_bare)
-        : false,
+          ? globalThis.Boolean(object.is_bare)
+          : false,
       isDetached: isSet(object.isDetached)
         ? globalThis.Boolean(object.isDetached)
         : isSet(object.is_detached)
-        ? globalThis.Boolean(object.is_detached)
-        : false,
+          ? globalThis.Boolean(object.is_detached)
+          : false,
       isLocked: isSet(object.isLocked)
         ? globalThis.Boolean(object.isLocked)
         : isSet(object.is_locked)
-        ? globalThis.Boolean(object.is_locked)
-        : false,
+          ? globalThis.Boolean(object.is_locked)
+          : false,
       lockReason: isSet(object.lockReason)
         ? globalThis.String(object.lockReason)
         : isSet(object.lock_reason)
-        ? globalThis.String(object.lock_reason)
-        : undefined,
+          ? globalThis.String(object.lock_reason)
+          : undefined,
     };
   },
 
   toJSON(message: Worktree): unknown {
     const obj: any = {};
-    if (message.path !== "") {
+    if (message.path !== '') {
       obj.path = message.path;
     }
-    if (message.branch !== "") {
+    if (message.branch !== '') {
       obj.branch = message.branch;
     }
-    if (message.commitHash !== "") {
+    if (message.commitHash !== '') {
       obj.commitHash = message.commitHash;
     }
     if (message.isCurrent !== false) {
@@ -364,9 +350,9 @@ export const Worktree: MessageFns<Worktree> = {
   },
   fromPartial<I extends Exact<DeepPartial<Worktree>, I>>(object: I): Worktree {
     const message = createBaseWorktree();
-    message.path = object.path ?? "";
-    message.branch = object.branch ?? "";
-    message.commitHash = object.commitHash ?? "";
+    message.path = object.path ?? '';
+    message.branch = object.branch ?? '';
+    message.commitHash = object.commitHash ?? '';
     message.isCurrent = object.isCurrent ?? false;
     message.isBare = object.isBare ?? false;
     message.isDetached = object.isDetached ?? false;
@@ -377,7 +363,14 @@ export const Worktree: MessageFns<Worktree> = {
 };
 
 function createBaseWorktreeList(): WorktreeList {
-  return { worktrees: [], isGitRepo: false, error: "", isMultiRoot: false, isSubfolder: false, gitRootPath: "" };
+  return {
+    worktrees: [],
+    isGitRepo: false,
+    error: '',
+    isMultiRoot: false,
+    isSubfolder: false,
+    gitRootPath: '',
+  };
 }
 
 export const WorktreeList: MessageFns<WorktreeList> = {
@@ -388,7 +381,7 @@ export const WorktreeList: MessageFns<WorktreeList> = {
     if (message.isGitRepo !== false) {
       writer.uint32(16).bool(message.isGitRepo);
     }
-    if (message.error !== "") {
+    if (message.error !== '') {
       writer.uint32(26).string(message.error);
     }
     if (message.isMultiRoot !== false) {
@@ -397,7 +390,7 @@ export const WorktreeList: MessageFns<WorktreeList> = {
     if (message.isSubfolder !== false) {
       writer.uint32(40).bool(message.isSubfolder);
     }
-    if (message.gitRootPath !== "") {
+    if (message.gitRootPath !== '') {
       writer.uint32(50).string(message.gitRootPath);
     }
     return writer;
@@ -475,24 +468,24 @@ export const WorktreeList: MessageFns<WorktreeList> = {
       isGitRepo: isSet(object.isGitRepo)
         ? globalThis.Boolean(object.isGitRepo)
         : isSet(object.is_git_repo)
-        ? globalThis.Boolean(object.is_git_repo)
-        : false,
-      error: isSet(object.error) ? globalThis.String(object.error) : "",
+          ? globalThis.Boolean(object.is_git_repo)
+          : false,
+      error: isSet(object.error) ? globalThis.String(object.error) : '',
       isMultiRoot: isSet(object.isMultiRoot)
         ? globalThis.Boolean(object.isMultiRoot)
         : isSet(object.is_multi_root)
-        ? globalThis.Boolean(object.is_multi_root)
-        : false,
+          ? globalThis.Boolean(object.is_multi_root)
+          : false,
       isSubfolder: isSet(object.isSubfolder)
         ? globalThis.Boolean(object.isSubfolder)
         : isSet(object.is_subfolder)
-        ? globalThis.Boolean(object.is_subfolder)
-        : false,
+          ? globalThis.Boolean(object.is_subfolder)
+          : false,
       gitRootPath: isSet(object.gitRootPath)
         ? globalThis.String(object.gitRootPath)
         : isSet(object.git_root_path)
-        ? globalThis.String(object.git_root_path)
-        : "",
+          ? globalThis.String(object.git_root_path)
+          : '',
     };
   },
 
@@ -504,7 +497,7 @@ export const WorktreeList: MessageFns<WorktreeList> = {
     if (message.isGitRepo !== false) {
       obj.isGitRepo = message.isGitRepo;
     }
-    if (message.error !== "") {
+    if (message.error !== '') {
       obj.error = message.error;
     }
     if (message.isMultiRoot !== false) {
@@ -513,7 +506,7 @@ export const WorktreeList: MessageFns<WorktreeList> = {
     if (message.isSubfolder !== false) {
       obj.isSubfolder = message.isSubfolder;
     }
-    if (message.gitRootPath !== "") {
+    if (message.gitRootPath !== '') {
       obj.gitRootPath = message.gitRootPath;
     }
     return obj;
@@ -526,16 +519,22 @@ export const WorktreeList: MessageFns<WorktreeList> = {
     const message = createBaseWorktreeList();
     message.worktrees = object.worktrees?.map((e) => Worktree.fromPartial(e)) || [];
     message.isGitRepo = object.isGitRepo ?? false;
-    message.error = object.error ?? "";
+    message.error = object.error ?? '';
     message.isMultiRoot = object.isMultiRoot ?? false;
     message.isSubfolder = object.isSubfolder ?? false;
-    message.gitRootPath = object.gitRootPath ?? "";
+    message.gitRootPath = object.gitRootPath ?? '';
     return message;
   },
 };
 
 function createBaseCreateWorktreeRequest(): CreateWorktreeRequest {
-  return { metadata: undefined, path: "", branch: undefined, baseBranch: undefined, createNewBranch: false };
+  return {
+    metadata: undefined,
+    path: '',
+    branch: undefined,
+    baseBranch: undefined,
+    createNewBranch: false,
+  };
 }
 
 export const CreateWorktreeRequest: MessageFns<CreateWorktreeRequest> = {
@@ -543,7 +542,7 @@ export const CreateWorktreeRequest: MessageFns<CreateWorktreeRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.path !== "") {
+    if (message.path !== '') {
       writer.uint32(18).string(message.path);
     }
     if (message.branch !== undefined) {
@@ -617,18 +616,18 @@ export const CreateWorktreeRequest: MessageFns<CreateWorktreeRequest> = {
   fromJSON(object: any): CreateWorktreeRequest {
     return {
       metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
-      path: isSet(object.path) ? globalThis.String(object.path) : "",
+      path: isSet(object.path) ? globalThis.String(object.path) : '',
       branch: isSet(object.branch) ? globalThis.String(object.branch) : undefined,
       baseBranch: isSet(object.baseBranch)
         ? globalThis.String(object.baseBranch)
         : isSet(object.base_branch)
-        ? globalThis.String(object.base_branch)
-        : undefined,
+          ? globalThis.String(object.base_branch)
+          : undefined,
       createNewBranch: isSet(object.createNewBranch)
         ? globalThis.Boolean(object.createNewBranch)
         : isSet(object.create_new_branch)
-        ? globalThis.Boolean(object.create_new_branch)
-        : false,
+          ? globalThis.Boolean(object.create_new_branch)
+          : false,
     };
   },
 
@@ -637,7 +636,7 @@ export const CreateWorktreeRequest: MessageFns<CreateWorktreeRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.path !== "") {
+    if (message.path !== '') {
       obj.path = message.path;
     }
     if (message.branch !== undefined) {
@@ -655,12 +654,15 @@ export const CreateWorktreeRequest: MessageFns<CreateWorktreeRequest> = {
   create<I extends Exact<DeepPartial<CreateWorktreeRequest>, I>>(base?: I): CreateWorktreeRequest {
     return CreateWorktreeRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CreateWorktreeRequest>, I>>(object: I): CreateWorktreeRequest {
+  fromPartial<I extends Exact<DeepPartial<CreateWorktreeRequest>, I>>(
+    object: I,
+  ): CreateWorktreeRequest {
     const message = createBaseCreateWorktreeRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.path = object.path ?? "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.path = object.path ?? '';
     message.branch = object.branch ?? undefined;
     message.baseBranch = object.baseBranch ?? undefined;
     message.createNewBranch = object.createNewBranch ?? false;
@@ -669,7 +671,7 @@ export const CreateWorktreeRequest: MessageFns<CreateWorktreeRequest> = {
 };
 
 function createBaseDeleteWorktreeRequest(): DeleteWorktreeRequest {
-  return { metadata: undefined, path: "", force: false, deleteBranch: false, branchName: "" };
+  return { metadata: undefined, path: '', force: false, deleteBranch: false, branchName: '' };
 }
 
 export const DeleteWorktreeRequest: MessageFns<DeleteWorktreeRequest> = {
@@ -677,7 +679,7 @@ export const DeleteWorktreeRequest: MessageFns<DeleteWorktreeRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.path !== "") {
+    if (message.path !== '') {
       writer.uint32(18).string(message.path);
     }
     if (message.force !== false) {
@@ -686,7 +688,7 @@ export const DeleteWorktreeRequest: MessageFns<DeleteWorktreeRequest> = {
     if (message.deleteBranch !== false) {
       writer.uint32(32).bool(message.deleteBranch);
     }
-    if (message.branchName !== "") {
+    if (message.branchName !== '') {
       writer.uint32(42).string(message.branchName);
     }
     return writer;
@@ -751,18 +753,18 @@ export const DeleteWorktreeRequest: MessageFns<DeleteWorktreeRequest> = {
   fromJSON(object: any): DeleteWorktreeRequest {
     return {
       metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
-      path: isSet(object.path) ? globalThis.String(object.path) : "",
+      path: isSet(object.path) ? globalThis.String(object.path) : '',
       force: isSet(object.force) ? globalThis.Boolean(object.force) : false,
       deleteBranch: isSet(object.deleteBranch)
         ? globalThis.Boolean(object.deleteBranch)
         : isSet(object.delete_branch)
-        ? globalThis.Boolean(object.delete_branch)
-        : false,
+          ? globalThis.Boolean(object.delete_branch)
+          : false,
       branchName: isSet(object.branchName)
         ? globalThis.String(object.branchName)
         : isSet(object.branch_name)
-        ? globalThis.String(object.branch_name)
-        : "",
+          ? globalThis.String(object.branch_name)
+          : '',
     };
   },
 
@@ -771,7 +773,7 @@ export const DeleteWorktreeRequest: MessageFns<DeleteWorktreeRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.path !== "") {
+    if (message.path !== '') {
       obj.path = message.path;
     }
     if (message.force !== false) {
@@ -780,7 +782,7 @@ export const DeleteWorktreeRequest: MessageFns<DeleteWorktreeRequest> = {
     if (message.deleteBranch !== false) {
       obj.deleteBranch = message.deleteBranch;
     }
-    if (message.branchName !== "") {
+    if (message.branchName !== '') {
       obj.branchName = message.branchName;
     }
     return obj;
@@ -789,21 +791,24 @@ export const DeleteWorktreeRequest: MessageFns<DeleteWorktreeRequest> = {
   create<I extends Exact<DeepPartial<DeleteWorktreeRequest>, I>>(base?: I): DeleteWorktreeRequest {
     return DeleteWorktreeRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<DeleteWorktreeRequest>, I>>(object: I): DeleteWorktreeRequest {
+  fromPartial<I extends Exact<DeepPartial<DeleteWorktreeRequest>, I>>(
+    object: I,
+  ): DeleteWorktreeRequest {
     const message = createBaseDeleteWorktreeRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.path = object.path ?? "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.path = object.path ?? '';
     message.force = object.force ?? false;
     message.deleteBranch = object.deleteBranch ?? false;
-    message.branchName = object.branchName ?? "";
+    message.branchName = object.branchName ?? '';
     return message;
   },
 };
 
 function createBaseSwitchWorktreeRequest(): SwitchWorktreeRequest {
-  return { metadata: undefined, path: "", newWindow: false };
+  return { metadata: undefined, path: '', newWindow: false };
 }
 
 export const SwitchWorktreeRequest: MessageFns<SwitchWorktreeRequest> = {
@@ -811,7 +816,7 @@ export const SwitchWorktreeRequest: MessageFns<SwitchWorktreeRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.path !== "") {
+    if (message.path !== '') {
       writer.uint32(18).string(message.path);
     }
     if (message.newWindow !== false) {
@@ -863,12 +868,12 @@ export const SwitchWorktreeRequest: MessageFns<SwitchWorktreeRequest> = {
   fromJSON(object: any): SwitchWorktreeRequest {
     return {
       metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
-      path: isSet(object.path) ? globalThis.String(object.path) : "",
+      path: isSet(object.path) ? globalThis.String(object.path) : '',
       newWindow: isSet(object.newWindow)
         ? globalThis.Boolean(object.newWindow)
         : isSet(object.new_window)
-        ? globalThis.Boolean(object.new_window)
-        : false,
+          ? globalThis.Boolean(object.new_window)
+          : false,
     };
   },
 
@@ -877,7 +882,7 @@ export const SwitchWorktreeRequest: MessageFns<SwitchWorktreeRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.path !== "") {
+    if (message.path !== '') {
       obj.path = message.path;
     }
     if (message.newWindow !== false) {
@@ -889,19 +894,22 @@ export const SwitchWorktreeRequest: MessageFns<SwitchWorktreeRequest> = {
   create<I extends Exact<DeepPartial<SwitchWorktreeRequest>, I>>(base?: I): SwitchWorktreeRequest {
     return SwitchWorktreeRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SwitchWorktreeRequest>, I>>(object: I): SwitchWorktreeRequest {
+  fromPartial<I extends Exact<DeepPartial<SwitchWorktreeRequest>, I>>(
+    object: I,
+  ): SwitchWorktreeRequest {
     const message = createBaseSwitchWorktreeRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.path = object.path ?? "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.path = object.path ?? '';
     message.newWindow = object.newWindow ?? false;
     return message;
   },
 };
 
 function createBaseWorktreeResult(): WorktreeResult {
-  return { success: false, message: "", worktree: undefined };
+  return { success: false, message: '', worktree: undefined };
 }
 
 export const WorktreeResult: MessageFns<WorktreeResult> = {
@@ -909,7 +917,7 @@ export const WorktreeResult: MessageFns<WorktreeResult> = {
     if (message.success !== false) {
       writer.uint32(8).bool(message.success);
     }
-    if (message.message !== "") {
+    if (message.message !== '') {
       writer.uint32(18).string(message.message);
     }
     if (message.worktree !== undefined) {
@@ -961,7 +969,7 @@ export const WorktreeResult: MessageFns<WorktreeResult> = {
   fromJSON(object: any): WorktreeResult {
     return {
       success: isSet(object.success) ? globalThis.Boolean(object.success) : false,
-      message: isSet(object.message) ? globalThis.String(object.message) : "",
+      message: isSet(object.message) ? globalThis.String(object.message) : '',
       worktree: isSet(object.worktree) ? Worktree.fromJSON(object.worktree) : undefined,
     };
   },
@@ -971,7 +979,7 @@ export const WorktreeResult: MessageFns<WorktreeResult> = {
     if (message.success !== false) {
       obj.success = message.success;
     }
-    if (message.message !== "") {
+    if (message.message !== '') {
       obj.message = message.message;
     }
     if (message.worktree !== undefined) {
@@ -986,16 +994,17 @@ export const WorktreeResult: MessageFns<WorktreeResult> = {
   fromPartial<I extends Exact<DeepPartial<WorktreeResult>, I>>(object: I): WorktreeResult {
     const message = createBaseWorktreeResult();
     message.success = object.success ?? false;
-    message.message = object.message ?? "";
-    message.worktree = (object.worktree !== undefined && object.worktree !== null)
-      ? Worktree.fromPartial(object.worktree)
-      : undefined;
+    message.message = object.message ?? '';
+    message.worktree =
+      object.worktree !== undefined && object.worktree !== null
+        ? Worktree.fromPartial(object.worktree)
+        : undefined;
     return message;
   },
 };
 
 function createBaseBranchList(): BranchList {
-  return { localBranches: [], remoteBranches: [], currentBranch: "" };
+  return { localBranches: [], remoteBranches: [], currentBranch: '' };
 }
 
 export const BranchList: MessageFns<BranchList> = {
@@ -1006,7 +1015,7 @@ export const BranchList: MessageFns<BranchList> = {
     for (const v of message.remoteBranches) {
       writer.uint32(18).string(v!);
     }
-    if (message.currentBranch !== "") {
+    if (message.currentBranch !== '') {
       writer.uint32(26).string(message.currentBranch);
     }
     return writer;
@@ -1057,18 +1066,18 @@ export const BranchList: MessageFns<BranchList> = {
       localBranches: globalThis.Array.isArray(object?.localBranches)
         ? object.localBranches.map((e: any) => globalThis.String(e))
         : globalThis.Array.isArray(object?.local_branches)
-        ? object.local_branches.map((e: any) => globalThis.String(e))
-        : [],
+          ? object.local_branches.map((e: any) => globalThis.String(e))
+          : [],
       remoteBranches: globalThis.Array.isArray(object?.remoteBranches)
         ? object.remoteBranches.map((e: any) => globalThis.String(e))
         : globalThis.Array.isArray(object?.remote_branches)
-        ? object.remote_branches.map((e: any) => globalThis.String(e))
-        : [],
+          ? object.remote_branches.map((e: any) => globalThis.String(e))
+          : [],
       currentBranch: isSet(object.currentBranch)
         ? globalThis.String(object.currentBranch)
         : isSet(object.current_branch)
-        ? globalThis.String(object.current_branch)
-        : "",
+          ? globalThis.String(object.current_branch)
+          : '',
     };
   },
 
@@ -1080,7 +1089,7 @@ export const BranchList: MessageFns<BranchList> = {
     if (message.remoteBranches?.length) {
       obj.remoteBranches = message.remoteBranches;
     }
-    if (message.currentBranch !== "") {
+    if (message.currentBranch !== '') {
       obj.currentBranch = message.currentBranch;
     }
     return obj;
@@ -1093,21 +1102,21 @@ export const BranchList: MessageFns<BranchList> = {
     const message = createBaseBranchList();
     message.localBranches = object.localBranches?.map((e) => e) || [];
     message.remoteBranches = object.remoteBranches?.map((e) => e) || [];
-    message.currentBranch = object.currentBranch ?? "";
+    message.currentBranch = object.currentBranch ?? '';
     return message;
   },
 };
 
 function createBaseWorktreeDefaults(): WorktreeDefaults {
-  return { suggestedBranch: "", suggestedPath: "" };
+  return { suggestedBranch: '', suggestedPath: '' };
 }
 
 export const WorktreeDefaults: MessageFns<WorktreeDefaults> = {
   encode(message: WorktreeDefaults, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.suggestedBranch !== "") {
+    if (message.suggestedBranch !== '') {
       writer.uint32(10).string(message.suggestedBranch);
     }
-    if (message.suggestedPath !== "") {
+    if (message.suggestedPath !== '') {
       writer.uint32(18).string(message.suggestedPath);
     }
     return writer;
@@ -1150,22 +1159,22 @@ export const WorktreeDefaults: MessageFns<WorktreeDefaults> = {
       suggestedBranch: isSet(object.suggestedBranch)
         ? globalThis.String(object.suggestedBranch)
         : isSet(object.suggested_branch)
-        ? globalThis.String(object.suggested_branch)
-        : "",
+          ? globalThis.String(object.suggested_branch)
+          : '',
       suggestedPath: isSet(object.suggestedPath)
         ? globalThis.String(object.suggestedPath)
         : isSet(object.suggested_path)
-        ? globalThis.String(object.suggested_path)
-        : "",
+          ? globalThis.String(object.suggested_path)
+          : '',
     };
   },
 
   toJSON(message: WorktreeDefaults): unknown {
     const obj: any = {};
-    if (message.suggestedBranch !== "") {
+    if (message.suggestedBranch !== '') {
       obj.suggestedBranch = message.suggestedBranch;
     }
-    if (message.suggestedPath !== "") {
+    if (message.suggestedPath !== '') {
       obj.suggestedPath = message.suggestedPath;
     }
     return obj;
@@ -1176,14 +1185,14 @@ export const WorktreeDefaults: MessageFns<WorktreeDefaults> = {
   },
   fromPartial<I extends Exact<DeepPartial<WorktreeDefaults>, I>>(object: I): WorktreeDefaults {
     const message = createBaseWorktreeDefaults();
-    message.suggestedBranch = object.suggestedBranch ?? "";
-    message.suggestedPath = object.suggestedPath ?? "";
+    message.suggestedBranch = object.suggestedBranch ?? '';
+    message.suggestedPath = object.suggestedPath ?? '';
     return message;
   },
 };
 
 function createBaseWorktreeIncludeStatus(): WorktreeIncludeStatus {
-  return { exists: false, gitignoreContent: "", hasGitignore: false };
+  return { exists: false, gitignoreContent: '', hasGitignore: false };
 }
 
 export const WorktreeIncludeStatus: MessageFns<WorktreeIncludeStatus> = {
@@ -1191,7 +1200,7 @@ export const WorktreeIncludeStatus: MessageFns<WorktreeIncludeStatus> = {
     if (message.exists !== false) {
       writer.uint32(8).bool(message.exists);
     }
-    if (message.gitignoreContent !== "") {
+    if (message.gitignoreContent !== '') {
       writer.uint32(18).string(message.gitignoreContent);
     }
     if (message.hasGitignore !== false) {
@@ -1246,13 +1255,13 @@ export const WorktreeIncludeStatus: MessageFns<WorktreeIncludeStatus> = {
       gitignoreContent: isSet(object.gitignoreContent)
         ? globalThis.String(object.gitignoreContent)
         : isSet(object.gitignore_content)
-        ? globalThis.String(object.gitignore_content)
-        : "",
+          ? globalThis.String(object.gitignore_content)
+          : '',
       hasGitignore: isSet(object.hasGitignore)
         ? globalThis.Boolean(object.hasGitignore)
         : isSet(object.has_gitignore)
-        ? globalThis.Boolean(object.has_gitignore)
-        : false,
+          ? globalThis.Boolean(object.has_gitignore)
+          : false,
     };
   },
 
@@ -1261,7 +1270,7 @@ export const WorktreeIncludeStatus: MessageFns<WorktreeIncludeStatus> = {
     if (message.exists !== false) {
       obj.exists = message.exists;
     }
-    if (message.gitignoreContent !== "") {
+    if (message.gitignoreContent !== '') {
       obj.gitignoreContent = message.gitignoreContent;
     }
     if (message.hasGitignore !== false) {
@@ -1273,22 +1282,27 @@ export const WorktreeIncludeStatus: MessageFns<WorktreeIncludeStatus> = {
   create<I extends Exact<DeepPartial<WorktreeIncludeStatus>, I>>(base?: I): WorktreeIncludeStatus {
     return WorktreeIncludeStatus.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<WorktreeIncludeStatus>, I>>(object: I): WorktreeIncludeStatus {
+  fromPartial<I extends Exact<DeepPartial<WorktreeIncludeStatus>, I>>(
+    object: I,
+  ): WorktreeIncludeStatus {
     const message = createBaseWorktreeIncludeStatus();
     message.exists = object.exists ?? false;
-    message.gitignoreContent = object.gitignoreContent ?? "";
+    message.gitignoreContent = object.gitignoreContent ?? '';
     message.hasGitignore = object.hasGitignore ?? false;
     return message;
   },
 };
 
 function createBaseCreateWorktreeIncludeRequest(): CreateWorktreeIncludeRequest {
-  return { content: "" };
+  return { content: '' };
 }
 
 export const CreateWorktreeIncludeRequest: MessageFns<CreateWorktreeIncludeRequest> = {
-  encode(message: CreateWorktreeIncludeRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.content !== "") {
+  encode(
+    message: CreateWorktreeIncludeRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.content !== '') {
       writer.uint32(10).string(message.content);
     }
     return writer;
@@ -1319,29 +1333,33 @@ export const CreateWorktreeIncludeRequest: MessageFns<CreateWorktreeIncludeReque
   },
 
   fromJSON(object: any): CreateWorktreeIncludeRequest {
-    return { content: isSet(object.content) ? globalThis.String(object.content) : "" };
+    return { content: isSet(object.content) ? globalThis.String(object.content) : '' };
   },
 
   toJSON(message: CreateWorktreeIncludeRequest): unknown {
     const obj: any = {};
-    if (message.content !== "") {
+    if (message.content !== '') {
       obj.content = message.content;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CreateWorktreeIncludeRequest>, I>>(base?: I): CreateWorktreeIncludeRequest {
+  create<I extends Exact<DeepPartial<CreateWorktreeIncludeRequest>, I>>(
+    base?: I,
+  ): CreateWorktreeIncludeRequest {
     return CreateWorktreeIncludeRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CreateWorktreeIncludeRequest>, I>>(object: I): CreateWorktreeIncludeRequest {
+  fromPartial<I extends Exact<DeepPartial<CreateWorktreeIncludeRequest>, I>>(
+    object: I,
+  ): CreateWorktreeIncludeRequest {
     const message = createBaseCreateWorktreeIncludeRequest();
-    message.content = object.content ?? "";
+    message.content = object.content ?? '';
     return message;
   },
 };
 
 function createBaseCheckoutBranchRequest(): CheckoutBranchRequest {
-  return { metadata: undefined, branch: "" };
+  return { metadata: undefined, branch: '' };
 }
 
 export const CheckoutBranchRequest: MessageFns<CheckoutBranchRequest> = {
@@ -1349,7 +1367,7 @@ export const CheckoutBranchRequest: MessageFns<CheckoutBranchRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.branch !== "") {
+    if (message.branch !== '') {
       writer.uint32(18).string(message.branch);
     }
     return writer;
@@ -1390,7 +1408,7 @@ export const CheckoutBranchRequest: MessageFns<CheckoutBranchRequest> = {
   fromJSON(object: any): CheckoutBranchRequest {
     return {
       metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
-      branch: isSet(object.branch) ? globalThis.String(object.branch) : "",
+      branch: isSet(object.branch) ? globalThis.String(object.branch) : '',
     };
   },
 
@@ -1399,7 +1417,7 @@ export const CheckoutBranchRequest: MessageFns<CheckoutBranchRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.branch !== "") {
+    if (message.branch !== '') {
       obj.branch = message.branch;
     }
     return obj;
@@ -1408,18 +1426,21 @@ export const CheckoutBranchRequest: MessageFns<CheckoutBranchRequest> = {
   create<I extends Exact<DeepPartial<CheckoutBranchRequest>, I>>(base?: I): CheckoutBranchRequest {
     return CheckoutBranchRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CheckoutBranchRequest>, I>>(object: I): CheckoutBranchRequest {
+  fromPartial<I extends Exact<DeepPartial<CheckoutBranchRequest>, I>>(
+    object: I,
+  ): CheckoutBranchRequest {
     const message = createBaseCheckoutBranchRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.branch = object.branch ?? "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.branch = object.branch ?? '';
     return message;
   },
 };
 
 function createBaseMergeWorktreeRequest(): MergeWorktreeRequest {
-  return { metadata: undefined, worktreePath: "", targetBranch: "", deleteAfterMerge: false };
+  return { metadata: undefined, worktreePath: '', targetBranch: '', deleteAfterMerge: false };
 }
 
 export const MergeWorktreeRequest: MessageFns<MergeWorktreeRequest> = {
@@ -1427,10 +1448,10 @@ export const MergeWorktreeRequest: MessageFns<MergeWorktreeRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.worktreePath !== "") {
+    if (message.worktreePath !== '') {
       writer.uint32(18).string(message.worktreePath);
     }
-    if (message.targetBranch !== "") {
+    if (message.targetBranch !== '') {
       writer.uint32(26).string(message.targetBranch);
     }
     if (message.deleteAfterMerge !== false) {
@@ -1493,18 +1514,18 @@ export const MergeWorktreeRequest: MessageFns<MergeWorktreeRequest> = {
       worktreePath: isSet(object.worktreePath)
         ? globalThis.String(object.worktreePath)
         : isSet(object.worktree_path)
-        ? globalThis.String(object.worktree_path)
-        : "",
+          ? globalThis.String(object.worktree_path)
+          : '',
       targetBranch: isSet(object.targetBranch)
         ? globalThis.String(object.targetBranch)
         : isSet(object.target_branch)
-        ? globalThis.String(object.target_branch)
-        : "",
+          ? globalThis.String(object.target_branch)
+          : '',
       deleteAfterMerge: isSet(object.deleteAfterMerge)
         ? globalThis.Boolean(object.deleteAfterMerge)
         : isSet(object.delete_after_merge)
-        ? globalThis.Boolean(object.delete_after_merge)
-        : false,
+          ? globalThis.Boolean(object.delete_after_merge)
+          : false,
     };
   },
 
@@ -1513,10 +1534,10 @@ export const MergeWorktreeRequest: MessageFns<MergeWorktreeRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.worktreePath !== "") {
+    if (message.worktreePath !== '') {
       obj.worktreePath = message.worktreePath;
     }
-    if (message.targetBranch !== "") {
+    if (message.targetBranch !== '') {
       obj.targetBranch = message.targetBranch;
     }
     if (message.deleteAfterMerge !== false) {
@@ -1528,20 +1549,30 @@ export const MergeWorktreeRequest: MessageFns<MergeWorktreeRequest> = {
   create<I extends Exact<DeepPartial<MergeWorktreeRequest>, I>>(base?: I): MergeWorktreeRequest {
     return MergeWorktreeRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MergeWorktreeRequest>, I>>(object: I): MergeWorktreeRequest {
+  fromPartial<I extends Exact<DeepPartial<MergeWorktreeRequest>, I>>(
+    object: I,
+  ): MergeWorktreeRequest {
     const message = createBaseMergeWorktreeRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
-    message.worktreePath = object.worktreePath ?? "";
-    message.targetBranch = object.targetBranch ?? "";
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
+    message.worktreePath = object.worktreePath ?? '';
+    message.targetBranch = object.targetBranch ?? '';
     message.deleteAfterMerge = object.deleteAfterMerge ?? false;
     return message;
   },
 };
 
 function createBaseMergeWorktreeResult(): MergeWorktreeResult {
-  return { success: false, message: "", hasConflicts: false, conflictingFiles: [], sourceBranch: "", targetBranch: "" };
+  return {
+    success: false,
+    message: '',
+    hasConflicts: false,
+    conflictingFiles: [],
+    sourceBranch: '',
+    targetBranch: '',
+  };
 }
 
 export const MergeWorktreeResult: MessageFns<MergeWorktreeResult> = {
@@ -1549,7 +1580,7 @@ export const MergeWorktreeResult: MessageFns<MergeWorktreeResult> = {
     if (message.success !== false) {
       writer.uint32(8).bool(message.success);
     }
-    if (message.message !== "") {
+    if (message.message !== '') {
       writer.uint32(18).string(message.message);
     }
     if (message.hasConflicts !== false) {
@@ -1558,10 +1589,10 @@ export const MergeWorktreeResult: MessageFns<MergeWorktreeResult> = {
     for (const v of message.conflictingFiles) {
       writer.uint32(34).string(v!);
     }
-    if (message.sourceBranch !== "") {
+    if (message.sourceBranch !== '') {
       writer.uint32(42).string(message.sourceBranch);
     }
-    if (message.targetBranch !== "") {
+    if (message.targetBranch !== '') {
       writer.uint32(50).string(message.targetBranch);
     }
     return writer;
@@ -1634,27 +1665,27 @@ export const MergeWorktreeResult: MessageFns<MergeWorktreeResult> = {
   fromJSON(object: any): MergeWorktreeResult {
     return {
       success: isSet(object.success) ? globalThis.Boolean(object.success) : false,
-      message: isSet(object.message) ? globalThis.String(object.message) : "",
+      message: isSet(object.message) ? globalThis.String(object.message) : '',
       hasConflicts: isSet(object.hasConflicts)
         ? globalThis.Boolean(object.hasConflicts)
         : isSet(object.has_conflicts)
-        ? globalThis.Boolean(object.has_conflicts)
-        : false,
+          ? globalThis.Boolean(object.has_conflicts)
+          : false,
       conflictingFiles: globalThis.Array.isArray(object?.conflictingFiles)
         ? object.conflictingFiles.map((e: any) => globalThis.String(e))
         : globalThis.Array.isArray(object?.conflicting_files)
-        ? object.conflicting_files.map((e: any) => globalThis.String(e))
-        : [],
+          ? object.conflicting_files.map((e: any) => globalThis.String(e))
+          : [],
       sourceBranch: isSet(object.sourceBranch)
         ? globalThis.String(object.sourceBranch)
         : isSet(object.source_branch)
-        ? globalThis.String(object.source_branch)
-        : "",
+          ? globalThis.String(object.source_branch)
+          : '',
       targetBranch: isSet(object.targetBranch)
         ? globalThis.String(object.targetBranch)
         : isSet(object.target_branch)
-        ? globalThis.String(object.target_branch)
-        : "",
+          ? globalThis.String(object.target_branch)
+          : '',
     };
   },
 
@@ -1663,7 +1694,7 @@ export const MergeWorktreeResult: MessageFns<MergeWorktreeResult> = {
     if (message.success !== false) {
       obj.success = message.success;
     }
-    if (message.message !== "") {
+    if (message.message !== '') {
       obj.message = message.message;
     }
     if (message.hasConflicts !== false) {
@@ -1672,10 +1703,10 @@ export const MergeWorktreeResult: MessageFns<MergeWorktreeResult> = {
     if (message.conflictingFiles?.length) {
       obj.conflictingFiles = message.conflictingFiles;
     }
-    if (message.sourceBranch !== "") {
+    if (message.sourceBranch !== '') {
       obj.sourceBranch = message.sourceBranch;
     }
-    if (message.targetBranch !== "") {
+    if (message.targetBranch !== '') {
       obj.targetBranch = message.targetBranch;
     }
     return obj;
@@ -1684,25 +1715,30 @@ export const MergeWorktreeResult: MessageFns<MergeWorktreeResult> = {
   create<I extends Exact<DeepPartial<MergeWorktreeResult>, I>>(base?: I): MergeWorktreeResult {
     return MergeWorktreeResult.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MergeWorktreeResult>, I>>(object: I): MergeWorktreeResult {
+  fromPartial<I extends Exact<DeepPartial<MergeWorktreeResult>, I>>(
+    object: I,
+  ): MergeWorktreeResult {
     const message = createBaseMergeWorktreeResult();
     message.success = object.success ?? false;
-    message.message = object.message ?? "";
+    message.message = object.message ?? '';
     message.hasConflicts = object.hasConflicts ?? false;
     message.conflictingFiles = object.conflictingFiles?.map((e) => e) || [];
-    message.sourceBranch = object.sourceBranch ?? "";
-    message.targetBranch = object.targetBranch ?? "";
+    message.sourceBranch = object.sourceBranch ?? '';
+    message.targetBranch = object.targetBranch ?? '';
     return message;
   },
 };
 
 function createBaseTrackWorktreeViewOpenedRequest(): TrackWorktreeViewOpenedRequest {
-  return { source: "" };
+  return { source: '' };
 }
 
 export const TrackWorktreeViewOpenedRequest: MessageFns<TrackWorktreeViewOpenedRequest> = {
-  encode(message: TrackWorktreeViewOpenedRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.source !== "") {
+  encode(
+    message: TrackWorktreeViewOpenedRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.source !== '') {
       writer.uint32(10).string(message.source);
     }
     return writer;
@@ -1733,25 +1769,27 @@ export const TrackWorktreeViewOpenedRequest: MessageFns<TrackWorktreeViewOpenedR
   },
 
   fromJSON(object: any): TrackWorktreeViewOpenedRequest {
-    return { source: isSet(object.source) ? globalThis.String(object.source) : "" };
+    return { source: isSet(object.source) ? globalThis.String(object.source) : '' };
   },
 
   toJSON(message: TrackWorktreeViewOpenedRequest): unknown {
     const obj: any = {};
-    if (message.source !== "") {
+    if (message.source !== '') {
       obj.source = message.source;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<TrackWorktreeViewOpenedRequest>, I>>(base?: I): TrackWorktreeViewOpenedRequest {
+  create<I extends Exact<DeepPartial<TrackWorktreeViewOpenedRequest>, I>>(
+    base?: I,
+  ): TrackWorktreeViewOpenedRequest {
     return TrackWorktreeViewOpenedRequest.fromPartial(base ?? ({} as any));
   },
   fromPartial<I extends Exact<DeepPartial<TrackWorktreeViewOpenedRequest>, I>>(
     object: I,
   ): TrackWorktreeViewOpenedRequest {
     const message = createBaseTrackWorktreeViewOpenedRequest();
-    message.source = object.source ?? "";
+    message.source = object.source ?? '';
     return message;
   },
 };
@@ -1759,12 +1797,12 @@ export const TrackWorktreeViewOpenedRequest: MessageFns<TrackWorktreeViewOpenedR
 /** Service for git worktree operations */
 export type WorktreeServiceDefinition = typeof WorktreeServiceDefinition;
 export const WorktreeServiceDefinition = {
-  name: "WorktreeService",
-  fullName: "cline.WorktreeService",
+  name: 'WorktreeService',
+  fullName: 'cline.WorktreeService',
   methods: {
     /** Lists all worktrees in the current repository */
     listWorktrees: {
-      name: "listWorktrees",
+      name: 'listWorktrees',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: WorktreeList,
@@ -1773,7 +1811,7 @@ export const WorktreeServiceDefinition = {
     },
     /** Creates a new worktree */
     createWorktree: {
-      name: "createWorktree",
+      name: 'createWorktree',
       requestType: CreateWorktreeRequest,
       requestStream: false,
       responseType: WorktreeResult,
@@ -1782,7 +1820,7 @@ export const WorktreeServiceDefinition = {
     },
     /** Deletes an existing worktree */
     deleteWorktree: {
-      name: "deleteWorktree",
+      name: 'deleteWorktree',
       requestType: DeleteWorktreeRequest,
       requestStream: false,
       responseType: WorktreeResult,
@@ -1791,7 +1829,7 @@ export const WorktreeServiceDefinition = {
     },
     /** Switches to a different worktree (opens in VS Code) */
     switchWorktree: {
-      name: "switchWorktree",
+      name: 'switchWorktree',
       requestType: SwitchWorktreeRequest,
       requestStream: false,
       responseType: WorktreeResult,
@@ -1800,7 +1838,7 @@ export const WorktreeServiceDefinition = {
     },
     /** Gets available branches for creating worktrees */
     getAvailableBranches: {
-      name: "getAvailableBranches",
+      name: 'getAvailableBranches',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: BranchList,
@@ -1809,7 +1847,7 @@ export const WorktreeServiceDefinition = {
     },
     /** Gets suggested defaults for creating a new worktree (auto-generated branch name and path) */
     getWorktreeDefaults: {
-      name: "getWorktreeDefaults",
+      name: 'getWorktreeDefaults',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: WorktreeDefaults,
@@ -1818,7 +1856,7 @@ export const WorktreeServiceDefinition = {
     },
     /** Gets the status of .worktreeinclude file and .gitignore contents for creating one */
     getWorktreeIncludeStatus: {
-      name: "getWorktreeIncludeStatus",
+      name: 'getWorktreeIncludeStatus',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: WorktreeIncludeStatus,
@@ -1827,7 +1865,7 @@ export const WorktreeServiceDefinition = {
     },
     /** Creates a .worktreeinclude file with the provided content */
     createWorktreeInclude: {
-      name: "createWorktreeInclude",
+      name: 'createWorktreeInclude',
       requestType: CreateWorktreeIncludeRequest,
       requestStream: false,
       responseType: WorktreeResult,
@@ -1836,7 +1874,7 @@ export const WorktreeServiceDefinition = {
     },
     /** Switches to a different branch in the current worktree (git checkout) */
     checkoutBranch: {
-      name: "checkoutBranch",
+      name: 'checkoutBranch',
       requestType: CheckoutBranchRequest,
       requestStream: false,
       responseType: WorktreeResult,
@@ -1845,7 +1883,7 @@ export const WorktreeServiceDefinition = {
     },
     /** Merges a worktree's branch into the target branch and optionally deletes the worktree */
     mergeWorktree: {
-      name: "mergeWorktree",
+      name: 'mergeWorktree',
       requestType: MergeWorktreeRequest,
       requestStream: false,
       responseType: MergeWorktreeResult,
@@ -1854,7 +1892,7 @@ export const WorktreeServiceDefinition = {
     },
     /** Tracks when the worktrees view is opened (for telemetry) */
     trackWorktreeViewOpened: {
-      name: "trackWorktreeViewOpened",
+      name: 'trackWorktreeViewOpened',
       requestType: TrackWorktreeViewOpenedRequest,
       requestStream: false,
       responseType: Empty,
@@ -1866,14 +1904,19 @@ export const WorktreeServiceDefinition = {
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-type Exact<P, I extends P> = P extends Builtin ? P
+type Exact<P, I extends P> = P extends Builtin
+  ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function isSet(value: any): boolean {

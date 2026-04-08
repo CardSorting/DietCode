@@ -5,22 +5,16 @@
 // source: cline/commands.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Diagnostic, Empty } from "./common";
+import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+import { Diagnostic, Empty } from './common';
 
 export interface CommandContext {
   /** The absolute path of the current file. */
-  filePath?:
-    | string
-    | undefined;
+  filePath?: string | undefined;
   /** The selected source text. */
-  selectedText?:
-    | string
-    | undefined;
+  selectedText?: string | undefined;
   /** The language identifier for the current file. */
-  language?:
-    | string
-    | undefined;
+  language?: string | undefined;
   /** Any diagnostic problems for the current file. */
   diagnostics: Diagnostic[];
 }
@@ -99,13 +93,13 @@ export const CommandContext: MessageFns<CommandContext> = {
       filePath: isSet(object.filePath)
         ? globalThis.String(object.filePath)
         : isSet(object.file_path)
-        ? globalThis.String(object.file_path)
-        : undefined,
+          ? globalThis.String(object.file_path)
+          : undefined,
       selectedText: isSet(object.selectedText)
         ? globalThis.String(object.selectedText)
         : isSet(object.selected_text)
-        ? globalThis.String(object.selected_text)
-        : undefined,
+          ? globalThis.String(object.selected_text)
+          : undefined,
       language: isSet(object.language) ? globalThis.String(object.language) : undefined,
       diagnostics: globalThis.Array.isArray(object?.diagnostics)
         ? object.diagnostics.map((e: any) => Diagnostic.fromJSON(e))
@@ -152,11 +146,11 @@ export const CommandContext: MessageFns<CommandContext> = {
  */
 export type CommandsServiceDefinition = typeof CommandsServiceDefinition;
 export const CommandsServiceDefinition = {
-  name: "CommandsService",
-  fullName: "cline.CommandsService",
+  name: 'CommandsService',
+  fullName: 'cline.CommandsService',
   methods: {
     addToCline: {
-      name: "addToCline",
+      name: 'addToCline',
       requestType: CommandContext,
       requestStream: false,
       responseType: Empty,
@@ -164,7 +158,7 @@ export const CommandsServiceDefinition = {
       options: {},
     },
     fixWithCline: {
-      name: "fixWithCline",
+      name: 'fixWithCline',
       requestType: CommandContext,
       requestStream: false,
       responseType: Empty,
@@ -172,7 +166,7 @@ export const CommandsServiceDefinition = {
       options: {},
     },
     explainWithCline: {
-      name: "explainWithCline",
+      name: 'explainWithCline',
       requestType: CommandContext,
       requestStream: false,
       responseType: Empty,
@@ -180,7 +174,7 @@ export const CommandsServiceDefinition = {
       options: {},
     },
     improveWithCline: {
-      name: "improveWithCline",
+      name: 'improveWithCline',
       requestType: CommandContext,
       requestStream: false,
       responseType: Empty,
@@ -192,14 +186,19 @@ export const CommandsServiceDefinition = {
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-type Exact<P, I extends P> = P extends Builtin ? P
+type Exact<P, I extends P> = P extends Builtin
+  ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function isSet(value: any): boolean {

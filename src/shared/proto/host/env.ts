@@ -5,8 +5,8 @@
 // source: host/env.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Empty, EmptyRequest, String, StringRequest } from "../cline/common";
+import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+import { Empty, EmptyRequest, String, StringRequest } from '../cline/common';
 
 export enum Setting {
   /** UNSUPPORTED - This host does not support this setting. */
@@ -19,16 +19,14 @@ export enum Setting {
 export function settingFromJSON(object: any): Setting {
   switch (object) {
     case 0:
-    case "UNSUPPORTED":
+    case 'UNSUPPORTED':
       return Setting.UNSUPPORTED;
     case 1:
-    case "ENABLED":
+    case 'ENABLED':
       return Setting.ENABLED;
     case 2:
-    case "DISABLED":
+    case 'DISABLED':
       return Setting.DISABLED;
-    case -1:
-    case "UNRECOGNIZED":
     default:
       return Setting.UNRECOGNIZED;
   }
@@ -37,38 +35,29 @@ export function settingFromJSON(object: any): Setting {
 export function settingToJSON(object: Setting): string {
   switch (object) {
     case Setting.UNSUPPORTED:
-      return "UNSUPPORTED";
+      return 'UNSUPPORTED';
     case Setting.ENABLED:
-      return "ENABLED";
+      return 'ENABLED';
     case Setting.DISABLED:
-      return "DISABLED";
-    case Setting.UNRECOGNIZED:
+      return 'DISABLED';
     default:
-      return "UNRECOGNIZED";
+      return 'UNRECOGNIZED';
   }
 }
 
 export interface GetHostVersionResponse {
   /** The name of the host platform, e.g VSCode, IntelliJ Ultimate Edition, etc. */
-  platform?:
-    | string
-    | undefined;
+  platform?: string | undefined;
   /** The version of the host platform, e.g. 1.103.0 for VSCode, or 2025.1.1.1 for JetBrains IDEs. */
-  version?:
-    | string
-    | undefined;
+  version?: string | undefined;
   /**
    * The type of the cline host environment, e.g. 'VSCode Extension', 'Cline for JetBrains', 'CLI'
    * This is different from the platform because there are many JetBrains IDEs, but they all use the same
    * plugin.
    */
-  clineType?:
-    | string
-    | undefined;
+  clineType?: string | undefined;
   /** The version of the cline host environment, e.g. 33.2.10 for extension, or 1.0.6 for JetBrains. */
-  clineVersion?:
-    | string
-    | undefined;
+  clineVersion?: string | undefined;
   /**
    * The remote environment name when the host is connected to a remote workspace
    * (for example `ssh-remote`, `dev-container`, or `codespaces`).
@@ -179,18 +168,18 @@ export const GetHostVersionResponse: MessageFns<GetHostVersionResponse> = {
       clineType: isSet(object.clineType)
         ? globalThis.String(object.clineType)
         : isSet(object.cline_type)
-        ? globalThis.String(object.cline_type)
-        : undefined,
+          ? globalThis.String(object.cline_type)
+          : undefined,
       clineVersion: isSet(object.clineVersion)
         ? globalThis.String(object.clineVersion)
         : isSet(object.cline_version)
-        ? globalThis.String(object.cline_version)
-        : undefined,
+          ? globalThis.String(object.cline_version)
+          : undefined,
       remoteName: isSet(object.remoteName)
         ? globalThis.String(object.remoteName)
         : isSet(object.remote_name)
-        ? globalThis.String(object.remote_name)
-        : undefined,
+          ? globalThis.String(object.remote_name)
+          : undefined,
     };
   },
 
@@ -214,10 +203,14 @@ export const GetHostVersionResponse: MessageFns<GetHostVersionResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetHostVersionResponse>, I>>(base?: I): GetHostVersionResponse {
+  create<I extends Exact<DeepPartial<GetHostVersionResponse>, I>>(
+    base?: I,
+  ): GetHostVersionResponse {
     return GetHostVersionResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetHostVersionResponse>, I>>(object: I): GetHostVersionResponse {
+  fromPartial<I extends Exact<DeepPartial<GetHostVersionResponse>, I>>(
+    object: I,
+  ): GetHostVersionResponse {
     const message = createBaseGetHostVersionResponse();
     message.platform = object.platform ?? undefined;
     message.version = object.version ?? undefined;
@@ -233,7 +226,10 @@ function createBaseGetTelemetrySettingsResponse(): GetTelemetrySettingsResponse 
 }
 
 export const GetTelemetrySettingsResponse: MessageFns<GetTelemetrySettingsResponse> = {
-  encode(message: GetTelemetrySettingsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetTelemetrySettingsResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.isEnabled !== 0) {
       writer.uint32(8).int32(message.isEnabled);
     }
@@ -280,13 +276,13 @@ export const GetTelemetrySettingsResponse: MessageFns<GetTelemetrySettingsRespon
       isEnabled: isSet(object.isEnabled)
         ? settingFromJSON(object.isEnabled)
         : isSet(object.is_enabled)
-        ? settingFromJSON(object.is_enabled)
-        : 0,
+          ? settingFromJSON(object.is_enabled)
+          : 0,
       errorLevel: isSet(object.errorLevel)
         ? globalThis.String(object.errorLevel)
         : isSet(object.error_level)
-        ? globalThis.String(object.error_level)
-        : undefined,
+          ? globalThis.String(object.error_level)
+          : undefined,
     };
   },
 
@@ -301,10 +297,14 @@ export const GetTelemetrySettingsResponse: MessageFns<GetTelemetrySettingsRespon
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetTelemetrySettingsResponse>, I>>(base?: I): GetTelemetrySettingsResponse {
+  create<I extends Exact<DeepPartial<GetTelemetrySettingsResponse>, I>>(
+    base?: I,
+  ): GetTelemetrySettingsResponse {
     return GetTelemetrySettingsResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetTelemetrySettingsResponse>, I>>(object: I): GetTelemetrySettingsResponse {
+  fromPartial<I extends Exact<DeepPartial<GetTelemetrySettingsResponse>, I>>(
+    object: I,
+  ): GetTelemetrySettingsResponse {
     const message = createBaseGetTelemetrySettingsResponse();
     message.isEnabled = object.isEnabled ?? 0;
     message.errorLevel = object.errorLevel ?? undefined;
@@ -364,13 +364,13 @@ export const TelemetrySettingsEvent: MessageFns<TelemetrySettingsEvent> = {
       isEnabled: isSet(object.isEnabled)
         ? settingFromJSON(object.isEnabled)
         : isSet(object.is_enabled)
-        ? settingFromJSON(object.is_enabled)
-        : 0,
+          ? settingFromJSON(object.is_enabled)
+          : 0,
       errorLevel: isSet(object.errorLevel)
         ? globalThis.String(object.errorLevel)
         : isSet(object.error_level)
-        ? globalThis.String(object.error_level)
-        : undefined,
+          ? globalThis.String(object.error_level)
+          : undefined,
     };
   },
 
@@ -385,10 +385,14 @@ export const TelemetrySettingsEvent: MessageFns<TelemetrySettingsEvent> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<TelemetrySettingsEvent>, I>>(base?: I): TelemetrySettingsEvent {
+  create<I extends Exact<DeepPartial<TelemetrySettingsEvent>, I>>(
+    base?: I,
+  ): TelemetrySettingsEvent {
     return TelemetrySettingsEvent.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<TelemetrySettingsEvent>, I>>(object: I): TelemetrySettingsEvent {
+  fromPartial<I extends Exact<DeepPartial<TelemetrySettingsEvent>, I>>(
+    object: I,
+  ): TelemetrySettingsEvent {
     const message = createBaseTelemetrySettingsEvent();
     message.isEnabled = object.isEnabled ?? 0;
     message.errorLevel = object.errorLevel ?? undefined;
@@ -399,12 +403,12 @@ export const TelemetrySettingsEvent: MessageFns<TelemetrySettingsEvent> = {
 /** Provides methods for working with the user's environment. */
 export type EnvServiceDefinition = typeof EnvServiceDefinition;
 export const EnvServiceDefinition = {
-  name: "EnvService",
-  fullName: "host.EnvService",
+  name: 'EnvService',
+  fullName: 'host.EnvService',
   methods: {
     /** Writes text to the system clipboard. */
     clipboardWriteText: {
-      name: "clipboardWriteText",
+      name: 'clipboardWriteText',
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -413,7 +417,7 @@ export const EnvServiceDefinition = {
     },
     /** Reads text from the system clipboard. */
     clipboardReadText: {
-      name: "clipboardReadText",
+      name: 'clipboardReadText',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: String,
@@ -422,7 +426,7 @@ export const EnvServiceDefinition = {
     },
     /** Returns the name and version of the host IDE or environment. */
     getHostVersion: {
-      name: "getHostVersion",
+      name: 'getHostVersion',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: GetHostVersionResponse,
@@ -435,7 +439,7 @@ export const EnvServiceDefinition = {
      * If the host does not support URIs it should return empty.
      */
     getIdeRedirectUri: {
-      name: "getIdeRedirectUri",
+      name: 'getIdeRedirectUri',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: String,
@@ -447,7 +451,7 @@ export const EnvServiceDefinition = {
      * if the host does not specify telemetry settings for the plugin.
      */
     getTelemetrySettings: {
-      name: "getTelemetrySettings",
+      name: 'getTelemetrySettings',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: GetTelemetrySettingsResponse,
@@ -456,7 +460,7 @@ export const EnvServiceDefinition = {
     },
     /** Returns events when the telemetry settings change. */
     subscribeToTelemetrySettings: {
-      name: "subscribeToTelemetrySettings",
+      name: 'subscribeToTelemetrySettings',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: TelemetrySettingsEvent,
@@ -465,7 +469,7 @@ export const EnvServiceDefinition = {
     },
     /** Initiates a graceful shutdown of the host bridge service. */
     shutdown: {
-      name: "shutdown",
+      name: 'shutdown',
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -474,7 +478,7 @@ export const EnvServiceDefinition = {
     },
     /** Logs a debug message to the host environment's log/output console. */
     debugLog: {
-      name: "debugLog",
+      name: 'debugLog',
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -487,7 +491,7 @@ export const EnvServiceDefinition = {
      * to the user's local machine to open in their local browser.
      */
     openExternal: {
-      name: "openExternal",
+      name: 'openExternal',
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -499,14 +503,19 @@ export const EnvServiceDefinition = {
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-type Exact<P, I extends P> = P extends Builtin ? P
+type Exact<P, I extends P> = P extends Builtin
+  ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function isSet(value: any): boolean {

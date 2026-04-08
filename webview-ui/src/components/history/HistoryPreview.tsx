@@ -1,32 +1,32 @@
-import { StringRequest } from "@shared/nice-grpc/cline/common.ts"
-import { memo } from "react"
-import { useExtensionState } from "@/context/ExtensionStateContext"
-import { TaskServiceClient } from "@/services/grpc-client"
+import { useExtensionState } from '@/context/ExtensionStateContext';
+import { TaskServiceClient } from '@/services/grpc-client';
+import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
+import { memo } from 'react';
 
 type HistoryPreviewProps = {
-	showHistoryView: () => void
-}
+  showHistoryView: () => void;
+};
 
 const HistoryPreview = ({ showHistoryView }: HistoryPreviewProps) => {
-	const { taskHistory } = useExtensionState()
-	const handleHistorySelect = (id: string) => {
-		TaskServiceClient.showTaskWithId(StringRequest.create({ value: id })).catch((error) =>
-			console.error("Error showing task:", error),
-		)
-	}
+  const { taskHistory } = useExtensionState();
+  const handleHistorySelect = (id: string) => {
+    TaskServiceClient.showTaskWithId(StringRequest.create({ value: id })).catch((error) =>
+      console.error('Error showing task:', error),
+    );
+  };
 
-	const formatDate = (timestamp: number) => {
-		const date = new Date(timestamp)
-		return date?.toLocaleString("en-US", {
-			month: "short",
-			day: "numeric",
-		})
-	}
+  const formatDate = (timestamp: number) => {
+    const date = new Date(timestamp);
+    return date?.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+    });
+  };
 
-	return (
-		<div style={{ flexShrink: 0 }}>
-			<style>
-				{`
+  return (
+    <div style={{ flexShrink: 0 }}>
+      <style>
+        {`
 					.history-preview-item {
 						background-color: color-mix(in srgb, var(--vscode-toolbar-hoverBackground) 65%, transparent);
 						border-radius: 4px;
@@ -101,89 +101,98 @@ const HistoryPreview = ({ showHistoryView }: HistoryPreviewProps) => {
 						color: var(--vscode-foreground);
 					}
 				`}
-			</style>
+      </style>
 
-			<div
-				className="history-header"
-				style={{
-					color: "var(--vscode-descriptionForeground)",
-					margin: "10px 16px 10px 16px",
-					display: "flex",
-					alignItems: "center",
-					justifyContent: "space-between",
-				}}>
-				<div style={{ display: "flex", alignItems: "center" }}>
-					<span
-						className="codicon codicon-comment-discussion"
-						style={{
-							marginRight: "4px",
-							transform: "scale(0.9)",
-						}}></span>
-					<span
-						style={{
-							fontWeight: 500,
-							fontSize: "0.85em",
-							textTransform: "uppercase",
-						}}>
-						Recent
-					</span>
-				</div>
-				{taskHistory.filter((item) => item.ts && item.task).length > 0 && (
-					<button
-						aria-label="View all history"
-						className="history-view-all-btn"
-						onClick={() => showHistoryView()}
-						type="button">
-						View All
-						<span className="codicon codicon-chevron-right" />
-					</button>
-				)}
-			</div>
+      <div
+        className="history-header"
+        style={{
+          color: 'var(--vscode-descriptionForeground)',
+          margin: '10px 16px 10px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <span
+            className="codicon codicon-comment-discussion"
+            style={{
+              marginRight: '4px',
+              transform: 'scale(0.9)',
+            }}
+          />
+          <span
+            style={{
+              fontWeight: 500,
+              fontSize: '0.85em',
+              textTransform: 'uppercase',
+            }}
+          >
+            Recent
+          </span>
+        </div>
+        {taskHistory.filter((item) => item.ts && item.task).length > 0 && (
+          <button
+            aria-label="View all history"
+            className="history-view-all-btn"
+            onClick={() => showHistoryView()}
+            type="button"
+          >
+            View All
+            <span className="codicon codicon-chevron-right" />
+          </button>
+        )}
+      </div>
 
-			{
-				<div className="px-4">
-					{taskHistory.filter((item) => item.ts && item.task).length > 0 ? (
-						taskHistory
-							.filter((item) => item.ts && item.task)
-							.slice(0, 3)
-							.map((item) => (
-								<div className="history-preview-item" key={item.id} onClick={() => handleHistorySelect(item.id)}>
-									<div className="history-task-content">
-										{item.isFavorited && (
-											<span
-												aria-label="Favorited"
-												className="codicon codicon-star-full"
-												style={{
-													color: "var(--vscode-button-background)",
-													flexShrink: 0,
-												}}
-											/>
-										)}
-										<div className="history-task-description ph-no-capture">{item.task}</div>
-									</div>
-									<div className="history-meta-stack">
-										<span className="history-date">{formatDate(item.ts)}</span>
-										{item.totalCost != null && (
-											<span className="history-cost-chip">${item.totalCost.toFixed(2)}</span>
-										)}
-									</div>
-								</div>
-							))
-					) : (
-						<div
-							style={{
-								textAlign: "center",
-								color: "var(--vscode-descriptionForeground)",
-								fontSize: "var(--vscode-font-size)",
-								padding: "10px 0",
-							}}>
-							No recent tasks
-						</div>
-					)}
-				</div>
-			}
-		</div>
-	)
-}
+      {
+        <div className="px-4">
+          {taskHistory.filter((item) => item.ts && item.task).length > 0 ? (
+            taskHistory
+              .filter((item) => item.ts && item.task)
+              .slice(0, 3)
+              .map((item) => (
+                <div
+                  className="history-preview-item"
+                  key={item.id}
+                  onClick={() => handleHistorySelect(item.id)}
+                >
+                  <div className="history-task-content">
+                    {item.isFavorited && (
+                      <span
+                        aria-label="Favorited"
+                        className="codicon codicon-star-full"
+                        style={{
+                          color: 'var(--vscode-button-background)',
+                          flexShrink: 0,
+                        }}
+                      />
+                    )}
+                    <div className="history-task-description ph-no-capture">{item.task}</div>
+                  </div>
+                  <div className="history-meta-stack">
+                    <span className="history-date">{formatDate(item.ts)}</span>
+                    {item.totalCost != null && (
+                      <span className="history-cost-chip">${item.totalCost.toFixed(2)}</span>
+                    )}
+                  </div>
+                </div>
+              ))
+          ) : (
+            <div
+              style={{
+                textAlign: 'center',
+                color: 'var(--vscode-descriptionForeground)',
+                fontSize: 'var(--vscode-font-size)',
+                padding: '10px 0',
+              }}
+            >
+              No recent tasks
+            </div>
+          )}
+        </div>
+      }
+    </div>
+  );
+};
 
-export default memo(HistoryPreview)
+export default memo(HistoryPreview);

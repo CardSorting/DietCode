@@ -5,4 +5,4 @@
 
 /* eslint-disable */
 
-export * as protobuf from "./index.google.protobuf";
+export * as protobuf from './index.google.protobuf';

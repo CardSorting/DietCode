@@ -313,34 +313,70 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
             case 'subscribeToState':
             case 'getLatestState': {
                 const settings = await this._getSettings();
-                // Exhaustive ExtensionState mock based on shared/ExtensionMessage.ts
+                // Production Hardening: Exhaustive ExtensionState mock to prevent hydration issues
                 const state = {
                     version: '2.2.2',
                     isNewUser: false,
                     welcomeViewCompleted: true,
                     clineMessages: [],
                     taskHistory: [],
+                    onboardingModels: undefined,
+                    remoteBrowserHost: undefined,
+                    checkpointManagerErrorMessage: undefined,
+                    currentTaskItem: undefined,
+                    mcpMarketplaceEnabled: false,
+                    telemetrySetting: 'off', // Forced off for sovereign build
+                    enableCheckpointsSetting: false,
+                    terminalReuseEnabled: false,
+                    backgroundCommandRunning: false,
+                    mcpResponsesCollapsed: false,
+                    strictPlanModeEnabled: false,
+                    yoloModeToggled: false,
+                    useAutoCondense: false,
+                    subagentsEnabled: false,
+                    clineWebToolsEnabled: 'disabled',
+                    worktreesEnabled: 'disabled',
+                    customPrompt: undefined,
+                    favoritedModelIds: [],
+                    multiRootSetting: 'disabled',
+                    lastDismissedInfoBannerVersion: 0,
+                    lastDismissedModelBannerVersion: 0,
+                    dismissedBanners: [],
+                    banners: [],
+                    welcomeBanners: [],
                     shouldShowAnnouncement: false,
+                    showAnnouncement: false,
                     autoApprovalSettings: { 
                         version: 1, 
+                        enabled: true,
+                        favorites: [],
+                        maxRequests: 20,
                         actions: { 
                             readFiles: true, 
+                            readFilesExternally: false,
                             editFiles: true,
+                            editFilesExternally: false,
                             executeSafeCommands: true,
+                            executeAllCommands: false,
                             useBrowser: true,
                             useMcp: true
-                        } 
+                        },
+                        enableNotifications: false
                     },
                     browserSettings: { 
                         enabled: true,
-                        viewport: { width: 1280, height: 800 } 
+                        viewport: { width: 1280, height: 800 },
+                        remoteBrowserEnabled: false,
+                        remoteBrowserHost: 'http://localhost:9222',
+                        chromeExecutablePath: '',
+                        disableToolUse: true,
+                        customArgs: ''
                     },
                     mode: 'plan',
                     mcpDisplayMode: 'rich',
                     planActSeparateModelsSetting: false,
                     platform: 'darwin',
                     environment: 'production',
-                    telemetrySetting: 'enabled',
                     shellIntegrationTimeout: 30000,
                     terminalOutputLineLimit: 1000,
                     maxConsecutiveMistakes: 3,
@@ -371,28 +407,28 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
                     ...settings
                 };
 
-                this._sendGrpcResponse(request.request_id, {
+                this._sendGrpcSuccess(request.request_id, {
                     stateJson: JSON.stringify(state)
-                }, undefined, request.is_streaming);
+                }, request.is_streaming);
                 break;
             }
             case 'getAvailableTerminalProfiles': {
-                this._sendGrpcResponse(request.request_id, { profiles: [] });
+                this._sendGrpcSuccess(request.request_id, { profiles: [] });
                 break;
             }
             case 'dismissBanner': {
-                this._sendGrpcResponse(request.request_id, {});
+                this._sendGrpcSuccess(request.request_id, {});
                 break;
             }
             default:
-                this._sendGrpcResponse(request.request_id, {}, `Method StateService.${method} stubbed`);
+                this._sendGrpcError(request.request_id, `Method StateService.${method} stubbed`);
         }
     }
 
     private async _handleUiService(method: string, request: any) {
         switch (method) {
             case 'initializeWebview':
-                this._sendGrpcResponse(request.request_id, {});
+                this._sendGrpcSuccess(request.request_id, {});
                 break;
             case 'subscribeToMcpButtonClicked':
             case 'subscribeToHistoryButtonClicked':
@@ -401,41 +437,40 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
             case 'subscribeToWorktreesButtonClicked':
             case 'subscribeToAccountButtonClicked':
             case 'subscribeToPartialMessage':
-                // Streaming subscriptions - send empty initial response if requested
+                // Streaming subscriptions
                 if (request.is_streaming) {
-                    // Just acknowledge the subscription
+                    this._sendGrpcSuccess(request.request_id, {}, true);
                 }
                 break;
             default:
-                this._sendGrpcResponse(request.request_id, {}, `Method UiService.${method} stubbed`);
+                this._sendGrpcError(request.request_id, `Method UiService.${method} stubbed`);
         }
     }
 
     private async _handleAccountService(method: string, request: any) {
         switch (method) {
             case 'subscribeToAuthStatusUpdate':
-                // Production Hardening: Explicitly return null user to ensure feature is disabled
-                this._sendGrpcResponse(request.request_id, { user: null }, undefined, true);
+                // Production Hardening: Force null user
+                this._sendGrpcSuccess(request.request_id, { user: null }, true);
                 break;
             case 'getUserOrganizations':
-                this._sendGrpcResponse(request.request_id, { organizations: [] });
+                this._sendGrpcSuccess(request.request_id, { organizations: [] });
                 break;
             default:
-                // All other account methods return empty success to prevent UI hang
-                this._sendGrpcResponse(request.request_id, {});
+                this._sendGrpcSuccess(request.request_id, {});
         }
     }
 
     private async _handleMcpService(method: string, request: any) {
         switch (method) {
             case 'subscribeToMcpServers':
-                this._sendGrpcResponse(request.request_id, { mcpServers: [] }, undefined, true);
+                this._sendGrpcSuccess(request.request_id, { mcpServers: [] }, true);
                 break;
             case 'subscribeToMcpMarketplaceCatalog':
-                this._sendGrpcResponse(request.request_id, { catalog: [] }, undefined, true);
+                this._sendGrpcSuccess(request.request_id, { catalog: [] }, true);
                 break;
             default:
-                this._sendGrpcResponse(request.request_id, {}, `Method McpService.${method} stubbed`);
+                this._sendGrpcError(request.request_id, `Method McpService.${method} stubbed`);
         }
     }
 
@@ -443,7 +478,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
         switch (method) {
             case 'subscribeToOpenRouterModels':
             case 'subscribeToLiteLlmModels':
-                this._sendGrpcResponse(request.request_id, { models: {} }, undefined, true);
+                this._sendGrpcSuccess(request.request_id, { models: {} }, true);
                 break;
             case 'refreshOpenRouterModelsRpc':
             case 'refreshClineModelsRpc':
@@ -454,26 +489,26 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
             case 'refreshGroqModelsRpc':
             case 'refreshBasetenModelsRpc':
             case 'refreshVercelAiGatewayModelsRpc':
-                this._sendGrpcResponse(request.request_id, { models: {} });
+                this._sendGrpcSuccess(request.request_id, { models: {} });
                 break;
             case 'refreshClineRecommendedModelsRpc':
-                this._sendGrpcResponse(request.request_id, { recommended: [], free: [] });
+                this._sendGrpcSuccess(request.request_id, { recommended: [], free: [] });
                 break;
             default:
-                this._sendGrpcResponse(request.request_id, {}, `Method ModelsService.${method} stubbed`);
+                this._sendGrpcError(request.request_id, `Method ModelsService.${method} stubbed`);
         }
     }
 
     private async _handleTaskService(method: string, request: any) {
         switch (method) {
             case 'getTaskHistory':
-                this._sendGrpcResponse(request.request_id, { history: [] });
+                this._sendGrpcSuccess(request.request_id, { history: [] });
                 break;
             case 'getTotalTasksSize':
-                this._sendGrpcResponse(request.request_id, { value: '0' });
+                this._sendGrpcSuccess(request.request_id, { value: '0' });
                 break;
             default:
-                this._sendGrpcResponse(request.request_id, {}, `Method TaskService.${method} stubbed`);
+                this._sendGrpcError(request.request_id, `Method TaskService.${method} stubbed`);
         }
     }
 
@@ -539,7 +574,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
         // - connect-src allows extension-host and https calls
         // - media-src allows demos from the local build
         // - worker-src enables background processing
-        const csp = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} https: data:; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}' 'unsafe-eval' blob:; connect-src ${webview.cspSource} https:; font-src ${webview.cspSource} data:; media-src ${webview.cspSource} https: blob:; worker-src 'self' blob:; frame-ancestors 'none';">`;
+        const csp = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} https: data:; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}' 'unsafe-eval' blob:; connect-src ${webview.cspSource} https:; font-src ${webview.cspSource} data:; media-src ${webview.cspSource} https: blob:; worker-src 'self' blob:;">`;
 
         html = html.replace(/<head>/, `<head>\n    ${csp}`);
         

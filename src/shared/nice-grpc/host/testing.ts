@@ -5,10 +5,9 @@
 // source: host/testing.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
 
-export interface GetWebviewHtmlRequest {
-}
+export type GetWebviewHtmlRequest = {};
 
 export interface GetWebviewHtmlResponse {
   html?: string | undefined;
@@ -105,10 +104,14 @@ export const GetWebviewHtmlResponse: MessageFns<GetWebviewHtmlResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetWebviewHtmlResponse>, I>>(base?: I): GetWebviewHtmlResponse {
+  create<I extends Exact<DeepPartial<GetWebviewHtmlResponse>, I>>(
+    base?: I,
+  ): GetWebviewHtmlResponse {
     return GetWebviewHtmlResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetWebviewHtmlResponse>, I>>(object: I): GetWebviewHtmlResponse {
+  fromPartial<I extends Exact<DeepPartial<GetWebviewHtmlResponse>, I>>(
+    object: I,
+  ): GetWebviewHtmlResponse {
     const message = createBaseGetWebviewHtmlResponse();
     message.html = object.html ?? undefined;
     return message;
@@ -118,11 +121,11 @@ export const GetWebviewHtmlResponse: MessageFns<GetWebviewHtmlResponse> = {
 /** This is for use in integration tests to get the contents of the webview. */
 export type TestingServiceDefinition = typeof TestingServiceDefinition;
 export const TestingServiceDefinition = {
-  name: "TestingService",
-  fullName: "host.TestingService",
+  name: 'TestingService',
+  fullName: 'host.TestingService',
   methods: {
     getWebviewHtml: {
-      name: "getWebviewHtml",
+      name: 'getWebviewHtml',
       requestType: GetWebviewHtmlRequest,
       requestStream: false,
       responseType: GetWebviewHtmlResponse,
@@ -134,14 +137,19 @@ export const TestingServiceDefinition = {
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-type Exact<P, I extends P> = P extends Builtin ? P
+type Exact<P, I extends P> = P extends Builtin
+  ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function isSet(value: any): boolean {

@@ -10,30 +10,14 @@
   ],
   "compilerOptions": {
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@shared/*": [
-        "./src/shared/*"
-      ],
-      "@core/*": [
-        "./src/core/*"
-      ],
-      "@integrations/*": [
-        "./src/integrations/*"
-      ],
-      "@hosts/*": [
-        "./src/hosts/*"
-      ],
-      "@utils/*": [
-        "./src/utils/*"
-      ],
-      "@services/*": [
-        "./src/services/*"
-      ],
-      "@registry": [
-        "./src/registry"
-      ]
+      "@/*": ["./src/*"],
+      "@shared/*": ["./src/shared/*"],
+      "@core/*": ["./src/core/*"],
+      "@integrations/*": ["./src/integrations/*"],
+      "@hosts/*": ["./src/hosts/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@services/*": ["./src/services/*"],
+      "@registry": ["./src/registry"]
     }
   }
 }

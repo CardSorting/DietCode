@@ -1,90 +1,90 @@
-import { parseKeyPairsIntoRecord } from "@opentelemetry/core"
-import { BUILD_CONSTANTS } from "@/shared/constants"
-import { RemoteConfigFields } from "@/shared/storage/state-keys"
+import { BUILD_CONSTANTS } from '@/shared/constants';
+import type { RemoteConfigFields } from '@/shared/storage/state-keys';
+import { parseKeyPairsIntoRecord } from '@opentelemetry/core';
 
 export interface OpenTelemetryClientConfig {
-	/**
-	 * Whether telemetry is enabled via OTEL_TELEMETRY_ENABLED
-	 */
-	enabled: boolean
+  /**
+   * Whether telemetry is enabled via OTEL_TELEMETRY_ENABLED
+   */
+  enabled: boolean;
 
-	/**
-	 * Metrics exporter type(s) - can be comma-separated for multiple exporters
-	 * Examples: "console", "otlp", "prometheus", "console,otlp"
-	 */
-	metricsExporter?: string
+  /**
+   * Metrics exporter type(s) - can be comma-separated for multiple exporters
+   * Examples: "console", "otlp", "prometheus", "console,otlp"
+   */
+  metricsExporter?: string;
 
-	/**
-	 * Logs/events exporter type(s) - can be comma-separated for multiple exporters
-	 * Examples: "console", "otlp"
-	 */
-	logsExporter?: string
+  /**
+   * Logs/events exporter type(s) - can be comma-separated for multiple exporters
+   * Examples: "console", "otlp"
+   */
+  logsExporter?: string;
 
-	/**
-	 * Protocol for OTLP exporters: "grpc", "http/json", "http/protobuf"
-	 */
-	otlpProtocol?: string
+  /**
+   * Protocol for OTLP exporters: "grpc", "http/json", "http/protobuf"
+   */
+  otlpProtocol?: string;
 
-	/**
-	 * General OTLP endpoint (used if specific endpoints not set)
-	 */
-	otlpEndpoint?: string
+  /**
+   * General OTLP endpoint (used if specific endpoints not set)
+   */
+  otlpEndpoint?: string;
 
-	/**
-	 * General OTLP headers
-	 */
-	otlpHeaders?: Record<string, string>
+  /**
+   * General OTLP headers
+   */
+  otlpHeaders?: Record<string, string>;
 
-	/**
-	 * Metrics-specific OTLP protocol
-	 */
-	otlpMetricsProtocol?: string
+  /**
+   * Metrics-specific OTLP protocol
+   */
+  otlpMetricsProtocol?: string;
 
-	/**
-	 * Metrics-specific OTLP endpoint
-	 */
-	otlpMetricsEndpoint?: string
+  /**
+   * Metrics-specific OTLP endpoint
+   */
+  otlpMetricsEndpoint?: string;
 
-	otlpMetricsHeaders?: Record<string, string>
+  otlpMetricsHeaders?: Record<string, string>;
 
-	/**
-	 * Logs-specific OTLP protocol
-	 */
-	otlpLogsProtocol?: string
+  /**
+   * Logs-specific OTLP protocol
+   */
+  otlpLogsProtocol?: string;
 
-	/**
-	 * Logs-specific OTLP endpoint
-	 */
-	otlpLogsEndpoint?: string
+  /**
+   * Logs-specific OTLP endpoint
+   */
+  otlpLogsEndpoint?: string;
 
-	otlpLogsHeaders?: Record<string, string>
+  otlpLogsHeaders?: Record<string, string>;
 
-	/**
-	 * Metric export interval in milliseconds (for console exporter)
-	 */
-	metricExportInterval?: number
+  /**
+   * Metric export interval in milliseconds (for console exporter)
+   */
+  metricExportInterval?: number;
 
-	/**
-	 * Whether to use insecure (non-TLS) connections for gRPC OTLP exporters
-	 * Set to "true" for local development without TLS
-	 * Default: false (uses TLS)
-	 */
-	otlpInsecure?: boolean
+  /**
+   * Whether to use insecure (non-TLS) connections for gRPC OTLP exporters
+   * Set to "true" for local development without TLS
+   * Default: false (uses TLS)
+   */
+  otlpInsecure?: boolean;
 
-	/**
-	 * Maximum batch size for log records (default: 512)
-	 */
-	logBatchSize?: number
+  /**
+   * Maximum batch size for log records (default: 512)
+   */
+  logBatchSize?: number;
 
-	/**
-	 * Maximum time to wait before exporting logs in milliseconds (default: 5000)
-	 */
-	logBatchTimeout?: number
+  /**
+   * Maximum time to wait before exporting logs in milliseconds (default: 5000)
+   */
+  logBatchTimeout?: number;
 
-	/**
-	 * Maximum queue size for log records (default: 2048)
-	 */
-	logMaxQueueSize?: number
+  /**
+   * Maximum queue size for log records (default: 2048)
+   */
+  logMaxQueueSize?: number;
 }
 
 /**
@@ -92,49 +92,53 @@ export interface OpenTelemetryClientConfig {
  * Must have telemetry enabled and at least one exporter configured.
  */
 export interface OpenTelemetryClientValidConfig extends OpenTelemetryClientConfig {
-	enabled: true
+  enabled: true;
 }
 
-const isTestEnv = process.env.E2E_TEST === "true" || process.env.IS_TEST === "true"
+const isTestEnv = process.env.E2E_TEST === 'true' || process.env.IS_TEST === 'true';
 
-export function remoteConfigToOtelConfig(settings: Partial<RemoteConfigFields>): OpenTelemetryClientConfig {
-	return {
-		enabled: !!settings.openTelemetryEnabled,
-		metricsExporter: settings.openTelemetryMetricsExporter,
-		logsExporter: settings.openTelemetryLogsExporter,
-		otlpProtocol: settings.openTelemetryOtlpProtocol,
-		otlpEndpoint: settings.openTelemetryOtlpEndpoint,
-		otlpHeaders: settings.openTelemetryOtlpHeaders,
-		metricExportInterval: settings.openTelemetryMetricExportInterval,
-		otlpInsecure: settings.openTelemetryOtlpInsecure,
+export function remoteConfigToOtelConfig(
+  settings: Partial<RemoteConfigFields>,
+): OpenTelemetryClientConfig {
+  return {
+    enabled: !!settings.openTelemetryEnabled,
+    metricsExporter: settings.openTelemetryMetricsExporter,
+    logsExporter: settings.openTelemetryLogsExporter,
+    otlpProtocol: settings.openTelemetryOtlpProtocol,
+    otlpEndpoint: settings.openTelemetryOtlpEndpoint,
+    otlpHeaders: settings.openTelemetryOtlpHeaders,
+    metricExportInterval: settings.openTelemetryMetricExportInterval,
+    otlpInsecure: settings.openTelemetryOtlpInsecure,
 
-		otlpMetricsEndpoint: settings.openTelemetryOtlpMetricsEndpoint,
-		otlpMetricsProtocol: settings.openTelemetryOtlpMetricsProtocol,
-		otlpMetricsHeaders: settings.otlpMetricsHeaders,
-		otlpLogsEndpoint: settings.openTelemetryOtlpLogsEndpoint,
-		otlpLogsProtocol: settings.openTelemetryOtlpLogsProtocol,
-		otlpLogsHeaders: settings.otlpLogsHeaders,
+    otlpMetricsEndpoint: settings.openTelemetryOtlpMetricsEndpoint,
+    otlpMetricsProtocol: settings.openTelemetryOtlpMetricsProtocol,
+    otlpMetricsHeaders: settings.otlpMetricsHeaders,
+    otlpLogsEndpoint: settings.openTelemetryOtlpLogsEndpoint,
+    otlpLogsProtocol: settings.openTelemetryOtlpLogsProtocol,
+    otlpLogsHeaders: settings.otlpLogsHeaders,
 
-		logBatchSize: settings.openTelemetryLogBatchSize,
-		logBatchTimeout: settings.openTelemetryLogBatchTimeout,
-		logMaxQueueSize: settings.openTelemetryLogMaxQueueSize,
-	}
+    logBatchSize: settings.openTelemetryLogBatchSize,
+    logBatchTimeout: settings.openTelemetryLogBatchTimeout,
+    logMaxQueueSize: settings.openTelemetryLogMaxQueueSize,
+  };
 }
 
 function getOtelConfig(): OpenTelemetryClientConfig {
-	return {
-		enabled: BUILD_CONSTANTS.OTEL_TELEMETRY_ENABLED === "1" || BUILD_CONSTANTS.OTEL_TELEMETRY_ENABLED === "true",
-		metricsExporter: BUILD_CONSTANTS.OTEL_METRICS_EXPORTER,
-		logsExporter: BUILD_CONSTANTS.OTEL_LOGS_EXPORTER,
-		otlpProtocol: BUILD_CONSTANTS.OTEL_EXPORTER_OTLP_PROTOCOL,
-		otlpEndpoint: BUILD_CONSTANTS.OTEL_EXPORTER_OTLP_ENDPOINT,
-		metricExportInterval: BUILD_CONSTANTS.OTEL_METRIC_EXPORT_INTERVAL
-			? Number.parseInt(BUILD_CONSTANTS.OTEL_METRIC_EXPORT_INTERVAL, 10)
-			: undefined,
-		otlpHeaders: BUILD_CONSTANTS.OTEL_EXPORTER_OTLP_HEADERS
-			? parseKeyPairsIntoRecord(BUILD_CONSTANTS.OTEL_EXPORTER_OTLP_HEADERS)
-			: undefined,
-	}
+  return {
+    enabled:
+      BUILD_CONSTANTS.OTEL_TELEMETRY_ENABLED === '1' ||
+      BUILD_CONSTANTS.OTEL_TELEMETRY_ENABLED === 'true',
+    metricsExporter: BUILD_CONSTANTS.OTEL_METRICS_EXPORTER,
+    logsExporter: BUILD_CONSTANTS.OTEL_LOGS_EXPORTER,
+    otlpProtocol: BUILD_CONSTANTS.OTEL_EXPORTER_OTLP_PROTOCOL,
+    otlpEndpoint: BUILD_CONSTANTS.OTEL_EXPORTER_OTLP_ENDPOINT,
+    metricExportInterval: BUILD_CONSTANTS.OTEL_METRIC_EXPORT_INTERVAL
+      ? Number.parseInt(BUILD_CONSTANTS.OTEL_METRIC_EXPORT_INTERVAL, 10)
+      : undefined,
+    otlpHeaders: BUILD_CONSTANTS.OTEL_EXPORTER_OTLP_HEADERS
+      ? parseKeyPairsIntoRecord(BUILD_CONSTANTS.OTEL_EXPORTER_OTLP_HEADERS)
+      : undefined,
+  };
 }
 
 /**
@@ -168,47 +172,49 @@ function getOtelConfig(): OpenTelemetryClientConfig {
  * @see .github/workflows/publish.yml for production environment variable injection
  */
 function getRuntimeOtelConfig(): OpenTelemetryClientConfig {
-	return {
-		enabled: process.env.CLINE_OTEL_TELEMETRY_ENABLED === "true",
-		metricsExporter: process.env.CLINE_OTEL_METRICS_EXPORTER,
-		logsExporter: process.env.CLINE_OTEL_LOGS_EXPORTER,
-		otlpProtocol: process.env.CLINE_OTEL_EXPORTER_OTLP_PROTOCOL,
-		otlpEndpoint: process.env.CLINE_OTEL_EXPORTER_OTLP_ENDPOINT,
-		otlpMetricsProtocol: process.env.CLINE_OTEL_EXPORTER_OTLP_METRICS_PROTOCOL,
-		otlpMetricsEndpoint: process.env.CLINE_OTEL_EXPORTER_OTLP_METRICS_ENDPOINT,
-		otlpLogsProtocol: process.env.CLINE_OTEL_EXPORTER_OTLP_LOGS_PROTOCOL,
-		otlpLogsEndpoint: process.env.CLINE_OTEL_EXPORTER_OTLP_LOGS_ENDPOINT,
-		metricExportInterval: process.env.CLINE_OTEL_METRIC_EXPORT_INTERVAL
-			? Number.parseInt(process.env.CLINE_OTEL_METRIC_EXPORT_INTERVAL, 10)
-			: undefined,
-		otlpInsecure: process.env.CLINE_OTEL_EXPORTER_OTLP_INSECURE === "true",
-		logBatchSize: process.env.CLINE_OTEL_LOG_BATCH_SIZE
-			? Math.max(1, Number.parseInt(process.env.CLINE_OTEL_LOG_BATCH_SIZE, 10))
-			: undefined,
-		logBatchTimeout: process.env.CLINE_OTEL_LOG_BATCH_TIMEOUT
-			? Math.max(1, Number.parseInt(process.env.CLINE_OTEL_LOG_BATCH_TIMEOUT, 10))
-			: undefined,
-		logMaxQueueSize: process.env.CLINE_OTEL_LOG_MAX_QUEUE_SIZE
-			? Math.max(1, Number.parseInt(process.env.CLINE_OTEL_LOG_MAX_QUEUE_SIZE, 10))
-			: undefined,
-		otlpHeaders: process.env.CLINE_OTEL_EXPORTER_OTLP_HEADERS
-			? parseKeyPairsIntoRecord(process.env.CLINE_OTEL_EXPORTER_OTLP_HEADERS)
-			: undefined,
-	}
+  return {
+    enabled: process.env.CLINE_OTEL_TELEMETRY_ENABLED === 'true',
+    metricsExporter: process.env.CLINE_OTEL_METRICS_EXPORTER,
+    logsExporter: process.env.CLINE_OTEL_LOGS_EXPORTER,
+    otlpProtocol: process.env.CLINE_OTEL_EXPORTER_OTLP_PROTOCOL,
+    otlpEndpoint: process.env.CLINE_OTEL_EXPORTER_OTLP_ENDPOINT,
+    otlpMetricsProtocol: process.env.CLINE_OTEL_EXPORTER_OTLP_METRICS_PROTOCOL,
+    otlpMetricsEndpoint: process.env.CLINE_OTEL_EXPORTER_OTLP_METRICS_ENDPOINT,
+    otlpLogsProtocol: process.env.CLINE_OTEL_EXPORTER_OTLP_LOGS_PROTOCOL,
+    otlpLogsEndpoint: process.env.CLINE_OTEL_EXPORTER_OTLP_LOGS_ENDPOINT,
+    metricExportInterval: process.env.CLINE_OTEL_METRIC_EXPORT_INTERVAL
+      ? Number.parseInt(process.env.CLINE_OTEL_METRIC_EXPORT_INTERVAL, 10)
+      : undefined,
+    otlpInsecure: process.env.CLINE_OTEL_EXPORTER_OTLP_INSECURE === 'true',
+    logBatchSize: process.env.CLINE_OTEL_LOG_BATCH_SIZE
+      ? Math.max(1, Number.parseInt(process.env.CLINE_OTEL_LOG_BATCH_SIZE, 10))
+      : undefined,
+    logBatchTimeout: process.env.CLINE_OTEL_LOG_BATCH_TIMEOUT
+      ? Math.max(1, Number.parseInt(process.env.CLINE_OTEL_LOG_BATCH_TIMEOUT, 10))
+      : undefined,
+    logMaxQueueSize: process.env.CLINE_OTEL_LOG_MAX_QUEUE_SIZE
+      ? Math.max(1, Number.parseInt(process.env.CLINE_OTEL_LOG_MAX_QUEUE_SIZE, 10))
+      : undefined,
+    otlpHeaders: process.env.CLINE_OTEL_EXPORTER_OTLP_HEADERS
+      ? parseKeyPairsIntoRecord(process.env.CLINE_OTEL_EXPORTER_OTLP_HEADERS)
+      : undefined,
+  };
 }
 
-export function isOpenTelemetryConfigValid(config: OpenTelemetryClientConfig): config is OpenTelemetryClientValidConfig {
-	// Disable in test environment to enable mocking and stubbing
-	if (isTestEnv) {
-		return false
-	}
+export function isOpenTelemetryConfigValid(
+  config: OpenTelemetryClientConfig,
+): config is OpenTelemetryClientValidConfig {
+  // Disable in test environment to enable mocking and stubbing
+  if (isTestEnv) {
+    return false;
+  }
 
-	if (!config.enabled) {
-		return false
-	}
+  if (!config.enabled) {
+    return false;
+  }
 
-	const hasOneExporterConfigured = !!(config.metricsExporter || config.logsExporter)
-	return hasOneExporterConfigured
+  const hasOneExporterConfigured = !!(config.metricsExporter || config.logsExporter);
+  return hasOneExporterConfigured;
 }
 
 /**
@@ -221,11 +227,11 @@ export function isOpenTelemetryConfigValid(config: OpenTelemetryClientConfig): c
  * @see .env.example for configuration options
  */
 export function getValidOpenTelemetryConfig(): OpenTelemetryClientValidConfig | null {
-	const config = getOtelConfig()
-	return isOpenTelemetryConfigValid(config) ? config : null
+  const config = getOtelConfig();
+  return isOpenTelemetryConfigValid(config) ? config : null;
 }
 
 export function getValidRuntimeOpenTelemetryConfig(): OpenTelemetryClientValidConfig | null {
-	const config = getRuntimeOtelConfig()
-	return isOpenTelemetryConfigValid(config) ? config : null
+  const config = getRuntimeOtelConfig();
+  return isOpenTelemetryConfigValid(config) ? config : null;
 }

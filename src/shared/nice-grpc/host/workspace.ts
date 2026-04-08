@@ -5,8 +5,8 @@
 // source: host/workspace.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { FileDiagnostics, Metadata } from "../cline/common";
+import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+import { FileDiagnostics, Metadata } from '../cline/common';
 
 export interface GetWorkspacePathsRequest {
   /**
@@ -61,13 +61,11 @@ export function searchWorkspaceItemsRequest_SearchItemTypeFromJSON(
 ): SearchWorkspaceItemsRequest_SearchItemType {
   switch (object) {
     case 0:
-    case "FILE":
+    case 'FILE':
       return SearchWorkspaceItemsRequest_SearchItemType.FILE;
     case 1:
-    case "FOLDER":
+    case 'FOLDER':
       return SearchWorkspaceItemsRequest_SearchItemType.FOLDER;
-    case -1:
-    case "UNRECOGNIZED":
     default:
       return SearchWorkspaceItemsRequest_SearchItemType.UNRECOGNIZED;
   }
@@ -78,12 +76,11 @@ export function searchWorkspaceItemsRequest_SearchItemTypeToJSON(
 ): string {
   switch (object) {
     case SearchWorkspaceItemsRequest_SearchItemType.FILE:
-      return "FILE";
+      return 'FILE';
     case SearchWorkspaceItemsRequest_SearchItemType.FOLDER:
-      return "FOLDER";
-    case SearchWorkspaceItemsRequest_SearchItemType.UNRECOGNIZED:
+      return 'FOLDER';
     default:
-      return "UNRECOGNIZED";
+      return 'UNRECOGNIZED';
   }
 }
 
@@ -100,30 +97,23 @@ export interface SearchWorkspaceItemsResponse_SearchItem {
   label?: string | undefined;
 }
 
-export interface OpenProblemsPanelRequest {
-}
+export type OpenProblemsPanelRequest = {};
 
-export interface OpenProblemsPanelResponse {
-}
+export type OpenProblemsPanelResponse = {};
 
 export interface OpenInFileExplorerPanelRequest {
   path: string;
 }
 
-export interface OpenInFileExplorerPanelResponse {
-}
+export type OpenInFileExplorerPanelResponse = {};
 
-export interface OpenClineSidebarPanelRequest {
-}
+export type OpenClineSidebarPanelRequest = {};
 
-export interface OpenClineSidebarPanelResponse {
-}
+export type OpenClineSidebarPanelResponse = {};
 
-export interface OpenTerminalRequest {
-}
+export type OpenTerminalRequest = {};
 
-export interface OpenTerminalResponse {
-}
+export type OpenTerminalResponse = {};
 
 /** Execute a command in the terminal */
 export interface ExecuteCommandInTerminalRequest {
@@ -153,7 +143,10 @@ function createBaseGetWorkspacePathsRequest(): GetWorkspacePathsRequest {
 }
 
 export const GetWorkspacePathsRequest: MessageFns<GetWorkspacePathsRequest> = {
-  encode(message: GetWorkspacePathsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetWorkspacePathsRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== undefined) {
       writer.uint32(10).string(message.id);
     }
@@ -196,10 +189,14 @@ export const GetWorkspacePathsRequest: MessageFns<GetWorkspacePathsRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetWorkspacePathsRequest>, I>>(base?: I): GetWorkspacePathsRequest {
+  create<I extends Exact<DeepPartial<GetWorkspacePathsRequest>, I>>(
+    base?: I,
+  ): GetWorkspacePathsRequest {
     return GetWorkspacePathsRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetWorkspacePathsRequest>, I>>(object: I): GetWorkspacePathsRequest {
+  fromPartial<I extends Exact<DeepPartial<GetWorkspacePathsRequest>, I>>(
+    object: I,
+  ): GetWorkspacePathsRequest {
     const message = createBaseGetWorkspacePathsRequest();
     message.id = object.id ?? undefined;
     return message;
@@ -211,7 +208,10 @@ function createBaseGetWorkspacePathsResponse(): GetWorkspacePathsResponse {
 }
 
 export const GetWorkspacePathsResponse: MessageFns<GetWorkspacePathsResponse> = {
-  encode(message: GetWorkspacePathsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetWorkspacePathsResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== undefined) {
       writer.uint32(10).string(message.id);
     }
@@ -256,7 +256,9 @@ export const GetWorkspacePathsResponse: MessageFns<GetWorkspacePathsResponse> = 
   fromJSON(object: any): GetWorkspacePathsResponse {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : undefined,
-      paths: globalThis.Array.isArray(object?.paths) ? object.paths.map((e: any) => globalThis.String(e)) : [],
+      paths: globalThis.Array.isArray(object?.paths)
+        ? object.paths.map((e: any) => globalThis.String(e))
+        : [],
     };
   },
 
@@ -271,10 +273,14 @@ export const GetWorkspacePathsResponse: MessageFns<GetWorkspacePathsResponse> = 
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetWorkspacePathsResponse>, I>>(base?: I): GetWorkspacePathsResponse {
+  create<I extends Exact<DeepPartial<GetWorkspacePathsResponse>, I>>(
+    base?: I,
+  ): GetWorkspacePathsResponse {
     return GetWorkspacePathsResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetWorkspacePathsResponse>, I>>(object: I): GetWorkspacePathsResponse {
+  fromPartial<I extends Exact<DeepPartial<GetWorkspacePathsResponse>, I>>(
+    object: I,
+  ): GetWorkspacePathsResponse {
     const message = createBaseGetWorkspacePathsResponse();
     message.id = object.id ?? undefined;
     message.paths = object.paths?.map((e) => e) || [];
@@ -287,7 +293,10 @@ function createBaseSaveOpenDocumentIfDirtyRequest(): SaveOpenDocumentIfDirtyRequ
 }
 
 export const SaveOpenDocumentIfDirtyRequest: MessageFns<SaveOpenDocumentIfDirtyRequest> = {
-  encode(message: SaveOpenDocumentIfDirtyRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: SaveOpenDocumentIfDirtyRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.filePath !== undefined) {
       writer.uint32(18).string(message.filePath);
     }
@@ -323,8 +332,8 @@ export const SaveOpenDocumentIfDirtyRequest: MessageFns<SaveOpenDocumentIfDirtyR
       filePath: isSet(object.filePath)
         ? globalThis.String(object.filePath)
         : isSet(object.file_path)
-        ? globalThis.String(object.file_path)
-        : undefined,
+          ? globalThis.String(object.file_path)
+          : undefined,
     };
   },
 
@@ -336,7 +345,9 @@ export const SaveOpenDocumentIfDirtyRequest: MessageFns<SaveOpenDocumentIfDirtyR
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SaveOpenDocumentIfDirtyRequest>, I>>(base?: I): SaveOpenDocumentIfDirtyRequest {
+  create<I extends Exact<DeepPartial<SaveOpenDocumentIfDirtyRequest>, I>>(
+    base?: I,
+  ): SaveOpenDocumentIfDirtyRequest {
     return SaveOpenDocumentIfDirtyRequest.fromPartial(base ?? ({} as any));
   },
   fromPartial<I extends Exact<DeepPartial<SaveOpenDocumentIfDirtyRequest>, I>>(
@@ -353,7 +364,10 @@ function createBaseSaveOpenDocumentIfDirtyResponse(): SaveOpenDocumentIfDirtyRes
 }
 
 export const SaveOpenDocumentIfDirtyResponse: MessageFns<SaveOpenDocumentIfDirtyResponse> = {
-  encode(message: SaveOpenDocumentIfDirtyResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: SaveOpenDocumentIfDirtyResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.wasSaved !== undefined) {
       writer.uint32(8).bool(message.wasSaved);
     }
@@ -389,8 +403,8 @@ export const SaveOpenDocumentIfDirtyResponse: MessageFns<SaveOpenDocumentIfDirty
       wasSaved: isSet(object.wasSaved)
         ? globalThis.Boolean(object.wasSaved)
         : isSet(object.was_saved)
-        ? globalThis.Boolean(object.was_saved)
-        : undefined,
+          ? globalThis.Boolean(object.was_saved)
+          : undefined,
     };
   },
 
@@ -402,7 +416,9 @@ export const SaveOpenDocumentIfDirtyResponse: MessageFns<SaveOpenDocumentIfDirty
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SaveOpenDocumentIfDirtyResponse>, I>>(base?: I): SaveOpenDocumentIfDirtyResponse {
+  create<I extends Exact<DeepPartial<SaveOpenDocumentIfDirtyResponse>, I>>(
+    base?: I,
+  ): SaveOpenDocumentIfDirtyResponse {
     return SaveOpenDocumentIfDirtyResponse.fromPartial(base ?? ({} as any));
   },
   fromPartial<I extends Exact<DeepPartial<SaveOpenDocumentIfDirtyResponse>, I>>(
@@ -465,11 +481,14 @@ export const GetDiagnosticsRequest: MessageFns<GetDiagnosticsRequest> = {
   create<I extends Exact<DeepPartial<GetDiagnosticsRequest>, I>>(base?: I): GetDiagnosticsRequest {
     return GetDiagnosticsRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetDiagnosticsRequest>, I>>(object: I): GetDiagnosticsRequest {
+  fromPartial<I extends Exact<DeepPartial<GetDiagnosticsRequest>, I>>(
+    object: I,
+  ): GetDiagnosticsRequest {
     const message = createBaseGetDiagnosticsRequest();
-    message.metadata = (object.metadata !== undefined && object.metadata !== null)
-      ? Metadata.fromPartial(object.metadata)
-      : undefined;
+    message.metadata =
+      object.metadata !== undefined && object.metadata !== null
+        ? Metadata.fromPartial(object.metadata)
+        : undefined;
     return message;
   },
 };
@@ -515,8 +534,8 @@ export const GetDiagnosticsResponse: MessageFns<GetDiagnosticsResponse> = {
       fileDiagnostics: globalThis.Array.isArray(object?.fileDiagnostics)
         ? object.fileDiagnostics.map((e: any) => FileDiagnostics.fromJSON(e))
         : globalThis.Array.isArray(object?.file_diagnostics)
-        ? object.file_diagnostics.map((e: any) => FileDiagnostics.fromJSON(e))
-        : [],
+          ? object.file_diagnostics.map((e: any) => FileDiagnostics.fromJSON(e))
+          : [],
     };
   },
 
@@ -528,23 +547,31 @@ export const GetDiagnosticsResponse: MessageFns<GetDiagnosticsResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetDiagnosticsResponse>, I>>(base?: I): GetDiagnosticsResponse {
+  create<I extends Exact<DeepPartial<GetDiagnosticsResponse>, I>>(
+    base?: I,
+  ): GetDiagnosticsResponse {
     return GetDiagnosticsResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetDiagnosticsResponse>, I>>(object: I): GetDiagnosticsResponse {
+  fromPartial<I extends Exact<DeepPartial<GetDiagnosticsResponse>, I>>(
+    object: I,
+  ): GetDiagnosticsResponse {
     const message = createBaseGetDiagnosticsResponse();
-    message.fileDiagnostics = object.fileDiagnostics?.map((e) => FileDiagnostics.fromPartial(e)) || [];
+    message.fileDiagnostics =
+      object.fileDiagnostics?.map((e) => FileDiagnostics.fromPartial(e)) || [];
     return message;
   },
 };
 
 function createBaseSearchWorkspaceItemsRequest(): SearchWorkspaceItemsRequest {
-  return { query: "", limit: undefined, selectedType: undefined };
+  return { query: '', limit: undefined, selectedType: undefined };
 }
 
 export const SearchWorkspaceItemsRequest: MessageFns<SearchWorkspaceItemsRequest> = {
-  encode(message: SearchWorkspaceItemsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.query !== "") {
+  encode(
+    message: SearchWorkspaceItemsRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.query !== '') {
       writer.uint32(10).string(message.query);
     }
     if (message.limit !== undefined) {
@@ -598,19 +625,19 @@ export const SearchWorkspaceItemsRequest: MessageFns<SearchWorkspaceItemsRequest
 
   fromJSON(object: any): SearchWorkspaceItemsRequest {
     return {
-      query: isSet(object.query) ? globalThis.String(object.query) : "",
+      query: isSet(object.query) ? globalThis.String(object.query) : '',
       limit: isSet(object.limit) ? globalThis.Number(object.limit) : undefined,
       selectedType: isSet(object.selectedType)
         ? searchWorkspaceItemsRequest_SearchItemTypeFromJSON(object.selectedType)
         : isSet(object.selected_type)
-        ? searchWorkspaceItemsRequest_SearchItemTypeFromJSON(object.selected_type)
-        : undefined,
+          ? searchWorkspaceItemsRequest_SearchItemTypeFromJSON(object.selected_type)
+          : undefined,
     };
   },
 
   toJSON(message: SearchWorkspaceItemsRequest): unknown {
     const obj: any = {};
-    if (message.query !== "") {
+    if (message.query !== '') {
       obj.query = message.query;
     }
     if (message.limit !== undefined) {
@@ -622,12 +649,16 @@ export const SearchWorkspaceItemsRequest: MessageFns<SearchWorkspaceItemsRequest
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SearchWorkspaceItemsRequest>, I>>(base?: I): SearchWorkspaceItemsRequest {
+  create<I extends Exact<DeepPartial<SearchWorkspaceItemsRequest>, I>>(
+    base?: I,
+  ): SearchWorkspaceItemsRequest {
     return SearchWorkspaceItemsRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SearchWorkspaceItemsRequest>, I>>(object: I): SearchWorkspaceItemsRequest {
+  fromPartial<I extends Exact<DeepPartial<SearchWorkspaceItemsRequest>, I>>(
+    object: I,
+  ): SearchWorkspaceItemsRequest {
     const message = createBaseSearchWorkspaceItemsRequest();
-    message.query = object.query ?? "";
+    message.query = object.query ?? '';
     message.limit = object.limit ?? undefined;
     message.selectedType = object.selectedType ?? undefined;
     return message;
@@ -639,7 +670,10 @@ function createBaseSearchWorkspaceItemsResponse(): SearchWorkspaceItemsResponse 
 }
 
 export const SearchWorkspaceItemsResponse: MessageFns<SearchWorkspaceItemsResponse> = {
-  encode(message: SearchWorkspaceItemsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: SearchWorkspaceItemsResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.items) {
       SearchWorkspaceItemsResponse_SearchItem.encode(v!, writer.uint32(10).fork()).join();
     }
@@ -658,7 +692,9 @@ export const SearchWorkspaceItemsResponse: MessageFns<SearchWorkspaceItemsRespon
             break;
           }
 
-          message.items.push(SearchWorkspaceItemsResponse_SearchItem.decode(reader, reader.uint32()));
+          message.items.push(
+            SearchWorkspaceItemsResponse_SearchItem.decode(reader, reader.uint32()),
+          );
           continue;
         }
       }
@@ -686,111 +722,125 @@ export const SearchWorkspaceItemsResponse: MessageFns<SearchWorkspaceItemsRespon
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SearchWorkspaceItemsResponse>, I>>(base?: I): SearchWorkspaceItemsResponse {
+  create<I extends Exact<DeepPartial<SearchWorkspaceItemsResponse>, I>>(
+    base?: I,
+  ): SearchWorkspaceItemsResponse {
     return SearchWorkspaceItemsResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SearchWorkspaceItemsResponse>, I>>(object: I): SearchWorkspaceItemsResponse {
+  fromPartial<I extends Exact<DeepPartial<SearchWorkspaceItemsResponse>, I>>(
+    object: I,
+  ): SearchWorkspaceItemsResponse {
     const message = createBaseSearchWorkspaceItemsResponse();
-    message.items = object.items?.map((e) => SearchWorkspaceItemsResponse_SearchItem.fromPartial(e)) || [];
+    message.items =
+      object.items?.map((e) => SearchWorkspaceItemsResponse_SearchItem.fromPartial(e)) || [];
     return message;
   },
 };
 
 function createBaseSearchWorkspaceItemsResponse_SearchItem(): SearchWorkspaceItemsResponse_SearchItem {
-  return { path: "", type: 0, label: undefined };
+  return { path: '', type: 0, label: undefined };
 }
 
-export const SearchWorkspaceItemsResponse_SearchItem: MessageFns<SearchWorkspaceItemsResponse_SearchItem> = {
-  encode(message: SearchWorkspaceItemsResponse_SearchItem, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.path !== "") {
-      writer.uint32(10).string(message.path);
-    }
-    if (message.type !== 0) {
-      writer.uint32(16).int32(message.type);
-    }
-    if (message.label !== undefined) {
-      writer.uint32(26).string(message.label);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): SearchWorkspaceItemsResponse_SearchItem {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSearchWorkspaceItemsResponse_SearchItem();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.path = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 16) {
-            break;
-          }
-
-          message.type = reader.int32() as any;
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.label = reader.string();
-          continue;
-        }
+export const SearchWorkspaceItemsResponse_SearchItem: MessageFns<SearchWorkspaceItemsResponse_SearchItem> =
+  {
+    encode(
+      message: SearchWorkspaceItemsResponse_SearchItem,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.path !== '') {
+        writer.uint32(10).string(message.path);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      if (message.type !== 0) {
+        writer.uint32(16).int32(message.type);
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+      if (message.label !== undefined) {
+        writer.uint32(26).string(message.label);
+      }
+      return writer;
+    },
 
-  fromJSON(object: any): SearchWorkspaceItemsResponse_SearchItem {
-    return {
-      path: isSet(object.path) ? globalThis.String(object.path) : "",
-      type: isSet(object.type) ? searchWorkspaceItemsRequest_SearchItemTypeFromJSON(object.type) : 0,
-      label: isSet(object.label) ? globalThis.String(object.label) : undefined,
-    };
-  },
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): SearchWorkspaceItemsResponse_SearchItem {
+      const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSearchWorkspaceItemsResponse_SearchItem();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
 
-  toJSON(message: SearchWorkspaceItemsResponse_SearchItem): unknown {
-    const obj: any = {};
-    if (message.path !== "") {
-      obj.path = message.path;
-    }
-    if (message.type !== 0) {
-      obj.type = searchWorkspaceItemsRequest_SearchItemTypeToJSON(message.type);
-    }
-    if (message.label !== undefined) {
-      obj.label = message.label;
-    }
-    return obj;
-  },
+            message.path = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
 
-  create<I extends Exact<DeepPartial<SearchWorkspaceItemsResponse_SearchItem>, I>>(
-    base?: I,
-  ): SearchWorkspaceItemsResponse_SearchItem {
-    return SearchWorkspaceItemsResponse_SearchItem.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<SearchWorkspaceItemsResponse_SearchItem>, I>>(
-    object: I,
-  ): SearchWorkspaceItemsResponse_SearchItem {
-    const message = createBaseSearchWorkspaceItemsResponse_SearchItem();
-    message.path = object.path ?? "";
-    message.type = object.type ?? 0;
-    message.label = object.label ?? undefined;
-    return message;
-  },
-};
+            message.type = reader.int32() as any;
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.label = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): SearchWorkspaceItemsResponse_SearchItem {
+      return {
+        path: isSet(object.path) ? globalThis.String(object.path) : '',
+        type: isSet(object.type)
+          ? searchWorkspaceItemsRequest_SearchItemTypeFromJSON(object.type)
+          : 0,
+        label: isSet(object.label) ? globalThis.String(object.label) : undefined,
+      };
+    },
+
+    toJSON(message: SearchWorkspaceItemsResponse_SearchItem): unknown {
+      const obj: any = {};
+      if (message.path !== '') {
+        obj.path = message.path;
+      }
+      if (message.type !== 0) {
+        obj.type = searchWorkspaceItemsRequest_SearchItemTypeToJSON(message.type);
+      }
+      if (message.label !== undefined) {
+        obj.label = message.label;
+      }
+      return obj;
+    },
+
+    create<I extends Exact<DeepPartial<SearchWorkspaceItemsResponse_SearchItem>, I>>(
+      base?: I,
+    ): SearchWorkspaceItemsResponse_SearchItem {
+      return SearchWorkspaceItemsResponse_SearchItem.fromPartial(base ?? ({} as any));
+    },
+    fromPartial<I extends Exact<DeepPartial<SearchWorkspaceItemsResponse_SearchItem>, I>>(
+      object: I,
+    ): SearchWorkspaceItemsResponse_SearchItem {
+      const message = createBaseSearchWorkspaceItemsResponse_SearchItem();
+      message.path = object.path ?? '';
+      message.type = object.type ?? 0;
+      message.label = object.label ?? undefined;
+      return message;
+    },
+  };
 
 function createBaseOpenProblemsPanelRequest(): OpenProblemsPanelRequest {
   return {};
@@ -826,10 +876,14 @@ export const OpenProblemsPanelRequest: MessageFns<OpenProblemsPanelRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<OpenProblemsPanelRequest>, I>>(base?: I): OpenProblemsPanelRequest {
+  create<I extends Exact<DeepPartial<OpenProblemsPanelRequest>, I>>(
+    base?: I,
+  ): OpenProblemsPanelRequest {
     return OpenProblemsPanelRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<OpenProblemsPanelRequest>, I>>(_: I): OpenProblemsPanelRequest {
+  fromPartial<I extends Exact<DeepPartial<OpenProblemsPanelRequest>, I>>(
+    _: I,
+  ): OpenProblemsPanelRequest {
     const message = createBaseOpenProblemsPanelRequest();
     return message;
   },
@@ -869,22 +923,29 @@ export const OpenProblemsPanelResponse: MessageFns<OpenProblemsPanelResponse> = 
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<OpenProblemsPanelResponse>, I>>(base?: I): OpenProblemsPanelResponse {
+  create<I extends Exact<DeepPartial<OpenProblemsPanelResponse>, I>>(
+    base?: I,
+  ): OpenProblemsPanelResponse {
     return OpenProblemsPanelResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<OpenProblemsPanelResponse>, I>>(_: I): OpenProblemsPanelResponse {
+  fromPartial<I extends Exact<DeepPartial<OpenProblemsPanelResponse>, I>>(
+    _: I,
+  ): OpenProblemsPanelResponse {
     const message = createBaseOpenProblemsPanelResponse();
     return message;
   },
 };
 
 function createBaseOpenInFileExplorerPanelRequest(): OpenInFileExplorerPanelRequest {
-  return { path: "" };
+  return { path: '' };
 }
 
 export const OpenInFileExplorerPanelRequest: MessageFns<OpenInFileExplorerPanelRequest> = {
-  encode(message: OpenInFileExplorerPanelRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.path !== "") {
+  encode(
+    message: OpenInFileExplorerPanelRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.path !== '') {
       writer.uint32(10).string(message.path);
     }
     return writer;
@@ -915,25 +976,27 @@ export const OpenInFileExplorerPanelRequest: MessageFns<OpenInFileExplorerPanelR
   },
 
   fromJSON(object: any): OpenInFileExplorerPanelRequest {
-    return { path: isSet(object.path) ? globalThis.String(object.path) : "" };
+    return { path: isSet(object.path) ? globalThis.String(object.path) : '' };
   },
 
   toJSON(message: OpenInFileExplorerPanelRequest): unknown {
     const obj: any = {};
-    if (message.path !== "") {
+    if (message.path !== '') {
       obj.path = message.path;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<OpenInFileExplorerPanelRequest>, I>>(base?: I): OpenInFileExplorerPanelRequest {
+  create<I extends Exact<DeepPartial<OpenInFileExplorerPanelRequest>, I>>(
+    base?: I,
+  ): OpenInFileExplorerPanelRequest {
     return OpenInFileExplorerPanelRequest.fromPartial(base ?? ({} as any));
   },
   fromPartial<I extends Exact<DeepPartial<OpenInFileExplorerPanelRequest>, I>>(
     object: I,
   ): OpenInFileExplorerPanelRequest {
     const message = createBaseOpenInFileExplorerPanelRequest();
-    message.path = object.path ?? "";
+    message.path = object.path ?? '';
     return message;
   },
 };
@@ -943,7 +1006,10 @@ function createBaseOpenInFileExplorerPanelResponse(): OpenInFileExplorerPanelRes
 }
 
 export const OpenInFileExplorerPanelResponse: MessageFns<OpenInFileExplorerPanelResponse> = {
-  encode(_: OpenInFileExplorerPanelResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    _: OpenInFileExplorerPanelResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     return writer;
   },
 
@@ -972,10 +1038,14 @@ export const OpenInFileExplorerPanelResponse: MessageFns<OpenInFileExplorerPanel
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<OpenInFileExplorerPanelResponse>, I>>(base?: I): OpenInFileExplorerPanelResponse {
+  create<I extends Exact<DeepPartial<OpenInFileExplorerPanelResponse>, I>>(
+    base?: I,
+  ): OpenInFileExplorerPanelResponse {
     return OpenInFileExplorerPanelResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<OpenInFileExplorerPanelResponse>, I>>(_: I): OpenInFileExplorerPanelResponse {
+  fromPartial<I extends Exact<DeepPartial<OpenInFileExplorerPanelResponse>, I>>(
+    _: I,
+  ): OpenInFileExplorerPanelResponse {
     const message = createBaseOpenInFileExplorerPanelResponse();
     return message;
   },
@@ -1015,10 +1085,14 @@ export const OpenClineSidebarPanelRequest: MessageFns<OpenClineSidebarPanelReque
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<OpenClineSidebarPanelRequest>, I>>(base?: I): OpenClineSidebarPanelRequest {
+  create<I extends Exact<DeepPartial<OpenClineSidebarPanelRequest>, I>>(
+    base?: I,
+  ): OpenClineSidebarPanelRequest {
     return OpenClineSidebarPanelRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<OpenClineSidebarPanelRequest>, I>>(_: I): OpenClineSidebarPanelRequest {
+  fromPartial<I extends Exact<DeepPartial<OpenClineSidebarPanelRequest>, I>>(
+    _: I,
+  ): OpenClineSidebarPanelRequest {
     const message = createBaseOpenClineSidebarPanelRequest();
     return message;
   },
@@ -1029,7 +1103,10 @@ function createBaseOpenClineSidebarPanelResponse(): OpenClineSidebarPanelRespons
 }
 
 export const OpenClineSidebarPanelResponse: MessageFns<OpenClineSidebarPanelResponse> = {
-  encode(_: OpenClineSidebarPanelResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    _: OpenClineSidebarPanelResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     return writer;
   },
 
@@ -1058,10 +1135,14 @@ export const OpenClineSidebarPanelResponse: MessageFns<OpenClineSidebarPanelResp
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<OpenClineSidebarPanelResponse>, I>>(base?: I): OpenClineSidebarPanelResponse {
+  create<I extends Exact<DeepPartial<OpenClineSidebarPanelResponse>, I>>(
+    base?: I,
+  ): OpenClineSidebarPanelResponse {
     return OpenClineSidebarPanelResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<OpenClineSidebarPanelResponse>, I>>(_: I): OpenClineSidebarPanelResponse {
+  fromPartial<I extends Exact<DeepPartial<OpenClineSidebarPanelResponse>, I>>(
+    _: I,
+  ): OpenClineSidebarPanelResponse {
     const message = createBaseOpenClineSidebarPanelResponse();
     return message;
   },
@@ -1154,12 +1235,15 @@ export const OpenTerminalResponse: MessageFns<OpenTerminalResponse> = {
 };
 
 function createBaseExecuteCommandInTerminalRequest(): ExecuteCommandInTerminalRequest {
-  return { command: "" };
+  return { command: '' };
 }
 
 export const ExecuteCommandInTerminalRequest: MessageFns<ExecuteCommandInTerminalRequest> = {
-  encode(message: ExecuteCommandInTerminalRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.command !== "") {
+  encode(
+    message: ExecuteCommandInTerminalRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.command !== '') {
       writer.uint32(10).string(message.command);
     }
     return writer;
@@ -1190,25 +1274,27 @@ export const ExecuteCommandInTerminalRequest: MessageFns<ExecuteCommandInTermina
   },
 
   fromJSON(object: any): ExecuteCommandInTerminalRequest {
-    return { command: isSet(object.command) ? globalThis.String(object.command) : "" };
+    return { command: isSet(object.command) ? globalThis.String(object.command) : '' };
   },
 
   toJSON(message: ExecuteCommandInTerminalRequest): unknown {
     const obj: any = {};
-    if (message.command !== "") {
+    if (message.command !== '') {
       obj.command = message.command;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ExecuteCommandInTerminalRequest>, I>>(base?: I): ExecuteCommandInTerminalRequest {
+  create<I extends Exact<DeepPartial<ExecuteCommandInTerminalRequest>, I>>(
+    base?: I,
+  ): ExecuteCommandInTerminalRequest {
     return ExecuteCommandInTerminalRequest.fromPartial(base ?? ({} as any));
   },
   fromPartial<I extends Exact<DeepPartial<ExecuteCommandInTerminalRequest>, I>>(
     object: I,
   ): ExecuteCommandInTerminalRequest {
     const message = createBaseExecuteCommandInTerminalRequest();
-    message.command = object.command ?? "";
+    message.command = object.command ?? '';
     return message;
   },
 };
@@ -1218,7 +1304,10 @@ function createBaseExecuteCommandInTerminalResponse(): ExecuteCommandInTerminalR
 }
 
 export const ExecuteCommandInTerminalResponse: MessageFns<ExecuteCommandInTerminalResponse> = {
-  encode(message: ExecuteCommandInTerminalResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ExecuteCommandInTerminalResponse,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.success !== false) {
       writer.uint32(8).bool(message.success);
     }
@@ -1276,12 +1365,12 @@ export const ExecuteCommandInTerminalResponse: MessageFns<ExecuteCommandInTermin
 };
 
 function createBaseOpenFolderRequest(): OpenFolderRequest {
-  return { path: "", newWindow: false };
+  return { path: '', newWindow: false };
 }
 
 export const OpenFolderRequest: MessageFns<OpenFolderRequest> = {
   encode(message: OpenFolderRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.path !== "") {
+    if (message.path !== '') {
       writer.uint32(10).string(message.path);
     }
     if (message.newWindow !== false) {
@@ -1324,18 +1413,18 @@ export const OpenFolderRequest: MessageFns<OpenFolderRequest> = {
 
   fromJSON(object: any): OpenFolderRequest {
     return {
-      path: isSet(object.path) ? globalThis.String(object.path) : "",
+      path: isSet(object.path) ? globalThis.String(object.path) : '',
       newWindow: isSet(object.newWindow)
         ? globalThis.Boolean(object.newWindow)
         : isSet(object.new_window)
-        ? globalThis.Boolean(object.new_window)
-        : false,
+          ? globalThis.Boolean(object.new_window)
+          : false,
     };
   },
 
   toJSON(message: OpenFolderRequest): unknown {
     const obj: any = {};
-    if (message.path !== "") {
+    if (message.path !== '') {
       obj.path = message.path;
     }
     if (message.newWindow !== false) {
@@ -1349,7 +1438,7 @@ export const OpenFolderRequest: MessageFns<OpenFolderRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<OpenFolderRequest>, I>>(object: I): OpenFolderRequest {
     const message = createBaseOpenFolderRequest();
-    message.path = object.path ?? "";
+    message.path = object.path ?? '';
     message.newWindow = object.newWindow ?? false;
     return message;
   },
@@ -1416,12 +1505,12 @@ export const OpenFolderResponse: MessageFns<OpenFolderResponse> = {
 /** Provides methods for working with workspaces/projects. */
 export type WorkspaceServiceDefinition = typeof WorkspaceServiceDefinition;
 export const WorkspaceServiceDefinition = {
-  name: "WorkspaceService",
-  fullName: "host.WorkspaceService",
+  name: 'WorkspaceService',
+  fullName: 'host.WorkspaceService',
   methods: {
     /** Returns a list of the top level directories of the workspace. */
     getWorkspacePaths: {
-      name: "getWorkspacePaths",
+      name: 'getWorkspacePaths',
       requestType: GetWorkspacePathsRequest,
       requestStream: false,
       responseType: GetWorkspacePathsResponse,
@@ -1434,7 +1523,7 @@ export const WorkspaceServiceDefinition = {
      * need to be saved.
      */
     saveOpenDocumentIfDirty: {
-      name: "saveOpenDocumentIfDirty",
+      name: 'saveOpenDocumentIfDirty',
       requestType: SaveOpenDocumentIfDirtyRequest,
       requestStream: false,
       responseType: SaveOpenDocumentIfDirtyResponse,
@@ -1443,7 +1532,7 @@ export const WorkspaceServiceDefinition = {
     },
     /** Get diagnostics from the workspace. */
     getDiagnostics: {
-      name: "getDiagnostics",
+      name: 'getDiagnostics',
       requestType: GetDiagnosticsRequest,
       requestStream: false,
       responseType: GetDiagnosticsResponse,
@@ -1452,7 +1541,7 @@ export const WorkspaceServiceDefinition = {
     },
     /** Makes the problems panel/pane visible in the IDE and focuses it. */
     openProblemsPanel: {
-      name: "openProblemsPanel",
+      name: 'openProblemsPanel',
       requestType: OpenProblemsPanelRequest,
       requestStream: false,
       responseType: OpenProblemsPanelResponse,
@@ -1461,7 +1550,7 @@ export const WorkspaceServiceDefinition = {
     },
     /** Opens the IDE file explorer panel and selects a file or directory. */
     openInFileExplorerPanel: {
-      name: "openInFileExplorerPanel",
+      name: 'openInFileExplorerPanel',
       requestType: OpenInFileExplorerPanelRequest,
       requestStream: false,
       responseType: OpenInFileExplorerPanelResponse,
@@ -1470,7 +1559,7 @@ export const WorkspaceServiceDefinition = {
     },
     /** Opens and focuses the Cline sidebar panel in the host IDE. */
     openClineSidebarPanel: {
-      name: "openClineSidebarPanel",
+      name: 'openClineSidebarPanel',
       requestType: OpenClineSidebarPanelRequest,
       requestStream: false,
       responseType: OpenClineSidebarPanelResponse,
@@ -1479,7 +1568,7 @@ export const WorkspaceServiceDefinition = {
     },
     /** Opens and focuses the terminal panel. */
     openTerminalPanel: {
-      name: "openTerminalPanel",
+      name: 'openTerminalPanel',
       requestType: OpenTerminalRequest,
       requestStream: false,
       responseType: OpenTerminalResponse,
@@ -1488,7 +1577,7 @@ export const WorkspaceServiceDefinition = {
     },
     /** Executes a command in a new terminal */
     executeCommandInTerminal: {
-      name: "executeCommandInTerminal",
+      name: 'executeCommandInTerminal',
       requestType: ExecuteCommandInTerminalRequest,
       requestStream: false,
       responseType: ExecuteCommandInTerminalResponse,
@@ -1497,7 +1586,7 @@ export const WorkspaceServiceDefinition = {
     },
     /** Opens a folder/workspace in the IDE */
     openFolder: {
-      name: "openFolder",
+      name: 'openFolder',
       requestType: OpenFolderRequest,
       requestStream: false,
       responseType: OpenFolderResponse,
@@ -1509,14 +1598,19 @@ export const WorkspaceServiceDefinition = {
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends globalThis.Array<infer U>
+    ? globalThis.Array<DeepPartial<U>>
+    : T extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPartial<U>>
+      : T extends {}
+        ? { [K in keyof T]?: DeepPartial<T[K]> }
+        : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-type Exact<P, I extends P> = P extends Builtin ? P
+type Exact<P, I extends P> = P extends Builtin
+  ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 function isSet(value: any): boolean {

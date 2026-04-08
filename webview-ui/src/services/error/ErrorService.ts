@@ -1,7 +1,7 @@
-import { Logger } from "@/shared/services/Logger"
-import { ClineError } from "./ClineError"
-import { ErrorProviderFactory } from "./ErrorProviderFactory"
-import { IErrorProvider } from "./providers/IErrorProvider"
+import { Logger } from '@/shared/services/Logger';
+import { ClineError } from './ClineError';
+import { ErrorProviderFactory } from './ErrorProviderFactory';
+import type { IErrorProvider } from './providers/IErrorProvider';
 
 /**
  * ErrorService handles error logging and tracking for the Cline extension
@@ -9,88 +9,90 @@ import { IErrorProvider } from "./providers/IErrorProvider"
  * Respects user privacy settings and VSCode's global telemetry configuration
  */
 export class ErrorService {
-	private static instance: ErrorService | null = null
+  private static instance: ErrorService | null = null;
 
-	private provider: IErrorProvider
+  private provider: IErrorProvider;
 
-	/**
-	 * Sets up the ErrorService singleton.
-	 */
-	public static async initialize(): Promise<ErrorService> {
-		if (ErrorService.instance) {
-			throw new Error("ErrorService has already been initialized.")
-		}
+  /**
+   * Sets up the ErrorService singleton.
+   */
+  public static async initialize(): Promise<ErrorService> {
+    if (ErrorService.instance) {
+      throw new Error('ErrorService has already been initialized.');
+    }
 
-		const provider = await ErrorProviderFactory.createProvider(ErrorProviderFactory.getDefaultConfig())
-		ErrorService.instance = new ErrorService(provider)
-		return ErrorService.instance
-	}
+    const provider = await ErrorProviderFactory.createProvider(
+      ErrorProviderFactory.getDefaultConfig(),
+    );
+    ErrorService.instance = new ErrorService(provider);
+    return ErrorService.instance;
+  }
 
-	/**
-	 * Gets the singleton instance
-	 */
-	public static get(): ErrorService {
-		if (!ErrorService.instance) {
-			throw new Error("ErrorService not setup. Call ErrorService.initialize() first.")
-		}
-		return ErrorService.instance
-	}
+  /**
+   * Gets the singleton instance
+   */
+  public static get(): ErrorService {
+    if (!ErrorService.instance) {
+      throw new Error('ErrorService not setup. Call ErrorService.initialize() first.');
+    }
+    return ErrorService.instance;
+  }
 
-	constructor(provider: IErrorProvider) {
-		this.provider = provider
-	}
+  constructor(provider: IErrorProvider) {
+    this.provider = provider;
+  }
 
-	captureException(error: Error | ClineError, properties?: Record<string, unknown>) {
-		return this.provider.captureException(error, properties)
-	}
+  captureException(error: Error | ClineError, properties?: Record<string, unknown>) {
+    return this.provider.captureException(error, properties);
+  }
 
-	public logException(error: Error | ClineError, properties?: Record<string, unknown>): void {
-		this.provider.logException(error, properties)
-		Logger.error("[ErrorService] Logging exception", JSON.stringify(error))
-	}
+  public logException(error: Error | ClineError, properties?: Record<string, unknown>): void {
+    this.provider.logException(error, properties);
+    Logger.error('[ErrorService] Logging exception', JSON.stringify(error));
+  }
 
-	public logMessage(
-		message: string,
-		level: "error" | "warning" | "log" | "debug" | "info" = "log",
-		properties?: Record<string, unknown>,
-	): void {
-		this.provider.logMessage(message, level, properties)
-	}
+  public logMessage(
+    message: string,
+    level: 'error' | 'warning' | 'log' | 'debug' | 'info' = 'log',
+    properties?: Record<string, unknown>,
+  ): void {
+    this.provider.logMessage(message, level, properties);
+  }
 
-	public toClineError(rawError: unknown, modelId?: string, providerId?: string): ClineError {
-		const transformed = ClineError.transform(rawError, modelId, providerId)
-		this.logException(transformed, { modelId, providerId })
-		return transformed
-	}
+  public toClineError(rawError: unknown, modelId?: string, providerId?: string): ClineError {
+    const transformed = ClineError.transform(rawError, modelId, providerId);
+    this.logException(transformed, { modelId, providerId });
+    return transformed;
+  }
 
-	/**
-	 * Check if error logging is currently enabled
-	 * @returns Boolean indicating whether error logging is enabled
-	 */
-	public isEnabled(): boolean {
-		return this.provider.isEnabled()
-	}
+  /**
+   * Check if error logging is currently enabled
+   * @returns Boolean indicating whether error logging is enabled
+   */
+  public isEnabled(): boolean {
+    return this.provider.isEnabled();
+  }
 
-	/**
-	 * Get current error logging settings
-	 * @returns Current error logging settings
-	 */
-	public getSettings() {
-		return this.provider.getSettings()
-	}
+  /**
+   * Get current error logging settings
+   * @returns Current error logging settings
+   */
+  public getSettings() {
+    return this.provider.getSettings();
+  }
 
-	/**
-	 * Get the error provider instance
-	 * @returns The current error provider
-	 */
-	public getProvider(): IErrorProvider {
-		return this.provider
-	}
+  /**
+   * Get the error provider instance
+   * @returns The current error provider
+   */
+  public getProvider(): IErrorProvider {
+    return this.provider;
+  }
 
-	/**
-	 * Clean up resources when the service is disposed
-	 */
-	public async dispose(): Promise<void> {
-		await this.provider.dispose()
-	}
+  /**
+   * Clean up resources when the service is disposed
+   */
+  public async dispose(): Promise<void> {
+    await this.provider.dispose();
+  }
 }
