@@ -48,7 +48,7 @@ export function MarkdownOutput({ content }: MarkdownOutputProps) {
     <div className="markdown-container">
       <ReactMarkdown
         components={{
-          code: CodeBlock
+          code: CodeBlock as any
         }}
       >
         {content}

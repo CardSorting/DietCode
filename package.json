@@ -1,5 +1,6 @@
 {
   "name": "dietcode",
+  "publisher": "dietcode",
   "version": "2.2.1",
   "type": "module",
   "private": true,
