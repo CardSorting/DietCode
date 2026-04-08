@@ -13,8 +13,6 @@ function AppContent() {
   const { 
     activeView, 
     setActiveView, 
-    status, 
-    badge, 
     logs, 
     metrics, 
     isLinkHealthy, 
@@ -102,8 +100,6 @@ function AppContent() {
         <main>
           <ConsoleView 
             logs={logs} 
-            status={status} 
-            badge={badge} 
             metrics={metrics}
             onSend={handleSend} 
             isHidden={activeView === 'settings'} 

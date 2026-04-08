@@ -5,6 +5,7 @@
   "type": "module",
   "private": true,
   "description": "Sovereign Hive Architecture for DietCode - Zero-Shim AI Orchestration",
+  "repository": "https://github.com/CardSorting/DietCode",
   "main": "./dist/extension.js",
   "engines": {
     "vscode": "^1.90.0"
@@ -51,7 +52,8 @@
     "lint": "biome lint . && eslint .",
     "format": "biome format . --write",
     "check": "biome check --apply .",
-    "verify": "npx tsx verify_advanced_infrastructure.ts"
+    "verify": "npx tsx verify_advanced_infrastructure.ts",
+    "package:vsix": "vsce package"
   },
   "bin": {
     "dietcode": "./dist/index.js"
