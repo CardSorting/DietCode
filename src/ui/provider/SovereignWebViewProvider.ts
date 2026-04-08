@@ -79,12 +79,22 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
 
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
-        webviewView.webview.onDidReceiveMessage(async (data: WebViewRequest) => {
+        webviewView.webview.onDidReceiveMessage(async (data: any) => {
             try {
-                await this._handleMessage(data);
+                if (data.type === 'grpc_request') {
+                    await this._handleGrpcRequest(data.grpc_request);
+                } else if (data.type === 'grpc_request_cancel') {
+                    // Handle cancellation if needed
+                } else {
+                    await this._handleMessage(data);
+                }
             } catch (err) {
                 console.error(`[WebView:Error] ${err}`);
-                this._sendResponse(data.id, 'error', undefined, String(err));
+                if (data.grpc_request) {
+                    this._sendGrpcResponse(data.grpc_request.request_id, undefined, String(err));
+                } else {
+                    this._sendResponse(data.id, 'error', undefined, String(err));
+                }
             }
         });
 
@@ -259,6 +269,96 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
         }
     }
 
+    private async _handleGrpcRequest(request: any) {
+        const { service, method, request_id, is_streaming } = request;
+        console.log(`[gRPC:Request] ${service}.${method} (${request_id})`);
+
+        try {
+            switch (service) {
+                case 'cline.StateService':
+                    await this._handleStateService(method, request);
+                    break;
+                case 'cline.UiService':
+                    await this._handleUiService(method, request);
+                    break;
+                case 'cline.AccountService':
+                    await this._handleAccountService(method, request);
+                    break;
+                default:
+                    this._sendGrpcResponse(request_id, undefined, `Service ${service} not implemented`);
+            }
+        } catch (error) {
+            this._sendGrpcResponse(request_id, undefined, String(error));
+        }
+    }
+
+    private async _handleStateService(method: string, request: any) {
+        switch (method) {
+            case 'subscribeToState':
+            case 'getLatestState': {
+                const settings = await this._getSettings();
+                // Map local settings to the expected ExtensionState structure
+                const state = {
+                    version: '2.2.2',
+                    clineMessages: [],
+                    taskHistory: [],
+                    shouldShowAnnouncement: false,
+                    autoApprovalSettings: { version: 1, actions: { readFiles: true, editFiles: true } },
+                    browserSettings: { enabled: true },
+                    platform: 'darwin',
+                    environment: 'production',
+                    telemetrySetting: 'enabled',
+                    welcomeViewCompleted: true,
+                    workspaceRoots: [],
+                    apiConfiguration: {
+                        actModeApiProvider: settings.selectedProvider,
+                        planModeApiProvider: settings.selectedProvider,
+                    },
+                    ...settings
+                };
+
+                this._sendGrpcResponse(request.request_id, {
+                    stateJson: JSON.stringify(state)
+                }, undefined, request.is_streaming);
+                break;
+            }
+            case 'getAvailableTerminalProfiles': {
+                this._sendGrpcResponse(request.request_id, { profiles: [] });
+                break;
+            }
+            default:
+                this._sendGrpcResponse(request.request_id, undefined, `Method ${method} not implemented in StateService`);
+        }
+    }
+
+    private async _handleUiService(method: string, request: any) {
+        switch (method) {
+            case 'initializeWebview':
+                this._sendGrpcResponse(request.request_id, {});
+                break;
+            default:
+                this._sendGrpcResponse(request.request_id, undefined, `Method ${method} not implemented in UiService`);
+        }
+    }
+
+    private async _handleAccountService(method: string, request: any) {
+        this._sendGrpcResponse(request.request_id, {}, `AccountService.${method} stubbed`);
+    }
+
+    private _sendGrpcResponse(request_id: string, message?: any, error?: string, is_streaming?: boolean) {
+        if (this._view) {
+            this._view.webview.postMessage({
+                type: 'grpc_response',
+                grpc_response: {
+                    request_id,
+                    message,
+                    error,
+                    is_streaming
+                }
+            });
+        }
+    }
+
     private _getHtmlForWebview(webview: vscode.Webview) {
         // Read index.html compiled from the React build
         const webviewUiPath = vscode.Uri.joinPath(this._context.extensionUri, 'webview-ui', 'build');
@@ -277,8 +377,8 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
         const rootUrl = webview.asWebviewUri(webviewUiPath).toString();
 
         // Inject Content Security Policy
-        // Replace base tag and add nonces
-        const csp = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}'; connect-src ${webview.cspSource}; font-src 'self' data:;">`;
+        // Added img-src to allow icons and connect-src to be more flexible for API/gRPC
+        const csp = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} https: data:; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}'; connect-src ${webview.cspSource} https:; font-src ${webview.cspSource};">`;
 
         html = html.replace(/<head>/, `<head>\n    ${csp}`);
         
@@ -286,12 +386,8 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
         html = html.replace(/<script /g, `<script nonce="${nonce}" `);
 
         // Replace asset paths with fully resolved webview uris
-        html = html.replace(/(href|src)="\/assets([^"]+)"/g, (match, type, assetPath) => {
-            return `${type}="${rootUrl}/assets${assetPath}"`;
-        });
-
-        // Some bundlers use relative paths like "./assets/..."
-        html = html.replace(/(href|src)="\.\/assets([^"]+)"/g, (match, type, assetPath) => {
+        // Improved regex to handle various path formats and ensure we don't double-replace
+        html = html.replace(/(href|src)="(\.?)\/assets([^"]+)"/g, (match, type, dot, assetPath) => {
             return `${type}="${rootUrl}/assets${assetPath}"`;
         });
 
