@@ -284,8 +284,18 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
                 case 'cline.AccountService':
                     await this._handleAccountService(method, request);
                     break;
+                case 'cline.McpService':
+                    await this._handleMcpService(method, request);
+                    break;
+                case 'cline.ModelsService':
+                    await this._handleModelsService(method, request);
+                    break;
+                case 'cline.TaskService':
+                    await this._handleTaskService(method, request);
+                    break;
                 default:
-                    this._sendGrpcResponse(request_id, undefined, `Service ${service} not implemented`);
+                    console.warn(`[gRPC:Warning] Service ${service} not implemented`);
+                    this._sendGrpcResponse(request_id, {}, `Service ${service} not implemented`);
             }
         } catch (error) {
             this._sendGrpcResponse(request_id, undefined, String(error));
@@ -297,19 +307,51 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
             case 'subscribeToState':
             case 'getLatestState': {
                 const settings = await this._getSettings();
-                // Map local settings to the expected ExtensionState structure
+                // Exhaustive ExtensionState mock based on shared/ExtensionMessage.ts
                 const state = {
                     version: '2.2.2',
+                    isNewUser: false,
+                    welcomeViewCompleted: true,
                     clineMessages: [],
                     taskHistory: [],
                     shouldShowAnnouncement: false,
-                    autoApprovalSettings: { version: 1, actions: { readFiles: true, editFiles: true } },
-                    browserSettings: { enabled: true },
+                    autoApprovalSettings: { 
+                        version: 1, 
+                        actions: { 
+                            readFiles: true, 
+                            editFiles: true,
+                            executeSafeCommands: true,
+                            useBrowser: true,
+                            useMcp: true
+                        } 
+                    },
+                    browserSettings: { 
+                        enabled: true,
+                        viewport: { width: 1280, height: 800 } 
+                    },
+                    mode: 'plan',
+                    mcpDisplayMode: 'rich',
+                    planActSeparateModelsSetting: false,
                     platform: 'darwin',
                     environment: 'production',
                     telemetrySetting: 'enabled',
-                    welcomeViewCompleted: true,
+                    shellIntegrationTimeout: 30000,
+                    terminalOutputLineLimit: 1000,
+                    maxConsecutiveMistakes: 3,
+                    vscodeTerminalExecutionMode: 'auto',
+                    distinctId: 'dietcode-dev-id',
+                    globalClineRulesToggles: {},
+                    localClineRulesToggles: {},
+                    localWorkflowToggles: {},
+                    globalWorkflowToggles: {},
+                    localCursorRulesToggles: {},
+                    localWindsurfRulesToggles: {},
+                    localAgentsRulesToggles: {},
                     workspaceRoots: [],
+                    primaryRootIndex: 0,
+                    isMultiRootWorkspace: false,
+                    lastDismissedCliBannerVersion: 0,
+                    focusChainSettings: { enabled: false, remindClineInterval: 5 },
                     apiConfiguration: {
                         actModeApiProvider: settings.selectedProvider,
                         planModeApiProvider: settings.selectedProvider,
@@ -326,8 +368,12 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
                 this._sendGrpcResponse(request.request_id, { profiles: [] });
                 break;
             }
+            case 'dismissBanner': {
+                this._sendGrpcResponse(request.request_id, {});
+                break;
+            }
             default:
-                this._sendGrpcResponse(request.request_id, undefined, `Method ${method} not implemented in StateService`);
+                this._sendGrpcResponse(request.request_id, {}, `Method StateService.${method} stubbed`);
         }
     }
 
@@ -336,13 +382,71 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
             case 'initializeWebview':
                 this._sendGrpcResponse(request.request_id, {});
                 break;
+            case 'subscribeToMcpButtonClicked':
+            case 'subscribeToHistoryButtonClicked':
+            case 'subscribeToChatButtonClicked':
+            case 'subscribeToSettingsButtonClicked':
+            case 'subscribeToWorktreesButtonClicked':
+            case 'subscribeToAccountButtonClicked':
+            case 'subscribeToPartialMessage':
+                // Streaming subscriptions - send empty initial response if requested
+                if (request.is_streaming) {
+                    // Just acknowledge the subscription
+                }
+                break;
             default:
-                this._sendGrpcResponse(request.request_id, undefined, `Method ${method} not implemented in UiService`);
+                this._sendGrpcResponse(request.request_id, {}, `Method UiService.${method} stubbed`);
         }
     }
 
     private async _handleAccountService(method: string, request: any) {
-        this._sendGrpcResponse(request.request_id, {}, `AccountService.${method} stubbed`);
+        switch (method) {
+            case 'subscribeToAuthStatusUpdate':
+                this._sendGrpcResponse(request.request_id, { user: { uid: 'dev-user' } }, undefined, true);
+                break;
+            case 'getUserOrganizations':
+                this._sendGrpcResponse(request.request_id, { organizations: [] });
+                break;
+            default:
+                this._sendGrpcResponse(request.request_id, {}, `AccountService.${method} stubbed`);
+        }
+    }
+
+    private async _handleMcpService(method: string, request: any) {
+        switch (method) {
+            case 'subscribeToMcpServers':
+                this._sendGrpcResponse(request.request_id, { mcpServers: [] }, undefined, true);
+                break;
+            case 'subscribeToMcpMarketplaceCatalog':
+                this._sendGrpcResponse(request.request_id, { catalog: [] }, undefined, true);
+                break;
+            default:
+                this._sendGrpcResponse(request.request_id, {}, `Method McpService.${method} stubbed`);
+        }
+    }
+
+    private async _handleModelsService(method: string, request: any) {
+        switch (method) {
+            case 'subscribeToOpenRouterModels':
+            case 'subscribeToLiteLlmModels':
+                this._sendGrpcResponse(request.request_id, { models: {} }, undefined, true);
+                break;
+            default:
+                this._sendGrpcResponse(request.request_id, {}, `Method ModelsService.${method} stubbed`);
+        }
+    }
+
+    private async _handleTaskService(method: string, request: any) {
+        switch (method) {
+            case 'getTaskHistory':
+                this._sendGrpcResponse(request.request_id, { history: [] });
+                break;
+            case 'getTotalTasksSize':
+                this._sendGrpcResponse(request.request_id, { value: '0' });
+                break;
+            default:
+                this._sendGrpcResponse(request.request_id, {}, `Method TaskService.${method} stubbed`);
+        }
     }
 
     private _sendGrpcResponse(request_id: string, message?: any, error?: string, is_streaming?: boolean) {
@@ -378,12 +482,13 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
 
         // Inject Content Security Policy
         // Added img-src to allow icons and connect-src to be more flexible for API/gRPC
-        const csp = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} https: data:; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}'; connect-src ${webview.cspSource} https:; font-src ${webview.cspSource};">`;
+        // Added 'unsafe-eval' to allow generated gRPC code and blob: for potentially generated scripts
+        const csp = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} https: data:; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}' 'unsafe-eval'; connect-src ${webview.cspSource} https:; font-src ${webview.cspSource} data:; blob:;">`;
 
         html = html.replace(/<head>/, `<head>\n    ${csp}`);
         
-        // Add nonces to scripts
-        html = html.replace(/<script /g, `<script nonce="${nonce}" `);
+        // Add nonces to all scripts (handle <script and <script> variants)
+        html = html.replace(/<script(?=[\s>])/g, `<script nonce="${nonce}" `);
 
         // Replace asset paths with fully resolved webview uris
         // Improved regex to handle various path formats and ensure we don't double-replace
