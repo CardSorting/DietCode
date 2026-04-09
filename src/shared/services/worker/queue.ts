@@ -302,12 +302,12 @@ export class SyncQueue {
   cleanupOldSynced(maxAgeMs: number = SEVEN_DAYS_MS): number {
     const cutoff = Date.now() - maxAgeMs;
     let count = 0;
-    Object.entries(this.data.items).forEach(([key, item]) => {
+    for (const [key, item] of Object.entries(this.data.items)) {
       if (item.status === 'synced' && item.timestamp < cutoff) {
         delete this.data.items[key];
         count++;
       }
-    });
+    }
     if (count > 0) {
       this.scheduleWrite();
     }
@@ -325,12 +325,12 @@ export class SyncQueue {
   cleanupFailedItems(maxRetries = 5, maxAgeMs: number = SEVEN_DAYS_MS): number {
     const cutoff = Date.now() - maxAgeMs;
     let count = 0;
-    Object.entries(this.data.items).forEach(([key, item]) => {
+    for (const [key, item] of Object.entries(this.data.items)) {
       if (item.status === 'failed' && (item.retryCount >= maxRetries || item.timestamp < cutoff)) {
         delete this.data.items[key];
         count++;
       }
-    });
+    }
     if (count > 0) {
       this.scheduleWrite();
     }

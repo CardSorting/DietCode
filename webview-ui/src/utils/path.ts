@@ -60,13 +60,13 @@ export function arePathsEqual(path1?: string, path2?: string): boolean {
     return false;
   }
 
-  path1 = normalizePath(path1);
-  path2 = normalizePath(path2);
+  const normalizedPath1 = normalizePath(path1);
+  const normalizedPath2 = normalizePath(path2);
 
   if (process.platform === 'win32') {
-    return path1.toLowerCase() === path2.toLowerCase();
+    return normalizedPath1.toLowerCase() === normalizedPath2.toLowerCase();
   }
-  return path1 === path2;
+  return normalizedPath1 === normalizedPath2;
 }
 
 function normalizePath(p: string): string {
@@ -81,11 +81,11 @@ function normalizePath(p: string): string {
 }
 
 export function getReadablePath(cwd: string, relPath?: string): string {
-  relPath = relPath || '';
+  const resolvedRelPath = relPath || '';
   // path.resolve is flexible in that it will resolve relative paths like '../../' to the cwd and even ignore the cwd if the relPath is actually an absolute path
   const absolutePathResult = workspaceResolver.resolveWorkspacePath(
     cwd,
-    relPath,
+    resolvedRelPath,
     'Utils.path.getReadablePath',
   );
   const absolutePath =

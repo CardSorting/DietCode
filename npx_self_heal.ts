@@ -55,7 +55,9 @@ async function main() {
 
   if (report.errors.length > 0) {
     console.log('\n🚨 Errors Encountered:');
-    report.errors.forEach((err) => console.log(`   - ${err}`));
+    for (const err of report.errors) {
+      console.log(`   - ${err}`);
+    }
   }
 }
 

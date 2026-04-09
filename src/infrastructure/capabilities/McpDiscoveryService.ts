@@ -129,7 +129,7 @@ export class McpDiscoveryService extends EventEmitter {
         description: 'Web search capabilities via Brave Search API.',
         command: 'npx',
         args: ['-y', '@modelcontextprotocol/server-brave-search'],
-        env_vars: ['BRAVE_API_KEY']
+        env_vars: ['BRAVE_API_KEY'],
       },
       {
         id: 'sqlite',
@@ -137,7 +137,7 @@ export class McpDiscoveryService extends EventEmitter {
         description: 'Direct SQL access to local databases with schema analysis.',
         command: 'npx',
         args: ['-y', '@modelcontextprotocol/server-sqlite'],
-        env_vars: []
+        env_vars: [],
       },
       {
         id: 'playwright',
@@ -145,7 +145,7 @@ export class McpDiscoveryService extends EventEmitter {
         description: 'Interactive browser control and screenshot capabilities.',
         command: 'npx',
         args: ['-y', '@modelcontextprotocol/server-playwright'],
-        env_vars: []
+        env_vars: [],
       },
       {
         id: 'filesystem',
@@ -153,8 +153,8 @@ export class McpDiscoveryService extends EventEmitter {
         description: 'Secure, focus-aware file operations with watch support.',
         command: 'npx',
         args: ['-y', '@modelcontextprotocol/server-filesystem'],
-        env_vars: []
-      }
+        env_vars: [],
+      },
     ];
   }
 }

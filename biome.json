@@ -15,6 +15,12 @@
       },
       "complexity": {
         "noStaticOnlyClass": "warn"
+      },
+      "a11y": {
+        "useButtonType": "off"
+      },
+      "correctness": {
+        "useExhaustiveDependencies": "off"
       }
     }
   },
@@ -38,6 +44,30 @@
       "bracketSameLine": false,
       "quoteProperties": "asNeeded"
     }
+  },
+  "files": {
+    "ignore": [
+      "**/node_modules",
+      "**/dist",
+      "**/out",
+      "**/build",
+      "**/tsconfig.tsbuildinfo",
+      "**/.next",
+      "**/.git",
+      "**/package-lock.json",
+      "**/yarn.lock",
+      "**/pnpm-lock.yaml",
+      "src/shared/nice-grpc/**",
+      "**/src/shared/proto/**",
+      "**/src/shared/nice-grpc/**",
+      "**/src/generated/**",
+      "**/grpc-js/**",
+      "**/lint_report.txt",
+      "**/eslint_report*.json",
+      "src/shared/services/worker/queue.json",
+      "test/results.json",
+      "*.vsix"
+    ]
   },
   "json": {
     "parser": {

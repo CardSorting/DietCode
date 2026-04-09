@@ -308,7 +308,9 @@ function reorderWithPreToolUseHooks(
       // Insert hooks that haven't been added yet
       const newHooks = hooksForTool.filter((h) => !addedHooks.has(h.ts));
       result.push(...newHooks);
-      newHooks.forEach((h) => addedHooks.add(h.ts));
+      for (const h of newHooks) {
+        addedHooks.add(h.ts);
+      }
 
       // Add the tool
       result.push(msg);

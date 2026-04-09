@@ -89,7 +89,10 @@ export class HealingWorker {
             return;
           }
 
-          const ticket = lockResult.ticket!;
+          const ticket = lockResult.ticket;
+          if (!ticket) {
+            throw new Error('Lock acquired but no ticket returned from manager');
+          }
 
           try {
             const result = await this.joyHealer.determineAction(payload.payload);

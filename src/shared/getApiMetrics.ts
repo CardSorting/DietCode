@@ -37,7 +37,7 @@ export function getApiMetrics(messages: ClineMessage[]): ApiMetrics {
     totalCost: 0,
   };
 
-  messages.forEach((message) => {
+  for (const message of messages) {
     if (
       message.type === 'say' &&
       (message.say === 'api_req_started' ||
@@ -68,7 +68,7 @@ export function getApiMetrics(messages: ClineMessage[]): ApiMetrics {
         // Ignore JSON parse errors
       }
     }
-  });
+  }
 
   return result;
 }

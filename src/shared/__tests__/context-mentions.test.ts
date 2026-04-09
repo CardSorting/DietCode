@@ -28,10 +28,10 @@ describe('Mention Regex', () => {
         ['@/C:\\file.txt', '@/C:\\file.txt'],
       ];
 
-      cases.forEach(([input, expected]) => {
+      for (const [input, expected] of cases) {
         const result = testMention(input, expected);
         assertMatch(result);
-      });
+      }
     });
   });
 
@@ -45,10 +45,10 @@ describe('Mention Regex', () => {
         ['@/path123/file-name_2.0.txt', '@/path123/file-name_2.0.txt'],
       ];
 
-      cases.forEach(([input, expected]) => {
+      for (const [input, expected] of cases) {
         const result = testMention(input, expected);
         assertMatch(result);
-      });
+      }
     });
     it('handles unquoted paths with spaces correctly', () => {
       // Should stop at the space
@@ -65,10 +65,10 @@ describe('Mention Regex', () => {
         ['@//etc/host', '@//etc/host'],
       ];
 
-      cases.forEach(([input, expected]) => {
+      for (const [input, expected] of cases) {
         const result = testMention(input, expected);
         assertMatch(result);
-      });
+      }
     });
 
     it('matches URLs', () => {
@@ -78,10 +78,10 @@ describe('Mention Regex', () => {
         ['@ftp://server.example.com/file.zip', '@ftp://server.example.com/file.zip'],
       ];
 
-      cases.forEach(([input, expected]) => {
+      for (const [input, expected] of cases) {
         const result = testMention(input, expected);
         assertMatch(result);
-      });
+      }
     });
 
     it('matches git hashes', () => {
@@ -89,10 +89,10 @@ describe('Mention Regex', () => {
         ['@abcdef1234567890abcdef1234567890abcdef12', '@abcdef1234567890abcdef1234567890abcdef12'],
       ];
 
-      cases.forEach(([input, expected]) => {
+      for (const [input, expected] of cases) {
         const result = testMention(input, expected);
         assertMatch(result);
-      });
+      }
     });
 
     it('matches special keywords', () => {
@@ -102,10 +102,10 @@ describe('Mention Regex', () => {
         ['@terminal', '@terminal'],
       ];
 
-      cases.forEach(([input, expected]) => {
+      for (const [input, expected] of cases) {
         const result = testMention(input, expected);
         assertMatch(result);
-      });
+      }
     });
   });
 
@@ -118,10 +118,10 @@ describe('Mention Regex', () => {
         ["@'/path/file.tar.gz'", null],
       ];
 
-      cases.forEach(([input, expected]) => {
+      for (const [input, expected] of cases) {
         const result = testMention(input, expected);
         assertMatch(result);
-      });
+      }
     });
 
     it('matches only until invalid characters', () => {
@@ -138,10 +138,10 @@ describe('Mention Regex', () => {
         ['Multiple: @/file1.txt and @/C:\\file2.txt and @terminal', '@/file1.txt'],
       ];
 
-      cases.forEach(([input, expected]) => {
+      for (const [input, expected] of cases) {
         const result = testMention(input, expected);
         assertMatch(result);
-      });
+      }
     });
   });
 
@@ -171,10 +171,10 @@ describe('Mention Regex', () => {
         ['@/path/with/file@symbol$dollar.txt', '@/path/with/file@symbol$dollar.txt'],
       ];
 
-      cases.forEach(([input, expected]) => {
+      for (const [input, expected] of cases) {
         const result = testMention(input, expected);
         assertMatch(result);
-      });
+      }
     });
   });
 
@@ -200,10 +200,10 @@ describe('Mention Regex', () => {
         ['@/C:\\folder\\file_äöü.txt', '@/C:\\folder\\file_äöü.txt'],
       ];
 
-      cases.forEach(([input, expected]) => {
+      for (const [input, expected] of cases) {
         const result = testMention(input, expected);
         assertMatch(result);
-      });
+      }
     });
   });
   describe('Git Hash Edge Cases', () => {
@@ -224,7 +224,7 @@ describe('Mention Regex', () => {
         ['@ABCDEF1', null], // Uppercase not allowed
       ];
 
-      cases.forEach(([input, expected]) => {
+      for (const [input, expected] of cases) {
         const match = mentionRegex.exec(input);
         const actual = match ? match[0] : null;
         if (expected?.includes('41 chars')) {
@@ -233,7 +233,7 @@ describe('Mention Regex', () => {
         } else {
           expect(actual).to.equal(expected);
         }
-      });
+      }
     });
   });
 
@@ -248,10 +248,10 @@ describe('Mention Regex', () => {
         ['@git-changes,', '@git-changes'],
       ];
 
-      cases.forEach(([input, expected]) => {
+      for (const [input, expected] of cases) {
         const match = mentionRegex.exec(input);
         expect(match?.[0]).to.equal(expected);
-      });
+      }
     });
 
     it('handles multiple punctuation marks', () => {
@@ -261,10 +261,10 @@ describe('Mention Regex', () => {
         ['@terminal!!', '@terminal'],
       ];
 
-      cases.forEach(([input, expected]) => {
+      for (const [input, expected] of cases) {
         const match = mentionRegex.exec(input);
         expect(match?.[0]).to.equal(expected);
-      });
+      }
     });
 
     it("doesn't match trailing punctuation in context", () => {
@@ -277,10 +277,10 @@ describe('Mention Regex', () => {
         ],
       ];
 
-      cases.forEach(([input, expected]) => {
+      for (const [input, expected] of cases) {
         const matches = input.match(mentionRegexGlobal);
         expect(matches).deep.eq(expected);
-      });
+      }
     });
   });
 
@@ -293,10 +293,10 @@ describe('Mention Regex', () => {
         ['@ssh://git@github.com/repo', '@ssh://git@github.com/repo'],
       ];
 
-      cases.forEach(([input, expected]) => {
+      for (const [input, expected] of cases) {
         const match = mentionRegex.exec(input);
         expect(match?.[0]).to.equal(expected);
-      });
+      }
     });
 
     it('matches URLs with complex structures', () => {
@@ -308,10 +308,10 @@ describe('Mention Regex', () => {
         ['@https://example.com/', '@https://example.com/'],
       ];
 
-      cases.forEach(([input, expected]) => {
+      for (const [input, expected] of cases) {
         const match = mentionRegex.exec(input);
         expect(match?.[0]).to.equal(expected);
-      });
+      }
     });
   });
 
@@ -324,10 +324,10 @@ describe('Mention Regex', () => {
         ['See @git-changes', '@git-changes'],
       ];
 
-      cases.forEach(([input, expected]) => {
+      for (const [input, expected] of cases) {
         const match = mentionRegex.exec(input);
         expect(match?.[0]).to.equal(expected);
-      });
+      }
     });
   });
 
@@ -354,10 +354,10 @@ describe('Mention Regex', () => {
         ['@"/path with space.txt!"!', '@"/path with space.txt!"'],
       ];
 
-      cases.forEach(([input, expected]) => {
+      for (const [input, expected] of cases) {
         const match = mentionRegex.exec(input);
         expect(match?.[0]).to.equal(expected);
-      });
+      }
     });
     it('handles quotes inside file paths correctly', () => {
       const cases: Array<[string, string]> = [
@@ -365,10 +365,10 @@ describe('Mention Regex', () => {
         ['@/path"/file".tar.gz', '@/path"/file".tar.gz'],
       ];
 
-      cases.forEach(([input, expected]) => {
+      for (const [input, expected] of cases) {
         const match = mentionRegex.exec(input);
         expect(match?.[0]).to.equal(expected);
-      });
+      }
     });
   });
   describe('Path Edge Cases', () => {
@@ -381,10 +381,10 @@ describe('Mention Regex', () => {
         ['@/path/file.tar.gz', '@/path/file.tar.gz'],
       ];
 
-      cases.forEach(([input, expected]) => {
+      for (const [input, expected] of cases) {
         const match = mentionRegex.exec(input);
         expect(match?.[0]).to.equal(expected);
-      });
+      }
     });
   });
   describe('Whitespace Handling', () => {
@@ -396,10 +396,10 @@ describe('Mention Regex', () => {
         ['@/path/file.txt rest', '@/path/file.txt'],
       ];
 
-      cases.forEach(([input, expected]) => {
+      for (const [input, expected] of cases) {
         const match = mentionRegex.exec(input);
         expect(match?.[0]).to.equal(expected);
-      });
+      }
     });
   });
 
@@ -413,11 +413,11 @@ describe('Mention Regex', () => {
         ['@git-change', null], // Should not match
       ];
 
-      cases.forEach(([input, expected]) => {
+      for (const [input, expected] of cases) {
         const match = mentionRegex.exec(input);
         const actual = match ? match[0] : null;
         expect(actual).to.equal(expected);
-      });
+      }
     });
 
     it('matches keywords with trailing punctuation', () => {
@@ -427,10 +427,10 @@ describe('Mention Regex', () => {
         ['@git-changes,', '@git-changes'],
       ];
 
-      cases.forEach(([input, expected]) => {
+      for (const [input, expected] of cases) {
         const match = mentionRegex.exec(input);
         expect(match?.[0]).to.equal(expected);
-      });
+      }
     });
   });
 });

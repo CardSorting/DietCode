@@ -16,8 +16,8 @@ import {
   type WebViewResponse,
 } from '../../domain/ui/WebViewMessageProtocol';
 import { McpDiscoveryService } from '../../infrastructure/capabilities/McpDiscoveryService';
-import { CheckpointPersistenceAdapter } from '../../infrastructure/task/CheckpointPersistenceAdapter';
 import { VsCodeLmProvider } from '../../infrastructure/llm/providers/VsCodeLmProvider';
+import { CheckpointPersistenceAdapter } from '../../infrastructure/task/CheckpointPersistenceAdapter';
 import { Logger } from '../../shared/services/Logger';
 import { UIBridge } from './UIBridge';
 
@@ -611,52 +611,60 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
 
   private async _handleUniversalService(service: string, method: string, request: any) {
     switch (method) {
-        case 'getCheckpoints': {
-            const persistence = new CheckpointPersistenceAdapter();
-            const taskId = request.payload.task_id;
-            const checkpoints = persistence.getLastCheckpoints(taskId, 50);
-            this._sendGrpcSuccess(request.request_id, { checkpoints: checkpoints.map(c => ({
-                id: c.checkpointId,
-                timestamp: c.timestamp.toISOString(),
-                state: c.state,
-                message: c.driftReason || 'Snapshot captured'
-            })) });
-            break;
+      case 'getCheckpoints': {
+        const persistence = new CheckpointPersistenceAdapter();
+        const taskId = request.payload.task_id;
+        const checkpoints = persistence.getLastCheckpoints(taskId, 50);
+        this._sendGrpcSuccess(request.request_id, {
+          checkpoints: checkpoints.map((c) => ({
+            id: c.checkpointId,
+            timestamp: c.timestamp.toISOString(),
+            state: c.state,
+            message: c.driftReason || 'Snapshot captured',
+          })),
+        });
+        break;
+      }
+      case 'selectFiles': {
+        const options: vscode.OpenDialogOptions = {
+          canSelectMany: true,
+          openLabel: 'Select Files for DietCode',
+          filters: {
+            'All Files': ['*'],
+          },
+        };
+        const fileUris = await vscode.window.showOpenDialog(options);
+        if (fileUris) {
+          this._sendGrpcSuccess(request.request_id, {
+            values1: fileUris.map((uri) => uri.fsPath),
+            values2: fileUris.map((uri) => uri.path),
+          });
+        } else {
+          this._sendGrpcSuccess(request.request_id, { values1: [], values2: [] });
         }
-        case 'selectFiles': {
-            const options: vscode.OpenDialogOptions = {
-                canSelectMany: true,
-                openLabel: 'Select Files for DietCode',
-                filters: {
-                    'All Files': ['*']
-                }
-            };
-            const fileUris = await vscode.window.showOpenDialog(options);
-            if (fileUris) {
-                this._sendGrpcSuccess(request.request_id, { 
-                    values1: fileUris.map(uri => uri.fsPath),
-                    values2: fileUris.map(uri => uri.path) 
-                });
-            } else {
-                this._sendGrpcSuccess(request.request_id, { values1: [], values2: [] });
-            }
-            break;
-        }
-        case 'testBrowserConnection': {
-            // Production Hardening: Real check for local browser automation availability
-            const isAvailable = await this._checkBrowserAvailability();
-            this._sendGrpcSuccess(request.request_id, { status: isAvailable ? 'connected' : 'disconnected' });
-            break;
-        }
-        default:
-            this._sendGrpcSuccess(request.request_id, {});
+        break;
+      }
+      case 'testBrowserConnection': {
+        // Production Hardening: Real check for local browser automation availability
+        const isAvailable = await this._checkBrowserAvailability();
+        this._sendGrpcSuccess(request.request_id, {
+          status: isAvailable ? 'connected' : 'disconnected',
+        });
+        break;
+      }
+      default:
+        this._sendGrpcSuccess(request.request_id, {});
     }
   }
 
   private async _checkBrowserAvailability(): Promise<boolean> {
-      // Simplified check: See if any browser-related tools/servers are active
-      const servers = McpDiscoveryService.getInstance().getServers();
-      return servers.some(s => s.enabled && (s.name.toLowerCase().includes('browser') || s.name.toLowerCase().includes('playwright')));
+    // Simplified check: See if any browser-related tools/servers are active
+    const servers = McpDiscoveryService.getInstance().getServers();
+    return servers.some(
+      (s) =>
+        s.enabled &&
+        (s.name.toLowerCase().includes('browser') || s.name.toLowerCase().includes('playwright')),
+    );
   }
 
   private _sendGrpcSuccess(request_id: string, message: any = {}, is_streaming = false) {
