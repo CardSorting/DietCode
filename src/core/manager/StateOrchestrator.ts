@@ -77,7 +77,7 @@ export class StateOrchestrator<T = unknown> {
 
   private constructor(config: StateOrchestratorConfig, rollbackStrategy?: RollbackStrategy) {
     this.config = {
-      defaultDebounceDelay: config.defaultDebounceDelay || 500,
+      defaultDebounceDelay: config.defaultDebounceDelay || 100,
       logChanges: config.logChanges !== false,
       maxObservers: config.maxObservers || 50,
     };
@@ -111,7 +111,7 @@ export class StateOrchestrator<T = unknown> {
     if (!StateOrchestrator.instance) {
       StateOrchestrator.instance = new StateOrchestrator(
         config || {
-          defaultDebounceDelay: 500,
+          defaultDebounceDelay: 100,
           logChanges: true,
           maxObservers: 50,
         },
@@ -306,6 +306,104 @@ export class StateOrchestrator<T = unknown> {
   }
 
   /**
+   * Apply multiple state changes atomically.
+   * Observers are notified after all changes have been validated and sanitized.
+   */
+  async applyChanges(
+    changes: StateChange<any>[],
+    debounceDelay?: number
+  ): Promise<StateChangeResult<any>[]> {
+    const delay = debounceDelay ?? this.config.defaultDebounceDelay;
+    const results: StateChangeResult<any>[] = [];
+
+    // All changes must pass validation before any are applied
+    for (const change of changes) {
+      const isValid = change.validate();
+      if (!isValid) {
+        throw new Error(`Validation failed for key: ${change.key}`);
+      }
+    }
+
+    // Apply each change
+    for (const change of changes) {
+      const sanitizedValue = change.sanitize();
+      
+      const result: StateChangeResult<any> = {
+        change,
+        success: true,
+        phase: StateChangePhase.SANITIZED,
+        metadata: {
+          timestamp: Date.now(),
+          correlationId: change.getCorrelationId(),
+          actor: 'system',
+          source: 'batch',
+        },
+        originalValue: change.oldValue,
+        sanitizedValue,
+      };
+
+      if (delay === 0) {
+        await this.persistChange(change, sanitizedValue);
+        result.phase = StateChangePhase.COMPLETED;
+      } else {
+        this.schedulePersistBatch(change, sanitizedValue, delay);
+      }
+      
+      results.push(result);
+    }
+
+    // Notify observers of the full batch atomically if they support it
+    const globalBatchObservers = Array.from(this.globalObservers).filter(o => !!o.onBatchChange);
+    for (const observer of globalBatchObservers) {
+      try {
+        await observer.onBatchChange!(results);
+      } catch (error) {
+        Logger.error(`[STATE] Global observer onBatchChange error:`, error);
+      }
+    }
+
+    // Fallback: individual notifications for observers that don't support batches
+    for (const result of results) {
+       // Only notify individual if not handled by batch
+       const observers = this.observers.get(result.change.key);
+       if (observers) {
+         for (const observer of observers) {
+           try {
+             if (observer.onChange) await observer.onChange(result);
+           } catch (error) {
+             Logger.error(`[STATE] Observer onChange error for key '${result.change.key}':`, error);
+           }
+         }
+       }
+       
+       for (const observer of this.globalObservers) {
+         if (!observer.onBatchChange && observer.onChange) {
+           try {
+             await observer.onChange(result);
+           } catch (error) {
+             Logger.error(`[STATE] Global observer onChange fallback error:`, error);
+           }
+         }
+       }
+    }
+
+    return results;
+  }
+
+  /**
+   * Schedule a persist as part of a batch
+   */
+  private schedulePersistBatch<T>(change: StateChange<T>, value: T, delay: number): void {
+    this.changesQueue.set(change.key, { change: change as any, newValue: value });
+
+    if (!this.debounceTimeout) {
+      this.debounceTimeout = setTimeout(async () => {
+        await this.flushDebouncedChanges();
+      }, delay);
+    }
+  }
+
+  /**
    * Schedule a debounced persist
    */
   private schedulePersist<T>(change: StateChange<T>, value: T, delay: number): void {
@@ -466,5 +564,5 @@ export class StateOrchestrator<T = unknown> {
     this.pendingChangesMap.clear();
   }
 
-  private pendingChangesMap = new Map<string, any>();
+
 }

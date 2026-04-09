@@ -540,18 +540,26 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
             // Add more as needed, but these are the critical ones for provider selection
           };
 
-          await Promise.all(
-            Object.entries(fieldToKeyMap).map(async ([field, key]) => {
+          const changes: StateChange<any>[] = Object.entries(fieldToKeyMap)
+            .map(([field, key]) => {
               const val = (apiConfig as any)[field];
               if (val !== undefined) {
-                await orchestrator.applyChange({
+                return {
                   key,
                   newValue: val,
-                  phase: StateChangePhase.COMMITTED
-                });
+                  stateSet: {} as any,
+                  validate: () => true,
+                  sanitize: () => val,
+                  getCorrelationId: () => `ui-proto-batch-${Date.now()}`
+                };
               }
+              return null;
             })
-          );
+            .filter((c): c is StateChange<any> => c !== null);
+
+          if (changes.length > 0) {
+            await orchestrator.applyChanges(changes, 0); // Immediate persist for gRPC bridge
+          }
           
           // Also save the legacy selectedProvider for backward compatibility
           if (apiConfig.planModeApiProvider) {

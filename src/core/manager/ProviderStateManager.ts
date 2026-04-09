@@ -99,18 +99,9 @@ export class ProviderStateManager implements StateObserver<ApiConfiguration> {
     const config = change.newValue as ApiConfiguration;
     if (!config) return false;
 
-    // Strict Validation: Ensure at least one provider has enough info if selected
-    if (config.selectedProvider) {
-      if (config.selectedProvider === 'anthropic' && !config.apiKey) {
-        Logger.warn('[STATE] Rejected config: Anthropic selected but no API key provided');
-        return false;
-      }
-      if ((config.selectedProvider === 'openai' || config.selectedProvider === 'openai-native') && !config.openAiApiKey) {
-        Logger.warn('[STATE] Rejected config: OpenAI selected but no API key provided');
-        return false;
-      }
-    }
-
+    // PRODUCTION HARDENING: We allow selecting a provider even if the key is missing, 
+    // so the user can then enter the key in the settings UI.
+    // Validation will still prevent task execution.
     return true;
   }
 

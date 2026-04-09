@@ -8,7 +8,7 @@ import PROVIDERS from "@shared/providers/providers.json";
 import type { Mode } from "@shared/storage/types.ts";
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
 import Fuse from "fuse.js";
-import { type KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { type KeyboardEvent, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useInterval } from "react-use";
 import styled from "styled-components";
 import { OPENROUTER_MODEL_PICKER_Z_INDEX } from "./OpenRouterModelPicker";
@@ -55,7 +55,7 @@ declare module "vscode" {
   }
 }
 
-const ApiOptions = ({
+const ApiOptions = memo(({
   showModelOptions,
   apiErrorMessage,
   modelIdErrorMessage,
@@ -456,3 +456,5 @@ const ProviderDropdownItem = styled.div<{ isSelected: boolean }>`
 		background-color: var(--vscode-list-activeSelectionBackground);
 	}
 `;
+
+export default ApiOptions;

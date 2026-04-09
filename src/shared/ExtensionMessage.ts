@@ -8,10 +8,10 @@ import type { BrowserSettings } from "./BrowserSettings";
 import type { ClineFeatureSetting } from "./ClineFeatureSetting";
 import type { FocusChainSettings } from "./FocusChainSettings";
 import type { HistoryItem } from "./HistoryItem";
-import type { McpDisplayMode } from "./McpDisplayMode";
+import type { McpDisplayMode, McpServer } from "./McpDisplayMode";
 import type { TelemetrySetting } from "./TelemetrySetting";
 import type { UserInfo } from "./UserInfo";
-import type { ApiConfiguration } from "./api";
+import type { ApiConfiguration, ModelInfo } from "./api";
 import type { ClineRulesToggles } from "./cline-rules";
 import type { BannerCardData } from "./cline/banner";
 import type { ClineMessageModelInfo } from "./messages";
@@ -121,6 +121,10 @@ export interface ExtensionState {
   banners?: BannerCardData[];
   welcomeBanners?: BannerCardData[];
   openAiCodexIsAuthenticated?: boolean;
+  mcpServers?: McpServer[];
+  availableProviderModels?: Record<string, Record<string, ModelInfo>>;
+  providerHealth?: Record<string, { status: "healthy" | "unhealthy" | "degraded"; message?: string }>;
+  taskHistorySummary?: any[];
 }
 
 export interface ClineMessage {

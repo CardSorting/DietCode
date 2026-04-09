@@ -175,6 +175,13 @@ export interface StateObserver<T = unknown> {
   onChange?(result: StateChangeResult<T>): void;
 
   /**
+   * Called when multiple state changes are completed successfully as a batch.
+   *
+   * @param results - The results of the batch changes
+   */
+  onBatchChange?(results: StateChangeResult<T>[]): void;
+
+  /**
    * Called when a state change fails.
    *
    * @param result - The failed result

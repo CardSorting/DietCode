@@ -83,6 +83,20 @@ export class StateSyncService implements StateObserver {
   }
 
   /**
+   * Called when multiple state keys change atomically
+   */
+  public async onBatchChange(results: StateChangeResult<any>[]): Promise<void> {
+    const hasSuccess = results.some(r => r.success);
+    if (!hasSuccess) return;
+
+    // Direct broadcast for batches to ensure immediate consistency
+    await this.broadcast();
+    
+    // Clear any pending throttled broadcasts as they are now redundant
+    this.pendingBroadcast = false;
+  }
+
+  /**
    * Broadcast the latest state to all listeners
    */
   public async broadcast(): Promise<void> {

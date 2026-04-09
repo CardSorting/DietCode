@@ -45,7 +45,7 @@ export class StateAssembler {
         const apiModelId = mode === 'plan' ? orchestrated.planModeApiModelId : orchestrated.actModeApiModelId;
 
         return {
-            version: '2.5.0',
+            version: '2.6.0',
             isNewUser: orchestrated.isNewUser ?? false,
             welcomeViewCompleted: true, // PRODUCTION HARDENING: Skip onboarding globally
             onboardingModels: undefined,
