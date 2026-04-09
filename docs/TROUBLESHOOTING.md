@@ -35,6 +35,15 @@ If the **Sovereign Hive** is experiencing technical drift, follow these protocol
 - Check the VS Code Developer Tools (Help > Toggle Developer Tools) for "Refused to load" or IPC errors.
 - Restart the Extension Host (`Cmd + Shift + P` > `Developer: Reload Window`).
 
+### 3. Extension Activation: better-sqlite3 Module Not Found
+**Symptom**: "Activating extension 'dietcode.dietcode' failed: Cannot find package 'better-sqlite3' imported from .../dist/extension.js"  
+**Cause**: The `.vsix` file was built with `--external better-sqlite3` which caused Node.js's ES Module loader to attempt a dynamic import of a non-existent local package.  
+**Solution**:
+- Ensure the `build` script in `package.json` **does not** contain `--external better-sqlite3`. 
+- `better-sqlite3` must be bundled directly into `dist/extension.js`.
+- Rebuild the `.vsix` package: `bun run build && bun run package:vsix`.
+- Reinstall the extension using `code --install-extension dietcode-x.x.x.vsix --force`.
+
 ---
 
 ## 🧪 Testing Failures
