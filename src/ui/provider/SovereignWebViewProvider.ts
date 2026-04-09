@@ -203,10 +203,13 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
   private async _getSettings() {
     // Load stored provider configs or use defaults
     const providers: any[] = [
-      { id: 'anthropic', name: 'Anthropic (Claude)', type: 'chat', enabled: true },
+      { id: 'anthropic', name: 'Anthropic', type: 'chat', enabled: true },
+      { id: 'openai-native', name: 'OpenAI', type: 'chat', enabled: true },
+      { id: 'gemini', name: 'Google Gemini', type: 'chat', enabled: true },
+      { id: 'openrouter', name: 'OpenRouter', type: 'chat', enabled: true },
+      { id: 'ollama', name: 'Ollama', type: 'chat', enabled: false },
       { id: 'cloudflare', name: 'Cloudflare Workers AI', type: 'chat', enabled: false },
-      { id: 'openai', name: 'OpenAI (Embeddings)', type: 'embedding', enabled: true },
-      { id: 'cohere', name: 'Cohere (Embeddings)', type: 'embedding', enabled: false },
+      { id: 'vscode-lm', name: 'VS Code Language Models', type: 'chat', enabled: false },
     ];
 
     // Enrich with stored API keys

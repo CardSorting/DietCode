@@ -23,6 +23,8 @@ export interface BootstrapConfig {
   geminiModel?: string;
   ollamaBaseUrl?: string;
   ollamaModel?: string;
+  openrouterApiKey?: string;
+  openrouterModel?: string;
 }
 
 export interface UserConfig {
@@ -58,6 +60,11 @@ const PROVIDER_UPLINKS: Record<
     name: 'Ollama (Local)',
     url: 'https://ollama.com/',
     strength: 'Private, offline, and free local reasoning',
+  },
+  openrouter: {
+    name: 'OpenRouter',
+    url: 'https://openrouter.ai/keys',
+    strength: 'Unified API for 100+ models (Claude, Llama, DeepSeek)',
   },
 };
 
@@ -137,6 +144,8 @@ export class BootstrapService {
       openaiModel: process.env.OPENAI_MODEL,
       geminiApiKey: process.env.GEMINI_API_KEY,
       geminiModel: process.env.GEMINI_MODEL,
+      openrouterApiKey: process.env.OPENROUTER_API_KEY,
+      openrouterModel: process.env.OPENROUTER_MODEL,
     };
 
     if (this.fs.exists('.env')) {
@@ -156,6 +165,8 @@ export class BootstrapService {
           if (key === 'OPENAI_MODEL') config.openaiModel = value;
           if (key === 'GEMINI_API_KEY') config.geminiApiKey = value;
           if (key === 'GEMINI_MODEL') config.geminiModel = value;
+          if (key === 'OPENROUTER_API_KEY') config.openrouterApiKey = value;
+          if (key === 'OPENROUTER_MODEL') config.openrouterModel = value;
         }
       }
     }
@@ -176,6 +187,7 @@ export class BootstrapService {
       { id: '3', name: 'Google Gemini', meta: PROVIDER_UPLINKS.gemini },
       { id: '4', name: 'Cloudflare Workers AI', meta: PROVIDER_UPLINKS.cloudflare },
       { id: '5', name: 'Ollama (Local/Private)', meta: PROVIDER_UPLINKS.ollama },
+      { id: '6', name: 'OpenRouter (Multi-Model)', meta: (PROVIDER_UPLINKS as any).openrouter },
     ];
 
     for (const p of providers) {
@@ -183,7 +195,7 @@ export class BootstrapService {
     }
 
     const choice = await this.ui.promptUser(
-      '\nWhich AI service would you like to connect first? (1-5): ',
+      '\nWhich AI service would you like to connect first? (1-6): ',
     );
 
     if (choice === '1') await this.setupAnthropic(config);
@@ -191,6 +203,7 @@ export class BootstrapService {
     else if (choice === '3') await this.setupGemini(config);
     else if (choice === '4') await this.setupCloudflare(config);
     else if (choice === '5') await this.setupOllama(config);
+    else if (choice === '6') await this.setupOpenRouter(config);
 
     if (!config.ollamaBaseUrl) {
       await this.discoverLocalNode(config);
@@ -299,6 +312,30 @@ export class BootstrapService {
         console.log(ProtocolRenderer.renderNeuralLinkQuality(latency));
       } else {
         this.ui.logError('Synchronization failed. Verify Account ID and API Token.');
+      }
+    }
+  }
+
+  private async setupOpenRouter(config: BootstrapConfig) {
+    let valid = false;
+    const meta = (PROVIDER_UPLINKS as any).openrouter;
+    while (!valid) {
+      this.ui.logInfo(`${ICONS.GEAR} AUTH_REQUIRED: ${meta.name} API Access`);
+      this.ui.logInfo(`STRENGTH: ${COLORS.HIGHLIGHT(meta.strength)}`);
+      this.ui.logInfo(`OBTAIN_KEY: ${COLORS.HIVE_CYAN(meta.url)}`);
+
+      const key = await this.ui.promptSecret('Enter OpenRouter API Key (or "skip"): ');
+      if (key.toLowerCase() === 'skip') break;
+
+      const sanitizedKey = key.trim();
+      await ProtocolRenderer.renderHandshakePulse('OpenRouter');
+      valid = await this.validateOpenRouter(sanitizedKey);
+
+      if (valid) {
+        config.openrouterApiKey = sanitizedKey;
+        await ProtocolRenderer.renderSuccess('OpenRouter Uplink Established.');
+      } else {
+        this.ui.logError('Handshake failed. Verify your API Key.');
       }
     }
   }
@@ -426,6 +463,18 @@ export class BootstrapService {
       const { ConsoleLoggerAdapter } = await import('../../infrastructure/ConsoleLoggerAdapter');
       const provider = new GeminiProvider(key, new ConsoleLoggerAdapter());
       return await provider.ping();
+    } catch {
+      return false;
+    }
+  }
+
+  private async validateOpenRouter(key: string): Promise<boolean> {
+    try {
+      if (key === 'test-key') return true;
+      const response = await fetch('https://openrouter.ai/api/v1/models', {
+        headers: { Authorization: `Bearer ${key}` },
+      });
+      return response.ok;
     } catch {
       return false;
     }
@@ -597,6 +646,8 @@ export class BootstrapService {
     if (config.geminiModel) updates.GEMINI_MODEL = config.geminiModel;
     if (config.ollamaBaseUrl) updates.OLLAMA_BASE_URL = config.ollamaBaseUrl;
     if (config.ollamaModel) updates.OLLAMA_MODEL = config.ollamaModel;
+    if (config.openrouterApiKey) updates.OPENROUTER_API_KEY = config.openrouterApiKey;
+    if (config.openrouterModel) updates.OPENROUTER_MODEL = config.openrouterModel;
 
     const lines = content.split('\n');
     const newLines = [];

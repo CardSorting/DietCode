@@ -26,6 +26,10 @@ import type { ToolDefinition } from '../../domain/agent/ToolDefinition';
 import type { LogService } from '../../domain/logging/LogService';
 import { AnthropicAdapter } from '../../infrastructure/llm/providers/AnthropicAdapter';
 import { CloudflareAdapter } from '../../infrastructure/llm/providers/CloudflareProvider';
+import { GeminiAdapter } from '../../infrastructure/llm/providers/GeminiAdapter';
+import { OpenAIAdapter } from '../../infrastructure/llm/providers/OpenAIAdapter';
+import { OpenRouterAdapter } from '../../infrastructure/llm/providers/OpenRouterAdapter';
+import { VsCodeLmAdapter } from '../../infrastructure/llm/providers/VsCodeLmAdapter';
 import { OpenAIEmbeddingAdapter } from '../../infrastructure/llm/providers/OpenAIEmbeddingAdapter';
 
 /**
@@ -181,11 +185,14 @@ export class LLMProviderRegistry {
   async createProviderFromConfig(providerId: string, config: AdapterConfig): Promise<LLMAdapter> {
     switch (providerId.toLowerCase()) {
       case 'openai':
-        // Note: This would require OpenAIAdapter implementation
-        // For now, returning stub
-        throw new Error(
-          'OpenAI adapter not implemented yet. Please implement src/infrastructure/llm/OpenAIAdapter.ts',
-        );
+      case 'openai-native':
+        return new OpenAIAdapter({
+          apiKey: config.apiKey,
+          apiBase: config.apiBase,
+          model: config.model || 'gpt-4o',
+          maxTokens: config.maxTokens,
+          temperature: config.temperature,
+        });
 
       case 'anthropic':
         return new AnthropicAdapter({
@@ -196,10 +203,35 @@ export class LLMProviderRegistry {
         });
 
       case 'openrouter':
-        // Note: Would require OpenRouterAdapter implementation
-        throw new Error(
-          'OpenRouter adapter not implemented yet. Please implement src/infrastructure/llm/OpenRouterAdapter.ts',
-        );
+        return new OpenRouterAdapter({
+          apiKey: config.apiKey,
+          model: config.model || 'anthropic/claude-3.7-sonnet',
+          maxTokens: config.maxTokens,
+          temperature: config.temperature,
+        });
+
+      case 'gemini':
+        return new GeminiAdapter({
+          apiKey: config.apiKey,
+          model: config.model || 'gemini-2.0-flash',
+          maxTokens: config.maxTokens,
+          temperature: config.temperature,
+        });
+
+      case 'vscode-lm':
+        return new VsCodeLmAdapter({
+          apiKey: '',
+          model: config.model || 'gpt-4o',
+        });
+
+      case 'ollama':
+        return new OpenAIAdapter({
+          apiKey: 'ollama',
+          apiBase: config.apiBase || 'http://localhost:11434/v1',
+          model: config.model || 'llama3',
+          maxTokens: config.maxTokens,
+          temperature: config.temperature,
+        });
 
       case 'cloudflare':
         if (!config.apiKey && !(config as any).apiToken) {
