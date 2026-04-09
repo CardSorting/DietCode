@@ -21,6 +21,8 @@ import {
 } from '../capabilities/OptimizationMetrics';
 import { ContextOptimizationService as CoreOptimizationService } from '../context/ContextOptimizationService';
 import type { FileContextTracker } from '../context/FileContextTracker';
+import { FileSystemAdapter } from '../../infrastructure/FileSystemAdapter';
+import { Logger } from '../../shared/services/Logger';
 
 /**
  * Result of a file read with optimization
@@ -53,6 +55,7 @@ export class ContextOptimizationServiceOrchestrator {
   private tracker: FileContextTracker;
   private metrics: OptimizationMetricsAggregator;
   private signatureDatabase: SignatureDatabase;
+  private fs: FileSystemAdapter;
 
   // Session tracking
   private currentSessionId: string | null = null;
@@ -73,6 +76,9 @@ export class ContextOptimizationServiceOrchestrator {
     // Initialize metrics
     this.metrics = new OptimizationMetricsAggregator();
 
+    // Initialize FileSystem
+    this.fs = new FileSystemAdapter();
+
     // One-time setup
     this.setupOptimizationCallbacks();
   }
@@ -85,7 +91,7 @@ export class ContextOptimizationServiceOrchestrator {
       // Record optimization decision in signature database
       const signature = this.signatureDatabase.recordSignature(decision.filePath, {
         filePath: decision.filePath,
-        content: 'Duplicate read notice placeholder',
+        content: `[REPEATED_READ: ${decision.filePath}] (Optimized for context efficiency)`,
         timestamp: Date.now(),
         source: 'context_optimization',
         originalLength: decision.filePath.length,
@@ -136,7 +142,7 @@ export class ContextOptimizationServiceOrchestrator {
     if (isCachedOptimization) {
       const cachedResult: FileReadResult = {
         filePath,
-        content: 'Duplicate file read notice',
+        content: `[CACHED_CONTEXT: ${filePath}]`,
         timestamp: Date.now(),
         source: 'optimization_cache',
         originalLength: savedSignature?.content?.length || 0,
@@ -158,10 +164,17 @@ export class ContextOptimizationServiceOrchestrator {
     }
 
     // Read and optimize the file
-    const stats = this.optimizationService.getStats();
+    let content = '';
+    try {
+      content = this.fs.readFile(filePath);
+    } catch (error) {
+      Logger.error(`[ContextOptimization:Error] Failed to read file ${filePath}`, { error });
+      content = `[ERROR_READING_FILE: ${filePath}]`;
+    }
+
     const result = await this.optimizationService.recordRead(
       filePath,
-      'File content placeholder',
+      content,
       source,
     );
 

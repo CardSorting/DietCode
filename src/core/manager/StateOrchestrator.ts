@@ -20,6 +20,7 @@ import {
   type StateChangeResult,
   type StateObserver,
 } from '../../domain/state/StateChangeProtocol';
+import { VsCodeStateRepository } from '../../infrastructure/storage/VsCodeStateRepository';
 
 /**
  * State change precedence rules
@@ -313,9 +314,8 @@ export class StateOrchestrator<T = unknown> {
    * Persist a state change
    */
   private async persistChange<T>(change: StateChange<T>, value: T): Promise<void> {
-    // This would be implemented by a concrete storage layer
-    // For now, we'll use Firestore as a placeholder
-    throw new Error('Persist change not implemented. Use StateRepository directly.');
+    const repo = VsCodeStateRepository.getInstance();
+    await repo.set(change.key, value);
   }
 
   /**
@@ -333,9 +333,9 @@ export class StateOrchestrator<T = unknown> {
   /**
    * Get current value from storage
    */
-  async getValue<T>(key: string, defaultValue?: T): Promise<T> {
-    // This would get from storage layer
-    return defaultValue as T;
+  async getValue<T>(key: string, defaultValue?: T): Promise<T | undefined> {
+    const repo = VsCodeStateRepository.getInstance();
+    return await repo.get(key, defaultValue);
   }
 
   /**
@@ -364,31 +364,4 @@ export class StateOrchestrator<T = unknown> {
   }
 
   private pendingChangesMap = new Map<string, any>();
-}
-
-/**
- * Simple Firestore-based storage for prototype
- *
- * NOTE: Replace with actual storage implementation in production
- */
-const FirestoreConfig = {
-  dryRun: process.env.DRY_RUN === 'true',
-  collection: 'state_changes',
-};
-
-/**
- * Placeholder for Firestore functions
- */
-async function getFirestore(): Promise<any> {
-  return {};
-}
-
-async function firestoreSet<T>(key: string, value: T): Promise<void> {
-  if (FirestoreConfig.dryRun) {
-    console.log(`[DRY RUN] Firestore set: ${key}`);
-    return;
-  }
-
-  const db = await getFirestore();
-  console.log(`[STUB] Firestore set: ${key}`);
 }

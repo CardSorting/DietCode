@@ -26,6 +26,7 @@ import type { ToolDefinition } from '../../domain/agent/ToolDefinition';
 import type { LogService } from '../../domain/logging/LogService';
 import { CloudflareAdapter } from '../../infrastructure/llm/providers/CloudflareProvider';
 import { OpenAIEmbeddingAdapter } from '../../infrastructure/llm/providers/OpenAIEmbeddingAdapter';
+import { AnthropicAdapter } from '../../infrastructure/llm/providers/AnthropicAdapter';
 
 /**
  * Provider information interface
@@ -187,10 +188,12 @@ export class LLMProviderRegistry {
         );
 
       case 'anthropic':
-        // Note: Would require AnthropicAdapter implementation
-        throw new Error(
-          'Anthropic adapter not implemented yet. Please implement src/infrastructure/llm/AnthropicAdapter.ts',
-        );
+        return new AnthropicAdapter({
+          apiKey: config.apiKey,
+          model: config.model || 'claude-3-7-sonnet-20250219',
+          maxTokens: config.maxTokens,
+          temperature: config.temperature
+        });
 
       case 'openrouter':
         // Note: Would require OpenRouterAdapter implementation

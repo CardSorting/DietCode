@@ -40,12 +40,14 @@ export class WorkerIntegrityAdapter implements IntegrityScanner {
     return new Promise((resolve, reject) => {
       this.worker.postMessage({ type: 'PROJECT', projectRoot });
       this.worker.once('message', (res) => {
-        if (res.success)
+        if (res.success) {
+          const violations = res.violations || [];
           resolve({
-            score: 95, // Sharded placeholder
-            violations: res.violations || [],
+            score: Math.max(0, 100 - violations.length * 10),
+            violations: violations,
             scannedAt: new Date().toISOString(),
           });
+        }
         else reject(new Error(res.error));
       });
     });

@@ -63,36 +63,71 @@ export class SemanticIntegrityAdapter implements IntegrityScanner {
       violations: allViolations,
       scannedAt: new Date().toISOString(),
       fileCount: paths.length,
-      score: Math.max(0, 100 - allViolations.length * 10),
     };
   }
 
   /**
-   * Scan a single file for semantic issues based on content hash
+   * Scan a single file for semantic issues and architectural violations
    */
-  async scanSingleFile(filePath: string, projectRoot: string): Promise<IntegrityViolation[]> {
-    // For now, we use a basic content-based hash to detect changes
-    // This is a placeholder - actual semantic analysis would require:
-    // - Domain model to verify content
-    // - Pattern matching for specific file types
-    const content = fs.readFileSync(filePath, 'utf-8');
-    const hash = crypto.createHash('sha256').update(content).digest('hex');
+  async scanSingleFile(filePath: string, projectRoot: string, contentOverride?: string): Promise<IntegrityViolation[]> {
+    const content = contentOverride !== undefined ? contentOverride : fs.readFileSync(filePath, 'utf-8');
+    const violations: IntegrityViolation[] = [];
 
-    // Placeholder: Check if file has proper header
+    // Header Validation
     if (!content.includes('[LAYER:') && !content.includes('/**')) {
-      return [
-        {
-          id: crypto.randomUUID(),
-          type: ViolationType.MISSING_HEADER,
-          file: filePath,
-          message: 'File is missing Structure Assertion Header (/** ... */)',
-          severity: IntegritySeverity.WARN,
-          timestamp: new Date().toISOString(),
-        },
-      ];
+      violations.push({
+        id: crypto.randomUUID(),
+        type: ViolationType.MISSING_HEADER,
+        file: filePath,
+        message: 'File is missing Structure Assertion Header (/** ... */)',
+        severity: IntegritySeverity.WARN,
+        timestamp: new Date().toISOString(),
+      });
     }
 
-    return [];
+    // Layer Boundary Validation
+    const layerMatch = content.match(/\[LAYER:\s*(\w+)/);
+    if (layerMatch) {
+      const currentLayer = layerMatch[1].toUpperCase();
+      const importViolations = this.verifyLayerBoundaries(filePath, content, currentLayer);
+      violations.push(...importViolations);
+    }
+
+    return violations;
+  }
+
+  private verifyLayerBoundaries(filePath: string, content: string, layer: string): IntegrityViolation[] {
+    const violations: IntegrityViolation[] = [];
+    const lines = content.split('\n');
+    const imports = lines.filter(l => l.startsWith('import '));
+
+    for (const imp of imports) {
+      // Basic check: UI should not import from Infrastructure directly
+      if (layer === 'UI' && imp.includes('/infrastructure/')) {
+        violations.push({
+          id: crypto.randomUUID(),
+          type: ViolationType.ARCHITECTURE_VIOLATION,
+          file: filePath,
+          message: `Sovereign Layer Violation: UI layer cannot import directly from Infrastructure.`,
+          severity: IntegritySeverity.ERROR,
+          timestamp: new Date().toISOString(),
+        });
+      }
+      
+      // Domain should be pure
+      if (layer === 'DOMAIN' && (imp.includes('/infrastructure/') || imp.includes('/core/'))) {
+        violations.push({
+          id: crypto.randomUUID(),
+          type: ViolationType.ARCHITECTURE_VIOLATION,
+          file: filePath,
+          message: `Sovereign Layer Violation: Domain layer must be pure and cannot import from Infrastructure/Core.`,
+          severity: IntegritySeverity.ERROR,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    }
+
+    return violations;
   }
 
   /**
@@ -104,18 +139,20 @@ export class SemanticIntegrityAdapter implements IntegrityScanner {
 }
 
 /**
- * Legacy export for dependency analysis
+ * Legacy export for dependency analysis - Bridged to real validation logic
  */
 export async function analyzeDependencies(
   filePath: string,
-  projectRoot?: string,
+  projectRoot: string = process.cwd(),
   policy?: any,
   content?: string,
-  virtualFiles?: Map<string, string>,
 ): Promise<any> {
+  const adapter = new SemanticIntegrityAdapter(null as any); // Minimal instance
+  const violations = await adapter.scanSingleFile(filePath, projectRoot, content);
+  
   return {
     file: filePath,
     dependencies: [],
-    violations: [],
+    violations: violations,
   };
 }

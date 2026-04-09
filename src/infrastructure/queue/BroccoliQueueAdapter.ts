@@ -50,9 +50,50 @@ export class BroccoliQueueAdapter implements QueueProvider {
   }
 
   /**
-   * Processes a job from the queue (placeholder for worker logic)
+   * Processes jobs from the queue via polling (Production Hardening)
    */
-  process<T>(_callback: (job: any) => Promise<void>): void {
-    console.log('[QUEUE] Registered job processor');
+  process<T>(callback: (job: any) => Promise<void>): void {
+    const poll = async () => {
+      if (!Core.isAvailable()) return;
+
+      try {
+        const jobs = await Core.selectWhere('hive_queue', { status: 'pending' }, undefined, { limit: 5 });
+        for (const job of jobs) {
+          // Mark as processing
+          await Core.push({
+            type: 'update',
+            table: 'hive_queue',
+            where: { column: 'id', value: job.id },
+            values: { status: 'processing', updated_at: Date.now() }
+          });
+
+          try {
+            await callback({ id: job.id, type: job.type, payload: JSON.parse(job.metadata || '{}') });
+            
+            // Mark as done
+            await Core.push({
+              type: 'update',
+              table: 'hive_queue',
+              where: { column: 'id', value: job.id },
+              values: { status: 'done', updated_at: Date.now() }
+            });
+          } catch (err) {
+            console.error(`[QUEUE] Job ${job.id} failed`, err);
+            await Core.push({
+              type: 'update',
+              table: 'hive_queue',
+              where: { column: 'id', value: job.id },
+              values: { status: 'failed', metadata: JSON.stringify({ error: String(err) }), updated_at: Date.now() }
+            });
+          }
+        }
+      } catch (e) {
+        // Background loop errors should not crash the host
+      }
+    };
+
+    // Start polling loop
+    setInterval(poll, 15000); // 15s poll
+    poll(); // Initial run
   }
 }
