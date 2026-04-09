@@ -149,7 +149,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
         // Hardened Core Loading
         const { Core } = await import('../../infrastructure/database/sovereign/Core');
         if (!Core.isAvailable()) {
-          await Core.init(path.join(this._context.extensionPath, 'broccoliq.db'));
+          await Core.init(path.join(this._context.globalStorageUri.fsPath, 'broccoliq.db'));
         }
         const results = await Core.selectWhere('hive_snapshots', {}, undefined, {
           limit: 30,

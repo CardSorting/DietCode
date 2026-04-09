@@ -43,8 +43,9 @@
   "scripts": {
     "build:webview": "cd webview-ui && bun run build",
     "build:cli": "bun build ./index.ts --outfile=./dist/index.js --target=node --bundle --external better-sqlite3 --external @noorm/broccoliq",
-    "rebuild:electron": "electron-rebuild --version 35.0.0 --only better-sqlite3",
-    "build": "bun run build:webview && bun run build:cli && bun run rebuild:electron && bun build ./src/extension.ts --outfile=./dist/extension.js --target=node --bundle --external vscode && mkdir -p build/Release && cp node_modules/better-sqlite3/build/Release/better_sqlite3.node build/Release/",
+    "rebuild:electron": "electron-rebuild --version 39.0.0 --only better-sqlite3",
+    "sync:native": "npx tsx scripts/sync_native_modules.ts",
+    "build": "bun run build:webview && bun run build:cli && bun run rebuild:electron && bun run sync:native && bun build ./src/extension.ts --outfile=./dist/extension.js --target=node --bundle --external vscode",
     "dev": "tsc --watch",
     "cli": "bun ./dist/index.js",
     "cli:dev": "bun run ./index.ts",
@@ -64,7 +65,7 @@
     "@anthropic-ai/sdk": "^0.82.0",
     "@google/generative-ai": "^0.24.1",
     "@noorm/broccoliq": "^2.3.0",
-    "better-sqlite3": "^11.3.0",
+    "better-sqlite3": "^12.8.0",
     "kysely": "^0.28.2",
     "kysely-bun-sqlite": "^0.4.0",
     "openai": "^6.33.0"
@@ -87,6 +88,9 @@
     "typescript": "^5.6.2",
     "typescript-eslint": "^8.5.0",
     "vitest": "^3.2.4"
+  },
+  "overrides": {
+    "better-sqlite3": "^12.8.0"
   },
   "license": "MIT"
 }

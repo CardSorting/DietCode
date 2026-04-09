@@ -25,6 +25,8 @@ export class Core {
   private static Kysely: Kysely<DatabaseSchema> | null = null;
   private static appQueue: BroccoliQueueAdapter | null = null;
   private static isInitialized = false;
+  private static initAttempts = 0;
+  private static readonly MAX_INIT_ATTEMPTS = 3;
   private static currentDbPath: string | null = null;
   private static heartbeatInterval: NodeJS.Timeout | null = null;
   private static currentTaskId: string | null = null;
@@ -34,8 +36,15 @@ export class Core {
   static async init(dbPath: string, ensureSchemaFn?: (db: any) => Promise<void>) {
     const resolvedPath = path.resolve(dbPath);
     if (Core.isInitialized && Core.currentDbPath === resolvedPath) return;
+
+    if (Core.initAttempts >= Core.MAX_INIT_ATTEMPTS) {
+      console.error('[CORE] 🛑 Circuit breaker triggered: too many initialization failures.');
+      return;
+    }
+
+    Core.initAttempts++;
     try {
-      console.log(`[CORE] Initializing Sovereign Hive at: ${resolvedPath}`);
+      console.log(`[CORE] Initializing Sovereign Hive at: ${resolvedPath} (Attempt ${Core.initAttempts})`);
       const dir = path.dirname(resolvedPath);
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
       setDbPath(resolvedPath);
@@ -53,6 +62,7 @@ export class Core {
       if (ensureSchemaFn) {
         await ensureSchemaFn(dbPool);
       }
+      Core.initAttempts = 0; // Reset on success
       console.log('[CORE] Sovereign Hive initialized (v2.0 Architecture)');
     } catch (error) {
       console.error('[CORE] ❌ Failed to initialize Sovereign Hive:', error);
