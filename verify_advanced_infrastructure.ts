@@ -19,9 +19,11 @@ import { ConsoleLoggerAdapter } from './src/infrastructure/ConsoleLoggerAdapter'
 import { FileSystemAdapter } from './src/infrastructure/FileSystemAdapter';
 import { NodeSystemAdapter } from './src/infrastructure/NodeSystemAdapter';
 import { TransactionManager } from './src/infrastructure/TransactionManager';
-import { SqliteLockManager } from './src/infrastructure/database/SqliteLockManager';
+import { LockManager } from './src/infrastructure/database/sovereign/LockManager';
 import { PathValidator } from './src/infrastructure/validation/PathValidator';
 import { RollbackManager } from './src/infrastructure/validation/RollbackManager';
+import { Core } from './src/infrastructure/database/sovereign/Core';
+import { Schema } from './src/infrastructure/database/sovereign/Schema';
 
 async function verify() {
   console.log('--- DIETCODE ADVANCED INFRASTRUCTURE VERIFICATION ---');
@@ -32,16 +34,20 @@ async function verify() {
   const logger = new ConsoleLoggerAdapter(LogLevel.DEBUG);
   const systemAdapter = new NodeSystemAdapter(fs, logger);
 
-  // Initialize Infrastructure
-  // SqliteLockManager (LockManager) singleton initializes itself on first access
+  // Initialize Core for database-dependent tests
+  const dbPath = path.join(workspaceRoot, '.dietcode', 'verify_test.db');
+  await Core.init(dbPath);
+  await Schema.ensureSchema(Core.pool);
 
+  // Initialize Infrastructure
   const discovery = new DiscoveryService(fs, systemAdapter, logger);
   const rollback = new RollbackManager();
   const txManager = new TransactionManager(fs, rollback, logger);
 
   let passed = true;
 
-  // 1. Resiliency (ExecutionGovernor)
+  // ... [PHASES 5-7 skipped for brevity, but they stay in the file] ...
+  // [PHASE 5] Testing ExecutionGovernor (Resiliency)...
   console.log('\n[PHASE 5] Testing ExecutionGovernor (Resiliency)...');
   const execGov = new ExecutionGovernor();
   let callCount = 0;
@@ -63,12 +69,13 @@ async function verify() {
       console.error(`❌ FAIL: ExecutionGovernor expected 3 calls, got ${callCount}`);
       passed = false;
     }
-  } catch (e: any) {
-    console.error(`❌ FAIL: ExecutionGovernor should not have thrown: ${e.message}`);
+  } catch (e: unknown) {
+    const error = e as Error;
+    console.error(`❌ FAIL: ExecutionGovernor should not have thrown: ${error.message}`);
     passed = false;
   }
 
-  // 2. Capability Discovery
+  // [PHASE 6] Testing DiscoveryService (Capabilities)...
   console.log('\n[PHASE 6] Testing DiscoveryService (Capabilities)...');
   await discovery.discover(workspaceRoot);
   const gitCap = defaultCapabilityRegistry.get('git');
@@ -79,7 +86,7 @@ async function verify() {
     passed = false;
   }
 
-  // 3. Persistent Locks (LockOrchestrator)
+  // [PHASE 7] Testing LockOrchestrator (Ownership)...
   console.log('\n[PHASE 7] Testing LockOrchestrator (Ownership)...');
   const lockGov = LockOrchestrator.getInstance();
   const scope = { taskId: 'test-task', operation: 'test-op', ownerId: 'agent-007' };
@@ -97,20 +104,53 @@ async function verify() {
   const testFile = path.join(workspaceRoot, 'tmp_tx_test.txt');
   txManager.startTransaction();
   await txManager.stageWrite(testFile, 'initial');
-  // Commit it
   await txManager.commit();
 
   txManager.startTransaction();
   await txManager.stageWrite(testFile, 'updated');
-  // Pretend failure and rollback
   await txManager.rollback();
 
   const currentContent = fs.readFile(testFile);
   if (currentContent === 'initial') {
-    console.log('✅ PASS: Transaction rolled back to initial state');
+    console.log('✅ PASS: Transaction rolled back to initial state (Restore)');
   } else {
     console.error(`❌ FAIL: Transaction rollback failed, got: ${currentContent}`);
     passed = false;
+  }
+
+  // 5. Orphan Cleanup (Harden Pass 19)
+  console.log('\n[PHASE 9] Testing TransactionManager (Orphan Cleanup)...');
+  const newFile = path.join(workspaceRoot, 'tmp_new_tx.txt');
+  txManager.startTransaction();
+  await txManager.stageWrite(newFile, 'new file content');
+  await txManager.rollback();
+  
+  if (!fs.exists(newFile)) {
+    console.log('✅ PASS: Orphan file purged on rollback');
+  } else {
+    console.error('❌ FAIL: Orphan file still exists on disk');
+    passed = false;
+    await fs.unlink(newFile); // Manual cleanup
+  }
+
+  // 6. Concurrency Protection
+  console.log('\n[PHASE 10] Testing Infrastructure (Concurrency Guard)...');
+  txManager.startTransaction();
+  await txManager.stageWrite(testFile, 'locking test');
+  
+  // Try to acquire lock directly from LockManager - should fail as TX holds it
+  try {
+    const directScope = { taskId: 'other', operation: `file_write:${testFile}`, ownerId: 'intruder' };
+    const res = await LockManager.getInstance().acquire(directScope, 0);
+    if (!res.success) {
+      console.log('✅ PASS: Distributed lock correctly prevents concurrent write');
+    } else {
+      console.error('❌ FAIL: Concurrent lock acquisition succeeded incorrectly');
+      passed = false;
+      await LockManager.getInstance().release(res.ticket!.resourceId, res.ticket!.code);
+    }
+  } finally {
+    await txManager.rollback();
   }
 
   // Cleanup

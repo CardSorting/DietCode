@@ -325,7 +325,7 @@ export const NamedLockScopes = {
    */
   FILE_WRITE: (taskId: string, filePath: string) => ({
     taskId,
-    operation: 'file_write',
+    operation: `file_write:${filePath}`,
     timeoutMs: 30000,
     autoRelease: true,
   }),

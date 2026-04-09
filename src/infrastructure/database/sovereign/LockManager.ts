@@ -7,6 +7,7 @@
 import { randomUUID } from 'node:crypto';
 import type { LockResult, LockScope, LockTicket } from '../../../domain/safety/LockScope';
 import { Core } from './Core';
+import type { KyselyDatabase } from './DatabaseSchema';
 
 /**
  * [LAYER: INFRASTRUCTURE]
@@ -39,7 +40,7 @@ export class LockManager {
    */
   async acquire(scope: LockScope, timeoutMs = 30000): Promise<LockResult> {
     const db = await Core.db();
-    const resourceId = `${scope.taskId}_${scope.operation}`;
+    const resourceId = scope.operation;
 
     // Generate unique ticket
     const ticket: LockTicket = {
@@ -75,21 +76,21 @@ export class LockManager {
    * Attempt immediate lock acquisition
    */
   private async tryAcquireImmediate(
-    db: any,
+    db: KyselyDatabase,
     ticket: LockTicket,
     resourceId: string,
   ): Promise<LockResult> {
     const now = Date.now();
 
     // 1. Cleanup/Check existing lock
-    const existing = await (db as any)
-      .selectFrom('locks')
+    const existing = await db
+      .selectFrom('hive_locks')
       .selectAll()
       .where('resource', '=', resourceId)
       .executeTakeFirst();
 
     if (existing) {
-      const isExpired = Number.parseInt(existing.expires_at) < now;
+      const isExpired = Number.parseInt(existing.expires_at as unknown as string) < now;
       const isOwner = existing.owner_id === ticket.ownerId;
 
       if (!isExpired && !isOwner) {
@@ -102,8 +103,8 @@ export class LockManager {
 
       // 2. Perform Takeover or Extension (Atomic Update)
       try {
-        await (db as any)
-          .updateTable('locks')
+        await db
+          .updateTable('hive_locks')
           .set({
             owner_id: ticket.ownerId,
             lock_code: ticket.code,
@@ -111,8 +112,8 @@ export class LockManager {
             expires_at: ticket.expiresAt,
           })
           .where('resource', '=', resourceId)
-          .where((eb: any) =>
-            eb.or([eb('expires_at', '<', now), eb('owner_id', '=', ticket.ownerId)]),
+          .where((eb) =>
+            eb.or([eb('expires_at', '<', now), eb('owner_id', '=', ticket.ownerId as string)]),
           )
           .execute();
 
@@ -129,11 +130,12 @@ export class LockManager {
 
     // 3. New Lock Insertion
     try {
-      await (db as any)
-        .insertInto('locks')
+      await db
+        .insertInto('hive_locks')
         .values({
+          id: randomUUID(), // Added required ID field for axiomatic finality
           resource: resourceId,
-          owner_id: ticket.ownerId,
+          owner_id: ticket.ownerId as string,
           lock_code: ticket.code,
           acquired_at: ticket.acquiredAt,
           expires_at: ticket.expiresAt,
@@ -142,8 +144,8 @@ export class LockManager {
 
       this.locksCache.set(resourceId, ticket);
       return { success: true, ticket };
-    } catch (error: any) {
-      if (error.message.includes('UNIQUE constraint')) {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message.includes('UNIQUE constraint')) {
         return {
           success: false,
           error: 'Lock acquisition race condition during insert',
@@ -159,8 +161,8 @@ export class LockManager {
    */
   async release(resourceId: string, expectedCode: string): Promise<boolean> {
     const db = await Core.db();
-    const result = await (db as any)
-      .deleteFrom('locks')
+    const result = await db
+      .deleteFrom('hive_locks')
       .where('resource', '=', resourceId)
       .where('lock_code', '=', expectedCode)
       .executeTakeFirst();
@@ -179,8 +181,8 @@ export class LockManager {
     const db = await Core.db();
     const newExpiresAt = Date.now() + newTimeoutMs;
 
-    const result = await (db as any)
-      .updateTable('locks')
+    const result = await db
+      .updateTable('hive_locks')
       .set({
         expires_at: newExpiresAt,
       })
@@ -203,8 +205,8 @@ export class LockManager {
     const now = Date.now();
     const db = await Core.db();
 
-    const lock = await (db as any)
-      .selectFrom('locks')
+    const lock = await db
+      .selectFrom('hive_locks')
       .selectAll()
       .where('resource', '=', resourceId)
       .where('expires_at', '>', now)
@@ -215,8 +217,8 @@ export class LockManager {
         id: randomUUID(), // New ticket ID for info lookup
         code: lock.lock_code,
         resourceId: lock.resource,
-        acquiredAt: Number.parseInt(lock.acquired_at),
-        expiresAt: Number.parseInt(lock.expires_at),
+        acquiredAt: Number.parseInt(lock.acquired_at as unknown as string),
+        expiresAt: Number.parseInt(lock.expires_at as unknown as string),
         sessionId: 'unknown',
         autoRelease: true,
         ownerId: lock.owner_id,
@@ -237,7 +239,7 @@ export class LockManager {
     const db = await Core.db();
     const now = Date.now();
 
-    await (db as any).deleteFrom('locks').where('expires_at', '<=', now).execute();
+    await db.deleteFrom('hive_locks').where('expires_at', '<=', now).execute();
 
     // Sync cache
     for (const [res, ticket] of this.locksCache.entries()) {

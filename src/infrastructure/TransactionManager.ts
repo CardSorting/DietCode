@@ -14,6 +14,8 @@ import * as path from 'node:path';
 import type { LogService } from '../domain/logging/LogService';
 import type { Filesystem } from '../domain/system/Filesystem';
 import type { RollbackManager } from './validation/RollbackManager';
+import { LockOrchestrator, NamedLockScopes } from '../core/manager/LockOrchestrator';
+import type { LockTicket } from '../domain/safety/LockScope';
 
 export type TransactionChangeType = 'WRITE' | 'DELETE' | 'RENAME';
 
@@ -28,6 +30,9 @@ export interface TransactionChange {
 export class TransactionManager {
   private activeTransaction: TransactionChange[] = [];
   private isTransactionActive = false;
+  private acquiredLocks: LockTicket[] = [];
+  private lockOrchestrator = LockOrchestrator.getInstance();
+  private transactionId = `tx-${crypto.randomUUID()}`;
 
   constructor(
     private filesystem: Filesystem,
@@ -43,8 +48,10 @@ export class TransactionManager {
       throw new Error('Transaction already in progress');
     }
     this.activeTransaction = [];
+    this.acquiredLocks = [];
     this.isTransactionActive = true;
-    this.logService.info('[TRANSACTION] Started', {}, { component: 'TransactionManager' });
+    this.transactionId = `tx-${crypto.randomUUID()}`;
+    this.logService.info(`[TRANSACTION] Started ${this.transactionId}`, {}, { component: 'TransactionManager' });
   }
 
   /**
@@ -53,11 +60,18 @@ export class TransactionManager {
   async stageWrite(filePath: string, content: string): Promise<void> {
     this.ensureTransaction();
 
+    // Pass 19: Acquire distributed lock for safety
+    const lock = await this.lockOrchestrator.acquire(NamedLockScopes.FILE_WRITE(this.transactionId, filePath));
+    this.acquiredLocks.push(lock);
+
+    const exists = this.filesystem.exists(filePath);
     let previousContent: string | undefined;
-    if (this.filesystem.exists(filePath)) {
+    if (exists) {
       previousContent = this.filesystem.readFile(filePath);
-      await this.rollbackManager.backupFile(filePath, previousContent, 'Transaction backup');
     }
+    
+    // Track both existing content (for restoration) and non-existence (for purging)
+    await (this.rollbackManager as any).backupFile(filePath, previousContent || null, 'Transaction write', exists);
 
     this.activeTransaction.push({
       type: 'WRITE',
@@ -73,12 +87,17 @@ export class TransactionManager {
   async stageDelete(filePath: string): Promise<void> {
     this.ensureTransaction();
 
+    // Pass 19: Acquire distributed lock for safety
+    const lock = await this.lockOrchestrator.acquire(NamedLockScopes.FILE_WRITE(this.transactionId, filePath));
+    this.acquiredLocks.push(lock);
+
     if (this.filesystem.exists(filePath)) {
       const previousContent = this.filesystem.readFile(filePath);
-      await this.rollbackManager.backupFile(
+      await (this.rollbackManager as any).backupFile(
         filePath,
         previousContent,
-        'Transaction backup before delete',
+        'Transaction delete',
+        true
       );
 
       this.activeTransaction.push({
@@ -110,19 +129,21 @@ export class TransactionManager {
         }
       }
       this.logService.info(
-        '[TRANSACTION] Committed successfully',
+        `[TRANSACTION] ${this.transactionId} Committed successfully`,
         {},
         { component: 'TransactionManager' },
       );
     } catch (error: any) {
       this.logService.error(
-        `[TRANSACTION] Commit failed: ${error.message}. Rolling back...`,
+        `[TRANSACTION] ${this.transactionId} Commit failed: ${error.message}. Rolling back...`,
         error,
         { component: 'TransactionManager' },
       );
       await this.rollback();
       throw error;
     } finally {
+      await this.rollbackManager.clear();
+      await this.cleanupLocks();
       this.isTransactionActive = false;
       this.activeTransaction = [];
     }
@@ -132,10 +153,22 @@ export class TransactionManager {
    * Aborts the current transaction and rolls back any backups.
    */
   async rollback(): Promise<void> {
-    this.logService.info('[TRANSACTION] Rolling back...', {}, { component: 'TransactionManager' });
+    this.logService.info(`[TRANSACTION] ${this.transactionId} Rolling back...`, {}, { component: 'TransactionManager' });
     await this.rollbackManager.fullRollback();
+    await this.cleanupLocks();
     this.isTransactionActive = false;
     this.activeTransaction = [];
+  }
+
+  private async cleanupLocks(): Promise<void> {
+    for (const lock of this.acquiredLocks) {
+      try {
+        await this.lockOrchestrator.release(lock.resourceId, lock.code);
+      } catch (e) {
+        this.logService.error('Failed to release transaction lock', e, { component: 'TransactionManager' });
+      }
+    }
+    this.acquiredLocks = [];
   }
 
   private ensureTransaction(): void {

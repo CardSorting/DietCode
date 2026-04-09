@@ -62,3 +62,4 @@ webview-ui/eslint.config.js
 !LICENSE
 !assets/
 .env
+!build/Release/*.node

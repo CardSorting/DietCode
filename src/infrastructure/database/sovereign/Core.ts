@@ -112,13 +112,29 @@ export class Core {
     if (!Core.isInitialized) throw new Error('Core not initialized.');
     Core.currentTaskId = taskId;
     Core.currentHeartbeatId = crypto.randomUUID();
-    if (Core.heartbeatInterval) clearInterval(Core.heartbeatInterval);
-    Core.heartbeatInterval = setInterval(async () => await Core.recordHeartbeat(), 5000);
+    
+    // Pass 19: Resilient Heartbeat Loop
+    const runHeartbeat = async () => {
+      if (!Core.heartbeatInterval) return; // Stopped
+      await Core.recordHeartbeat();
+      if (Core.heartbeatInterval) {
+        Core.heartbeatInterval = setTimeout(runHeartbeat, 5000);
+      }
+    };
+
+    if (Core.heartbeatInterval) {
+      if (typeof Core.heartbeatInterval === 'object') {
+        clearInterval(Core.heartbeatInterval as any);
+        clearTimeout(Core.heartbeatInterval as any);
+      }
+    }
+    
+    Core.heartbeatInterval = setTimeout(runHeartbeat, 5000) as any;
   }
 
   static stopHeartbeat() {
     if (Core.heartbeatInterval) {
-      clearInterval(Core.heartbeatInterval);
+      clearTimeout(Core.heartbeatInterval as any);
       Core.heartbeatInterval = null;
     }
   }

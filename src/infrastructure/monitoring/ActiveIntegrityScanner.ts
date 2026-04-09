@@ -13,6 +13,7 @@
 import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import { Core } from '../database/sovereign/Core';
+import type { KyselyDatabase } from '../database/sovereign/DatabaseSchema';
 
 export class ActiveIntegrityScanner {
   /**
@@ -20,42 +21,62 @@ export class ActiveIntegrityScanner {
    * Detects external edits performed outside the Sovereign Protocol.
    */
   async verifyFileIntegrity(filePath: string): Promise<{ clear: boolean; reason?: string }> {
-    if (!fs.existsSync(filePath)) return { clear: true };
-
     // Pass 18: Resilience — If core is not initialized, skip during bootstrap phase
     if (!Core.isAvailable()) return { clear: true };
 
-    const db = await Core.db();
-    const context = (await (db as any)
-      .selectFrom('hive_file_context' as any)
-      .select(['signature', 'path'])
+    const db = (await Core.db()) as KyselyDatabase;
+    const context = await db
+      .selectFrom('hive_file_context')
+      .select(['signature', 'path', 'external_edit_detected'])
       .where('path', '=', filePath)
-      .executeTakeFirst()) as any;
+      .executeTakeFirst();
 
-    if (!context || !context.signature) {
-      // First time seeing this file, record it
-      const content = fs.readFileSync(filePath, 'utf8');
-      const signature = this.calculateHash(content);
-      await this.recordFileState(filePath, signature);
+    if (!fs.existsSync(filePath)) {
+      if (context) {
+        // File existed before but is now gone!
+        await db
+          .updateTable('hive_file_context')
+          .set({ external_edit_detected: 1, state: 'MISSING' })
+          .where('path', '=', filePath)
+          .execute();
+        
+        return {
+          clear: false,
+          reason: 'External Delete Detected: File has vanished from the environment.',
+        };
+      }
       return { clear: true };
     }
 
-    const currentContent = fs.readFileSync(filePath, 'utf8');
-    const currentSignature = this.calculateHash(currentContent);
+    try {
+      if (!context || !context.signature) {
+        // First time seeing this file, record it
+        const content = fs.readFileSync(filePath, 'utf8');
+        const signature = this.calculateHash(content);
+        await this.recordFileState(filePath, signature);
+        return { clear: true };
+      }
 
-    if (currentSignature !== context.signature) {
-      // External Edit Detected!
-      await (db as any)
-        .updateTable('hive_file_context' as any)
-        .set({ external_edit_detected: 1 })
-        .where('path', '=', filePath)
-        .execute();
+      const currentContent = fs.readFileSync(filePath, 'utf8');
+      const currentSignature = this.calculateHash(currentContent);
 
-      return {
-        clear: false,
-        reason:
-          'External Edit Detected: File content does not match last known Sovereign signature.',
-      };
+      if (currentSignature !== context.signature) {
+        // External Edit Detected!
+        await db
+          .updateTable('hive_file_context')
+          .set({ external_edit_detected: 1 })
+          .where('path', '=', filePath)
+          .execute();
+
+        return {
+          clear: false,
+          reason:
+            'External Edit Detected: File content does not match last known Sovereign signature.',
+        };
+      }
+    } catch (e: unknown) {
+      if (e instanceof Error && (e as { code?: string }).code === 'ENOENT') return { clear: true }; // File vanished, ignore
+      throw e;
     }
 
     return { clear: true };
@@ -65,9 +86,9 @@ export class ActiveIntegrityScanner {
    * Records the current sovereign signature of a file.
    */
   async recordFileState(filePath: string, signature: string): Promise<void> {
-    const db = await Core.db();
-    await (db as any)
-      .insertInto('hive_file_context' as any)
+    const db = (await Core.db()) as KyselyDatabase;
+    await db
+      .insertInto('hive_file_context')
       .values({
         id: globalThis.crypto.randomUUID(),
         path: filePath,
@@ -77,7 +98,7 @@ export class ActiveIntegrityScanner {
         last_read_date: Date.now(),
         external_edit_detected: 0,
       })
-      .onConflict((oc: any) =>
+      .onConflict((oc) =>
         oc.column('path').doUpdateSet({
           signature,
           external_edit_detected: 0,

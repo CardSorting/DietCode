@@ -10,6 +10,8 @@
  * Violations: None
  */
 
+import * as fs from 'node:fs';
+import * as crypto from 'node:crypto';
 import type { ApprovalRequirements } from '../../domain/validation/RiskLevel';
 import type {
   Backup as DomainBackup,
@@ -26,27 +28,41 @@ export class RollbackManager implements DomainRollbackProtocol {
   private backups: DomainRollbackOperation[] = [];
 
   /**
-   * Create a backup of a file before modification
-   * Returns the backup information
+   * Create a backup of a file before modification.
+   * If exists is false, the rollback operation will delete the file.
    */
-  async backupFile(path: string, content: string, reason?: string): Promise<DomainBackup> {
+  async backupFile(
+    path: string,
+    content: string | null,
+    reason?: string,
+    exists = true,
+  ): Promise<DomainBackup> {
     const backup: DomainBackup = {
       id: crypto.randomUUID(),
       type: 'FILE' as const,
       path: path,
-      content: content,
+      content: content || '',
       timestamp: new Date(),
-      metadata: { reason },
+      metadata: { reason, wasCreated: !exists },
     };
 
     // Create rollback operation
     const operation: DomainRollbackOperation = {
       restore: async () => {
-        // In real implementation, this would write back to file
-        console.log(`✅ File ${path} reverted to state before action`);
+        if (!exists) {
+          // File was created during transaction, delete it on rollback
+          if (fs.existsSync(path)) {
+            fs.unlinkSync(path);
+            console.log(`✅ File ${path} purged (was created during failed transaction)`);
+          }
+        } else if (content !== null) {
+          // File existed, restore its original content
+          fs.writeFileSync(path, content, 'utf8');
+          console.log(`✅ File ${path} restored to state before action`);
+        }
       },
       getRestoreCount: () => 1,
-      preview: () => `Rollback file: ${path}`,
+      preview: () => (exists ? `Restore file: ${path}` : `Delete created file: ${path}`),
     };
 
     this.backups.push(operation);

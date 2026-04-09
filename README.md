@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/vsix/logo.svg" width="400" alt="DietCode Logo">
+  <img src="assets/vsix/logo.png" width="400" alt="DietCode Logo">
 </p>
 
 # 🥗 DietCode: Sovereign Hive

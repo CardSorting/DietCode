@@ -13,15 +13,18 @@ import * as path from 'node:path';
 import type { DiscoveryResult } from '../../domain/architecture/Discovery.ts';
 import type { LayerAwareness } from '../../domain/architecture/LayerAwareness.ts';
 import type { ProjectStructureAnalysis } from '../../domain/architecture/ProjectAnalysis.ts';
+import type { LogService } from '../../domain/logging/LogService';
+import type { Filesystem } from '../../domain/system/Filesystem';
+import type { SystemAdapter } from '../../domain/system/SystemAdapter';
 
 /**
  * Service for discovering patterns and structure across the codebase
  */
 export class DiscoveryService {
   constructor(
-    private fs: any,
-    private systemAdapter: any,
-    private logger: any,
+    private fs: Filesystem,
+    private systemAdapter: SystemAdapter,
+    private logger: LogService,
   ) {}
 
   /**
@@ -29,7 +32,20 @@ export class DiscoveryService {
    *
    * @param cwd Project root directory
    */
-  async discover(cwd: string): Promise<any> {
+  async discover(cwd: string): Promise<unknown> {
+    const { defaultCapabilityRegistry } = await import('../capabilities/CapabilityRegistry');
+
+    // Discover git capability
+    const gitRes = await this.systemAdapter.detectCapability('git', 'git --version');
+    defaultCapabilityRegistry.register({
+      name: 'git',
+      available: gitRes.available,
+      path: '/usr/bin/git', // Standard fallback
+      metadata: {
+        version: gitRes.version?.replace('git version ', ''),
+      },
+    });
+
     return {
       workspace: { id: 'default', path: cwd, name: 'DietCode' },
       repository: {

@@ -103,7 +103,7 @@ function dequeueTask(group: string): TaskExecutionRequest | undefined {
 // Configuration for execution governor behavior
 const defaultExecutionGovernorConfig: ExecutionGovernorConfig = {
   maxRetries: 3,
-  retryableErrors: ['NetworkError', 'TimeoutError', 'ConnectionError'],
+  retryableErrors: ['NetworkError', 'TimeoutError', 'ConnectionError', 'SQLITE_BUSY'],
   timeoutMs: 30000,
 };
 

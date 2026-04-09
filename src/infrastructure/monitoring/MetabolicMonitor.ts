@@ -16,6 +16,7 @@ import * as crypto from 'node:crypto';
  * Tracks I/O operations, token consumption, and verification signals.
  */
 import { Core } from '../database/sovereign/Core';
+import type { KyselyDatabase } from '../database/sovereign/DatabaseSchema';
 
 export interface BrainMetrics {
   tokensProcessed: number;
@@ -40,16 +41,18 @@ export class MetabolicMonitor {
   };
 
   private hotspots: Map<string, number> = new Map();
+  private isFlushing = false;
+  private flushTimeout: NodeJS.Timeout | null = null;
 
   private constructor() {
-    // Pass 17: Background Metabolic Flush Interval (30s)
-    setInterval(() => {
+    // Pass 19: Resilient Metabolic Flush Loop
+    const runFlush = async () => {
       if (this.currentTaskId && Core.isAvailable()) {
-        this.flushToDatabase(this.currentTaskId).catch((err) => {
-          // Silent fail in interval to avoid spamming console during tests
-        });
+        await this.flushToDatabase(this.currentTaskId).catch(() => {});
       }
-    }, 30000);
+      this.flushTimeout = setTimeout(runFlush, 30000);
+    };
+    this.flushTimeout = setTimeout(runFlush, 30000);
   }
 
   /**
@@ -73,26 +76,33 @@ export class MetabolicMonitor {
    * Persists the current metabolic window to the database.
    */
   public async flushToDatabase(taskId: string): Promise<void> {
-    const db = await Core.db();
-    const metrics = this.getMetrics();
+    if (this.isFlushing) return;
+    this.isFlushing = true;
 
-    // Pass 17: Zero-Wait Telemetry Persistence
-    await (db as any)
-      .insertInto('hive_metabolic_telemetry' as any)
-      .values({
-        id: crypto.randomUUID(),
-        task_id: taskId,
-        tokens_processed: metrics.tokensProcessed,
-        verifications_success: metrics.verificationsSuccess,
-        lines_added: metrics.linesAdded,
-        lines_deleted: metrics.linesDeleted,
-        reads: metrics.reads,
-        writes: metrics.writes,
-        timestamp: Date.now(),
-      })
-      .execute();
+    try {
+      const db = (await Core.db()) as KyselyDatabase;
+      const metrics = this.getMetrics();
 
-    this.resetMetrics();
+      // Pass 17: Zero-Wait Telemetry Persistence
+      await db
+        .insertInto('hive_metabolic_telemetry')
+        .values({
+          id: crypto.randomUUID(),
+          task_id: taskId,
+          tokens_processed: metrics.tokensProcessed,
+          verifications_success: metrics.verificationsSuccess,
+          lines_added: metrics.linesAdded,
+          lines_deleted: metrics.linesDeleted,
+          reads: metrics.reads,
+          writes: metrics.writes,
+          timestamp: Date.now(),
+        })
+        .execute();
+
+      this.resetMetrics();
+    } finally {
+      this.isFlushing = false;
+    }
   }
 
   // --- Instrumentation Hooks ---

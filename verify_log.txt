@@ -1,0 +1,64 @@
+[2026-04-09T15:55:10.760Z] [INFO] [SWARM] BufferedDbPool initialized with sharded architecture.
+--- DIETCODE ADVANCED INFRASTRUCTURE VERIFICATION ---
+[CORE] Initializing Sovereign Hive at: /Users/bozoegg/Downloads/DietCode/.dietcode/verify_test.db
+[DbPool] 🏛️ Sovereign Hive Schema baseline established and hardened.
+[DbPool] 🏛️ Sovereign Hive Schema baseline established and hardened.
+[CORE] Sovereign Hive initialized (v2.0 Architecture)
+[CORE] 🚀 Synchronizing Sovereign Hive schema (Modern Architecture)...
+[CORE] 🏁 Sovereign Hive synchronization complete in 0.00s (Zero-Shim Modern)
+
+[PHASE 5] Testing ExecutionGovernor (Resiliency)...
+✅ PASS: ExecutionGovernor retried on SQLITE_BUSY
+
+[PHASE 6] Testing DiscoveryService (Capabilities)...
+✅ PASS: git discovered (2.50.1 (Apple Git-155))
+
+[PHASE 7] Testing LockOrchestrator (Ownership)...
+🔒 Lock acquisition: test-task_test-op (Owner: agent-007)
+✅ Lock acquired: 0d99c5a8-c500-46e2-a442-e2226206d571
+✅ PASS: Lock acquired with ownerId: agent-007
+🔓 Lock release: test-op (soft)
+✅ Lock released: test-op
+
+[PHASE 8] Testing TransactionManager (Atomicity)...
+2026-04-09T15:55:11.903Z [main] INFO [TRANSACTION] Started tx-7d213e48-bb50-4c13-b147-191a13692afa | Data: {}
+🔒 Lock acquisition: tx-7d213e48-bb50-4c13-b147-191a13692afa_file_write:/Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt (Owner: agent-58840)
+✅ Lock acquired: 19104afb-9115-407b-b04e-b6f5dacfb4b3
+2026-04-09T15:55:11.903Z [main] INFO [TRANSACTION] Committing 1 changes... | Data: {"count":1}
+2026-04-09T15:55:11.907Z [main] INFO [TRANSACTION] tx-7d213e48-bb50-4c13-b147-191a13692afa Committed successfully | Data: {}
+🔓 Lock release: file_write:/Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt (soft)
+✅ Lock released: file_write:/Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt
+2026-04-09T15:55:11.908Z [main] INFO [TRANSACTION] Started tx-f0eb4f32-51e2-4eea-8075-d12c661a09b2 | Data: {}
+🔒 Lock acquisition: tx-f0eb4f32-51e2-4eea-8075-d12c661a09b2_file_write:/Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt (Owner: agent-58840)
+✅ Lock acquired: 0d4d5902-936a-4cda-b490-29c522e9dddd
+2026-04-09T15:55:11.908Z [main] INFO [TRANSACTION] tx-f0eb4f32-51e2-4eea-8075-d12c661a09b2 Rolling back... | Data: {}
+✅ File /Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt restored to state before action
+🔄 Full rollback completed. Cleansed 1 backup record(s).
+🔓 Lock release: file_write:/Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt (soft)
+✅ Lock released: file_write:/Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt
+✅ PASS: Transaction rolled back to initial state (Restore)
+
+[PHASE 9] Testing TransactionManager (Orphan Cleanup)...
+2026-04-09T15:55:11.909Z [main] INFO [TRANSACTION] Started tx-1cfa6358-0c3e-4f69-911f-8bcfeb68ff6b | Data: {}
+🔒 Lock acquisition: tx-1cfa6358-0c3e-4f69-911f-8bcfeb68ff6b_file_write:/Users/bozoegg/Downloads/DietCode/tmp_new_tx.txt (Owner: agent-58840)
+✅ Lock acquired: e9517cc9-545c-4f02-a33e-2f90003495fd
+2026-04-09T15:55:11.909Z [main] INFO [TRANSACTION] tx-1cfa6358-0c3e-4f69-911f-8bcfeb68ff6b Rolling back... | Data: {}
+✅ File /Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt restored to state before action
+🔄 Full rollback completed. Cleansed 2 backup record(s).
+🔓 Lock release: file_write:/Users/bozoegg/Downloads/DietCode/tmp_new_tx.txt (soft)
+✅ Lock released: file_write:/Users/bozoegg/Downloads/DietCode/tmp_new_tx.txt
+✅ PASS: Orphan file purged on rollback
+
+[PHASE 10] Testing Infrastructure (Concurrency Guard)...
+2026-04-09T15:55:11.909Z [main] INFO [TRANSACTION] Started tx-6bc45b4e-39f3-4ee8-aed2-9328417d5065 | Data: {}
+🔒 Lock acquisition: tx-6bc45b4e-39f3-4ee8-aed2-9328417d5065_file_write:/Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt (Owner: agent-58840)
+✅ Lock acquired: e55ad18f-f49e-4a13-a168-171c0c47374a
+✅ PASS: Distributed lock correctly prevents concurrent write
+2026-04-09T15:55:11.909Z [main] INFO [TRANSACTION] tx-6bc45b4e-39f3-4ee8-aed2-9328417d5065 Rolling back... | Data: {}
+✅ File /Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt restored to state before action
+✅ File /Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt restored to state before action
+🔄 Full rollback completed. Cleansed 3 backup record(s).
+🔓 Lock release: file_write:/Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt (soft)
+✅ Lock released: file_write:/Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt
+
+✨ ALL ADVANCED INFRASTRUCTURE VERIFICATIONS PASSED! ✨
