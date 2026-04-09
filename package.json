@@ -1,7 +1,7 @@
 {
   "name": "dietcode",
   "publisher": "dietcode",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "icon": "assets/vsix/extension-icon.png",
   "type": "module",
   "private": true,
@@ -43,7 +43,8 @@
   "scripts": {
     "build:webview": "cd webview-ui && bun run build",
     "build:cli": "bun build ./index.ts --outfile=./dist/index.js --target=node --bundle --external better-sqlite3 --external @noorm/broccoliq",
-    "build": "bun run build:webview && bun run build:cli && bun build ./src/extension.ts --outfile=./dist/extension.js --target=node --bundle --external vscode && mkdir -p build/Release && cp node_modules/better-sqlite3/build/Release/better_sqlite3.node build/Release/",
+    "rebuild:electron": "electron-rebuild --version 35.0.0 --only better-sqlite3",
+    "build": "bun run build:webview && bun run build:cli && bun run rebuild:electron && bun build ./src/extension.ts --outfile=./dist/extension.js --target=node --bundle --external vscode && mkdir -p build/Release && cp node_modules/better-sqlite3/build/Release/better_sqlite3.node build/Release/",
     "dev": "tsc --watch",
     "cli": "bun ./dist/index.js",
     "cli:dev": "bun run ./index.ts",
@@ -70,6 +71,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.3",
+    "@electron/rebuild": "^4.0.3",
     "@eslint/js": "^9.10.0",
     "@types/better-sqlite3": "^7.6.12",
     "@types/fs-extra": "^11.0.4",
