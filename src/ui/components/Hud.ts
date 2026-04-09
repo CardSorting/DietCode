@@ -1,12 +1,12 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 import type { HudData } from '../../domain/system/TerminalInterface';
-import { HudRenderer } from '../renderers/HudRenderer';
 import { METABOLIC_MODIFIERS } from '../design/Theme';
+import { HudRenderer } from '../renderers/HudRenderer';
 
 /**
  * Structured UI component for the Sovereign HUD.
@@ -36,10 +36,10 @@ export class Hud {
       this.pulseState = !this.pulseState;
       // Real Implementation: Use ANSI cursor escapes to update the pulse indicator in-place
       if (this.data) {
-          process.stdout.write('\x1b[s'); // Save position
-          process.stdout.write(this.getPulseIndicator()); 
-          process.stdout.write('\x1b[u'); // Restore position
-          process.stdout.write('');      // Flush
+        process.stdout.write('\x1b[s'); // Save position
+        process.stdout.write(this.getPulseIndicator());
+        process.stdout.write('\x1b[u'); // Restore position
+        process.stdout.write(''); // Flush
       }
     }, 1000);
   }

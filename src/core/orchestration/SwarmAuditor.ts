@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -50,7 +50,7 @@ export class SwarmAuditor {
     );
 
     // Triple Down Hardening: Verification delay to ensure eventual consistency
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise((r) => setTimeout(r, 100));
 
     const session = await this.repository.getSession(sessionId);
     if (session && session.agentId === toAgentId) {

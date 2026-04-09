@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -63,14 +63,20 @@ export class SemanticIntegrityAdapter implements IntegrityScanner {
       violations: allViolations,
       scannedAt: new Date().toISOString(),
       fileCount: paths.length,
+      score: Math.max(0, 100 - allViolations.length * 10),
     };
   }
 
   /**
    * Scan a single file for semantic issues and architectural violations
    */
-  async scanSingleFile(filePath: string, projectRoot: string, contentOverride?: string): Promise<IntegrityViolation[]> {
-    const content = contentOverride !== undefined ? contentOverride : fs.readFileSync(filePath, 'utf-8');
+  async scanSingleFile(
+    filePath: string,
+    projectRoot: string,
+    contentOverride?: string,
+  ): Promise<IntegrityViolation[]> {
+    const content =
+      contentOverride !== undefined ? contentOverride : fs.readFileSync(filePath, 'utf-8');
     const violations: IntegrityViolation[] = [];
 
     // Header Validation
@@ -87,8 +93,9 @@ export class SemanticIntegrityAdapter implements IntegrityScanner {
 
     // Layer Boundary Validation
     const layerMatch = content.match(/\[LAYER:\s*(\w+)/);
-    if (layerMatch) {
-      const currentLayer = layerMatch[1].toUpperCase();
+    const layerTag = layerMatch?.[1];
+    if (layerTag) {
+      const currentLayer = layerTag.toUpperCase();
       const importViolations = this.verifyLayerBoundaries(filePath, content, currentLayer);
       violations.push(...importViolations);
     }
@@ -96,10 +103,14 @@ export class SemanticIntegrityAdapter implements IntegrityScanner {
     return violations;
   }
 
-  private verifyLayerBoundaries(filePath: string, content: string, layer: string): IntegrityViolation[] {
+  private verifyLayerBoundaries(
+    filePath: string,
+    content: string,
+    layer: string,
+  ): IntegrityViolation[] {
     const violations: IntegrityViolation[] = [];
     const lines = content.split('\n');
-    const imports = lines.filter(l => l.startsWith('import '));
+    const imports = lines.filter((l) => l.startsWith('import '));
 
     for (const imp of imports) {
       // Basic check: UI should not import from Infrastructure directly
@@ -108,19 +119,21 @@ export class SemanticIntegrityAdapter implements IntegrityScanner {
           id: crypto.randomUUID(),
           type: ViolationType.ARCHITECTURE_VIOLATION,
           file: filePath,
-          message: `Sovereign Layer Violation: UI layer cannot import directly from Infrastructure.`,
+          message:
+            'Sovereign Layer Violation: UI layer cannot import directly from Infrastructure.',
           severity: IntegritySeverity.ERROR,
           timestamp: new Date().toISOString(),
         });
       }
-      
+
       // Domain should be pure
       if (layer === 'DOMAIN' && (imp.includes('/infrastructure/') || imp.includes('/core/'))) {
         violations.push({
           id: crypto.randomUUID(),
           type: ViolationType.ARCHITECTURE_VIOLATION,
           file: filePath,
-          message: `Sovereign Layer Violation: Domain layer must be pure and cannot import from Infrastructure/Core.`,
+          message:
+            'Sovereign Layer Violation: Domain layer must be pure and cannot import from Infrastructure/Core.',
           severity: IntegritySeverity.ERROR,
           timestamp: new Date().toISOString(),
         });
@@ -149,7 +162,7 @@ export async function analyzeDependencies(
 ): Promise<any> {
   const adapter = new SemanticIntegrityAdapter(null as any); // Minimal instance
   const violations = await adapter.scanSingleFile(filePath, projectRoot, content);
-  
+
   return {
     file: filePath,
     dependencies: [],

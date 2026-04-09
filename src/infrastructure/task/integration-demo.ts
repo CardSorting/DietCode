@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -20,10 +20,7 @@ import {
 } from '../../core/orchestration/DriftDetectionOrchestrator';
 import { OperationalScheduler } from '../../core/task/OperationalScheduler';
 import { SovereignSelector } from '../../core/task/SovereignSelector';
-import {
-  createTaskEntity,
-  TaskPriority,
-} from '../../domain/task/TaskEntity';
+import { TaskPriority, createTaskEntity } from '../../domain/task/TaskEntity';
 import { ConsoleLoggerAdapter } from '../ConsoleLoggerAdapter';
 import { FileSystemAdapter } from '../FileSystemAdapter';
 import { JoySimulator } from '../simulation/JoySimulator';

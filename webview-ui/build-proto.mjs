@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
-import { execFileSync, execSync } from 'child_process';
-import fsSync from 'fs';
-import { createRequire } from 'module';
-import os from 'os';
-import * as path from 'path';
+import { execFileSync, execSync } from 'node:child_process';
+import fsSync from 'node:fs';
+import * as fs from 'node:fs/promises';
+import { createRequire } from 'node:module';
+import os from 'node:os';
+import * as path from 'node:path';
 import chalk from 'chalk';
-import * as fs from 'fs/promises';
 import { globby } from 'globby';
 import { rmrf } from './file-utils.mjs';
 import { main as generateHostBridgeClient } from './generate-host-bridge-client.mjs';

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -22,7 +22,7 @@ export class VitalsDashboard {
    */
   public render(heartbeat: VitalsHeartbeat): void {
     const shield = FocusShield.getInstance().getStatus();
-    
+
     const metrics = [
       SplashRenderer.renderMetric('Cognitive Heat', heartbeat.cognitiveHeat, 10000, 50000),
       SplashRenderer.renderMetric('Arch. Decay   ', heartbeat.architecturalDecay, 1.0, 2.0, true),

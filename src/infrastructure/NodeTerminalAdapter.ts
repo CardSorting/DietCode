@@ -1,16 +1,16 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 import * as readline from 'node:readline';
 import { Writable } from 'node:stream';
 import type { LogService } from '../domain/logging/LogService';
-import type { TerminalInterface, HudData } from '../domain/system/TerminalInterface';
+import type { HudData, TerminalInterface } from '../domain/system/TerminalInterface';
+import { COLORS } from '../ui/design/Theme';
 import { BoxRenderer } from '../ui/renderers/BoxRenderer';
 import { HudRenderer } from '../ui/renderers/HudRenderer';
-import { COLORS } from '../ui/design/Theme';
 
 export class NodeTerminalAdapter implements TerminalInterface {
   private rl: readline.Interface;

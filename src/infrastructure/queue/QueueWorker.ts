@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -65,7 +65,11 @@ export class QueueWorker {
     while (this.isProcessing) {
       try {
         // Get pending jobs from swarm_queue or hive_queue
-        const jobs = await Core.selectWhere('hive_queue', { column: 'status', operator: '=', value: 'pending' });
+        const jobs = await Core.selectWhere('hive_queue', {
+          column: 'status',
+          operator: '=',
+          value: 'pending',
+        });
 
         if (jobs && jobs.length > 0) {
           for (const job of jobs) {

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -10,13 +10,13 @@
  * TerminalUI acts as the UI Root, coordinating renderers and components.
  */
 
-import type { TerminalInterface, HudData } from '../domain/system/TerminalInterface';
+import type { HudData, TerminalInterface } from '../domain/system/TerminalInterface';
+import { AuthSequence } from './components/AuthSequence';
 import { Hud } from './components/Hud';
+import { COLORS } from './design/Theme';
 import { BoxRenderer } from './renderers/BoxRenderer';
 import { CinematicRenderer } from './renderers/CinematicRenderer';
 import { MetabolicRenderer } from './renderers/MetabolicRenderer';
-import { AuthSequence } from './components/AuthSequence';
-import { COLORS } from './design/Theme';
 
 export class TerminalUI implements TerminalInterface {
   private hud: Hud;
@@ -41,7 +41,13 @@ export class TerminalUI implements TerminalInterface {
     // Cinematic reveal with ambient drift
     const header = MetabolicRenderer.ambientDrift('\n[ CLAUDE-3.7 SIGNAL ]\n', Date.now() / 1000);
     await CinematicRenderer.hardType(header, 5);
-    console.log(BoxRenderer.render('SOVEREIGN TRANSMISSION', cleanText, this.currentHeat > 50 ? 'WARNING' : 'SUCCESS'));
+    console.log(
+      BoxRenderer.render(
+        'SOVEREIGN TRANSMISSION',
+        cleanText,
+        this.currentHeat > 50 ? 'WARNING' : 'SUCCESS',
+      ),
+    );
   }
 
   logToolUse<T = void>(name: string, input: T) {
@@ -75,7 +81,7 @@ export class TerminalUI implements TerminalInterface {
     // Real Implementation: Inject the pulse indicator and explicitly render to the TUI layer
     const _pulse = Math.sin(Date.now() / 500) * 0.5 + 0.5;
     const _hudFrame = this.hud.render(data);
-    
+
     // Dispatch the rendered frame to the underlying system terminal
     this.terminal.renderHud(data);
   }

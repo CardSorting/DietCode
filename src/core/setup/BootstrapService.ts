@@ -1,15 +1,15 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 import type { Filesystem } from '../../domain/system/Filesystem';
 import type { TerminalInterface } from '../../domain/system/TerminalInterface';
-import { SplashRenderer } from '../../ui/renderers/SplashRenderer';
-import { ProtocolRenderer } from '../../ui/renderers/ProtocolRenderer';
 import { COLORS, ICONS } from '../../ui/design/Theme';
 import { MetabolicRenderer } from '../../ui/renderers/MetabolicRenderer';
+import { ProtocolRenderer } from '../../ui/renderers/ProtocolRenderer';
+import { SplashRenderer } from '../../ui/renderers/SplashRenderer';
 
 export interface BootstrapConfig {
   anthropicApiKey?: string;
@@ -30,32 +30,35 @@ export interface UserConfig {
   onboardedAt: number;
 }
 
-const PROVIDER_UPLINKS: Record<'anthropic' | 'openai' | 'gemini' | 'cloudflare' | 'ollama', { name: string; url: string; strength: string }> = {
-  anthropic: { 
-    name: 'Anthropic', 
-    url: 'https://console.anthropic.com/', 
-    strength: 'High-intelligence reasoning (Claude 3.7)' 
+const PROVIDER_UPLINKS: Record<
+  'anthropic' | 'openai' | 'gemini' | 'cloudflare' | 'ollama',
+  { name: string; url: string; strength: string }
+> = {
+  anthropic: {
+    name: 'Anthropic',
+    url: 'https://console.anthropic.com/',
+    strength: 'High-intelligence reasoning (Claude 3.7)',
   },
-  openai: { 
-    name: 'OpenAI', 
-    url: 'https://platform.openai.com/api-keys', 
-    strength: 'Versatile and widely supported (GPT-4o)' 
+  openai: {
+    name: 'OpenAI',
+    url: 'https://platform.openai.com/api-keys',
+    strength: 'Versatile and widely supported (GPT-4o)',
   },
-  gemini: { 
-    name: 'Google Gemini', 
-    url: 'https://aistudio.google.com/app/apikey', 
-    strength: 'Fast performance and massive context (Gemini 2.0)' 
+  gemini: {
+    name: 'Google Gemini',
+    url: 'https://aistudio.google.com/app/apikey',
+    strength: 'Fast performance and massive context (Gemini 2.0)',
   },
-  cloudflare: { 
-    name: 'Cloudflare Workers AI', 
-    url: 'https://dash.cloudflare.com/', 
-    strength: 'Edge-optimized and cost-effective' 
+  cloudflare: {
+    name: 'Cloudflare Workers AI',
+    url: 'https://dash.cloudflare.com/',
+    strength: 'Edge-optimized and cost-effective',
   },
-  ollama: { 
-    name: 'Ollama (Local)', 
-    url: 'https://ollama.com/', 
-    strength: 'Private, offline, and free local reasoning' 
-  }
+  ollama: {
+    name: 'Ollama (Local)',
+    url: 'https://ollama.com/',
+    strength: 'Private, offline, and free local reasoning',
+  },
 };
 
 export class BootstrapService {
@@ -73,25 +76,32 @@ export class BootstrapService {
       try {
         const pkg = JSON.parse(this.fs.readFile('package.json'));
         this.projectName = pkg.name || 'DIETCODE';
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     }
   }
 
-  async bootstrap(overrides?: Partial<BootstrapConfig>, forceSetup?: boolean): Promise<BootstrapConfig> {
+  async bootstrap(
+    overrides?: Partial<BootstrapConfig>,
+    forceSetup?: boolean,
+  ): Promise<BootstrapConfig> {
     const userConfig = this.loadUserConfig();
     (COLORS as any).activeProfile = (userConfig as any).aesthetic || 'AETHER';
 
     this.ui.clear();
-    
+
     // Phase 1: Cinematic Splash & Diagnostics
     await SplashRenderer.bootSequence((COLORS as any).activeProfile);
-    
+
     // Apply Overrides Immediately
     if (overrides && Object.keys(overrides).length > 0) {
-        const current = await this.loadConfig();
-        const merged = { ...current, ...overrides };
-        await this.saveToEnv(merged);
-        await ProtocolRenderer.renderSuccess('Neural parameters synchronized via direct CLI override.');
+      const current = await this.loadConfig();
+      const merged = { ...current, ...overrides };
+      await this.saveToEnv(merged);
+      await ProtocolRenderer.renderSuccess(
+        'Neural parameters synchronized via direct CLI override.',
+      );
     }
 
     await this.runSafetyAudit();
@@ -99,8 +109,12 @@ export class BootstrapService {
 
     const config: BootstrapConfig = await this.loadConfig();
 
-    const isIncomplete = !config.anthropicApiKey && (!config.cloudflareAccountId || !config.cloudflareApiToken) && !config.openaiApiKey && !config.geminiApiKey;
-    
+    const isIncomplete =
+      !config.anthropicApiKey &&
+      (!config.cloudflareAccountId || !config.cloudflareApiToken) &&
+      !config.openaiApiKey &&
+      !config.geminiApiKey;
+
     // Phase 2: AI Provider Selection (Linear Step-by-Step)
     if (isIncomplete || forceSetup) {
       await this.runProviderSetup(config);
@@ -152,7 +166,9 @@ export class BootstrapService {
   private async runProviderSetup(config: BootstrapConfig) {
     console.log(ProtocolRenderer.renderStepHeader(1, 3, 'AI Provider Setup', this.projectName));
     this.ui.logInfo('To get started, we need to connect a "Brain" to DietCode.');
-    this.ui.logInfo('You can use a cloud service (like Anthropic or OpenAI) or a local one (Ollama).');
+    this.ui.logInfo(
+      'You can use a cloud service (like Anthropic or OpenAI) or a local one (Ollama).',
+    );
 
     const providers = [
       { id: '1', name: 'Anthropic (Recommended)', meta: PROVIDER_UPLINKS.anthropic },
@@ -165,8 +181,10 @@ export class BootstrapService {
     for (const p of providers) {
       console.log(`  ${COLORS.HIVE_GOLD(p.id)}. ${p.name.padEnd(25)} - ${p.meta.strength}`);
     }
-    
-    const choice = await this.ui.promptUser('\nWhich AI service would you like to connect first? (1-5): ');
+
+    const choice = await this.ui.promptUser(
+      '\nWhich AI service would you like to connect first? (1-5): ',
+    );
 
     if (choice === '1') await this.setupAnthropic(config);
     else if (choice === '2') await this.setupOpenAI(config);
@@ -175,7 +193,7 @@ export class BootstrapService {
     else if (choice === '5') await this.setupOllama(config);
 
     if (!config.ollamaBaseUrl) {
-        await this.discoverLocalNode(config);
+      await this.discoverLocalNode(config);
     }
   }
 
@@ -186,10 +204,10 @@ export class BootstrapService {
       this.ui.logInfo(`${ICONS.GEAR} AUTH_REQUIRED: ${meta.name} API Access`);
       this.ui.logInfo(`STRENGTH: ${COLORS.HIGHLIGHT(meta.strength)}`);
       this.ui.logInfo(`OBTAIN_KEY: ${COLORS.HIVE_CYAN(meta.url)}`);
-      
+
       const key = await this.ui.promptSecret('Enter OpenAI API Key (or "skip"): ');
       if (key.toLowerCase() === 'skip') break;
-      
+
       const sanitizedKey = key.trim();
       await ProtocolRenderer.renderHandshakePulse('OpenAI');
       valid = await this.validateOpenAI(sanitizedKey);
@@ -210,10 +228,10 @@ export class BootstrapService {
       this.ui.logInfo(`${ICONS.GEAR} AUTH_REQUIRED: ${meta.name} API Access`);
       this.ui.logInfo(`STRENGTH: ${COLORS.HIGHLIGHT(meta.strength)}`);
       this.ui.logInfo(`OBTAIN_KEY: ${COLORS.HIVE_CYAN(meta.url)}`);
-      
+
       const key = await this.ui.promptSecret('Enter Gemini API Key (or "skip"): ');
       if (key.toLowerCase() === 'skip') break;
-      
+
       const sanitizedKey = key.trim();
       await ProtocolRenderer.renderHandshakePulse('Gemini');
       valid = await this.validateGemini(sanitizedKey);
@@ -234,10 +252,10 @@ export class BootstrapService {
       this.ui.logInfo(`${ICONS.GEAR} AUTH_REQUIRED: ${meta.name} API Access`);
       this.ui.logInfo(`STRENGTH: ${COLORS.HIGHLIGHT(meta.strength)}`);
       this.ui.logInfo(`OBTAIN_KEY: ${COLORS.HIVE_CYAN(meta.url)}`);
-      
+
       const key = await this.ui.promptSecret('Enter Anthropic API Key (or "skip"): ');
       if (key.toLowerCase() === 'skip') break;
-      
+
       const sanitizedKey = key.trim();
       await ProtocolRenderer.renderValidationPulse('Decrypting and verifying Anthropic handshake');
       const start = Date.now();
@@ -287,14 +305,15 @@ export class BootstrapService {
 
   private async calibrateNeuralProfiles(config: BootstrapConfig) {
     console.log(ProtocolRenderer.renderStepHeader(2, 3, 'Model Selection', this.projectName));
-    this.ui.logInfo('Now, let\'s pick which AI model to use for your tasks.');
+    this.ui.logInfo("Now, let's pick which AI model to use for your tasks.");
 
     if (config.anthropicApiKey) {
       this.ui.logInfo(`\n${ICONS.GEAR} Choose your Anthropic Model:`);
       console.log('  1. Claude 3.7 Sonnet (Best for coding & reasoning)');
       console.log('  2. Claude 3.5 Haiku (Fast & efficient)');
       const choice = await this.ui.promptUser('Selection (1-2) [1]: ');
-      config.anthropicModel = choice === '2' ? 'claude-3-5-haiku-20241022' : 'claude-3-7-sonnet-20250219';
+      config.anthropicModel =
+        choice === '2' ? 'claude-3-5-haiku-20241022' : 'claude-3-7-sonnet-20250219';
     }
 
     if (config.openaiApiKey) {
@@ -322,32 +341,40 @@ export class BootstrapService {
 
     const url = await this.ui.promptUser('Enter Ollama Base URL [http://localhost:11434]: ');
     config.ollamaBaseUrl = (url || 'http://localhost:11434').trim();
-    
+
     await ProtocolRenderer.renderHandshakePulse('Ollama');
-    
+
     const valid = await this.validateOllama(config.ollamaBaseUrl);
     if (valid) {
       await ProtocolRenderer.renderSuccess('Local Node Synchronized.');
-      await MetabolicRenderer.dataBurst(['LINK_STABLE', 'READY_FOR_UPSTREAM', 'CONTEXT_SHARD_REPLICATED']);
+      await MetabolicRenderer.dataBurst([
+        'LINK_STABLE',
+        'READY_FOR_UPSTREAM',
+        'CONTEXT_SHARD_REPLICATED',
+      ]);
     } else {
       this.ui.logError('Local Node unreachable. Please ensure Ollama is running.');
     }
   }
 
   private async discoverLocalNode(config: BootstrapConfig) {
-      const defaultUrl = 'http://localhost:11434';
-      process.stdout.write(`\r ${ICONS.DIAGNOSTIC} Scanning for Local Neural Nodes...`);
-      const isOllamaRunning = await this.validateOllama(defaultUrl);
-      process.stdout.write(`\r${' '.repeat(50)}\r`);
+    const defaultUrl = 'http://localhost:11434';
+    process.stdout.write(`\r ${ICONS.DIAGNOSTIC} Scanning for Local Neural Nodes...`);
+    const isOllamaRunning = await this.validateOllama(defaultUrl);
+    process.stdout.write(`\r${' '.repeat(50)}\r`);
 
-      if (isOllamaRunning) {
-          this.ui.logInfo(`${COLORS.SUCCESS('◈')} PROXIMITY_ALERT: Ollama Local Node detected at ${defaultUrl}`);
-          const use = await this.ui.promptUser('Shall I enable your Local Neural Link automatically? (y/n): ');
-          if (use.toLowerCase() === 'y' || use.toLowerCase() === 'yes') {
-              config.ollamaBaseUrl = defaultUrl;
-              await ProtocolRenderer.renderSuccess('Local Node Auto-Synchronized.');
-          }
+    if (isOllamaRunning) {
+      this.ui.logInfo(
+        `${COLORS.SUCCESS('◈')} PROXIMITY_ALERT: Ollama Local Node detected at ${defaultUrl}`,
+      );
+      const use = await this.ui.promptUser(
+        'Shall I enable your Local Neural Link automatically? (y/n): ',
+      );
+      if (use.toLowerCase() === 'y' || use.toLowerCase() === 'yes') {
+        config.ollamaBaseUrl = defaultUrl;
+        await ProtocolRenderer.renderSuccess('Local Node Auto-Synchronized.');
       }
+    }
   }
 
   private async runDiagnostics() {
@@ -369,7 +396,9 @@ export class BootstrapService {
   private async validateAnthropic(key: string): Promise<boolean> {
     try {
       if (key === 'test-key') return true;
-      const { AnthropicProvider } = await import('../../infrastructure/llm/providers/AnthropicProvider');
+      const { AnthropicProvider } = await import(
+        '../../infrastructure/llm/providers/AnthropicProvider'
+      );
       const { ConsoleLoggerAdapter } = await import('../../infrastructure/ConsoleLoggerAdapter');
       const provider = new AnthropicProvider(key, new ConsoleLoggerAdapter());
       return await provider.ping();
@@ -413,7 +442,9 @@ export class BootstrapService {
 
   private async validateCloudflare(accountId: string, token: string): Promise<boolean> {
     try {
-      const { CloudflareProvider } = await import('../../infrastructure/llm/providers/CloudflareProvider');
+      const { CloudflareProvider } = await import(
+        '../../infrastructure/llm/providers/CloudflareProvider'
+      );
       const { ConsoleLoggerAdapter } = await import('../../infrastructure/ConsoleLoggerAdapter');
       const provider = new CloudflareProvider({
         accountId,
@@ -427,9 +458,11 @@ export class BootstrapService {
   }
 
   private async personalize() {
-    this.ui.logInfo(`\n${ProtocolRenderer.renderStepHeader(3, 3, 'User Profile', this.projectName)}`);
-    this.ui.logInfo('Almost done! Let\'s personalize your experience.');
-    
+    this.ui.logInfo(
+      `\n${ProtocolRenderer.renderStepHeader(3, 3, 'User Profile', this.projectName)}`,
+    );
+    this.ui.logInfo("Almost done! Let's personalize your experience.");
+
     const configPath = '.dietcode/config.json';
     let userConfig: UserConfig = { name: 'Admin', onboardedAt: Date.now() };
 
@@ -447,7 +480,12 @@ export class BootstrapService {
     console.log(`  4. ${COLORS.MUTED('ONYX')} (Stealth Mode)`);
 
     const themeChoice = await this.ui.promptUser('Selection (1-4) [1]: ');
-    const themeMap: Record<string, string> = { '1': 'AETHER', '2': 'VOLCANIC', '3': 'SOLARIS', '4': 'ONYX' };
+    const themeMap: Record<string, string> = {
+      '1': 'AETHER',
+      '2': 'VOLCANIC',
+      '3': 'SOLARIS',
+      '4': 'ONYX',
+    };
     (userConfig as any).aesthetic = themeMap[themeChoice] || 'AETHER';
 
     this.fs.writeFile(configPath, JSON.stringify(userConfig, null, 2));
@@ -458,30 +496,36 @@ export class BootstrapService {
     this.ui.logInfo('\nPreparing for final activation...');
     const config = await this.loadConfig();
     const model = config.anthropicModel || config.openaiModel || config.geminiModel || 'Ollama';
-    
-    console.log(ProtocolRenderer.renderAxiomReceipt({
-      name: JSON.parse(this.fs.readFile('.dietcode/config.json')).name,
-      model,
-      theme: (JSON.parse(this.fs.readFile('.dietcode/config.json')) as any).aesthetic || 'AETHER',
-      latency: 12
-    }));
 
-    await MetabolicRenderer.dataBurst(['READY_FOR_COMMAND', 'HIVE_MINDS_ONLINE', 'SOVEREIGN_RESERVE_STABLE']);
-    
+    console.log(
+      ProtocolRenderer.renderAxiomReceipt({
+        name: JSON.parse(this.fs.readFile('.dietcode/config.json')).name,
+        model,
+        theme: (JSON.parse(this.fs.readFile('.dietcode/config.json')) as any).aesthetic || 'AETHER',
+        latency: 12,
+      }),
+    );
+
+    await MetabolicRenderer.dataBurst([
+      'READY_FOR_COMMAND',
+      'HIVE_MINDS_ONLINE',
+      'SOVEREIGN_RESERVE_STABLE',
+    ]);
+
     console.log(ProtocolRenderer.renderKickstartMenu());
     const choice = await this.ui.promptUser('Initiate Kickstart Task? (1-3 or S): ');
-    
+
     if (choice === '1') {
       this.ui.logInfo(`${ICONS.DIAGNOSTIC} Launching REAL_SYSTEM_SCAN...`);
       // Real Implementation: Trigger the Orchestrator via EventBus
       const { EventBus } = await import('../orchestration/EventBus');
       const { EventType } = await import('../../domain/Event');
-      
-      EventBus.getInstance().publish(EventType.COMMAND_RECEIVED, { 
+
+      EventBus.getInstance().publish(EventType.COMMAND_RECEIVED, {
         command: 'SYSTEM_SCAN',
-        source: 'BootstrapService'
+        source: 'BootstrapService',
       });
-      
+
       await MetabolicRenderer.axiomScan(30);
     } else if (choice === '2') {
       this.ui.logInfo(`${ICONS.GEAR} Launching HIVE_AUDIT...`);
@@ -496,15 +540,24 @@ export class BootstrapService {
     this.ui.logInfo(`${ICONS.GEAR} AUTH_AUDIT: Checking Repository Safety...`);
     if (this.fs.exists('.gitignore')) {
       const content = this.fs.readFile('.gitignore');
-      const lines = content.split('\n').map(l => l.trim());
-      
-      const leaks = ['.env', '.env.bak', '.env.local', '.env.example'].filter(env => !lines.some(l => l.includes(env)));
+      const lines = content.split('\n').map((l) => l.trim());
+
+      const leaks = ['.env', '.env.bak', '.env.local', '.env.example'].filter(
+        (env) => !lines.some((l) => l.includes(env)),
+      );
 
       if (leaks.length > 0) {
-        this.ui.logError(`CRITICAL_VULNERABILITY: Secret patterns [${leaks.join(', ')}] are NOT ignored in .gitignore!`);
-        const fix = await this.ui.promptUser('Shall I patch .gitignore to secure your credentials? (y/n): ');
+        this.ui.logError(
+          `CRITICAL_VULNERABILITY: Secret patterns [${leaks.join(', ')}] are NOT ignored in .gitignore!`,
+        );
+        const fix = await this.ui.promptUser(
+          'Shall I patch .gitignore to secure your credentials? (y/n): ',
+        );
         if (fix.toLowerCase() === 'y') {
-          this.fs.writeFile('.gitignore', `${content}\n\n# DietCode Sovereign Secrets\n.env*\n.env.local\n`);
+          this.fs.writeFile(
+            '.gitignore',
+            `${content}\n\n# DietCode Sovereign Secrets\n.env*\n.env.local\n`,
+          );
           this.ui.logSuccess('Patch Applied: Global secret patterns are now insulated.');
         }
       } else {
@@ -578,7 +631,9 @@ export class BootstrapService {
     if (this.fs.exists(configPath)) {
       try {
         return JSON.parse(this.fs.readFile(configPath));
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     }
     return { name: 'Sovereign Administrator', onboardedAt: Date.now() };
   }
@@ -588,9 +643,9 @@ export class BootstrapService {
     const suffixes = ['Sentinel', 'Ghost', 'Oracle', 'Drift', 'Prime', 'Phantom'];
     const p = prefixes[Math.floor(Math.random() * prefixes.length)];
     const s = suffixes[Math.floor(Math.random() * suffixes.length)];
-    const id = Math.floor(Math.random() * 99).toString().padStart(2, '0');
+    const id = Math.floor(Math.random() * 99)
+      .toString()
+      .padStart(2, '0');
     return `${p}${s}-${id}`;
   }
 }
-
-

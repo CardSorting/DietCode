@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -12,10 +12,10 @@
  * Inspired by: ForgeSelect's SelectBuilder and InputBuilder
  */
 
+import * as readline from 'node:readline';
 import { LogLevel } from '../domain/logging/LogLevel';
 import type { LogService } from '../domain/logging/LogService';
 import { ConsoleLoggerAdapter } from './ConsoleLoggerAdapter';
-import * as readline from 'node:readline';
 
 /**
  * FZF-based user selection builder.

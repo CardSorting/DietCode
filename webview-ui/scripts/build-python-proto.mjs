@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-import { execSync } from 'child_process';
-import * as path from 'path';
-import { fileURLToPath } from 'url';
+import { execSync } from 'node:child_process';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import chalk from 'chalk';
-import * as fs from 'fs/promises';
 import { globby } from 'globby';
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -277,8 +277,8 @@ async function generateServiceClientsPy(outDir, services) {
         :return: iterator of ${aliasPb2}.${respTypeName}
         """
         return self._stub.${m.name}(req)`;
-        } else {
-          return `
+        }
+        return `
     def ${m.name}(self, req):
         """
         Unary RPC.
@@ -286,7 +286,6 @@ async function generateServiceClientsPy(outDir, services) {
         :return: ${aliasPb2}.${respTypeName}
         """
         return self._stub.${m.name}(req)`;
-        }
       })
       .join('\n');
 
@@ -380,12 +379,7 @@ async function main() {
   // Build and run protoc command via grpc_tools
   const quoted = (s) => `"${s}"`;
   const pythonCmd = quoted(python);
-  const cmd =
-    `${pythonCmd} -m grpc_tools.protoc ` +
-    `-I ${quoted(PROTO_DIR)} ` +
-    `--python_out=${quoted(PY_OUT_DIR)} ` +
-    `--grpc_python_out=${quoted(PY_OUT_DIR)} ` +
-    protoFiles.map((f) => quoted(f)).join(' ');
+  const cmd = `${pythonCmd} -m grpc_tools.protoc -I ${quoted(PROTO_DIR)} --python_out=${quoted(PY_OUT_DIR)} --grpc_python_out=${quoted(PY_OUT_DIR)} ${protoFiles.map((f) => quoted(f)).join(' ')}`;
 
   try {
     console.log(chalk.cyan(`Generating Python code into ${PY_OUT_DIR}...`));

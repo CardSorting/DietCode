@@ -1,20 +1,21 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 import Anthropic from '@anthropic-ai/sdk';
-import type { 
-  LLMAdapter, 
-  Message, 
-  ApiStream, 
-  ModelInfo, 
-  PromptStrategy, 
-  AdapterConfig 
+import type {
+  AdapterConfig,
+  ApiStream,
+  LLMAdapter,
+  Message,
+  ModelInfo,
+  PromptStrategy,
 } from '../../../domain/agent/LLMProviderAdapter';
 import { PromptStrategy as EnumPromptStrategy } from '../../../domain/agent/LLMProviderAdapter';
 import type { ToolDefinition } from '../../../domain/agent/ToolDefinition';
+import { MetabolicMonitor } from '../../monitoring/MetabolicMonitor';
 
 /**
  * [LAYER: INFRASTRUCTURE]
@@ -40,19 +41,24 @@ export class AnthropicAdapter implements LLMAdapter {
           model: model,
           system: system,
           max_tokens: 4096,
-          messages: messages.map(m => ({
+          messages: messages.map((m) => ({
             role: m.role as 'user' | 'assistant',
-            content: m.content
+            content: m.content,
           })),
           stream: true,
         });
 
         for await (const chunk of stream) {
+          if (chunk.type === 'message_start') {
+            // Initial tokens (system/prompt)
+            MetabolicMonitor.getInstance().recordTokens(100); // Base estimate
+          }
           if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
+            MetabolicMonitor.getInstance().recordTokens(1); // One token per delta (approx)
             yield chunk.delta.text;
           }
         }
-      }
+      },
     };
   }
 
@@ -66,8 +72,8 @@ export class AnthropicAdapter implements LLMAdapter {
       supportsStreaming: true,
       costPerThousandTokens: {
         input: 0.003,
-        output: 0.015
-      }
+        output: 0.015,
+      },
     };
   }
 

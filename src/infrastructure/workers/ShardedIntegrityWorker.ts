@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -16,10 +16,7 @@ import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { parentPort, workerData } from 'node:worker_threads';
-import type {
-  IntegrityReport,
-  IntegrityViolation,
-} from '../../domain/memory/Integrity';
+import type { IntegrityReport, IntegrityViolation } from '../../domain/memory/Integrity';
 import { IntegrityPolicy } from '../../domain/memory/IntegrityPolicy';
 
 interface ShardResult {

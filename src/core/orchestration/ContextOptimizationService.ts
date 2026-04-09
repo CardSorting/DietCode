@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -13,7 +13,9 @@
 import type { OptimizationConfig } from '../../domain/context/ContextOptimizationPolicy';
 import type { OptimizationSessionStats } from '../../domain/context/FileMetadata';
 import type { FileReadResult, FileReadSource } from '../../domain/context/FileOperation';
+import { FileSystemAdapter } from '../../infrastructure/FileSystemAdapter';
 import { SignatureDatabase } from '../../infrastructure/context/SignatureDatabase';
+import { Logger } from '../../shared/services/Logger';
 import {
   OptimizationMetricsAggregator,
   type SessionComparison,
@@ -21,8 +23,6 @@ import {
 } from '../capabilities/OptimizationMetrics';
 import { ContextOptimizationService as CoreOptimizationService } from '../context/ContextOptimizationService';
 import type { FileContextTracker } from '../context/FileContextTracker';
-import { FileSystemAdapter } from '../../infrastructure/FileSystemAdapter';
-import { Logger } from '../../shared/services/Logger';
 
 /**
  * Result of a file read with optimization
@@ -172,11 +172,7 @@ export class ContextOptimizationServiceOrchestrator {
       content = `[ERROR_READING_FILE: ${filePath}]`;
     }
 
-    const result = await this.optimizationService.recordRead(
-      filePath,
-      content,
-      source,
-    );
+    const result = await this.optimizationService.recordRead(filePath, content, source);
 
     const wasOptimized = result.wasOptimized && result.optimizationReason !== undefined;
 

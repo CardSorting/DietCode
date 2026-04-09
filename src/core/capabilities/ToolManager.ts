@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -27,10 +27,10 @@ import type { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
 import { RiskLevel } from '../../domain/validation/RiskLevel';
 import type { RollbackProtocol } from '../../domain/validation/RollbackProtocol';
 import { FileContextTracker } from '../context/FileContextTracker';
-import type { ApprovalService } from './ApprovalService';
 import type { HookOrchestrator } from '../manager/HookOrchestrator';
 import type { LockOrchestrator } from '../manager/LockOrchestrator';
 import { EventBus } from '../orchestration/EventBus';
+import type { ApprovalService } from './ApprovalService';
 import { ExecutionGovernor } from './ExecutionGovernor';
 import { GovernanceAction, ResourceGovernor } from './ResourceGovernor';
 import type { SafetyGuard } from './SafetyGuard';
@@ -319,7 +319,7 @@ export class ToolManager {
     if (governance.action === GovernanceAction.PAUSE) {
       console.warn(`⏸️  [GOVERNANCE] Tool execution PAUSED: ${governance.reason}`);
       // Real Implementation: Block until manual override or resource cooling (simulated by delay for now, but hookable)
-      await new Promise(r => setTimeout(r, 1000));
+      await new Promise((r) => setTimeout(r, 1000));
     }
 
     this.governor.recordInvocation(name);
@@ -371,16 +371,22 @@ export class ToolManager {
             {
               requiresConfirmation: true,
               requiresRollback: safetyEval.riskLevel === RiskLevel.HIGH,
-              requiresBackup: safetyEval.riskLevel === RiskLevel.MEDIUM || safetyEval.riskLevel === RiskLevel.HIGH,
+              requiresBackup:
+                safetyEval.riskLevel === RiskLevel.MEDIUM ||
+                safetyEval.riskLevel === RiskLevel.HIGH,
               recommendedSafeguards: ['Manual verification', 'Rollback checkpoint'],
-              restrictions: []
-            }
+              restrictions: [],
+            },
           );
 
           if (!decision.approved) {
             const errorMsg = `❌ [SAFETY] User REJECTED execution of ${name}`;
             console.error(errorMsg);
-            this.eventBus.publish(EventType.TOOL_FAILED, { toolName: name, error: errorMsg }, { correlationId });
+            this.eventBus.publish(
+              EventType.TOOL_FAILED,
+              { toolName: name, error: errorMsg },
+              { correlationId },
+            );
             return {
               success: false,
               toolName: name,

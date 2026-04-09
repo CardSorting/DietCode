@@ -1,7 +1,7 @@
 /// <reference types="vitest/config" />
 
 import { writeFileSync } from 'node:fs';
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react-swc';
 import { type Plugin, type ViteDevServer, defineConfig } from 'vite';
@@ -85,9 +85,9 @@ export default defineConfig({
     rollupOptions: {
       output: {
         inlineDynamicImports: true,
-        entryFileNames: `assets/[name].js`,
-        chunkFileNames: `assets/[name].js`,
-        assetFileNames: `assets/[name].[ext]`,
+        entryFileNames: 'assets/[name].js',
+        chunkFileNames: 'assets/[name].js',
+        assetFileNames: 'assets/[name].[ext]',
         // Disable compact output for dev build
         compact: !isDevBuild,
         // Add generous formatting for dev build

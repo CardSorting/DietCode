@@ -12,12 +12,12 @@
  *   - cd cli && npm run build:production
  */
 
-import { execSync } from 'child_process';
-import fs from 'fs';
+import { execSync } from 'node:child_process';
+import fs from 'node:fs';
+import { cp } from 'node:fs/promises';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import path from 'path';
 import dotenv from 'dotenv';
-import { cp } from 'fs/promises';
 
 const BUILD_DIR = 'dist-standalone';
 const CLI_DIR = 'cli';
@@ -95,7 +95,7 @@ async function copyCliDist() {
 
   if (!fs.existsSync(distSource)) {
     console.error(`Error: CLI dist not found at ${distSource}`);
-    console.error(`Please run: cd cli && npm run build:production`);
+    console.error('Please run: cd cli && npm run build:production');
     process.exit(1);
   }
 
@@ -118,7 +118,7 @@ async function copyPackageJson() {
   const source = path.join(CLI_DIR, 'package.json');
   const dest = path.join(BUILD_DIR, 'package.json');
   await cpr(source, dest);
-  console.log(`✓ package.json copied`);
+  console.log('✓ package.json copied');
 }
 
 /**
@@ -162,7 +162,7 @@ tsconfig.json
   const npmignorePath = path.join(BUILD_DIR, '.npmignore');
   fs.writeFileSync(npmignorePath, npmignoreContent);
 
-  console.log(`✓ .npmignore created`);
+  console.log('✓ .npmignore created');
 }
 
 /* cp -r */

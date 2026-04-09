@@ -3,15 +3,8 @@
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2022",
     "useDefineForClassFields": true,
-    "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
-    ],
-    "types": [
-      "vitest/globals",
-      "@testing-library/jest-dom"
-    ],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["vitest/globals", "@testing-library/jest-dom"],
     "module": "ESNext",
     "skipLibCheck": true,
 
@@ -21,7 +14,6 @@
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,
-    "skipLibCheck": true,
     "noImplicitAny": false,
     "noUncheckedSideEffectImports": false,
     "experimentalDecorators": true,
@@ -30,46 +22,22 @@
     /* Linting */
     "strict": false,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": false,
-    "noImplicitAny": false,
 
     /* Aliasing */
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@components/*": [
-        "./src/components/*"
-      ],
-      "@context/*": [
-        "./src/context/*"
-      ],
-      "@shared/*": [
-        "./src/shared/*"
-      ],
-      "@core/*": [
-        "./src/core/*"
-      ],
-      "@integrations/*": [
-        "./src/integrations/*"
-      ],
-      "@hosts/*": [
-        "./src/hosts/*"
-      ],
-      "@utils/*": [
-        "./src/utils/*"
-      ],
-      "@services/*": [
-        "./src/services/*"
-      ],
-      "@registry": [
-        "./src/registry"
-      ]
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@context/*": ["./src/context/*"],
+      "@shared/*": ["./src/shared/*"],
+      "@core/*": ["./src/core/*"],
+      "@integrations/*": ["./src/integrations/*"],
+      "@hosts/*": ["./src/hosts/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@services/*": ["./src/services/*"],
+      "@registry": ["./src/registry"]
     }
   },
-  "include": [
-    "src"
-  ],
+  "include": ["src"],
   "exclude": [
     "src/**/*.test.tsx",
     "src/**/*.test.ts",

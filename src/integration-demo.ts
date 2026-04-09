@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -12,7 +12,6 @@
 
 import { SafetyEvaluator } from './infrastructure/validation/SafetyEvaluator';
 
-
 import type { RiskLevel } from './domain/validation/RiskLevel';
 
 import { executeWithSafety } from './core/capabilities/SafetyGuard';
@@ -22,7 +21,6 @@ import { PatternRepository } from './infrastructure/prompts/PatternRepository';
 import type { ToolDefinition } from './domain/agent/ToolDefinition';
 
 import { RollbackManager } from './infrastructure/validation/RollbackManager';
-
 
 /**
  * Demonstration of Safety-First Execution Pattern

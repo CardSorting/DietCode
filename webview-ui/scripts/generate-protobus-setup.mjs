@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { writeFileWithMkdirs } from './file-utils.mjs';
 import { getFqn, loadServicesFromProtoDescriptor } from './proto-utils.mjs';
 
@@ -23,7 +23,7 @@ export async function main() {
   await generateVscodeProtobusServers(protobusServices);
   await generateStandaloneProtobusServiceSetup(protobusServices);
 
-  console.log(`Generated ProtoBus files at:`);
+  console.log('Generated ProtoBus files at:');
   console.log(`- ${WEBVIEW_CLIENTS_FILE}`);
   console.log(`- ${VSCODE_SERVICE_TYPES_FILE}`);
   console.log(`- ${VSCODE_SERVICES_FILE}`);
@@ -96,7 +96,7 @@ async function generateVscodeServiceTypes(protobusServices) {
         );
       }
     }
-    servers.push(`}\n`);
+    servers.push('}\n');
   }
 
   // Create output file
@@ -128,7 +128,7 @@ async function generateVscodeProtobusServers(protobusServices) {
       imports.push(`import { ${rpcName} } from "@core/controller/${dir}/${rpcName}"`);
       servers.push(`    ${rpcName}: ${rpcName},`);
     }
-    servers.push(`} \n`);
+    servers.push('} \n');
     serviceMap.push(`    "cline.${serviceName}": ${serviceName}Handlers,`);
     imports.push('');
   }
@@ -163,8 +163,8 @@ async function generateStandaloneProtobusServiceSetup(protobusServices) {
     handlerSetup.push(`    server.addService(cline.${name}Service, {`);
     for (const [rpcName, rpc] of Object.entries(def.service)) {
       imports.push(`import { ${rpcName} } from "@core/controller/${dir}/${rpcName}"`);
-      const requestType = 'cline.' + rpc.requestType.type.name;
-      const responseType = 'cline.' + rpc.responseType.type.name;
+      const requestType = `cline.${rpc.requestType.type.name}`;
+      const responseType = `cline.${rpc.responseType.type.name}`;
       if (rpc.requestStream) {
         throw new Error('Request streaming is not supported');
       }
@@ -178,7 +178,7 @@ async function generateStandaloneProtobusServiceSetup(protobusServices) {
         );
       }
     }
-    handlerSetup.push(`    });`);
+    handlerSetup.push('    });');
     imports.push('');
     handlerSetup.push('');
   }

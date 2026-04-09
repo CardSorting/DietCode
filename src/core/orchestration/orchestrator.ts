@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -16,6 +16,7 @@ import type { ProjectContext } from '../../domain/context/ProjectContext';
 import type { SessionRepository } from '../../domain/context/SessionRepository';
 import type { DecisionRepository } from '../../domain/memory/DecisionRepository';
 import type { AuditProvider } from '../../domain/system/AuditProvider';
+import { ICONS } from '../../ui/design/Theme';
 import type { TerminalUI } from '../../ui/terminal';
 import type { AgentRegistry } from '../capabilities/AgentRegistry';
 import type { CommandProcessor } from '../capabilities/CommandProcessor';
@@ -29,7 +30,6 @@ import { EventBus } from './EventBus';
 import type { ExecutionService } from './ExecutionService';
 import type { HandoverService } from './HandoverService';
 import type { SwarmAuditor } from './SwarmAuditor';
-import { ICONS } from '../../ui/design/Theme';
 
 export class Orchestrator {
   private eventBus: EventBus;
@@ -76,7 +76,11 @@ export class Orchestrator {
     const correlationId = globalThis.crypto.randomUUID();
     const startTime = Date.now();
 
-    this.ui.drawBox(`DIAGNOSTIC - CORRELATION: ${correlationId}`, 'Workflow Execution Initializing...', 'gray');
+    this.ui.drawBox(
+      `DIAGNOSTIC - CORRELATION: ${correlationId}`,
+      'Workflow Execution Initializing...',
+      'gray',
+    );
 
     try {
       this.eventBus.publish(
@@ -107,7 +111,11 @@ export class Orchestrator {
         { correlationId },
       );
 
-      this.ui.drawBox(`SYSTEM ${ICONS.CHECK}`, `Sovereign Operation Completed in ${executionTime}ms`, 'green');
+      this.ui.drawBox(
+        `SYSTEM ${ICONS.CHECK}`,
+        `Sovereign Operation Completed in ${executionTime}ms`,
+        'green',
+      );
 
       return result;
     } catch (workflowError: unknown) {
@@ -120,7 +128,11 @@ export class Orchestrator {
         executionTime,
       });
 
-      this.ui.drawBox(`SYSTEM ${ICONS.CROSS}`, `Sovereign Failure after ${executionTime}ms: ${error.message}`, 'red');
+      this.ui.drawBox(
+        `SYSTEM ${ICONS.CROSS}`,
+        `Sovereign Failure after ${executionTime}ms: ${error.message}`,
+        'red',
+      );
       throw workflowError;
     }
   }

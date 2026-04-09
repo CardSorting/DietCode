@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import * as path from 'path';
+import * as path from 'node:path';
 import chalk from 'chalk';
 import { writeFileWithMkdirs } from './file-utils.mjs';
 import { getFqn, loadServicesFromProtoDescriptor } from './proto-utils.mjs';
@@ -24,7 +24,7 @@ export async function main() {
   await generateExternalClientFile(hostServices);
   await generateVscodeClientFile(hostServices);
 
-  console.log(`Generated Host Bridge client files at:`);
+  console.log('Generated Host Bridge client files at:');
   console.log(`- ${TYPES_FILE}`);
   console.log(`- ${EXTERNAL_CLIENT_FILE}`);
   console.log(`- ${VSCODE_CLIENT_FILE}`);
@@ -129,9 +129,9 @@ function generateExternalClientSetup(serviceName, serviceDefinition) {
         return `    ${methodName}(request: ${requestType}): Promise<${responseType}> {
       return this.makeRequest((client) => client.${methodName}(request))
     }`;
-      } else {
-        // Generate streaming method
-        return `  ${methodName}(
+      }
+      // Generate streaming method
+      return `  ${methodName}(
 		request: ${requestType},
 		callbacks: StreamingCallbacks<${responseType}>,
 	): () => void {
@@ -154,7 +154,6 @@ function generateExternalClientSetup(serviceName, serviceDefinition) {
 			abortController.abort()
 		}
 	}\n`;
-      }
     })
     .join('\n');
 
@@ -228,9 +227,8 @@ function generateVscodeClientImplementation(serviceName, serviceDefinition) {
       const isStreamingResponse = methodDef.responseStream;
       if (!isStreamingResponse) {
         return `${name}ServiceRegistry.registerMethod("${methodName}", ${methodName})`;
-      } else {
-        return `${name}ServiceRegistry.registerMethod("${methodName}", ${methodName}, { isStreaming: true })`;
       }
+      return `${name}ServiceRegistry.registerMethod("${methodName}", ${methodName}, { isStreaming: true })`;
     })
     .join('\n');
 

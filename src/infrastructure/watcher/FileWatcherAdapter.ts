@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -13,9 +13,9 @@
  * Supports recursive and non-recursive watching with change filtering.
  */
 
+import * as path from 'node:path';
 import { type FSWatcher as ChokidarWatcher, watch } from 'chokidar';
 import { FileChangeType } from '../../domain/context/FileChange';
-import * as path from 'node:path';
 
 /**
  * File watcher configuration
@@ -184,9 +184,7 @@ export class FileWatcherAdapter {
 
     for (const p of paths) {
       // Normalize path to absolute
-      const absolutePath = p.startsWith('/')
-        ? p
-        : path.join(process.cwd(), p);
+      const absolutePath = p.startsWith('/') ? p : path.join(process.cwd(), p);
 
       const watcher = watch(absolutePath, this.watcherOptions);
       this.watchers.set(absolutePath, watcher);
@@ -399,9 +397,7 @@ export class FileWatcherAdapter {
    * Check if path is being watched
    */
   isWatching(p: string): boolean {
-    const absolutePath = p.startsWith('/')
-      ? p
-      : path.join(process.cwd(), p);
+    const absolutePath = p.startsWith('/') ? p : path.join(process.cwd(), p);
 
     return this.watchers.has(absolutePath);
   }

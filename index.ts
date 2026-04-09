@@ -1,7 +1,8 @@
 #!/usr/bin/env bun
+import chalk from 'chalk';
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -21,6 +22,7 @@ import { EventBus } from './src/core/orchestration/EventBus';
 import { HandoverService } from './src/core/orchestration/HandoverService';
 import { Registry, SERVICES } from './src/core/orchestration/Registry';
 import { Orchestrator } from './src/core/orchestration/orchestrator';
+import { BootstrapService } from './src/core/setup/BootstrapService';
 import type { ProjectContext } from './src/domain/context/ProjectContext';
 import { LogLevel } from './src/domain/logging/LogLevel';
 import { IntegrityPolicy } from './src/domain/memory/IntegrityPolicy';
@@ -46,10 +48,8 @@ import {
 } from './src/infrastructure/tools/fileTools';
 import { createGrepTool } from './src/infrastructure/tools/grep';
 import { createMkdirTool } from './src/infrastructure/tools/mkdir';
-import { TerminalUI } from './src/ui/terminal';
-import { BootstrapService } from './src/core/setup/BootstrapService';
 import { supportsUnicode } from './src/ui/design/Theme';
-import chalk from 'chalk';
+import { TerminalUI } from './src/ui/terminal';
 
 async function main() {
   // Handle compatibility flags before anything else
@@ -74,7 +74,7 @@ async function main() {
   const isUnicode = supportsUnicode();
   const mode = isUnicode ? 'SOVEREIGN_UNICODE' : 'AXIOM_ASCII';
   const colorSupport = chalk.level > 0 ? (chalk.level > 2 ? 'TRUECOLOR' : '256_COLOR') : 'NO_COLOR';
-  
+
   console.log(chalk.gray('[ NEURAL_HANDSHAKE: INITIALIZED ]'));
   console.log(chalk.gray(`  INTERFACE : ${mode}`));
   console.log(chalk.gray(`  VISUALS   : ${colorSupport}`));
@@ -101,11 +101,16 @@ async function main() {
 
   for (let i = 2; i < process.argv.length; i++) {
     const arg = process.argv[i];
-    if (arg === '--anthropic-key' && process.argv[i+1]) overrides.anthropicApiKey = process.argv[++i];
-    else if (arg === '--openai-key' && process.argv[i+1]) overrides.openaiApiKey = process.argv[++i];
-    else if (arg === '--gemini-key' && process.argv[i+1]) overrides.geminiApiKey = process.argv[++i];
-    else if (arg === '--cloudflare-id' && process.argv[i+1]) overrides.cloudflareAccountId = process.argv[++i];
-    else if (arg === '--cloudflare-token' && process.argv[i+1]) overrides.cloudflareApiToken = process.argv[++i];
+    if (arg === '--anthropic-key' && process.argv[i + 1])
+      overrides.anthropicApiKey = process.argv[++i];
+    else if (arg === '--openai-key' && process.argv[i + 1])
+      overrides.openaiApiKey = process.argv[++i];
+    else if (arg === '--gemini-key' && process.argv[i + 1])
+      overrides.geminiApiKey = process.argv[++i];
+    else if (arg === '--cloudflare-id' && process.argv[i + 1])
+      overrides.cloudflareAccountId = process.argv[++i];
+    else if (arg === '--cloudflare-token' && process.argv[i + 1])
+      overrides.cloudflareApiToken = process.argv[++i];
     else if (arg === '--setup' || arg === '--init') forceSetup = true;
   }
 
@@ -279,7 +284,9 @@ Follow the JoyZoning architecture for all operations.`,
   );
 
   // Final Activation
-  ui.logSuccess(`Sovereign Hive Active. Ready for command, ${chalk.yellow.bold('Sovereign Administrator')}.`);
+  ui.logSuccess(
+    `Sovereign Hive Active. Ready for command, ${chalk.yellow.bold('Sovereign Administrator')}.`,
+  );
 
   const initialInput = process.argv.slice(2).join(' ');
   if (initialInput) {

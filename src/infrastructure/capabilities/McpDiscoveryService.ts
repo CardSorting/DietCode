@@ -1,13 +1,13 @@
+import { EventEmitter } from 'node:events';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import * as vscode from 'vscode';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import { EventEmitter } from 'node:events';
+import type * as vscode from 'vscode';
 import { McpClient } from './McpClient';
 
 export interface McpServerConfig {
@@ -47,7 +47,7 @@ export class McpDiscoveryService extends EventEmitter {
 
   private _loadServers() {
     if (!this._context) return;
-    
+
     const saved = this._context.globalState.get<McpServerConfig[]>('mcp_servers', []);
     this._servers.clear();
     for (const server of saved) {
@@ -116,5 +116,45 @@ export class McpDiscoveryService extends EventEmitter {
   public async callTool(serverId: string, toolName: string, args: any): Promise<any> {
     const client = await this.getClient(serverId);
     return await client.call('call_tool', { name: toolName, arguments: args });
+  }
+
+  /**
+   * Returns a curated catalog of recommended Sovereign MCP servers.
+   */
+  public getCatalog(): any[] {
+    return [
+      {
+        id: 'brave-search',
+        name: 'Brave Search',
+        description: 'Web search capabilities via Brave Search API.',
+        command: 'npx',
+        args: ['-y', '@modelcontextprotocol/server-brave-search'],
+        env_vars: ['BRAVE_API_KEY']
+      },
+      {
+        id: 'sqlite',
+        name: 'SQLite Explorer',
+        description: 'Direct SQL access to local databases with schema analysis.',
+        command: 'npx',
+        args: ['-y', '@modelcontextprotocol/server-sqlite'],
+        env_vars: []
+      },
+      {
+        id: 'playwright',
+        name: 'Browser Automation (Playwright)',
+        description: 'Interactive browser control and screenshot capabilities.',
+        command: 'npx',
+        args: ['-y', '@modelcontextprotocol/server-playwright'],
+        env_vars: []
+      },
+      {
+        id: 'filesystem',
+        name: 'Local Filesystem',
+        description: 'Secure, focus-aware file operations with watch support.',
+        command: 'npx',
+        args: ['-y', '@modelcontextprotocol/server-filesystem'],
+        env_vars: []
+      }
+    ];
   }
 }

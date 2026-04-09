@@ -1,12 +1,12 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import * as vscode from 'vscode';
-import { Core } from '../database/sovereign/Core';
+import type * as vscode from 'vscode';
 import { Logger } from '../../shared/services/Logger';
+import { Core } from '../database/sovereign/Core';
 
 /**
  * [LAYER: INFRASTRUCTURE]
@@ -48,8 +48,8 @@ export class VsCodeStateRepository {
             id: globalThis.crypto.randomUUID(),
             key,
             value: typeof value === 'string' ? value : JSON.stringify(value),
-            updatedAt: Date.now()
-          }
+            updatedAt: Date.now(),
+          },
         });
       }
     } catch (error) {
@@ -96,7 +96,7 @@ export class VsCodeStateRepository {
     if (this._context) {
       await this._context.globalState.update(key, undefined);
     }
-    
+
     // Note: Core.deleteWhere or similar would be needed for database cleanup
     // Assuming for now we just null it out or implement Core deletion logic
   }

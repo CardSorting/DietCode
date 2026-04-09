@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -63,8 +63,8 @@ export class ApprovalService {
 
     // Real implementation: Request approval via UIBridge (Webview)
     const approved = await this.bridge.requestUserApproval(
-        `approval-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
-        { actionType, targetPath, requirements }
+      `approval-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+      { actionType, targetPath, requirements },
     );
 
     return {

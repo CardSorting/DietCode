@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -49,10 +49,12 @@ export class OpenAIProvider implements LLMProvider {
     if (!choice) {
       throw new Error('OpenAI returned no choices');
     }
-    const usage = response.usage ? {
-      input_tokens: response.usage.prompt_tokens,
-      output_tokens: response.usage.completion_tokens,
-    } : undefined;
+    const usage = response.usage
+      ? {
+          input_tokens: response.usage.prompt_tokens,
+          output_tokens: response.usage.completion_tokens,
+        }
+      : undefined;
 
     if (usage) {
       this.monitor.recordTokens(usage.input_tokens + usage.output_tokens);

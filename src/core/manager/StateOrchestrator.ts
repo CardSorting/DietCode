@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -217,7 +217,7 @@ export class StateOrchestrator<T = unknown> {
 
     // Phase 3: Persist change
     try {
-      if (debounceDelay === 0 || FirestoreConfig.dryRun) {
+      if (debounceDelay === 0) {
         // Immediate write
         await this.persistChange(change, sanitizedValue);
 

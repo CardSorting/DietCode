@@ -1,13 +1,14 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 import * as child_process from 'node:child_process';
-import * as readline from 'node:readline';
 import { EventEmitter } from 'node:events';
+import * as readline from 'node:readline';
 import { Logger } from '../../shared/services/Logger';
+import { MetabolicMonitor } from '../monitoring/MetabolicMonitor';
 
 export interface McpRequest {
   jsonrpc: '2.0';
@@ -34,14 +35,17 @@ export interface McpResponse {
 export class McpClient extends EventEmitter {
   private process: child_process.ChildProcess | null = null;
   private nextId = 1;
-  private pendingRequests = new Map<number | string, { resolve: (val: any) => void, reject: (err: Error) => void }>();
+  private pendingRequests = new Map<
+    number | string,
+    { resolve: (val: any) => void; reject: (err: Error) => void }
+  >();
   private rl: readline.Interface | null = null;
 
   constructor(
     public readonly serverId: string,
     private readonly command: string,
     private readonly args: string[] = [],
-    private readonly env: Record<string, string> = {}
+    private readonly env: Record<string, string> = {},
   ) {
     super();
   }
@@ -51,7 +55,7 @@ export class McpClient extends EventEmitter {
       try {
         this.process = child_process.spawn(this.command, this.args, {
           env: { ...process.env, ...this.env },
-          shell: true
+          shell: true,
         });
 
         this.process.on('error', (err) => {
@@ -67,7 +71,7 @@ export class McpClient extends EventEmitter {
         if (this.process.stdout) {
           this.rl = readline.createInterface({
             input: this.process.stdout,
-            terminal: false
+            terminal: false,
           });
 
           this.rl.on('line', (line) => {
@@ -110,12 +114,13 @@ export class McpClient extends EventEmitter {
       jsonrpc: '2.0',
       method,
       params,
-      id
+      id,
     };
 
     return new Promise((resolve, reject) => {
       this.pendingRequests.set(id, { resolve, reject });
-      this.process!.stdin!.write(JSON.stringify(request) + '\n');
+      this.process?.stdin?.write(`${JSON.stringify(request)}\n`);
+      MetabolicMonitor.getInstance().recordRead(`mcp://${this.serverId}/${method}`);
     });
   }
 

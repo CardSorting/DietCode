@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -57,25 +57,31 @@ export class BroccoliQueueAdapter implements QueueProvider {
       if (!Core.isAvailable()) return;
 
       try {
-        const jobs = await Core.selectWhere('hive_queue', { status: 'pending' }, undefined, { limit: 5 });
+        const jobs = await Core.selectWhere('hive_queue', { status: 'pending' }, undefined, {
+          limit: 5,
+        });
         for (const job of jobs) {
           // Mark as processing
           await Core.push({
             type: 'update',
             table: 'hive_queue',
             where: { column: 'id', value: job.id },
-            values: { status: 'processing', updated_at: Date.now() }
+            values: { status: 'processing', updated_at: Date.now() },
           });
 
           try {
-            await callback({ id: job.id, type: job.type, payload: JSON.parse(job.metadata || '{}') });
-            
+            await callback({
+              id: job.id,
+              type: job.type,
+              payload: JSON.parse(job.metadata || '{}'),
+            });
+
             // Mark as done
             await Core.push({
               type: 'update',
               table: 'hive_queue',
               where: { column: 'id', value: job.id },
-              values: { status: 'done', updated_at: Date.now() }
+              values: { status: 'done', updated_at: Date.now() },
             });
           } catch (err) {
             console.error(`[QUEUE] Job ${job.id} failed`, err);
@@ -83,7 +89,11 @@ export class BroccoliQueueAdapter implements QueueProvider {
               type: 'update',
               table: 'hive_queue',
               where: { column: 'id', value: job.id },
-              values: { status: 'failed', metadata: JSON.stringify({ error: String(err) }), updated_at: Date.now() }
+              values: {
+                status: 'failed',
+                metadata: JSON.stringify({ error: String(err) }),
+                updated_at: Date.now(),
+              },
             });
           }
         }

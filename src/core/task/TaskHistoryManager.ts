@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -42,7 +42,7 @@ export class TaskHistoryManager {
       // Fetch snapshots as history markers
       const snapshots = await Core.selectWhere('hive_snapshots', {}, undefined, {
         limit,
-        orderBy: { column: 'timestamp', direction: 'desc' }
+        orderBy: { column: 'timestamp', direction: 'desc' },
       });
 
       return snapshots.map((s: any) => ({
@@ -51,8 +51,8 @@ export class TaskHistoryManager {
         type: 'checkpoint',
         payload: {
           path: s.path,
-          summary: `Snapshot: ${s.id.substring(0, 8)}`
-        }
+          summary: `Snapshot: ${s.id.substring(0, 8)}`,
+        },
       }));
     } catch (error) {
       console.error('[History:Error] Failed to fetch task history', error);
@@ -66,8 +66,8 @@ export class TaskHistoryManager {
   public async purgeOldHistory(olderThanDays: number) {
     if (!Core.isAvailable()) return;
 
-    const cutoff = Date.now() - (olderThanDays * 24 * 60 * 60 * 1000);
-    
+    const cutoff = Date.now() - olderThanDays * 24 * 60 * 60 * 1000;
+
     try {
       // Use push with a delete-style operation if supported, or direct SQL via db()
       const db = await Core.db();
@@ -75,7 +75,7 @@ export class TaskHistoryManager {
         .deleteFrom('hive_snapshots' as any)
         .where('timestamp', '<', cutoff)
         .execute();
-        
+
       console.log(`[History] Purged snapshots older than ${olderThanDays} days`);
     } catch (error) {
       console.error('[History:Error] Failed to purge history', error);

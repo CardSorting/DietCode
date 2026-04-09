@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -39,10 +39,10 @@ export class Core {
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
       setDbPath(resolvedPath);
       Core.currentDbPath = resolvedPath;
-      
+
       // Level 10: Establish schema baseline before allowing system scans
       await dbPool.getDb('main');
-      
+
       Core.appQueue = new BroccoliQueueAdapter();
       Core.isInitialized = true;
       if (ensureSchemaFn) {
@@ -98,7 +98,11 @@ export class Core {
     table: T,
     where: any,
     agentId?: string,
-    options?: { orderBy?: { column: string; direction: 'asc' | 'desc' }; limit?: number; shardId?: string },
+    options?: {
+      orderBy?: { column: string; direction: 'asc' | 'desc' };
+      limit?: number;
+      shardId?: string;
+    },
   ) {
     if (!Core.isInitialized) throw new Error('Core not initialized.');
     return await dbPool.selectWhere(table as any, where, agentId, options);

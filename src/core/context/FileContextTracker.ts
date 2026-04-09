@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -88,10 +88,7 @@ export class FileContextTracker {
    * Sync persistent state from modular Sovereign DB
    */
   async sync(): Promise<void> {
-    const rows = (await Core.selectWhere(
-      'hive_file_context',
-      {},
-    )) as any;
+    const rows = (await Core.selectWhere('hive_file_context', {})) as any;
 
     for (const row of rows) {
       this.stateMetadata.set(row.path, {
@@ -259,10 +256,7 @@ export class FileContextTracker {
    */
   private async persistState(entry: StateMetadata): Promise<void> {
     // Check if exists first
-    const rows = (await Core.selectWhere(
-      'hive_file_context',
-      { path: entry.path },
-    )) as any;
+    const rows = (await Core.selectWhere('hive_file_context', { path: entry.path })) as any;
 
     if (rows.length > 0) {
       // Update existing

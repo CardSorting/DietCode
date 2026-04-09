@@ -6,13 +6,13 @@
  * and extracts them to dist-standalone/ripgrep-binaries/
  */
 
-import { exec } from 'child_process';
-import fs from 'fs';
-import https from 'https';
-import path from 'path';
-import { promisify } from 'util';
-import { createGunzip } from 'zlib';
-import { pipeline } from 'stream/promises';
+import { exec } from 'node:child_process';
+import fs from 'node:fs';
+import https from 'node:https';
+import path from 'node:path';
+import { pipeline } from 'node:stream/promises';
+import { promisify } from 'node:util';
+import { createGunzip } from 'node:zlib';
 import * as tar from 'tar';
 
 const execAsync = promisify(exec);
@@ -173,7 +173,7 @@ async function downloadRipgrepForPlatform(platform) {
   try {
     // Download
     await downloadFile(platform.url, archivePath);
-    console.log(`  ✓ Downloaded`);
+    console.log('  ✓ Downloaded');
 
     // Extract
     if (platform.isZip) {
@@ -181,7 +181,7 @@ async function downloadRipgrepForPlatform(platform) {
     } else {
       await extractTarGz(archivePath, platformDir);
     }
-    console.log(`  ✓ Extracted`);
+    console.log('  ✓ Extracted');
 
     // Verify the binary exists
     const binaryPath = path.join(platformDir, platform.binaryPath);
@@ -197,7 +197,7 @@ async function downloadRipgrepForPlatform(platform) {
 
     // Clean up archive file
     fs.unlinkSync(archivePath);
-    console.log(`  ✓ Cleaned up`);
+    console.log('  ✓ Cleaned up');
 
     return true;
   } catch (error) {
@@ -229,7 +229,7 @@ async function main() {
   }
 
   // Print summary
-  console.log('\n' + '='.repeat(50));
+  console.log(`\n${'='.repeat(50)}`);
   console.log('📊 Summary:');
   console.log('='.repeat(50));
 

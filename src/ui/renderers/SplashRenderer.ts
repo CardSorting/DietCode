@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -21,16 +21,16 @@ export const SplashRenderer = {
     const title = COLORS.HIGHLIGHT('DIETCODE');
     const subtitle = COLORS.PRIMARY('[ SOVEREIGN HIVE ARCHITECTURE ]');
     const version = COLORS.MUTED('v2.2.4-ZERO-ERROR');
-    
-    // Inject ambient color drift into the logo lines
-    const logoLines = logo.trim().split('\n').map((line: string, i: number) => {
-        return COLORS.applyRainbowShimmer(line, i / 10);
-    });
 
-    return [
-      ...logoLines,
-      `  ${title} ${subtitle} ${version}`,
-    ].join('\n');
+    // Inject ambient color drift into the logo lines
+    const logoLines = logo
+      .trim()
+      .split('\n')
+      .map((line: string, i: number) => {
+        return COLORS.applyRainbowShimmer(line, i / 10);
+      });
+
+    return [...logoLines, `  ${title} ${subtitle} ${version}`].join('\n');
   },
 
   async bootSequence(profile = 'AETHER'): Promise<void> {
@@ -42,26 +42,26 @@ export const SplashRenderer = {
     ];
 
     await CinematicRenderer.wipe();
-    
+
     // Phase 1: Neural Handshake (Turbo Data Burst)
     await CinematicRenderer.dataBurst(3);
     await CinematicRenderer.neonWipe();
-    
+
     // Phase 2: Ultra-Fast Diagnostics
     process.stdout.write(`${COLORS.HIVE_CYAN('[ NEURAL_DREAMSTATE_SYNC ]')}\n`);
     for (const msg of diagnostics) {
-        const prefix = COLORS.MUTED(`[0x${Math.random().toString(16).slice(2, 6).toUpperCase()}]`);
-        process.stdout.write(`${prefix} ${msg}\n`);
-        await new Promise(r => setTimeout(r, 10));
+      const prefix = COLORS.MUTED(`[0x${Math.random().toString(16).slice(2, 6).toUpperCase()}]`);
+      process.stdout.write(`${prefix} ${msg}\n`);
+      await new Promise((r) => setTimeout(r, 10));
     }
 
     // Phase 3: Visual Climax (Lightning Storm)
     await MetabolicRenderer.zenithStorm('--- SOVEREIGN_HIVE_CONVERGENCE ---', 300);
-    
+
     // Phase 4: Cinematic Header Reveal
     const splash = this.renderSplash(profile).split('\n');
     await CinematicRenderer.revealLines(splash, 5);
-    
+
     // Phase 5: Final Shimmer Pulse
     await MetabolicRenderer.shimmerPulse(' [ DREAMSTATE_STABLE ] ', 30, 1);
   },
@@ -78,7 +78,13 @@ export const SplashRenderer = {
   /**
    * Renders a metric with status color.
    */
-  renderMetric(label: string, value: number, warn: number, error: number, lowerIsBetter = false): string {
+  renderMetric(
+    label: string,
+    value: number,
+    warn: number,
+    error: number,
+    lowerIsBetter = false,
+  ): string {
     let color = COLORS.SUCCESS;
     if (lowerIsBetter) {
       if (value > error) color = COLORS.ERROR;

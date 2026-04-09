@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -27,8 +27,12 @@ export class Schema {
       const info = await db.executeQuery(CompiledQuery.raw(`PRAGMA table_info(${table})`));
       const exists = info.rows.some((row: any) => row.name === column);
       if (!exists) {
-        console.warn(`[CORE] 🛡️ Self-Healing: Missing column detected. Adding '${column}' to '${table}'...`);
-        await db.executeQuery(CompiledQuery.raw(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`));
+        console.warn(
+          `[CORE] 🛡️ Self-Healing: Missing column detected. Adding '${column}' to '${table}'...`,
+        );
+        await db.executeQuery(
+          CompiledQuery.raw(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`),
+        );
       }
     } catch (e) {
       console.error(`[CORE] ❌ Self-Healing failed for ${table}.${column}:`, e);
@@ -112,7 +116,7 @@ export class Schema {
       );
 
       // Level 2: Self-Healing Column Injection (Legacy Support)
-      // Note: We use TEXT instead of TEXT PRIMARY KEY here because SQLite 
+      // Note: We use TEXT instead of TEXT PRIMARY KEY here because SQLite
       // does not support adding PRIMARY KEY columns via ALTER TABLE.
       await Schema.ensureColumn(db, 'hive_kb', 'id', 'TEXT');
       await Schema.ensureColumn(db, 'hive_healing_proposals', 'id', 'TEXT');
@@ -142,6 +146,8 @@ export class Schema {
     }
 
     const totalElapsed = ((Date.now() - startTime) / 1000).toFixed(2);
-    console.log(`[CORE] 🏁 Sovereign Hive synchronization complete in ${totalElapsed}s (Zero-Shim Modern)`);
+    console.log(
+      `[CORE] 🏁 Sovereign Hive synchronization complete in ${totalElapsed}s (Zero-Shim Modern)`,
+    );
   }
 }

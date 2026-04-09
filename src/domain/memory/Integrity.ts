@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -23,6 +23,7 @@ export enum ViolationType {
   CIRCULAR_DEPENDENCY = 'circular_dependency',
   TAG_DRIFT = 'tag_drift',
   MISSING_HEADER = 'missing_header',
+  ARCHITECTURE_VIOLATION = 'architecture_violation',
 }
 
 export enum IntegritySeverity {

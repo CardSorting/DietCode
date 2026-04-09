@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -47,8 +47,7 @@ export class WorkerIntegrityAdapter implements IntegrityScanner {
             violations: violations,
             scannedAt: new Date().toISOString(),
           });
-        }
-        else reject(new Error(res.error));
+        } else reject(new Error(res.error));
       });
     });
   }

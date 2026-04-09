@@ -38,5 +38,11 @@
       "bracketSameLine": false,
       "quoteProperties": "asNeeded"
     }
+  },
+  "json": {
+    "parser": {
+      "allowComments": true,
+      "allowTrailingCommas": true
+    }
   }
 }

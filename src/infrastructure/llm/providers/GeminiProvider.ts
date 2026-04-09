@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -29,32 +29,34 @@ export class GeminiProvider implements LLMProvider {
     _tools: ToolDefinition[],
     _metadata?: { taskId?: string },
   ): Promise<LLMResponse> {
-    const model = this.client.getGenerativeModel({ 
-        model: agent.model || 'gemini-2.0-flash' 
+    const model = this.client.getGenerativeModel({
+      model: agent.model || 'gemini-2.0-flash',
     });
-    
-    const contents = messages.map(m => ({
-        role: m.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: typeof m.content === 'string' ? m.content : JSON.stringify(m.content) }]
+
+    const contents = messages.map((m) => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: typeof m.content === 'string' ? m.content : JSON.stringify(m.content) }],
     }));
 
     const result = await model.generateContent({
-        contents: contents as any
+      contents: contents as any,
     });
 
     const text = result.response.text();
-    const usage = result.response.usageMetadata ? {
-        input_tokens: result.response.usageMetadata.promptTokenCount,
-        output_tokens: result.response.usageMetadata.candidatesTokenCount
-    } : undefined;
+    const usage = result.response.usageMetadata
+      ? {
+          input_tokens: result.response.usageMetadata.promptTokenCount,
+          output_tokens: result.response.usageMetadata.candidatesTokenCount,
+        }
+      : undefined;
 
     if (usage) {
-        this.monitor.recordTokens(usage.input_tokens + usage.output_tokens);
+      this.monitor.recordTokens(usage.input_tokens + usage.output_tokens);
     }
 
     return {
-        content: [{ type: 'text', text }],
-        usage
+      content: [{ type: 'text', text }],
+      usage,
     };
   }
 

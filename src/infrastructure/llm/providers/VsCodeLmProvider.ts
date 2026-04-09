@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -14,7 +14,7 @@ import type { LogService } from '../../../domain/logging/LogService';
 export class VsCodeLmProvider implements LLMProvider {
   constructor(
     private logService: LogService,
-    private modelSelector: vscode.LanguageModelChatSelector = {}
+    private modelSelector: vscode.LanguageModelChatSelector = {},
   ) {}
 
   async createMessage(
@@ -24,7 +24,7 @@ export class VsCodeLmProvider implements LLMProvider {
     metadata?: { taskId?: string },
   ): Promise<LLMResponse> {
     const startTime = Date.now();
-    
+
     try {
       const models = await vscode.lm.selectChatModels(this.modelSelector);
       if (models.length === 0) {
@@ -32,14 +32,21 @@ export class VsCodeLmProvider implements LLMProvider {
       }
 
       const model = models[0];
-      const vsCodeMessages: vscode.LanguageModelChatMessage[] = this.convertToVsCodeMessages(agent.systemPrompt, messages);
+      const vsCodeMessages: vscode.LanguageModelChatMessage[] = this.convertToVsCodeMessages(
+        agent.systemPrompt,
+        messages,
+      );
 
       const requestOptions: vscode.LanguageModelChatRequestOptions = {
-        justification: `DietCode is executing a task: ${metadata?.taskId || 'unknown'}`
+        justification: `DietCode is executing a task: ${metadata?.taskId || 'unknown'}`,
       };
 
-      const response = await model.sendRequest(vsCodeMessages, requestOptions, new vscode.CancellationTokenSource().token);
-      
+      const response = await model.sendRequest(
+        vsCodeMessages,
+        requestOptions,
+        new vscode.CancellationTokenSource().token,
+      );
+
       let text = '';
       for await (const chunk of response.text) {
         text += chunk;
@@ -49,8 +56,8 @@ export class VsCodeLmProvider implements LLMProvider {
         content: [{ type: 'text', text }],
         usage: {
           input_tokens: 0, // vscode.lm doesn't provide usage in real-time easily yet
-          output_tokens: 0
-        }
+          output_tokens: 0,
+        },
       };
     } catch (error) {
       this.logService.error('[VSCODE-LM] Request failed', { error: (error as Error).message });
@@ -67,18 +74,26 @@ export class VsCodeLmProvider implements LLMProvider {
     }
   }
 
-  private convertToVsCodeMessages(systemPrompt: string, messages: Message[]): vscode.LanguageModelChatMessage[] {
+  private convertToVsCodeMessages(
+    systemPrompt: string,
+    messages: Message[],
+  ): vscode.LanguageModelChatMessage[] {
     const vsCodeMessages: vscode.LanguageModelChatMessage[] = [
-      vscode.LanguageModelChatMessage.Assistant(systemPrompt)
+      vscode.LanguageModelChatMessage.Assistant(systemPrompt),
     ];
 
     for (const msg of messages) {
-      const content = typeof msg.content === 'string' ? msg.content : msg.content.map(c => {
-        if (c.type === 'text') return c.text;
-        if (c.type === 'tool_use') return `[Tool Use: ${c.name}]`;
-        if (c.type === 'tool_result') return `[Tool Result: ${c.content}]`;
-        return '';
-      }).join('\n');
+      const content =
+        typeof msg.content === 'string'
+          ? msg.content
+          : msg.content
+              .map((c) => {
+                if (c.type === 'text') return c.text;
+                if (c.type === 'tool_use') return `[Tool Use: ${c.name}]`;
+                if (c.type === 'tool_result') return `[Tool Result: ${c.content}]`;
+                return '';
+              })
+              .join('\n');
 
       if (msg.role === 'user') {
         vsCodeMessages.push(vscode.LanguageModelChatMessage.User(content));
