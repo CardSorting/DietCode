@@ -269,7 +269,7 @@ export const ExtensionStateContextProvider: React.FC<{
     maxConsecutiveMistakes: 3,
     defaultTerminalProfile: "default",
     isNewUser: false,
-    welcomeViewCompleted: false,
+    welcomeViewCompleted: true,
     onboardingModels: undefined,
     mcpResponsesCollapsed: false, // Default value (expanded), will be overwritten by extension state
     strictPlanModeEnabled: false,
@@ -393,14 +393,9 @@ export const ExtensionStateContextProvider: React.FC<{
                   : prevState.autoApprovalSettings,
               };
 
-              // Update welcome screen state based on API configuration if welcome view not in progress
-              if (!newState.welcomeViewCompleted && !showWelcome) {
-                setShowWelcome(true);
-                setOnboardingModels(newState.onboardingModels);
-              } else if (newState.welcomeViewCompleted) {
-                setShowWelcome(false);
-                setOnboardingModels(undefined);
-              }
+              // PRODUCTION HARDENING: Skip onboarding in its entirety
+              setShowWelcome(false);
+              setOnboardingModels(undefined);
 
               setDidHydrateState(true);
 

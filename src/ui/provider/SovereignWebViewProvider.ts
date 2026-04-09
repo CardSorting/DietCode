@@ -672,9 +672,9 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
     
     // Merge standard mocks with true orchestrated state
     return {
-      version: '2.2.2',
+      version: '2.4.0',
       isNewUser: orchestrated.isNewUser ?? false,
-      welcomeViewCompleted: orchestrated.welcomeViewCompleted ?? true,
+      welcomeViewCompleted: true, // PRODUCTION HARDENING: Skip onboarding in its entirety as requested by user.
       clineMessages: orchestrated.clineMessages || [],
       taskHistory: orchestrated.taskHistory || [],
       onboardingModels: undefined,
@@ -755,7 +755,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
       primaryRootIndex: orchestrated.primaryRootIndex || 0,
       isMultiRootWorkspace: !!orchestrated.workspaceRoots && orchestrated.workspaceRoots.length > 1,
       lastDismissedCliBannerVersion: orchestrated.lastDismissedCliBannerVersion || 0,
-      focusChainSettings: orchestrated.focusChainSettings || { enabled: false, remind ClineInterval: 5 },
+      focusChainSettings: orchestrated.focusChainSettings || { enabled: false, remindClineInterval: 5 },
       apiConfiguration: {
         actModeApiProvider: settings.selectedProvider,
         planModeApiProvider: settings.selectedProvider,

@@ -40,13 +40,7 @@ const AppContent = () => {
     return null;
   }
 
-  if (showWelcome) {
-    return onboardingModels ? (
-      <OnboardingView onboardingModels={onboardingModels} />
-    ) : (
-      <WelcomeView />
-    );
-  }
+
 
   return (
     <div className="flex h-screen w-full flex-col">
