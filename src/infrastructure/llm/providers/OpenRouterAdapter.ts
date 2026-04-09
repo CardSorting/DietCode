@@ -92,4 +92,8 @@ export class OpenRouterAdapter implements LLMAdapter {
   getPromptStrategy(): PromptStrategy {
     return EnumPromptStrategy.OPENROUTER;
   }
+
+  async dispose(): Promise<void> {
+    // Teardown OpenRouter resources
+  }
 }

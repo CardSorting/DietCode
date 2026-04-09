@@ -20,6 +20,12 @@ import { VsCodeLmProvider } from '../../infrastructure/llm/providers/VsCodeLmPro
 import { CheckpointPersistenceAdapter } from '../../infrastructure/task/CheckpointPersistenceAdapter';
 import { Logger } from '../../shared/services/Logger';
 import { UIBridge } from './UIBridge';
+import { StateOrchestrator } from '../../core/manager/StateOrchestrator';
+import { LLMProviderRegistry } from '../../core/manager/LLMProviderRegistry';
+import { VsCodeStateRepository } from '../../infrastructure/storage/VsCodeStateRepository';
+import { StateChangePhase } from '../../domain/state/StateChangeProtocol';
+import type { ApiConfiguration } from '../../shared/api';
+import type { GlobalState } from '../../domain/LLMProvider';
 
 /**
  * [LAYER: UI / PROVIDER]
@@ -191,8 +197,16 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
         break;
       }
       case WebViewRequestType.TEST_CONNECTION: {
-        // Real implementation for connection test
-        this._sendResponse(request.id, 'success', { success: true });
+        const payload = request.payload as any;
+        const providerId = payload.providerId;
+        const config = payload.config as ApiConfiguration;
+
+        const success = await LLMProviderRegistry.getInstance().testConnection(
+          providerId,
+          config
+        );
+
+        this._sendResponse(request.id, 'success', { success });
         break;
       }
       default:
@@ -201,6 +215,8 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
   }
 
   private async _getSettings() {
+    const repo = VsCodeStateRepository.getInstance();
+
     // Load stored provider configs or use defaults
     const providers: any[] = [
       { id: 'anthropic', name: 'Anthropic', type: 'chat', enabled: true },
@@ -212,35 +228,70 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
       { id: 'vscode-lm', name: 'VS Code Language Models', type: 'chat', enabled: false },
     ];
 
-    // Enrich with stored API keys
-    const enrichedProviders = providers.map((p) => ({
-      ...p,
-      apiKey: this._context.globalState.get(`apiKey_${p.id}`, ''),
-      enabled: this._context.globalState.get(`enabled_${p.id}`, p.enabled),
-    }));
+    // PRODUCTION HARDENING: Pull enriched data from hardened repository (SecretStorage supported)
+    const enrichedProviders = await Promise.all(
+      providers.map(async (p) => ({
+        ...p,
+        apiKey: (await repo.get(`apiKey_${p.id}`)) || '',
+        enabled: (await repo.get(`enabled_${p.id}`)) ?? p.enabled,
+      })),
+    );
 
-    // Migration: Check if we have an old global apiKey and migrate to anthropic if suitable
-    const oldApiKey = this._context.globalState.get('apiKey', '') as string;
+    // Migration: Check if we have an old global apiKey and migrate to anthropic (Hardened migration to SecretStorage)
+    const oldApiKey = (await repo.get('apiKey')) as string;
     if (oldApiKey && !enrichedProviders.find((p) => (p as any).id === 'anthropic')?.apiKey) {
       if (oldApiKey.startsWith('sk-ant')) {
-        await this._context.globalState.update('apiKey_anthropic', oldApiKey);
+        await repo.set('apiKey_anthropic', oldApiKey);
         const anthropic = enrichedProviders.find((p) => (p as any).id === 'anthropic');
         if (anthropic) (anthropic as any).apiKey = oldApiKey;
         // Clear old key to prevent re-migration
-        await this._context.globalState.update('apiKey', undefined);
+        await repo.delete('apiKey');
+        Logger.info('[PROVIDER] Migrated legacy Anthropic key to hardened storage');
       }
     }
 
     return {
-      autoApprove: this._context.globalState.get('autoApprove', false),
-      selectedProvider: this._context.globalState.get('selectedProvider', 'anthropic'),
+      autoApprove: (await repo.get('autoApprove')) ?? false,
+      selectedProvider: (await repo.get('selectedProvider')) || 'anthropic',
       providers: enrichedProviders,
-      neuralDepth: this._context.globalState.get('neuralDepth', 'standard'),
-      theme: this._context.globalState.get('theme', 'sovereign-hive'),
+      neuralDepth: (await repo.get('neuralDepth')) || 'standard',
+      theme: (await repo.get('theme')) || 'sovereign-hive',
     };
   }
 
   private async _saveSettings(settings: any) {
+    const orchestrator = StateOrchestrator.getInstance();
+
+    // Map the incoming UI settings to a partial ApiConfiguration
+    const apiConfig: Partial<ApiConfiguration> = {
+      apiModelId: settings.apiModelId,
+      apiKey: settings.apiKey,
+      selectedProvider: settings.selectedProvider,
+    };
+
+    // If providers list is included, extract them
+    if (settings.providers && Array.isArray(settings.providers)) {
+      for (const p of settings.providers) {
+        if (p.id === 'anthropic') apiConfig.apiKey = p.apiKey;
+        if (p.id === 'openai') apiConfig.openAiApiKey = p.apiKey;
+        if (p.id === 'openai-native') apiConfig.openAiApiKey = p.apiKey;
+        if (p.id === 'gemini') apiConfig.geminiApiKey = p.apiKey;
+        if (p.id === 'openrouter') apiConfig.openRouterApiKey = p.apiKey;
+        if (p.id === 'ollama') apiConfig.ollamaBaseUrl = p.baseUrl;
+      }
+    }
+
+    // Apply change via Orchestrator for reactivity
+    await orchestrator.applyChange({
+      key: 'apiConfiguration',
+      newValue: apiConfig,
+      stateSet: {} as GlobalState,
+      validate: () => true,
+      sanitize: () => apiConfig,
+      getCorrelationId: () => `ui-save-${Date.now()}`,
+    }, 0); // Immediate persist
+
+    // Also persist individual keys for legacy compatibility
     if (settings.autoApprove !== undefined)
       await this._context.globalState.update('autoApprove', settings.autoApprove);
     if (settings.selectedProvider !== undefined)

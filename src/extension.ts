@@ -8,6 +8,8 @@ import * as path from 'node:path';
 import * as vscode from 'vscode';
 import { Core } from './infrastructure/database/sovereign/Core';
 import { SovereignWebViewProvider } from './ui/provider/SovereignWebViewProvider';
+import { ProviderStateManager } from './core/manager/ProviderStateManager';
+import { VsCodeStateRepository } from './infrastructure/storage/VsCodeStateRepository';
 
 /**
  * [LAYER: INFRASTRUCTURE / VSCODE]
@@ -37,6 +39,12 @@ export async function activate(context: vscode.ExtensionContext) {
     // Non-fatal: extension can still activate, DB features will fail gracefully
   }
 
+  // Initialize infrastructure repositories
+  VsCodeStateRepository.getInstance().initialize(context);
+
+  // Initialize Provider State Management
+  ProviderStateManager.getInstance().initialize();
+
   const provider = new SovereignWebViewProvider(context);
 
   context.subscriptions.push(
@@ -52,7 +60,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
 export async function deactivate() {
   try {
+    // Flush all debounced state changes to avoid data loss
+    await StateOrchestrator.getInstance().forceFlush();
     await Core.flush();
+    console.log('[DietCode] Sovereign Hive deactivated and state flushed.');
   } catch (_) {
     // Best-effort cleanup
   }

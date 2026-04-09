@@ -84,4 +84,8 @@ export class AnthropicAdapter implements LLMAdapter {
   getPromptStrategy(): PromptStrategy {
     return EnumPromptStrategy.ANTHROPIC_V0;
   }
+
+  async dispose(): Promise<void> {
+    // Teardown logic for Anthropic SDK if needed
+  }
 }

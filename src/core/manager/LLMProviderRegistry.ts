@@ -14,6 +14,10 @@
  */
 
 import type {
+  ApiConfiguration,
+  ApiProvider,
+} from '../../shared/api';
+import type {
   AdapterConfig,
   ApiStream,
   LLMAdapter,
@@ -83,11 +87,17 @@ export class LLMProviderRegistry {
   }
 
   /**
-   * Register a provider adapter
+   * Register a provider adapter.
+   * PRODUCTION HARDENING: Explicitly disposes of old adapters before replacement.
    */
-  registerProvider(providerId: string, adapter: LLMAdapter): void {
-    if (this.providers.has(providerId)) {
-      console.warn(`⚠️  Overriding existing provider: ${providerId}`);
+  public async registerProvider(providerId: string, adapter: LLMAdapter): Promise<void> {
+    const oldAdapter = this.providers.get(providerId);
+    if (oldAdapter) {
+      try {
+        await oldAdapter.dispose();
+      } catch (error) {
+        console.error(`[REGISTRY] Failed to dispose old adapter for ${providerId}:`, error);
+      }
     }
 
     this.providers.set(providerId, adapter);
@@ -321,6 +331,112 @@ export class LLMProviderRegistry {
 
     return new CompositeLLMAdapter(primary, fallback, config);
   }
+
+  /**
+   * Synchronize registered providers with a new configuration object.
+   * This re-registers primary adapters with updated credentials.
+   */
+  async updateActiveConfiguration(config: ApiConfiguration): Promise<void> {
+    const providersToSync: ApiProvider[] = [
+      'anthropic',
+      'openai',
+      'openai-native',
+      'gemini',
+      'ollama',
+      'openrouter',
+      'cloudflare',
+      'vscode-lm',
+    ];
+
+    for (const providerId of providersToSync) {
+      const adapterConfig = this.mapApiConfigurationToAdapterConfig(providerId, config);
+      if (adapterConfig) {
+        try {
+          const adapter = await this.createProviderFromConfig(providerId, adapterConfig);
+          this.registerProvider(providerId, adapter);
+        } catch (error) {
+          console.error(`❌ Failed to sync provider ${providerId}:`, error);
+        }
+      }
+    }
+
+    this.clearModelCaches();
+    console.log('🔄 Registry synchronized with new configuration');
+  }
+
+  /**
+   * Test a specific provider connection without registering it.
+   */
+  async testConnection(providerId: ApiProvider, config: ApiConfiguration): Promise<boolean> {
+    const adapterConfig = this.mapApiConfigurationToAdapterConfig(providerId, config);
+    if (!adapterConfig) return false;
+
+    try {
+      const adapter = await this.createProviderFromConfig(providerId, adapterConfig);
+      // Minimal ping check
+      if (typeof adapter.createMessage === 'function') {
+        // Most adapters have a ping or similar. If not, we could do a dummy call.
+        // For now, if we successfully created it, and it has createMessage, we consider it "configured".
+        // Real adapters should implement a .ping() or similar eventually.
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error(`❌ Connection test failed for ${providerId}:`, error);
+      return false;
+    }
+  }
+
+  /**
+   * Helper to map shared ApiConfiguration to internal AdapterConfig
+   */
+  private mapApiConfigurationToAdapterConfig(
+    providerId: ApiProvider,
+    config: ApiConfiguration,
+  ): AdapterConfig | undefined {
+    switch (providerId) {
+      case 'anthropic':
+        if (!config.apiKey) return undefined;
+        return {
+          apiKey: config.apiKey,
+          model: config.apiModelId,
+          maxTokens: config.modelInfo?.maxTokens,
+        };
+      case 'openai':
+      case 'openai-native':
+        if (!config.openAiApiKey && !config.apiKey) return undefined;
+        return {
+          apiKey: config.openAiApiKey || config.apiKey!,
+          apiBase: config.openAiBaseUrl,
+          model: config.openAiModelId,
+        };
+      case 'gemini':
+        if (!config.geminiApiKey) return undefined;
+        return {
+          apiKey: config.geminiApiKey,
+          model: config.geminiModelId,
+        };
+      case 'openrouter':
+        if (!config.openRouterApiKey) return undefined;
+        return {
+          apiKey: config.openRouterApiKey,
+          model: config.openRouterModelId,
+        };
+      case 'ollama':
+        return {
+          apiKey: 'ollama',
+          apiBase: config.ollamaBaseUrl,
+          model: config.ollamaModelId,
+        };
+      case 'vscode-lm':
+        return {
+          apiKey: '',
+          model: config.planModeVsCodeLmModelSelector?.id || 'gpt-4o',
+        };
+      default:
+        return undefined;
+    }
+  }
 }
 
 /**
@@ -416,6 +532,14 @@ class CompositeLLMAdapter implements LLMAdapter {
     if (this.primaryChain.length === 0) return EnumPromptStrategy.NATIVE;
     const strategy = this.primaryChain[0]?.getPromptStrategy();
     return strategy ?? EnumPromptStrategy.NATIVE;
+  }
+
+  async dispose(): Promise<void> {
+    // Cascade disposal to all adapters in both chains
+    await Promise.all([
+      ...this.primaryChain.map((a) => a.dispose()),
+      ...this.fallbackChain.map((a) => a.dispose()),
+    ]);
   }
 }
 

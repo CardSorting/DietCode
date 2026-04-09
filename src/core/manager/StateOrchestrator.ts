@@ -21,6 +21,7 @@ import {
   type StateObserver,
 } from '../../domain/state/StateChangeProtocol';
 import { VsCodeStateRepository } from '../../infrastructure/storage/VsCodeStateRepository';
+import { Logger } from '../../shared/services/Logger';
 
 /**
  * State change precedence rules
@@ -69,8 +70,8 @@ export interface StateOrchestratorConfig {
  */
 export class StateOrchestrator<T = unknown> {
   private static instance: StateOrchestrator<any> | null = null;
-  private observers = new Map<string, StateObserver<unknown>>();
-  private changesQueue = new Map<string, { newValue: unknown; dirty: boolean }>();
+  private observers = new Map<string, Set<StateObserver<unknown>>>();
+  private changesQueue = new Map<string, { change: StateChange<unknown>; newValue: unknown }>();
   private debounceTimeout: NodeJS.Timeout | null = null;
 
   private config: Required<StateOrchestratorConfig>;
@@ -127,19 +128,31 @@ export class StateOrchestrator<T = unknown> {
    * Register an observer for a state key
    */
   registerObserver(key: string, observer: StateObserver): void {
-    if (this.observers.size >= this.config.maxObservers) {
-      throw new Error('Maximum observer count reached');
+    let observers = this.observers.get(key);
+    if (!observers) {
+      observers = new Set();
+      this.observers.set(key, observers);
     }
 
-    this.observers.set(key, observer);
-    console.log(`✅ Observer registered for key: ${key}`);
+    if (observers.size >= this.config.maxObservers) {
+      throw new Error(`Maximum observer count reached for key: ${key}`);
+    }
+
+    observers.add(observer);
+    Logger.info(`[STATE] Observer registered for key: ${key}`);
   }
 
   /**
    * Remove observer for a state key
    */
-  unregisterObserver(key: string): void {
-    this.observers.delete(key);
+  unregisterObserver(key: string, observer: StateObserver): void {
+    const observers = this.observers.get(key);
+    if (observers) {
+      observers.delete(observer);
+      if (observers.size === 0) {
+        this.observers.delete(key);
+      }
+    }
   }
 
   /**
@@ -174,17 +187,20 @@ export class StateOrchestrator<T = unknown> {
     }
 
     // Notify observers onBeforeChange
-    for (const [key, observer] of this.observers) {
-      try {
-        if (observer.onBeforeChange && key !== change.key) {
-          const canProceed = observer.onBeforeChange(change);
-          if (!canProceed) {
-            validationErrors.push(`Observer rejected change for key '${key}'`);
-            console.warn(`⚠️  Observer "${key}" rejected state change`);
+    const observers = this.observers.get(change.key);
+    if (observers) {
+      for (const observer of observers) {
+        try {
+          if (observer.onBeforeChange) {
+            const canProceed = observer.onBeforeChange(change);
+            if (!canProceed) {
+              validationErrors.push(`Observer rejected change for key '${change.key}'`);
+              Logger.warn(`[STATE] Observer rejected state change for key: ${change.key}`);
+            }
           }
+        } catch (error: any) {
+          Logger.error(`[STATE] Observer trigger error:`, error);
         }
-      } catch (error: any) {
-        console.error(`❌ Observer "${key}" triggered error:`, error);
       }
     }
 
@@ -215,6 +231,8 @@ export class StateOrchestrator<T = unknown> {
       };
     }
 
+    Logger.info(`[STATE] Applying change to '${change.key}' (debounce: ${delay}ms)`);
+
     // Phase 3: Persist change
     try {
       if (debounceDelay === 0) {
@@ -234,7 +252,7 @@ export class StateOrchestrator<T = unknown> {
 
       return {
         ...result,
-        success: false, // Pending
+        success: true, // Optimistically success for UI responsiveness
         phase: StateChangePhase.SANITIZED,
       };
     } catch (error: any) {
@@ -261,7 +279,7 @@ export class StateOrchestrator<T = unknown> {
    * Schedule a debounced persist
    */
   private schedulePersist<T>(change: StateChange<T>, value: T, delay: number): void {
-    this.changesQueue.set(change.key, { newValue: value, dirty: true });
+    this.changesQueue.set(change.key, { change: change as any, newValue: value });
 
     if (this.debounceTimeout) {
       clearTimeout(this.debounceTimeout);
@@ -283,11 +301,28 @@ export class StateOrchestrator<T = unknown> {
     const changesToPersist = Array.from(this.changesQueue.entries());
     this.changesQueue.clear();
 
-    for (const [key, { newValue }] of changesToPersist) {
-      const change = this.pendingChangesMap.get(key) as StateChange;
-      if (change) {
+    for (const [key, { change, newValue }] of changesToPersist) {
+      try {
         await this.persistChange(change, newValue);
-        this.pendingChangesMap.delete(key);
+
+        // PRODUCTION HARDENING: Ensure observers are notified of the completed debounced change
+        const result: StateChangeResult<any> = {
+          change,
+          success: true,
+          phase: StateChangePhase.COMPLETED,
+          metadata: {
+            timestamp: Date.now(),
+            correlationId: change.getCorrelationId(),
+            actor: 'system',
+            source: 'automated',
+          },
+          sanitizedValue: newValue,
+        };
+
+        await this.notifyObservers(change, result);
+        Logger.info(`[STATE] Debounced change for '${key}' persisted and synchronized.`);
+      } catch (error) {
+        Logger.error(`[STATE] Failed to flush change for '${key}':`, error);
       }
     }
   }
@@ -299,13 +334,16 @@ export class StateOrchestrator<T = unknown> {
     change: StateChange<T>,
     result: StateChangeResult<T>,
   ): Promise<void> {
-    for (const [key, observer] of this.observers) {
-      try {
-        if (observer.onChange) {
-          await observer.onChange(result as any);
+    const observers = this.observers.get(change.key);
+    if (observers) {
+      for (const observer of observers) {
+        try {
+          if (observer.onChange) {
+            await observer.onChange(result as any);
+          }
+        } catch (error: any) {
+          Logger.error(`[STATE] Observer onChange error for key '${change.key}':`, error);
         }
-      } catch (error: any) {
-        console.error(`❌ Observer "${key}" triggered onChange error:`, error);
       }
     }
   }

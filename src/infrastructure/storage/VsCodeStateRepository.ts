@@ -7,6 +7,7 @@
 import type * as vscode from 'vscode';
 import { Logger } from '../../shared/services/Logger';
 import { Core } from '../database/sovereign/Core';
+import { isSecretKey } from '../../shared/storage/state-keys';
 
 /**
  * [LAYER: INFRASTRUCTURE]
@@ -31,15 +32,23 @@ export class VsCodeStateRepository {
   }
 
   /**
-   * Set a value in global state or database
+   * Set a value in global state, secrets, or database
    */
   public async set<T>(key: string, value: T, persistent = true): Promise<void> {
     try {
       if (this._context) {
-        await this._context.globalState.update(key, value);
+        if (isSecretKey(key)) {
+          // Secret Storage (Encrypted)
+          await this._context.secrets.store(key, typeof value === 'string' ? value : JSON.stringify(value));
+          Logger.info(`[STORAGE] Key '${key}' stored in encrypted SecretStorage`);
+        } else {
+          // Global State (Plain Text)
+          await this._context.globalState.update(key, value);
+        }
       }
 
-      if (persistent && Core.isAvailable()) {
+      // We only persist non-secrets to BroccoliDB for local mirroring
+      if (persistent && !isSecretKey(key) && Core.isAvailable()) {
         await Core.push({
           type: 'upsert',
           table: 'settings',
@@ -59,17 +68,27 @@ export class VsCodeStateRepository {
   }
 
   /**
-   * Get a value from global state or database
+   * Get a value from global state, secrets, or database
    */
   public async get<T>(key: string, defaultValue?: T): Promise<T | undefined> {
     try {
-      // 1. Try VS Code globalState (Primary for ephemeral/user preferences)
       if (this._context) {
-        const val = this._context.globalState.get<T>(key);
-        if (val !== undefined) return val;
+        if (isSecretKey(key)) {
+          const secret = await this._context.secrets.get(key);
+          if (secret !== undefined) {
+            try {
+              return JSON.parse(secret) as T;
+            } catch {
+              return secret as unknown as T;
+            }
+          }
+        } else {
+          const val = this._context.globalState.get<T>(key);
+          if (val !== undefined) return val;
+        }
       }
 
-      // 2. Try BroccoliDB (Secondary for persistent configuration)
+      // Secondary for persistent configuration
       if (Core.isAvailable()) {
         const results = await Core.selectWhere('settings', { key });
         if (results && results.length > 0) {
@@ -94,10 +113,12 @@ export class VsCodeStateRepository {
    */
   public async delete(key: string): Promise<void> {
     if (this._context) {
-      await this._context.globalState.update(key, undefined);
+      if (isSecretKey(key)) {
+        await this._context.secrets.delete(key);
+      } else {
+        await this._context.globalState.update(key, undefined);
+      }
     }
-
-    // Note: Core.deleteWhere or similar would be needed for database cleanup
-    // Assuming for now we just null it out or implement Core deletion logic
+    // Note: Core cleanup as needed
   }
 }

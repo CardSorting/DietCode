@@ -92,4 +92,8 @@ export class OpenAIAdapter implements LLMAdapter {
   getPromptStrategy(): PromptStrategy {
     return EnumPromptStrategy.OPENAI;
   }
+
+  async dispose(): Promise<void> {
+    // Teardown OpenAI client resources
+  }
 }

@@ -108,7 +108,17 @@ export interface LLMAdapter {
    *
    * Some providers require special formatting for tools, system prompts, etc.
    */
+  /**
+   * Get provider-specific prompt formatting strategy
+   *
+   * Some providers require special formatting for tools, system prompts, etc.
+   */
   getPromptStrategy(): PromptStrategy;
+
+  /**
+   * Dispose of any resources (connections, timers) held by this adapter.
+   */
+  dispose(): Promise<void>;
 }
 
 /**

@@ -81,4 +81,8 @@ export class GeminiAdapter implements LLMAdapter {
   getPromptStrategy(): PromptStrategy {
     return EnumPromptStrategy.NATIVE;
   }
+
+  async dispose(): Promise<void> {
+    // Teardown Gemini resources
+  }
 }
