@@ -112,6 +112,10 @@ const GLOBAL_STATE_FIELDS = {
   
   // TOOL APPROVALS: Active tool requests requiring user intervention
   pendingToolApprovals: { default: [] as Array<{ id: string; toolName: string; detail: any }> },
+
+  // COMPONENT STATE: Sub-service status mirroring
+  mcpServers: { default: [] as any[] },
+  taskHistorySummary: { default: [] as any[] },
 } satisfies FieldDefinitions;
 
 // Fields that map directly to ApiHandlerOptions in @shared/api.ts

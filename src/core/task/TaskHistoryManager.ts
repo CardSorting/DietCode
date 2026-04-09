@@ -5,6 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { Core } from '../../infrastructure/database/sovereign/Core';
+import { StateOrchestrator } from '../manager/StateOrchestrator';
+import type { GlobalState } from '../../domain/LLMProvider';
+import { Logger } from '../../shared/services/Logger';
 
 export interface TaskHistoryItem {
   id: string;
@@ -58,6 +61,25 @@ export class TaskHistoryManager {
       console.error('[History:Error] Failed to fetch task history', error);
       return [];
     }
+  }
+
+  /**
+   * Sync latest history to orchestrated state
+   */
+  public async syncToState(limit = 10) {
+    const history = await this.getHistory(limit);
+    const orchestrator = StateOrchestrator.getInstance();
+    
+    await orchestrator.applyChange({
+      key: 'taskHistorySummary',
+      newValue: history,
+      stateSet: {} as GlobalState,
+      validate: () => true,
+      sanitize: () => history,
+      getCorrelationId: () => `history-sync-${Date.now()}`
+    }, 0);
+    
+    Logger.info(`[STATE] Task history synced to state (last ${limit} items)`);
   }
 
   /**

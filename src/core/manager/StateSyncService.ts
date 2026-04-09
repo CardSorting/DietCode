@@ -16,6 +16,9 @@ import { Logger } from '../../shared/services/Logger';
 export class StateSyncService implements StateObserver {
   private static instance: StateSyncService;
   private listeners: Map<string, (stateJson: string) => void> = new Map();
+  private throttleTimeout: NodeJS.Timeout | null = null;
+  private throttleInterval = 100; // ms
+  private pendingBroadcast = false;
 
   private constructor() {
     StateOrchestrator.getInstance().registerGlobalObserver(this);
@@ -55,8 +58,21 @@ export class StateSyncService implements StateObserver {
   public async onChange(result: StateChangeResult<any>): Promise<void> {
     if (!result.success) return;
     
-    Logger.info(`[STATE] Broadcasting state change for key: ${result.change.key}`);
+    // Throttled broadcast
+    if (this.throttleTimeout) {
+      this.pendingBroadcast = true;
+      return;
+    }
+
     await this.broadcast();
+    
+    this.throttleTimeout = setTimeout(async () => {
+      this.throttleTimeout = null;
+      if (this.pendingBroadcast) {
+        this.pendingBroadcast = false;
+        await this.broadcast();
+      }
+    }, this.throttleInterval);
   }
 
   /**

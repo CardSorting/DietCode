@@ -1,6 +1,7 @@
-import { EventEmitter } from 'node:events';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { StateOrchestrator } from '../../core/manager/StateOrchestrator';
+import type { GlobalState } from '../../domain/LLMProvider';
 /**
  * Copyright (c) 2026 DietCode Contributors
  *
@@ -23,15 +24,13 @@ export interface McpServerConfig {
  * [LAYER: INFRASTRUCTURE]
  * Manages discovery and configuration of MCP servers.
  */
-export class McpDiscoveryService extends EventEmitter {
+export class McpDiscoveryService {
   private static instance: McpDiscoveryService;
   private _context?: vscode.ExtensionContext;
   private _servers: Map<string, McpServerConfig> = new Map();
   private _clients: Map<string, McpClient> = new Map();
 
-  private constructor() {
-    super();
-  }
+  private constructor() {}
 
   public static getInstance(): McpDiscoveryService {
     if (!McpDiscoveryService.instance) {
@@ -40,9 +39,10 @@ export class McpDiscoveryService extends EventEmitter {
     return McpDiscoveryService.instance;
   }
 
-  public initialize(context: vscode.ExtensionContext) {
+  public async initialize(context: vscode.ExtensionContext) {
     this._context = context;
     this._loadServers();
+    await this._syncToState();
   }
 
   private _loadServers() {
@@ -62,7 +62,7 @@ export class McpDiscoveryService extends EventEmitter {
   public async addServer(config: McpServerConfig) {
     this._servers.set(config.id, config);
     await this._saveServers();
-    this.emit('serversChanged', this.getServers());
+    await this._syncToState();
   }
 
   public async toggleServer(id: string, enabled: boolean) {
@@ -70,20 +70,38 @@ export class McpDiscoveryService extends EventEmitter {
     if (server) {
       server.enabled = enabled;
       await this._saveServers();
-      this.emit('serversChanged', this.getServers());
+      await this._syncToState();
     }
   }
 
   public async deleteServer(id: string) {
     if (this._servers.delete(id)) {
       await this._saveServers();
-      this.emit('serversChanged', this.getServers());
+      await this._syncToState();
     }
   }
 
   private async _saveServers() {
     if (!this._context) return;
     await this._context.globalState.update('mcp_servers', this.getServers());
+  }
+
+  private async _syncToState() {
+    const orchestrator = StateOrchestrator.getInstance();
+    const servers = this.getServers().map((s) => ({
+      name: s.name,
+      config: JSON.stringify({ command: s.command, args: s.args, env: s.env }),
+      status: s.enabled ? 'connected' : 'disabled',
+    }));
+
+    await orchestrator.applyChange({
+      key: 'mcpServers',
+      newValue: servers,
+      stateSet: {} as GlobalState,
+      validate: () => true,
+      sanitize: () => servers,
+      getCorrelationId: () => `mcp-sync-${Date.now()}`
+    }, 0);
   }
 
   public async getClient(id: string): Promise<McpClient> {

@@ -6,6 +6,7 @@
  */
 import type { Snapshot, SnapshotRepository } from '../../domain/memory/Snapshot';
 import { Core } from './sovereign/Core';
+import { TaskHistoryManager } from '../../core/task/TaskHistoryManager';
 
 /**
  * [LAYER: INFRASTRUCTURE]
@@ -28,6 +29,8 @@ export class SqliteSnapshotRepository implements SnapshotRepository {
     });
 
     await Core.flush();
+    await TaskHistoryManager.getInstance().syncToState();
+
   }
 
   async getLatestSnapshot(filePath: string): Promise<Snapshot | null> {
