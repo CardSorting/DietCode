@@ -387,19 +387,17 @@ export const ExtensionStateContextProvider: React.FC<{
               }
 
               const newState = {
+                ...prevState,
                 ...stateData,
-                autoApprovalSettings: shouldUpdateAutoApproval
-                  ? stateData.autoApprovalSettings
-                  : prevState.autoApprovalSettings,
               };
 
-              // PRODUCTION HARDENING: Skip onboarding in its entirety
+              // PRODUCTION HARDENING: Ensure onboarding is skipped even if state says otherwise
               setShowWelcome(false);
               setOnboardingModels(undefined);
 
               setDidHydrateState(true);
 
-              return newState;
+              return newState as ExtensionState;
             });
           } catch (error) {
             console.error("Error parsing state JSON:", error);
@@ -524,9 +522,11 @@ export const ExtensionStateContextProvider: React.FC<{
       {
         onResponse: (protoMessage) => {
           try {
-            // Validate critical fields
-            if (!protoMessage.ts || protoMessage.ts <= 0) {
-              console.error("Invalid timestamp in partial message:", protoMessage);
+            // PRODUCTION HARDENING: Support missing timestamps in initial/empty messages without crashing
+            if (!protoMessage || !protoMessage.ts || protoMessage.ts <= 0) {
+              if (protoMessage && Object.keys(protoMessage).length > 0) {
+                 console.warn("Received partial message with invalid/missing timestamp:", protoMessage);
+              }
               return;
             }
 
@@ -561,9 +561,11 @@ export const ExtensionStateContextProvider: React.FC<{
     mcpMarketplaceUnsubscribeRef.current = McpServiceClient.subscribeToMcpMarketplaceCatalog(
       EmptyRequest.create({}),
       {
-        onResponse: (catalog) => {
-          console.log("[DEBUG] Received MCP marketplace catalog update from gRPC stream");
-          setMcpMarketplaceCatalog(catalog);
+        onResponse: (response) => {
+          if (response && response.items) {
+            console.log("[DEBUG] Received MCP marketplace catalog update from gRPC stream");
+            setMcpMarketplaceCatalog(response);
+          }
         },
         onError: (error) => {
           console.error("Error in MCP marketplace catalog subscription:", error);

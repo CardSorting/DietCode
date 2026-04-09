@@ -24,6 +24,7 @@ import { StateOrchestrator } from '../../core/manager/StateOrchestrator';
 import { LLMProviderRegistry } from '../../core/manager/LLMProviderRegistry';
 import { VsCodeStateRepository } from '../../infrastructure/storage/VsCodeStateRepository';
 import { StateSyncService } from '../../core/manager/StateSyncService';
+import { StateAssembler } from '../../core/manager/StateAssembler';
 import { convertProtoToApiConfiguration } from '../../shared/proto-conversions/models/api-configuration-conversion';
 import { UpdateApiConfigurationRequest } from '../../shared/nice-grpc/cline/models';
 import { StateChangePhase } from '../../domain/state/StateChangeProtocol';
@@ -433,14 +434,19 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
       case 'initializeWebview':
         this._sendGrpcSuccess(request.request_id, {});
         break;
+      case 'subscribeToPartialMessage':
+        // Streaming subscriptions
+        if (request.is_streaming) {
+          // PRODUCTION HARDENING: Ensure initial message has a valid timestamp to prevent hydration crash
+          this._sendGrpcSuccess(request.request_id, { ts: Date.now() }, true);
+        }
+        break;
       case 'subscribeToMcpButtonClicked':
       case 'subscribeToHistoryButtonClicked':
       case 'subscribeToChatButtonClicked':
       case 'subscribeToSettingsButtonClicked':
       case 'subscribeToWorktreesButtonClicked':
       case 'subscribeToAccountButtonClicked':
-      case 'subscribeToPartialMessage':
-        // Streaming subscriptions
         if (request.is_streaming) {
           this._sendGrpcSuccess(request.request_id, {}, true);
         }
@@ -454,8 +460,9 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
     switch (method) {
       case 'subscribeToAuthStatusUpdate': {
         // Production Hardening: Local-First Sovereign Identity
+        // NOTE: Frontend expects 'uid'
         const user = {
-          id: 'sovereign-hive-user',
+          uid: 'sovereign-hive-user',
           email: 'sovereign@local.hive',
           displayName: 'Sovereign Administrator',
           photoUrl: '',
@@ -486,7 +493,8 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
       }
       case 'subscribeToMcpMarketplaceCatalog': {
         const catalog = McpDiscoveryService.getInstance().getCatalog();
-        this._sendGrpcSuccess(request.request_id, { catalog }, true);
+        // PRODUCTION HARDENING: Nested under 'items' as expected by the protobuf/frontend
+        this._sendGrpcSuccess(request.request_id, { items: catalog }, true);
         break;
       }
       default:
@@ -739,112 +747,12 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
 
   /**
    * PRODUCTION HARDENING: Dynamically assembles the full ExtensionState from orchestrated sources.
-   * This ensures the webview always has a "True" view of the extension's status.
+   * This ensures the webview always has a "True" view of the extension's status.  /**
+   * Get the current state snapshot for the webview
    */
   private async _getStateSnapshot(): Promise<any> {
-    const settings = await this._getSettings();
-    const orchestrated = await StateOrchestrator.getInstance().getStateSnapshot();
-    
-    // Merge standard mocks with true orchestrated state
-    return {
-      version: '2.4.0',
-      isNewUser: orchestrated.isNewUser ?? false,
-      welcomeViewCompleted: true, // PRODUCTION HARDENING: Skip onboarding in its entirety as requested by user.
-      clineMessages: orchestrated.clineMessages || [],
-      taskHistory: orchestrated.taskHistory || [],
-      onboardingModels: undefined,
-      remoteBrowserHost: undefined,
-      checkpointManagerErrorMessage: undefined,
-      currentTaskItem: undefined,
-      mcpMarketplaceEnabled: orchestrated.mcpMarketplaceEnabled ?? true,
-      telemetrySetting: 'off',
-      enableCheckpointsSetting: orchestrated.enableCheckpointsSetting ?? true,
-      terminalReuseEnabled: orchestrated.terminalReuseEnabled ?? true,
-      backgroundCommandRunning: orchestrated.executionStatus === 'executing',
-      mcpResponsesCollapsed: orchestrated.mcpResponsesCollapsed ?? false,
-      strictPlanModeEnabled: orchestrated.strictPlanModeEnabled ?? false,
-      yoloModeToggled: orchestrated.yoloModeToggled ?? false,
-      useAutoCondense: orchestrated.useAutoCondense ?? false,
-      subagentsEnabled: orchestrated.subagentsEnabled ?? false,
-      clineWebToolsEnabled: orchestrated.clineWebToolsEnabled ?? true,
-      worktreesEnabled: orchestrated.worktreesEnabled ?? false,
-      customPrompt: orchestrated.customPrompt,
-      favoritedModelIds: orchestrated.favoritedModelIds || [],
-      multiRootSetting: orchestrated.multiRootEnabled ? 'enabled' : 'disabled',
-      lastDismissedInfoBannerVersion: orchestrated.lastDismissedInfoBannerVersion || 0,
-      lastDismissedModelBannerVersion: orchestrated.lastDismissedModelBannerVersion || 0,
-      dismissedBanners: orchestrated.dismissedBanners || [],
-      banners: [],
-      welcomeBanners: [],
-      shouldShowAnnouncement: false,
-      showAnnouncement: false,
-      autoApprovalSettings: orchestrated.autoApprovalSettings || {
-        version: 1,
-        enabled: true,
-        favorites: [],
-        maxRequests: 20,
-        actions: {
-          readFiles: true,
-          readFilesExternally: false,
-          editFiles: true,
-          editFilesExternally: false,
-          executeSafeCommands: true,
-          executeAllCommands: false,
-          useBrowser: true,
-          useMcp: true,
-        },
-        enableNotifications: false,
-      },
-      browserSettings: orchestrated.browserSettings || {
-        enabled: true,
-        viewport: { width: 1280, height: 800 },
-        remoteBrowserEnabled: false,
-        remoteBrowserHost: 'http://localhost:9222',
-        chromeExecutablePath: '',
-        disableToolUse: true,
-        customArgs: '',
-      },
-      mode: orchestrated.mode || 'plan',
-      mcpDisplayMode: orchestrated.mcpDisplayMode || 'rich',
-      planActSeparateModelsSetting: false,
-      platform: 'darwin',
-      environment: 'production',
-      shellIntegrationTimeout: orchestrated.shellIntegrationTimeout || 30000,
-      terminalOutputLineLimit: orchestrated.terminalOutputLineLimit || 1000,
-      maxConsecutiveMistakes: orchestrated.maxConsecutiveMistakes || 3,
-      vscodeTerminalExecutionMode: orchestrated.vscodeTerminalExecutionMode || 'auto',
-      distinctId: 'dietcode-dev-id',
-      globalClineRulesToggles: orchestrated.globalClineRulesToggles || {},
-      localClineRulesToggles: orchestrated.localClineRulesToggles || {},
-      localWorkflowToggles: orchestrated.localWorkflowToggles || {},
-      globalWorkflowToggles: orchestrated.globalWorkflowToggles || {},
-      localCursorRulesToggles: orchestrated.localCursorRulesToggles || {},
-      localWindsurfRulesToggles: orchestrated.localWindsurfRulesToggles || {},
-      localAgentsRulesToggles: orchestrated.localAgentsRulesToggles || {},
-      globalSkillsToggles: orchestrated.globalSkillsToggles || {},
-      localSkillsToggles: orchestrated.localSkillsToggles || {},
-      remoteRulesToggles: orchestrated.remoteRulesToggles || {},
-      remoteWorkflowToggles: orchestrated.remoteWorkflowToggles || {},
-      lastUsedApiProvider: settings.selectedProvider,
-      workspaceRoots: orchestrated.workspaceRoots || [],
-      primaryRootIndex: orchestrated.primaryRootIndex || 0,
-      isMultiRootWorkspace: !!orchestrated.workspaceRoots && orchestrated.workspaceRoots.length > 1,
-      lastDismissedCliBannerVersion: orchestrated.lastDismissedCliBannerVersion || 0,
-      focusChainSettings: orchestrated.focusChainSettings || { enabled: false, remindClineInterval: 5 },
-      apiConfiguration: {
-        actModeApiProvider: orchestrated.actModeApiProvider || settings.selectedProvider,
-        planModeApiProvider: orchestrated.planModeApiProvider || settings.selectedProvider,
-      },
-      userInfo: null,
-      availableProviderModels: orchestrated.availableProviderModels || settings.availableProviderModels || {},
-      providerHealth: orchestrated.providerHealth || settings.providerHealth || {},
-      // NEW Integrations
-      mcpServers: orchestrated.mcpServers || [],
-      taskHistorySummary: orchestrated.taskHistorySummary || [],
-      currentlyExecutingTool: orchestrated.currentlyExecutingTool,
-      executionStatus: orchestrated.executionStatus,
-      pendingToolApprovals: orchestrated.pendingToolApprovals || [],
-    };
+    // PRODUCTION HARDENING: Use the unified assembler to ensure consistency
+    return await StateAssembler.getInstance().assemble();
   }
 }
 

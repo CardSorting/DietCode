@@ -421,13 +421,17 @@ export class StateOrchestrator<T = unknown> {
    * Get an aggregated snapshot of all settings and global state
    */
   async getStateSnapshot(): Promise<Record<string, any>> {
-    const { GlobalStateAndSettingKeys } = await import("../../shared/storage/state-keys");
+    const { GlobalStateAndSettingKeys, getDefaultValue } = await import("../../shared/storage/state-keys");
     const repo = VsCodeStateRepository.getInstance();
     const snapshot: Record<string, any> = {};
 
     await Promise.all(
       GlobalStateAndSettingKeys.map(async (key) => {
-        const val = await repo.get(key);
+        let val = await repo.get(key);
+        if (val === undefined) {
+          // PRODUCTION HARDENING: Apply default value if missing in repository
+          val = getDefaultValue(key);
+        }
         if (val !== undefined) {
           snapshot[key] = val;
         }

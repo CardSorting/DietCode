@@ -4,8 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import type { StateObserver, StateChangeResult } from '../../domain/state/StateChangeProtocol';
+import { StateSyncService as IStateSyncService, StateChangeResult } from '../../domain/state/StateChangeProtocol';
 import { StateOrchestrator } from './StateOrchestrator';
+import { StateAssembler } from './StateAssembler';
 import { Logger } from '../../shared/services/Logger';
 
 /**
@@ -85,7 +86,7 @@ export class StateSyncService implements StateObserver {
    * Broadcast the latest state to all listeners
    */
   public async broadcast(): Promise<void> {
-    const snapshot = await StateOrchestrator.getInstance().getStateSnapshot();
+    const snapshot = await StateAssembler.getInstance().assemble();
     const stateJson = JSON.stringify(snapshot);
     
     for (const [id, push] of this.listeners.entries()) {
@@ -105,7 +106,7 @@ export class StateSyncService implements StateObserver {
     const push = this.listeners.get(id);
     if (!push) return;
     
-    const snapshot = await StateOrchestrator.getInstance().getStateSnapshot();
+    const snapshot = await StateAssembler.getInstance().assemble();
     const stateJson = JSON.stringify(snapshot);
     push(stateJson);
   }
