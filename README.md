@@ -70,7 +70,9 @@ Explore the Hive's technical layers:
 
 | Document | Purpose |
 | :--- | :--- |
-| 🏰 [**ARCHITECTURE**](ARCHITECTURE.md) | Deep dive into Joy-Zoning and the Sovereign Hive design. |
+|  castle [**ARCHITECTURE**](ARCHITECTURE.md) | Deep dive into Joy-Zoning and the Sovereign Hive design. |
+| 🧬 [**REACTIVE STATE**](docs/architecture/REACTIVE_STATE_BACKBONE.md) | The throttled, reactive gRPC backbone of the Hive. |
+| 🏛️ [**STATE MGMT**](docs/architecture/STATE_MANAGEMENT.md) | Schema definitions, orchestrators, and synchronization. |
 | ⚒️ [**DEVELOPMENT**](DEVELOPMENT.md) | Guide for contributors, build scripts, and testing protocols. |
 | ✨ [**FEATURES**](FEATURES.md) | Cinematic Boot, Dreamstate UI, and Hardened Guardrails. |
 | 🤝 [**CONTRIBUTING**](CONTRIBUTING.md) | The Level 10 Standard for adding to the Hive. |

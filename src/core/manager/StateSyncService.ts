@@ -10,8 +10,14 @@ import { Logger } from '../../shared/services/Logger';
 
 /**
  * [LAYER: CORE / MANAGER]
- * Orchestrates real-time synchronization between the backend state and all active UI streams.
- * Acts as a hub for pushing state changes to gRPC listeners.
+ * The Reactive Bridge between the StateOrchestrator and the UI layer.
+ * 
+ * StateSyncService implements the Global Observation pattern, listening to 
+ * all state changes in the extension and broadcasting them to active gRPC 
+ * streams. 
+ * 
+ * HARDENING: Includes a 100ms throttle to prevent UI flooding during 
+ * high-frequency process updates (e.g., tool execution).
  */
 export class StateSyncService implements StateObserver {
   private static instance: StateSyncService;

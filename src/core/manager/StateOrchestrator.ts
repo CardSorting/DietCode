@@ -56,17 +56,13 @@ export interface StateOrchestratorConfig {
 }
 
 /**
- * StateOrchestrator
- *
- * Orchestrates state changes by validating, sanitizing, and applying them.
- * Supports debouncing for writing, caching for model info, and predecessor logic.
- *
- * Key responsibilities:
- * - Validate state changes before persistence
- * - Sanitize values (type coercion, padding)
- * - Apply precedence rules for conflicts
- * - Trigger observers for reactive state management
- * - Enable debounced persistence for performance
+ * [LAYER: CORE]
+ * The Axiomatic Heart of DietCode's state management.
+ * 
+ * This orchestrator acts as the single source of truth for the extension, 
+ * managing transactional updates with validation, sanitization, and 
+ * debounced persistence. It supports both key-specific and global 
+ * observers for reactive state synchronization.
  */
 export class StateOrchestrator<T = unknown> {
   private static instance: StateOrchestrator<any> | null = null;
