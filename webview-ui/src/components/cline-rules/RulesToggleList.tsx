@@ -1,10 +1,10 @@
-import NewRuleRow from './NewRuleRow';
-import RuleRow from './RuleRow';
+import NewRuleRow from "./NewRuleRow";
+import RuleRow from "./RuleRow";
 
 const RulesToggleList = ({
   rules,
   toggleRule,
-  listGap = 'medium',
+  listGap = "medium",
   isGlobal,
   ruleType,
   showNewRule,
@@ -14,7 +14,7 @@ const RulesToggleList = ({
 }: {
   rules: [string, boolean][];
   toggleRule: (rulePath: string, enabled: boolean) => void;
-  listGap?: 'small' | 'medium' | 'large';
+  listGap?: "small" | "medium" | "large";
   isGlobal: boolean;
   ruleType: string;
   showNewRule: boolean;
@@ -23,9 +23,9 @@ const RulesToggleList = ({
   alwaysEnabledMap?: Record<string, boolean>;
 }) => {
   const gapClasses = {
-    small: 'gap-0',
-    medium: 'gap-2.5',
-    large: 'gap-5',
+    small: "gap-0",
+    medium: "gap-2.5",
+    large: "gap-5",
   };
 
   const gapClass = gapClasses[listGap];
@@ -52,7 +52,7 @@ const RulesToggleList = ({
         <>
           {showNoRules && (
             <div className="flex flex-col items-center gap-3 my-3 text-(--vscode-descriptionForeground)">
-              {ruleType === 'workflow' ? 'No workflows found' : 'No rules found'}
+              {ruleType === "workflow" ? "No workflows found" : "No rules found"}
             </div>
           )}
           {showNewRule && <NewRuleRow isGlobal={isGlobal} ruleType={ruleType} />}

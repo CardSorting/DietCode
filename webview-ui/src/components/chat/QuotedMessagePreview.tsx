@@ -1,6 +1,6 @@
-import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
-import type React from 'react';
-import styled from 'styled-components';
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import type React from "react";
+import styled from "styled-components";
 
 const PreviewContainer = styled.div`
 	background-color: var(--vscode-input-background); /* Outer box matches text area */
@@ -74,7 +74,7 @@ const QuotedMessagePreview: React.FC<QuotedMessagePreviewProps> = ({
   onDismiss,
   isFocused,
 }) => {
-  const _cardClassName = `reply-card ${isFocused ? 'reply-card--focused' : ''}`;
+  const _cardClassName = `reply-card ${isFocused ? "reply-card--focused" : ""}`;
 
   return (
     <PreviewContainer>

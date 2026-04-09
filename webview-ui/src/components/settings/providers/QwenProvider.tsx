@@ -1,27 +1,27 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { QwenApiRegions, internationalQwenModels, mainlandQwenModels } from '@shared/api.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
-import { useMemo } from 'react';
-import { DROPDOWN_Z_INDEX } from '../ApiOptions';
-import ThinkingBudgetSlider from '../ThinkingBudgetSlider';
-import { ApiKeyField } from '../common/ApiKeyField';
-import { ModelInfoView } from '../common/ModelInfoView';
-import { DropdownContainer, ModelSelector } from '../common/ModelSelector';
-import { normalizeApiConfiguration } from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { QwenApiRegions, internationalQwenModels, mainlandQwenModels } from "@shared/api.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
+import { useMemo } from "react";
+import { DROPDOWN_Z_INDEX } from "../ApiOptions";
+import ThinkingBudgetSlider from "../ThinkingBudgetSlider";
+import { ApiKeyField } from "../common/ApiKeyField";
+import { ModelInfoView } from "../common/ModelInfoView";
+import { DropdownContainer, ModelSelector } from "../common/ModelSelector";
+import { normalizeApiConfiguration } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 const SUPPORTED_THINKING_MODELS = [
-  'qwen3-235b-a22b',
-  'qwen3-32b',
-  'qwen3-30b-a3b',
-  'qwen3-14b',
-  'qwen3-8b',
-  'qwen3-4b',
-  'qwen3-1.7b',
-  'qwen3-0.6b',
-  'qwen-plus-latest',
-  'qwen-turbo-latest',
+  "qwen3-235b-a22b",
+  "qwen3-32b",
+  "qwen3-30b-a3b",
+  "qwen3-14b",
+  "qwen3-8b",
+  "qwen3-4b",
+  "qwen3-1.7b",
+  "qwen3-0.6b",
+  "qwen-plus-latest",
+  "qwen-turbo-latest",
 ];
 
 /**
@@ -60,16 +60,16 @@ export const QwenProvider = ({ showModelOptions, isPopup, currentMode }: QwenPro
 
   return (
     <div>
-      <DropdownContainer className="dropdown-container" style={{ position: 'inherit' }}>
+      <DropdownContainer className="dropdown-container" style={{ position: "inherit" }}>
         <label htmlFor="qwen-line-provider">
           <span style={{ fontWeight: 500, marginTop: 5 }}>Alibaba API Line</span>
         </label>
         <VSCodeDropdown
           id="qwen-line-provider"
-          onChange={(e: any) => handleFieldChange('qwenApiLine', e.target.value as QwenApiRegions)}
+          onChange={(e: any) => handleFieldChange("qwenApiLine", e.target.value as QwenApiRegions)}
           style={{
             minWidth: 130,
-            position: 'relative',
+            position: "relative",
           }}
           value={apiConfiguration?.qwenApiLine || qwenApiOptions[0]}
         >
@@ -82,9 +82,9 @@ export const QwenProvider = ({ showModelOptions, isPopup, currentMode }: QwenPro
       </DropdownContainer>
       <p
         style={{
-          fontSize: '12px',
+          fontSize: "12px",
           marginTop: 3,
-          color: 'var(--vscode-descriptionForeground)',
+          color: "var(--vscode-descriptionForeground)",
         }}
       >
         Please select the appropriate API interface based on your location. If you are in China,
@@ -92,8 +92,8 @@ export const QwenProvider = ({ showModelOptions, isPopup, currentMode }: QwenPro
       </p>
 
       <ApiKeyField
-        initialValue={apiConfiguration?.qwenApiKey || ''}
-        onChange={(value) => handleFieldChange('qwenApiKey', value)}
+        initialValue={apiConfiguration?.qwenApiKey || ""}
+        onChange={(value) => handleFieldChange("qwenApiKey", value)}
         providerName="Qwen"
         signupUrl="https://bailian.console.aliyun.com/"
       />
@@ -105,7 +105,7 @@ export const QwenProvider = ({ showModelOptions, isPopup, currentMode }: QwenPro
             models={qwenModels}
             onChange={(e: any) =>
               handleModeFieldChange(
-                { plan: 'planModeApiModelId', act: 'actModeApiModelId' },
+                { plan: "planModeApiModelId", act: "actModeApiModelId" },
                 e.target.value,
                 currentMode,
               )

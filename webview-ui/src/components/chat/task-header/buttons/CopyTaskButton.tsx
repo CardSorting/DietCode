@@ -1,8 +1,8 @@
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { cn } from '@heroui/react';
-import { CheckIcon, CopyIcon } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@heroui/react";
+import { CheckIcon, CopyIcon } from "lucide-react";
+import { useCallback, useState } from "react";
 
 const CopyTaskButton: React.FC<{
   taskText?: string;
@@ -24,7 +24,7 @@ const CopyTaskButton: React.FC<{
   return (
     <Tooltip>
       <TooltipContent side="bottom">Copy Text</TooltipContent>
-      <TooltipTrigger className={cn('flex items-center', className)}>
+      <TooltipTrigger className={cn("flex items-center", className)}>
         <Button
           aria-label="Copy"
           onClick={(e) => {

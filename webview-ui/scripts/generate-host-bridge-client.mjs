@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 
-import * as path from 'node:path';
-import chalk from 'chalk';
-import { writeFileWithMkdirs } from './file-utils.mjs';
-import { getFqn, loadServicesFromProtoDescriptor } from './proto-utils.mjs';
+import * as path from "node:path";
+import chalk from "chalk";
+import { writeFileWithMkdirs } from "./file-utils.mjs";
+import { getFqn, loadServicesFromProtoDescriptor } from "./proto-utils.mjs";
 
 // Contains the interface definitions for the host bridge clients.
-const TYPES_FILE = path.resolve('src/generated/hosts/host-bridge-client-types.ts');
+const TYPES_FILE = path.resolve("src/generated/hosts/host-bridge-client-types.ts");
 // Contains the ExternalHostBridgeClientManager for the external host bridge clients (using nice-grpc).
-const EXTERNAL_CLIENT_FILE = path.resolve('src/generated/hosts/standalone/host-bridge-clients.ts');
+const EXTERNAL_CLIENT_FILE = path.resolve("src/generated/hosts/standalone/host-bridge-clients.ts");
 // Contains the handler map for the external host bridge clients (using the custom service registry).
 const VSCODE_CLIENT_FILE = path.resolve(
-  'src/generated/hosts/vscode/hostbridge-grpc-service-config.ts',
+  "src/generated/hosts/vscode/hostbridge-grpc-service-config.ts",
 );
 
 /**
@@ -24,7 +24,7 @@ export async function main() {
   await generateExternalClientFile(hostServices);
   await generateVscodeClientFile(hostServices);
 
-  console.log('Generated Host Bridge client files at:');
+  console.log("Generated Host Bridge client files at:");
   console.log(`- ${TYPES_FILE}`);
   console.log(`- ${EXTERNAL_CLIENT_FILE}`);
   console.log(`- ${VSCODE_CLIENT_FILE}`);
@@ -44,7 +44,7 @@ async function generateTypesFile(hostServices) {
 import * as proto from "@shared/proto/index"
 import { StreamingCallbacks } from "@hosts/host-provider-types"
 
-${clientInterfaces.join('\n\n')}
+${clientInterfaces.join("\n\n")}
 `;
   // Write output file
   await writeFileWithMkdirs(TYPES_FILE, content);
@@ -67,7 +67,7 @@ function generateClientInterfaceType(serviceName, serviceDefinition) {
       // Generate streaming method signature.
       return `	${methodName}(request: ${requestType}, callbacks: StreamingCallbacks<${responseType}>): () => void;`;
     })
-    .join('\n\n');
+    .join("\n\n");
 
   // Generate the interface
   return `/**
@@ -105,9 +105,9 @@ import * as proto from "@shared/proto/index"
 import { Channel, createClient } from "nice-grpc"
 import { BaseGrpcClient } from "@/hosts/external/grpc-types"
 
-${imports.join('\n')}
+${imports.join("\n")}
 
-${clientImplementations.join('\n\n')}
+${clientImplementations.join("\n\n")}
 `;
   // Write output file
   await writeFileWithMkdirs(EXTERNAL_CLIENT_FILE, content);
@@ -155,7 +155,7 @@ function generateExternalClientSetup(serviceName, serviceDefinition) {
 		}
 	}\n`;
     })
-    .join('\n');
+    .join("\n");
 
   // Generate the class
   return `/**
@@ -181,13 +181,13 @@ async function generateVscodeClientFile(hostServices) {
   const clientImplementations = [];
   const handlerMap = [];
   for (const [serviceName, serviceDefinition] of Object.entries(hostServices)) {
-    const name = serviceName.replace(/Service$/, '').toLowerCase();
+    const name = serviceName.replace(/Service$/, "").toLowerCase();
     for (const [methodName, _methodDef] of Object.entries(serviceDefinition.service)) {
       imports.push(
         `import { ${methodName} } from "@/hosts/vscode/hostbridge/${name}/${methodName}"`,
       );
     }
-    imports.push('');
+    imports.push("");
 
     clientImplementations.push(generateVscodeClientImplementation(name, serviceDefinition));
 
@@ -202,14 +202,14 @@ async function generateVscodeClientFile(hostServices) {
 import { createServiceRegistry } from "@hosts/vscode/hostbridge-grpc-service"
 import { HostServiceHandlerConfig } from "@hosts/vscode/hostbridge-grpc-handler"
 
-${imports.join('\n')}
-${clientImplementations.join('\n\n')}
+${imports.join("\n")}
+${clientImplementations.join("\n\n")}
 
 /**
  * Map of host service names to their handler configurations
  */
 export const hostServiceHandlers: Record<string, HostServiceHandlerConfig> = {
-${handlerMap.join('\n')}
+${handlerMap.join("\n")}
 }
 `;
 
@@ -219,7 +219,7 @@ ${handlerMap.join('\n')}
 
 function generateVscodeClientImplementation(serviceName, serviceDefinition) {
   // Get the methods from the service definition
-  const name = serviceName.replace(/Service$/, '').toLowerCase();
+  const name = serviceName.replace(/Service$/, "").toLowerCase();
 
   const methods = Object.entries(serviceDefinition.service)
     .map(([methodName, methodDef]) => {
@@ -230,7 +230,7 @@ function generateVscodeClientImplementation(serviceName, serviceDefinition) {
       }
       return `${name}ServiceRegistry.registerMethod("${methodName}", ${methodName}, { isStreaming: true })`;
     })
-    .join('\n');
+    .join("\n");
 
   // Generate the class
   return `// Setup ${name} service registry
@@ -241,7 +241,7 @@ ${methods}`;
 // Only run main if this script is executed directly
 if (import.meta.url === `file://${process.argv[1]}`) {
   main().catch((error) => {
-    console.error(chalk.red('Error:'), error);
+    console.error(chalk.red("Error:"), error);
     process.exit(1);
   });
 }

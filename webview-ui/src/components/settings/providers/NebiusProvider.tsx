@@ -1,11 +1,11 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { nebiusModels } from '@shared/api.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { ApiKeyField } from '../common/ApiKeyField';
-import { ModelInfoView } from '../common/ModelInfoView';
-import { ModelSelector } from '../common/ModelSelector';
-import { normalizeApiConfiguration } from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { nebiusModels } from "@shared/api.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { ApiKeyField } from "../common/ApiKeyField";
+import { ModelInfoView } from "../common/ModelInfoView";
+import { ModelSelector } from "../common/ModelSelector";
+import { normalizeApiConfiguration } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 /**
  * Props for the NebiusProvider component
@@ -32,8 +32,8 @@ export const NebiusProvider = ({ showModelOptions, isPopup, currentMode }: Nebiu
     <div>
       <ApiKeyField
         helpText="This key is stored locally and only used to make API requests from this extension. (Note: Cline uses complex prompts and works best with Claude models. Less capable models may not work as expected.)"
-        initialValue={apiConfiguration?.nebiusApiKey || ''}
-        onChange={(value) => handleFieldChange('nebiusApiKey', value)}
+        initialValue={apiConfiguration?.nebiusApiKey || ""}
+        onChange={(value) => handleFieldChange("nebiusApiKey", value)}
         providerName="Nebius"
         signupUrl="https://studio.nebius.com/settings/api-keys"
       />
@@ -45,7 +45,7 @@ export const NebiusProvider = ({ showModelOptions, isPopup, currentMode }: Nebiu
             models={nebiusModels}
             onChange={(e: any) =>
               handleModeFieldChange(
-                { plan: 'planModeApiModelId', act: 'actModeApiModelId' },
+                { plan: "planModeApiModelId", act: "actModeApiModelId" },
                 e.target.value,
                 currentMode,
               )

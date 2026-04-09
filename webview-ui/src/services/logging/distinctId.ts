@@ -1,19 +1,19 @@
-import { HostRegistryInfo } from '@/registry';
-import { Logger } from '@/shared/services/Logger';
-import type { StorageContext } from '@/shared/storage';
-import { machineId } from 'node-machine-id';
-import { v4 as uuidv4 } from 'uuid';
+import { HostRegistryInfo } from "@/registry";
+import { Logger } from "@/shared/services/Logger";
+import type { StorageContext } from "@/shared/storage";
+import { machineId } from "node-machine-id";
+import { v4 as uuidv4 } from "uuid";
 
 /*
  * Unique identifier for the current installation.
  */
-let _distinctId = '';
+let _distinctId = "";
 
 /**
  * Some environments don't return a value for the machine ID. For these situations we generated
  * a unique ID and store it locally.
  */
-export const _GENERATED_MACHINE_ID_KEY = 'cline.generatedMachineId';
+export const _GENERATED_MACHINE_ID_KEY = "cline.generatedMachineId";
 
 export async function initializeDistinctId(storage: StorageContext, uuid: () => string = uuidv4) {
   // Try to read the ID from storage.
@@ -25,7 +25,7 @@ export async function initializeDistinctId(storage: StorageContext, uuid: () => 
   }
   if (!distinctId) {
     // Fallback to generating a unique ID and keeping in global storage.
-    Logger.warn('No machine ID found for telemetry, generating UUID');
+    Logger.warn("No machine ID found for telemetry, generating UUID");
     // Add a prefix to the UUID so we can see in the telemetry how many clients are don't have a machine ID.
     distinctId = `cl-${uuid()}`;
     storage.globalState.update(_GENERATED_MACHINE_ID_KEY, distinctId);
@@ -35,7 +35,7 @@ export async function initializeDistinctId(storage: StorageContext, uuid: () => 
 
   await HostRegistryInfo.init(distinctId);
 
-  Logger.log('[DistinctId] initialized:', distinctId);
+  Logger.log("[DistinctId] initialized:", distinctId);
 }
 
 /*
@@ -49,7 +49,7 @@ async function getMachineId(): Promise<string | undefined> {
     const id = await machineId();
     return id;
   } catch (error) {
-    Logger.log('[DistinctId] Failed to get machine ID from node-machine-id', error);
+    Logger.log("[DistinctId] Failed to get machine ID from node-machine-id", error);
     return undefined;
   }
 }
@@ -60,7 +60,7 @@ async function getMachineId(): Promise<string | undefined> {
  */
 export function setDistinctId(newId: string) {
   if (_distinctId && _distinctId !== newId) {
-    Logger.log('[DistinctId] Updating...', `From ${_distinctId} to ${newId}`);
+    Logger.log("[DistinctId] Updating...", `From ${_distinctId} to ${newId}`);
   }
   _distinctId = newId;
 }
@@ -72,7 +72,7 @@ export function setDistinctId(newId: string) {
  */
 export function getDistinctId() {
   if (!_distinctId) {
-    Logger.debug('[DistinctId] Not initialized. Call initializeDistinctId() first.');
+    Logger.debug("[DistinctId] Not initialized. Call initializeDistinctId() first.");
   }
   return _distinctId;
 }

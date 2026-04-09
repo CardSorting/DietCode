@@ -7,8 +7,8 @@
  * - Falls back to SIGKILL if process doesn't exit
  */
 
-import type { ChildProcess } from 'node:child_process';
-import treeKill from 'tree-kill';
+import type { ChildProcess } from "node:child_process";
+import treeKill from "tree-kill";
 
 export interface TerminateProcessTreeOptions {
   /** Process ID to terminate */
@@ -34,13 +34,13 @@ export async function terminateProcessTree(options: TerminateProcessTreeOptions)
   const { pid, childProcess, isCompleted, gracefulTimeoutMs = 2000 } = options;
 
   // Send SIGTERM for graceful shutdown
-  treeKill(pid, 'SIGTERM');
+  treeKill(pid, "SIGTERM");
 
   // Wait for graceful shutdown or timeout
   const gracefulTimeout = new Promise<void>((resolve) => setTimeout(resolve, gracefulTimeoutMs));
   const processExit = new Promise<void>((resolve) => {
     if (childProcess) {
-      childProcess.once('exit', () => resolve());
+      childProcess.once("exit", () => resolve());
     } else {
       // No child process reference, just wait for timeout
       resolve();
@@ -51,6 +51,6 @@ export async function terminateProcessTree(options: TerminateProcessTreeOptions)
 
   // Force kill if still running
   if (!isCompleted()) {
-    treeKill(pid, 'SIGKILL');
+    treeKill(pid, "SIGKILL");
   }
 }

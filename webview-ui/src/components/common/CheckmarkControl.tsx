@@ -1,16 +1,16 @@
-import { CODE_BLOCK_BG_COLOR } from '@/components/common/CodeBlock';
-import { Button } from '@/components/ui/button';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { cn } from '@/lib/utils';
-import { CheckpointsServiceClient } from '@/services/grpc-client';
-import { flip, offset, shift, useFloating } from '@floating-ui/react';
-import type { ClineCheckpointRestore } from '@shared/WebviewMessage.ts';
-import { CheckpointRestoreRequest } from '@shared/nice-grpc/cline/checkpoints.ts';
-import { Int64Request } from '@shared/nice-grpc/cline/common.ts';
-import { BookmarkIcon } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
-import styled from 'styled-components';
+import { CODE_BLOCK_BG_COLOR } from "@/components/common/CodeBlock";
+import { Button } from "@/components/ui/button";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { cn } from "@/lib/utils";
+import { CheckpointsServiceClient } from "@/services/grpc-client";
+import { flip, offset, shift, useFloating } from "@floating-ui/react";
+import type { ClineCheckpointRestore } from "@shared/WebviewMessage.ts";
+import { CheckpointRestoreRequest } from "@shared/nice-grpc/cline/checkpoints.ts";
+import { Int64Request } from "@shared/nice-grpc/cline/common.ts";
+import { BookmarkIcon } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import styled from "styled-components";
 
 interface CheckmarkControlProps {
   messageTs?: number;
@@ -62,7 +62,7 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
   }, [isCheckpointCheckedOut, restoreWorkspaceDisabled]);
 
   const { refs, floatingStyles, update, placement } = useFloating({
-    placement: 'bottom-end',
+    placement: "bottom-end",
     middleware: [
       offset({
         mainAxis: 8,
@@ -77,8 +77,8 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
     const handleScroll = () => {
       update();
     };
-    window.addEventListener('scroll', handleScroll, true);
-    return () => window.removeEventListener('scroll', handleScroll, true);
+    window.addEventListener("scroll", handleScroll, true);
+    return () => window.removeEventListener("scroll", handleScroll, true);
   }, [update]);
 
   useEffect(() => {
@@ -102,7 +102,7 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
   const handleRestoreTask = async () => {
     setRestoreTaskDisabled(true);
     try {
-      const restoreType: ClineCheckpointRestore = 'task';
+      const restoreType: ClineCheckpointRestore = "task";
       await CheckpointsServiceClient.checkpointRestore(
         CheckpointRestoreRequest.create({
           number: messageTs,
@@ -110,7 +110,7 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
         }),
       );
     } catch (err) {
-      console.error('Checkpoint restore task error:', err);
+      console.error("Checkpoint restore task error:", err);
     } finally {
       setRestoreTaskDisabled(false);
     }
@@ -119,7 +119,7 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
   const handleRestoreWorkspace = async () => {
     setRestoreWorkspaceDisabled(true);
     try {
-      const restoreType: ClineCheckpointRestore = 'workspace';
+      const restoreType: ClineCheckpointRestore = "workspace";
       await CheckpointsServiceClient.checkpointRestore(
         CheckpointRestoreRequest.create({
           number: messageTs,
@@ -127,7 +127,7 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
         }),
       );
     } catch (err) {
-      console.error('Checkpoint restore workspace error:', err);
+      console.error("Checkpoint restore workspace error:", err);
     } finally {
       setRestoreWorkspaceDisabled(false);
     }
@@ -136,7 +136,7 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
   const handleRestoreBoth = async () => {
     setRestoreBothDisabled(true);
     try {
-      const restoreType: ClineCheckpointRestore = 'taskAndWorkspace';
+      const restoreType: ClineCheckpointRestore = "taskAndWorkspace";
       await CheckpointsServiceClient.checkpointRestore(
         CheckpointRestoreRequest.create({
           number: messageTs,
@@ -144,7 +144,7 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
         }),
       );
     } catch (err) {
-      console.error('Checkpoint restore both error:', err);
+      console.error("Checkpoint restore both error:", err);
     } finally {
       setRestoreBothDisabled(false);
     }
@@ -174,18 +174,18 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
       onMouseLeave={handleControlsMouseLeave}
     >
       <BookmarkIcon
-        className={cn('text-xs text-description shrink-0 size-2', {
-          'text-link': isCheckpointCheckedOut,
+        className={cn("text-xs text-description shrink-0 size-2", {
+          "text-link": isCheckpointCheckedOut,
         })}
       />
       <DottedLine $isCheckedOut={isCheckpointCheckedOut} className="hover-show-inverse" />
       <div className="hover-content">
         <span
-          className={cn('text-[9px] text-description shrink-0', {
-            'text-link': isCheckpointCheckedOut,
+          className={cn("text-[9px] text-description shrink-0", {
+            "text-link": isCheckpointCheckedOut,
           })}
         >
-          {isCheckpointCheckedOut ? 'Checkpoint (restored)' : 'Checkpoint'}
+          {isCheckpointCheckedOut ? "Checkpoint (restored)" : "Checkpoint"}
         </span>
         <DottedLine $isCheckedOut={isCheckpointCheckedOut} />
         <ButtonGroup>
@@ -201,17 +201,17 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
                   }),
                 );
               } catch (err) {
-                console.error('CheckpointDiff error:', err);
+                console.error("CheckpointDiff error:", err);
               } finally {
                 setCompareDisabled(false);
               }
             }}
-            style={{ cursor: compareDisabled ? 'wait' : 'pointer' }}
+            style={{ cursor: compareDisabled ? "wait" : "pointer" }}
           >
             Compare
           </CustomButton>
           <DottedLine $isCheckedOut={isCheckpointCheckedOut} small />
-          <div ref={refs.setReference} style={{ position: 'relative', marginTop: -2 }}>
+          <div ref={refs.setReference} style={{ position: "relative", marginTop: -2 }}>
             <CustomButton
               $isCheckedOut={isCheckpointCheckedOut}
               isActive={showRestoreConfirm}
@@ -233,10 +233,10 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
                       disabled={restoreBothDisabled}
                       onClick={handleRestoreBoth}
                       style={{
-                        cursor: restoreBothDisabled ? 'wait' : 'pointer',
+                        cursor: restoreBothDisabled ? "wait" : "pointer",
                       }}
                     >
-                      <i className="codicon codicon-debug-restart" style={{ marginRight: '6px' }} />
+                      <i className="codicon codicon-debug-restart" style={{ marginRight: "6px" }} />
                       Restore Files & Task
                     </Button>
                     <p>Revert files and clear messages after this point</p>
@@ -245,8 +245,8 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
                   <MoreOptionsToggle onClick={() => setShowMoreOptions(!showMoreOptions)}>
                     More options
                     <i
-                      className={`codicon codicon-chevron-${showMoreOptions ? 'up' : 'down'}`}
-                      style={{ marginLeft: '4px', fontSize: '10px' }}
+                      className={`codicon codicon-chevron-${showMoreOptions ? "up" : "down"}`}
+                      style={{ marginLeft: "4px", fontSize: "10px" }}
                     />
                   </MoreOptionsToggle>
 
@@ -258,16 +258,16 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
                           onClick={handleRestoreWorkspace}
                           style={{
                             cursor: isCheckpointCheckedOut
-                              ? 'not-allowed'
+                              ? "not-allowed"
                               : restoreWorkspaceDisabled
-                                ? 'wait'
-                                : 'pointer',
+                                ? "wait"
+                                : "pointer",
                           }}
                           variant="secondary"
                         >
                           <i
                             className="codicon codicon-file-symlink-directory"
-                            style={{ marginRight: '6px' }}
+                            style={{ marginRight: "6px" }}
                           />
                           Restore Files Only
                         </Button>
@@ -278,13 +278,13 @@ export const CheckmarkControl = ({ messageTs, isCheckpointCheckedOut }: Checkmar
                           disabled={restoreTaskDisabled}
                           onClick={handleRestoreTask}
                           style={{
-                            cursor: restoreTaskDisabled ? 'wait' : 'pointer',
+                            cursor: restoreTaskDisabled ? "wait" : "pointer",
                           }}
                           variant="secondary"
                         >
                           <i
                             className="codicon codicon-comment-discussion"
-                            style={{ marginRight: '6px' }}
+                            style={{ marginRight: "6px" }}
                           />
                           Restore Task Only
                         </Button>
@@ -325,7 +325,7 @@ const Container = styled.div<{ isMenuOpen?: boolean; $isCheckedOut?: boolean }>`
 	}
 
 	.hover-content {
-		display: ${(props) => (props.isMenuOpen ? 'flex' : 'none')};
+		display: ${(props) => (props.isMenuOpen ? "flex" : "none")};
 		align-items: center;
 		gap: 4px;
 		flex: 1;
@@ -336,7 +336,7 @@ const Container = styled.div<{ isMenuOpen?: boolean; $isCheckedOut?: boolean }>`
 	}
 
 	.hover-show-inverse {
-		display: ${(props) => (props.isMenuOpen ? 'none' : 'flex')};
+		display: ${(props) => (props.isMenuOpen ? "none" : "flex")};
 		flex: 1;
 	}
 
@@ -346,12 +346,12 @@ const Container = styled.div<{ isMenuOpen?: boolean; $isCheckedOut?: boolean }>`
 `;
 
 const DottedLine = styled.div<{ small?: boolean; $isCheckedOut?: boolean }>`
-	flex: ${(props) => (props.small ? '0 0 5px' : '1')};
-	min-width: ${(props) => (props.small ? '5px' : '5px')};
+	flex: ${(props) => (props.small ? "0 0 5px" : "1")};
+	min-width: ${(props) => (props.small ? "5px" : "5px")};
 	height: 1px;
 	background-image: linear-gradient(
 		to right,
-		${(props) => (props.$isCheckedOut ? 'var(--vscode-textLink-foreground)' : 'var(--vscode-descriptionForeground)')} 50%,
+		${(props) => (props.$isCheckedOut ? "var(--vscode-textLink-foreground)" : "var(--vscode-descriptionForeground)")} 50%,
 		transparent 50%
 	);
 	background-size: 4px 1px;
@@ -373,16 +373,16 @@ const CustomButton = styled.button<{
 	background: ${(props) =>
     props.isActive || props.disabled
       ? props.$isCheckedOut
-        ? 'var(--vscode-textLink-foreground)'
-        : 'var(--vscode-descriptionForeground)'
-      : 'transparent'};
+        ? "var(--vscode-textLink-foreground)"
+        : "var(--vscode-descriptionForeground)"
+      : "transparent"};
 	border: none;
 	color: ${(props) =>
     props.isActive || props.disabled
-      ? 'var(--vscode-editor-background)'
+      ? "var(--vscode-editor-background)"
       : props.$isCheckedOut
-        ? 'var(--vscode-textLink-foreground)'
-        : 'var(--vscode-descriptionForeground)'};
+        ? "var(--vscode-textLink-foreground)"
+        : "var(--vscode-descriptionForeground)"};
 	padding: 2px 6px;
 	font-size: 9px;
 	cursor: pointer;
@@ -398,12 +398,12 @@ const CustomButton = styled.button<{
 		border-radius: 1px;
 		background-image: ${(props) =>
       props.isActive || props.disabled
-        ? 'none'
-        : `linear-gradient(to right, ${props.$isCheckedOut ? 'var(--vscode-textLink-foreground)' : 'var(--vscode-descriptionForeground)'} 50%, transparent 50%),
-            linear-gradient(to bottom, ${props.$isCheckedOut ? 'var(--vscode-textLink-foreground)' : 'var(--vscode-descriptionForeground)'} 50%, transparent 50%),
-            linear-gradient(to right, ${props.$isCheckedOut ? 'var(--vscode-textLink-foreground)' : 'var(--vscode-descriptionForeground)'} 50%, transparent 50%),
-            linear-gradient(to bottom, ${props.$isCheckedOut ? 'var(--vscode-textLink-foreground)' : 'var(--vscode-descriptionForeground)'} 50%, transparent 50%)`};
-		background-size: ${(props) => (props.isActive || props.disabled ? 'auto' : '4px 1px, 1px 4px, 4px 1px, 1px 4px')};
+        ? "none"
+        : `linear-gradient(to right, ${props.$isCheckedOut ? "var(--vscode-textLink-foreground)" : "var(--vscode-descriptionForeground)"} 50%, transparent 50%),
+            linear-gradient(to bottom, ${props.$isCheckedOut ? "var(--vscode-textLink-foreground)" : "var(--vscode-descriptionForeground)"} 50%, transparent 50%),
+            linear-gradient(to right, ${props.$isCheckedOut ? "var(--vscode-textLink-foreground)" : "var(--vscode-descriptionForeground)"} 50%, transparent 50%),
+            linear-gradient(to bottom, ${props.$isCheckedOut ? "var(--vscode-textLink-foreground)" : "var(--vscode-descriptionForeground)"} 50%, transparent 50%)`};
+		background-size: ${(props) => (props.isActive || props.disabled ? "auto" : "4px 1px, 1px 4px, 4px 1px, 1px 4px")};
 		background-repeat: repeat-x, repeat-y, repeat-x, repeat-y;
 		background-position:
 			0 0,
@@ -415,8 +415,8 @@ const CustomButton = styled.button<{
 	&:hover:not(:disabled) {
 		background: ${(props) =>
       props.$isCheckedOut
-        ? 'var(--vscode-textLink-foreground)'
-        : 'var(--vscode-descriptionForeground)'};
+        ? "var(--vscode-textLink-foreground)"
+        : "var(--vscode-descriptionForeground)"};
 		color: var(--vscode-editor-background);
 		&::before {
 			display: none;

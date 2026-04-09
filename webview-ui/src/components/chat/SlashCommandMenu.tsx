@@ -1,10 +1,10 @@
-import ScreenReaderAnnounce from '@/components/common/ScreenReaderAnnounce';
-import { useMenuAnnouncement } from '@/hooks/useMenuAnnouncement';
-import type { SlashCommand } from '@/utils/slash-commands';
-import { getMatchingSlashCommands } from '@/utils/slash-commands';
-import type { McpServer } from '@shared/mcp';
-import type React from 'react';
-import { useCallback, useEffect, useRef } from 'react';
+import ScreenReaderAnnounce from "@/components/common/ScreenReaderAnnounce";
+import { useMenuAnnouncement } from "@/hooks/useMenuAnnouncement";
+import type { SlashCommand } from "@/utils/slash-commands";
+import { getMatchingSlashCommands } from "@/utils/slash-commands";
+import type { McpServer } from "@shared/mcp";
+import type React from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 interface SlashCommandMenuProps {
   onSelect: (command: SlashCommand) => void;
@@ -43,14 +43,14 @@ const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({
     mcpServers,
   );
   const defaultCommands = filteredCommands.filter(
-    (cmd) => cmd.section === 'default' || !cmd.section,
+    (cmd) => cmd.section === "default" || !cmd.section,
   );
-  const workflowCommands = filteredCommands.filter((cmd) => cmd.section === 'custom');
-  const mcpCommands = filteredCommands.filter((cmd) => cmd.section === 'mcp');
+  const workflowCommands = filteredCommands.filter((cmd) => cmd.section === "custom");
+  const mcpCommands = filteredCommands.filter((cmd) => cmd.section === "mcp");
 
   // Screen reader announcements
   const getCommandLabel = useCallback((command: SlashCommand) => {
-    const description = command.description ? `, ${command.description}` : '';
+    const description = command.description ? `, ${command.description}` : "";
     return `${command.name}${description}`;
   }, []);
 
@@ -111,14 +111,21 @@ const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({
               aria-selected={itemIndex === selectedIndex}
               className={`slash-command-menu-item py-2 px-3 cursor-pointer flex flex-col border-b border-(--vscode-editorGroup-border) ${
                 itemIndex === selectedIndex
-                  ? 'bg-(--vscode-quickInputList-focusBackground) text-(--vscode-quickInputList-focusForeground)'
-                  : ''
+                  ? "bg-(--vscode-quickInputList-focusBackground) text-(--vscode-quickInputList-focusForeground)"
+                  : ""
               } hover:bg-(--vscode-list-hoverBackground)`}
               id={`slash-command-menu-item-${itemIndex}`}
               key={command.name}
               onClick={() => handleClick(command)}
               onMouseEnter={() => setSelectedIndex(itemIndex)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleClick(command);
+                }
+              }}
               role="option"
+              tabIndex={0}
             >
               <div className="font-bold whitespace-nowrap overflow-hidden text-ellipsis">
                 <span className="ph-no-capture">/{command.name}</span>
@@ -150,21 +157,21 @@ const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({
         className="bg-(--vscode-dropdown-background) border border-(--vscode-editorGroup-border) rounded-[3px] shadow-[0_4px_10px_rgba(0,0,0,0.25)] flex flex-col overflow-y-auto"
         ref={menuRef}
         role="listbox"
-        style={{ maxHeight: 'min(200px, calc(50vh))', overscrollBehavior: 'contain' }}
+        style={{ maxHeight: "min(200px, calc(50vh))", overscrollBehavior: "contain" }}
         tabIndex="0"
       >
         {filteredCommands.length > 0 ? (
           <>
-            {renderCommandSection(defaultCommands, 'Default Commands', 0, true)}
+            {renderCommandSection(defaultCommands, "Default Commands", 0, true)}
             {renderCommandSection(
               workflowCommands,
-              'Workflow Commands',
+              "Workflow Commands",
               defaultCommands.length,
               false,
             )}
             {renderCommandSection(
               mcpCommands,
-              'MCP Prompts',
+              "MCP Prompts",
               defaultCommands.length + workflowCommands.length,
               true,
             )}
@@ -174,6 +181,7 @@ const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({
             aria-selected="false"
             className="py-2 px-3 cursor-default flex flex-col"
             role="option"
+            tabIndex={-1}
           >
             <div className="text-[0.85em] text-(--vscode-descriptionForeground)">
               No matching commands found

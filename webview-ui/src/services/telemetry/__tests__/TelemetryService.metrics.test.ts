@@ -1,14 +1,14 @@
-import * as assert from 'node:assert';
-import { ApiFormat } from '@shared/nice-grpc/cline/models.ts';
-import { type TelemetryMetadata, TelemetryService } from '../TelemetryService';
+import * as assert from "node:assert";
+import { ApiFormat } from "@shared/nice-grpc/cline/models.ts";
+import { type TelemetryMetadata, TelemetryService } from "../TelemetryService";
 import type {
   ITelemetryProvider,
   TelemetryProperties,
   TelemetrySettings,
-} from '../providers/ITelemetryProvider';
+} from "../providers/ITelemetryProvider";
 
 class FakeProvider implements ITelemetryProvider {
-  readonly name = 'FakeProvider';
+  readonly name = "FakeProvider";
   public logs: Array<{ event: string; properties?: TelemetryProperties }> = [];
   public counters: Array<{
     name: string;
@@ -38,7 +38,7 @@ class FakeProvider implements ITelemetryProvider {
     return true;
   }
   getSettings(): TelemetrySettings {
-    return { hostEnabled: true, level: 'all' };
+    return { hostEnabled: true, level: "all" };
   }
   recordCounter(
     name: string,
@@ -92,24 +92,24 @@ function createTelemetryService(
   overrides: Partial<TelemetryMetadata> = {},
 ): TelemetryService {
   return new TelemetryService([provider], {
-    extension_version: 'test',
-    cline_type: 'cline-unit-tests',
-    platform: 'test-platform',
-    platform_version: '1.0.0',
-    os_type: 'darwin',
-    os_version: '24',
+    extension_version: "test",
+    cline_type: "cline-unit-tests",
+    platform: "test-platform",
+    platform_version: "1.0.0",
+    os_type: "darwin",
+    os_version: "24",
     is_remote_workspace: false,
-    is_dev: 'true',
+    is_dev: "true",
     ...overrides,
   } as TelemetryMetadata);
 }
 
-describe('TelemetryService metrics', () => {
-  it('captureTokenUsage emits token counters and histograms', () => {
+describe("TelemetryService metrics", () => {
+  it("captureTokenUsage emits token counters and histograms", () => {
     const provider = new FakeProvider();
     const service = createTelemetryService(provider);
 
-    service.captureTokenUsage('task-1', 120, 80, 'anthropic', 'model-a');
+    service.captureTokenUsage("task-1", 120, 80, "anthropic", "model-a");
 
     assert.deepStrictEqual(
       provider.counters.map((entry) => entry.name),
@@ -126,18 +126,18 @@ describe('TelemetryService metrics', () => {
       ],
     );
     [...provider.counters, ...provider.histograms].forEach((entry) => {
-      assert.strictEqual(entry.attributes.ulid, 'task-1');
-      assert.strictEqual(entry.attributes.provider, 'anthropic');
-      assert.strictEqual(entry.attributes.model, 'model-a');
-      assert.strictEqual(entry.attributes.extension_version, 'test');
+      assert.strictEqual(entry.attributes.ulid, "task-1");
+      assert.strictEqual(entry.attributes.provider, "anthropic");
+      assert.strictEqual(entry.attributes.model, "model-a");
+      assert.strictEqual(entry.attributes.extension_version, "test");
     });
   });
 
-  it('captureTokenUsage emits cache and cost metrics when options provided', () => {
+  it("captureTokenUsage emits cache and cost metrics when options provided", () => {
     const provider = new FakeProvider();
     const service = createTelemetryService(provider);
 
-    service.captureTokenUsage('task-1', 120, 80, 'anthropic', 'model-a', {
+    service.captureTokenUsage("task-1", 120, 80, "anthropic", "model-a", {
       cacheWriteTokens: 50,
       cacheReadTokens: 30,
       totalCost: 0.42,
@@ -168,8 +168,8 @@ describe('TelemetryService metrics', () => {
     );
     assert.ok(cacheWriteCounter);
     assert.strictEqual(cacheWriteCounter?.value, 50);
-    assert.strictEqual(cacheWriteCounter?.attributes.ulid, 'task-1');
-    assert.strictEqual(cacheWriteCounter?.attributes.model, 'model-a');
+    assert.strictEqual(cacheWriteCounter?.attributes.ulid, "task-1");
+    assert.strictEqual(cacheWriteCounter?.attributes.model, "model-a");
 
     const cacheReadCounter = provider.counters.find(
       (entry) => entry.name === TelemetryService.METRICS.CACHE.READ_TOTAL,
@@ -182,9 +182,9 @@ describe('TelemetryService metrics', () => {
     );
     assert.ok(costCounter);
     assert.strictEqual(costCounter?.value, 0.42);
-    assert.strictEqual(costCounter?.attributes.ulid, 'task-1');
-    assert.strictEqual(costCounter?.attributes.model, 'model-a');
-    assert.strictEqual(costCounter?.attributes.currency, 'USD');
+    assert.strictEqual(costCounter?.attributes.ulid, "task-1");
+    assert.strictEqual(costCounter?.attributes.model, "model-a");
+    assert.strictEqual(costCounter?.attributes.currency, "USD");
 
     const cacheWriteHist = provider.histograms.find(
       (entry) => entry.name === TelemetryService.METRICS.CACHE.WRITE_PER_EVENT,
@@ -205,11 +205,11 @@ describe('TelemetryService metrics', () => {
     assert.strictEqual(costHist?.value, 0.42);
   });
 
-  it('captureTokenUsage skips cache/cost metrics when options fields are undefined', () => {
+  it("captureTokenUsage skips cache/cost metrics when options fields are undefined", () => {
     const provider = new FakeProvider();
     const service = createTelemetryService(provider);
 
-    service.captureTokenUsage('task-1', 120, 80, 'anthropic', 'model-a', {});
+    service.captureTokenUsage("task-1", 120, 80, "anthropic", "model-a", {});
 
     assert.deepStrictEqual(
       provider.counters.map((entry) => entry.name),
@@ -227,42 +227,42 @@ describe('TelemetryService metrics', () => {
     );
   });
 
-  it('captureTokenUsage includes options in event properties', () => {
+  it("captureTokenUsage includes options in event properties", () => {
     const provider = new FakeProvider();
     const service = createTelemetryService(provider);
 
-    service.captureTokenUsage('task-1', 120, 80, 'anthropic', 'model-a', {
+    service.captureTokenUsage("task-1", 120, 80, "anthropic", "model-a", {
       cacheWriteTokens: 50,
       cacheReadTokens: 30,
       totalCost: 0.42,
     });
 
-    const tokenEvent = provider.logs.find((entry) => entry.event === 'task.tokens');
+    const tokenEvent = provider.logs.find((entry) => entry.event === "task.tokens");
     assert.ok(tokenEvent);
-    assert.strictEqual(tokenEvent?.properties?.provider, 'anthropic');
-    assert.strictEqual(tokenEvent?.properties?.model, 'model-a');
+    assert.strictEqual(tokenEvent?.properties?.provider, "anthropic");
+    assert.strictEqual(tokenEvent?.properties?.model, "model-a");
     assert.strictEqual(tokenEvent?.properties?.cacheWriteTokens, 50);
     assert.strictEqual(tokenEvent?.properties?.cacheReadTokens, 30);
     assert.strictEqual(tokenEvent?.properties?.totalCost, 0.42);
   });
 
-  it('metrics include is_remote_workspace in standard attributes', () => {
+  it("metrics include is_remote_workspace in standard attributes", () => {
     const provider = new FakeProvider();
     const service = createTelemetryService(provider, { is_remote_workspace: true });
 
-    service.captureTokenUsage('task-remote', 120, 80, 'anthropic', 'model-a');
+    service.captureTokenUsage("task-remote", 120, 80, "anthropic", "model-a");
 
     assert.ok(provider.counters.length > 0);
     assert.strictEqual(provider.counters[0].attributes.is_remote_workspace, true);
     assert.strictEqual(provider.histograms[0].attributes.is_remote_workspace, true);
   });
 
-  it('captureConversationTurnEvent emits counters with cache and cost', () => {
+  it("captureConversationTurnEvent emits counters with cache and cost", () => {
     const provider = new FakeProvider();
     const service = createTelemetryService(provider);
-    service.identifyAccount({ id: 'user-1' } as any);
+    service.identifyAccount({ id: "user-1" } as any);
 
-    service.captureConversationTurnEvent('task-2', 'openai', 'gpt-4', 'assistant', 'plan', {
+    service.captureConversationTurnEvent("task-2", "openai", "gpt-4", "assistant", "plan", {
       tokensIn: 150,
       tokensOut: 200,
       cacheWriteTokens: 40,
@@ -279,13 +279,13 @@ describe('TelemetryService metrics', () => {
         TelemetryService.METRICS.TASK.COST_TOTAL,
       ],
     );
-    const costEntry = provider.counters.find((entry) => entry.name === 'cline.cost.total');
+    const costEntry = provider.counters.find((entry) => entry.name === "cline.cost.total");
     assert.ok(costEntry);
-    assert.strictEqual(costEntry?.attributes.ulid, 'task-2');
-    assert.strictEqual(costEntry?.attributes.provider, 'openai');
-    assert.strictEqual(costEntry?.attributes.model, 'gpt-4');
-    assert.strictEqual(costEntry?.attributes.mode, 'plan');
-    assert.strictEqual(costEntry?.attributes.currency, 'USD');
+    assert.strictEqual(costEntry?.attributes.ulid, "task-2");
+    assert.strictEqual(costEntry?.attributes.provider, "openai");
+    assert.strictEqual(costEntry?.attributes.model, "gpt-4");
+    assert.strictEqual(costEntry?.attributes.mode, "plan");
+    assert.strictEqual(costEntry?.attributes.currency, "USD");
     assert.deepStrictEqual(
       provider.histograms.map((entry) => entry.name),
       [
@@ -300,28 +300,28 @@ describe('TelemetryService metrics', () => {
     );
     assert.ok(turnEntry);
     assert.strictEqual(turnEntry?.value, 1);
-    assert.strictEqual(turnEntry?.attributes.ulid, 'task-2');
-    assert.strictEqual(turnEntry?.attributes.provider, 'openai');
-    assert.strictEqual(turnEntry?.attributes.model, 'gpt-4');
-    assert.strictEqual(turnEntry?.attributes.source, 'assistant');
-    assert.strictEqual(turnEntry?.attributes.mode, 'plan');
+    assert.strictEqual(turnEntry?.attributes.ulid, "task-2");
+    assert.strictEqual(turnEntry?.attributes.provider, "openai");
+    assert.strictEqual(turnEntry?.attributes.model, "gpt-4");
+    assert.strictEqual(turnEntry?.attributes.source, "assistant");
+    assert.strictEqual(turnEntry?.attributes.mode, "plan");
   });
 
-  it('captureWorkspaceInitialized emits gauge and retires previous series', () => {
+  it("captureWorkspaceInitialized emits gauge and retires previous series", () => {
     const provider = new FakeProvider();
     const service = createTelemetryService(provider);
 
-    service.captureWorkspaceInitialized(3, ['Git'], 500);
-    const initialSeries = provider.gauges.get('cline.workspace.active_roots');
+    service.captureWorkspaceInitialized(3, ["Git"], 500);
+    const initialSeries = provider.gauges.get("cline.workspace.active_roots");
     assert.ok(initialSeries);
     assert.strictEqual(initialSeries.size, 1);
     const [initialEntry] = Array.from(initialSeries.values());
     assert.strictEqual(initialEntry.value, 3);
     assert.strictEqual(initialEntry.attributes.is_multi_root, true);
-    assert.strictEqual(initialEntry.attributes.extension_version, 'test');
+    assert.strictEqual(initialEntry.attributes.extension_version, "test");
 
-    service.captureWorkspaceInitialized(1, ['Git'], 200);
-    const updatedSeries = provider.gauges.get('cline.workspace.active_roots');
+    service.captureWorkspaceInitialized(1, ["Git"], 200);
+    const updatedSeries = provider.gauges.get("cline.workspace.active_roots");
     assert.ok(updatedSeries);
     assert.strictEqual(updatedSeries.size, 1);
     const [updatedEntry] = Array.from(updatedSeries.values());
@@ -329,15 +329,15 @@ describe('TelemetryService metrics', () => {
     assert.strictEqual(updatedEntry.attributes.is_multi_root, false);
   });
 
-  it('captureProviderApiError increments error counter', () => {
+  it("captureProviderApiError increments error counter", () => {
     const provider = new FakeProvider();
     const service = createTelemetryService(provider);
 
     service.captureProviderApiError({
-      ulid: 'task-3',
-      model: 'claude',
-      errorMessage: 'boom',
-      provider: 'anthropic',
+      ulid: "task-3",
+      model: "claude",
+      errorMessage: "boom",
+      provider: "anthropic",
       errorStatus: 500,
     });
 
@@ -345,41 +345,41 @@ describe('TelemetryService metrics', () => {
     const entry = provider.counters[0];
     assert.strictEqual(entry.name, TelemetryService.METRICS.ERRORS.TOTAL);
     assert.strictEqual(entry.value, 1);
-    assert.strictEqual(entry.attributes.ulid, 'task-3');
-    assert.strictEqual(entry.attributes.provider, 'anthropic');
-    assert.strictEqual(entry.attributes.model, 'claude');
+    assert.strictEqual(entry.attributes.ulid, "task-3");
+    assert.strictEqual(entry.attributes.provider, "anthropic");
+    assert.strictEqual(entry.attributes.model, "claude");
     assert.strictEqual(entry.attributes.error_status, 500);
     assert.strictEqual(provider.histograms.length, 1);
     const errorHistogram = provider.histograms[0];
     assert.strictEqual(errorHistogram.name, TelemetryService.METRICS.ERRORS.PER_TASK);
     assert.strictEqual(errorHistogram.value, 1);
-    assert.strictEqual(errorHistogram.attributes.ulid, 'task-3');
-    assert.strictEqual(errorHistogram.attributes.provider, 'anthropic');
-    assert.strictEqual(errorHistogram.attributes.model, 'claude');
+    assert.strictEqual(errorHistogram.attributes.ulid, "task-3");
+    assert.strictEqual(errorHistogram.attributes.provider, "anthropic");
+    assert.strictEqual(errorHistogram.attributes.model, "claude");
     assert.strictEqual(errorHistogram.attributes.error_status, 500);
   });
 
-  it('captureTaskCompleted records completion payload with TTFT and duration histograms', () => {
+  it("captureTaskCompleted records completion payload with TTFT and duration histograms", () => {
     const provider = new FakeProvider();
     const service = createTelemetryService(provider);
 
-    service.captureTaskCompleted('task-4', {
-      provider: 'openai-native',
-      modelId: 'gpt-5',
+    service.captureTaskCompleted("task-4", {
+      provider: "openai-native",
+      modelId: "gpt-5",
       apiFormat: ApiFormat.OPENAI_RESPONSES,
       timeToFirstTokenMs: 350,
       durationMs: 2100,
-      mode: 'act',
+      mode: "act",
     });
 
-    const completionEvent = provider.logs.find((entry) => entry.event === 'task.completed');
+    const completionEvent = provider.logs.find((entry) => entry.event === "task.completed");
     assert.ok(completionEvent);
     assert.ok(completionEvent?.properties);
-    assert.strictEqual(completionEvent?.properties?.ulid, 'task-4');
-    assert.strictEqual(completionEvent?.properties?.provider, 'openai-native');
-    assert.strictEqual(completionEvent?.properties?.modelId, 'gpt-5');
+    assert.strictEqual(completionEvent?.properties?.ulid, "task-4");
+    assert.strictEqual(completionEvent?.properties?.provider, "openai-native");
+    assert.strictEqual(completionEvent?.properties?.modelId, "gpt-5");
     assert.strictEqual(completionEvent?.properties?.apiFormat, ApiFormat.OPENAI_RESPONSES);
-    assert.strictEqual(completionEvent?.properties?.apiFormatName, 'OPENAI_RESPONSES');
+    assert.strictEqual(completionEvent?.properties?.apiFormatName, "OPENAI_RESPONSES");
     assert.strictEqual(completionEvent?.properties?.timeToFirstTokenMs, 350);
     assert.strictEqual(completionEvent?.properties?.durationMs, 2100);
 
@@ -388,55 +388,55 @@ describe('TelemetryService metrics', () => {
     );
     assert.ok(ttftMetric);
     assert.strictEqual(ttftMetric?.value, 0.35);
-    assert.strictEqual(ttftMetric?.attributes.ulid, 'task-4');
-    assert.strictEqual(ttftMetric?.attributes.provider, 'openai-native');
-    assert.strictEqual(ttftMetric?.attributes.model, 'gpt-5');
-    assert.strictEqual(ttftMetric?.attributes.apiFormat, 'OPENAI_RESPONSES');
+    assert.strictEqual(ttftMetric?.attributes.ulid, "task-4");
+    assert.strictEqual(ttftMetric?.attributes.provider, "openai-native");
+    assert.strictEqual(ttftMetric?.attributes.model, "gpt-5");
+    assert.strictEqual(ttftMetric?.attributes.apiFormat, "OPENAI_RESPONSES");
 
     const durationMetric = provider.histograms.find(
       (entry) => entry.name === TelemetryService.METRICS.API.DURATION_SECONDS,
     );
     assert.ok(durationMetric);
     assert.strictEqual(durationMetric?.value, 2.1);
-    assert.strictEqual(durationMetric?.attributes.scope, 'task');
+    assert.strictEqual(durationMetric?.attributes.scope, "task");
   });
 
-  it('captureGrpcResponseSize records histogram with correct name, value, and attributes', () => {
+  it("captureGrpcResponseSize records histogram with correct name, value, and attributes", () => {
     const provider = new FakeProvider();
     const service = createTelemetryService(provider);
 
-    service.captureGrpcResponseSize(123456, 'cline.StateService', 'subscribeToState');
+    service.captureGrpcResponseSize(123456, "cline.StateService", "subscribeToState");
 
     assert.strictEqual(provider.histograms.length, 1);
     const entry = provider.histograms[0];
     assert.strictEqual(entry.name, TelemetryService.METRICS.GRPC.RESPONSE_SIZE_BYTES);
     assert.strictEqual(entry.value, 123456);
-    assert.strictEqual(entry.attributes.service, 'cline.StateService');
-    assert.strictEqual(entry.attributes.method, 'subscribeToState');
-    assert.strictEqual(entry.description, 'Size of gRPC response messages in bytes');
+    assert.strictEqual(entry.attributes.service, "cline.StateService");
+    assert.strictEqual(entry.attributes.method, "subscribeToState");
+    assert.strictEqual(entry.description, "Size of gRPC response messages in bytes");
     // Should not have request_id when not provided
     assert.strictEqual(entry.attributes.request_id, undefined);
   });
 
-  it('captureGrpcResponseSize includes request_id when provided', () => {
+  it("captureGrpcResponseSize includes request_id when provided", () => {
     const provider = new FakeProvider();
     const service = createTelemetryService(provider);
 
-    service.captureGrpcResponseSize(5000, 'cline.StateService', 'subscribeToState', 'req-42');
+    service.captureGrpcResponseSize(5000, "cline.StateService", "subscribeToState", "req-42");
 
     assert.strictEqual(provider.histograms.length, 1);
     const entry = provider.histograms[0];
-    assert.strictEqual(entry.attributes.request_id, 'req-42');
+    assert.strictEqual(entry.attributes.request_id, "req-42");
   });
 
-  it('captureGrpcResponseSize includes standard metadata attributes', () => {
+  it("captureGrpcResponseSize includes standard metadata attributes", () => {
     const provider = new FakeProvider();
     const service = createTelemetryService(provider);
 
-    service.captureGrpcResponseSize(1000, 'cline.StateService', 'subscribeToState');
+    service.captureGrpcResponseSize(1000, "cline.StateService", "subscribeToState");
 
     const entry = provider.histograms[0];
-    assert.strictEqual(entry.attributes.extension_version, 'test');
-    assert.strictEqual(entry.attributes.platform, 'test-platform');
+    assert.strictEqual(entry.attributes.extension_version, "test");
+    assert.strictEqual(entry.attributes.platform, "test-platform");
   });
 });

@@ -1,13 +1,13 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { type ModelInfo, askSageDefaultURL, askSageModels } from '@shared/api.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { useEffect, useState } from 'react';
-import { ApiKeyField } from '../common/ApiKeyField';
-import { DebouncedTextField } from '../common/DebouncedTextField';
-import { ModelInfoView } from '../common/ModelInfoView';
-import { ModelSelector } from '../common/ModelSelector';
-import { normalizeApiConfiguration } from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { type ModelInfo, askSageDefaultURL, askSageModels } from "@shared/api.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { useEffect, useState } from "react";
+import { ApiKeyField } from "../common/ApiKeyField";
+import { DebouncedTextField } from "../common/DebouncedTextField";
+import { ModelInfoView } from "../common/ModelInfoView";
+import { ModelSelector } from "../common/ModelSelector";
+import { normalizeApiConfiguration } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 /**
  * Props for the AskSageProvider component
@@ -43,7 +43,7 @@ export const AskSageProvider = ({
         const response = await fetch(`${apiUrl}/get-models`);
 
         if (!response.ok) {
-          console.error('Failed to fetch AskSage models, falling back to default list.');
+          console.error("Failed to fetch AskSage models, falling back to default list.");
           setAvailableModels(askSageModels);
           return;
         }
@@ -68,7 +68,7 @@ export const AskSageProvider = ({
           setAvailableModels(askSageModels);
         }
       } catch (error) {
-        console.error('Error fetching AskSage models:', error);
+        console.error("Error fetching AskSage models:", error);
         setAvailableModels(askSageModels);
       }
     };
@@ -80,16 +80,16 @@ export const AskSageProvider = ({
     <div>
       <ApiKeyField
         helpText="This key is stored locally and only used to make API requests from this extension."
-        initialValue={apiConfiguration?.asksageApiKey || ''}
-        onChange={(value) => handleFieldChange('asksageApiKey', value)}
+        initialValue={apiConfiguration?.asksageApiKey || ""}
+        onChange={(value) => handleFieldChange("asksageApiKey", value)}
         providerName="AskSage"
       />
 
       <DebouncedTextField
         initialValue={apiConfiguration?.asksageApiUrl || askSageDefaultURL}
-        onChange={(value) => handleFieldChange('asksageApiUrl', value)}
+        onChange={(value) => handleFieldChange("asksageApiUrl", value)}
         placeholder="Enter AskSage API URL..."
-        style={{ width: '100%' }}
+        style={{ width: "100%" }}
         type="text"
       >
         <span style={{ fontWeight: 500 }}>AskSage API URL</span>
@@ -102,7 +102,7 @@ export const AskSageProvider = ({
             models={availableModels}
             onChange={(e) =>
               handleModeFieldChange(
-                { plan: 'planModeApiModelId', act: 'actModeApiModelId' },
+                { plan: "planModeApiModelId", act: "actModeApiModelId" },
                 e.target.value,
                 currentMode,
               )

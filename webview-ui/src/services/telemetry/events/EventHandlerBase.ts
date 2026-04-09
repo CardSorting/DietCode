@@ -1,5 +1,5 @@
-import type { TelemetryService } from '../TelemetryService';
-import type { TelemetryObject } from '../providers/ITelemetryProvider';
+import type { TelemetryService } from "../TelemetryService";
+import type { TelemetryObject } from "../providers/ITelemetryProvider";
 
 /**
  * Base class for telemetry event handlers

@@ -1,20 +1,20 @@
-import { requestyDefaultModelId, requestyDefaultModelInfo } from '@shared/api.ts';
-import { toRequestyServiceUrl } from '@shared/clients/requesty.ts';
-import { EmptyRequest } from '@shared/nice-grpc/cline/common.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { VSCodeLink, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
-import Fuse from 'fuse.js';
-import type React from 'react';
-import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react';
-import { useMount } from 'react-use';
-import styled from 'styled-components';
-import { useExtensionState } from '../../context/ExtensionStateContext';
-import { ModelsServiceClient } from '../../services/grpc-client';
-import { highlight } from '../history/HistoryView';
-import ThinkingBudgetSlider from './ThinkingBudgetSlider';
-import { ModelInfoView } from './common/ModelInfoView';
-import { getModeSpecificFields, normalizeApiConfiguration } from './utils/providerUtils';
-import { useApiConfigurationHandlers } from './utils/useApiConfigurationHandlers';
+import { requestyDefaultModelId, requestyDefaultModelInfo } from "@shared/api.ts";
+import { toRequestyServiceUrl } from "@shared/clients/requesty.ts";
+import { EmptyRequest } from "@shared/nice-grpc/cline/common.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { VSCodeLink, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import Fuse from "fuse.js";
+import type React from "react";
+import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
+import { useMount } from "react-use";
+import styled from "styled-components";
+import { useExtensionState } from "../../context/ExtensionStateContext";
+import { ModelsServiceClient } from "../../services/grpc-client";
+import { highlight } from "../history/HistoryView";
+import ThinkingBudgetSlider from "./ThinkingBudgetSlider";
+import { ModelInfoView } from "./common/ModelInfoView";
+import { getModeSpecificFields, normalizeApiConfiguration } from "./utils/providerUtils";
+import { useApiConfigurationHandlers } from "./utils/useApiConfigurationHandlers";
 
 export interface RequestyModelPickerProps {
   isPopup?: boolean;
@@ -40,7 +40,7 @@ const RequestyModelPicker: React.FC<RequestyModelPickerProps> = ({
   const dropdownListRef = useRef<HTMLDivElement>(null);
 
   const resolvedUrl = toRequestyServiceUrl(baseUrl);
-  const requestyModelListUrl = resolvedUrl != null ? new URL('models', resolvedUrl) : undefined;
+  const requestyModelListUrl = resolvedUrl != null ? new URL("models", resolvedUrl) : undefined;
 
   const handleModelChange = (newModelId: string) => {
     // could be setting invalid model id/undefined info but validation will catch it
@@ -48,12 +48,12 @@ const RequestyModelPicker: React.FC<RequestyModelPickerProps> = ({
     handleModeFieldsChange(
       {
         requestyModelId: {
-          plan: 'planModeRequestyModelId',
-          act: 'actModeRequestyModelId',
+          plan: "planModeRequestyModelId",
+          act: "actModeRequestyModelId",
         },
         requestyModelInfo: {
-          plan: 'planModeRequestyModelInfo',
-          act: 'actModeRequestyModelInfo',
+          plan: "planModeRequestyModelInfo",
+          act: "actModeRequestyModelInfo",
         },
       },
       {
@@ -78,7 +78,7 @@ const RequestyModelPicker: React.FC<RequestyModelPickerProps> = ({
         });
       })
       .catch((err) => {
-        console.error('Failed to refresh Requesty models:', err);
+        console.error("Failed to refresh Requesty models:", err);
       });
   });
 
@@ -89,9 +89,9 @@ const RequestyModelPicker: React.FC<RequestyModelPickerProps> = ({
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -108,7 +108,7 @@ const RequestyModelPicker: React.FC<RequestyModelPickerProps> = ({
 
   const fuse = useMemo(() => {
     return new Fuse(searchableItems, {
-      keys: ['html'], // highlight function will update this
+      keys: ["html"], // highlight function will update this
       threshold: 0.6,
       shouldSort: true,
       isCaseSensitive: false,
@@ -120,7 +120,7 @@ const RequestyModelPicker: React.FC<RequestyModelPickerProps> = ({
 
   const modelSearchResults = useMemo(() => {
     const results: { id: string; html: string }[] = searchTerm
-      ? highlight(fuse.search(searchTerm), 'model-item-highlight')
+      ? highlight(fuse.search(searchTerm), "model-item-highlight")
       : searchableItems;
     // results.sort((a, b) => a.id.localeCompare(b.id)) NOTE: sorting like this causes ids in objects to be reordered and mismatched
     return results;
@@ -132,22 +132,22 @@ const RequestyModelPicker: React.FC<RequestyModelPickerProps> = ({
     }
 
     switch (event.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         event.preventDefault();
         setSelectedIndex((prev) => (prev < modelSearchResults.length - 1 ? prev + 1 : prev));
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         event.preventDefault();
         setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
         break;
-      case 'Enter':
+      case "Enter":
         event.preventDefault();
         if (selectedIndex >= 0 && selectedIndex < modelSearchResults.length) {
           handleModelChange(modelSearchResults[selectedIndex].id);
           setIsDropdownVisible(false);
         }
         break;
-      case 'Escape':
+      case "Escape":
         setIsDropdownVisible(false);
         setSelectedIndex(-1);
         break;
@@ -172,18 +172,18 @@ const RequestyModelPicker: React.FC<RequestyModelPickerProps> = ({
   useEffect(() => {
     if (selectedIndex >= 0 && itemRefs.current[selectedIndex]) {
       itemRefs.current[selectedIndex]?.scrollIntoView({
-        block: 'nearest',
-        behavior: 'smooth',
+        block: "nearest",
+        behavior: "smooth",
       });
     }
   }, [selectedIndex]);
 
   const showBudgetSlider = useMemo(() => {
-    return selectedModelId?.includes('claude-3-7-sonnet');
+    return selectedModelId?.includes("claude-3-7-sonnet");
   }, [selectedModelId]);
 
   return (
-    <div style={{ width: '100%' }}>
+    <div style={{ width: "100%" }}>
       <style>
         {`
 				.model-item-highlight {
@@ -192,7 +192,7 @@ const RequestyModelPicker: React.FC<RequestyModelPickerProps> = ({
 				}
 				`}
       </style>
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: "flex", flexDirection: "column" }}>
         <label htmlFor="model-search">
           <span style={{ fontWeight: 500 }}>Model</span>
         </label>
@@ -208,9 +208,9 @@ const RequestyModelPicker: React.FC<RequestyModelPickerProps> = ({
             placeholder="Search and select a model..."
             role="combobox"
             style={{
-              width: '100%',
+              width: "100%",
               zIndex: REQUESTY_MODEL_PICKER_Z_INDEX,
-              position: 'relative',
+              position: "relative",
             }}
             value={searchTerm}
           >
@@ -219,15 +219,15 @@ const RequestyModelPicker: React.FC<RequestyModelPickerProps> = ({
                 aria-label="Clear search"
                 className="input-icon-button codicon codicon-close"
                 onClick={() => {
-                  handleModelChange('');
+                  handleModelChange("");
                   setIsDropdownVisible(true);
                 }}
                 slot="end"
                 style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: '100%',
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "100%",
                 }}
               />
             )}
@@ -267,23 +267,23 @@ const RequestyModelPicker: React.FC<RequestyModelPickerProps> = ({
       ) : (
         <p
           style={{
-            fontSize: '12px',
+            fontSize: "12px",
             marginTop: 0,
-            color: 'var(--vscode-descriptionForeground)',
+            color: "var(--vscode-descriptionForeground)",
           }}
         >
           <>
-            The extension automatically fetches the latest list of models available on{' '}
+            The extension automatically fetches the latest list of models available on{" "}
             <VSCodeLink
               href={requestyModelListUrl?.toString()}
-              style={{ display: 'inline', fontSize: 'inherit' }}
+              style={{ display: "inline", fontSize: "inherit" }}
             >
               Requesty.
             </VSCodeLink>
-            If you're unsure which model to choose, Cline works best with{' '}
+            If you're unsure which model to choose, Cline works best with{" "}
             <VSCodeLink
-              onClick={() => handleModelChange('anthropic/claude-3-7-sonnet-latest')}
-              style={{ display: 'inline', fontSize: 'inherit' }}
+              onClick={() => handleModelChange("anthropic/claude-3-7-sonnet-latest")}
+              style={{ display: "inline", fontSize: "inherit" }}
             >
               anthropic/claude-3-7-sonnet-latest.
             </VSCodeLink>
@@ -325,7 +325,7 @@ const DropdownItem = styled.div<{ isSelected: boolean }>`
   word-break: break-all;
   white-space: normal;
 
-  background-color: ${({ isSelected }) => (isSelected ? 'var(--vscode-list-activeSelectionBackground)' : 'inherit')};
+  background-color: ${({ isSelected }) => (isSelected ? "var(--vscode-list-activeSelectionBackground)" : "inherit")};
 
   &:hover {
     background-color: var(--vscode-list-activeSelectionBackground);

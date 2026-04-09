@@ -1,4 +1,4 @@
-import platformConfigs from './platform-configs.json';
+import platformConfigs from "./platform-configs.json";
 
 export interface PlatformConfig {
   type: PlatformType;
@@ -24,16 +24,16 @@ function stringToPlatformType(name: string): PlatformType {
   if (name in mapping) {
     return mapping[name];
   }
-  console.error('Unknown platform:', name);
+  console.error("Unknown platform:", name);
   // Default to VSCode for unknown types
   return PlatformType.VSCODE;
 }
 
 // Internal type for JSON structure (not exported)
 type PlatformConfigJson = {
-  messageEncoding: 'none' | 'json';
+  messageEncoding: "none" | "json";
   showNavbar: boolean;
-  postMessageHandler: 'vscode' | 'standalone';
+  postMessageHandler: "vscode" | "standalone";
   togglePlanActKeys: string;
   supportsTerminalMentions: boolean;
 };
@@ -52,7 +52,7 @@ declare global {
 }
 
 // Initialize the vscode API if available
-const vsCodeApi = typeof acquireVsCodeApi === 'function' ? acquireVsCodeApi() : null;
+const vsCodeApi = typeof acquireVsCodeApi === "function" ? acquireVsCodeApi() : null;
 
 // Implementations for post message handling
 const postMessageStrategies: Record<string, PostMessageFunction> = {
@@ -60,12 +60,12 @@ const postMessageStrategies: Record<string, PostMessageFunction> = {
     if (vsCodeApi) {
       vsCodeApi.postMessage(message);
     } else {
-      console.log('postMessage fallback: ', message);
+      console.log("postMessage fallback: ", message);
     }
   },
   standalone: (message: any) => {
     if (!window.standalonePostMessage) {
-      console.error('Standalone postMessage not found.');
+      console.error("Standalone postMessage not found.");
       return;
     }
     const json = JSON.stringify(message);
@@ -92,7 +92,7 @@ declare const __PLATFORM__: string;
 // Get the specific platform config at compile time
 const configs = platformConfigs as PlatformConfigs;
 const selectedConfig = configs[__PLATFORM__];
-console.log('[PLATFORM_CONFIG] Build platform:', __PLATFORM__);
+console.log("[PLATFORM_CONFIG] Build platform:", __PLATFORM__);
 
 // Build the platform config with injected functions
 // Callers should use this in the situations where the react component is not available.
@@ -107,7 +107,7 @@ export const PLATFORM_CONFIG: PlatformConfig = {
   supportsTerminalMentions: selectedConfig.supportsTerminalMentions,
 };
 
-type MessageEncoding = 'none' | 'json';
+type MessageEncoding = "none" | "json";
 
 // Function types for platform-specific behaviors
 type PostMessageFunction = (message: any) => void;

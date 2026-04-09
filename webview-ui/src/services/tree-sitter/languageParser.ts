@@ -1,5 +1,5 @@
-import * as path from 'node:path';
-import Parser from 'web-tree-sitter';
+import * as path from "node:path";
+import Parser from "web-tree-sitter";
 import {
   cQuery,
   cppQuery,
@@ -14,7 +14,7 @@ import {
   rustQuery,
   swiftQuery,
   typescriptQuery,
-} from './queries';
+} from "./queries";
 
 export interface LanguageParser {
   [key: string]: {
@@ -68,63 +68,63 @@ export async function loadRequiredLanguageParsers(filesToParse: string[]): Promi
     let language: Parser.Language;
     let query: Parser.Query;
     switch (ext) {
-      case 'js':
-      case 'jsx':
-        language = await loadLanguage('javascript');
+      case "js":
+      case "jsx":
+        language = await loadLanguage("javascript");
         query = language.query(javascriptQuery);
         break;
-      case 'ts':
-        language = await loadLanguage('typescript');
+      case "ts":
+        language = await loadLanguage("typescript");
         query = language.query(typescriptQuery);
         break;
-      case 'tsx':
-        language = await loadLanguage('tsx');
+      case "tsx":
+        language = await loadLanguage("tsx");
         query = language.query(typescriptQuery);
         break;
-      case 'py':
-        language = await loadLanguage('python');
+      case "py":
+        language = await loadLanguage("python");
         query = language.query(pythonQuery);
         break;
-      case 'rs':
-        language = await loadLanguage('rust');
+      case "rs":
+        language = await loadLanguage("rust");
         query = language.query(rustQuery);
         break;
-      case 'go':
-        language = await loadLanguage('go');
+      case "go":
+        language = await loadLanguage("go");
         query = language.query(goQuery);
         break;
-      case 'cpp':
-      case 'hpp':
-        language = await loadLanguage('cpp');
+      case "cpp":
+      case "hpp":
+        language = await loadLanguage("cpp");
         query = language.query(cppQuery);
         break;
-      case 'c':
-      case 'h':
-        language = await loadLanguage('c');
+      case "c":
+      case "h":
+        language = await loadLanguage("c");
         query = language.query(cQuery);
         break;
-      case 'cs':
-        language = await loadLanguage('c_sharp');
+      case "cs":
+        language = await loadLanguage("c_sharp");
         query = language.query(csharpQuery);
         break;
-      case 'rb':
-        language = await loadLanguage('ruby');
+      case "rb":
+        language = await loadLanguage("ruby");
         query = language.query(rubyQuery);
         break;
-      case 'java':
-        language = await loadLanguage('java');
+      case "java":
+        language = await loadLanguage("java");
         query = language.query(javaQuery);
         break;
-      case 'php':
-        language = await loadLanguage('php');
+      case "php":
+        language = await loadLanguage("php");
         query = language.query(phpQuery);
         break;
-      case 'swift':
-        language = await loadLanguage('swift');
+      case "swift":
+        language = await loadLanguage("swift");
         query = language.query(swiftQuery);
         break;
-      case 'kt':
-        language = await loadLanguage('kotlin');
+      case "kt":
+        language = await loadLanguage("kotlin");
         query = language.query(kotlinQuery);
         break;
       default:

@@ -1,4 +1,4 @@
-import type { ClineMessage } from './ExtensionMessage';
+import type { ClineMessage } from "./ExtensionMessage";
 
 /**
  * Consolidates error_retry messages in a retry sequence, keeping only the latest one,
@@ -42,18 +42,18 @@ export function combineErrorRetryMessages(messages: ClineMessage[]): ClineMessag
   for (let i = 0; i < messages.length; i++) {
     const message = messages[i];
 
-    if (message.say === 'error_retry') {
+    if (message.say === "error_retry") {
       // Look ahead to find if there's another error_retry before the next api_req_started
       let hasLaterErrorRetry = false;
       let hasApiReqStartedBefore = false;
 
       for (let j = i + 1; j < messages.length; j++) {
         const laterMessage = messages[j];
-        if (laterMessage.say === 'api_req_started') {
+        if (laterMessage.say === "api_req_started") {
           hasApiReqStartedBefore = true;
           break;
         }
-        if (laterMessage.say === 'error_retry') {
+        if (laterMessage.say === "error_retry") {
           hasLaterErrorRetry = true;
           break;
         }
@@ -68,7 +68,7 @@ export function combineErrorRetryMessages(messages: ClineMessage[]): ClineMessag
       // Don't show the error_retry unless it has failed: true
       if (hasApiReqStartedBefore) {
         try {
-          const retryInfo = JSON.parse(message.text || '{}');
+          const retryInfo = JSON.parse(message.text || "{}");
           // Only skip if this wasn't a final failure message
           if (!retryInfo.failed) {
             continue;

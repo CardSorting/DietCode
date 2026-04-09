@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+import crypto from "node:crypto";
 
 /**
  * Generates a unique hash for an MCP server based on its name and URL.
@@ -8,7 +8,7 @@ import crypto from 'node:crypto';
  * @returns A SHA-256 hash string.
  */
 export const getServerAuthHash = (serverName: string, serverUrl: string): string => {
-  return crypto.createHash('sha256').update(`${serverName}:${serverUrl}`).digest('hex');
+  return crypto.createHash("sha256").update(`${serverName}:${serverUrl}`).digest("hex");
 };
 
 /**

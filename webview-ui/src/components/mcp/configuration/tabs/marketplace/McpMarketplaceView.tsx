@@ -1,6 +1,6 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { McpServiceClient } from '@/services/grpc-client';
-import { EmptyRequest } from '@shared/nice-grpc/cline/common.ts';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { McpServiceClient } from "@/services/grpc-client";
+import { EmptyRequest } from "@shared/nice-grpc/cline/common.ts";
 import {
   VSCodeButton,
   VSCodeDropdown,
@@ -9,10 +9,10 @@ import {
   VSCodeRadio,
   VSCodeRadioGroup,
   VSCodeTextField,
-} from '@vscode/webview-ui-toolkit/react';
-import { useEffect, useMemo, useState } from 'react';
-import McpMarketplaceCard from './McpMarketplaceCard';
-import McpSubmitCard from './McpSubmitCard';
+} from "@vscode/webview-ui-toolkit/react";
+import { useEffect, useMemo, useState } from "react";
+import McpMarketplaceCard from "./McpMarketplaceCard";
+import McpSubmitCard from "./McpSubmitCard";
 
 const McpMarketplaceView = () => {
   const { mcpServers, mcpMarketplaceCatalog, setMcpMarketplaceCatalog, remoteConfigSettings } =
@@ -22,9 +22,9 @@ const McpMarketplaceView = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<'newest' | 'stars' | 'name' | 'downloadCount'>('newest');
+  const [sortBy, setSortBy] = useState<"newest" | "stars" | "name" | "downloadCount">("newest");
 
   const items = mcpMarketplaceCatalog?.items || [];
 
@@ -37,7 +37,7 @@ const McpMarketplaceView = () => {
     return items
       .filter((item) => {
         const matchesSearch =
-          searchQuery === '' ||
+          searchQuery === "" ||
           item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
           item.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -46,13 +46,13 @@ const McpMarketplaceView = () => {
       })
       .sort((a, b) => {
         switch (sortBy) {
-          case 'downloadCount':
+          case "downloadCount":
             return b.downloadCount - a.downloadCount;
-          case 'stars':
+          case "stars":
             return b.githubStars - a.githubStars;
-          case 'name':
+          case "name":
             return a.name.localeCompare(b.name);
-          case 'newest':
+          case "newest":
             return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
           default:
             return 0;
@@ -88,8 +88,8 @@ const McpMarketplaceView = () => {
           setMcpMarketplaceCatalog(response);
         })
         .catch((error) => {
-          console.error('Error refreshing MCP marketplace:', error);
-          setError('Failed to load marketplace data');
+          console.error("Error refreshing MCP marketplace:", error);
+          setError("Failed to load marketplace data");
           setIsLoading(false);
           setIsRefreshing(false);
         });
@@ -100,11 +100,11 @@ const McpMarketplaceView = () => {
     return (
       <div
         style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100%',
-          padding: '20px',
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+          padding: "20px",
         }}
       >
         <VSCodeProgressRing />
@@ -116,18 +116,18 @@ const McpMarketplaceView = () => {
     return (
       <div
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100%',
-          padding: '20px',
-          gap: '12px',
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+          padding: "20px",
+          gap: "12px",
         }}
       >
-        <div style={{ color: 'var(--vscode-errorForeground)' }}>{error}</div>
+        <div style={{ color: "var(--vscode-errorForeground)" }}>{error}</div>
         <VSCodeButton appearance="secondary" onClick={() => fetchMarketplace(true)}>
-          <span className="codicon codicon-refresh" style={{ marginRight: '6px' }} />
+          <span className="codicon codicon-refresh" style={{ marginRight: "6px" }} />
           Retry
         </VSCodeButton>
       </div>
@@ -137,19 +137,19 @@ const McpMarketplaceView = () => {
   return (
     <div
       style={{
-        display: 'flex',
-        flexDirection: 'column',
-        width: '100%',
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
       }}
     >
       <div
-        style={{ padding: '20px 20px 5px', display: 'flex', flexDirection: 'column', gap: '16px' }}
+        style={{ padding: "20px 20px 5px", display: "flex", flexDirection: "column", gap: "16px" }}
       >
         {/* Search row */}
         <VSCodeTextField
           onInput={(e) => setSearchQuery((e.target as HTMLInputElement).value)}
           placeholder="Search MCPs..."
-          style={{ width: '100%' }}
+          style={{ width: "100%" }}
           value={searchQuery}
         >
           <div
@@ -164,14 +164,14 @@ const McpMarketplaceView = () => {
             <div
               aria-label="Clear search"
               className="codicon codicon-close"
-              onClick={() => setSearchQuery('')}
+              onClick={() => setSearchQuery("")}
               slot="end"
               style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '100%',
-                cursor: 'pointer',
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100%",
+                cursor: "pointer",
               }}
             />
           )}
@@ -180,16 +180,16 @@ const McpMarketplaceView = () => {
         {/* Filter row */}
         <div
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
           }}
         >
           <span
             style={{
-              fontSize: '11px',
-              color: 'var(--vscode-descriptionForeground)',
-              textTransform: 'uppercase',
+              fontSize: "11px",
+              color: "var(--vscode-descriptionForeground)",
+              textTransform: "uppercase",
               fontWeight: 500,
               flexShrink: 0,
             }}
@@ -198,7 +198,7 @@ const McpMarketplaceView = () => {
           </span>
           <div
             style={{
-              position: 'relative',
+              position: "relative",
               zIndex: 2,
               flex: 1,
             }}
@@ -206,9 +206,9 @@ const McpMarketplaceView = () => {
             <VSCodeDropdown
               onChange={(e) => setSelectedCategory((e.target as HTMLSelectElement).value || null)}
               style={{
-                width: '100%',
+                width: "100%",
               }}
-              value={selectedCategory || ''}
+              value={selectedCategory || ""}
             >
               <VSCodeOption value="">All Categories</VSCodeOption>
               {categories.map((category) => (
@@ -223,17 +223,17 @@ const McpMarketplaceView = () => {
         {/* Sort row */}
         <div
           style={{
-            display: 'flex',
-            gap: '8px',
+            display: "flex",
+            gap: "8px",
           }}
         >
           <span
             style={{
-              fontSize: '11px',
-              color: 'var(--vscode-descriptionForeground)',
-              textTransform: 'uppercase',
+              fontSize: "11px",
+              color: "var(--vscode-descriptionForeground)",
+              textTransform: "uppercase",
               fontWeight: 500,
-              marginTop: '3px',
+              marginTop: "3px",
             }}
           >
             Sort:
@@ -241,9 +241,9 @@ const McpMarketplaceView = () => {
           <VSCodeRadioGroup
             onChange={(e) => setSortBy((e.target as HTMLInputElement).value as typeof sortBy)}
             style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              marginTop: '-2.5px',
+              display: "flex",
+              flexWrap: "wrap",
+              marginTop: "-2.5px",
             }}
             value={sortBy}
           >
@@ -285,21 +285,21 @@ const McpMarketplaceView = () => {
         </div>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: "flex", flexDirection: "column" }}>
         {filteredItems.length === 0 ? (
           <div
             style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: '100%',
-              padding: '20px',
-              color: 'var(--vscode-descriptionForeground)',
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+              padding: "20px",
+              color: "var(--vscode-descriptionForeground)",
             }}
           >
             {searchQuery || selectedCategory
-              ? 'No matching MCP servers found'
-              : 'No MCP servers found in the marketplace'}
+              ? "No matching MCP servers found"
+              : "No MCP servers found in the marketplace"}
           </div>
         ) : (
           filteredItems.map((item) => (

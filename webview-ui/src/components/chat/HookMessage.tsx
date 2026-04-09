@@ -1,14 +1,14 @@
-import { TaskServiceClient } from '@/services/grpc-client';
-import type { ClineMessage } from '@shared/ExtensionMessage.ts';
-import { EmptyRequest } from '@shared/nice-grpc/cline/common.ts';
-import { memo, useMemo, useState } from 'react';
-import { CHAT_ROW_EXPANDED_BG_COLOR } from '../common/CodeBlock';
-import { HOOK_OUTPUT_STRING } from './constants';
+import { TaskServiceClient } from "@/services/grpc-client";
+import type { ClineMessage } from "@shared/ExtensionMessage.ts";
+import { EmptyRequest } from "@shared/nice-grpc/cline/common.ts";
+import { memo, useMemo, useState } from "react";
+import { CHAT_ROW_EXPANDED_BG_COLOR } from "../common/CodeBlock";
+import { HOOK_OUTPUT_STRING } from "./constants";
 
-const normalColor = 'var(--vscode-foreground)';
-const errorColor = 'var(--vscode-errorForeground)';
-const successColor = 'var(--vscode-charts-green)';
-const completedColor = 'var(--vscode-descriptionForeground)';
+const normalColor = "var(--vscode-foreground)";
+const errorColor = "var(--vscode-errorForeground)";
+const successColor = "var(--vscode-charts-green)";
+const completedColor = "var(--vscode-descriptionForeground)";
 
 /**
  * Determines if a hook message should be expanded by default.
@@ -31,7 +31,7 @@ function shouldExpandHookByDefault(message: ClineMessage, metadata: HookMetadata
   }
 
   // Expand fresh failed/cancelled hooks to show error details
-  return metadata.status === 'failed' || metadata.status === 'cancelled';
+  return metadata.status === "failed" || metadata.status === "cancelled";
 }
 
 interface HookMessageProps {
@@ -64,7 +64,7 @@ interface HookMetadata {
     resourceUri?: string;
   };
   error?: {
-    type: 'timeout' | 'validation' | 'execution' | 'cancellation';
+    type: "timeout" | "validation" | "execution" | "cancellation";
     message: string;
     details?: string;
     scriptPath?: string;
@@ -86,39 +86,39 @@ const HookMessage = memo(({ message, CommandOutput }: HookMessageProps) => {
     const splitMessage = (text: string) => {
       const outputIndex = text.indexOf(HOOK_OUTPUT_STRING);
       if (outputIndex === -1) {
-        return { metadata: text, output: '' };
+        return { metadata: text, output: "" };
       }
       return {
         metadata: text.slice(0, outputIndex).trim(),
         output: text
           .slice(outputIndex + HOOK_OUTPUT_STRING.length)
           .trim()
-          .split('')
+          .split("")
           .map((char) => {
             switch (char) {
-              case '\t':
-                return '→   ';
-              case '\b':
-                return '⌫';
-              case '\f':
-                return '⏏';
-              case '\v':
-                return '⇳';
+              case "\t":
+                return "→   ";
+              case "\b":
+                return "⌫";
+              case "\f":
+                return "⏏";
+              case "\v":
+                return "⇳";
               default:
                 return char;
             }
           })
-          .join(''),
+          .join(""),
       };
     };
 
-    const { metadata: metadataStr, output } = splitMessage(message.text || '');
+    const { metadata: metadataStr, output } = splitMessage(message.text || "");
 
     let hookMetadata: HookMetadata;
     try {
       hookMetadata = JSON.parse(metadataStr);
     } catch {
-      hookMetadata = { hookName: 'Unknown', status: 'unknown' };
+      hookMetadata = { hookName: "Unknown", status: "unknown" };
     }
 
     return { metadata: hookMetadata, output };
@@ -129,16 +129,16 @@ const HookMessage = memo(({ message, CommandOutput }: HookMessageProps) => {
     shouldExpandHookByDefault(message, metadata),
   );
 
-  const isRunning = metadata.status === 'running';
-  const isCompleted = metadata.status === 'completed';
-  const isFailed = metadata.status === 'failed';
-  const isCancelled = metadata.status === 'cancelled';
+  const isRunning = metadata.status === "running";
+  const isCompleted = metadata.status === "completed";
+  const isFailed = metadata.status === "failed";
+  const isCancelled = metadata.status === "cancelled";
 
   const headerStyle: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    marginBottom: '12px',
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    marginBottom: "12px",
   };
 
   return (
@@ -148,13 +148,13 @@ const HookMessage = memo(({ message, CommandOutput }: HookMessageProps) => {
           className="codicon codicon-symbol-event"
           style={{
             color: normalColor,
-            marginBottom: '-1.5px',
+            marginBottom: "-1.5px",
           }}
         />
-        <span style={{ color: normalColor, fontWeight: 'bold' }}>Hook:</span>
+        <span style={{ color: normalColor, fontWeight: "bold" }}>Hook:</span>
         <span style={{ color: normalColor }}>{metadata.hookName}</span>
         {metadata.toolName && (
-          <span style={{ color: 'var(--vscode-descriptionForeground)', fontSize: '0.9em' }}>
+          <span style={{ color: "var(--vscode-descriptionForeground)", fontSize: "0.9em" }}>
             ({metadata.toolName})
           </span>
         )}
@@ -162,47 +162,47 @@ const HookMessage = memo(({ message, CommandOutput }: HookMessageProps) => {
       <div
         style={{
           borderRadius: 6,
-          border: '1px solid var(--vscode-editorGroup-border)',
-          overflow: 'visible',
+          border: "1px solid var(--vscode-editorGroup-border)",
+          overflow: "visible",
           backgroundColor: CHAT_ROW_EXPANDED_BG_COLOR,
-          transition: 'all 0.3s ease-in-out',
+          transition: "all 0.3s ease-in-out",
         }}
       >
         <div
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '8px 10px',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "8px 10px",
             backgroundColor: CHAT_ROW_EXPANDED_BG_COLOR,
             borderBottom:
               metadata.pendingToolInfo || output.length > 0
-                ? '1px solid var(--vscode-editorGroup-border)'
-                : 'none',
-            borderTopLeftRadius: '6px',
-            borderTopRightRadius: '6px',
+                ? "1px solid var(--vscode-editorGroup-border)"
+                : "none",
+            borderTopLeftRadius: "6px",
+            borderTopRightRadius: "6px",
           }}
         >
           <div
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
               flex: 1,
               minWidth: 0,
             }}
           >
             <div
               style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
+                width: "8px",
+                height: "8px",
+                borderRadius: "50%",
                 backgroundColor: isRunning
                   ? successColor
                   : isFailed || isCancelled
                     ? errorColor
                     : completedColor,
-                animation: isRunning ? 'pulse 2s ease-in-out infinite' : 'none',
+                animation: isRunning ? "pulse 2s ease-in-out infinite" : "none",
                 flexShrink: 0,
               }}
             />
@@ -214,25 +214,25 @@ const HookMessage = memo(({ message, CommandOutput }: HookMessageProps) => {
                     ? errorColor
                     : completedColor,
                 fontWeight: 500,
-                fontSize: '13px',
+                fontSize: "13px",
                 flexShrink: 0,
               }}
             >
               {isRunning
-                ? 'Running'
+                ? "Running"
                 : isFailed
-                  ? 'Failed'
+                  ? "Failed"
                   : isCancelled
-                    ? 'Aborted'
+                    ? "Aborted"
                     : isCompleted
-                      ? 'Completed'
-                      : 'Unknown'}
+                      ? "Completed"
+                      : "Unknown"}
             </span>
             {metadata.exitCode !== undefined && metadata.exitCode !== 0 && (
               <span
                 style={{
-                  color: 'var(--vscode-descriptionForeground)',
-                  fontSize: '12px',
+                  color: "var(--vscode-descriptionForeground)",
+                  fontSize: "12px",
                 }}
               >
                 (exit: {metadata.exitCode})
@@ -240,32 +240,32 @@ const HookMessage = memo(({ message, CommandOutput }: HookMessageProps) => {
             )}
           </div>
           {isRunning &&
-            metadata.hookName !== 'TaskCancel' &&
-            metadata.hookName !== 'TaskComplete' && (
+            metadata.hookName !== "TaskCancel" &&
+            metadata.hookName !== "TaskComplete" && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   // Cancel the task - cancelling a hook always cancels the entire task
                   TaskServiceClient.cancelTask(EmptyRequest.create({})).catch((err) =>
-                    console.error('Failed to cancel task:', err),
+                    console.error("Failed to cancel task:", err),
                   );
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background =
-                    'var(--vscode-button-secondaryHoverBackground)';
+                    "var(--vscode-button-secondaryHoverBackground)";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'var(--vscode-button-secondaryBackground)';
+                  e.currentTarget.style.background = "var(--vscode-button-secondaryBackground)";
                 }}
                 style={{
-                  background: 'var(--vscode-button-secondaryBackground)',
-                  color: 'var(--vscode-button-secondaryForeground)',
-                  border: 'none',
-                  borderRadius: '2px',
-                  padding: '4px 10px',
-                  fontSize: '12px',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
+                  background: "var(--vscode-button-secondaryBackground)",
+                  color: "var(--vscode-button-secondaryForeground)",
+                  border: "none",
+                  borderRadius: "2px",
+                  padding: "4px 10px",
+                  fontSize: "12px",
+                  cursor: "pointer",
+                  fontFamily: "inherit",
                 }}
               >
                 Abort
@@ -274,14 +274,14 @@ const HookMessage = memo(({ message, CommandOutput }: HookMessageProps) => {
         </div>
 
         {/* Show concise error message for specific error types */}
-        {isFailed && metadata.error && metadata.error.type === 'timeout' && (
+        {isFailed && metadata.error && metadata.error.type === "timeout" && (
           <div
             style={{
-              padding: '12px',
+              padding: "12px",
               borderBottom:
-                output.length > 0 ? '1px solid var(--vscode-editorGroup-border)' : 'none',
-              fontSize: '13px',
-              color: 'var(--vscode-descriptionForeground)',
+                output.length > 0 ? "1px solid var(--vscode-editorGroup-border)" : "none",
+              fontSize: "13px",
+              color: "var(--vscode-descriptionForeground)",
             }}
           >
             Took longer than 30 seconds. Check for infinite loops or add timeouts to network
@@ -289,14 +289,14 @@ const HookMessage = memo(({ message, CommandOutput }: HookMessageProps) => {
           </div>
         )}
 
-        {isFailed && metadata.error && metadata.error.type === 'validation' && (
+        {isFailed && metadata.error && metadata.error.type === "validation" && (
           <div
             style={{
-              padding: '12px',
+              padding: "12px",
               borderBottom:
-                output.length > 0 ? '1px solid var(--vscode-editorGroup-border)' : 'none',
-              fontSize: '13px',
-              color: 'var(--vscode-descriptionForeground)',
+                output.length > 0 ? "1px solid var(--vscode-editorGroup-border)" : "none",
+              fontSize: "13px",
+              color: "var(--vscode-descriptionForeground)",
             }}
           >
             Hook returned invalid JSON. See error details below for more information.

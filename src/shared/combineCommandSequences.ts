@@ -1,4 +1,4 @@
-import type { ClineMessage } from './ExtensionMessage';
+import type { ClineMessage } from "./ExtensionMessage";
 
 /**
  * Combines sequences of command and command_output messages in an array of ClineMessages.
@@ -25,24 +25,24 @@ export function combineCommandSequences(messages: ClineMessage[]): ClineMessage[
 
   // First pass: combine commands with their outputs
   for (let i = 0; i < messages.length; i++) {
-    if (messages[i].ask === 'command' || messages[i].say === 'command') {
-      let combinedText = messages[i].text || '';
+    if (messages[i].ask === "command" || messages[i].say === "command") {
+      let combinedText = messages[i].text || "";
       let didAddOutput = false;
       let j = i + 1;
 
       while (j < messages.length) {
-        if (messages[j].ask === 'command' || messages[j].say === 'command') {
+        if (messages[j].ask === "command" || messages[j].say === "command") {
           // Stop if we encounter the next command
           break;
         }
-        if (messages[j].ask === 'command_output' || messages[j].say === 'command_output') {
+        if (messages[j].ask === "command_output" || messages[j].say === "command_output") {
           if (!didAddOutput) {
             // Add a newline before the first output
             combinedText += `\n${COMMAND_OUTPUT_STRING}`;
             didAddOutput = true;
           }
           // handle cases where we receive empty command_output (ie when extension is relinquishing control over exit command button)
-          const output = messages[j].text || '';
+          const output = messages[j].text || "";
           if (output.length > 0) {
             combinedText += `\n${output}`;
           }
@@ -61,14 +61,14 @@ export function combineCommandSequences(messages: ClineMessage[]): ClineMessage[
 
   // Second pass: remove command_outputs and replace original commands with combined ones
   return messages
-    .filter((msg) => !(msg.ask === 'command_output' || msg.say === 'command_output'))
+    .filter((msg) => !(msg.ask === "command_output" || msg.say === "command_output"))
     .map((msg) => {
-      if (msg.ask === 'command' || msg.say === 'command') {
+      if (msg.ask === "command" || msg.say === "command") {
         const combinedCommand = combinedCommands.find((cmd) => cmd.ts === msg.ts);
         return combinedCommand || msg;
       }
       return msg;
     });
 }
-export const COMMAND_OUTPUT_STRING = 'Output:';
-export const COMMAND_REQ_APP_STRING = 'REQ_APP';
+export const COMMAND_OUTPUT_STRING = "Output:";
+export const COMMAND_REQ_APP_STRING = "REQ_APP";

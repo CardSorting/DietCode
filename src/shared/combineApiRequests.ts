@@ -1,4 +1,4 @@
-import type { ClineMessage } from './ExtensionMessage';
+import type { ClineMessage } from "./ExtensionMessage";
 
 /**
  * Combines API request start and finish messages in an array of ClineMessages.
@@ -22,13 +22,13 @@ export function combineApiRequests(messages: ClineMessage[]): ClineMessage[] {
   const combinedApiRequests: ClineMessage[] = [];
 
   for (let i = 0; i < messages.length; i++) {
-    if (messages[i].type === 'say' && messages[i].say === 'api_req_started') {
-      const startedRequest = JSON.parse(messages[i].text || '{}');
+    if (messages[i].type === "say" && messages[i].say === "api_req_started") {
+      const startedRequest = JSON.parse(messages[i].text || "{}");
       let j = i + 1;
 
       while (j < messages.length) {
-        if (messages[j].type === 'say' && messages[j].say === 'api_req_finished') {
-          const finishedRequest = JSON.parse(messages[j].text || '{}');
+        if (messages[j].type === "say" && messages[j].say === "api_req_finished") {
+          const finishedRequest = JSON.parse(messages[j].text || "{}");
           const combinedRequest = {
             ...startedRequest,
             ...finishedRequest,
@@ -54,9 +54,9 @@ export function combineApiRequests(messages: ClineMessage[]): ClineMessage[] {
 
   // Replace original api_req_started and remove api_req_finished
   return messages
-    .filter((msg) => !(msg.type === 'say' && msg.say === 'api_req_finished'))
+    .filter((msg) => !(msg.type === "say" && msg.say === "api_req_finished"))
     .map((msg) => {
-      if (msg.type === 'say' && msg.say === 'api_req_started') {
+      if (msg.type === "say" && msg.say === "api_req_started") {
         const combinedRequest = combinedApiRequests.find((req) => req.ts === msg.ts);
         return combinedRequest || msg;
       }

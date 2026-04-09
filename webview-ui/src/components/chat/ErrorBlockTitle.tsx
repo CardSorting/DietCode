@@ -1,6 +1,6 @@
-import { ClineError, ClineErrorType } from '@services/error/ClineError';
-import type React from 'react';
-import { ProgressIndicator } from './ChatRow';
+import { ClineError, ClineErrorType } from "@services/error/ClineError";
+import type React from "react";
+import { ProgressIndicator } from "./ChatRow";
 
 interface ErrorBlockTitleProps {
   cost?: number;
@@ -28,48 +28,48 @@ export const ErrorBlockTitle = ({
 
   const icon =
     apiReqCancelReason != null ? (
-      apiReqCancelReason === 'user_cancelled' ? (
-        getIconSpan('error', 'text-(--vscode-descriptionForeground)')
+      apiReqCancelReason === "user_cancelled" ? (
+        getIconSpan("error", "text-(--vscode-descriptionForeground)")
       ) : (
-        getIconSpan('error', 'text-(--vscode-errorForeground)')
+        getIconSpan("error", "text-(--vscode-errorForeground)")
       )
     ) : cost != null ? (
-      getIconSpan('check', 'text-(--vscode-charts-green)')
+      getIconSpan("check", "text-(--vscode-charts-green)")
     ) : apiRequestFailedMessage ? (
-      getIconSpan('error', 'text-(--vscode-errorForeground)')
+      getIconSpan("error", "text-(--vscode-errorForeground)")
     ) : (
       <ProgressIndicator />
     );
 
   const title = (() => {
     // Default loading state
-    const details = { title: 'API Request...', classNames: ['font-bold'] };
+    const details = { title: "API Request...", classNames: ["font-bold"] };
     // Handle cancellation states first
-    if (apiReqCancelReason === 'user_cancelled') {
-      details.title = 'API Request Cancelled';
-      details.classNames.push('text-(--vscode-foreground)');
+    if (apiReqCancelReason === "user_cancelled") {
+      details.title = "API Request Cancelled";
+      details.classNames.push("text-(--vscode-foreground)");
     } else if (apiReqCancelReason != null) {
-      details.title = 'API Request Failed';
-      details.classNames.push('text-(--vscode-errorForeground)');
+      details.title = "API Request Failed";
+      details.classNames.push("text-(--vscode-errorForeground)");
     } else if (cost != null) {
       // Handle completed request
-      details.title = 'API Request';
-      details.classNames.push('text-(--vscode-foreground)');
+      details.title = "API Request";
+      details.classNames.push("text-(--vscode-foreground)");
     } else if (apiRequestFailedMessage) {
       // Handle failed request
       const clineError = ClineError.parse(apiRequestFailedMessage);
       const titleText = clineError?.isErrorType(ClineErrorType.Balance)
-        ? 'Credit Limit Reached'
-        : 'API Request Failed';
+        ? "Credit Limit Reached"
+        : "API Request Failed";
       details.title = titleText;
-      details.classNames.push('font-bold text-(--vscode-errorForeground)');
+      details.classNames.push("font-bold text-(--vscode-errorForeground)");
     } else if (retryStatus) {
       // Handle retry state
-      details.title = 'API Request';
-      details.classNames.push('text-(--vscode-foreground)');
+      details.title = "API Request";
+      details.classNames.push("text-(--vscode-foreground)");
     }
 
-    return <span className={details.classNames.join(' ')}>{details.title}</span>;
+    return <span className={details.classNames.join(" ")}>{details.title}</span>;
   })();
 
   return [icon, title];

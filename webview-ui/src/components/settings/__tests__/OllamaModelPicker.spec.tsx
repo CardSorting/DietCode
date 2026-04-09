@@ -1,24 +1,24 @@
-import { ExtensionStateContextProvider } from '@/context/ExtensionStateContext';
-import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
-import OllamaModelPicker from '../OllamaModelPicker';
+import { ExtensionStateContextProvider } from "@/context/ExtensionStateContext";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import OllamaModelPicker from "../OllamaModelPicker";
 
 // Mock the ExtensionStateContext
-vi.mock('../../../context/ExtensionStateContext', async (importOriginal) => {
+vi.mock("../../../context/ExtensionStateContext", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...(actual || {}),
     useExtensionState: vi.fn(() => ({
       apiConfiguration: {
-        apiProvider: 'ollama',
-        ollamaModelId: 'llama2',
+        apiProvider: "ollama",
+        ollamaModelId: "llama2",
       },
       setApiConfiguration: vi.fn(),
     })),
   };
 });
 
-describe('OllamaModelPicker Component', () => {
+describe("OllamaModelPicker Component", () => {
   vi.clearAllMocks();
   const mockPostMessage = vi.fn();
   const mockOnModelChange = vi.fn();
@@ -29,48 +29,48 @@ describe('OllamaModelPicker Component', () => {
     mockOnModelChange.mockClear();
   });
 
-  it('renders the model search input', () => {
+  it("renders the model search input", () => {
     render(
       <ExtensionStateContextProvider>
         <OllamaModelPicker
-          ollamaModels={['llama2', 'mistral', 'codellama']}
+          ollamaModels={["llama2", "mistral", "codellama"]}
           onModelChange={mockOnModelChange}
           selectedModelId="llama2"
         />
       </ExtensionStateContextProvider>,
     );
-    const modelSearchInput = screen.getByPlaceholderText('Search and select a model...');
+    const modelSearchInput = screen.getByPlaceholderText("Search and select a model...");
     expect(modelSearchInput).toBeInTheDocument();
-    expect(modelSearchInput).toHaveValue('llama2');
+    expect(modelSearchInput).toHaveValue("llama2");
   });
 
-  it('renders with custom placeholder', () => {
+  it("renders with custom placeholder", () => {
     render(
       <ExtensionStateContextProvider>
         <OllamaModelPicker
-          ollamaModels={['llama2', 'mistral', 'codellama']}
+          ollamaModels={["llama2", "mistral", "codellama"]}
           onModelChange={mockOnModelChange}
           placeholder="Select an Ollama model..."
           selectedModelId="llama2"
         />
       </ExtensionStateContextProvider>,
     );
-    const modelSearchInput = screen.getByPlaceholderText('Select an Ollama model...');
+    const modelSearchInput = screen.getByPlaceholderText("Select an Ollama model...");
     expect(modelSearchInput).toBeInTheDocument();
   });
 
-  it('shows dropdown when input is focused', () => {
+  it("shows dropdown when input is focused", () => {
     render(
       <ExtensionStateContextProvider>
         <OllamaModelPicker
-          ollamaModels={['llama2', 'mistral', 'codellama']}
+          ollamaModels={["llama2", "mistral", "codellama"]}
           onModelChange={mockOnModelChange}
           selectedModelId="llama2"
         />
       </ExtensionStateContextProvider>,
     );
 
-    const modelSearchInput = screen.getByPlaceholderText('Search and select a model...');
+    const modelSearchInput = screen.getByPlaceholderText("Search and select a model...");
     fireEvent.focus(modelSearchInput);
 
     // Check if dropdown items are displayed
@@ -78,36 +78,36 @@ describe('OllamaModelPicker Component', () => {
     expect(dropdownItems.length).toBeGreaterThan(0);
   });
 
-  it('filters models when searching', () => {
+  it("filters models when searching", () => {
     render(
       <ExtensionStateContextProvider>
         <OllamaModelPicker
-          ollamaModels={['llama2', 'mistral', 'codellama']}
+          ollamaModels={["llama2", "mistral", "codellama"]}
           onModelChange={mockOnModelChange}
           selectedModelId="llama2"
         />
       </ExtensionStateContextProvider>,
     );
 
-    const modelSearchInput = screen.getByPlaceholderText('Search and select a model...');
+    const modelSearchInput = screen.getByPlaceholderText("Search and select a model...");
     fireEvent.focus(modelSearchInput);
-    fireEvent.input(modelSearchInput, { target: { value: 'code' } });
+    fireEvent.input(modelSearchInput, { target: { value: "code" } });
 
     // Find the element containing "codellama" text - using getAllByText since there might be multiple matches
     const codeItems = screen.getAllByText((_content, element) => {
-      return element?.textContent?.includes('codellama') || false;
+      return element?.textContent?.includes("codellama") || false;
     });
 
     // Verify at least one item was found
     expect(codeItems.length).toBeGreaterThan(0);
-    expect(codeItems[0].textContent).toContain('code');
+    expect(codeItems[0].textContent).toContain("code");
   });
 
-  it('calls onModelChange when a model is selected', () => {
+  it("calls onModelChange when a model is selected", () => {
     render(
       <ExtensionStateContextProvider>
         <OllamaModelPicker
-          ollamaModels={['llama2', 'mistral', 'codellama']}
+          ollamaModels={["llama2", "mistral", "codellama"]}
           onModelChange={mockOnModelChange}
           selectedModelId="llama2"
         />
@@ -115,7 +115,7 @@ describe('OllamaModelPicker Component', () => {
     );
 
     // Get the input and focus it to show dropdown
-    const modelSearchInput = screen.getByPlaceholderText('Search and select a model...');
+    const modelSearchInput = screen.getByPlaceholderText("Search and select a model...");
     fireEvent.focus(modelSearchInput);
 
     // Find any dropdown item and click it to test selection
@@ -129,11 +129,11 @@ describe('OllamaModelPicker Component', () => {
     expect(mockOnModelChange).toHaveBeenCalled();
   });
 
-  it('clears input when clear button is clicked', () => {
+  it("clears input when clear button is clicked", () => {
     render(
       <ExtensionStateContextProvider>
         <OllamaModelPicker
-          ollamaModels={['llama2', 'mistral', 'codellama']}
+          ollamaModels={["llama2", "mistral", "codellama"]}
           onModelChange={mockOnModelChange}
           selectedModelId="llama2"
         />
@@ -141,18 +141,18 @@ describe('OllamaModelPicker Component', () => {
     );
 
     // Clear button should be visible when there's a value
-    const clearButton = screen.getByLabelText('Clear search');
+    const clearButton = screen.getByLabelText("Clear search");
     fireEvent.click(clearButton);
 
     // Check if onModelChange was called with empty string
-    expect(mockOnModelChange).toHaveBeenCalledWith('');
+    expect(mockOnModelChange).toHaveBeenCalledWith("");
   });
 
-  it('updates search term when selectedModelId changes externally', () => {
+  it("updates search term when selectedModelId changes externally", () => {
     const { rerender } = render(
       <ExtensionStateContextProvider>
         <OllamaModelPicker
-          ollamaModels={['llama2', 'mistral', 'codellama']}
+          ollamaModels={["llama2", "mistral", "codellama"]}
           onModelChange={mockOnModelChange}
           selectedModelId="llama2"
         />
@@ -160,14 +160,14 @@ describe('OllamaModelPicker Component', () => {
     );
 
     // Check initial value
-    const modelSearchInput = screen.getByPlaceholderText('Search and select a model...');
-    expect(modelSearchInput).toHaveValue('llama2');
+    const modelSearchInput = screen.getByPlaceholderText("Search and select a model...");
+    expect(modelSearchInput).toHaveValue("llama2");
 
     // Rerender with different selectedModelId
     rerender(
       <ExtensionStateContextProvider>
         <OllamaModelPicker
-          ollamaModels={['llama2', 'mistral', 'codellama']}
+          ollamaModels={["llama2", "mistral", "codellama"]}
           onModelChange={mockOnModelChange}
           selectedModelId="mistral"
         />
@@ -175,10 +175,10 @@ describe('OllamaModelPicker Component', () => {
     );
 
     // Check if search term was updated
-    expect(modelSearchInput).toHaveValue('mistral');
+    expect(modelSearchInput).toHaveValue("mistral");
   });
 
-  it('handles keyboard navigation in dropdown', () => {
+  it("handles keyboard navigation in dropdown", () => {
     // Mock scrollIntoView since it's not available in the test environment
     Element.prototype.scrollIntoView = vi.fn();
 
@@ -186,37 +186,37 @@ describe('OllamaModelPicker Component', () => {
     render(
       <ExtensionStateContextProvider>
         <OllamaModelPicker
-          ollamaModels={['llama2', 'mistral', 'codellama']}
+          ollamaModels={["llama2", "mistral", "codellama"]}
           onModelChange={mockOnModelChange}
           selectedModelId="llama2"
         />
       </ExtensionStateContextProvider>,
     );
 
-    const modelSearchInput = screen.getByPlaceholderText('Search and select a model...');
+    const modelSearchInput = screen.getByPlaceholderText("Search and select a model...");
     fireEvent.focus(modelSearchInput);
 
     // Instead of relying on keyboard navigation, directly mock the selection
     // by calling onModelChange with "mistral"
     mockOnModelChange.mockClear();
-    mockOnModelChange('mistral');
+    mockOnModelChange("mistral");
 
     // Verify the mock was called with the expected value
-    expect(mockOnModelChange).toHaveBeenCalledWith('mistral');
+    expect(mockOnModelChange).toHaveBeenCalledWith("mistral");
   });
 
-  it('closes dropdown when Escape key is pressed', () => {
+  it("closes dropdown when Escape key is pressed", () => {
     render(
       <ExtensionStateContextProvider>
         <OllamaModelPicker
-          ollamaModels={['llama2', 'mistral', 'codellama']}
+          ollamaModels={["llama2", "mistral", "codellama"]}
           onModelChange={mockOnModelChange}
           selectedModelId="llama2"
         />
       </ExtensionStateContextProvider>,
     );
 
-    const modelSearchInput = screen.getByPlaceholderText('Search and select a model...');
+    const modelSearchInput = screen.getByPlaceholderText("Search and select a model...");
     fireEvent.focus(modelSearchInput);
 
     // Check if dropdown is visible
@@ -224,20 +224,20 @@ describe('OllamaModelPicker Component', () => {
     expect(dropdownItems.length).toBeGreaterThan(0);
 
     // Press Escape to close dropdown
-    fireEvent.keyDown(modelSearchInput, { key: 'Escape' });
+    fireEvent.keyDown(modelSearchInput, { key: "Escape" });
 
     // Check if dropdown is hidden - we can't easily check this in the test environment
     // Just verify the test doesn't crash
   });
 
-  it('handles empty models array', () => {
+  it("handles empty models array", () => {
     render(
       <ExtensionStateContextProvider>
         <OllamaModelPicker ollamaModels={[]} onModelChange={mockOnModelChange} selectedModelId="" />
       </ExtensionStateContextProvider>,
     );
 
-    const modelSearchInput = screen.getByPlaceholderText('Search and select a model...');
+    const modelSearchInput = screen.getByPlaceholderText("Search and select a model...");
     fireEvent.focus(modelSearchInput);
 
     // No dropdown items should be displayed for empty models array

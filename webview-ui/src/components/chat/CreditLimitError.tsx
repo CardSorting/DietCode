@@ -1,10 +1,10 @@
-import VSCodeButtonLink from '@/components/common/VSCodeButtonLink';
-import { useClineAuth } from '@/context/ClineAuthContext';
-import { AccountServiceClient, TaskServiceClient } from '@/services/grpc-client';
-import { AskResponseRequest } from '@shared/nice-grpc/cline/task.ts';
-import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
-import type React from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import VSCodeButtonLink from "@/components/common/VSCodeButtonLink";
+import { useClineAuth } from "@/context/ClineAuthContext";
+import { AccountServiceClient, TaskServiceClient } from "@/services/grpc-client";
+import { AskResponseRequest } from "@shared/nice-grpc/cline/task.ts";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import type React from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface CreditLimitErrorProps {
   currentBalance: number;
@@ -15,19 +15,19 @@ interface CreditLimitErrorProps {
 }
 
 const DEFAULT_BUY_CREDITS_URL = {
-  USER: 'https://app.cline.bot/dashboard/account?tab=credits&redirect=true',
-  ORG: 'https://app.cline.bot/dashboard/organization?tab=credits&redirect=true',
+  USER: "https://app.cline.bot/dashboard/account?tab=credits&redirect=true",
+  ORG: "https://app.cline.bot/dashboard/organization?tab=credits&redirect=true",
 };
 
 const CreditLimitError: React.FC<CreditLimitErrorProps> = ({
-  message = 'You have run out of credits.',
+  message = "You have run out of credits.",
   buyCreditsUrl,
   currentBalance,
   totalPromotions,
   totalSpent,
 }) => {
   const { activeOrganization } = useClineAuth();
-  const [fullBuyCreditsUrl, setFullBuyCreditsUrl] = useState<string>('');
+  const [fullBuyCreditsUrl, setFullBuyCreditsUrl] = useState<string>("");
 
   const dashboardUrl = useMemo(() => {
     return (
@@ -43,10 +43,10 @@ const CreditLimitError: React.FC<CreditLimitErrorProps> = ({
       try {
         const callbackUrl = (await AccountServiceClient.getRedirectUrl({})).value;
         const url = new URL(dashboardUrl);
-        url.searchParams.set('callback_url', callbackUrl);
+        url.searchParams.set("callback_url", callbackUrl);
         setFullBuyCreditsUrl(url.toString());
       } catch (error) {
-        console.error('Error fetching callback URL:', error);
+        console.error("Error fetching callback URL:", error);
         // Fallback to URL without callback if the API call fails
         setFullBuyCreditsUrl(dashboardUrl);
       }
@@ -86,11 +86,11 @@ const CreditLimitError: React.FC<CreditLimitErrorProps> = ({
           try {
             await TaskServiceClient.askResponse(
               AskResponseRequest.create({
-                responseType: 'yesButtonClicked',
+                responseType: "yesButtonClicked",
               }),
             );
           } catch (error) {
-            console.error('Error invoking action:', error);
+            console.error("Error invoking action:", error);
           }
         }}
       >

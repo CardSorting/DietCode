@@ -1,32 +1,32 @@
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { type ClineUser, handleSignOut } from '@/context/ClineAuthContext';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { AccountServiceClient } from '@/services/grpc-client';
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { type ClineUser, handleSignOut } from "@/context/ClineAuthContext";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { AccountServiceClient } from "@/services/grpc-client";
 import type {
   UsageTransaction as ClineAccountUsageTransaction,
   PaymentTransaction,
-} from '@shared/ClineAccount';
-import { isClineInternalTester } from '@shared/internal/account.ts';
-import type { UserOrganization } from '@shared/nice-grpc/cline/account';
-import { EmptyRequest } from '@shared/nice-grpc/cline/common.ts';
+} from "@shared/ClineAccount";
+import { isClineInternalTester } from "@shared/internal/account.ts";
+import type { UserOrganization } from "@shared/nice-grpc/cline/account";
+import { EmptyRequest } from "@shared/nice-grpc/cline/common.ts";
 import {
   VSCodeButton,
   VSCodeDivider,
   VSCodeDropdown,
   VSCodeOption,
   VSCodeTag,
-} from '@vscode/webview-ui-toolkit/react';
-import deepEqual from 'fast-deep-equal';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useInterval } from 'react-use';
-import VSCodeButtonLink from '../common/VSCodeButtonLink';
-import ViewHeader from '../common/ViewHeader';
-import { updateSetting } from '../settings/utils/settingsHandlers';
-import { AccountWelcomeView } from './AccountWelcomeView';
-import { CreditBalance } from './CreditBalance';
-import CreditsHistoryTable from './CreditsHistoryTable';
-import { RemoteConfigToggle } from './RemoteConfigToggle';
-import { convertProtoUsageTransactions, getClineUris, getMainRole } from './helpers';
+} from "@vscode/webview-ui-toolkit/react";
+import deepEqual from "fast-deep-equal";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useInterval } from "react-use";
+import VSCodeButtonLink from "../common/VSCodeButtonLink";
+import ViewHeader from "../common/ViewHeader";
+import { updateSetting } from "../settings/utils/settingsHandlers";
+import { AccountWelcomeView } from "./AccountWelcomeView";
+import { CreditBalance } from "./CreditBalance";
+import CreditsHistoryTable from "./CreditsHistoryTable";
+import { RemoteConfigToggle } from "./RemoteConfigToggle";
+import { convertProtoUsageTransactions, getClineUris, getMainRole } from "./helpers";
 
 type AccountViewProps = {
   clineUser: ClineUser | null;
@@ -39,7 +39,7 @@ type ClineAccountViewProps = {
   clineUser: ClineUser;
   userOrganizations: UserOrganization[] | null;
   activeOrganization: UserOrganization | null;
-  clineEnv: 'Production' | 'Staging' | 'Local';
+  clineEnv: "Production" | "Staging" | "Local";
 };
 
 type CachedData = {
@@ -49,7 +49,7 @@ type CachedData = {
   lastFetchTime: number;
 };
 
-const ClineEnvOptions = ['Production', 'Staging', 'Local'] as const;
+const ClineEnvOptions = ["Production", "Staging", "Local"] as const;
 
 const AccountView = ({
   onDone,
@@ -67,11 +67,11 @@ const AccountView = ({
           <ClineAccountView
             activeOrganization={activeOrganization}
             clineEnv={
-              environment === 'local'
-                ? 'Local'
-                : environment === 'staging'
-                  ? 'Staging'
-                  : 'Production'
+              environment === "local"
+                ? "Local"
+                : environment === "staging"
+                  ? "Staging"
+                  : "Production"
             }
             clineUser={clineUser}
             key={clineUser.uid}
@@ -162,7 +162,7 @@ export const ClineAccountView = ({
       const newPaymentsData = response.paymentTransactions;
       setPaymentsData((prev) => (deepEqual(newPaymentsData, prev) ? prev : newPaymentsData));
     } catch (error) {
-      console.error('Failed to fetch user credit:', error);
+      console.error("Failed to fetch user credit:", error);
     }
   }, []);
 
@@ -196,7 +196,7 @@ export const ClineAccountView = ({
         // Cache the updated data
         cacheCurrentData(id);
       } catch (error) {
-        console.error('Failed to fetch credit balance:', error);
+        console.error("Failed to fetch credit balance:", error);
       } finally {
         setLastFetchTime(Date.now());
         setIsLoading(false);
@@ -258,7 +258,7 @@ export const ClineAccountView = ({
     fetchCreditBalance(dropdownValue);
   }, 60000);
 
-  const clineUrl = appBaseUrl || 'https://app.cline.bot';
+  const clineUrl = appBaseUrl || "https://app.cline.bot";
 
   // Fetch balance on mount
   useEffect(() => {
@@ -339,7 +339,7 @@ export const ClineAccountView = ({
 								<img src={user.photoUrl} alt="Profile" className="size-16 rounded-full mr-4" />
 							) : ( */}
             <div className="size-16 rounded-full bg-button-background flex items-center justify-center text-2xl text-button-foreground mr-4">
-              {displayName?.[0] || email?.[0] || '?'}
+              {displayName?.[0] || email?.[0] || "?"}
             </div>
             {/* )} */}
 
@@ -391,7 +391,7 @@ export const ClineAccountView = ({
             <VSCodeButtonLink
               appearance="primary"
               className="w-full"
-              href={getClineUris(clineUrl, 'dashboard').href}
+              href={getClineUris(clineUrl, "dashboard").href}
             >
               Dashboard
             </VSCodeButtonLink>
@@ -411,8 +411,8 @@ export const ClineAccountView = ({
           balance={balance}
           creditUrl={getClineUris(
             clineUrl,
-            'credits',
-            dropdownValue === uid ? 'account' : 'organization',
+            "credits",
+            dropdownValue === uid ? "account" : "organization",
           )}
           fetchCreditBalance={() => fetchCreditBalance(dropdownValue)}
           isLoading={isLoading}
@@ -421,7 +421,7 @@ export const ClineAccountView = ({
 
         <VSCodeDivider className="mt-6 mb-3 w-full" />
 
-        <div className="grow flex flex-col min-h-0 pb-[0px]">
+        <div className="grow flex flex-col min-h-0 pb-0">
           <CreditsHistoryTable
             isLoading={isLoading}
             paymentsData={paymentsData}
@@ -431,18 +431,18 @@ export const ClineAccountView = ({
         </div>
 
         {/* Hide environment switching UI when in self-hosted mode */}
-        {isClineTester && environment !== 'selfHosted' && (
+        {isClineTester && environment !== "selfHosted" && (
           <div className="w-full gap-1 items-end">
             <VSCodeDivider className="w-full my-3" />
-            <div className="text-sm font-semibold">Cline Environment</div>
+            <div className="text-sm font-semibold">DietCode Environment</div>
             <VSCodeDropdown
               className="w-full mt-1"
               currentValue={clineEnv}
               onChange={async (e) => {
                 const target = e.target as HTMLSelectElement;
                 if (target?.value) {
-                  const value = target.value as 'Local' | 'Staging' | 'Production';
-                  updateSetting('clineEnv', value.toLowerCase());
+                  const value = target.value as "Local" | "Staging" | "Production";
+                  updateSetting("clineEnv", value.toLowerCase());
                 }
               }}
             >

@@ -6,55 +6,55 @@
  * and extracts them to dist-standalone/ripgrep-binaries/
  */
 
-import { exec } from 'node:child_process';
-import fs from 'node:fs';
-import https from 'node:https';
-import path from 'node:path';
-import { pipeline } from 'node:stream/promises';
-import { promisify } from 'node:util';
-import { createGunzip } from 'node:zlib';
-import * as tar from 'tar';
+import { exec } from "node:child_process";
+import fs from "node:fs";
+import https from "node:https";
+import path from "node:path";
+import { pipeline } from "node:stream/promises";
+import { promisify } from "node:util";
+import { createGunzip } from "node:zlib";
+import * as tar from "tar";
 
 const execAsync = promisify(exec);
 
-const RIPGREP_VERSION = '14.1.1';
-const OUTPUT_DIR = 'dist-standalone/ripgrep-binaries';
+const RIPGREP_VERSION = "14.1.1";
+const OUTPUT_DIR = "dist-standalone/ripgrep-binaries";
 
 // Platform configurations
 const PLATFORMS = [
   {
-    name: 'darwin-x64',
+    name: "darwin-x64",
     archiveName: `ripgrep-${RIPGREP_VERSION}-x86_64-apple-darwin.tar.gz`,
     url: `https://github.com/BurntSushi/ripgrep/releases/download/${RIPGREP_VERSION}/ripgrep-${RIPGREP_VERSION}-x86_64-apple-darwin.tar.gz`,
-    binaryPath: 'rg',
+    binaryPath: "rg",
     isZip: false,
   },
   {
-    name: 'darwin-arm64',
+    name: "darwin-arm64",
     archiveName: `ripgrep-${RIPGREP_VERSION}-aarch64-apple-darwin.tar.gz`,
     url: `https://github.com/BurntSushi/ripgrep/releases/download/${RIPGREP_VERSION}/ripgrep-${RIPGREP_VERSION}-aarch64-apple-darwin.tar.gz`,
-    binaryPath: 'rg',
+    binaryPath: "rg",
     isZip: false,
   },
   {
-    name: 'linux-x64',
+    name: "linux-x64",
     archiveName: `ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl.tar.gz`,
     url: `https://github.com/BurntSushi/ripgrep/releases/download/${RIPGREP_VERSION}/ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl.tar.gz`,
-    binaryPath: 'rg',
+    binaryPath: "rg",
     isZip: false,
   },
   {
-    name: 'linux-aarch64',
+    name: "linux-aarch64",
     archiveName: `ripgrep-${RIPGREP_VERSION}-aarch64-unknown-linux-gnu.tar.gz`,
     url: `https://github.com/BurntSushi/ripgrep/releases/download/${RIPGREP_VERSION}/ripgrep-${RIPGREP_VERSION}-aarch64-unknown-linux-gnu.tar.gz`,
-    binaryPath: 'rg',
+    binaryPath: "rg",
     isZip: false,
   },
   {
-    name: 'win-x64',
+    name: "win-x64",
     archiveName: `ripgrep-${RIPGREP_VERSION}-x86_64-pc-windows-msvc.zip`,
     url: `https://github.com/BurntSushi/ripgrep/releases/download/${RIPGREP_VERSION}/ripgrep-${RIPGREP_VERSION}-x86_64-pc-windows-msvc.zip`,
-    binaryPath: 'rg.exe',
+    binaryPath: "rg.exe",
     isZip: true,
   },
 ];
@@ -81,17 +81,17 @@ async function downloadFile(url, destPath) {
 
         response.pipe(file);
 
-        file.on('finish', () => {
+        file.on("finish", () => {
           file.close();
           resolve();
         });
       })
-      .on('error', (err) => {
+      .on("error", (err) => {
         fs.unlink(destPath, () => {}); // Delete the file on error
         reject(err);
       });
 
-    file.on('error', (err) => {
+    file.on("error", (err) => {
       fs.unlink(destPath, () => {}); // Delete the file on error
       reject(err);
     });
@@ -126,7 +126,7 @@ async function extractZip(zipPath, destDir) {
 
     // Find the extracted directory (usually ripgrep-VERSION-arch)
     const items = fs.readdirSync(destDir);
-    const extractedDir = items.find((item) => item.startsWith('ripgrep-'));
+    const extractedDir = items.find((item) => item.startsWith("ripgrep-"));
 
     if (extractedDir) {
       // Move files from subdirectory to destDir
@@ -173,7 +173,7 @@ async function downloadRipgrepForPlatform(platform) {
   try {
     // Download
     await downloadFile(platform.url, archivePath);
-    console.log('  ✓ Downloaded');
+    console.log("  ✓ Downloaded");
 
     // Extract
     if (platform.isZip) {
@@ -181,7 +181,7 @@ async function downloadRipgrepForPlatform(platform) {
     } else {
       await extractTarGz(archivePath, platformDir);
     }
-    console.log('  ✓ Extracted');
+    console.log("  ✓ Extracted");
 
     // Verify the binary exists
     const binaryPath = path.join(platformDir, platform.binaryPath);
@@ -197,7 +197,7 @@ async function downloadRipgrepForPlatform(platform) {
 
     // Clean up archive file
     fs.unlinkSync(archivePath);
-    console.log('  ✓ Cleaned up');
+    console.log("  ✓ Cleaned up");
 
     return true;
   } catch (error) {
@@ -210,7 +210,7 @@ async function downloadRipgrepForPlatform(platform) {
  * Main function
  */
 async function main() {
-  console.log('🚀 Ripgrep Binary Downloader');
+  console.log("🚀 Ripgrep Binary Downloader");
   console.log(`   Version: ${RIPGREP_VERSION}`);
   console.log(`   Output: ${OUTPUT_DIR}`);
 
@@ -229,13 +229,13 @@ async function main() {
   }
 
   // Print summary
-  console.log(`\n${'='.repeat(50)}`);
-  console.log('📊 Summary:');
-  console.log('='.repeat(50));
+  console.log(`\n${"=".repeat(50)}`);
+  console.log("📊 Summary:");
+  console.log("=".repeat(50));
 
   let successCount = 0;
   for (const result of results) {
-    const status = result.success ? '✅' : '❌';
+    const status = result.success ? "✅" : "❌";
     console.log(`${status} ${result.platform}`);
     if (result.success) {
       successCount++;
@@ -244,18 +244,18 @@ async function main() {
     }
   }
 
-  console.log('='.repeat(50));
+  console.log("=".repeat(50));
   console.log(`✓ ${successCount}/${PLATFORMS.length} platforms successful`);
 
   if (successCount < PLATFORMS.length) {
     process.exit(1);
   }
 
-  console.log('\n✅ All ripgrep binaries downloaded successfully!');
+  console.log("\n✅ All ripgrep binaries downloaded successfully!");
 }
 
 // Run the script
 main().catch((error) => {
-  console.error('\n❌ Fatal error:', error);
+  console.error("\n❌ Fatal error:", error);
   process.exit(1);
 });

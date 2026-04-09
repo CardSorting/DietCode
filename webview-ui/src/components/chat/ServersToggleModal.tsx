@@ -1,15 +1,15 @@
-import PopupModalContainer from '@/components/common/PopupModalContainer';
-import ServersToggleList from '@/components/mcp/configuration/tabs/installed/ServersToggleList';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { McpServiceClient } from '@/services/grpc-client';
-import { EmptyRequest } from '@shared/nice-grpc/cline/common.ts';
-import type { McpServers } from '@shared/nice-grpc/cline/mcp.ts';
-import { convertProtoMcpServersToMcpServers } from '@shared/proto-conversions/mcp/mcp-server-conversion.ts';
-import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
-import type React from 'react';
-import { useEffect, useRef, useState } from 'react';
-import { useClickAway, useWindowSize } from 'react-use';
+import PopupModalContainer from "@/components/common/PopupModalContainer";
+import ServersToggleList from "@/components/mcp/configuration/tabs/installed/ServersToggleList";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { McpServiceClient } from "@/services/grpc-client";
+import { EmptyRequest } from "@shared/nice-grpc/cline/common.ts";
+import type { McpServers } from "@shared/nice-grpc/cline/mcp.ts";
+import { convertProtoMcpServersToMcpServers } from "@shared/proto-conversions/mcp/mcp-server-conversion.ts";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
+import { useClickAway, useWindowSize } from "react-use";
 
 const ServersToggleModal: React.FC = () => {
   const { mcpServers, navigateToMcp, setMcpServers } = useExtensionState();
@@ -30,7 +30,7 @@ const ServersToggleModal: React.FC = () => {
           }
         })
         .catch((error) => {
-          console.error('Failed to fetch MCP servers:', error);
+          console.error("Failed to fetch MCP servers:", error);
         });
     }
   }, [isVisible, setMcpServers]);
@@ -60,11 +60,11 @@ const ServersToggleModal: React.FC = () => {
           <TooltipTrigger>
             <VSCodeButton
               appearance="icon"
-              aria-label={isVisible ? 'Hide MCP Servers' : 'Show MCP Servers'}
+              aria-label={isVisible ? "Hide MCP Servers" : "Show MCP Servers"}
               className="p-0 m-0 flex items-center"
               onClick={() => setIsVisible(!isVisible)}
             >
-              <i className="codicon codicon-server" style={{ fontSize: '12.5px' }} />
+              <i className="codicon codicon-server" style={{ fontSize: "12.5px" }} />
             </VSCodeButton>
           </TooltipTrigger>
         </Tooltip>
@@ -72,7 +72,7 @@ const ServersToggleModal: React.FC = () => {
 
       {isVisible && (
         <PopupModalContainer $arrowPosition={arrowPosition} $menuPosition={menuPosition}>
-          <div className="flex-shrink-0 px-3 pt-2">
+          <div className="shrink-0 px-3 pt-2">
             <div className="flex justify-between items-center mb-2.5">
               <div className="m-0 text-sm font-medium">MCP Servers</div>
               <VSCodeButton
@@ -80,7 +80,7 @@ const ServersToggleModal: React.FC = () => {
                 aria-label="Go to MCP server settings"
                 onClick={() => {
                   setIsVisible(false);
-                  navigateToMcp('configure');
+                  navigateToMcp("configure");
                 }}
               >
                 <span className="codicon codicon-gear text-[10px]" />

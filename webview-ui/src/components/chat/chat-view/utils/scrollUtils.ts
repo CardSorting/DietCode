@@ -2,8 +2,8 @@
  * Utility functions for scroll behavior and management
  */
 
-import debounce from 'debounce';
-import type { VirtuosoHandle } from 'react-virtuoso';
+import debounce from "debounce";
+import type { VirtuosoHandle } from "react-virtuoso";
 
 /**
  * Create a debounced smooth scroll function
@@ -13,7 +13,7 @@ export function createSmoothScrollToBottom(virtuosoRef: React.RefObject<Virtuoso
     () => {
       virtuosoRef.current?.scrollTo({
         top: Number.MAX_SAFE_INTEGER,
-        behavior: 'smooth',
+        behavior: "smooth",
       });
     },
     10,
@@ -27,7 +27,7 @@ export function createSmoothScrollToBottom(virtuosoRef: React.RefObject<Virtuoso
 export function scrollToBottomAuto(virtuosoRef: React.RefObject<VirtuosoHandle>) {
   virtuosoRef.current?.scrollTo({
     top: Number.MAX_SAFE_INTEGER,
-    behavior: 'auto', // instant causes crash
+    behavior: "auto", // instant causes crash
   });
 }
 

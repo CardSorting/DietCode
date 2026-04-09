@@ -1,11 +1,11 @@
-import { RemoteConfigToggle } from '@/components/account/RemoteConfigToggle';
-import { useClineAuth } from '@/context/ClineAuthContext';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { StateServiceClient } from '@/services/grpc-client';
-import { EmptyRequest } from '@shared/nice-grpc/index.cline.ts';
-import { VSCodeButton, VSCodeLink } from '@vscode/webview-ui-toolkit/react';
-import { useEffect, useRef, useState } from 'react';
-import Section from '../Section';
+import { RemoteConfigToggle } from "@/components/account/RemoteConfigToggle";
+import { useClineAuth } from "@/context/ClineAuthContext";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { StateServiceClient } from "@/services/grpc-client";
+import { EmptyRequest } from "@shared/nice-grpc/index.cline.ts";
+import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { useEffect, useRef, useState } from "react";
+import Section from "../Section";
 
 interface RemoteConfigSectionProps {
   renderSectionHeader: (tabId: string) => JSX.Element | null;
@@ -17,7 +17,7 @@ function BaseRemoteConfigSection({
 }: React.PropsWithChildren<RemoteConfigSectionProps>) {
   return (
     <div>
-      {renderSectionHeader('remote-config')}
+      {renderSectionHeader("remote-config")}
       <Section>{children}</Section>
     </div>
   );
@@ -57,7 +57,7 @@ function RefreshButton() {
 
   return (
     <VSCodeButton
-      className={`w-full rounded-xs ${isLoading ? 'animate-pulse' : ''}`}
+      className={`w-full rounded-xs ${isLoading ? "animate-pulse" : ""}`}
       disabled={isLoading || (retryIn !== null && retryIn > 0)}
       onClick={() => onRefresh()}
     >
@@ -77,20 +77,20 @@ function SettingRow({ label, value, isSecret }: SettingRowProps) {
     if (value === undefined || value === null) {
       return <span className="text-description italic">Not configured</span>;
     }
-    if (typeof value === 'boolean') {
+    if (typeof value === "boolean") {
       return value ? (
         <span className="text-green-500">Enabled</span>
       ) : (
         <span className="text-description">Disabled</span>
       );
     }
-    if (isSecret && typeof value === 'string' && value.length > 0) {
-      return <span className="font-mono text-xs">{'•'.repeat(Math.min(value.length, 20))}</span>;
+    if (isSecret && typeof value === "string" && value.length > 0) {
+      return <span className="font-mono text-xs">{"•".repeat(Math.min(value.length, 20))}</span>;
     }
     return <span className="font-mono text-xs break-all">{String(value)}</span>;
   })();
 
-  const isLongValue = typeof value === 'string' && value.length > 25;
+  const isLongValue = typeof value === "string" && value.length > 25;
   if (isLongValue) {
     return (
       <div className="flex flex-col gap-1 py-1.5 border-b border-vscode-widget-border last:border-b-0">
@@ -133,9 +133,9 @@ function TestButton({ label, onClick, disabled, successMessage }: TestButtonProp
     setResult(null);
     try {
       await onClick();
-      setResult({ success: true, message: successMessage || 'Success!' });
+      setResult({ success: true, message: successMessage || "Success!" });
     } catch (error) {
-      setResult({ success: false, message: error instanceof Error ? error.message : 'Failed' });
+      setResult({ success: false, message: error instanceof Error ? error.message : "Failed" });
     } finally {
       setIsLoading(false);
       timeoutRef.current = setTimeout(() => setResult(null), 5000);
@@ -146,14 +146,14 @@ function TestButton({ label, onClick, disabled, successMessage }: TestButtonProp
     <div className="flex items-center gap-2">
       <VSCodeButton
         appearance="secondary"
-        className={isLoading ? 'animate-pulse' : ''}
+        className={isLoading ? "animate-pulse" : ""}
         disabled={disabled || isLoading}
         onClick={handleClick}
       >
-        {isLoading ? 'Testing...' : label}
+        {isLoading ? "Testing..." : label}
       </VSCodeButton>
       {result && (
-        <span className={`text-xs ${result.success ? 'text-green-500' : 'text-red-500'}`}>
+        <span className={`text-xs ${result.success ? "text-green-500" : "text-red-500"}`}>
           {result.message}
         </span>
       )}
@@ -178,7 +178,7 @@ function OtelSettingsSection() {
   const handleTestOtel = async () => {
     const response = await StateServiceClient.testOtelConnection(EmptyRequest.create({}));
     if (!response.success) {
-      throw new Error(response.error || 'Test failed');
+      throw new Error(response.error || "Test failed");
     }
   };
 
@@ -272,7 +272,7 @@ function PromptUploadingSection() {
   const handleTestPromptUploading = async () => {
     const response = await StateServiceClient.testPromptUploading(EmptyRequest.create({}));
     if (!response.success) {
-      throw new Error(response.error || 'Test failed');
+      throw new Error(response.error || "Test failed");
     }
   };
 
@@ -335,7 +335,7 @@ export function RemoteConfigSection({ renderSectionHeader }: RemoteConfigSection
       <BaseRemoteConfigSection renderSectionHeader={renderSectionHeader}>
         <div className="flex flex-col justify-center gap-4">
           <h3>
-            You haven't configured remote config yet. Do so through our{' '}
+            You haven't configured remote config yet. Do so through our{" "}
             <VSCodeLink href="https://app.cline.bot/dashboard/organization?tab=settings">
               dashboard
             </VSCodeLink>

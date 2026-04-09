@@ -1,21 +1,21 @@
-import MermaidBlock from '@/components/common/MermaidBlock';
-import { Button } from '@/components/ui/button';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { cn } from '@/lib/utils';
-import { FileServiceClient, StateServiceClient } from '@/services/grpc-client';
-import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
-import { PlanActMode, TogglePlanActModeRequest } from '@shared/nice-grpc/cline/state.ts';
-import { SquareArrowOutUpRightIcon } from 'lucide-react';
-import { marked } from 'marked';
-import type { ComponentProps } from 'react';
-import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import rehypeHighlight, { type Options } from 'rehype-highlight';
-import remarkGfm from 'remark-gfm';
-import type { Node } from 'unist';
-import { visit } from 'unist-util-visit';
-import { WithCopyButton } from './CopyButton';
-import UnsafeImage from './UnsafeImage';
+import MermaidBlock from "@/components/common/MermaidBlock";
+import { Button } from "@/components/ui/button";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { cn } from "@/lib/utils";
+import { FileServiceClient, StateServiceClient } from "@/services/grpc-client";
+import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
+import { PlanActMode, TogglePlanActModeRequest } from "@shared/nice-grpc/cline/state.ts";
+import { SquareArrowOutUpRightIcon } from "lucide-react";
+import { marked } from "marked";
+import type { ComponentProps } from "react";
+import React, { memo, useEffect, useMemo, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import rehypeHighlight, { type Options } from "rehype-highlight";
+import remarkGfm from "remark-gfm";
+import type { Node } from "unist";
+import { visit } from "unist-util-visit";
+import { WithCopyButton } from "./CopyButton";
+import UnsafeImage from "./UnsafeImage";
 
 function parseMarkdownIntoBlocks(markdown: string): string[] {
   try {
@@ -38,36 +38,36 @@ const MemoizedMarkdownBlock = memo(
               React.isValidElement(children[0])
             ) {
               const child = children[0] as React.ReactElement<{ className?: string }>;
-              if (child.props?.className?.includes('language-mermaid')) {
+              if (child.props?.className?.includes("language-mermaid")) {
                 return child;
               }
             }
             return <PreWithCopyButton {...preProps}>{children}</PreWithCopyButton>;
           },
-          code: (props: ComponentProps<'code'> & { [key: string]: any }) => {
-            const className = props.className || '';
-            if (className.includes('language-mermaid')) {
-              const codeText = String(props.children || '');
+          code: (props: ComponentProps<"code"> & { [key: string]: any }) => {
+            const className = props.className || "";
+            if (className.includes("language-mermaid")) {
+              const codeText = String(props.children || "");
               return <MermaidBlock code={codeText} />;
             }
 
             // Use the async file check component for potential file paths
             return <InlineCodeWithFileCheck {...props} />;
           },
-          strong: (props: ComponentProps<'strong'>) => {
+          strong: (props: ComponentProps<"strong">) => {
             // Check if this is an "Act Mode" strong element by looking for the keyboard shortcut
             // Handle both string children and array of children cases
             const childrenText = React.Children.toArray(props.children)
               .map((child) => {
-                if (typeof child === 'string') {
+                if (typeof child === "string") {
                   return child;
                 }
-                if (typeof child === 'object' && 'props' in child && child.props.children) {
+                if (typeof child === "object" && "props" in child && child.props.children) {
                   return String(child.props.children);
                 }
-                return '';
+                return "";
               })
-              .join('');
+              .join("");
 
             // Case-insensitive check for "Act Mode (⌘⇧A)" pattern
             // This ensures we only style the exact "Act Mode" mentions with keyboard shortcut
@@ -89,11 +89,11 @@ const MemoizedMarkdownBlock = memo(
           remarkMarkPotentialFilePaths,
           () => {
             return (tree: any) => {
-              visit(tree, 'code', (node: any) => {
+              visit(tree, "code", (node: any) => {
                 if (!node.lang) {
-                  node.lang = 'javascript';
-                } else if (node.lang.includes('.')) {
-                  node.lang = node.lang.split('.').slice(-1)[0];
+                  node.lang = "javascript";
+                } else if (node.lang.includes(".")) {
+                  node.lang = node.lang.split(".").slice(-1)[0];
                 }
               });
             };
@@ -110,7 +110,7 @@ const MemoizedMarkdownBlock = memo(
   },
 );
 
-MemoizedMarkdownBlock.displayName = 'MemoizedMarkdownBlock';
+MemoizedMarkdownBlock.displayName = "MemoizedMarkdownBlock";
 
 const MemoizedMarkdown = memo(({ content, id }: { content: string; id: string }) => {
   const blocks = useMemo(() => parseMarkdownIntoBlocks(content), [content]);
@@ -119,7 +119,7 @@ const MemoizedMarkdown = memo(({ content, id }: { content: string; id: string })
   ));
 });
 
-MemoizedMarkdown.displayName = 'MemoizedMarkdown';
+MemoizedMarkdown.displayName = "MemoizedMarkdown";
 
 /**
  * A component for Act Mode text that contains a clickable toggle and keyboard shortcut hint.
@@ -129,13 +129,13 @@ const ActModeHighlight: React.FC = () => {
 
   return (
     <span
-      className={cn('text-link inline-flex items-center gap-1', {
-        'hover:opacity-90 cursor-pointer': mode === 'plan',
-        'cursor-not-allowed opacity-60': mode !== 'plan',
+      className={cn("text-link inline-flex items-center gap-1", {
+        "hover:opacity-90 cursor-pointer": mode === "plan",
+        "cursor-not-allowed opacity-60": mode !== "plan",
       })}
       onClick={() => {
         // Only toggle to Act mode if we're currently in Plan mode
-        if (mode === 'plan') {
+        if (mode === "plan") {
           StateServiceClient.togglePlanActModeProto(
             TogglePlanActModeRequest.create({
               mode: PlanActMode.ACT,
@@ -143,7 +143,7 @@ const ActModeHighlight: React.FC = () => {
           );
         }
       }}
-      title={mode === 'plan' ? 'Click to toggle to Act Mode' : 'Already in Act Mode'}
+      title={mode === "plan" ? "Click to toggle to Act Mode" : "Already in Act Mode"}
     >
       <div className="p-1 rounded-md bg-code flex items-center justify-end w-7 border border-input-border">
         <div className="rounded-full bg-link w-2 h-2" />
@@ -170,7 +170,7 @@ interface MarkdownBlockProps {
 const remarkUrlToLink = () => {
   return (tree: Node) => {
     // Visit all "text" nodes in the markdown AST (Abstract Syntax Tree)
-    visit(tree, 'text', (node: any, index, parent) => {
+    visit(tree, "text", (node: any, index, parent) => {
       const urlRegex = /https?:\/\/[^\s<>)"]+/g;
       const matches = node.value.match(urlRegex);
       if (!matches) {
@@ -182,13 +182,13 @@ const remarkUrlToLink = () => {
 
       parts.forEach((part: string, i: number) => {
         if (part) {
-          children.push({ type: 'text', value: part });
+          children.push({ type: "text", value: part });
         }
         if (matches[i]) {
           children.push({
-            type: 'link',
+            type: "link",
             url: matches[i],
-            children: [{ type: 'text', value: matches[i] }],
+            children: [{ type: "text", value: matches[i] }],
           });
         }
       });
@@ -208,7 +208,7 @@ const remarkUrlToLink = () => {
  */
 const remarkHighlightActMode = () => {
   return (tree: Node) => {
-    visit(tree, 'text', (node: any, index, parent) => {
+    visit(tree, "text", (node: any, index, parent) => {
       // Case-insensitive regex to match "to Act Mode" in various capitalizations
       // Using word boundaries to avoid matching within words
       // Added negative lookahead to avoid matching if already followed by the shortcut
@@ -231,33 +231,33 @@ const remarkHighlightActMode = () => {
       parts.forEach((part: string, i: number) => {
         // Add the text before the match
         if (part) {
-          children.push({ type: 'text', value: part });
+          children.push({ type: "text", value: part });
         }
 
         // Add the match, but only make "Act Mode" bold (not the "to" part)
         if (matches[i]) {
           // Extract "to" and "Act Mode" parts
           const matchText = matches[i];
-          const toIndex = matchText.toLowerCase().indexOf('to');
-          const actModeIndex = matchText.toLowerCase().indexOf('act mode', toIndex + 2);
+          const toIndex = matchText.toLowerCase().indexOf("to");
+          const actModeIndex = matchText.toLowerCase().indexOf("act mode", toIndex + 2);
 
           if (toIndex !== -1 && actModeIndex !== -1) {
             // Add "to" as regular text
             const toPart = matchText.substring(toIndex, actModeIndex).trim();
-            children.push({ type: 'text', value: `${toPart} ` });
+            children.push({ type: "text", value: `${toPart} ` });
 
             // Add "Act Mode" as bold with keyboard shortcut
             const actModePart = matchText.substring(actModeIndex);
             children.push({
-              type: 'strong',
-              children: [{ type: 'text', value: `${actModePart} (⌘⇧A)` }],
+              type: "strong",
+              children: [{ type: "text", value: `${actModePart} (⌘⇧A)` }],
             });
           } else {
             // Fallback if we can't parse it correctly
-            children.push({ type: 'text', value: `${matchText} ` });
+            children.push({ type: "text", value: `${matchText} ` });
             children.push({
-              type: 'strong',
-              children: [{ type: 'text', value: '(⌘⇧A)' }],
+              type: "strong",
+              children: [{ type: "text", value: "(⌘⇧A)" }],
             });
           }
         }
@@ -278,16 +278,16 @@ const remarkHighlightActMode = () => {
  */
 const remarkPreventBoldFilenames = () => {
   return (tree: any) => {
-    visit(tree, 'strong', (node: any, index: number | undefined, parent: any) => {
+    visit(tree, "strong", (node: any, index: number | undefined, parent: any) => {
       // Only process if there's a next node (potential file extension)
-      if (!parent || typeof index === 'undefined' || index === parent.children.length - 1) {
+      if (!parent || typeof index === "undefined" || index === parent.children.length - 1) {
         return;
       }
 
       const nextNode = parent.children[index + 1];
 
       // Check if next node is text and starts with . followed by extension
-      if (nextNode.type !== 'text' || !nextNode.value.match(/^\.[a-zA-Z0-9]+/)) {
+      if (nextNode.type !== "text" || !nextNode.value.match(/^\.[a-zA-Z0-9]+/)) {
         return;
       }
 
@@ -298,7 +298,7 @@ const remarkPreventBoldFilenames = () => {
 
       // Get the text content from inside the strong node
       const strongContent = node.children?.[0]?.value;
-      if (!strongContent || typeof strongContent !== 'string') {
+      if (!strongContent || typeof strongContent !== "string") {
         return;
       }
 
@@ -309,7 +309,7 @@ const remarkPreventBoldFilenames = () => {
 
       // Combine into a single text node
       const newNode = {
-        type: 'text',
+        type: "text",
         value: `__${strongContent}__${nextNode.value}`,
       };
 
@@ -324,7 +324,7 @@ const PreWithCopyButton = ({ children, ...preProps }: React.HTMLAttributes<HTMLP
 
   const handleCopy = () => {
     if (preRef.current) {
-      const codeElement = preRef.current.querySelector('code');
+      const codeElement = preRef.current.querySelector("code");
       const textToCopy = codeElement ? codeElement.textContent : preRef.current.textContent;
 
       if (!textToCopy) {
@@ -353,12 +353,12 @@ const FILE_PATH_REGEX = /^(?!\/)[\w\-./]+(?<!\/)$/;
  */
 const remarkMarkPotentialFilePaths = () => {
   return (tree: Node) => {
-    visit(tree, 'inlineCode', (node: Node & { value: string; data?: any }) => {
-      if (FILE_PATH_REGEX.test(node.value) && !node.value.includes('\n')) {
+    visit(tree, "inlineCode", (node: Node & { value: string; data?: any }) => {
+      if (FILE_PATH_REGEX.test(node.value) && !node.value.includes("\n")) {
         // Mark as potential file path - actual checking happens in React component
         node.data = node.data || {};
         node.data.hProperties = node.data.hProperties || {};
-        node.data.hProperties['data-potential-file-path'] = 'true';
+        node.data.hProperties["data-potential-file-path"] = "true";
       }
     });
   };
@@ -368,13 +368,13 @@ const remarkMarkPotentialFilePaths = () => {
  * Component that renders inline code and checks if it's a valid file path asynchronously
  * Shows the code immediately, then adds the file link icon when confirmed
  */
-const InlineCodeWithFileCheck: React.FC<ComponentProps<'code'> & { [key: string]: any }> = (
+const InlineCodeWithFileCheck: React.FC<ComponentProps<"code"> & { [key: string]: any }> = (
   props,
 ) => {
   const [isFilePath, setIsFilePath] = useState<boolean | null>(null);
   const filePath =
-    typeof props.children === 'string' ? props.children : String(props.children || '');
-  const isPotentialFilePath = props['data-potential-file-path'] === 'true';
+    typeof props.children === "string" ? props.children : String(props.children || "");
+  const isPotentialFilePath = props["data-potential-file-path"] === "true";
 
   useEffect(() => {
     if (!isPotentialFilePath) {
@@ -427,9 +427,9 @@ const MarkdownBlock = memo(({ markdown, compact, showCursor }: MarkdownBlockProp
   return (
     <div className="inline-markdown-block">
       <span
-        className={cn('inline [&>p]:mt-0', {
-          'inline-cursor-container': showCursor,
-          '[&>p]:m-0': compact,
+        className={cn("inline [&>p]:mt-0", {
+          "inline-cursor-container": showCursor,
+          "[&>p]:m-0": compact,
         })}
       >
         {markdown ? <MemoizedMarkdown content={markdown} id="markdown-block" /> : markdown}

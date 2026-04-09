@@ -1,0 +1,9 @@
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <!-- Simplified can -->
+  <path d="M5 2c0-.55.45-1 1-1h4c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1V2z" fill="currentColor" opacity="0.2"/>
+  <path d="M6 3h4v10H6V3z" fill="currentColor" opacity="0.4"/>
+  
+  <!-- Terminal Prompt -->
+  <path d="M7 6l2 2-2 2h1.5l2-2-2-2H7z" fill="currentColor"/>
+  <rect x="7" y="10.5" width="3" height="1" fill="currentColor"/>
+</svg>

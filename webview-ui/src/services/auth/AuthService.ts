@@ -1,18 +1,18 @@
-import { ClineEnv } from '@/config';
-import type { Controller } from '@/core/controller';
-import { type StreamingResponseHandler, getRequestRegistry } from '@/core/controller/grpc-handler';
-import { setWelcomeViewCompleted } from '@/core/controller/state/setWelcomeViewCompleted';
-import { HostProvider } from '@/hosts/host-provider';
-import { telemetryService } from '@/services/telemetry';
-import { Logger } from '@/shared/services/Logger';
-import { openExternal } from '@/utils/env';
-import { AuthState, UserInfo } from '@shared/nice-grpc/cline/account.ts';
-import { type EmptyRequest, String } from '@shared/nice-grpc/cline/common.ts';
-import { BannerService } from '../banner/BannerService';
-import { AuthInvalidTokenError, AuthNetworkError } from '../error/ClineError';
-import { featureFlagsService } from '../feature-flags';
-import { ClineAuthProvider } from './providers/ClineAuthProvider';
-import { LogoutReason } from './types';
+import { ClineEnv } from "@/config";
+import type { Controller } from "@/core/controller";
+import { type StreamingResponseHandler, getRequestRegistry } from "@/core/controller/grpc-handler";
+import { setWelcomeViewCompleted } from "@/core/controller/state/setWelcomeViewCompleted";
+import { HostProvider } from "@/hosts/host-provider";
+import { telemetryService } from "@/services/telemetry";
+import { Logger } from "@/shared/services/Logger";
+import { openExternal } from "@/utils/env";
+import { AuthState, UserInfo } from "@shared/nice-grpc/cline/account.ts";
+import { type EmptyRequest, String } from "@shared/nice-grpc/cline/common.ts";
+import { BannerService } from "../banner/BannerService";
+import { AuthInvalidTokenError, AuthNetworkError } from "../error/ClineError";
+import { featureFlagsService } from "../feature-flags";
+import { ClineAuthProvider } from "./providers/ClineAuthProvider";
+import { LogoutReason } from "./types";
 
 export type ServiceConfig = {
   URI?: string;
@@ -90,14 +90,14 @@ export class AuthService {
     if (!AuthService.instance) {
       if (!controller) {
         Logger.warn(
-          'Extension context was not provided to AuthService.getInstance, using default context',
+          "Extension context was not provided to AuthService.getInstance, using default context",
         );
         controller = {} as Controller;
       }
       if (process.env.E2E_TEST) {
         // Use require instead of import to avoid circular dependency issues
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const { AuthServiceMock } = require('./AuthServiceMock');
+        const { AuthServiceMock } = require("./AuthServiceMock");
         AuthService.instance = AuthServiceMock.getInstance(controller);
       } else {
         AuthService.instance = new AuthService(controller);
@@ -172,7 +172,7 @@ export class AuthService {
       ) {
         // If a refresh is already in progress, wait for it to complete
         if (this._refreshPromise) {
-          Logger.info('Token refresh already in progress, waiting for completion');
+          Logger.info("Token refresh already in progress, waiting for completion");
           const updatedToken = await this._refreshPromise;
           return updatedToken || null;
         }
@@ -192,7 +192,7 @@ export class AuthService {
           } catch (error) {
             // Only log out for permanent auth failures, not network issues
             if (error instanceof AuthInvalidTokenError) {
-              Logger.error('Token is invalid or expired:', error);
+              Logger.error("Token is invalid or expired:", error);
               this._clineAuthInfo = null;
               this._authenticated = false;
               telemetryService.captureAuthLoggedOut(
@@ -201,7 +201,7 @@ export class AuthService {
               );
               authStatusChanged = true;
             } else if (error instanceof AuthNetworkError) {
-              Logger.error('Network error refreshing token', error);
+              Logger.error("Network error refreshing token", error);
               // Keep existing auth info, will retry on next getAuthToken() call
             } else {
               throw error; // Re-throw unexpected errors
@@ -214,7 +214,7 @@ export class AuthService {
           if (authStatusChanged) {
             setImmediate(() => {
               this.sendAuthStatusUpdate().catch((error) => {
-                Logger.error('Error sending auth status update after token refresh:', error);
+                Logger.error("Error sending auth status update after token refresh:", error);
               });
             });
           }
@@ -227,7 +227,7 @@ export class AuthService {
 
       return clineAccountAuthToken || null;
     } catch (error) {
-      Logger.error('Error getting auth token:', error);
+      Logger.error("Error getting auth token:", error);
       return null;
     }
   }
@@ -266,10 +266,10 @@ export class AuthService {
     // In strict mode, we do not open a new auth window if already authenticated
     if (strict && this._authenticated) {
       this.sendAuthStatusUpdate();
-      return String.create({ value: 'Already authenticated' });
+      return String.create({ value: "Already authenticated" });
     }
 
-    const callbackUrl = await HostProvider.get().getCallbackUrl('/auth');
+    const callbackUrl = await HostProvider.get().getCallbackUrl("/auth");
 
     const authUrl = await this._provider.getAuthRequest(callbackUrl);
     const authUrlString = authUrl.toString();
@@ -287,7 +287,7 @@ export class AuthService {
       this.destroyTokens();
       this.sendAuthStatusUpdate();
     } catch (error) {
-      Logger.error('Error signing out:', error);
+      Logger.error("Error signing out:", error);
       throw error;
     }
   }
@@ -304,7 +304,7 @@ export class AuthService {
       telemetryService.captureAuthSucceeded(this._provider.name);
       await setWelcomeViewCompleted(this._controller, { value: true });
     } catch (error) {
-      Logger.error('Error signing in with custom token:', error);
+      Logger.error("Error signing in with custom token:", error);
       telemetryService.captureAuthFailed(this._provider.name);
       throw error;
     } finally {
@@ -332,13 +332,13 @@ export class AuthService {
         this._authenticated = true;
         await this.sendAuthStatusUpdate();
       } else {
-        Logger.warn('No user found after restoring auth token');
+        Logger.warn("No user found after restoring auth token");
         this._authenticated = false;
         this._clineAuthInfo = null;
         telemetryService.captureAuthLoggedOut(this._provider.name, LogoutReason.ERROR_RECOVERY);
       }
     } catch (error) {
-      Logger.error('Error restoring auth token:', error);
+      Logger.error("Error restoring auth token:", error);
       this._authenticated = false;
       this._clineAuthInfo = null;
       telemetryService.captureAuthLoggedOut(this._provider.name, LogoutReason.ERROR_RECOVERY);
@@ -349,7 +349,7 @@ export class AuthService {
   private async retrieveAuthInfo(): Promise<ClineAuthInfo | null> {
     // If a refresh is already in progress, wait for it to complete
     if (this._refreshPromise) {
-      Logger.info('Token refresh already in progress, waiting for completion');
+      Logger.info("Token refresh already in progress, waiting for completion");
       await this._refreshPromise;
     }
 
@@ -382,7 +382,7 @@ export class AuthService {
       getRequestRegistry().registerRequest(
         requestId,
         cleanup,
-        { type: 'authStatusUpdate_subscription' },
+        { type: "authStatusUpdate_subscription" },
         responseStream,
       );
     }
@@ -391,7 +391,7 @@ export class AuthService {
     try {
       await this.sendAuthStatusUpdate();
     } catch (error) {
-      Logger.error('Error sending initial auth status:', error);
+      Logger.error("Error sending initial auth status:", error);
       // Remove the subscription if there was an error
       this._activeAuthStatusUpdateHandlers.delete(responseStream);
       this._handlerToController.delete(responseStream);
@@ -419,7 +419,7 @@ export class AuthService {
             false, // Not the last message
           );
         } catch (error) {
-          Logger.error('Error sending authStatusUpdate event:', error);
+          Logger.error("Error sending authStatusUpdate event:", error);
           // Remove the subscription if there was an error
           this._activeAuthStatusUpdateHandlers.delete(responseStream);
           this._handlerToController.delete(responseStream);
@@ -441,7 +441,7 @@ export class AuthService {
 
     // Update banners based on new auth token
     BannerService.onAuthUpdate(this._clineAuthInfo?.userInfo?.id || null).catch((error) => {
-      Logger.error('[AuthService] Banner update failed', error);
+      Logger.error("[AuthService] Banner update failed", error);
     });
 
     // Update state in webviews once per unique controller
@@ -449,7 +449,7 @@ export class AuthService {
   }
 
   private destroyTokens() {
-    this._controller.stateManager.setSecret('clineAccountId', undefined);
-    this._controller.stateManager.setSecret('cline:clineAccountId', undefined);
+    this._controller.stateManager.setSecret("clineAccountId", undefined);
+    this._controller.stateManager.setSecret("cline:clineAccountId", undefined);
   }
 }

@@ -1,4 +1,4 @@
-import type { ClineMessage } from './ExtensionMessage';
+import type { ClineMessage } from "./ExtensionMessage";
 
 /**
  * Hook metadata extracted from hook message text.
@@ -12,8 +12,8 @@ interface HookMetadata {
   hasJsonResponse?: boolean;
 }
 
-type HookStatusSay = 'hook' | 'hook_status';
-type HookOutputStreamSay = 'hook_output' | 'hook_output_stream';
+type HookStatusSay = "hook" | "hook_status";
+type HookOutputStreamSay = "hook_output" | "hook_output_stream";
 
 function getSay(msg: ClineMessage): string | undefined {
   // Back-compat: older recordings may be deserialized without strict typing.
@@ -21,11 +21,11 @@ function getSay(msg: ClineMessage): string | undefined {
 }
 
 function isHookStatusSay(say: string | undefined): say is HookStatusSay {
-  return say === 'hook_status' || say === 'hook';
+  return say === "hook_status" || say === "hook";
 }
 
 function isHookOutputStreamSay(say: string | undefined): say is HookOutputStreamSay {
-  return say === 'hook_output_stream' || say === 'hook_output';
+  return say === "hook_output_stream" || say === "hook_output";
 }
 
 // ============================================================================
@@ -36,7 +36,7 @@ function isHookOutputStreamSay(say: string | undefined): say is HookOutputStream
  * Type guard to check if a message is a tool or command.
  */
 function isToolOrCommandMessage(msg: ClineMessage): boolean {
-  return msg.ask === 'tool' || msg.say === 'tool' || msg.ask === 'command' || msg.say === 'command';
+  return msg.ask === "tool" || msg.say === "tool" || msg.ask === "command" || msg.say === "command";
 }
 
 /**
@@ -100,7 +100,7 @@ function combineHookWithOutputs(
   startIndex: number,
   messages: ClineMessage[],
 ): { combined: ClineMessage; nextIndex: number } {
-  let combinedText = hookMessage.text || '';
+  let combinedText = hookMessage.text || "";
   let hasOutput = false;
   let i = startIndex + 1;
 
@@ -115,7 +115,7 @@ function combineHookWithOutputs(
       }
 
       // Append output if not empty
-      const output = messages[i].text || '';
+      const output = messages[i].text || "";
       if (output.length > 0) {
         combinedText += `\n${output}`;
       }
@@ -197,7 +197,7 @@ function findImmediateNextToolTimestamp(
     // This prevents matching a hook to a tool that has its own PreToolUse hook
     if (isHookStatusSay(getSay(msg))) {
       const metadata = parseHookMetadata(msg);
-      if (metadata?.hookName === 'PreToolUse') {
+      if (metadata?.hookName === "PreToolUse") {
         return null;
       }
     }
@@ -235,7 +235,7 @@ function buildPreToolUseMap(
   for (const msg of processedMessages) {
     // Only process PreToolUse hooks
     const metadata = parseHookMetadata(msg);
-    if (metadata?.hookName !== 'PreToolUse') {
+    if (metadata?.hookName !== "PreToolUse") {
       continue;
     }
 
@@ -325,7 +325,7 @@ function reorderWithPreToolUseHooks(
 
     // Case 3: This is a PreToolUse hook in its original position
     const metadata = parseHookMetadata(msg);
-    if (metadata?.hookName === 'PreToolUse') {
+    if (metadata?.hookName === "PreToolUse") {
       // Find which tool (if any) this hook is mapped to
       let mappedToolTs: number | undefined;
       for (const [toolTs, hooks] of preToolUseMap) {
@@ -383,4 +383,4 @@ export function combineHookSequences(messages: ClineMessage[]): ClineMessage[] {
   return reordered;
 }
 
-export const HOOK_OUTPUT_STRING = '__HOOK_OUTPUT__';
+export const HOOK_OUTPUT_STRING = "__HOOK_OUTPUT__";

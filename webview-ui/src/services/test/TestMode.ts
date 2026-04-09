@@ -4,12 +4,12 @@
  * instead of relying on process.env which may not be consistent across different parts of the extension
  */
 
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import { HostProvider } from '@/hosts/host-provider';
-import { Logger } from '@/shared/services/Logger';
-import * as vscode from 'vscode';
-import { createTestServer, shutdownTestServer } from './TestServer';
+import * as fs from "node:fs";
+import * as path from "node:path";
+import { HostProvider } from "@/hosts/host-provider";
+import { Logger } from "@/shared/services/Logger";
+import * as vscode from "vscode";
+import { createTestServer, shutdownTestServer } from "./TestServer";
 
 // State variable
 let isTestMode = false;
@@ -39,7 +39,7 @@ async function checkForTestMode(): Promise<boolean> {
 
   // Check each workspace folder for an evals.env file
   for (const folder of workspaceFolders.paths) {
-    const evalsEnvPath = path.join(folder, 'evals.env');
+    const evalsEnvPath = path.join(folder, "evals.env");
     if (fs.existsSync(evalsEnvPath)) {
       Logger.log(`Found evals.env file at ${evalsEnvPath}, activating test mode`);
       return true;
@@ -61,23 +61,23 @@ export async function initializeTestMode(webviewProvider?: any): Promise<vscode.
 
   // Set test mode state for other parts of the code
   if (IS_TEST) {
-    Logger.log('Test mode detected: Setting test mode state to true');
+    Logger.log("Test mode detected: Setting test mode state to true");
     setTestMode(true);
-    vscode.commands.executeCommand('setContext', 'cline.isTestMode', true);
+    vscode.commands.executeCommand("setContext", "cline.isTestMode", true);
 
     // Set up test server if in test mode
     createTestServer(webviewProvider);
   }
 
   // Watch for evals.env files being added or removed
-  const evalsEnvWatcher = vscode.workspace.createFileSystemWatcher('**/evals.env');
+  const evalsEnvWatcher = vscode.workspace.createFileSystemWatcher("**/evals.env");
 
   // When an evals.env file is created, activate test mode if not already active
   evalsEnvWatcher.onDidCreate(async (uri) => {
     Logger.log(`evals.env file created at ${uri.fsPath}`);
     if (!isInTestMode()) {
       setTestMode(true);
-      vscode.commands.executeCommand('setContext', 'cline.isTestMode', true);
+      vscode.commands.executeCommand("setContext", "cline.isTestMode", true);
       createTestServer(webviewProvider);
     }
   });
@@ -88,7 +88,7 @@ export async function initializeTestMode(webviewProvider?: any): Promise<vscode.
     // Only deactivate if this was the last evals.env file
     if (!checkForTestMode()) {
       setTestMode(false);
-      vscode.commands.executeCommand('setContext', 'cline.isTestMode', false);
+      vscode.commands.executeCommand("setContext", "cline.isTestMode", false);
       shutdownTestServer();
     }
   });

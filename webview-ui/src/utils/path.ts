@@ -1,7 +1,7 @@
-import os from 'node:os';
-import * as path from 'node:path';
-import { HostProvider } from '@/hosts/host-provider';
-import { workspaceResolver } from '@core/workspace';
+import os from "node:os";
+import * as path from "node:path";
+import { HostProvider } from "@/hosts/host-provider";
+import { workspaceResolver } from "@core/workspace";
 
 /*
 The Node.js 'path' module resolves and normalizes paths differently depending on the platform:
@@ -30,13 +30,13 @@ Observations:
 
 function toPosixPath(p: string) {
   // Extended-Length Paths in Windows start with "\\?\" to allow longer paths and bypass usual parsing. If detected, we return the path unmodified to maintain functionality, as altering these paths could break their special syntax.
-  const isExtendedLengthPath = p.startsWith('\\\\?\\');
+  const isExtendedLengthPath = p.startsWith("\\\\?\\");
 
   if (isExtendedLengthPath) {
     return p;
   }
 
-  return p.replace(/\\/g, '/');
+  return p.replace(/\\/g, "/");
 }
 
 // Declaration merging allows us to add a new method to the String type
@@ -63,7 +63,7 @@ export function arePathsEqual(path1?: string, path2?: string): boolean {
   const normalizedPath1 = normalizePath(path1);
   const normalizedPath2 = normalizePath(path2);
 
-  if (process.platform === 'win32') {
+  if (process.platform === "win32") {
     return normalizedPath1.toLowerCase() === normalizedPath2.toLowerCase();
   }
   return normalizedPath1 === normalizedPath2;
@@ -74,22 +74,22 @@ function normalizePath(p: string): string {
   let normalized = path.normalize(p);
   // however it doesn't remove trailing slashes
   // remove trailing slash, except for root paths
-  if (normalized.length > 1 && (normalized.endsWith('/') || normalized.endsWith('\\'))) {
+  if (normalized.length > 1 && (normalized.endsWith("/") || normalized.endsWith("\\"))) {
     normalized = normalized.slice(0, -1);
   }
   return normalized;
 }
 
 export function getReadablePath(cwd: string, relPath?: string): string {
-  const resolvedRelPath = relPath || '';
+  const resolvedRelPath = relPath || "";
   // path.resolve is flexible in that it will resolve relative paths like '../../' to the cwd and even ignore the cwd if the relPath is actually an absolute path
   const absolutePathResult = workspaceResolver.resolveWorkspacePath(
     cwd,
     resolvedRelPath,
-    'Utils.path.getReadablePath',
+    "Utils.path.getReadablePath",
   );
   const absolutePath =
-    typeof absolutePathResult === 'string' ? absolutePathResult : absolutePathResult.absolutePath;
+    typeof absolutePathResult === "string" ? absolutePathResult : absolutePathResult.absolutePath;
   if (arePathsEqual(cwd, getDesktopDir())) {
     // User opened vscode without a workspace, so cwd is the Desktop. Show the full absolute path to keep the user aware of where files are being created
     return absolutePath.toPosix();
@@ -97,7 +97,7 @@ export function getReadablePath(cwd: string, relPath?: string): string {
   if (arePathsEqual(path.normalize(absolutePath), path.normalize(cwd))) {
     const basenameResult = workspaceResolver.getBasename(
       absolutePath,
-      'Utils.path.getReadablePath',
+      "Utils.path.getReadablePath",
     );
     return basenameResult.toPosix();
   }
@@ -111,7 +111,7 @@ export function getReadablePath(cwd: string, relPath?: string): string {
 }
 
 // Returns the path of the first workspace directory, or the defaultCwdPath if there is no workspace open.
-export async function getCwd(defaultCwd = ''): Promise<string> {
+export async function getCwd(defaultCwd = ""): Promise<string> {
   const workspacePaths = await HostProvider.workspace.getWorkspacePaths({});
   return workspacePaths.paths.shift() || defaultCwd;
 }
@@ -119,15 +119,15 @@ export async function getCwd(defaultCwd = ''): Promise<string> {
 export function getDesktopDir() {
   const desktopResult = workspaceResolver.resolveWorkspacePath(
     os.homedir(),
-    'Desktop',
-    'Utils.path.getDesktopDir',
+    "Desktop",
+    "Utils.path.getDesktopDir",
   );
-  return typeof desktopResult === 'string' ? desktopResult : desktopResult.absolutePath;
+  return typeof desktopResult === "string" ? desktopResult : desktopResult.absolutePath;
 }
 
 // Returns the workspace path of the file in the current editor.
 // If there is no open file, it returns the top level workspace directory.
-export async function getWorkspacePath(defaultCwd = ''): Promise<string> {
+export async function getWorkspacePath(defaultCwd = ""): Promise<string> {
   const currentFilePath = (await HostProvider.window.getActiveEditor({})).filePath;
   if (!currentFilePath) {
     return await getCwd(defaultCwd);
@@ -142,16 +142,16 @@ export async function getWorkspacePath(defaultCwd = ''): Promise<string> {
   return await getCwd(defaultCwd);
 }
 
-export async function isLocatedInWorkspace(pathToCheck = ''): Promise<boolean> {
+export async function isLocatedInWorkspace(pathToCheck = ""): Promise<boolean> {
   const workspacePaths = (await HostProvider.workspace.getWorkspacePaths({})).paths;
   for (const workspacePath of workspacePaths) {
     const resolvedPathResult = workspaceResolver.resolveWorkspacePath(
       workspacePath,
       pathToCheck,
-      'Utils.path.isLocatedInWorkspace',
+      "Utils.path.isLocatedInWorkspace",
     );
     const resolvedPath =
-      typeof resolvedPathResult === 'string' ? resolvedPathResult : resolvedPathResult.absolutePath;
+      typeof resolvedPathResult === "string" ? resolvedPathResult : resolvedPathResult.absolutePath;
     if (isLocatedInPath(workspacePath, resolvedPath)) {
       return true;
     }
@@ -165,29 +165,29 @@ export function isLocatedInPath(dirPath: string, pathToCheck: string): boolean {
     return false;
   }
   // Handle long paths in Windows
-  if (dirPath.startsWith('\\\\?\\') || pathToCheck.startsWith('\\\\?\\')) {
+  if (dirPath.startsWith("\\\\?\\") || pathToCheck.startsWith("\\\\?\\")) {
     return pathToCheck.startsWith(dirPath);
   }
 
   const resolvedDirResult = workspaceResolver.resolveWorkspacePath(
     dirPath,
-    '',
-    'Utils.path.isLocatedInPath',
+    "",
+    "Utils.path.isLocatedInPath",
   );
   const resolvedDir =
-    typeof resolvedDirResult === 'string' ? resolvedDirResult : resolvedDirResult.absolutePath;
+    typeof resolvedDirResult === "string" ? resolvedDirResult : resolvedDirResult.absolutePath;
   const resolvedCheckResult = workspaceResolver.resolveWorkspacePath(
     pathToCheck,
-    '',
-    'Utils.path.isLocatedInPath',
+    "",
+    "Utils.path.isLocatedInPath",
   );
   const resolvedCheck =
-    typeof resolvedCheckResult === 'string'
+    typeof resolvedCheckResult === "string"
       ? resolvedCheckResult
       : resolvedCheckResult.absolutePath;
 
   const relativePath = path.relative(resolvedDir, resolvedCheck);
-  if (relativePath.startsWith('..')) {
+  if (relativePath.startsWith("..")) {
     return false;
   }
   if (path.isAbsolute(relativePath)) {

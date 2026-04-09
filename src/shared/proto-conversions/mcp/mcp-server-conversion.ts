@@ -6,7 +6,7 @@ import {
   type McpResourceTemplate as ProtoMcpResourceTemplate,
   type McpServer as ProtoMcpServer,
   type McpTool as ProtoMcpTool,
-} from '@shared/proto/cline/mcp';
+} from "@shared/proto/cline/mcp";
 import type {
   McpOAuthAuthStatus,
   McpPrompt,
@@ -15,16 +15,16 @@ import type {
   McpResourceTemplate,
   McpServer,
   McpTool,
-} from '../../mcp';
+} from "../../mcp";
 
 // Helper to convert TS status to Proto enum
-function convertMcpStatusToProto(status: McpServer['status']): McpServerStatus {
+function convertMcpStatusToProto(status: McpServer["status"]): McpServerStatus {
   switch (status) {
-    case 'connected':
+    case "connected":
       return McpServerStatus.MCP_SERVER_STATUS_CONNECTED;
-    case 'connecting':
+    case "connecting":
       return McpServerStatus.MCP_SERVER_STATUS_CONNECTING;
-    case 'disconnected':
+    case "disconnected":
       return McpServerStatus.MCP_SERVER_STATUS_DISCONNECTED;
   }
 }
@@ -55,7 +55,7 @@ export function convertMcpServersToProtoMcpServers(mcpServers: McpServer[]): Pro
  */
 function convertTool(tool: McpTool): ProtoMcpTool {
   const inputSchemaString = tool.inputSchema
-    ? typeof tool.inputSchema === 'object'
+    ? typeof tool.inputSchema === "object"
       ? JSON.stringify(tool.inputSchema)
       : tool.inputSchema
     : undefined;
@@ -116,14 +116,14 @@ function convertPrompt(prompt: McpPrompt): ProtoMcpPrompt {
 }
 
 // Helper to convert Proto enum to TS status
-function convertProtoStatusToMcp(status: McpServerStatus): McpServer['status'] {
+function convertProtoStatusToMcp(status: McpServerStatus): McpServer["status"] {
   switch (status) {
     case McpServerStatus.MCP_SERVER_STATUS_CONNECTED:
-      return 'connected';
+      return "connected";
     case McpServerStatus.MCP_SERVER_STATUS_CONNECTING:
-      return 'connecting';
+      return "connecting";
     default: // Includes UNSPECIFIED if it were present, maps to disconnected
-      return 'disconnected';
+      return "disconnected";
   }
 }
 
@@ -133,7 +133,7 @@ export function convertProtoMcpServersToMcpServers(protoServers: ProtoMcpServer[
       name: protoServer.name,
       config: protoServer.config,
       status: convertProtoStatusToMcp(protoServer.status),
-      error: protoServer.error === '' ? undefined : protoServer.error,
+      error: protoServer.error === "" ? undefined : protoServer.error,
 
       // Convert nested types
       tools: protoServer.tools.map(convertProtoTool),
@@ -145,7 +145,7 @@ export function convertProtoMcpServersToMcpServers(protoServers: ProtoMcpServer[
       timeout: protoServer.timeout,
       oauthRequired: protoServer.oauthRequired,
       oauthAuthStatus:
-        protoServer.oauthAuthStatus === ''
+        protoServer.oauthAuthStatus === ""
           ? undefined
           : (protoServer.oauthAuthStatus as McpOAuthAuthStatus),
     };
@@ -159,9 +159,9 @@ export function convertProtoMcpServersToMcpServers(protoServers: ProtoMcpServer[
 function convertProtoTool(protoTool: ProtoMcpTool): McpTool {
   return {
     name: protoTool.name,
-    description: protoTool.description === '' ? undefined : protoTool.description,
+    description: protoTool.description === "" ? undefined : protoTool.description,
     inputSchema: protoTool.inputSchema
-      ? protoTool.inputSchema.startsWith('{')
+      ? protoTool.inputSchema.startsWith("{")
         ? JSON.parse(protoTool.inputSchema)
         : protoTool.inputSchema
       : undefined,
@@ -176,8 +176,8 @@ function convertProtoResource(protoResource: ProtoMcpResource): McpResource {
   return {
     uri: protoResource.uri,
     name: protoResource.name,
-    mimeType: protoResource.mimeType === '' ? undefined : protoResource.mimeType,
-    description: protoResource.description === '' ? undefined : protoResource.description,
+    mimeType: protoResource.mimeType === "" ? undefined : protoResource.mimeType,
+    description: protoResource.description === "" ? undefined : protoResource.description,
   };
 }
 
@@ -190,8 +190,8 @@ function convertProtoResourceTemplate(
   return {
     uriTemplate: protoTemplate.uriTemplate,
     name: protoTemplate.name,
-    mimeType: protoTemplate.mimeType === '' ? undefined : protoTemplate.mimeType,
-    description: protoTemplate.description === '' ? undefined : protoTemplate.description,
+    mimeType: protoTemplate.mimeType === "" ? undefined : protoTemplate.mimeType,
+    description: protoTemplate.description === "" ? undefined : protoTemplate.description,
   };
 }
 
@@ -201,7 +201,7 @@ function convertProtoResourceTemplate(
 function convertProtoPromptArgument(protoArg: ProtoMcpPromptArgument): McpPromptArgument {
   return {
     name: protoArg.name,
-    description: protoArg.description === '' ? undefined : protoArg.description,
+    description: protoArg.description === "" ? undefined : protoArg.description,
     required: protoArg.required,
   };
 }
@@ -212,8 +212,8 @@ function convertProtoPromptArgument(protoArg: ProtoMcpPromptArgument): McpPrompt
 function convertProtoPrompt(protoPrompt: ProtoMcpPrompt): McpPrompt {
   return {
     name: protoPrompt.name,
-    title: protoPrompt.title === '' ? undefined : protoPrompt.title,
-    description: protoPrompt.description === '' ? undefined : protoPrompt.description,
+    title: protoPrompt.title === "" ? undefined : protoPrompt.title,
+    description: protoPrompt.description === "" ? undefined : protoPrompt.description,
     arguments: protoPrompt.arguments.map(convertProtoPromptArgument),
   };
 }

@@ -1,15 +1,15 @@
-import type { Meta } from '@storybook/react-vite';
-import { Button } from './button';
-import { Input } from './input';
+import type { Meta } from "@storybook/react-vite";
+import { Button } from "./button";
+import { Input } from "./input";
 
 const meta: Meta<typeof Input> = {
-  title: 'Ui/Input',
+  title: "Ui/Input",
   component: Input,
   parameters: {
     docs: {
       description: {
         component:
-          'A styled text input component that supports all standard HTML input types. Includes focus states, placeholder text, and disabled state styling.',
+          "A styled text input component that supports all standard HTML input types. Includes focus states, placeholder text, and disabled state styling.",
       },
     },
   },

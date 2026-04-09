@@ -28,10 +28,10 @@
  *   - ovsx (OpenVSX CLI)
  */
 
-import { execFileSync, execSync } from 'node:child_process';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { execFileSync, execSync } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 // Get __dirname equivalent in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -39,10 +39,10 @@ const __dirname = path.dirname(__filename);
 
 // ANSI color codes for console output
 const colors = {
-  reset: '\x1b[0m',
-  red: '\x1b[31m',
-  green: '\x1b[32m',
-  yellow: '\x1b[33m',
+  reset: "\x1b[0m",
+  red: "\x1b[31m",
+  green: "\x1b[32m",
+  yellow: "\x1b[33m",
 };
 
 // Logging utilities
@@ -55,24 +55,24 @@ const log = {
 // Configuration
 const config = {
   // The name and display name for the nightly version
-  nightlyName: 'cline-nightly',
-  originalName: 'claude-dev',
-  nightlyDisplayName: 'Cline (Nightly)',
-  projectRoot: path.join(__dirname, '..'),
+  nightlyName: "cline-nightly",
+  originalName: "claude-dev",
+  nightlyDisplayName: "Cline (Nightly)",
+  projectRoot: path.join(__dirname, ".."),
   get packageJsonPath() {
-    return path.join(this.projectRoot, 'package.json');
+    return path.join(this.projectRoot, "package.json");
   },
   get packageBackupPath() {
-    return path.join(this.projectRoot, 'package.json.backup');
+    return path.join(this.projectRoot, "package.json.backup");
   },
   get distDir() {
-    return path.join(this.projectRoot, 'dist');
+    return path.join(this.projectRoot, "dist");
   },
   get vsixPath() {
-    return path.join(this.distDir, 'cline-nightly.vsix');
+    return path.join(this.distDir, "cline-nightly.vsix");
   },
   get nodeModulesPath() {
-    return path.join(this.projectRoot, 'node_modules');
+    return path.join(this.projectRoot, "node_modules");
   },
   get originalWorkspaceLinkPath() {
     return path.join(this.nodeModulesPath, this.originalName);
@@ -119,15 +119,15 @@ class NightlyPublisher {
    */
   checkDependencies() {
     const dependencies = [
-      { name: 'vsce', check: 'vsce --version' },
-      { name: 'npx', check: 'npx --version' },
+      { name: "vsce", check: "vsce --version" },
+      { name: "npx", check: "npx --version" },
     ];
 
     const missing = [];
 
     for (const dep of dependencies) {
       try {
-        execSync(dep.check, { stdio: 'ignore' });
+        execSync(dep.check, { stdio: "ignore" });
       } catch {
         missing.push(dep.name);
       }
@@ -135,11 +135,11 @@ class NightlyPublisher {
 
     if (missing.length > 0) {
       throw new Error(
-        `Missing required dependencies: ${missing.join(', ')}. Please install them before running this script.`,
+        `Missing required dependencies: ${missing.join(", ")}. Please install them before running this script.`,
       );
     }
 
-    log.info('All dependencies are installed');
+    log.info("All dependencies are installed");
   }
 
   /**
@@ -147,7 +147,7 @@ class NightlyPublisher {
    */
   commandExists(command) {
     try {
-      execSync(`which ${command}`, { stdio: 'ignore' });
+      execSync(`which ${command}`, { stdio: "ignore" });
       return true;
     } catch {
       return false;
@@ -162,8 +162,8 @@ class NightlyPublisher {
       throw new Error(`package.json not found at ${config.packageJsonPath}`);
     }
 
-    log.info('Backing up original package.json');
-    this.originalPackageJson = fs.readFileSync(config.packageJsonPath, 'utf-8');
+    log.info("Backing up original package.json");
+    this.originalPackageJson = fs.readFileSync(config.packageJsonPath, "utf-8");
     fs.writeFileSync(config.packageBackupPath, this.originalPackageJson);
     this.hasBackup = true;
   }
@@ -173,7 +173,7 @@ class NightlyPublisher {
    */
   restorePackageJson() {
     if (this.hasBackup && fs.existsSync(config.packageBackupPath)) {
-      log.info('Restoring original package.json');
+      log.info("Restoring original package.json");
       fs.writeFileSync(config.packageJsonPath, this.originalPackageJson);
       fs.unlinkSync(config.packageBackupPath);
       this.hasBackup = false;
@@ -194,7 +194,7 @@ class NightlyPublisher {
     const nightlyPath = config.nightlyWorkspaceLinkPath;
 
     if (!fs.existsSync(config.nodeModulesPath)) {
-      log.warn('node_modules not found, skipping workspace self-link reconciliation');
+      log.warn("node_modules not found, skipping workspace self-link reconciliation");
       return;
     }
 
@@ -205,7 +205,7 @@ class NightlyPublisher {
         );
       }
 
-      log.info('Nightly workspace self-link already exists');
+      log.info("Nightly workspace self-link already exists");
       return;
     }
 
@@ -225,8 +225,8 @@ class NightlyPublisher {
     // In some environments npm may not have created the workspace self-link yet.
     // Create it explicitly so `npm list --production` can resolve the renamed
     // package name during vsce dependency detection.
-    log.warn('Original workspace self-link not found, creating nightly workspace self-link');
-    fs.symlinkSync(config.projectRoot, nightlyPath, 'dir');
+    log.warn("Original workspace self-link not found, creating nightly workspace self-link");
+    fs.symlinkSync(config.projectRoot, nightlyPath, "dir");
 
     if (!this.isExpectedWorkspaceSelfLink(nightlyPath)) {
       throw new Error(`Failed to create expected workspace symlink at ${nightlyPath}`);
@@ -278,7 +278,7 @@ class NightlyPublisher {
    */
   generateVersion(currentVersion) {
     // Extract major.minor from current version (e.g., "3.27.1" -> "3.27")
-    const versionParts = currentVersion.split('.');
+    const versionParts = currentVersion.split(".");
     if (versionParts.length < 2) {
       throw new Error(`Invalid version format: ${currentVersion}`);
     }
@@ -295,16 +295,16 @@ class NightlyPublisher {
    */
   updatePackageJson() {
     // Replace any occurrences cline. or claude-dev with nightly name
-    const rawContent = fs.readFileSync(config.packageJsonPath, 'utf-8');
+    const rawContent = fs.readFileSync(config.packageJsonPath, "utf-8");
     const content = rawContent
-      .replaceAll('claude-dev', config.nightlyName)
+      .replaceAll("claude-dev", config.nightlyName)
       .replaceAll('"cline.', `"${config.nightlyName}.`);
 
     const pkg = JSON.parse(content);
     const currentVersion = pkg.version;
 
     if (!currentVersion) {
-      throw new Error('Could not read version from package.json');
+      throw new Error("Could not read version from package.json");
     }
 
     log.info(`Current version: ${currentVersion}`);
@@ -319,8 +319,8 @@ class NightlyPublisher {
     pkg.contributes.viewsContainers.activitybar.title = config.nightlyDisplayName;
 
     // Save updated package.json
-    log.info('Updating package.json for nightly build');
-    fs.writeFileSync(config.packageJsonPath, JSON.stringify(pkg, null, '\t'));
+    log.info("Updating package.json for nightly build");
+    fs.writeFileSync(config.packageJsonPath, JSON.stringify(pkg, null, "\t"));
 
     return newVersion;
   }
@@ -334,22 +334,22 @@ class NightlyPublisher {
       fs.mkdirSync(config.distDir, { recursive: true });
     }
 
-    log.info('Packaging extension');
+    log.info("Packaging extension");
 
     const args = [
-      'package',
-      '--pre-release',
-      '--no-update-package-json',
-      '--no-git-tag-version',
-      '--allow-package-secrets',
-      'sendgrid',
-      '--out',
+      "package",
+      "--pre-release",
+      "--no-update-package-json",
+      "--no-git-tag-version",
+      "--allow-package-secrets",
+      "sendgrid",
+      "--out",
       config.vsixPath,
     ];
 
     try {
-      execFileSync('vsce', args, {
-        stdio: 'inherit',
+      execFileSync("vsce", args, {
+        stdio: "inherit",
         cwd: config.projectRoot,
       });
       log.info(`Package created: ${config.vsixPath}`);
@@ -365,27 +365,27 @@ class NightlyPublisher {
     const token = process.env.VSCE_PAT;
 
     if (!token) {
-      log.warn('VSCE_PAT not set, skipping VS Code Marketplace publish');
+      log.warn("VSCE_PAT not set, skipping VS Code Marketplace publish");
       return false;
     }
 
-    log.info('Publishing to VS Code Marketplace');
+    log.info("Publishing to VS Code Marketplace");
 
     const args = [
-      'publish',
-      '--pre-release',
-      '--no-git-tag-version',
-      '--packagePath',
+      "publish",
+      "--pre-release",
+      "--no-git-tag-version",
+      "--packagePath",
       config.vsixPath,
     ];
 
     try {
-      execFileSync('vsce', args, {
+      execFileSync("vsce", args, {
         env: { ...process.env, VSCE_PAT: token },
-        stdio: 'inherit',
+        stdio: "inherit",
         cwd: config.projectRoot,
       });
-      log.info('Successfully published to VS Code Marketplace');
+      log.info("Successfully published to VS Code Marketplace");
       return true;
     } catch (error) {
       throw new Error(`Failed to publish to VS Code Marketplace: ${error.message}`);
@@ -399,28 +399,28 @@ class NightlyPublisher {
     const token = process.env.OVSX_PAT;
 
     if (!token) {
-      log.warn('OVSX_PAT not set, skipping OpenVSX Registry publish');
+      log.warn("OVSX_PAT not set, skipping OpenVSX Registry publish");
       return false;
     }
 
-    log.info('Publishing to OpenVSX Registry');
+    log.info("Publishing to OpenVSX Registry");
 
     const args = [
-      'ovsx',
-      'publish',
-      '--pre-release',
-      '--packagePath',
+      "ovsx",
+      "publish",
+      "--pre-release",
+      "--packagePath",
       config.vsixPath,
-      '--pat',
+      "--pat",
       token,
     ];
 
     try {
-      execFileSync('npx', args, {
-        stdio: 'inherit',
+      execFileSync("npx", args, {
+        stdio: "inherit",
         cwd: config.projectRoot,
       });
-      log.info('Successfully published to OpenVSX Registry');
+      log.info("Successfully published to OpenVSX Registry");
       return true;
     } catch (error) {
       throw new Error(`Failed to publish to OpenVSX Registry: ${error.message}`);
@@ -432,7 +432,7 @@ class NightlyPublisher {
    */
   async run(isDryRun = false) {
     try {
-      log.info(`Starting nightly publish process${isDryRun ? ' (dry run)' : ''}`);
+      log.info(`Starting nightly publish process${isDryRun ? " (dry run)" : ""}`);
 
       // Step 1: Check dependencies
       this.checkDependencies();
@@ -454,19 +454,19 @@ class NightlyPublisher {
       let openVSXPublished = false;
 
       if (isDryRun) {
-        log.info('Dry run mode: Skipping marketplace publishing');
+        log.info("Dry run mode: Skipping marketplace publishing");
       } else {
         vsCodePublished = this.publishToVSCodeMarketplace();
         openVSXPublished = this.publishToOpenVSX();
       }
 
       // Summary
-      log.info(`Nightly publish process completed successfully${isDryRun ? ' (dry run)' : ''}`);
+      log.info(`Nightly publish process completed successfully${isDryRun ? " (dry run)" : ""}`);
       log.info(`Package created for v${newVersion}: ${config.vsixPath}`);
 
       if (!isDryRun && !vsCodePublished && !openVSXPublished) {
-        log.warn('Extension was packaged but not published to any marketplace');
-        log.warn('Set VSCE_PAT and/or OVSX_PAT environment variables to enable publishing');
+        log.warn("Extension was packaged but not published to any marketplace");
+        log.warn("Set VSCE_PAT and/or OVSX_PAT environment variables to enable publishing");
       }
     } catch (error) {
       log.error(`Publish failed: ${error.message}`);
@@ -484,20 +484,20 @@ class NightlyPublisher {
 // Handle cleanup on process exit
 const publisher = new NightlyPublisher();
 
-process.on('exit', () => {
+process.on("exit", () => {
   publisher.restoreWorkspaceSelfLink();
   publisher.restorePackageJson();
 });
 
-process.on('SIGINT', () => {
-  log.info('\nInterrupted, cleaning up...');
+process.on("SIGINT", () => {
+  log.info("\nInterrupted, cleaning up...");
   publisher.restoreWorkspaceSelfLink();
   publisher.restorePackageJson();
   process.exit(130);
 });
 
-process.on('SIGTERM', () => {
-  log.info('\nTerminated, cleaning up...');
+process.on("SIGTERM", () => {
+  log.info("\nTerminated, cleaning up...");
   publisher.restoreWorkspaceSelfLink();
   publisher.restorePackageJson();
   process.exit(143);
@@ -505,8 +505,8 @@ process.on('SIGTERM', () => {
 
 // Parse command line arguments
 const args = process.argv.slice(2);
-const isDryRun = args.includes('--dry-run') || args.includes('-n');
-const showHelp = args.includes('--help') || args.includes('-h');
+const isDryRun = args.includes("--dry-run") || args.includes("-n");
+const showHelp = args.includes("--help") || args.includes("-h");
 
 if (showHelp) {
   console.log(`

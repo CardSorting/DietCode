@@ -1,13 +1,13 @@
 import {
   type AutoApprovalSettings,
   DEFAULT_AUTO_APPROVAL_SETTINGS,
-} from '@shared/AutoApprovalSettings';
-import { type BrowserSettings, DEFAULT_BROWSER_SETTINGS } from '@shared/BrowserSettings';
-import { DEFAULT_FOCUS_CHAIN_SETTINGS, type FocusChainSettings } from '@shared/FocusChainSettings';
-import type { HistoryItem } from '@shared/HistoryItem';
-import { DEFAULT_MCP_DISPLAY_MODE, type McpDisplayMode } from '@shared/McpDisplayMode';
-import type { TelemetrySetting } from '@shared/TelemetrySetting';
-import type { UserInfo } from '@shared/UserInfo';
+} from "@shared/AutoApprovalSettings";
+import { type BrowserSettings, DEFAULT_BROWSER_SETTINGS } from "@shared/BrowserSettings";
+import { DEFAULT_FOCUS_CHAIN_SETTINGS, type FocusChainSettings } from "@shared/FocusChainSettings";
+import type { HistoryItem } from "@shared/HistoryItem";
+import { DEFAULT_MCP_DISPLAY_MODE, type McpDisplayMode } from "@shared/McpDisplayMode";
+import type { TelemetrySetting } from "@shared/TelemetrySetting";
+import type { UserInfo } from "@shared/UserInfo";
 import {
   type ApiProvider,
   DEFAULT_API_PROVIDER,
@@ -15,13 +15,13 @@ import {
   type ModelInfo,
   type OcaModelInfo,
   type OpenAiCompatibleModelInfo,
-} from '@shared/api';
-import type { ClineRulesToggles } from '@shared/cline-rules';
-import type { WorkspaceRoot } from '@shared/multi-root/types';
-import type { GlobalInstructionsFile } from '@shared/remote-config/schema';
-import type { Mode } from '@shared/storage/types';
-import type { LanguageModelChatSelector } from 'vscode';
-import type { BlobStoreSettings } from './ClineBlobStorage';
+} from "@shared/api";
+import type { ClineRulesToggles } from "@shared/cline-rules";
+import type { WorkspaceRoot } from "@shared/multi-root/types";
+import type { GlobalInstructionsFile } from "@shared/remote-config/schema";
+import type { Mode } from "@shared/storage/types";
+import type { LanguageModelChatSelector } from "vscode";
+import type { BlobStoreSettings } from "./ClineBlobStorage";
 
 // ============================================================================
 // SINGLE SOURCE OF TRUTH FOR STORAGE KEYS
@@ -72,7 +72,7 @@ const REMOTE_CONFIG_EXTRA_FIELDS = {
 
 const GLOBAL_STATE_FIELDS = {
   clineVersion: { default: undefined as string | undefined },
-  'cline.generatedMachineId': { default: undefined as string | undefined }, // Note, distinctId reads/writes this directly from/to StorageContext before StateManager is initialized.
+  "cline.generatedMachineId": { default: undefined as string | undefined }, // Note, distinctId reads/writes this directly from/to StorageContext before StateManager is initialized.
   lastShownAnnouncementId: { default: undefined as string | undefined },
   taskHistory: { default: [] as HistoryItem[], isAsync: true },
   userInfo: { default: undefined as UserInfo | undefined },
@@ -81,7 +81,7 @@ const GLOBAL_STATE_FIELDS = {
   mcpResponsesCollapsed: { default: false as boolean },
   terminalReuseEnabled: { default: true as boolean },
   vscodeTerminalExecutionMode: {
-    default: 'vscodeTerminal' as 'vscodeTerminal' | 'backgroundExec',
+    default: "vscodeTerminal" as "vscodeTerminal" | "backgroundExec",
   },
   isNewUser: { default: true as boolean },
   welcomeViewCompleted: { default: undefined as boolean | undefined },
@@ -144,7 +144,7 @@ const API_HANDLER_SETTINGS_FIELDS = {
   zaiApiLine: { default: undefined as string | undefined },
   ocaBaseUrl: { default: undefined as string | undefined },
   minimaxApiLine: { default: undefined as string | undefined },
-  ocaMode: { default: 'internal' as string },
+  ocaMode: { default: "internal" as string },
   aihubmixBaseUrl: { default: undefined as string | undefined },
   aihubmixAppCode: { default: undefined as string | undefined },
   enableParallelToolCalling: { default: true as boolean },
@@ -258,11 +258,11 @@ const USER_SETTINGS_FIELDS = {
     default: DEFAULT_BROWSER_SETTINGS as BrowserSettings,
     transform: (v: any) => ({ ...DEFAULT_BROWSER_SETTINGS, ...v }),
   },
-  telemetrySetting: { default: 'unset' as TelemetrySetting },
+  telemetrySetting: { default: "unset" as TelemetrySetting },
   planActSeparateModelsSetting: { default: false as boolean, isComputed: true },
   enableCheckpointsSetting: { default: true as boolean },
   shellIntegrationTimeout: { default: 4000 as number },
-  defaultTerminalProfile: { default: 'default' as string },
+  defaultTerminalProfile: { default: "default" as string },
   terminalOutputLineLimit: { default: 500 as number },
   maxConsecutiveMistakes: { default: 3 as number },
   strictPlanModeEnabled: { default: false as boolean },
@@ -273,10 +273,10 @@ const USER_SETTINGS_FIELDS = {
   subagentsEnabled: { default: false as boolean },
   clineWebToolsEnabled: { default: true as boolean },
   worktreesEnabled: { default: false as boolean },
-  preferredLanguage: { default: 'English' as string },
-  mode: { default: 'act' as Mode },
+  preferredLanguage: { default: "English" as string },
+  mode: { default: "act" as Mode },
   focusChainSettings: { default: DEFAULT_FOCUS_CHAIN_SETTINGS as FocusChainSettings },
-  customPrompt: { default: undefined as 'compact' | undefined },
+  customPrompt: { default: undefined as "compact" | undefined },
   backgroundEditEnabled: { default: false as boolean },
   optOutOfRemoteConfig: { default: false as boolean },
   doubleCheckCompletionEnabled: { default: false as boolean },
@@ -287,8 +287,8 @@ const USER_SETTINGS_FIELDS = {
   openTelemetryEnabled: { default: true as boolean },
   openTelemetryMetricsExporter: { default: undefined as string | undefined },
   openTelemetryLogsExporter: { default: undefined as string | undefined },
-  openTelemetryOtlpProtocol: { default: 'http/json' as string | undefined },
-  openTelemetryOtlpEndpoint: { default: 'http://localhost:4318' as string | undefined },
+  openTelemetryOtlpProtocol: { default: "http/json" as string | undefined },
+  openTelemetryOtlpEndpoint: { default: "http://localhost:4318" as string | undefined },
   openTelemetryOtlpMetricsProtocol: { default: undefined as string | undefined },
   openTelemetryOtlpMetricsEndpoint: { default: undefined as string | undefined },
   openTelemetryOtlpLogsProtocol: { default: undefined as string | undefined },
@@ -309,64 +309,64 @@ const GLOBAL_STATE_AND_SETTINGS_FIELDS = { ...GLOBAL_STATE_FIELDS, ...SETTINGS_F
 
 // Secret keys used in Api Configuration
 const SECRETS_KEYS = [
-  'apiKey',
-  'clineApiKey',
-  'clineAccountId', // Cline Account ID for Firebase
-  'cline:clineAccountId',
-  'openRouterApiKey',
-  'awsAccessKey',
-  'awsSecretKey',
-  'awsSessionToken',
-  'awsBedrockApiKey',
-  'openAiApiKey',
-  'geminiApiKey',
-  'openAiNativeApiKey',
-  'ollamaApiKey',
-  'deepSeekApiKey',
-  'requestyApiKey',
-  'togetherApiKey',
-  'fireworksApiKey',
-  'qwenApiKey',
-  'doubaoApiKey',
-  'mistralApiKey',
-  'liteLlmApiKey',
-  'authNonce',
-  'asksageApiKey',
-  'xaiApiKey',
-  'moonshotApiKey',
-  'zaiApiKey',
-  'huggingFaceApiKey',
-  'nebiusApiKey',
-  'sambanovaApiKey',
-  'cerebrasApiKey',
-  'sapAiCoreClientId',
-  'sapAiCoreClientSecret',
-  'groqApiKey',
-  'huaweiCloudMaasApiKey',
-  'basetenApiKey',
-  'vercelAiGatewayApiKey',
-  'difyApiKey',
-  'minimaxApiKey',
-  'hicapApiKey',
-  'aihubmixApiKey',
-  'nousResearchApiKey',
-  'remoteLiteLlmApiKey',
-  'ocaApiKey',
-  'ocaRefreshToken',
-  'mcpOAuthSecrets',
-  'openai-codex-oauth-credentials', // JSON blob containing OAuth tokens for OpenAI Codex (ChatGPT subscription)
-  'wandbApiKey',
+  "apiKey",
+  "clineApiKey",
+  "clineAccountId", // Cline Account ID for Firebase
+  "cline:clineAccountId",
+  "openRouterApiKey",
+  "awsAccessKey",
+  "awsSecretKey",
+  "awsSessionToken",
+  "awsBedrockApiKey",
+  "openAiApiKey",
+  "geminiApiKey",
+  "openAiNativeApiKey",
+  "ollamaApiKey",
+  "deepSeekApiKey",
+  "requestyApiKey",
+  "togetherApiKey",
+  "fireworksApiKey",
+  "qwenApiKey",
+  "doubaoApiKey",
+  "mistralApiKey",
+  "liteLlmApiKey",
+  "authNonce",
+  "asksageApiKey",
+  "xaiApiKey",
+  "moonshotApiKey",
+  "zaiApiKey",
+  "huggingFaceApiKey",
+  "nebiusApiKey",
+  "sambanovaApiKey",
+  "cerebrasApiKey",
+  "sapAiCoreClientId",
+  "sapAiCoreClientSecret",
+  "groqApiKey",
+  "huaweiCloudMaasApiKey",
+  "basetenApiKey",
+  "vercelAiGatewayApiKey",
+  "difyApiKey",
+  "minimaxApiKey",
+  "hicapApiKey",
+  "aihubmixApiKey",
+  "nousResearchApiKey",
+  "remoteLiteLlmApiKey",
+  "ocaApiKey",
+  "ocaRefreshToken",
+  "mcpOAuthSecrets",
+  "openai-codex-oauth-credentials", // JSON blob containing OAuth tokens for OpenAI Codex (ChatGPT subscription)
+  "wandbApiKey",
 ] as const;
 
 // WARNING, these are not ALL of the local state keys in practice. For example, FileContextTracker
 // uses dynamic keys like pendingFileContextWarning_${taskId}.
 export const LocalStateKeys = [
-  'localClineRulesToggles',
-  'localCursorRulesToggles',
-  'localWindsurfRulesToggles',
-  'localAgentsRulesToggles',
-  'localSkillsToggles',
-  'workflowToggles',
+  "localClineRulesToggles",
+  "localCursorRulesToggles",
+  "localWindsurfRulesToggles",
+  "localAgentsRulesToggles",
+  "localSkillsToggles",
+  "workflowToggles",
 ] as const;
 
 // ============================================================================
@@ -424,11 +424,11 @@ export const SETTINGS_DEFAULTS = extractDefaults(SETTINGS_FIELDS);
 export const SETTINGS_TRANSFORMS = extractTransforms(SETTINGS_FIELDS);
 export const ASYNC_PROPERTIES = extractMetadata(
   { ...GLOBAL_STATE_FIELDS, ...SETTINGS_FIELDS },
-  'isAsync',
+  "isAsync",
 );
 export const COMPUTED_PROPERTIES = extractMetadata(
   { ...GLOBAL_STATE_FIELDS, ...SETTINGS_FIELDS },
-  'isComputed',
+  "isComputed",
 );
 
 // ============================================================================
@@ -476,7 +476,7 @@ function extractTransforms<T extends Record<string, any>>(
 ): Record<string, (value: any) => any> {
   return Object.fromEntries(
     Object.entries(props)
-      .filter(([_, prop]) => 'transform' in prop && prop.transform !== undefined)
+      .filter(([_, prop]) => "transform" in prop && prop.transform !== undefined)
       .map(([key, prop]) => [key, prop.transform]),
   );
 }

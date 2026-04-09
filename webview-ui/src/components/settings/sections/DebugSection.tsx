@@ -1,7 +1,7 @@
-import { Button } from '@/components/ui/button';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { StateServiceClient } from '@/services/grpc-client';
-import Section from '../Section';
+import { Button } from "@/components/ui/button";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { StateServiceClient } from "@/services/grpc-client";
+import Section from "../Section";
 
 interface DebugSectionProps {
   onResetState: (resetGlobalState?: boolean) => Promise<void>;
@@ -12,7 +12,7 @@ const DebugSection = ({ onResetState, renderSectionHeader }: DebugSectionProps) 
   const { setShowWelcome } = useExtensionState();
   return (
     <div>
-      {renderSectionHeader('debug')}
+      {renderSectionHeader("debug")}
       <Section>
         <Button onClick={() => onResetState()} variant="error">
           Reset Workspace State

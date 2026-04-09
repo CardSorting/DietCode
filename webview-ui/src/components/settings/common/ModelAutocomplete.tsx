@@ -1,9 +1,9 @@
-import type { ModelInfo } from '@shared/api.ts';
-import { VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
-import Fuse from 'fuse.js';
-import { type KeyboardEvent, useEffect, useId, useMemo, useRef, useState } from 'react';
-import styled from 'styled-components';
-import { highlight } from '../../history/HistoryView';
+import type { ModelInfo } from "@shared/api.ts";
+import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import Fuse from "fuse.js";
+import { type KeyboardEvent, useEffect, useId, useMemo, useRef, useState } from "react";
+import styled from "styled-components";
+import { highlight } from "../../history/HistoryView";
 
 interface ModelAutocompleteProps {
   models: Record<string, ModelInfo>;
@@ -21,10 +21,10 @@ export const ModelAutocomplete = ({
   selectedModelId,
   onChange,
   zIndex = AUTOCOMPLETE_Z_INDEX,
-  label = 'Model',
-  placeholder = 'Search and select a model...',
+  label = "Model",
+  placeholder = "Search and select a model...",
 }: ModelAutocompleteProps) => {
-  const [searchTerm, setSearchTerm] = useState(selectedModelId || '');
+  const [searchTerm, setSearchTerm] = useState(selectedModelId || "");
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -38,7 +38,7 @@ export const ModelAutocomplete = ({
   const listboxId = `model-listbox-${uniqueId}`;
 
   useEffect(() => {
-    setSearchTerm(selectedModelId || '');
+    setSearchTerm(selectedModelId || "");
   }, [selectedModelId]);
 
   useEffect(() => {
@@ -48,9 +48,9 @@ export const ModelAutocomplete = ({
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -67,7 +67,7 @@ export const ModelAutocomplete = ({
 
   const fuse = useMemo(() => {
     return new Fuse(searchableItems, {
-      keys: ['html'],
+      keys: ["html"],
       threshold: 0.6,
       shouldSort: true,
       isCaseSensitive: false,
@@ -81,7 +81,7 @@ export const ModelAutocomplete = ({
     if (!searchTerm) {
       return searchableItems;
     }
-    return highlight(fuse.search(searchTerm), 'model-item-highlight');
+    return highlight(fuse.search(searchTerm), "model-item-highlight");
   }, [searchableItems, searchTerm, fuse]);
 
   const handleModelChange = (newModelId: string) => {
@@ -96,15 +96,15 @@ export const ModelAutocomplete = ({
     }
 
     switch (event.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         event.preventDefault();
         setSelectedIndex((prev) => (prev < modelSearchResults.length - 1 ? prev + 1 : prev));
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         event.preventDefault();
         setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
         break;
-      case 'Enter':
+      case "Enter":
         event.preventDefault();
         if (selectedIndex >= 0 && selectedIndex < modelSearchResults.length) {
           handleModelChange(modelSearchResults[selectedIndex].id);
@@ -115,7 +115,7 @@ export const ModelAutocomplete = ({
           setIsDropdownVisible(false);
         }
         break;
-      case 'Escape':
+      case "Escape":
         setIsDropdownVisible(false);
         setSelectedIndex(-1);
         break;
@@ -134,8 +134,8 @@ export const ModelAutocomplete = ({
   useEffect(() => {
     if (selectedIndex >= 0 && itemRefs.current[selectedIndex]) {
       itemRefs.current[selectedIndex]?.scrollIntoView({
-        block: 'nearest',
-        behavior: 'smooth',
+        block: "nearest",
+        behavior: "smooth",
       });
     }
   }, [selectedIndex]);
@@ -144,7 +144,7 @@ export const ModelAutocomplete = ({
     selectedIndex >= 0 ? `${listboxId}-option-${selectedIndex}` : undefined;
 
   return (
-    <div style={{ width: '100%', paddingBottom: 2 }}>
+    <div style={{ width: "100%", paddingBottom: 2 }}>
       <style>
         {`
 				.model-item-highlight {
@@ -153,7 +153,7 @@ export const ModelAutocomplete = ({
 				}
 				`}
       </style>
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: "flex", flexDirection: "column" }}>
         <label htmlFor={inputId}>
           <span style={{ fontWeight: 500 }}>{label}</span>
         </label>
@@ -176,16 +176,16 @@ export const ModelAutocomplete = ({
             }}
             onFocus={() => setIsDropdownVisible(true)}
             onInput={(e) => {
-              setSearchTerm((e.target as HTMLInputElement)?.value || '');
+              setSearchTerm((e.target as HTMLInputElement)?.value || "");
               setIsDropdownVisible(true);
             }}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             role="combobox"
             style={{
-              width: '100%',
+              width: "100%",
               zIndex: zIndex,
-              position: 'relative',
+              position: "relative",
             }}
             value={searchTerm}
           >
@@ -194,15 +194,15 @@ export const ModelAutocomplete = ({
                 aria-label="Clear search"
                 className="input-icon-button codicon codicon-close"
                 onClick={() => {
-                  setSearchTerm('');
+                  setSearchTerm("");
                   setIsDropdownVisible(true);
                 }}
                 slot="end"
                 style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: '100%',
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "100%",
                 }}
               />
             )}
@@ -268,7 +268,7 @@ const DropdownItem = styled.div<{ isSelected: boolean }>`
 	word-break: break-all;
 	white-space: normal;
 
-	background-color: ${({ isSelected }) => (isSelected ? 'var(--vscode-list-activeSelectionBackground)' : 'inherit')};
+	background-color: ${({ isSelected }) => (isSelected ? "var(--vscode-list-activeSelectionBackground)" : "inherit")};
 
 	&:hover {
 		background-color: var(--vscode-list-activeSelectionBackground);

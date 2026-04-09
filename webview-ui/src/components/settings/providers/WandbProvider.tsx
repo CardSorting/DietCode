@@ -1,11 +1,11 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { wandbModels } from '@shared/api.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { ApiKeyField } from '../common/ApiKeyField';
-import { ModelInfoView } from '../common/ModelInfoView';
-import { ModelSelector } from '../common/ModelSelector';
-import { normalizeApiConfiguration } from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { wandbModels } from "@shared/api.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { ApiKeyField } from "../common/ApiKeyField";
+import { ModelInfoView } from "../common/ModelInfoView";
+import { ModelSelector } from "../common/ModelSelector";
+import { normalizeApiConfiguration } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 interface WandbProviderProps {
   showModelOptions: boolean;
@@ -26,8 +26,8 @@ export const WandbProvider = ({ showModelOptions, isPopup, currentMode }: WandbP
     <div>
       <ApiKeyField
         helpText="This key is stored locally and only used to make API requests from this extension."
-        initialValue={apiConfiguration?.wandbApiKey || ''}
-        onChange={(value) => handleFieldChange('wandbApiKey', value)}
+        initialValue={apiConfiguration?.wandbApiKey || ""}
+        onChange={(value) => handleFieldChange("wandbApiKey", value)}
         providerName="W&B"
         signupUrl="https://wandb.ai"
       />
@@ -39,7 +39,7 @@ export const WandbProvider = ({ showModelOptions, isPopup, currentMode }: WandbP
             models={wandbModels}
             onChange={(e: any) =>
               handleModeFieldChange(
-                { plan: 'planModeApiModelId', act: 'actModeApiModelId' },
+                { plan: "planModeApiModelId", act: "actModeApiModelId" },
                 e.target.value,
                 currentMode,
               )

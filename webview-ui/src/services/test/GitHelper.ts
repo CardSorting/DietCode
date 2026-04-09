@@ -1,6 +1,6 @@
-import * as path from 'node:path';
-import { Logger } from '@/shared/services/Logger';
-import { execa } from 'execa';
+import * as path from "node:path";
+import { Logger } from "@/shared/services/Logger";
+import { execa } from "execa";
 
 /**
  * Validates that the workspace path is valid and writable for Git operations
@@ -9,22 +9,22 @@ import { execa } from 'execa';
  */
 export async function validateWorkspacePath(workspacePath: string): Promise<void> {
   // Check if workspace path is valid
-  if (!workspacePath || workspacePath === '/') {
+  if (!workspacePath || workspacePath === "/") {
     throw new Error(`Invalid workspace path: ${workspacePath}. Cannot initialize Git repository.`);
   }
 
   // Check if the directory exists
   try {
-    await execa('test', ['-d', workspacePath]);
+    await execa("test", ["-d", workspacePath]);
   } catch (_error) {
     throw new Error(`Workspace path does not exist or is not a directory: ${workspacePath}`);
   }
 
   // Check if the directory is writable
   try {
-    const testFile = path.join(workspacePath, '.cline_write_test');
-    await execa('touch', [testFile]);
-    await execa('rm', [testFile]);
+    const testFile = path.join(workspacePath, ".cline_write_test");
+    await execa("touch", [testFile]);
+    await execa("rm", [testFile]);
   } catch (error) {
     throw new Error(`Workspace path is not writable: ${workspacePath}. Error: ${error.message}`);
   }
@@ -37,18 +37,18 @@ export async function validateWorkspacePath(workspacePath: string): Promise<void
  * @param workspacePath The workspace path to clean up
  */
 export async function cleanupPreviousGit(workspacePath: string): Promise<void> {
-  const gitDir = path.join(workspacePath, '.git');
+  const gitDir = path.join(workspacePath, ".git");
 
   try {
     // Check if .git directory exists using execa since we're already using it
     try {
-      await execa('test', ['-d', gitDir]);
+      await execa("test", ["-d", gitDir]);
       // If we get here, the directory exists
       Logger.log(`Removing existing Git repository in ${workspacePath}`);
 
       // Use rm -rf to remove the directory
-      await execa('rm', ['-rf', gitDir]);
-      Logger.log('Removed existing Git repository');
+      await execa("rm", ["-rf", gitDir]);
+      Logger.log("Removed existing Git repository");
     } catch (_error) {
       // Directory doesn't exist, which is fine
       Logger.log(`No existing Git repository found in ${workspacePath}`);
@@ -73,32 +73,32 @@ export async function initializeGitRepository(workspacePath: string): Promise<bo
   // Initialize a new Git repository
   Logger.log(`Initializing Git repository in ${workspacePath}`);
   try {
-    await execa('git', ['init'], { cwd: workspacePath });
-    await execa('git', ['config', 'user.name', 'Cline Evaluation'], { cwd: workspacePath });
-    await execa('git', ['config', 'user.email', 'cline@example.com'], { cwd: workspacePath });
+    await execa("git", ["init"], { cwd: workspacePath });
+    await execa("git", ["config", "user.name", "Cline Evaluation"], { cwd: workspacePath });
+    await execa("git", ["config", "user.email", "cline@example.com"], { cwd: workspacePath });
 
     // Try to create an initial commit, but don't fail if there are no files to commit
     try {
       // Check if there are any files to commit
-      const { stdout: statusOutput } = await execa('git', ['status', '--porcelain'], {
+      const { stdout: statusOutput } = await execa("git", ["status", "--porcelain"], {
         cwd: workspacePath,
       });
 
       if (statusOutput.trim()) {
         // There are files to commit
-        await execa('git', ['add', '.'], { cwd: workspacePath });
-        await execa('git', ['commit', '-m', 'Initial commit for evaluation'], {
+        await execa("git", ["add", "."], { cwd: workspacePath });
+        await execa("git", ["commit", "-m", "Initial commit for evaluation"], {
           cwd: workspacePath,
         });
         Logger.log(`Created initial Git commit in ${workspacePath}`);
       } else {
         // No files to commit, create an empty commit
-        Logger.log('No files to commit, creating empty initial commit');
+        Logger.log("No files to commit, creating empty initial commit");
         try {
           // Create an empty commit with --allow-empty
           await execa(
-            'git',
-            ['commit', '--allow-empty', '-m', 'Initial empty commit for evaluation'],
+            "git",
+            ["commit", "--allow-empty", "-m", "Initial empty commit for evaluation"],
             {
               cwd: workspacePath,
             },
@@ -112,7 +112,7 @@ export async function initializeGitRepository(workspacePath: string): Promise<bo
     } catch (commitError) {
       // Initial commit failed, but Git is still initialized
       Logger.log(`Warning: Failed to create initial commit: ${commitError.message}`);
-      Logger.log('Continuing without initial commit');
+      Logger.log("Continuing without initial commit");
     }
 
     return true;
@@ -143,8 +143,8 @@ export async function getFileChanges(workspacePath: string): Promise<{
   try {
     // First check if there are any untracked files
     const { stdout: untrackedOutput } = await execa(
-      'git',
-      ['ls-files', '--others', '--exclude-standard'],
+      "git",
+      ["ls-files", "--others", "--exclude-standard"],
       {
         cwd: workspacePath,
       },
@@ -154,18 +154,18 @@ export async function getFileChanges(workspacePath: string): Promise<{
     }
 
     // Stage all changes including untracked files
-    await execa('git', ['add', '-A'], { cwd: workspacePath });
-    Logger.log('Staged all changes for diff');
+    await execa("git", ["add", "-A"], { cwd: workspacePath });
+    Logger.log("Staged all changes for diff");
   } catch (error) {
     Logger.log(`Warning: Failed to stage changes: ${error.message}`);
   }
 
   try {
     // Get list of changed files
-    const { stdout: statusOutput } = await execa('git', ['status', '--porcelain'], {
+    const { stdout: statusOutput } = await execa("git", ["status", "--porcelain"], {
       cwd: workspacePath,
     });
-    Logger.log(`Git status output: ${statusOutput || '(empty)'}`);
+    Logger.log(`Git status output: ${statusOutput || "(empty)"}`);
 
     const created: string[] = [];
     const modified: string[] = [];
@@ -173,29 +173,29 @@ export async function getFileChanges(workspacePath: string): Promise<{
 
     // Parse git status output
     statusOutput
-      .split('\n')
+      .split("\n")
       .filter(Boolean)
       .forEach((line) => {
         const status = line.substring(0, 2).trim();
         const file = line.substring(3);
 
-        if (status === 'A' || status === '??') {
+        if (status === "A" || status === "??") {
           created.push(file);
-        } else if (status === 'M') {
+        } else if (status === "M") {
           modified.push(file);
-        } else if (status === 'D') {
+        } else if (status === "D") {
           deleted.push(file);
         }
       });
 
     // Get the full diff - include both staged and unstaged changes
-    const { stdout: diffOutput } = await execa('git', ['diff', '--staged'], { cwd: workspacePath });
+    const { stdout: diffOutput } = await execa("git", ["diff", "--staged"], { cwd: workspacePath });
     Logger.log(`Git diff output length: ${diffOutput.length} characters`);
 
     // If there's no diff, try getting the diff of unstaged changes
     let finalDiff = diffOutput;
     if (!finalDiff) {
-      const { stdout: unstaged } = await execa('git', ['diff'], { cwd: workspacePath });
+      const { stdout: unstaged } = await execa("git", ["diff"], { cwd: workspacePath });
       finalDiff = unstaged;
       Logger.log(`Unstaged git diff output length: ${unstaged.length} characters`);
     }

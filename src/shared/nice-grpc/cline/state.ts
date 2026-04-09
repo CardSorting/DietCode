@@ -5,8 +5,8 @@
 // source: cline/state.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
-import { BrowserSettings, Viewport } from './browser';
+import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { BrowserSettings, Viewport } from "./browser";
 import {
   Boolean,
   BooleanRequest,
@@ -15,7 +15,7 @@ import {
   Int64Request,
   Metadata,
   StringRequest,
-} from './common';
+} from "./common";
 import {
   type ApiProvider,
   LanguageModelChatSelector,
@@ -26,7 +26,7 @@ import {
   OpenRouterModelInfo,
   apiProviderFromJSON,
   apiProviderToJSON,
-} from './models';
+} from "./models";
 
 export enum PlanActMode {
   PLAN = 0,
@@ -37,10 +37,10 @@ export enum PlanActMode {
 export function planActModeFromJSON(object: any): PlanActMode {
   switch (object) {
     case 0:
-    case 'PLAN':
+    case "PLAN":
       return PlanActMode.PLAN;
     case 1:
-    case 'ACT':
+    case "ACT":
       return PlanActMode.ACT;
     default:
       return PlanActMode.UNRECOGNIZED;
@@ -50,11 +50,11 @@ export function planActModeFromJSON(object: any): PlanActMode {
 export function planActModeToJSON(object: PlanActMode): string {
   switch (object) {
     case PlanActMode.PLAN:
-      return 'PLAN';
+      return "PLAN";
     case PlanActMode.ACT:
-      return 'ACT';
+      return "ACT";
     default:
-      return 'UNRECOGNIZED';
+      return "UNRECOGNIZED";
   }
 }
 
@@ -68,13 +68,13 @@ export enum OpenaiReasoningEffort {
 export function openaiReasoningEffortFromJSON(object: any): OpenaiReasoningEffort {
   switch (object) {
     case 0:
-    case 'LOW':
+    case "LOW":
       return OpenaiReasoningEffort.LOW;
     case 1:
-    case 'MEDIUM':
+    case "MEDIUM":
       return OpenaiReasoningEffort.MEDIUM;
     case 2:
-    case 'HIGH':
+    case "HIGH":
       return OpenaiReasoningEffort.HIGH;
     default:
       return OpenaiReasoningEffort.UNRECOGNIZED;
@@ -84,13 +84,13 @@ export function openaiReasoningEffortFromJSON(object: any): OpenaiReasoningEffor
 export function openaiReasoningEffortToJSON(object: OpenaiReasoningEffort): string {
   switch (object) {
     case OpenaiReasoningEffort.LOW:
-      return 'LOW';
+      return "LOW";
     case OpenaiReasoningEffort.MEDIUM:
-      return 'MEDIUM';
+      return "MEDIUM";
     case OpenaiReasoningEffort.HIGH:
-      return 'HIGH';
+      return "HIGH";
     default:
-      return 'UNRECOGNIZED';
+      return "UNRECOGNIZED";
   }
 }
 
@@ -104,13 +104,13 @@ export enum McpDisplayMode {
 export function mcpDisplayModeFromJSON(object: any): McpDisplayMode {
   switch (object) {
     case 0:
-    case 'RICH':
+    case "RICH":
       return McpDisplayMode.RICH;
     case 1:
-    case 'PLAIN':
+    case "PLAIN":
       return McpDisplayMode.PLAIN;
     case 2:
-    case 'MARKDOWN':
+    case "MARKDOWN":
       return McpDisplayMode.MARKDOWN;
     default:
       return McpDisplayMode.UNRECOGNIZED;
@@ -120,13 +120,13 @@ export function mcpDisplayModeFromJSON(object: any): McpDisplayMode {
 export function mcpDisplayModeToJSON(object: McpDisplayMode): string {
   switch (object) {
     case McpDisplayMode.RICH:
-      return 'RICH';
+      return "RICH";
     case McpDisplayMode.PLAIN:
-      return 'PLAIN';
+      return "PLAIN";
     case McpDisplayMode.MARKDOWN:
-      return 'MARKDOWN';
+      return "MARKDOWN";
     default:
-      return 'UNRECOGNIZED';
+      return "UNRECOGNIZED";
   }
 }
 
@@ -140,13 +140,13 @@ export enum TelemetrySettingEnum {
 export function telemetrySettingEnumFromJSON(object: any): TelemetrySettingEnum {
   switch (object) {
     case 0:
-    case 'UNSET':
+    case "UNSET":
       return TelemetrySettingEnum.UNSET;
     case 1:
-    case 'ENABLED':
+    case "ENABLED":
       return TelemetrySettingEnum.ENABLED;
     case 2:
-    case 'DISABLED':
+    case "DISABLED":
       return TelemetrySettingEnum.DISABLED;
     default:
       return TelemetrySettingEnum.UNRECOGNIZED;
@@ -156,13 +156,13 @@ export function telemetrySettingEnumFromJSON(object: any): TelemetrySettingEnum 
 export function telemetrySettingEnumToJSON(object: TelemetrySettingEnum): string {
   switch (object) {
     case TelemetrySettingEnum.UNSET:
-      return 'UNSET';
+      return "UNSET";
     case TelemetrySettingEnum.ENABLED:
-      return 'ENABLED';
+      return "ENABLED";
     case TelemetrySettingEnum.DISABLED:
-      return 'DISABLED';
+      return "DISABLED";
     default:
-      return 'UNRECOGNIZED';
+      return "UNRECOGNIZED";
   }
 }
 
@@ -5883,7 +5883,7 @@ export const Settings: MessageFns<Settings> = {
 };
 
 function createBaseSettings_OpenAiHeadersEntry(): Settings_OpenAiHeadersEntry {
-  return { key: '', value: '' };
+  return { key: "", value: "" };
 }
 
 export const Settings_OpenAiHeadersEntry: MessageFns<Settings_OpenAiHeadersEntry> = {
@@ -5891,10 +5891,10 @@ export const Settings_OpenAiHeadersEntry: MessageFns<Settings_OpenAiHeadersEntry
     message: Settings_OpenAiHeadersEntry,
     writer: BinaryWriter = new BinaryWriter(),
   ): BinaryWriter {
-    if (message.key !== '') {
+    if (message.key !== "") {
       writer.uint32(10).string(message.key);
     }
-    if (message.value !== '') {
+    if (message.value !== "") {
       writer.uint32(18).string(message.value);
     }
     return writer;
@@ -5934,17 +5934,17 @@ export const Settings_OpenAiHeadersEntry: MessageFns<Settings_OpenAiHeadersEntry
 
   fromJSON(object: any): Settings_OpenAiHeadersEntry {
     return {
-      key: isSet(object.key) ? globalThis.String(object.key) : '',
-      value: isSet(object.value) ? globalThis.String(object.value) : '',
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      value: isSet(object.value) ? globalThis.String(object.value) : "",
     };
   },
 
   toJSON(message: Settings_OpenAiHeadersEntry): unknown {
     const obj: any = {};
-    if (message.key !== '') {
+    if (message.key !== "") {
       obj.key = message.key;
     }
-    if (message.value !== '') {
+    if (message.value !== "") {
       obj.value = message.value;
     }
     return obj;
@@ -5959,19 +5959,19 @@ export const Settings_OpenAiHeadersEntry: MessageFns<Settings_OpenAiHeadersEntry
     object: I,
   ): Settings_OpenAiHeadersEntry {
     const message = createBaseSettings_OpenAiHeadersEntry();
-    message.key = object.key ?? '';
-    message.value = object.value ?? '';
+    message.key = object.key ?? "";
+    message.value = object.value ?? "";
     return message;
   },
 };
 
 function createBaseState(): State {
-  return { stateJson: '' };
+  return { stateJson: "" };
 }
 
 export const State: MessageFns<State> = {
   encode(message: State, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.stateJson !== '') {
+    if (message.stateJson !== "") {
       writer.uint32(10).string(message.stateJson);
     }
     return writer;
@@ -6007,13 +6007,13 @@ export const State: MessageFns<State> = {
         ? globalThis.String(object.stateJson)
         : isSet(object.state_json)
           ? globalThis.String(object.state_json)
-          : '',
+          : "",
     };
   },
 
   toJSON(message: State): unknown {
     const obj: any = {};
-    if (message.stateJson !== '') {
+    if (message.stateJson !== "") {
       obj.stateJson = message.stateJson;
     }
     return obj;
@@ -6024,7 +6024,7 @@ export const State: MessageFns<State> = {
   },
   fromPartial<I extends Exact<DeepPartial<State>, I>>(object: I): State {
     const message = createBaseState();
-    message.stateJson = object.stateJson ?? '';
+    message.stateJson = object.stateJson ?? "";
     return message;
   },
 };
@@ -6092,15 +6092,15 @@ export const TerminalProfiles: MessageFns<TerminalProfiles> = {
 };
 
 function createBaseTerminalProfile(): TerminalProfile {
-  return { id: '', name: '', path: undefined, description: undefined };
+  return { id: "", name: "", path: undefined, description: undefined };
 }
 
 export const TerminalProfile: MessageFns<TerminalProfile> = {
   encode(message: TerminalProfile, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== '') {
+    if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
-    if (message.name !== '') {
+    if (message.name !== "") {
       writer.uint32(18).string(message.name);
     }
     if (message.path !== undefined) {
@@ -6162,8 +6162,8 @@ export const TerminalProfile: MessageFns<TerminalProfile> = {
 
   fromJSON(object: any): TerminalProfile {
     return {
-      id: isSet(object.id) ? globalThis.String(object.id) : '',
-      name: isSet(object.name) ? globalThis.String(object.name) : '',
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
       path: isSet(object.path) ? globalThis.String(object.path) : undefined,
       description: isSet(object.description) ? globalThis.String(object.description) : undefined,
     };
@@ -6171,10 +6171,10 @@ export const TerminalProfile: MessageFns<TerminalProfile> = {
 
   toJSON(message: TerminalProfile): unknown {
     const obj: any = {};
-    if (message.id !== '') {
+    if (message.id !== "") {
       obj.id = message.id;
     }
-    if (message.name !== '') {
+    if (message.name !== "") {
       obj.name = message.name;
     }
     if (message.path !== undefined) {
@@ -6191,8 +6191,8 @@ export const TerminalProfile: MessageFns<TerminalProfile> = {
   },
   fromPartial<I extends Exact<DeepPartial<TerminalProfile>, I>>(object: I): TerminalProfile {
     const message = createBaseTerminalProfile();
-    message.id = object.id ?? '';
-    message.name = object.name ?? '';
+    message.id = object.id ?? "";
+    message.name = object.name ?? "";
     message.path = object.path ?? undefined;
     message.description = object.description ?? undefined;
     return message;
@@ -8576,15 +8576,15 @@ export const OnboardingModelGroup: MessageFns<OnboardingModelGroup> = {
 };
 
 function createBaseOnboardingModel(): OnboardingModel {
-  return { id: '', name: '', score: 0, latency: 0, badge: '', group: '', info: undefined };
+  return { id: "", name: "", score: 0, latency: 0, badge: "", group: "", info: undefined };
 }
 
 export const OnboardingModel: MessageFns<OnboardingModel> = {
   encode(message: OnboardingModel, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== '') {
+    if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
-    if (message.name !== '') {
+    if (message.name !== "") {
       writer.uint32(18).string(message.name);
     }
     if (message.score !== 0) {
@@ -8593,10 +8593,10 @@ export const OnboardingModel: MessageFns<OnboardingModel> = {
     if (message.latency !== 0) {
       writer.uint32(32).int32(message.latency);
     }
-    if (message.badge !== '') {
+    if (message.badge !== "") {
       writer.uint32(42).string(message.badge);
     }
-    if (message.group !== '') {
+    if (message.group !== "") {
       writer.uint32(50).string(message.group);
     }
     if (message.info !== undefined) {
@@ -8679,22 +8679,22 @@ export const OnboardingModel: MessageFns<OnboardingModel> = {
 
   fromJSON(object: any): OnboardingModel {
     return {
-      id: isSet(object.id) ? globalThis.String(object.id) : '',
-      name: isSet(object.name) ? globalThis.String(object.name) : '',
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
       score: isSet(object.score) ? globalThis.Number(object.score) : 0,
       latency: isSet(object.latency) ? globalThis.Number(object.latency) : 0,
-      badge: isSet(object.badge) ? globalThis.String(object.badge) : '',
-      group: isSet(object.group) ? globalThis.String(object.group) : '',
+      badge: isSet(object.badge) ? globalThis.String(object.badge) : "",
+      group: isSet(object.group) ? globalThis.String(object.group) : "",
       info: isSet(object.info) ? OpenRouterModelInfo.fromJSON(object.info) : undefined,
     };
   },
 
   toJSON(message: OnboardingModel): unknown {
     const obj: any = {};
-    if (message.id !== '') {
+    if (message.id !== "") {
       obj.id = message.id;
     }
-    if (message.name !== '') {
+    if (message.name !== "") {
       obj.name = message.name;
     }
     if (message.score !== 0) {
@@ -8703,10 +8703,10 @@ export const OnboardingModel: MessageFns<OnboardingModel> = {
     if (message.latency !== 0) {
       obj.latency = Math.round(message.latency);
     }
-    if (message.badge !== '') {
+    if (message.badge !== "") {
       obj.badge = message.badge;
     }
-    if (message.group !== '') {
+    if (message.group !== "") {
       obj.group = message.group;
     }
     if (message.info !== undefined) {
@@ -8720,12 +8720,12 @@ export const OnboardingModel: MessageFns<OnboardingModel> = {
   },
   fromPartial<I extends Exact<DeepPartial<OnboardingModel>, I>>(object: I): OnboardingModel {
     const message = createBaseOnboardingModel();
-    message.id = object.id ?? '';
-    message.name = object.name ?? '';
+    message.id = object.id ?? "";
+    message.name = object.name ?? "";
     message.score = object.score ?? 0;
     message.latency = object.latency ?? 0;
-    message.badge = object.badge ?? '';
-    message.group = object.group ?? '';
+    message.badge = object.badge ?? "";
+    message.group = object.group ?? "";
     message.info =
       object.info !== undefined && object.info !== null
         ? OpenRouterModelInfo.fromPartial(object.info)
@@ -8735,7 +8735,7 @@ export const OnboardingModel: MessageFns<OnboardingModel> = {
 };
 
 function createBaseTrackBannerEventRequest(): TrackBannerEventRequest {
-  return { bannerId: '', eventType: '' };
+  return { bannerId: "", eventType: "" };
 }
 
 export const TrackBannerEventRequest: MessageFns<TrackBannerEventRequest> = {
@@ -8743,10 +8743,10 @@ export const TrackBannerEventRequest: MessageFns<TrackBannerEventRequest> = {
     message: TrackBannerEventRequest,
     writer: BinaryWriter = new BinaryWriter(),
   ): BinaryWriter {
-    if (message.bannerId !== '') {
+    if (message.bannerId !== "") {
       writer.uint32(10).string(message.bannerId);
     }
-    if (message.eventType !== '') {
+    if (message.eventType !== "") {
       writer.uint32(18).string(message.eventType);
     }
     return writer;
@@ -8790,21 +8790,21 @@ export const TrackBannerEventRequest: MessageFns<TrackBannerEventRequest> = {
         ? globalThis.String(object.bannerId)
         : isSet(object.banner_id)
           ? globalThis.String(object.banner_id)
-          : '',
+          : "",
       eventType: isSet(object.eventType)
         ? globalThis.String(object.eventType)
         : isSet(object.event_type)
           ? globalThis.String(object.event_type)
-          : '',
+          : "",
     };
   },
 
   toJSON(message: TrackBannerEventRequest): unknown {
     const obj: any = {};
-    if (message.bannerId !== '') {
+    if (message.bannerId !== "") {
       obj.bannerId = message.bannerId;
     }
-    if (message.eventType !== '') {
+    if (message.eventType !== "") {
       obj.eventType = message.eventType;
     }
     return obj;
@@ -8819,8 +8819,8 @@ export const TrackBannerEventRequest: MessageFns<TrackBannerEventRequest> = {
     object: I,
   ): TrackBannerEventRequest {
     const message = createBaseTrackBannerEventRequest();
-    message.bannerId = object.bannerId ?? '';
-    message.eventType = object.eventType ?? '';
+    message.bannerId = object.bannerId ?? "";
+    message.eventType = object.eventType ?? "";
     return message;
   },
 };
@@ -8921,11 +8921,11 @@ export const TestConnectionResult: MessageFns<TestConnectionResult> = {
 
 export type StateServiceDefinition = typeof StateServiceDefinition;
 export const StateServiceDefinition = {
-  name: 'StateService',
-  fullName: 'cline.StateService',
+  name: "StateService",
+  fullName: "cline.StateService",
   methods: {
     getLatestState: {
-      name: 'getLatestState',
+      name: "getLatestState",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: State,
@@ -8933,7 +8933,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     updateTerminalConnectionTimeout: {
-      name: 'updateTerminalConnectionTimeout',
+      name: "updateTerminalConnectionTimeout",
       requestType: UpdateTerminalConnectionTimeoutRequest,
       requestStream: false,
       responseType: UpdateTerminalConnectionTimeoutResponse,
@@ -8941,7 +8941,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     updateTerminalReuseEnabled: {
-      name: 'updateTerminalReuseEnabled',
+      name: "updateTerminalReuseEnabled",
       requestType: BooleanRequest,
       requestStream: false,
       responseType: Empty,
@@ -8949,7 +8949,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     getAvailableTerminalProfiles: {
-      name: 'getAvailableTerminalProfiles',
+      name: "getAvailableTerminalProfiles",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: TerminalProfiles,
@@ -8957,7 +8957,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     subscribeToState: {
-      name: 'subscribeToState',
+      name: "subscribeToState",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: State,
@@ -8965,7 +8965,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     toggleFavoriteModel: {
-      name: 'toggleFavoriteModel',
+      name: "toggleFavoriteModel",
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -8973,7 +8973,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     resetState: {
-      name: 'resetState',
+      name: "resetState",
       requestType: ResetStateRequest,
       requestStream: false,
       responseType: Empty,
@@ -8981,7 +8981,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     togglePlanActModeProto: {
-      name: 'togglePlanActModeProto',
+      name: "togglePlanActModeProto",
       requestType: TogglePlanActModeRequest,
       requestStream: false,
       responseType: Boolean,
@@ -8989,7 +8989,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     updateAutoApprovalSettings: {
-      name: 'updateAutoApprovalSettings',
+      name: "updateAutoApprovalSettings",
       requestType: AutoApprovalSettingsRequest,
       requestStream: false,
       responseType: Empty,
@@ -8997,7 +8997,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     updateSettings: {
-      name: 'updateSettings',
+      name: "updateSettings",
       requestType: UpdateSettingsRequest,
       requestStream: false,
       responseType: Empty,
@@ -9005,7 +9005,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     updateSettingsCli: {
-      name: 'updateSettingsCli',
+      name: "updateSettingsCli",
       requestType: UpdateSettingsRequestCli,
       requestStream: false,
       responseType: Empty,
@@ -9013,7 +9013,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     updateTaskSettings: {
-      name: 'updateTaskSettings',
+      name: "updateTaskSettings",
       requestType: UpdateTaskSettingsRequest,
       requestStream: false,
       responseType: Empty,
@@ -9021,7 +9021,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     updateTelemetrySetting: {
-      name: 'updateTelemetrySetting',
+      name: "updateTelemetrySetting",
       requestType: TelemetrySettingRequest,
       requestStream: false,
       responseType: Empty,
@@ -9029,7 +9029,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     captureOnboardingProgress: {
-      name: 'captureOnboardingProgress',
+      name: "captureOnboardingProgress",
       requestType: OnboardingProgressRequest,
       requestStream: false,
       responseType: Empty,
@@ -9037,7 +9037,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     setWelcomeViewCompleted: {
-      name: 'setWelcomeViewCompleted',
+      name: "setWelcomeViewCompleted",
       requestType: BooleanRequest,
       requestStream: false,
       responseType: Empty,
@@ -9045,7 +9045,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     updateInfoBannerVersion: {
-      name: 'updateInfoBannerVersion',
+      name: "updateInfoBannerVersion",
       requestType: Int64Request,
       requestStream: false,
       responseType: Empty,
@@ -9053,7 +9053,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     updateModelBannerVersion: {
-      name: 'updateModelBannerVersion',
+      name: "updateModelBannerVersion",
       requestType: Int64Request,
       requestStream: false,
       responseType: Empty,
@@ -9061,7 +9061,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     updateCliBannerVersion: {
-      name: 'updateCliBannerVersion',
+      name: "updateCliBannerVersion",
       requestType: Int64Request,
       requestStream: false,
       responseType: Empty,
@@ -9069,7 +9069,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     dismissBanner: {
-      name: 'dismissBanner',
+      name: "dismissBanner",
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -9077,7 +9077,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     trackBannerEvent: {
-      name: 'trackBannerEvent',
+      name: "trackBannerEvent",
       requestType: TrackBannerEventRequest,
       requestStream: false,
       responseType: Empty,
@@ -9085,7 +9085,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     installClineCli: {
-      name: 'installClineCli',
+      name: "installClineCli",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -9093,7 +9093,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     checkCliInstallation: {
-      name: 'checkCliInstallation',
+      name: "checkCliInstallation",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Boolean,
@@ -9101,7 +9101,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     getProcessInfo: {
-      name: 'getProcessInfo',
+      name: "getProcessInfo",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: ProcessInfo,
@@ -9109,7 +9109,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     flushPendingState: {
-      name: 'flushPendingState',
+      name: "flushPendingState",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -9117,7 +9117,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     refreshRemoteConfig: {
-      name: 'refreshRemoteConfig',
+      name: "refreshRemoteConfig",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -9125,7 +9125,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     testOtelConnection: {
-      name: 'testOtelConnection',
+      name: "testOtelConnection",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: TestConnectionResult,
@@ -9133,7 +9133,7 @@ export const StateServiceDefinition = {
       options: {},
     },
     testPromptUploading: {
-      name: 'testPromptUploading',
+      name: "testPromptUploading",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: TestConnectionResult,
@@ -9163,16 +9163,16 @@ type Exact<P, I extends P> = P extends Builtin
 function longToNumber(int64: { toString(): string }): number {
   const num = globalThis.Number(int64.toString());
   if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error('Value is larger than Number.MAX_SAFE_INTEGER');
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
   }
   if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error('Value is smaller than Number.MIN_SAFE_INTEGER');
+    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
   }
   return num;
 }
 
 function isObject(value: any): boolean {
-  return typeof value === 'object' && value !== null;
+  return typeof value === "object" && value !== null;
 }
 
 function isSet(value: any): boolean {

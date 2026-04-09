@@ -1,14 +1,14 @@
-import { cleanPathPrefix } from '@/components/common/CodeAccordian';
-import ScreenReaderAnnounce from '@/components/common/ScreenReaderAnnounce';
-import { useMenuAnnouncement } from '@/hooks/useMenuAnnouncement';
+import { cleanPathPrefix } from "@/components/common/CodeAccordian";
+import ScreenReaderAnnounce from "@/components/common/ScreenReaderAnnounce";
+import { useMenuAnnouncement } from "@/hooks/useMenuAnnouncement";
 import {
   ContextMenuOptionType,
   type ContextMenuQueryItem,
   type SearchResult,
   getContextMenuOptions,
-} from '@/utils/context-mentions';
-import type React from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+} from "@/utils/context-mentions";
+import type React from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface ContextMenuProps {
   onSelect: (type: ContextMenuOptionType, value?: string) => void;
@@ -94,10 +94,10 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 
   // Shared label definitions for simple option types
   const SIMPLE_OPTION_LABELS: Partial<Record<ContextMenuOptionType, string>> = {
-    [ContextMenuOptionType.Problems]: 'Problems',
-    [ContextMenuOptionType.Terminal]: 'Terminal',
-    [ContextMenuOptionType.URL]: 'Paste URL to fetch contents',
-    [ContextMenuOptionType.NoResults]: 'No results found',
+    [ContextMenuOptionType.Problems]: "Problems",
+    [ContextMenuOptionType.Terminal]: "Terminal",
+    [ContextMenuOptionType.URL]: "Paste URL to fetch contents",
+    [ContextMenuOptionType.NoResults]: "No results found",
   };
 
   // Get accessible label for an option (used for screen readers and aria-label)
@@ -111,17 +111,17 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
     switch (option.type) {
       case ContextMenuOptionType.Git:
         if (option.value) {
-          return `${option.label}${option.description ? `, ${option.description}` : ''}`;
+          return `${option.label}${option.description ? `, ${option.description}` : ""}`;
         }
-        return 'Git Commits';
+        return "Git Commits";
       case ContextMenuOptionType.File:
       case ContextMenuOptionType.Folder:
         if (option.value) {
           return option.label || option.value;
         }
-        return `Add ${option.type === ContextMenuOptionType.File ? 'File' : 'Folder'}`;
+        return `Add ${option.type === ContextMenuOptionType.File ? "File" : "Folder"}`;
       default:
-        return option.label || option.value || '';
+        return option.label || option.value || "";
     }
   }, []);
 
@@ -136,19 +136,19 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
       case ContextMenuOptionType.Git:
         if (option.value) {
           return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-              <span className="ph-no-capture" style={{ lineHeight: '1.2' }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+              <span className="ph-no-capture" style={{ lineHeight: "1.2" }}>
                 {option.label}
               </span>
               <span
                 className="ph-no-capture"
                 style={{
-                  fontSize: '0.85em',
+                  fontSize: "0.85em",
                   opacity: 0.7,
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  lineHeight: '1.2',
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  lineHeight: "1.2",
                 }}
               >
                 {option.description}
@@ -162,30 +162,30 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
         if (option.value) {
           // Use label if it differs from just the basename (indicates workspace prefix or custom label)
           const displayText =
-            option.label && option.label !== option.value.split('/').pop()
+            option.label && option.label !== option.value.split("/").pop()
               ? option.label
               : option.value;
 
           return (
             <>
-              {!displayText.includes(':') && <span>/</span>}
-              {displayText.startsWith('/.') && <span>.</span>}
+              {!displayText.includes(":") && <span>/</span>}
+              {displayText.startsWith("/.") && <span>.</span>}
               <span
                 className="ph-no-capture"
                 style={{
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  direction: displayText.includes(':') ? 'ltr' : 'rtl',
-                  textAlign: 'left',
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  direction: displayText.includes(":") ? "ltr" : "rtl",
+                  textAlign: "left",
                 }}
               >
-                {displayText.includes(':') ? displayText : `${cleanPathPrefix(displayText)}\u200E`}
+                {displayText.includes(":") ? displayText : `${cleanPathPrefix(displayText)}\u200E`}
               </span>
             </>
           );
         }
-        return <span>Add {option.type === ContextMenuOptionType.File ? 'File' : 'Folder'}</span>;
+        return <span>Add {option.type === ContextMenuOptionType.File ? "File" : "Folder"}</span>;
       default:
         return null;
     }
@@ -194,21 +194,21 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
   const getIconForOption = (option: ContextMenuQueryItem): string => {
     switch (option.type) {
       case ContextMenuOptionType.File:
-        return 'file';
+        return "file";
       case ContextMenuOptionType.Folder:
-        return 'folder';
+        return "folder";
       case ContextMenuOptionType.Problems:
-        return 'warning';
+        return "warning";
       case ContextMenuOptionType.Terminal:
-        return 'terminal';
+        return "terminal";
       case ContextMenuOptionType.URL:
-        return 'link';
+        return "link";
       case ContextMenuOptionType.Git:
-        return 'git-commit';
+        return "git-commit";
       case ContextMenuOptionType.NoResults:
-        return 'info';
+        return "info";
       default:
-        return 'file';
+        return "file";
     }
   };
 
@@ -230,7 +230,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
   const handleSelect = useCallback(
     (option: ContextMenuQueryItem) => {
       if (isOptionSelectable(option)) {
-        const mentionValue = option.label?.includes(':') ? option.label : option.value;
+        const mentionValue = option.label?.includes(":") ? option.label : option.value;
         onSelect(option.type, mentionValue);
       }
     },
@@ -241,11 +241,11 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
     <div
       onMouseDown={onMouseDown}
       style={{
-        position: 'absolute',
-        bottom: 'calc(100% - 10px)',
+        position: "absolute",
+        bottom: "calc(100% - 10px)",
         left: 15,
         right: 15,
-        overflowX: 'hidden',
+        overflowX: "hidden",
       }}
     >
       <ScreenReaderAnnounce message={announcement} />
@@ -261,15 +261,15 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
         ref={menuRef}
         role="listbox"
         style={{
-          backgroundColor: 'var(--vscode-dropdown-background)',
-          border: '1px solid var(--vscode-editorGroup-border)',
-          borderRadius: '3px',
-          boxShadow: '0 4px 10px rgba(0, 0, 0, 0.25)',
+          backgroundColor: "var(--vscode-dropdown-background)",
+          border: "1px solid var(--vscode-editorGroup-border)",
+          borderRadius: "3px",
+          boxShadow: "0 4px 10px rgba(0, 0, 0, 0.25)",
           zIndex: 1000,
-          display: 'flex',
-          flexDirection: 'column',
-          maxHeight: '200px',
-          overflowY: 'auto',
+          display: "flex",
+          flexDirection: "column",
+          maxHeight: "200px",
+          overflowY: "auto",
         }}
         tabIndex="0"
       >
@@ -277,23 +277,23 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
         {showDelayedLoading && searchQuery && (
           <div
             style={{
-              padding: '8px 12px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
+              padding: "8px 12px",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
               opacity: 0.7,
             }}
           >
             <i
               className="codicon codicon-loading codicon-modifier-spin"
-              style={{ fontSize: '14px' }}
+              style={{ fontSize: "14px" }}
             />
             <span>Searching...</span>
           </div>
         )}
         {filteredOptions.map((option, index) => {
           // Include workspace name in key for files/folders to handle duplicates across workspaces
-          const workspacePrefix = option.workspaceName ? `${option.workspaceName}:` : '';
+          const workspacePrefix = option.workspaceName ? `${option.workspaceName}:` : "";
           const generatedKey = `${option.type}-${workspacePrefix}${option.value || index}`;
 
           return (
@@ -306,37 +306,37 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
               onMouseEnter={() => isOptionSelectable(option) && setSelectedIndex(index)}
               role="option"
               style={{
-                padding: '8px 12px',
-                cursor: isOptionSelectable(option) ? 'pointer' : 'default',
+                padding: "8px 12px",
+                cursor: isOptionSelectable(option) ? "pointer" : "default",
                 color:
                   index === selectedIndex && isOptionSelectable(option)
-                    ? 'var(--vscode-quickInputList-focusForeground)'
-                    : '',
-                borderBottom: '1px solid var(--vscode-editorGroup-border)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
+                    ? "var(--vscode-quickInputList-focusForeground)"
+                    : "",
+                borderBottom: "1px solid var(--vscode-editorGroup-border)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
                 backgroundColor:
                   index === selectedIndex && isOptionSelectable(option)
-                    ? 'var(--vscode-quickInputList-focusBackground)'
-                    : '',
+                    ? "var(--vscode-quickInputList-focusBackground)"
+                    : "",
               }}
             >
               <div
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
+                  display: "flex",
+                  alignItems: "center",
                   flex: 1,
                   minWidth: 0,
-                  overflow: 'hidden',
+                  overflow: "hidden",
                 }}
               >
                 <i
                   className={`codicon codicon-${getIconForOption(option)}`}
                   style={{
-                    marginRight: '8px',
+                    marginRight: "8px",
                     flexShrink: 0,
-                    fontSize: '14px',
+                    fontSize: "14px",
                   }}
                 />
                 {renderOptionContent(option)}
@@ -348,7 +348,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
                   <i
                     className="codicon codicon-chevron-right"
                     style={{
-                      fontSize: '14px',
+                      fontSize: "14px",
                       flexShrink: 0,
                       marginLeft: 8,
                     }}
@@ -363,7 +363,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
                 <i
                   className="codicon codicon-add"
                   style={{
-                    fontSize: '14px',
+                    fontSize: "14px",
                     flexShrink: 0,
                     marginLeft: 8,
                   }}

@@ -1,19 +1,19 @@
-import { Label } from '@/components/ui/label';
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import type { UpdateSettingsRequest } from '@shared/nice-grpc/cline/state.ts';
-import { type ReactNode, memo, useCallback } from 'react';
-import Section from '../Section';
-import SettingsSlider from '../SettingsSlider';
-import { updateSetting } from '../utils/settingsHandlers';
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import type { UpdateSettingsRequest } from "@shared/nice-grpc/cline/state.ts";
+import { type ReactNode, memo, useCallback } from "react";
+import Section from "../Section";
+import SettingsSlider from "../SettingsSlider";
+import { updateSetting } from "../utils/settingsHandlers";
 
 // Reusable checkbox component for feature settings
 interface FeatureCheckboxProps {
@@ -40,122 +40,122 @@ interface FeatureToggle {
 
 const agentFeatures: FeatureToggle[] = [
   {
-    id: 'subagents',
-    label: 'Subagents',
-    description: 'Let Cline run focused subagents in parallel to explore the codebase for you.',
-    stateKey: 'subagentsEnabled',
-    settingKey: 'subagentsEnabled',
+    id: "subagents",
+    label: "Subagents",
+    description: "Let Cline run focused subagents in parallel to explore the codebase for you.",
+    stateKey: "subagentsEnabled",
+    settingKey: "subagentsEnabled",
   },
   {
-    id: 'native-tool-call',
-    label: 'Native Tool Call',
-    description: 'Use native function calling when available',
-    stateKey: 'nativeToolCallSetting',
-    settingKey: 'nativeToolCallEnabled',
+    id: "native-tool-call",
+    label: "Native Tool Call",
+    description: "Use native function calling when available",
+    stateKey: "nativeToolCallSetting",
+    settingKey: "nativeToolCallEnabled",
   },
   {
-    id: 'parallel-tool-calling',
-    label: 'Parallel Tool Calling',
-    description: 'Execute multiple tool calls simultaneously',
-    stateKey: 'enableParallelToolCalling',
-    settingKey: 'enableParallelToolCalling',
+    id: "parallel-tool-calling",
+    label: "Parallel Tool Calling",
+    description: "Execute multiple tool calls simultaneously",
+    stateKey: "enableParallelToolCalling",
+    settingKey: "enableParallelToolCalling",
   },
   {
-    id: 'strict-plan-mode',
-    label: 'Strict Plan Mode',
-    description: 'Prevents file edits while in Plan mode',
-    stateKey: 'strictPlanModeEnabled',
-    settingKey: 'strictPlanModeEnabled',
+    id: "strict-plan-mode",
+    label: "Strict Plan Mode",
+    description: "Prevents file edits while in Plan mode",
+    stateKey: "strictPlanModeEnabled",
+    settingKey: "strictPlanModeEnabled",
   },
   {
-    id: 'auto-compact',
-    label: 'Auto Compact',
-    description: 'Automatically compress conversation history.',
-    stateKey: 'useAutoCondense',
-    settingKey: 'useAutoCondense',
+    id: "auto-compact",
+    label: "Auto Compact",
+    description: "Automatically compress conversation history.",
+    stateKey: "useAutoCondense",
+    settingKey: "useAutoCondense",
   },
   {
-    id: 'focus-chain',
-    label: 'Focus Chain',
-    description: 'Maintain context focus across interactions',
-    stateKey: 'focusChainEnabled',
-    settingKey: 'focusChainSettings',
-    nestedKey: 'enabled',
+    id: "focus-chain",
+    label: "Focus Chain",
+    description: "Maintain context focus across interactions",
+    stateKey: "focusChainEnabled",
+    settingKey: "focusChainSettings",
+    nestedKey: "enabled",
   },
 ];
 
 const editorFeatures: FeatureToggle[] = [
   {
-    id: 'show-feature-tips',
-    label: 'Feature Tips',
+    id: "show-feature-tips",
+    label: "Feature Tips",
     description:
-      'Show rotating tips during the thinking phase to help you discover Cline features.',
-    stateKey: 'showFeatureTips',
-    settingKey: 'showFeatureTips',
+      "Show rotating tips during the thinking phase to help you discover Cline features.",
+    stateKey: "showFeatureTips",
+    settingKey: "showFeatureTips",
   },
   {
-    id: 'background-edit',
-    label: 'Background Edit',
-    description: 'Allow edits without stealing editor focus',
-    stateKey: 'backgroundEditEnabled',
-    settingKey: 'backgroundEditEnabled',
+    id: "background-edit",
+    label: "Background Edit",
+    description: "Allow edits without stealing editor focus",
+    stateKey: "backgroundEditEnabled",
+    settingKey: "backgroundEditEnabled",
   },
   {
-    id: 'checkpoints',
-    label: 'Checkpoints',
-    description: 'Save progress at key points for easy rollback',
-    stateKey: 'enableCheckpointsSetting',
-    settingKey: 'enableCheckpointsSetting',
+    id: "checkpoints",
+    label: "Checkpoints",
+    description: "Save progress at key points for easy rollback",
+    stateKey: "enableCheckpointsSetting",
+    settingKey: "enableCheckpointsSetting",
   },
   {
-    id: 'cline-web-tools',
-    label: 'Cline Web Tools',
-    description: 'Access web browsing and search capabilities',
-    stateKey: 'clineWebToolsEnabled',
-    settingKey: 'clineWebToolsEnabled',
+    id: "cline-web-tools",
+    label: "Cline Web Tools",
+    description: "Access web browsing and search capabilities",
+    stateKey: "clineWebToolsEnabled",
+    settingKey: "clineWebToolsEnabled",
   },
   {
-    id: 'worktrees',
-    label: 'Worktrees',
-    description: 'Enables git worktree management for running parallel Cline tasks.',
-    stateKey: 'worktreesEnabled',
-    settingKey: 'worktreesEnabled',
+    id: "worktrees",
+    label: "Worktrees",
+    description: "Enables git worktree management for running parallel Cline tasks.",
+    stateKey: "worktreesEnabled",
+    settingKey: "worktreesEnabled",
   },
 ];
 
 const experimentalFeatures: FeatureToggle[] = [
   {
-    id: 'yolo',
-    label: 'Yolo Mode',
+    id: "yolo",
+    label: "Yolo Mode",
     description:
       "Execute tasks without user's confirmation. Auto-switches from Plan to Act mode and disables the ask question tool. Use with extreme caution.",
-    stateKey: 'yoloModeToggled',
-    settingKey: 'yoloModeToggled',
+    stateKey: "yoloModeToggled",
+    settingKey: "yoloModeToggled",
   },
   {
-    id: 'double-check-completion',
-    label: 'Double-Check Completion',
+    id: "double-check-completion",
+    label: "Double-Check Completion",
     description:
-      'Rejects the first completion attempt and asks the model to re-verify its work against the original task requirements before accepting.',
-    stateKey: 'doubleCheckCompletionEnabled',
-    settingKey: 'doubleCheckCompletionEnabled',
+      "Rejects the first completion attempt and asks the model to re-verify its work against the original task requirements before accepting.",
+    stateKey: "doubleCheckCompletionEnabled",
+    settingKey: "doubleCheckCompletionEnabled",
   },
   {
-    id: 'lazy-teammate',
-    label: 'Lazy Teammate Mode',
+    id: "lazy-teammate",
+    label: "Lazy Teammate Mode",
     description: "Sometimes Cline just isn't feeling it today. For entertainment purposes only.",
-    stateKey: 'lazyTeammateModeEnabled',
-    settingKey: 'lazyTeammateModeEnabled',
+    stateKey: "lazyTeammateModeEnabled",
+    settingKey: "lazyTeammateModeEnabled",
   },
 ];
 
 const advancedFeatures: FeatureToggle[] = [
   {
-    id: 'hooks',
-    label: 'Hooks',
-    description: 'Enable lifecycle and tool hooks during task execution.',
-    stateKey: 'hooksEnabled',
-    settingKey: 'hooksEnabled',
+    id: "hooks",
+    label: "Hooks",
+    description: "Enable lifecycle and tool hooks during task execution.",
+    stateKey: "hooksEnabled",
+    settingKey: "hooksEnabled",
   },
 ];
 
@@ -238,7 +238,7 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 
   const handleFocusChainIntervalChange = useCallback(
     (value: number) => {
-      updateSetting('focusChainSettings', { ...focusChainSettings, remindClineInterval: value });
+      updateSetting("focusChainSettings", { ...focusChainSettings, remindClineInterval: value });
     },
     [focusChainSettings],
   );
@@ -276,7 +276,7 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
       if (feature.nestedKey) {
         // For nested settings, spread the existing value and set the nested key
         let currentValue = {};
-        if (feature.settingKey === 'focusChainSettings') {
+        if (feature.settingKey === "focusChainSettings") {
           currentValue = focusChainSettings ?? {};
         }
         updateSetting(feature.settingKey, { ...currentValue, [feature.nestedKey]: checked });
@@ -289,7 +289,7 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 
   return (
     <div className="mb-2">
-      {renderSectionHeader('features')}
+      {renderSectionHeader("features")}
       <Section>
         <div className="mb-5 flex flex-col gap-3">
           {/* Core features */}
@@ -310,12 +310,12 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
                     key={feature.id}
                     label={feature.label}
                     onChange={(checked) =>
-                      feature.nestedKey === 'enabled'
+                      feature.nestedKey === "enabled"
                         ? handleFeatureChange(feature, checked)
                         : updateSetting(feature.settingKey, checked)
                     }
                   />
-                  {feature.id === 'focus-chain' && featureState[feature.stateKey] && (
+                  {feature.id === "focus-chain" && featureState[feature.stateKey] && (
                     <SettingsSlider
                       label="Reminder Interval (1-10)"
                       max={10}
@@ -366,8 +366,8 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
                 <FeatureRow
                   checked={featureState[feature.stateKey]}
                   description={feature.description}
-                  disabled={feature.id === 'yolo' && isYoloRemoteLocked}
-                  isRemoteLocked={feature.id === 'yolo' && isYoloRemoteLocked}
+                  disabled={feature.id === "yolo" && isYoloRemoteLocked}
+                  isRemoteLocked={feature.id === "yolo" && isYoloRemoteLocked}
                   isVisible={featureVisibility[feature.stateKey] ?? true}
                   key={feature.id}
                   label={feature.label}
@@ -407,7 +407,7 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
                   Controls how MCP responses are displayed
                 </p>
                 <Select
-                  onValueChange={(v) => updateSetting('mcpDisplayMode', v)}
+                  onValueChange={(v) => updateSetting("mcpDisplayMode", v)}
                   value={mcpDisplayMode}
                 >
                   <SelectTrigger className="w-full">

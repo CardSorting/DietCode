@@ -1,16 +1,16 @@
-import type { BannerAction, BannerCardData } from '@shared/cline/banner';
-import type React from 'react';
-import Markdown from 'react-markdown';
+import type { BannerAction, BannerCardData } from "@shared/cline/banner";
+import type React from "react";
+import Markdown from "react-markdown";
 
 interface WhatsNewItemsProps {
   welcomeBanners?: BannerCardData[];
   onBannerAction?: (action: BannerAction) => void;
   onClose: () => void;
   inlineCodeStyle: React.CSSProperties;
-  onNavigateToModelPicker: (initialModelTab: 'recommended' | 'free', modelId?: string) => void;
+  onNavigateToModelPicker: (initialModelTab: "recommended" | "free", modelId?: string) => void;
 }
 
-type InlineModelLinkProps = { pickerTab: 'recommended' | 'free'; modelId: string; label: string };
+type InlineModelLinkProps = { pickerTab: "recommended" | "free"; modelId: string; label: string };
 
 export const WhatsNewItems: React.FC<WhatsNewItemsProps> = ({
   welcomeBanners,
@@ -20,22 +20,24 @@ export const WhatsNewItems: React.FC<WhatsNewItemsProps> = ({
   onNavigateToModelPicker,
 }) => {
   const InlineModelLink: React.FC<InlineModelLinkProps> = ({ pickerTab, modelId, label }) => (
-    <span
+    <button
+      className="bg-transparent border-none p-0 inline font-inherit"
       onClick={() => onNavigateToModelPicker(pickerTab, modelId)}
-      style={{ color: 'var(--vscode-textLink-foreground)', cursor: 'pointer' }}
+      style={{ color: "var(--vscode-textLink-foreground)", cursor: "pointer" }}
+      type="button"
     >
       {label}
-    </span>
+    </button>
   );
 
   const hasWelcomeBanners = welcomeBanners && welcomeBanners.length > 0;
 
   return (
-    <ul className="text-sm pl-3 list-disc" style={{ color: 'var(--vscode-descriptionForeground)' }}>
+    <ul className="text-sm pl-3 list-disc" style={{ color: "var(--vscode-descriptionForeground)" }}>
       {hasWelcomeBanners ? (
         welcomeBanners.map((banner) => (
           <li className="mb-2" key={banner.id}>
-            {banner.title && <strong>{banner.title}</strong>}{' '}
+            {banner.title && <strong>{banner.title}</strong>}{" "}
             {banner.description && (
               <Markdown
                 components={{
@@ -43,14 +45,14 @@ export const WhatsNewItems: React.FC<WhatsNewItemsProps> = ({
                     <a
                       href={href}
                       rel="noopener noreferrer"
-                      style={{ color: 'var(--vscode-textLink-foreground)' }}
+                      style={{ color: "var(--vscode-textLink-foreground)" }}
                       target="_blank"
                     >
                       {children}
                     </a>
                   ),
                   code: ({ children }) => <code style={inlineCodeStyle}>{children}</code>,
-                  p: ({ children }) => <p style={{ display: 'inline', margin: 0 }}>{children}</p>,
+                  p: ({ children }) => <p style={{ display: "inline", margin: 0 }}>{children}</p>,
                 }}
               >
                 {banner.description}
@@ -58,22 +60,27 @@ export const WhatsNewItems: React.FC<WhatsNewItemsProps> = ({
             )}
             {banner.actions && banner.actions.length > 0 && onBannerAction && (
               <span className="inline-flex gap-2 ml-2 align-middle">
-                {banner.actions.map((action, idx) => (
-                  <a
-                    href="#"
-                    key={idx}
+                {banner.actions.map((action) => (
+                  <button
+                    key={`${banner.id}-${action.title}`}
                     onClick={(event) => {
                       event.preventDefault();
-                      onBannerAction(action);
+                      onBannerAction?.(action);
                       onClose();
                     }}
                     style={{
-                      color: 'var(--vscode-textLink-foreground)',
-                      cursor: 'pointer',
+                      background: "none",
+                      border: "none",
+                      padding: 0,
+                      color: "var(--vscode-textLink-foreground)",
+                      cursor: "pointer",
+                      fontSize: "inherit",
+                      fontFamily: "inherit",
                     }}
+                    type="button"
                   >
                     {action.title}
-                  </a>
+                  </button>
                 ))}
               </span>
             )}
@@ -83,7 +90,7 @@ export const WhatsNewItems: React.FC<WhatsNewItemsProps> = ({
         <>
           {/* Hardcoded fallback items shown when remote welcome banners feature flag is off */}
           <li className="mb-2">
-            <strong>Try Codex 5.3:</strong> OpenAI's latest coding model, now available in Cline!{' '}
+            <strong>Try Codex 5.3:</strong> OpenAI's latest coding model, now available in DietCode!{" "}
             <InlineModelLink
               label="Try now"
               modelId="openai/gpt-5.3-codex"
@@ -92,7 +99,7 @@ export const WhatsNewItems: React.FC<WhatsNewItemsProps> = ({
           </li>
           <li className="mb-2">
             <strong>Try latest SOTA coding model:</strong> Claude Sonnet 4.6 and Gemini 3.1 pro
-            within Cline!{' '}
+            within DietCode!{" "}
             <InlineModelLink
               label="Try now"
               modelId="anthropic/claude-sonnet-4.6"
@@ -100,7 +107,7 @@ export const WhatsNewItems: React.FC<WhatsNewItemsProps> = ({
             />
           </li>
           <li className="mb-2">
-            <strong>Try Cline CLI 2.0:</strong> with /mcp functionality added in CLI{' '}
+            <strong>Try DietCode CLI 2.0:</strong> with /mcp functionality added in CLI{" "}
             <code style={inlineCodeStyle}>npm install -g cline</code>
           </li>
           <li className="mb-2">

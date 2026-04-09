@@ -1,5 +1,5 @@
-import { VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
-import { useDebouncedInput } from '../utils/useDebouncedInput';
+import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import { useDebouncedInput } from "../utils/useDebouncedInput";
 
 /**
  * Props for the DebouncedTextField component
@@ -11,7 +11,7 @@ interface DebouncedTextFieldProps {
 
   // Common VSCodeTextField props
   style?: React.CSSProperties;
-  type?: 'text' | 'password';
+  type?: "text" | "password";
   placeholder?: string;
   id?: string;
   children?: React.ReactNode;

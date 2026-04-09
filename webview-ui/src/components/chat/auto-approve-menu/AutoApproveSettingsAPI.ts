@@ -1,5 +1,5 @@
-import { StateServiceClient } from '@/services/grpc-client';
-import type { AutoApprovalSettings } from '@shared/AutoApprovalSettings.ts';
+import { StateServiceClient } from "@/services/grpc-client";
+import type { AutoApprovalSettings } from "@shared/AutoApprovalSettings.ts";
 
 /**
  * Updates auto approval settings using the gRPC/Protobus client
@@ -10,7 +10,7 @@ export async function updateAutoApproveSettings(settings: AutoApprovalSettings) 
   try {
     await StateServiceClient.updateAutoApprovalSettings({ metadata: {}, ...settings });
   } catch (error) {
-    console.error('Failed to update auto approval settings:', error);
+    console.error("Failed to update auto approval settings:", error);
     throw error;
   }
 }

@@ -4,7 +4,7 @@ import type {
   ClineSaySubagentStatus,
   SubagentExecutionStatus,
   SubagentStatusItem,
-} from '@shared/ExtensionMessage';
+} from "@shared/ExtensionMessage";
 import {
   BotIcon,
   CheckIcon,
@@ -14,9 +14,9 @@ import {
   CircleXIcon,
   LoaderCircleIcon,
   NetworkIcon,
-} from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import MarkdownBlock from '../common/MarkdownBlock';
+} from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import MarkdownBlock from "../common/MarkdownBlock";
 
 interface SubagentStatusRowProps {
   message: ClineMessage;
@@ -24,8 +24,8 @@ interface SubagentStatusRowProps {
   lastModifiedMessage?: ClineMessage;
 }
 
-type DisplayStatus = SubagentExecutionStatus | 'cancelled';
-type SubagentRowStatus = 'pending' | 'running' | 'completed' | 'failed';
+type DisplayStatus = SubagentExecutionStatus | "cancelled";
+type SubagentRowStatus = "pending" | "running" | "completed" | "failed";
 
 interface SubagentRowData {
   status: SubagentRowStatus;
@@ -40,33 +40,33 @@ interface SubagentPromptTextProps {
 
 const statusIcon = (status: DisplayStatus) => {
   switch (status) {
-    case 'running':
-      return <LoaderCircleIcon className="size-2 animate-spin text-link shrink-0 mt-[1px]" />;
-    case 'completed':
-      return <CheckIcon className="size-2 text-success shrink-0 mt-[1px]" />;
-    case 'failed':
-      return <CircleXIcon className="size-2 text-error shrink-0 mt-[1px]" />;
-    case 'cancelled':
-      return <CircleSlashIcon className="size-2 text-foreground shrink-0 mt-[1px]" />;
+    case "running":
+      return <LoaderCircleIcon className="size-2 animate-spin text-link shrink-0 mt-px" />;
+    case "completed":
+      return <CheckIcon className="size-2 text-success shrink-0 mt-px" />;
+    case "failed":
+      return <CircleXIcon className="size-2 text-error shrink-0 mt-px" />;
+    case "cancelled":
+      return <CircleSlashIcon className="size-2 text-foreground shrink-0 mt-px" />;
     default:
-      return <BotIcon className="size-2 text-foreground/70 shrink-0 mt-[1px]" />;
+      return <BotIcon className="size-2 text-foreground/70 shrink-0 mt-px" />;
   }
 };
 
 const formatCount = (value: number | undefined): string => {
   if (!Number.isFinite(value)) {
-    return '0';
+    return "0";
   }
 
-  return Intl.NumberFormat('en-US').format(value || 0);
+  return Intl.NumberFormat("en-US").format(value || 0);
 };
 
 const formatCost = (value: number | undefined): string => {
   const normalized = Number.isFinite(value) ? Math.max(0, value || 0) : 0;
   const maximumFractionDigits = normalized >= 0.01 ? 2 : 4;
-  return Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+  return Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
     minimumFractionDigits: 2,
     maximumFractionDigits,
   }).format(normalized);
@@ -78,7 +78,7 @@ function parseSubagentRowData(message: ClineMessage): SubagentRowData | null {
   }
 
   try {
-    if (message.ask === 'use_subagents' || message.say === 'use_subagents') {
+    if (message.ask === "use_subagents" || message.say === "use_subagents") {
       const parsed = JSON.parse(message.text) as ClineAskUseSubagents;
       if (!Array.isArray(parsed.prompts)) {
         return null;
@@ -91,11 +91,11 @@ function parseSubagentRowData(message: ClineMessage): SubagentRowData | null {
       }
 
       return {
-        status: 'pending',
+        status: "pending",
         items: prompts.map((prompt, index) => ({
           index: index + 1,
           prompt,
-          status: 'pending',
+          status: "pending",
           toolCalls: 0,
           inputTokens: 0,
           outputTokens: 0,
@@ -143,7 +143,7 @@ function SubagentPromptText({ prompt, isExpanded, onShowMore }: SubagentPromptTe
 
     checkOverflow();
 
-    if (typeof ResizeObserver === 'undefined') {
+    if (typeof ResizeObserver === "undefined") {
       return;
     }
 
@@ -156,7 +156,7 @@ function SubagentPromptText({ prompt, isExpanded, onShowMore }: SubagentPromptTe
   return (
     <div className="relative">
       <div
-        className={`text-xs font-medium text-foreground whitespace-pre-wrap break-words ${!isExpanded ? 'overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]' : ''}`}
+        className={`text-xs font-medium text-foreground whitespace-pre-wrap wrap-break-word ${!isExpanded ? "overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]" : ""}`}
         ref={promptRef}
       >
         "{prompt}"
@@ -164,16 +164,16 @@ function SubagentPromptText({ prompt, isExpanded, onShowMore }: SubagentPromptTe
       {!isExpanded && showMoreVisible && (
         <button
           aria-label="Show full subagent prompt"
-          className="absolute right-0 bottom-0 z-10 text-[11px] text-link border-0 px-1 py-[1px] cursor-pointer leading-none rounded-[2px]"
+          className="absolute right-0 bottom-0 z-10 text-[11px] text-link border-0 px-1 py-px cursor-pointer leading-none rounded-xs"
           onClick={onShowMore}
-          style={{ backgroundColor: 'var(--vscode-editor-background)' }}
+          style={{ backgroundColor: "var(--vscode-editor-background)" }}
           type="button"
         >
           <span
             aria-hidden="true"
             className="pointer-events-none absolute inset-y-0 -left-[6px] w-[6px]"
             style={{
-              background: 'linear-gradient(to left, var(--vscode-editor-background), transparent)',
+              background: "linear-gradient(to left, var(--vscode-editor-background), transparent)",
             }}
           />
           Show more
@@ -198,20 +198,20 @@ export default function SubagentStatusRow({
 
   const resumedBeforeNextVisibleMessage =
     isLast &&
-    lastModifiedMessage?.say === 'api_req_started' &&
+    lastModifiedMessage?.say === "api_req_started" &&
     (lastModifiedMessage.ts ?? 0) > message.ts;
 
   const wasCancelled =
-    data.status === 'running' &&
+    data.status === "running" &&
     (!isLast ||
-      lastModifiedMessage?.ask === 'resume_task' ||
-      lastModifiedMessage?.ask === 'resume_completed_task' ||
+      lastModifiedMessage?.ask === "resume_task" ||
+      lastModifiedMessage?.ask === "resume_completed_task" ||
       resumedBeforeNextVisibleMessage);
 
   const singular = data.items.length === 1;
-  const title = singular ? 'Cline wants to use a subagent:' : 'Cline wants to use subagents:';
+  const title = singular ? "DietCode wants to use a subagent:" : "DietCode wants to use subagents:";
   const isPromptConstructionRow =
-    message.ask === 'use_subagents' || message.say === 'use_subagents';
+    message.ask === "use_subagents" || message.say === "use_subagents";
   const toggleItem = (index: number) => {
     setExpandedItems((prev) => ({
       ...prev,
@@ -234,24 +234,24 @@ export default function SubagentStatusRow({
       <div className="space-y-2">
         {data.items.map((entry, index) => {
           const displayStatus: DisplayStatus =
-            wasCancelled && (entry.status === 'running' || entry.status === 'pending')
-              ? 'cancelled'
+            wasCancelled && (entry.status === "running" || entry.status === "pending")
+              ? "cancelled"
               : entry.status;
           const hasDetails = Boolean(
-            (entry.result && entry.status === 'completed') ||
-              (entry.error && entry.status === 'failed'),
+            (entry.result && entry.status === "completed") ||
+              (entry.error && entry.status === "failed"),
           );
           const isExpanded = expandedItems[entry.index] === true;
           const isStreamingPromptUnderConstruction =
             isPromptConstructionRow && message.partial === true && index === data.items.length - 1;
           const shouldShowStats = !isStreamingPromptUnderConstruction;
           const statsText = `${formatCount(entry.toolCalls)} tools called · ${formatCount(entry.contextTokens)} tokens · ${formatCost(entry.totalCost)}`;
-          const latestToolCallText = entry.latestToolCall?.trim() || '';
+          const latestToolCallText = entry.latestToolCall?.trim() || "";
           return (
             <div
               className="rounded-xs border border-editor-group-border px-2 py-1.5"
               key={entry.index}
-              style={{ backgroundColor: 'var(--vscode-editor-background)' }}
+              style={{ backgroundColor: "var(--vscode-editor-background)" }}
             >
               <div className="flex items-start gap-2">
                 {statusIcon(displayStatus)}
@@ -264,13 +264,13 @@ export default function SubagentStatusRow({
                 </div>
               </div>
               {shouldShowStats && (
-                <div className="mt-1 text-[11px] opacity-70 min-w-0 whitespace-pre-wrap break-words">
+                <div className="mt-1 text-[11px] opacity-70 min-w-0 whitespace-pre-wrap wrap-break-word">
                   <span>{statsText}</span>
                 </div>
               )}
               {shouldShowStats && hasDetails && (
                 <button
-                  aria-label={isExpanded ? 'Hide subagent output' : 'Show subagent output'}
+                  aria-label={isExpanded ? "Hide subagent output" : "Show subagent output"}
                   className="mt-1 text-[11px] opacity-80 flex items-center gap-1 bg-transparent border-0 p-0 cursor-pointer text-left text-foreground w-full"
                   onClick={() => toggleItem(entry.index)}
                   type="button"
@@ -280,7 +280,7 @@ export default function SubagentStatusRow({
                   ) : (
                     <ChevronRightIcon className="size-2 shrink-0" />
                   )}
-                  <span className="shrink-0">{isExpanded ? 'Hide output' : 'Show output'}</span>
+                  <span className="shrink-0">{isExpanded ? "Hide output" : "Show output"}</span>
                 </button>
               )}
               {shouldShowStats && !hasDetails && latestToolCallText && (
@@ -288,15 +288,15 @@ export default function SubagentStatusRow({
                   {latestToolCallText}
                 </div>
               )}
-              {isExpanded && entry.result && entry.status === 'completed' && (
+              {isExpanded && entry.result && entry.status === "completed" && (
                 <div className="mt-2 text-xs opacity-80 wrap-anywhere overflow-hidden">
                   <MarkdownBlock markdown={entry.result} />
                 </div>
               )}
-              {isExpanded && entry.error && entry.status === 'failed' && (
-                <div className="mt-2 text-xs text-error whitespace-pre-wrap break-words">
+              {isExpanded && entry.error && entry.status === "failed" && (
+                <span className="text-(--vscode-descriptionForeground) ph-no-capture break-all">
                   {entry.error}
-                </div>
+                </span>
               )}
             </div>
           );

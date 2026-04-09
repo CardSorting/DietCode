@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface LightMarkdownProps {
   text: string;
@@ -27,7 +27,7 @@ function parseInlineEmphasis(text: string, nextKey: () => string): React.ReactNo
   const len = text.length;
 
   // Fast path: if no '*' at all, return as a single text segment
-  const firstStar = text.indexOf('*');
+  const firstStar = text.indexOf("*");
   if (firstStar === -1) {
     out.push(text);
     return out;
@@ -37,7 +37,7 @@ function parseInlineEmphasis(text: string, nextKey: () => string): React.ReactNo
   let segmentStart = 0;
 
   while (i < len) {
-    const starIdx = text.indexOf('*', i);
+    const starIdx = text.indexOf("*", i);
     if (starIdx === -1) {
       // push trailing literal
       if (segmentStart < len) {
@@ -47,9 +47,9 @@ function parseInlineEmphasis(text: string, nextKey: () => string): React.ReactNo
     }
 
     // Check for bold start (**)
-    if (starIdx + 1 < len && text[starIdx + 1] === '*') {
+    if (starIdx + 1 < len && text[starIdx + 1] === "*") {
       const contentStart = starIdx + 2;
-      const endIdx = text.indexOf('**', contentStart);
+      const endIdx = text.indexOf("**", contentStart);
       if (endIdx !== -1 && endIdx > contentStart) {
         // flush literal before match
         if (segmentStart < starIdx) {
@@ -70,7 +70,7 @@ function parseInlineEmphasis(text: string, nextKey: () => string): React.ReactNo
 
     // Italic start (*)
     const contentStart = starIdx + 1;
-    const endIdx = text.indexOf('*', contentStart);
+    const endIdx = text.indexOf("*", contentStart);
     if (endIdx !== -1 && endIdx > contentStart) {
       // flush literal before match
       if (segmentStart < starIdx) {
@@ -96,7 +96,7 @@ function parseInlineEmphasis(text: string, nextKey: () => string): React.ReactNo
 // compact=true: inline-only across lines, with no additional separators (preserves prior behavior)
 function parseTextToNodes(text: string, compact: boolean): React.ReactNode {
   // Global fast path: if no '*' anywhere, short-circuit
-  if (text.indexOf('*') === -1) {
+  if (text.indexOf("*") === -1) {
     if (compact) {
       // Return as a single text node (no extra wrappers)
       return text;
@@ -108,7 +108,7 @@ function parseTextToNodes(text: string, compact: boolean): React.ReactNode {
     return (
       <React.Fragment>
         {lines.map((line) => (
-          <span key={nextKey()} style={{ display: 'block' }}>
+          <span key={nextKey()} style={{ display: "block" }}>
             {line}
           </span>
         ))}
@@ -142,7 +142,7 @@ function parseTextToNodes(text: string, compact: boolean): React.ReactNode {
   return (
     <React.Fragment>
       {lines.map((line) => (
-        <span key={nextKey()} style={{ display: 'block' }}>
+        <span key={nextKey()} style={{ display: "block" }}>
           {parseInlineEmphasis(line, nextKey)}
         </span>
       ))}

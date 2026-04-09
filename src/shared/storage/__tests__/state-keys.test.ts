@@ -35,8 +35,8 @@
  * ```
  */
 
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
+import { expect } from "chai";
+import { describe, it } from "mocha";
 
 import {
   GLOBAL_STATE_DEFAULTS,
@@ -64,7 +64,7 @@ import {
   isLocalStateKey,
   isSecretKey,
   isSettingsKey,
-} from '../state-keys';
+} from "../state-keys";
 
 // ============================================================================
 // Test Helpers
@@ -75,15 +75,15 @@ import {
  * This catches cases where `as` assertions mask type mismatches.
  */
 function assertTypeMatch(value: unknown, expectedType: string, key: string): void {
-  const actualType = value === null ? 'null' : Array.isArray(value) ? 'array' : typeof value;
+  const actualType = value === null ? "null" : Array.isArray(value) ? "array" : typeof value;
 
-  if (expectedType === 'array') {
+  if (expectedType === "array") {
     expect(Array.isArray(value), `${key}: expected array, got ${actualType}`).to.be.true;
-  } else if (expectedType === 'object') {
-    expect(actualType, `${key}: expected object, got ${actualType}`).to.equal('object');
+  } else if (expectedType === "object") {
+    expect(actualType, `${key}: expected object, got ${actualType}`).to.equal("object");
     expect(value, `${key}: expected object, got null`).to.not.be.null;
     expect(Array.isArray(value), `${key}: expected object, got array`).to.be.false;
-  } else if (expectedType === 'undefined') {
+  } else if (expectedType === "undefined") {
     expect(value, `${key}: expected undefined, got ${actualType}`).to.be.undefined;
   } else {
     expect(actualType, `${key}: expected ${expectedType}, got ${actualType}`).to.equal(
@@ -98,13 +98,13 @@ function assertTypeMatch(value: unknown, expectedType: string, key: string): voi
  */
 function inferExpectedType(value: unknown): string {
   if (value === undefined) {
-    return 'undefined';
+    return "undefined";
   }
   if (value === null) {
-    return 'null';
+    return "null";
   }
   if (Array.isArray(value)) {
-    return 'array';
+    return "array";
   }
   return typeof value;
 }
@@ -113,15 +113,15 @@ function inferExpectedType(value: unknown): string {
 // Tests
 // ============================================================================
 
-describe('State Keys Type Safety', () => {
-  describe('Type-Value Consistency', () => {
+describe("State Keys Type Safety", () => {
+  describe("Type-Value Consistency", () => {
     /**
      * These tests validate that default values match their declared types.
      * This catches mistakes like `{ default: "string" as number }` which
      * TypeScript would accept but would cause runtime issues.
      */
 
-    it('should have GlobalState defaults with correct runtime types', () => {
+    it("should have GlobalState defaults with correct runtime types", () => {
       const defaults = GLOBAL_STATE_DEFAULTS as Record<string, unknown>;
 
       // Validate each default value has a sensible runtime type
@@ -132,7 +132,7 @@ describe('State Keys Type Safety', () => {
       }
     });
 
-    it('should have Settings defaults with correct runtime types', () => {
+    it("should have Settings defaults with correct runtime types", () => {
       const defaults = SETTINGS_DEFAULTS as Record<string, unknown>;
 
       for (const [key, value] of Object.entries(defaults)) {
@@ -141,7 +141,7 @@ describe('State Keys Type Safety', () => {
       }
     });
 
-    it('should not have undefined defaults masquerading as non-optional types', () => {
+    it("should not have undefined defaults masquerading as non-optional types", () => {
       // This test catches the pattern: { default: undefined as SomeType }
       // where SomeType doesn't include undefined
       const allDefaults = { ...GLOBAL_STATE_DEFAULTS, ...SETTINGS_DEFAULTS } as Record<
@@ -156,11 +156,11 @@ describe('State Keys Type Safety', () => {
       // These keys have undefined defaults, which is valid only if their
       // declared type includes `| undefined`. This test documents which
       // keys are expected to have undefined defaults.
-      expect(undefinedKeys).to.be.an('array');
+      expect(undefinedKeys).to.be.an("array");
       // If a key unexpectedly becomes undefined, this test will catch it
     });
 
-    it('should have array defaults that are actually arrays', () => {
+    it("should have array defaults that are actually arrays", () => {
       const allDefaults = { ...GLOBAL_STATE_DEFAULTS, ...SETTINGS_DEFAULTS } as Record<
         string,
         unknown
@@ -174,14 +174,14 @@ describe('State Keys Type Safety', () => {
       }
     });
 
-    it('should have object defaults that are plain objects', () => {
+    it("should have object defaults that are plain objects", () => {
       const allDefaults = { ...GLOBAL_STATE_DEFAULTS, ...SETTINGS_DEFAULTS } as Record<
         string,
         unknown
       >;
 
       for (const [key, value] of Object.entries(allDefaults)) {
-        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+        if (typeof value === "object" && value !== null && !Array.isArray(value)) {
           // Verify it's a plain object
           expect(Object.getPrototypeOf(value), `${key} should be a plain object`).to.equal(
             Object.prototype,
@@ -191,13 +191,13 @@ describe('State Keys Type Safety', () => {
     });
   });
 
-  describe('Key Array Synchronization', () => {
+  describe("Key Array Synchronization", () => {
     /**
      * These tests ensure the generated key arrays stay in sync with
      * their source objects. A mismatch could cause runtime errors.
      */
 
-    it('should have SettingsKeys match SETTINGS_DEFAULTS keys', () => {
+    it("should have SettingsKeys match SETTINGS_DEFAULTS keys", () => {
       const defaultKeys = Object.keys(SETTINGS_DEFAULTS);
       const exportedKeys = new Set<string>(SettingsKeys);
 
@@ -207,7 +207,7 @@ describe('State Keys Type Safety', () => {
       }
     });
 
-    it('should have GlobalStateAndSettingKeys be a superset of SettingsKeys', () => {
+    it("should have GlobalStateAndSettingKeys be a superset of SettingsKeys", () => {
       const combinedSet = new Set<string>(GlobalStateAndSettingKeys);
 
       for (const key of SettingsKeys) {
@@ -216,35 +216,35 @@ describe('State Keys Type Safety', () => {
       }
     });
 
-    it('should have no duplicate keys in exported arrays', () => {
-      expect(new Set(SettingsKeys).size, 'SettingsKeys has duplicates').to.equal(
+    it("should have no duplicate keys in exported arrays", () => {
+      expect(new Set(SettingsKeys).size, "SettingsKeys has duplicates").to.equal(
         SettingsKeys.length,
       );
-      expect(new Set(SecretKeys).size, 'SecretKeys has duplicates').to.equal(SecretKeys.length);
-      expect(new Set(LocalStateKeys).size, 'LocalStateKeys has duplicates').to.equal(
+      expect(new Set(SecretKeys).size, "SecretKeys has duplicates").to.equal(SecretKeys.length);
+      expect(new Set(LocalStateKeys).size, "LocalStateKeys has duplicates").to.equal(
         LocalStateKeys.length,
       );
       expect(
         new Set(GlobalStateAndSettingKeys).size,
-        'GlobalStateAndSettingKeys has duplicates',
+        "GlobalStateAndSettingKeys has duplicates",
       ).to.equal(GlobalStateAndSettingKeys.length);
     });
 
-    it('should have SecretKeys as strings', () => {
+    it("should have SecretKeys as strings", () => {
       for (const key of SecretKeys) {
-        expect(typeof key, `SecretKey ${key} should be string`).to.equal('string');
-        expect(key.length, 'SecretKey should not be empty').to.be.greaterThan(0);
+        expect(typeof key, `SecretKey ${key} should be string`).to.equal("string");
+        expect(key.length, "SecretKey should not be empty").to.be.greaterThan(0);
       }
     });
   });
 
-  describe('Type Guard Functions', () => {
+  describe("Type Guard Functions", () => {
     /**
      * Type guards narrow `string` to specific key types.
      * These tests ensure they correctly identify valid keys.
      */
 
-    it('should correctly identify GlobalState keys', () => {
+    it("should correctly identify GlobalState keys", () => {
       // Known GlobalState keys from the defaults
       const knownGlobalStateKeys = Object.keys(GLOBAL_STATE_DEFAULTS);
 
@@ -253,38 +253,38 @@ describe('State Keys Type Safety', () => {
       }
 
       // Non-existent keys should return false
-      expect(isGlobalStateKey('nonExistentKey123')).to.be.false;
-      expect(isGlobalStateKey('')).to.be.false;
+      expect(isGlobalStateKey("nonExistentKey123")).to.be.false;
+      expect(isGlobalStateKey("")).to.be.false;
     });
 
-    it('should correctly identify Settings keys', () => {
+    it("should correctly identify Settings keys", () => {
       for (const key of SettingsKeys) {
         expect(isSettingsKey(key), `${key} should be a SettingsKey`).to.be.true;
       }
 
-      expect(isSettingsKey('nonExistentKey123')).to.be.false;
+      expect(isSettingsKey("nonExistentKey123")).to.be.false;
     });
 
-    it('should correctly identify Secret keys', () => {
+    it("should correctly identify Secret keys", () => {
       // Sample known secret keys
-      const knownSecretKeys = ['apiKey', 'openRouterApiKey', 'awsAccessKey'];
+      const knownSecretKeys = ["apiKey", "openRouterApiKey", "awsAccessKey"];
 
       for (const key of knownSecretKeys) {
         expect(isSecretKey(key), `${key} should be a SecretKey`).to.be.true;
       }
 
-      expect(isSecretKey('notASecretKey')).to.be.false;
+      expect(isSecretKey("notASecretKey")).to.be.false;
     });
 
-    it('should correctly identify LocalState keys', () => {
+    it("should correctly identify LocalState keys", () => {
       for (const key of LocalStateKeys) {
         expect(isLocalStateKey(key), `${key} should be a LocalStateKey`).to.be.true;
       }
 
-      expect(isLocalStateKey('notALocalStateKey')).to.be.false;
+      expect(isLocalStateKey("notALocalStateKey")).to.be.false;
     });
 
-    it('should have mutually exclusive key categories where expected', () => {
+    it("should have mutually exclusive key categories where expected", () => {
       // Secret keys should not overlap with settings keys
       for (const secretKey of SecretKeys) {
         // Most secret keys should not be in settings (they're stored separately)
@@ -297,20 +297,20 @@ describe('State Keys Type Safety', () => {
     });
   });
 
-  describe('Default Value Retrieval', () => {
+  describe("Default Value Retrieval", () => {
     /**
      * Tests for the getDefaultValue utility function.
      */
 
-    it('should return correct default values for known keys', () => {
+    it("should return correct default values for known keys", () => {
       // Test a few known defaults
       const testCases: Array<{ key: GlobalStateAndSettingsKey; expectedType: string }> = [
-        { key: 'autoApprovalSettings', expectedType: 'object' },
-        { key: 'browserSettings', expectedType: 'object' },
-        { key: 'shellIntegrationTimeout', expectedType: 'number' },
-        { key: 'preferredLanguage', expectedType: 'string' },
-        { key: 'yoloModeToggled', expectedType: 'boolean' },
-        { key: 'autoApproveAllToggled', expectedType: 'boolean' },
+        { key: "autoApprovalSettings", expectedType: "object" },
+        { key: "browserSettings", expectedType: "object" },
+        { key: "shellIntegrationTimeout", expectedType: "number" },
+        { key: "preferredLanguage", expectedType: "string" },
+        { key: "yoloModeToggled", expectedType: "boolean" },
+        { key: "autoApproveAllToggled", expectedType: "boolean" },
       ];
 
       for (const { key, expectedType } of testCases) {
@@ -321,7 +321,7 @@ describe('State Keys Type Safety', () => {
       }
     });
 
-    it('should return undefined for keys without defaults', () => {
+    it("should return undefined for keys without defaults", () => {
       // Keys with `undefined` as default should return undefined
       const keysWithUndefinedDefaults = GlobalStateAndSettingKeys.filter((key) => {
         const value = getDefaultValue(key);
@@ -329,32 +329,32 @@ describe('State Keys Type Safety', () => {
       });
 
       // This is expected behavior - document which keys have undefined defaults
-      expect(keysWithUndefinedDefaults).to.be.an('array');
+      expect(keysWithUndefinedDefaults).to.be.an("array");
     });
   });
 
-  describe('Transform Functions', () => {
+  describe("Transform Functions", () => {
     /**
      * Tests for transform functions that modify values before storage.
      */
 
-    it('should have transforms return the same type as input', () => {
+    it("should have transforms return the same type as input", () => {
       // Get keys that have transforms
       const keysWithTransforms = Object.keys(SETTINGS_TRANSFORMS);
 
-      expect(keysWithTransforms.length, 'Should have at least one transform').to.be.greaterThan(0);
+      expect(keysWithTransforms.length, "Should have at least one transform").to.be.greaterThan(0);
 
       for (const key of keysWithTransforms) {
         expect(hasTransform(key), `hasTransform(${key}) should be true`).to.be.true;
       }
     });
 
-    it('should correctly identify keys without transforms', () => {
-      expect(hasTransform('nonExistentKey')).to.be.false;
-      expect(hasTransform('')).to.be.false;
+    it("should correctly identify keys without transforms", () => {
+      expect(hasTransform("nonExistentKey")).to.be.false;
+      expect(hasTransform("")).to.be.false;
     });
 
-    it('should apply transforms without throwing', () => {
+    it("should apply transforms without throwing", () => {
       const keysWithTransforms = Object.keys(SETTINGS_TRANSFORMS);
 
       for (const key of keysWithTransforms) {
@@ -365,51 +365,51 @@ describe('State Keys Type Safety', () => {
       }
     });
 
-    it('should pass through values for keys without transforms', () => {
-      const testValue = { test: 'value' };
-      const result = applyTransform('keyWithoutTransform', testValue);
+    it("should pass through values for keys without transforms", () => {
+      const testValue = { test: "value" };
+      const result = applyTransform("keyWithoutTransform", testValue);
 
       expect(result).to.equal(testValue);
     });
 
-    it('should merge defaults in browserSettings transform', () => {
-      if (hasTransform('browserSettings')) {
+    it("should merge defaults in browserSettings transform", () => {
+      if (hasTransform("browserSettings")) {
         const partial = { viewport: { width: 800, height: 600 } };
-        const result = applyTransform('browserSettings', partial);
+        const result = applyTransform("browserSettings", partial);
 
-        expect(result).to.be.an('object');
+        expect(result).to.be.an("object");
         expect(result.viewport).to.deep.equal({ width: 800, height: 600 });
       }
     });
   });
 
-  describe('Metadata Properties', () => {
+  describe("Metadata Properties", () => {
     /**
      * Tests for isAsync and isComputed metadata flags.
      */
 
-    it('should correctly identify async properties', () => {
+    it("should correctly identify async properties", () => {
       // taskHistory is known to be async
-      expect(isAsyncProperty('taskHistory')).to.be.true;
-      expect(isAsyncProperty('preferredLanguage')).to.be.false;
-      expect(isAsyncProperty('nonExistent')).to.be.false;
+      expect(isAsyncProperty("taskHistory")).to.be.true;
+      expect(isAsyncProperty("preferredLanguage")).to.be.false;
+      expect(isAsyncProperty("nonExistent")).to.be.false;
     });
 
-    it('should correctly identify computed properties', () => {
+    it("should correctly identify computed properties", () => {
       // planActSeparateModelsSetting is known to be computed
-      expect(isComputedProperty('planActSeparateModelsSetting')).to.be.true;
-      expect(isComputedProperty('preferredLanguage')).to.be.false;
-      expect(isComputedProperty('nonExistent')).to.be.false;
+      expect(isComputedProperty("planActSeparateModelsSetting")).to.be.true;
+      expect(isComputedProperty("preferredLanguage")).to.be.false;
+      expect(isComputedProperty("nonExistent")).to.be.false;
     });
   });
 
-  describe('Type Exports', () => {
+  describe("Type Exports", () => {
     /**
      * Compile-time tests that verify type exports work correctly.
      * If these fail to compile, the types are broken.
      */
 
-    it('should export usable GlobalState type', () => {
+    it("should export usable GlobalState type", () => {
       // This is a compile-time check - if GlobalState is broken, this won't compile
       const partialState: Partial<GlobalState> = {
         isNewUser: true,
@@ -418,67 +418,67 @@ describe('State Keys Type Safety', () => {
       expect(partialState.isNewUser).to.equal(true);
     });
 
-    it('should export usable Settings type', () => {
+    it("should export usable Settings type", () => {
       const partialSettings: Partial<Settings> = {
-        preferredLanguage: 'English',
+        preferredLanguage: "English",
         shellIntegrationTimeout: 5000,
       };
-      expect(partialSettings.preferredLanguage).to.equal('English');
+      expect(partialSettings.preferredLanguage).to.equal("English");
     });
 
-    it('should export usable key types', () => {
+    it("should export usable key types", () => {
       // These assignments verify the key types are correctly narrowed
-      const globalKey: GlobalStateKey = 'isNewUser';
-      const settingsKey: SettingsKey = 'preferredLanguage';
-      const secretKey: SecretKey = 'apiKey';
-      const localKey: LocalStateKey = 'localClineRulesToggles';
+      const globalKey: GlobalStateKey = "isNewUser";
+      const settingsKey: SettingsKey = "preferredLanguage";
+      const secretKey: SecretKey = "apiKey";
+      const localKey: LocalStateKey = "localClineRulesToggles";
 
-      expect(globalKey).to.be.a('string');
-      expect(settingsKey).to.be.a('string');
-      expect(secretKey).to.be.a('string');
-      expect(localKey).to.be.a('string');
+      expect(globalKey).to.be.a("string");
+      expect(settingsKey).to.be.a("string");
+      expect(secretKey).to.be.a("string");
+      expect(localKey).to.be.a("string");
     });
 
-    it('should have GlobalStateAndSettings include both GlobalState and Settings', () => {
+    it("should have GlobalStateAndSettings include both GlobalState and Settings", () => {
       const combined: Partial<GlobalStateAndSettings> = {
         // From GlobalState
         isNewUser: true,
         // From Settings
-        preferredLanguage: 'English',
+        preferredLanguage: "English",
       };
       expect(combined.isNewUser).to.equal(true);
-      expect(combined.preferredLanguage).to.equal('English');
+      expect(combined.preferredLanguage).to.equal("English");
     });
 
-    it('should have LocalState keys map to ClineRulesToggles', () => {
+    it("should have LocalState keys map to ClineRulesToggles", () => {
       const localState: Partial<LocalState> = {
         localClineRulesToggles: {},
-        localCursorRulesToggles: { 'some-rule': true },
+        localCursorRulesToggles: { "some-rule": true },
       };
       expect(localState.localClineRulesToggles).to.deep.equal({});
     });
   });
 
-  describe('Edge Cases', () => {
+  describe("Edge Cases", () => {
     /**
      * Tests for edge cases and boundary conditions.
      */
 
-    it('should handle empty string keys gracefully', () => {
-      expect(isGlobalStateKey('')).to.be.false;
-      expect(isSettingsKey('')).to.be.false;
-      expect(isSecretKey('')).to.be.false;
-      expect(isLocalStateKey('')).to.be.false;
+    it("should handle empty string keys gracefully", () => {
+      expect(isGlobalStateKey("")).to.be.false;
+      expect(isSettingsKey("")).to.be.false;
+      expect(isSecretKey("")).to.be.false;
+      expect(isLocalStateKey("")).to.be.false;
     });
 
-    it('should handle keys with special characters', () => {
+    it("should handle keys with special characters", () => {
       // The cline:clineAccountId key has a colon
-      expect(SecretKeys).to.include('cline:clineAccountId');
-      expect(isSecretKey('cline:clineAccountId')).to.be.true;
+      expect(SecretKeys).to.include("cline:clineAccountId");
+      expect(isSecretKey("cline:clineAccountId")).to.be.true;
     });
 
-    it('should not have keys that could cause prototype pollution', () => {
-      const dangerousKeys = ['__proto__', 'constructor', 'prototype'];
+    it("should not have keys that could cause prototype pollution", () => {
+      const dangerousKeys = ["__proto__", "constructor", "prototype"];
 
       for (const key of dangerousKeys) {
         expect(isGlobalStateKey(key), `${key} should not be a GlobalStateKey`).to.be.false;

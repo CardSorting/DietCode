@@ -1,15 +1,15 @@
-import type { Controller } from '@/core/controller';
-import { getAxiosSettings } from '@/shared/net';
-import { Logger } from '@/shared/services/Logger';
-import type { OcaAuthState, OcaUserInfo } from '@shared/nice-grpc/cline/oca_account.ts';
-import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
-import type { OcaConfig } from '../utils/types';
+import type { Controller } from "@/core/controller";
+import { getAxiosSettings } from "@/shared/net";
+import { Logger } from "@/shared/services/Logger";
+import type { OcaAuthState, OcaUserInfo } from "@shared/nice-grpc/cline/oca_account.ts";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import type { OcaConfig } from "../utils/types";
 import {
   generateCodeVerifier,
   generateRandomString,
   pkceChallengeFromVerifier,
-} from '../utils/utils';
+} from "../utils/utils";
 
 type PkceState = {
   code_verifier: string;
@@ -31,7 +31,7 @@ export class OcaRefreshError extends Error {
     data?: unknown,
   ) {
     super(message);
-    this.name = 'OcaRefreshError';
+    this.name = "OcaRefreshError";
     this.status = status;
     this.code = code;
     this.invalidGrant = invalidGrant;
@@ -79,7 +79,7 @@ export class OcaAuthProvider {
 
   private async getUserAccountInfo(token: string): Promise<OcaUserInfo> {
     const decodedToken = this.decodeJwt(token);
-    const subject = decodedToken.sub || '';
+    const subject = decodedToken.sub || "";
     return {
       displayName: subject,
       uid: subject,
@@ -88,7 +88,7 @@ export class OcaAuthProvider {
   }
 
   public async getExistingAuthState(controller: Controller): Promise<OcaAuthState | null> {
-    const accessToken = controller.stateManager.getSecretKey('ocaApiKey');
+    const accessToken = controller.stateManager.getSecretKey("ocaApiKey");
     if (accessToken && !(await this.shouldRefreshAccessToken(accessToken))) {
       return { user: await this.getUserAccountInfo(accessToken), apiKey: accessToken };
     }
@@ -102,17 +102,17 @@ export class OcaAuthProvider {
       return existingAuthState;
     }
     // Otherwise, try to refresh using the refresh token
-    const userRefreshToken = controller.stateManager.getSecretKey('ocaRefreshToken');
+    const userRefreshToken = controller.stateManager.getSecretKey("ocaRefreshToken");
     if (!userRefreshToken) {
-      Logger.error('No stored authentication credential found.');
+      Logger.error("No stored authentication credential found.");
       return null;
     }
     try {
-      const ocaMode = controller.stateManager.getGlobalSettingsKey('ocaMode') || 'internal';
+      const ocaMode = controller.stateManager.getGlobalSettingsKey("ocaMode") || "internal";
       const { idcs_url, client_id } =
-        ocaMode === 'internal' ? this._config.internal : this._config.external;
+        ocaMode === "internal" ? this._config.internal : this._config.external;
       if (!idcs_url || !client_id) {
-        throw new Error('IDCS URL or Client ID are not configured');
+        throw new Error("IDCS URL or Client ID are not configured");
       }
       const discovery = await axios.get(
         `${idcs_url}/.well-known/openid-configuration`,
@@ -120,22 +120,22 @@ export class OcaAuthProvider {
       );
       const tokenEndpoint = discovery.data.token_endpoint;
       const params: any = {
-        grant_type: 'refresh_token',
+        grant_type: "refresh_token",
         refresh_token: userRefreshToken,
         client_id,
       };
       const tokenResponse = await axios.post(tokenEndpoint, new URLSearchParams(params), {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
         ...getAxiosSettings(),
       });
       const accessToken = tokenResponse.data.access_token;
       const refreshToken = tokenResponse.data.refresh_token;
       if (refreshToken) {
-        controller.stateManager.setSecret('ocaRefreshToken', refreshToken);
-        controller.stateManager.setSecret('ocaApiKey', accessToken);
+        controller.stateManager.setSecret("ocaRefreshToken", refreshToken);
+        controller.stateManager.setSecret("ocaApiKey", accessToken);
       } else {
-        Logger.warn('No refresh token received during OCA token refresh.');
-        throw new OcaRefreshError('No refresh token received during OCA token refresh.');
+        Logger.warn("No refresh token received during OCA token refresh.");
+        throw new OcaRefreshError("No refresh token received during OCA token refresh.");
       }
       const userInfo: OcaUserInfo = await this.getUserAccountInfo(accessToken);
       return { user: userInfo, apiKey: accessToken };
@@ -145,20 +145,20 @@ export class OcaAuthProvider {
       const data: any = isAxios ? (err as any).response?.data : undefined;
       const code = data?.error || (isAxios ? (err as any).code : undefined);
       const desc = data?.error_description || (isAxios ? (err as any).message : undefined);
-      const invalidGrant = (status === 400 && code === 'invalid_grant') || status === 401;
+      const invalidGrant = (status === 400 && code === "invalid_grant") || status === 401;
 
-      Logger.error('OCA refresh failed', { status, code, desc });
+      Logger.error("OCA refresh failed", { status, code, desc });
 
-      throw new OcaRefreshError(desc || 'OCA refresh failed', status, code, invalidGrant, data);
+      throw new OcaRefreshError(desc || "OCA refresh failed", status, code, invalidGrant, data);
     }
   }
 
   // Launch authentication flow: returns URL
   getAuthUrl(callbackUrl: string, ocaMode: string): URL {
     const { idcs_url, client_id, scopes } =
-      ocaMode === 'internal' ? this._config.internal : this._config.external;
+      ocaMode === "internal" ? this._config.internal : this._config.external;
     if (!idcs_url || !client_id || !scopes) {
-      throw new Error('IDCS URL, Client ID, or Scopes are not configured');
+      throw new Error("IDCS URL, Client ID, or Scopes are not configured");
     }
     const code_verifier = generateCodeVerifier();
     const code_challenge = pkceChallengeFromVerifier(code_verifier);
@@ -177,32 +177,32 @@ export class OcaAuthProvider {
       createdAt: Date.now(),
       redirect_uri: callbackUrl,
     });
-    const base = `${idcs_url.replace(/\/$/, '')}/oauth2/v1/authorize`;
+    const base = `${idcs_url.replace(/\/$/, "")}/oauth2/v1/authorize`;
     const url = new URL(base);
-    url.searchParams.set('client_id', client_id);
-    url.searchParams.set('response_type', 'code');
-    url.searchParams.set('scope', scopes);
-    url.searchParams.set('code_challenge', code_challenge);
-    url.searchParams.set('code_challenge_method', 'S256');
-    url.searchParams.set('redirect_uri', callbackUrl);
-    url.searchParams.set('state', state);
-    url.searchParams.set('nonce', nonce);
+    url.searchParams.set("client_id", client_id);
+    url.searchParams.set("response_type", "code");
+    url.searchParams.set("scope", scopes);
+    url.searchParams.set("code_challenge", code_challenge);
+    url.searchParams.set("code_challenge_method", "S256");
+    url.searchParams.set("redirect_uri", callbackUrl);
+    url.searchParams.set("state", state);
+    url.searchParams.set("nonce", nonce);
     return url;
   }
 
   // signIn expects code and state from the callback!
   async signIn(controller: Controller, code: string, state: string): Promise<OcaAuthState | null> {
     try {
-      const ocaMode = controller.stateManager.getGlobalSettingsKey('ocaMode') || 'internal';
+      const ocaMode = controller.stateManager.getGlobalSettingsKey("ocaMode") || "internal";
       const { idcs_url, client_id } =
-        ocaMode === 'internal' ? this._config.internal : this._config.external;
+        ocaMode === "internal" ? this._config.internal : this._config.external;
       if (!idcs_url || !client_id) {
-        throw new Error('IDCS URL or Client ID are not configured');
+        throw new Error("IDCS URL or Client ID are not configured");
       }
       const entry = OcaAuthProvider.pkceStateMap.get(state);
       if (!entry) {
         throw new Error(
-          'No PKCE verifier found for this state (possibly expired or flow not initiated)',
+          "No PKCE verifier found for this state (possibly expired or flow not initiated)",
         );
       }
       const { code_verifier, nonce, redirect_uri } = entry;
@@ -213,14 +213,14 @@ export class OcaAuthProvider {
       );
       const tokenEndpoint = discovery.data.token_endpoint;
       const params: any = {
-        grant_type: 'authorization_code',
+        grant_type: "authorization_code",
         code,
         redirect_uri,
         client_id,
         code_verifier,
       };
       const tokenResponse = await axios.post(tokenEndpoint, new URLSearchParams(params), {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
         ...getAxiosSettings(),
       });
       // Step 1: Nonce validation
@@ -228,18 +228,18 @@ export class OcaAuthProvider {
       if (idToken) {
         const decoded: any = this.decodeJwt(idToken);
         if (decoded.nonce !== nonce) {
-          throw new Error('OIDC nonce verification failed');
+          throw new Error("OIDC nonce verification failed");
         }
       } else {
-        throw new Error('No ID token received from OCA');
+        throw new Error("No ID token received from OCA");
       }
 
       // Step 2: Get access_token (this is what you'll use for APIs)
       const accessToken = tokenResponse.data.access_token;
       const refreshToken = tokenResponse.data.refresh_token;
       if (refreshToken) {
-        controller.stateManager.setSecret('ocaRefreshToken', refreshToken);
-        controller.stateManager.setSecret('ocaApiKey', accessToken);
+        controller.stateManager.setSecret("ocaRefreshToken", refreshToken);
+        controller.stateManager.setSecret("ocaApiKey", accessToken);
       }
 
       // Step 3: (Optional) Extract user info from id_token for local profile, not for API
@@ -248,18 +248,18 @@ export class OcaAuthProvider {
       // Step 4: Return only the access_token for downstream use
       return { user: userInfo, apiKey: accessToken };
     } catch (error) {
-      Logger.error('oca sign-in error', 'error');
+      Logger.error("oca sign-in error", "error");
       throw error;
     }
   }
 
   clearAuth(controller: Controller): void {
-    controller.stateManager.setSecret('ocaApiKey', undefined);
-    controller.stateManager.setSecret('ocaRefreshToken', undefined);
+    controller.stateManager.setSecret("ocaApiKey", undefined);
+    controller.stateManager.setSecret("ocaRefreshToken", undefined);
     // Clear legacy OCA secrets that may persist from older Cline versions.
     // These are not in SecretKeys (to avoid proto field number changes) but
     // may exist in users' secret storage and cause auth loops if not cleared.
-    controller.stateManager.setSecret('ocaAccessToken' as any, undefined);
-    controller.stateManager.setSecret('ocaTokenSet' as any, undefined);
+    controller.stateManager.setSecret("ocaAccessToken" as any, undefined);
+    controller.stateManager.setSecret("ocaTokenSet" as any, undefined);
   }
 }

@@ -1,15 +1,15 @@
-import type { Meta } from '@storybook/react-vite';
-import { Button } from './button';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from './hover-card';
+import type { Meta } from "@storybook/react-vite";
+import { Button } from "./button";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "./hover-card";
 
 const meta: Meta<typeof HoverCard> = {
-  title: 'Ui/HoverCard',
+  title: "Ui/HoverCard",
   component: HoverCard,
   parameters: {
     docs: {
       description: {
         component:
-          'Displays additional content in a floating card when hovering over a trigger element. Built on Radix UI with customizable alignment and side offset.',
+          "Displays additional content in a floating card when hovering over a trigger element. Built on Radix UI with customizable alignment and side offset.",
       },
     },
   },

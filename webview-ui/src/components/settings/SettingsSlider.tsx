@@ -1,6 +1,6 @@
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
-import type React from 'react';
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import type React from "react";
 
 interface SettingsSliderProps {
   label: string;
@@ -22,7 +22,7 @@ const SettingsSlider: React.FC<SettingsSliderProps> = ({
   value,
   onChange,
   description,
-  valueWidth = 'w-12',
+  valueWidth = "w-12",
 }) => {
   const handleSliderChange = (values: number[]) => {
     onChange(values[0]);

@@ -1,11 +1,11 @@
-import Thumbnails from '@/components/common/Thumbnails';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { CheckpointsServiceClient } from '@/services/grpc-client';
-import type { ClineCheckpointRestore } from '@shared/WebviewMessage.ts';
-import { CheckpointRestoreRequest } from '@shared/nice-grpc/cline/checkpoints.ts';
-import React, { forwardRef, useMemo, useRef, useState } from 'react';
-import DynamicTextArea from 'react-textarea-autosize';
-import { highlightText } from './task-header/Highlights';
+import Thumbnails from "@/components/common/Thumbnails";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { CheckpointsServiceClient } from "@/services/grpc-client";
+import type { ClineCheckpointRestore } from "@shared/WebviewMessage.ts";
+import { CheckpointRestoreRequest } from "@shared/nice-grpc/cline/checkpoints.ts";
+import React, { forwardRef, useMemo, useRef, useState } from "react";
+import DynamicTextArea from "react-textarea-autosize";
+import { highlightText } from "./task-header/Highlights";
 
 interface UserMessageProps {
   text?: string;
@@ -23,7 +23,7 @@ const UserMessage: React.FC<UserMessageProps> = ({
   sendMessageFromChatRow,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedText, setEditedText] = useState(text || '');
+  const [editedText, setEditedText] = useState(text || "");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const { checkpointManagerErrorMessage } = useExtensionState();
 
@@ -47,7 +47,7 @@ const UserMessage: React.FC<UserMessageProps> = ({
   }, [isEditing]);
 
   const handleRestoreWorkspace = async (type: ClineCheckpointRestore) => {
-    const delay = type === 'task' ? 500 : 1000; // Delay for task and workspace restore
+    const delay = type === "task" ? 500 : 1000; // Delay for task and workspace restore
     setIsEditing(false);
 
     if (text === editedText) {
@@ -67,7 +67,7 @@ const UserMessage: React.FC<UserMessageProps> = ({
         sendMessageFromChatRow?.(editedText, images || [], files || []);
       }, delay);
     } catch (err) {
-      console.error('Checkpoint restore error:', err);
+      console.error("Checkpoint restore error:", err);
     }
   };
 
@@ -86,18 +86,18 @@ const UserMessage: React.FC<UserMessageProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       setIsEditing(false);
-    } else if (e.key === 'Enter' && e.metaKey && !checkpointManagerErrorMessage) {
-      handleRestoreWorkspace('taskAndWorkspace');
+    } else if (e.key === "Enter" && e.metaKey && !checkpointManagerErrorMessage) {
+      handleRestoreWorkspace("taskAndWorkspace");
     } else if (
-      e.key === 'Enter' &&
+      e.key === "Enter" &&
       !e.shiftKey &&
       !e.nativeEvent.isComposing &&
       e.keyCode !== 229
     ) {
       e.preventDefault();
-      handleRestoreWorkspace('task');
+      handleRestoreWorkspace("task");
     }
   };
 
@@ -105,11 +105,19 @@ const UserMessage: React.FC<UserMessageProps> = ({
     <div
       className="p-2.5 pr-1 my-1 text-badge-foreground rounded-xs"
       onClick={handleClick}
-      style={{
-        backgroundColor: isEditing ? 'unset' : 'var(--vscode-badge-background)',
-        whiteSpace: 'pre-line',
-        wordWrap: 'break-word',
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleClick();
+        }
       }}
+      role="button"
+      style={{
+        backgroundColor: isEditing ? "unset" : "var(--vscode-badge-background)",
+        whiteSpace: "pre-line",
+        wordWrap: "break-word",
+      }}
+      tabIndex={isEditing ? -1 : 0}
     >
       {isEditing ? (
         <>
@@ -120,26 +128,26 @@ const UserMessage: React.FC<UserMessageProps> = ({
             onKeyDown={handleKeyDown}
             ref={textAreaRef}
             style={{
-              width: '100%',
-              backgroundColor: 'var(--vscode-input-background)',
-              color: 'var(--vscode-input-foreground)',
-              borderColor: 'var(--vscode-input-border)',
-              border: '1px solid',
-              borderRadius: '2px',
-              padding: '6px',
-              fontFamily: 'inherit',
-              fontSize: 'inherit',
-              lineHeight: 'inherit',
-              boxSizing: 'border-box',
-              resize: 'none',
-              overflowX: 'hidden',
-              overflowY: 'scroll',
-              scrollbarWidth: 'none',
+              width: "100%",
+              backgroundColor: "var(--vscode-input-background)",
+              color: "var(--vscode-input-foreground)",
+              borderColor: "var(--vscode-input-border)",
+              border: "1px solid",
+              borderRadius: "2px",
+              padding: "6px",
+              fontFamily: "inherit",
+              fontSize: "inherit",
+              lineHeight: "inherit",
+              boxSizing: "border-box",
+              resize: "none",
+              overflowX: "hidden",
+              overflowY: "scroll",
+              scrollbarWidth: "none",
             }}
             value={editedText}
           />
           <div
-            style={{ display: 'flex', gap: '8px', marginTop: '8px', justifyContent: 'flex-end' }}
+            style={{ display: "flex", gap: "8px", marginTop: "8px", justifyContent: "flex-end" }}
           >
             {!checkpointManagerErrorMessage && (
               <RestoreButton
@@ -162,12 +170,12 @@ const UserMessage: React.FC<UserMessageProps> = ({
           </div>
         </>
       ) : (
-        <span className="ph-no-capture text-sm" style={{ display: 'block' }}>
+        <span className="ph-no-capture text-sm" style={{ display: "block" }}>
           {highlightedText}
         </span>
       )}
       {((images && images.length > 0) || (files && files.length > 0)) && (
-        <Thumbnails files={files ?? []} images={images ?? []} style={{ marginTop: '8px' }} />
+        <Thumbnails files={files ?? []} images={images ?? []} style={{ marginTop: "8px" }} />
       )}
     </div>
   );
@@ -195,16 +203,16 @@ const RestoreButton = forwardRef<HTMLButtonElement, RestoreButtonProps>(
         ref={ref}
         style={{
           backgroundColor: isPrimary
-            ? 'var(--vscode-button-background)'
-            : 'var(--vscode-button-secondaryBackground, var(--vscode-descriptionForeground))',
+            ? "var(--vscode-button-background)"
+            : "var(--vscode-button-secondaryBackground, var(--vscode-descriptionForeground))",
           color: isPrimary
-            ? 'var(--vscode-button-foreground)'
-            : 'var(--vscode-button-secondaryForeground, var(--vscode-foreground))',
-          border: 'none',
-          padding: '4px 8px',
-          borderRadius: '2px',
-          fontSize: '9px',
-          cursor: 'pointer',
+            ? "var(--vscode-button-foreground)"
+            : "var(--vscode-button-secondaryForeground, var(--vscode-foreground))",
+          border: "none",
+          padding: "4px 8px",
+          borderRadius: "2px",
+          fontSize: "9px",
+          cursor: "pointer",
         }}
         title={title}
       >

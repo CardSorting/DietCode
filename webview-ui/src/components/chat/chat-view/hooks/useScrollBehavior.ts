@@ -1,9 +1,9 @@
-import type { ClineMessage } from '@shared/ExtensionMessage.ts';
-import debounce from 'debounce';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useEvent } from 'react-use';
-import type { ListRange, VirtuosoHandle } from 'react-virtuoso';
-import type { ScrollBehavior } from '../types/chatTypes';
+import type { ClineMessage } from "@shared/ExtensionMessage.ts";
+import debounce from "debounce";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEvent } from "react-use";
+import type { ListRange, VirtuosoHandle } from "react-virtuoso";
+import type { ScrollBehavior } from "../types/chatTypes";
 
 // Height of the sticky user message header (padding + content)
 const STICKY_HEADER_HEIGHT = 32;
@@ -41,7 +41,7 @@ export function useScrollBehavior(
 
   // Find all user feedback messages
   const userFeedbackMessages = useMemo(() => {
-    return visibleMessages.filter((msg) => msg.say === 'user_feedback');
+    return visibleMessages.filter((msg) => msg.say === "user_feedback");
   }, [visibleMessages]);
 
   // Track scroll position to detect which user message has been scrolled past
@@ -112,7 +112,7 @@ export function useScrollBehavior(
         return virtuosoScroller;
       }
       // Fallback to the first child with scrollable class
-      const scrollable = scrollContainer.querySelector('.scrollable') as HTMLElement;
+      const scrollable = scrollContainer.querySelector(".scrollable") as HTMLElement;
       return scrollable || scrollContainer;
     };
 
@@ -122,13 +122,13 @@ export function useScrollBehavior(
       checkScrolledPastUserMessage();
     };
 
-    scrollableElement.addEventListener('scroll', handleScroll, { passive: true });
+    scrollableElement.addEventListener("scroll", handleScroll, { passive: true });
 
     // Also check on mount and when dependencies change
     checkScrolledPastUserMessage();
 
     return () => {
-      scrollableElement.removeEventListener('scroll', handleScroll);
+      scrollableElement.removeEventListener("scroll", handleScroll);
     };
   }, [checkScrolledPastUserMessage]);
 
@@ -143,7 +143,7 @@ export function useScrollBehavior(
         () => {
           virtuosoRef.current?.scrollTo({
             top: Number.MAX_SAFE_INTEGER,
-            behavior: 'smooth',
+            behavior: "smooth",
           });
         },
         10,
@@ -156,7 +156,7 @@ export function useScrollBehavior(
   const scrollToBottomAuto = useCallback(() => {
     virtuosoRef.current?.scrollTo({
       top: Number.MAX_SAFE_INTEGER,
-      behavior: 'auto', // instant causes crash
+      behavior: "auto", // instant causes crash
     });
   }, []);
 
@@ -201,7 +201,7 @@ export function useScrollBehavior(
         // Check if this is the first user feedback message (no sticky header would show when scrolling to it)
         const isFirstUserMessage =
           groupIndex === 0 ||
-          !visibleMessages.slice(0, visibleIndex).some((msg) => msg.say === 'user_feedback');
+          !visibleMessages.slice(0, visibleIndex).some((msg) => msg.say === "user_feedback");
 
         const stickyHeaderOffset = isFirstUserMessage ? 0 : STICKY_HEADER_HEIGHT;
 
@@ -209,8 +209,8 @@ export function useScrollBehavior(
         requestAnimationFrame(() => {
           virtuosoRef.current?.scrollToIndex({
             index: groupIndex,
-            align: 'start',
-            behavior: 'smooth',
+            align: "start",
+            behavior: "smooth",
             offset: -stickyHeaderOffset,
           });
         });
@@ -233,7 +233,7 @@ export function useScrollBehavior(
       const isLastCollapsedApiReq =
         isLast &&
         !Array.isArray(lastGroup) && // Make sure it's not a browser session group
-        lastGroup?.say === 'api_req_started' &&
+        lastGroup?.say === "api_req_started" &&
         !expandedRows[lastGroup.ts];
 
       setExpandedRows((prev) => ({
@@ -319,7 +319,7 @@ export function useScrollBehavior(
       }
     }
   }, []);
-  useEvent('wheel', handleWheel, window, { passive: true }); // passive improves scrolling performance
+  useEvent("wheel", handleWheel, window, { passive: true }); // passive improves scrolling performance
 
   return {
     virtuosoRef,

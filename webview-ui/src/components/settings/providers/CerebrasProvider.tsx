@@ -1,11 +1,11 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { cerebrasModels } from '@shared/api.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { ApiKeyField } from '../common/ApiKeyField';
-import { ModelInfoView } from '../common/ModelInfoView';
-import { ModelSelector } from '../common/ModelSelector';
-import { normalizeApiConfiguration } from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { cerebrasModels } from "@shared/api.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { ApiKeyField } from "../common/ApiKeyField";
+import { ModelInfoView } from "../common/ModelInfoView";
+import { ModelSelector } from "../common/ModelSelector";
+import { normalizeApiConfiguration } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 /**
  * Props for the CerebrasProvider component
@@ -36,8 +36,8 @@ export const CerebrasProvider = ({
   return (
     <div>
       <ApiKeyField
-        initialValue={apiConfiguration?.cerebrasApiKey || ''}
-        onChange={(value) => handleFieldChange('cerebrasApiKey', value)}
+        initialValue={apiConfiguration?.cerebrasApiKey || ""}
+        onChange={(value) => handleFieldChange("cerebrasApiKey", value)}
         providerName="Cerebras"
         signupUrl="https://cloud.cerebras.ai/"
       />
@@ -49,7 +49,7 @@ export const CerebrasProvider = ({
             models={cerebrasModels}
             onChange={(e: any) =>
               handleModeFieldChange(
-                { plan: 'planModeApiModelId', act: 'actModeApiModelId' },
+                { plan: "planModeApiModelId", act: "actModeApiModelId" },
                 e.target.value,
                 currentMode,
               )

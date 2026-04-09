@@ -1,12 +1,12 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import { Logger } from '@/shared/services/Logger';
-import { SEVEN_DAYS_MS } from './worker';
+import * as fs from "node:fs";
+import * as path from "node:path";
+import { Logger } from "@/shared/services/Logger";
+import { SEVEN_DAYS_MS } from "./worker";
 
 /**
  * Sync queue item status.
  */
-export type SyncQueueStatus = 'pending' | 'synced' | 'failed';
+export type SyncQueueStatus = "pending" | "synced" | "failed";
 
 /**
  * Represents an item in the sync queue.
@@ -96,11 +96,11 @@ export class SyncQueue {
   private load(): void {
     try {
       if (fs.existsSync(this.queuePath)) {
-        const content = fs.readFileSync(this.queuePath, 'utf-8');
+        const content = fs.readFileSync(this.queuePath, "utf-8");
         this.data = JSON.parse(content);
       }
     } catch (error) {
-      Logger.error('[SyncQueue] Failed to load queue data:', error);
+      Logger.error("[SyncQueue] Failed to load queue data:", error);
       this.data = { items: {} };
     }
   }
@@ -131,11 +131,11 @@ export class SyncQueue {
     }
     try {
       const tmpPath = `${this.queuePath}.tmp`;
-      fs.writeFileSync(tmpPath, JSON.stringify(this.data, null, 2), 'utf-8');
+      fs.writeFileSync(tmpPath, JSON.stringify(this.data, null, 2), "utf-8");
       fs.renameSync(tmpPath, this.queuePath);
       this.isDirty = false;
     } catch (error) {
-      Logger.error('[SyncQueue] Failed to write queue data:', error);
+      Logger.error("[SyncQueue] Failed to write queue data:", error);
     }
   }
 
@@ -162,7 +162,7 @@ export class SyncQueue {
       key,
       data,
       timestamp: Date.now(),
-      status: 'pending',
+      status: "pending",
       retryCount: 0,
       lastError: null,
     };
@@ -174,7 +174,7 @@ export class SyncQueue {
    */
   getPending(): SyncQueueItem[] {
     return Object.values(this.data.items)
-      .filter((item) => item.status === 'pending')
+      .filter((item) => item.status === "pending")
       .sort((a, b) => b.timestamp - a.timestamp);
   }
 
@@ -190,7 +190,7 @@ export class SyncQueue {
    */
   getFailed(): SyncQueueItem[] {
     return Object.values(this.data.items)
-      .filter((item) => item.status === 'failed')
+      .filter((item) => item.status === "failed")
       .sort((a, b) => a.timestamp - b.timestamp);
   }
 
@@ -214,7 +214,7 @@ export class SyncQueue {
     if (remove) {
       delete this.data.items[id];
     } else if (this.data.items[id]) {
-      this.data.items[id].status = 'synced';
+      this.data.items[id].status = "synced";
       this.data.items[id].lastError = null;
     }
     this.scheduleWrite();
@@ -232,7 +232,7 @@ export class SyncQueue {
     const id = `${taskId}/${key}`;
     const item = this.data.items[id];
     if (item) {
-      item.status = 'failed';
+      item.status = "failed";
       item.lastError = error;
       item.retryCount++;
     }
@@ -249,7 +249,7 @@ export class SyncQueue {
     const id = `${taskId}/${key}`;
     const item = this.data.items[id];
     if (item) {
-      item.status = 'pending';
+      item.status = "pending";
     }
     this.scheduleWrite();
   }
@@ -286,9 +286,9 @@ export class SyncQueue {
   getStats(): { pending: number; synced: number; failed: number; total: number } {
     const items = Object.values(this.data.items);
     return {
-      pending: items.filter((i) => i.status === 'pending').length,
-      synced: items.filter((i) => i.status === 'synced').length,
-      failed: items.filter((i) => i.status === 'failed').length,
+      pending: items.filter((i) => i.status === "pending").length,
+      synced: items.filter((i) => i.status === "synced").length,
+      failed: items.filter((i) => i.status === "failed").length,
       total: items.length,
     };
   }
@@ -303,7 +303,7 @@ export class SyncQueue {
     const cutoff = Date.now() - maxAgeMs;
     let count = 0;
     for (const [key, item] of Object.entries(this.data.items)) {
-      if (item.status === 'synced' && item.timestamp < cutoff) {
+      if (item.status === "synced" && item.timestamp < cutoff) {
         delete this.data.items[key];
         count++;
       }
@@ -326,7 +326,7 @@ export class SyncQueue {
     const cutoff = Date.now() - maxAgeMs;
     let count = 0;
     for (const [key, item] of Object.entries(this.data.items)) {
-      if (item.status === 'failed' && (item.retryCount >= maxRetries || item.timestamp < cutoff)) {
+      if (item.status === "failed" && (item.retryCount >= maxRetries || item.timestamp < cutoff)) {
         delete this.data.items[key];
         count++;
       }
@@ -356,13 +356,13 @@ export class SyncQueue {
     // Within each category, oldest first
     const sorted = items.sort(([, a], [, b]) => {
       const priorityOf = (item: SyncQueueItem): number => {
-        if (item.status === 'synced') {
+        if (item.status === "synced") {
           return 0;
         }
-        if (item.status === 'failed' && item.retryCount >= 5) {
+        if (item.status === "failed" && item.retryCount >= 5) {
           return 1;
         }
-        if (item.status === 'failed') {
+        if (item.status === "failed") {
           return 2;
         }
         return 3; // pending
@@ -406,7 +406,7 @@ export class SyncQueue {
         key: item.key,
         data: item.data,
         timestamp,
-        status: 'pending',
+        status: "pending",
         retryCount: 0,
         lastError: null,
       };

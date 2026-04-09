@@ -1,8 +1,8 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import type { Mode } from '@shared/storage/types.ts';
-import BasetenModelPicker from '../BasetenModelPicker';
-import { ApiKeyField } from '../common/ApiKeyField';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import type { Mode } from "@shared/storage/types.ts";
+import BasetenModelPicker from "../BasetenModelPicker";
+import { ApiKeyField } from "../common/ApiKeyField";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 /**
  * Props for the BasetenProvider component
@@ -27,8 +27,8 @@ export const BasetenProvider = ({
   return (
     <div>
       <ApiKeyField
-        initialValue={apiConfiguration?.basetenApiKey || ''}
-        onChange={(value) => handleFieldChange('basetenApiKey', value)}
+        initialValue={apiConfiguration?.basetenApiKey || ""}
+        onChange={(value) => handleFieldChange("basetenApiKey", value)}
         providerName="Baseten"
         signupUrl="https://app.baseten.co/settings/api_keys"
       />

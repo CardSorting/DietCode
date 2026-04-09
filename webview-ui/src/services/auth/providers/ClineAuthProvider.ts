@@ -1,16 +1,16 @@
-import { ClineEnv, type EnvironmentConfig } from '@/config';
-import type { Controller } from '@/core/controller';
-import { HostProvider } from '@/hosts/host-provider';
-import { buildBasicClineHeaders } from '@/services/EnvUtils';
-import { AuthInvalidTokenError, AuthNetworkError } from '@/services/error/ClineError';
-import { telemetryService } from '@/services/telemetry';
-import { CLINE_API_ENDPOINT } from '@/shared/cline/api';
-import { fetch, getAxiosSettings } from '@/shared/net';
-import { Logger } from '@/shared/services/Logger';
-import axios from 'axios';
-import type { JwtPayload } from 'jwt-decode';
-import type { ClineAccountUserInfo, ClineAuthInfo } from '../AuthService';
-import { parseJwtPayload } from '../oca/utils/utils';
+import { ClineEnv, type EnvironmentConfig } from "@/config";
+import type { Controller } from "@/core/controller";
+import { HostProvider } from "@/hosts/host-provider";
+import { buildBasicClineHeaders } from "@/services/EnvUtils";
+import { AuthInvalidTokenError, AuthNetworkError } from "@/services/error/ClineError";
+import { telemetryService } from "@/services/telemetry";
+import { CLINE_API_ENDPOINT } from "@/shared/cline/api";
+import { fetch, getAxiosSettings } from "@/shared/net";
+import { Logger } from "@/shared/services/Logger";
+import axios from "axios";
+import type { JwtPayload } from "jwt-decode";
+import type { ClineAccountUserInfo, ClineAuthInfo } from "../AuthService";
+import { parseJwtPayload } from "../oca/utils/utils";
 
 interface ClineAuthApiUser {
   subject: string | null;
@@ -62,7 +62,7 @@ export interface ClineAuthApiTokenRefreshResponse {
 }
 
 export class ClineAuthProvider {
-  readonly name = 'cline';
+  readonly name = "cline";
   private refreshRetryCount = 0;
   private lastRefreshAttempt = 0;
   private readonly MAX_REFRESH_RETRIES = 3;
@@ -88,7 +88,7 @@ export class ClineAuthProvider {
       // Check if token is expired or will expire in the next 5 minutes
       return expirationTime < next5Min; // Access token is expired or about to expire
     } catch (error) {
-      Logger.error('Error checking token expiration:', error);
+      Logger.error("Error checking token expiration:", error);
       return true; // If we can't decode the token, assume it needs refresh
     }
   }
@@ -116,7 +116,7 @@ export class ClineAuthProvider {
 
     const tokenData = this.extractTokenData(storedAuthData?.idToken);
     telemetryService.capture({
-      event: 'extension_logging_user_out',
+      event: "extension_logging_user_out",
       properties: {
         reason,
         time_since_started: timeSinceStarted,
@@ -125,7 +125,7 @@ export class ClineAuthProvider {
       },
     });
 
-    controller.stateManager.setSecret('cline:clineAccountId', undefined);
+    controller.stateManager.setSecret("cline:clineAccountId", undefined);
     this.refreshRetryCount = 0;
     this.lastRefreshAttempt = 0;
     return null;
@@ -137,10 +137,10 @@ export class ClineAuthProvider {
 
     const tokenData = this.extractTokenData(storedAuthData?.idToken);
     telemetryService.capture({
-      event: 'extension_refresh_attempt_failed',
+      event: "extension_refresh_attempt_failed",
       properties: {
         status_code: response.status,
-        request_id: response.headers.get('x-request-id'),
+        request_id: response.headers.get("x-request-id"),
         session_id: tokenData.sid,
         user_id: tokenData.external_id,
         time_since_started: timeSinceStarted,
@@ -164,10 +164,10 @@ export class ClineAuthProvider {
   async retrieveClineAuthInfo(controller: Controller): Promise<ClineAuthInfo | null> {
     try {
       // Get the stored auth data from secure storage
-      const storedAuthDataString = controller.stateManager.getSecretKey('cline:clineAccountId');
+      const storedAuthDataString = controller.stateManager.getSecretKey("cline:clineAccountId");
 
       if (!storedAuthDataString) {
-        Logger.debug('No stored authentication data found');
+        Logger.debug("No stored authentication data found");
         // Reset retry count when there's no stored auth
         this.refreshRetryCount = 0;
         this.lastRefreshAttempt = 0;
@@ -179,14 +179,14 @@ export class ClineAuthProvider {
       try {
         storedAuthData = JSON.parse(storedAuthDataString);
       } catch (e) {
-        Logger.error('Failed to parse stored auth data:', e);
-        return this.clearSession(controller, 'Failed to parse stored auth data');
+        Logger.error("Failed to parse stored auth data:", e);
+        return this.clearSession(controller, "Failed to parse stored auth data");
       }
 
       if (!storedAuthData.refreshToken || !storedAuthData?.idToken) {
         return this.clearSession(
           controller,
-          'No refresh token or ID token found in store',
+          "No refresh token or ID token found in store",
           storedAuthData,
         );
       }
@@ -230,13 +230,13 @@ export class ClineAuthProvider {
           const authInfo = await this.refreshToken(storedAuthData.refreshToken, storedAuthData);
           const newAuthInfoString = JSON.stringify(authInfo);
           if (newAuthInfoString !== storedAuthDataString) {
-            controller.stateManager.setSecret('clineAccountId', undefined); // cleanup old key
-            controller.stateManager.setSecret('cline:clineAccountId', newAuthInfoString);
+            controller.stateManager.setSecret("clineAccountId", undefined); // cleanup old key
+            controller.stateManager.setSecret("cline:clineAccountId", newAuthInfoString);
           }
           // Reset retry count on success
           this.refreshRetryCount = 0;
           this.lastRefreshAttempt = 0;
-          Logger.debug('Token refresh successful');
+          Logger.debug("Token refresh successful");
           return authInfo || null;
         } catch (refreshError) {
           Logger.error(
@@ -248,7 +248,7 @@ export class ClineAuthProvider {
           if (refreshError instanceof AuthInvalidTokenError) {
             this.clearSession(
               controller,
-              'Invalid or expired refresh token. Clearing auth state.',
+              "Invalid or expired refresh token. Clearing auth state.",
               storedAuthData,
             );
 
@@ -271,19 +271,19 @@ export class ClineAuthProvider {
       }
 
       // Verify the token structure
-      const tokenParts = storedAuthData.idToken.split('.');
+      const tokenParts = storedAuthData.idToken.split(".");
       if (tokenParts.length !== 3) {
-        throw new Error('Invalid token format');
+        throw new Error("Invalid token format");
       }
 
       // Decode the token to verify it's a valid JWT
-      const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString('utf-8'));
+      const payload = JSON.parse(Buffer.from(tokenParts[1], "base64").toString("utf-8"));
       if (payload.external_id) {
         storedAuthData.userInfo.id = payload.external_id;
       }
       return storedAuthData;
     } catch (error) {
-      Logger.error('Authentication failed with stored credential:', error);
+      Logger.error("Authentication failed with stored credential:", error);
       // Reset retry count on unexpected errors
       if (!(error instanceof AuthInvalidTokenError)) {
         this.refreshRetryCount = 0;
@@ -302,11 +302,11 @@ export class ClineAuthProvider {
     try {
       const endpoint = new URL(CLINE_API_ENDPOINT.REFRESH_TOKEN, this.config.apiBaseUrl);
       const response = await fetch(endpoint.toString(), {
-        method: 'POST',
+        method: "POST",
         headers: await this.headers(),
         body: JSON.stringify({
           refreshToken: storedData.refreshToken,
-          grantType: 'refresh_token',
+          grantType: "refresh_token",
         }),
       });
 
@@ -316,7 +316,7 @@ export class ClineAuthProvider {
         // 400/401 = Invalid/expired token (permanent failure)
         if (response.status === 400 || response.status === 401) {
           const errorData = await response.json().catch(() => ({}));
-          const errorMessage = errorData?.error || 'Invalid or expired token';
+          const errorMessage = errorData?.error || "Invalid or expired token";
           throw new AuthInvalidTokenError(errorMessage);
         }
         // 5xx, 429, network errors = transient failures
@@ -327,7 +327,7 @@ export class ClineAuthProvider {
       const data: ClineAuthApiTokenExchangeResponse = await response.json();
 
       if (!data.success || !data.data.refreshToken || !data.data.accessToken) {
-        throw new Error('Failed to exchange authorization code for access token');
+        throw new Error("Failed to exchange authorization code for access token");
       }
 
       const userInfo = await this.fetchRemoteUserInfo(data.data);
@@ -344,11 +344,11 @@ export class ClineAuthProvider {
     } catch (error: any) {
       // Network errors (ECONNREFUSED, timeout, etc)
       if (
-        error.name === 'TypeError' ||
-        error.code === 'ECONNREFUSED' ||
-        error.code === 'ETIMEDOUT'
+        error.name === "TypeError" ||
+        error.code === "ECONNREFUSED" ||
+        error.code === "ETIMEDOUT"
       ) {
-        throw new AuthNetworkError('Network error during token refresh', error);
+        throw new AuthNetworkError("Network error during token refresh", error);
       }
       throw error;
     }
@@ -356,10 +356,10 @@ export class ClineAuthProvider {
 
   async getAuthRequest(callbackUrl: string): Promise<string> {
     const authUrl = new URL(CLINE_API_ENDPOINT.AUTH, this.config.apiBaseUrl);
-    authUrl.searchParams.set('client_type', 'extension');
-    authUrl.searchParams.set('callback_url', callbackUrl);
+    authUrl.searchParams.set("client_type", "extension");
+    authUrl.searchParams.set("callback_url", callbackUrl);
     // Ensure the redirect_uri is properly encoded and included
-    authUrl.searchParams.set('redirect_uri', callbackUrl);
+    authUrl.searchParams.set("redirect_uri", callbackUrl);
 
     // The server will respond with a 302 redirect to the OAuth provider
     // We need to follow the redirect and get the final URL
@@ -367,17 +367,17 @@ export class ClineAuthProvider {
     try {
       // Set redirect: 'manual' to handle the redirect manually
       response = await fetch(authUrl.toString(), {
-        method: 'GET',
-        redirect: 'manual',
-        credentials: 'include', // Important for cookies if needed
+        method: "GET",
+        redirect: "manual",
+        credentials: "include", // Important for cookies if needed
         headers: await this.headers(),
       });
 
       // If we get a redirect status (3xx), get the Location header
       if (response.status >= 300 && response.status < 400) {
-        const redirectUrl = response.headers.get('Location');
+        const redirectUrl = response.headers.get("Location");
         if (!redirectUrl) {
-          throw new Error('No redirect URL found in the response');
+          throw new Error("No redirect URL found in the response");
         }
 
         return redirectUrl;
@@ -389,11 +389,11 @@ export class ClineAuthProvider {
         return responseData.redirect_url;
       }
 
-      throw new Error('Unexpected response from auth server');
+      throw new Error("Unexpected response from auth server");
     } catch (error) {
-      Logger.error('Error during authentication request:', error);
+      Logger.error("Error during authentication request:", error);
       throw new Error(
-        `Authentication failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Authentication failed: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
     }
   }
@@ -405,18 +405,18 @@ export class ClineAuthProvider {
   ): Promise<ClineAuthInfo | null> {
     try {
       // Get the callback URL that was used during the initial auth request
-      const callbackUrl = await HostProvider.get().getCallbackUrl('/auth');
+      const callbackUrl = await HostProvider.get().getCallbackUrl("/auth");
 
       // Exchange the authorization code for tokens
       const tokenUrl = new URL(CLINE_API_ENDPOINT.TOKEN_EXCHANGE, this.config.apiBaseUrl);
 
       const response = await fetch(tokenUrl.toString(), {
-        method: 'POST',
+        method: "POST",
         headers: await this.headers(),
         body: JSON.stringify({
-          grant_type: 'authorization_code',
+          grant_type: "authorization_code",
           code: authorizationCode,
-          client_type: 'extension',
+          client_type: "extension",
           redirect_uri: callbackUrl,
           provider: provider,
         }),
@@ -425,7 +425,7 @@ export class ClineAuthProvider {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
-          errorData.error_description || 'Failed to exchange authorization code for tokens',
+          errorData.error_description || "Failed to exchange authorization code for tokens",
         );
       }
 
@@ -434,7 +434,7 @@ export class ClineAuthProvider {
       const tokenData = responseType.data;
 
       if (!tokenData.accessToken || !tokenData.refreshToken || !tokenData.userInfo) {
-        throw new Error('Invalid token response from server');
+        throw new Error("Invalid token response from server");
       }
 
       const userInfo = await this.fetchRemoteUserInfo(tokenData);
@@ -449,17 +449,17 @@ export class ClineAuthProvider {
         startedAt: Date.now(),
       };
 
-      controller.stateManager.setSecret('cline:clineAccountId', JSON.stringify(clineAuthInfo));
+      controller.stateManager.setSecret("cline:clineAccountId", JSON.stringify(clineAuthInfo));
 
       return clineAuthInfo;
     } catch (error) {
-      Logger.error('Error handling auth callback:', error);
+      Logger.error("Error handling auth callback:", error);
       throw error;
     }
   }
 
   private async fetchRemoteUserInfo(
-    tokenData: ClineAuthApiTokenExchangeResponse['data'],
+    tokenData: ClineAuthApiTokenExchangeResponse["data"],
   ): Promise<ClineAccountUserInfo> {
     try {
       const userResponse = await axios.get(`${ClineEnv.config().apiBaseUrl}/api/v1/users/me`, {
@@ -472,13 +472,13 @@ export class ClineAuthProvider {
 
       return userResponse.data.data;
     } catch (error) {
-      Logger.error('Error fetching user info:', error);
+      Logger.error("Error fetching user info:", error);
 
       // If fetching user info fail for whatever reason, fallback to the token data and refetch on token expiry (10 minutes)
       return {
-        id: tokenData.userInfo.clineUserId || '',
-        email: tokenData.userInfo.email || '',
-        displayName: tokenData.userInfo.name || '',
+        id: tokenData.userInfo.clineUserId || "",
+        email: tokenData.userInfo.email || "",
+        displayName: tokenData.userInfo.name || "",
         createdAt: new Date().toISOString(),
         organizations: [],
       };
@@ -487,8 +487,8 @@ export class ClineAuthProvider {
 
   private async headers() {
     return {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
+      Accept: "application/json",
+      "Content-Type": "application/json",
       ...(await buildBasicClineHeaders()),
     };
   }

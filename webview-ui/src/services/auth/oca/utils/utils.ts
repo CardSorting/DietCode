@@ -1,8 +1,8 @@
-import crypto from 'node:crypto';
-import fs from 'node:fs';
-import { HostProvider } from '@/hosts/host-provider';
-import { ExtensionRegistryInfo } from '@/registry';
-import { type JwtPayload, jwtDecode } from 'jwt-decode';
+import crypto from "node:crypto";
+import fs from "node:fs";
+import { HostProvider } from "@/hosts/host-provider";
+import { ExtensionRegistryInfo } from "@/registry";
+import { type JwtPayload, jwtDecode } from "jwt-decode";
 import {
   DEFAULT_EXTERNAL_IDCS_CLIENT_ID,
   DEFAULT_EXTERNAL_IDCS_URL,
@@ -11,8 +11,8 @@ import {
   DEFAULT_INTERNAL_IDCS_URL,
   DEFAULT_INTERNAL_IDSC_SCOPES,
   OCA_CONFIG_PATH,
-} from '../utils/constants';
-import type { OcaConfig } from './types';
+} from "../utils/constants";
+import type { OcaConfig } from "./types";
 
 /**
  * Loads OCA auth configuration, falling back to built-in defaults.
@@ -30,7 +30,7 @@ export const getOcaConfig = (): OcaConfig => {
   let cfg: any = {};
   try {
     // Read and parse the user config file, if present.
-    const raw = fs.readFileSync(OCA_CONFIG_PATH, 'utf-8');
+    const raw = fs.readFileSync(OCA_CONFIG_PATH, "utf-8");
     cfg = JSON.parse(raw);
   } catch {
     // Intentionally ignore read/parse errors and use default values instead.
@@ -56,32 +56,32 @@ export const getOcaConfig = (): OcaConfig => {
 // Generates a cryptographically random string (for state/nonce)
 export function generateRandomString(
   length = 32,
-  chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+  chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
 ) {
   const randomBytes = crypto.randomBytes(length);
   return Array.from(randomBytes)
     .map((b) => chars[b % chars.length])
-    .join('');
+    .join("");
 }
 
 // PKCE code verifier (high entropy)
 export function generateCodeVerifier(length = 128): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
   const randomBytes = crypto.randomBytes(length);
   return Array.from(randomBytes)
     .map((b) => chars[b % chars.length])
-    .join('');
+    .join("");
 }
 
 // PKCE code challenge (SHA-256, base64-url)
 export function pkceChallengeFromVerifier(verifier: string): string {
   return crypto
-    .createHash('sha256')
+    .createHash("sha256")
     .update(verifier)
-    .digest('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
+    .digest("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
 }
 
 /**
@@ -99,21 +99,21 @@ export function pkceChallengeFromVerifier(verifier: string): string {
 export async function generateOpcRequestId(taskId: string, token: string): Promise<string> {
   async function hash8(str: string): Promise<string> {
     const data = new TextEncoder().encode(str);
-    const hash = await crypto.subtle.digest('SHA-256', data);
+    const hash = await crypto.subtle.digest("SHA-256", data);
     return Array.from(new Uint8Array(hash).slice(0, 4))
-      .map((b) => b.toString(16).padStart(2, '0'))
-      .join('');
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
   }
 
   const [tokenHex, taskHex] = await Promise.all([hash8(token), hash8(taskId)]);
   const timestampHex = Math.floor(Date.now() / 1000)
     .toString(16)
-    .padStart(8, '0');
+    .padStart(8, "0");
 
   function randomHex8(): string {
     const arr = new Uint32Array(1);
     crypto.getRandomValues(arr);
-    return arr[0].toString(16).padStart(8, '0');
+    return arr[0].toString(16).padStart(8, "0");
   }
 
   // Compose: token(8) + task(8) + time(8) + rnd(8) = 32 hex
@@ -134,12 +134,12 @@ export async function createOcaHeaders(
 
   return {
     Authorization: `Bearer ${accessToken}`,
-    'Content-Type': 'application/json',
-    client: 'Cline',
-    'client-version': `${clineVersion}`,
-    'client-ide': host.platform || 'unknown',
-    'client-ide-version': host.version || 'unknown',
-    'opc-request-id': opcRequestId,
+    "Content-Type": "application/json",
+    client: "Cline",
+    "client-version": `${clineVersion}`,
+    "client-ide": host.platform || "unknown",
+    "client-ide-version": host.version || "unknown",
+    "opc-request-id": opcRequestId,
   };
 }
 

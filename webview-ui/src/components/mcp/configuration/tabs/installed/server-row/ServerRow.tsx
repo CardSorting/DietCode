@@ -1,19 +1,19 @@
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { cn } from '@/lib/utils';
-import { McpServiceClient } from '@/services/grpc-client';
-import { getMcpServerDisplayName } from '@/utils/mcp';
-import { DEFAULT_MCP_TIMEOUT_SECONDS, type McpServer } from '@shared/mcp.ts';
-import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { cn } from "@/lib/utils";
+import { McpServiceClient } from "@/services/grpc-client";
+import { getMcpServerDisplayName } from "@/utils/mcp";
+import { DEFAULT_MCP_TIMEOUT_SECONDS, type McpServer } from "@shared/mcp.ts";
+import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
 import {
   type McpServers,
   ToggleMcpServerRequest,
   ToggleToolAutoApproveRequest,
   type UpdateMcpTimeoutRequest,
-} from '@shared/nice-grpc/cline/mcp';
-import { convertProtoMcpServersToMcpServers } from '@shared/proto-conversions/mcp/mcp-server-conversion.ts';
+} from "@shared/nice-grpc/cline/mcp";
+import { convertProtoMcpServersToMcpServers } from "@shared/proto-conversions/mcp/mcp-server-conversion.ts";
 import {
   VSCodeCheckbox,
   VSCodeDropdown,
@@ -21,21 +21,21 @@ import {
   VSCodePanelTab,
   VSCodePanelView,
   VSCodePanels,
-} from '@vscode/webview-ui-toolkit/react';
-import { RefreshCcwIcon, Trash2Icon } from 'lucide-react';
-import { useState } from 'react';
-import McpPromptRow from './McpPromptRow';
-import McpResourceRow from './McpResourceRow';
-import McpToolRow from './McpToolRow';
+} from "@vscode/webview-ui-toolkit/react";
+import { RefreshCcwIcon, Trash2Icon } from "lucide-react";
+import { useState } from "react";
+import McpPromptRow from "./McpPromptRow";
+import McpResourceRow from "./McpResourceRow";
+import McpToolRow from "./McpToolRow";
 
 // constant JSX.Elements
 const TimeoutOptions = [
-  { value: '30', label: '30 seconds' },
-  { value: '60', label: '1 minute' },
-  { value: '300', label: '5 minutes' },
-  { value: '600', label: '10 minutes' },
-  { value: '1800', label: '30 minutes' },
-  { value: '3600', label: '1 hour' },
+  { value: "30", label: "30 seconds" },
+  { value: "60", label: "1 minute" },
+  { value: "300", label: "5 minutes" },
+  { value: "600", label: "10 minutes" },
+  { value: "1800", label: "30 minutes" },
+  { value: "3600", label: "1 hour" },
 ].map((option) => (
   <VSCodeOption key={option.value} value={option.value}>
     {option.label}
@@ -107,7 +107,7 @@ const ServerRow = ({
         setMcpServers(mcpServers);
       })
       .catch((error) => {
-        console.error('Error updating MCP server timeout', error);
+        console.error("Error updating MCP server timeout", error);
       });
   };
 
@@ -128,7 +128,7 @@ const ServerRow = ({
       .catch((error) => {
         // Reset the restarting state
         setIsRestarting(false);
-        console.error('Error restarting MCP server', error);
+        console.error("Error restarting MCP server", error);
       });
   };
 
@@ -143,7 +143,7 @@ const ServerRow = ({
         setIsDeleting(false);
       })
       .catch((error) => {
-        console.error('Error deleting MCP server', error);
+        console.error("Error deleting MCP server", error);
         setIsDeleting(false);
       });
   };
@@ -165,7 +165,7 @@ const ServerRow = ({
         setMcpServers(mcpServers);
       })
       .catch((error) => {
-        console.error('Error toggling all tools auto-approve', error);
+        console.error("Error toggling all tools auto-approve", error);
       });
   };
 
@@ -181,7 +181,7 @@ const ServerRow = ({
         setMcpServers(mcpServers);
       })
       .catch((error) => {
-        console.error('Error toggling MCP server', error);
+        console.error("Error toggling MCP server", error);
       });
   };
 
@@ -208,16 +208,24 @@ const ServerRow = ({
   return (
     <div className="mb-2.5">
       <div
-        className={cn('flex bg-code-block-background p-2 gap-4 items-center', {
-          'cursor-pointer': !server.error && isExpandable,
+        className={cn("flex bg-code-block-background p-2 gap-4 items-center", {
+          "cursor-pointer": !server.error && isExpandable,
         })}
         onClick={handleRowClick}
+        onKeyDown={(e) => {
+          if (!server.error && isExpandable && (e.key === "Enter" || e.key === " ")) {
+            e.preventDefault();
+            handleRowClick();
+          }
+        }}
+        role={!server.error && isExpandable ? "button" : undefined}
+        tabIndex={!server.error && isExpandable ? 0 : -1}
       >
         {!server.error && isExpandable && (
           <span
-            className={cn('mr-2 codicon', {
-              'codicon-chevron-right': !isExpanded,
-              'codicon-chevron-down': isExpanded,
+            className={cn("mr-2 codicon", {
+              "codicon-chevron-right": !isExpanded,
+              "codicon-chevron-down": isExpanded,
             })}
           />
         )}
@@ -227,7 +235,7 @@ const ServerRow = ({
         {/* Collapsed view controls */}
         {!server.error && (
           <Button
-            disabled={server.status === 'connecting' || isRestarting || server.disabled}
+            disabled={server.status === "connecting" || isRestarting || server.disabled}
             onClick={(e) => {
               e.stopPropagation();
               handleRestart();
@@ -274,18 +282,18 @@ const ServerRow = ({
           </TooltipContent>
         </Tooltip>
         <div
-          className={cn('h-2 w-2 ml-0.5 rounded-full', {
-            'bg-success': server.status === 'connected',
-            'bg-warning': server.status === 'connecting',
-            'bg-error': server.status === 'disconnected',
+          className={cn("h-2 w-2 ml-0.5 rounded-full", {
+            "bg-success": server.status === "connected",
+            "bg-warning": server.status === "connecting",
+            "bg-error": server.status === "disconnected",
           })}
         />
       </div>
 
       {server.error ? (
         <div className="text-sm bg-text-block-background rounded-b-sm">
-          <div className="text-failed-icon mb-2 px-2.5 break-words">{server.error}</div>
-          {server.oauthRequired && server.oauthAuthStatus === 'unauthenticated' ? (
+          <div className="text-failed-icon mb-2 px-2.5 wrap-break-word">{server.error}</div>
+          {server.oauthRequired && server.oauthAuthStatus === "unauthenticated" ? (
             <Button
               className="m-2.5 mt-0 max-w-[calc(100%-20px)]"
               onClick={(e) => {
@@ -301,11 +309,11 @@ const ServerRow = ({
           ) : (
             <Button
               className="m-2.5 mt-0 max-w-[calc(100%-20px)]"
-              disabled={server.status === 'connecting'}
+              disabled={server.status === "connecting"}
               onClick={handleRestart}
               variant="secondary"
             >
-              {server.status === 'connecting' || isRestarting ? 'Retrying...' : 'Retry Connection'}
+              {server.status === "connecting" || isRestarting ? "Retrying..." : "Retry Connection"}
             </Button>
           )}
 
@@ -316,7 +324,7 @@ const ServerRow = ({
               onClick={handleDelete}
               variant="danger"
             >
-              {isDeleting ? 'Deleting...' : 'Delete Server'}
+              {isDeleting ? "Deleting..." : "Delete Server"}
             </Button>
           )}
         </div>
@@ -361,7 +369,7 @@ const ServerRow = ({
                       (item) => (
                         <McpResourceRow
                           item={item}
-                          key={'uriTemplate' in item ? item.uriTemplate : item.uri}
+                          key={"uriTemplate" in item ? item.uriTemplate : item.uri}
                         />
                       ),
                     )}
@@ -375,11 +383,11 @@ const ServerRow = ({
                 {server.prompts && server.prompts.length > 0 ? (
                   <div
                     style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '8px',
-                      width: '100%',
-                      paddingTop: '8px',
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "8px",
+                      width: "100%",
+                      paddingTop: "8px",
                     }}
                   >
                     {server.prompts.map((prompt) => (
@@ -389,8 +397,8 @@ const ServerRow = ({
                 ) : (
                   <div
                     style={{
-                      padding: '10px 0',
-                      color: 'var(--vscode-descriptionForeground)',
+                      padding: "10px 0",
+                      color: "var(--vscode-descriptionForeground)",
                     }}
                   >
                     No prompts found
@@ -400,9 +408,12 @@ const ServerRow = ({
             </VSCodePanels>
 
             <div className="my-2.5 mx-1.5">
-              <label className="block mb-1 text-[13px]">Request Timeout</label>
+              <label className="block mb-1 text-[13px]" htmlFor={`mcp-timeout-${server.name}`}>
+                Request Timeout
+              </label>
               <VSCodeDropdown
                 className="w-full"
+                id={`mcp-timeout-${server.name}`}
                 onChange={handleTimeoutChange}
                 value={timeoutValue}
               >
@@ -411,11 +422,11 @@ const ServerRow = ({
             </div>
             <Button
               className="w-[calc(100%-14px)] mt-1 mx-1.5 mb-3"
-              disabled={server.status === 'connecting' || isRestarting}
+              disabled={server.status === "connecting" || isRestarting}
               onClick={handleRestart}
               variant="secondary"
             >
-              {server.status === 'connecting' || isRestarting ? 'Restarting...' : 'Restart Server'}
+              {server.status === "connecting" || isRestarting ? "Restarting..." : "Restart Server"}
             </Button>
 
             {!isRemoteManagedServer && (
@@ -425,7 +436,7 @@ const ServerRow = ({
                 onClick={handleDelete}
                 variant="danger"
               >
-                {isDeleting ? 'Deleting...' : 'Delete Server'}
+                {isDeleting ? "Deleting..." : "Delete Server"}
               </Button>
             )}
           </div>

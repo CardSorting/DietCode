@@ -1,11 +1,11 @@
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { FileServiceClient } from '@/services/grpc-client';
-import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
-import { DeleteSkillRequest, RuleFileRequest } from '@shared/nice-grpc/index.cline.ts';
-import { REMOTE_URI_SCHEME } from '@shared/remote-config/constants.ts';
-import { EyeIcon, InfoIcon, PenIcon, Trash2Icon } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { FileServiceClient } from "@/services/grpc-client";
+import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
+import { DeleteSkillRequest, RuleFileRequest } from "@shared/nice-grpc/index.cline.ts";
+import { REMOTE_URI_SCHEME } from "@shared/remote-config/constants.ts";
+import { EyeIcon, InfoIcon, PenIcon, Trash2Icon } from "lucide-react";
 
 function isWin32Path(filePath: string): boolean {
   return /^[a-zA-Z]:\\/.test(filePath);
@@ -13,7 +13,7 @@ function isWin32Path(filePath: string): boolean {
 
 function splitPath(filePath: string): string[] {
   const win32 = isWin32Path(filePath);
-  return filePath.split(win32 ? '\\' : '/');
+  return filePath.split(win32 ? "\\" : "/");
 }
 
 function getDisplayNameFromPath(filePath: string): string {
@@ -53,18 +53,18 @@ const RuleRow: React.FC<{
   // For remote rules, the rulePath is already the display name
   const finalDisplayName = isRemote
     ? rulePath
-    : ruleType === 'skill'
+    : ruleType === "skill"
       ? skillDisplayName
       : displayName;
   const isDisabled = isRemote && alwaysEnabled;
 
   const getRuleTypeIcon = () => {
     switch (ruleType) {
-      case 'cursor':
+      case "cursor":
         return (
           <svg
             height="16"
-            style={{ verticalAlign: 'middle' }}
+            style={{ verticalAlign: "middle" }}
             viewBox="0 0 24 24"
             width="16"
             xmlns="http://www.w3.org/2000/svg"
@@ -79,11 +79,11 @@ const RuleRow: React.FC<{
             </g>
           </svg>
         );
-      case 'windsurf':
+      case "windsurf":
         return (
           <svg
             height="16"
-            style={{ verticalAlign: 'middle' }}
+            style={{ verticalAlign: "middle" }}
             viewBox="0 0 24 24"
             width="16"
             xmlns="http://www.w3.org/2000/svg"
@@ -99,11 +99,11 @@ const RuleRow: React.FC<{
             </g>
           </svg>
         );
-      case 'agents':
+      case "agents":
         return (
           <svg
             height="16"
-            style={{ verticalAlign: 'middle' }}
+            style={{ verticalAlign: "middle" }}
             viewBox="0 0 24 24"
             width="16"
             xmlns="http://www.w3.org/2000/svg"
@@ -128,15 +128,15 @@ const RuleRow: React.FC<{
   const handleEditClick = () => {
     // For remote rules, use the special remote:// URI format
     const filePath = isRemote
-      ? `${REMOTE_URI_SCHEME}${ruleType === 'workflow' ? 'workflow' : 'rule'}/${rulePath}`
+      ? `${REMOTE_URI_SCHEME}${ruleType === "workflow" ? "workflow" : "rule"}/${rulePath}`
       : rulePath;
     FileServiceClient.openFile(StringRequest.create({ value: filePath })).catch((err) =>
-      console.error('Failed to open file:', err),
+      console.error("Failed to open file:", err),
     );
   };
 
   const handleDeleteClick = () => {
-    if (ruleType === 'skill') {
+    if (ruleType === "skill") {
       FileServiceClient.deleteSkillFile(
         DeleteSkillRequest.create({
           skillPath: rulePath,
@@ -144,15 +144,15 @@ const RuleRow: React.FC<{
         }),
       )
         .then(() => onDeleteSkill?.())
-        .catch((err) => console.error('Failed to delete skill:', err));
+        .catch((err) => console.error("Failed to delete skill:", err));
     } else {
       FileServiceClient.deleteRuleFile(
         RuleFileRequest.create({
           rulePath,
           isGlobal,
-          type: ruleType || 'cline',
+          type: ruleType || "cline",
         }),
-      ).catch((err) => console.error('Failed to delete rule file:', err));
+      ).catch((err) => console.error("Failed to delete rule file:", err));
     }
   };
 
@@ -165,7 +165,7 @@ const RuleRow: React.FC<{
         >
           {getRuleTypeIcon() && <span className="mr-1.5">{getRuleTypeIcon()}</span>}
           <span className="ph-no-capture">{finalDisplayName}</span>
-          {ruleType === 'agents' && (
+          {ruleType === "agents" && (
             <Tooltip>
               <TooltipTrigger asChild className="cursor-help">
                 <InfoIcon className="ml-1.5 opacity-70 size-[0.85rem]" />
@@ -186,13 +186,13 @@ const RuleRow: React.FC<{
             disabled={isDisabled}
             key={rulePath}
             onClick={() => toggleRule(rulePath, !enabled)}
-            title={isDisabled ? 'This rule is required and cannot be disabled' : undefined}
+            title={isDisabled ? "This rule is required and cannot be disabled" : undefined}
           />
           <Button
-            aria-label={isRemote ? 'View rule file' : 'Edit rule file'}
+            aria-label={isRemote ? "View rule file" : "Edit rule file"}
             onClick={handleEditClick}
             size="xs"
-            title={isRemote ? 'View rule file (read-only)' : 'Edit rule file'}
+            title={isRemote ? "View rule file (read-only)" : "Edit rule file"}
             variant="icon"
           >
             {isRemote ? <EyeIcon /> : <PenIcon />}

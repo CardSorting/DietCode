@@ -1,5 +1,5 @@
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
 /**
  * Write `contents` to `filePath`, creating any necessary directories in `filePath`.
  */
@@ -19,7 +19,7 @@ export async function rmdir(path) {
   try {
     await fs.rmdir(path);
   } catch (error) {
-    if (error.code !== 'ENOTEMPTY' && error.code !== 'ENOENT') {
+    if (error.code !== "ENOTEMPTY" && error.code !== "ENOENT") {
       // Only re-throw if it's not "not empty" or "doesn't exist"
       throw error;
     }

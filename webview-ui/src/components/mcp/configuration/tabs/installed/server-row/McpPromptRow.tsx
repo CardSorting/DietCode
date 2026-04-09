@@ -1,4 +1,4 @@
-import type { McpPrompt } from '@shared/mcp.ts';
+import type { McpPrompt } from "@shared/mcp.ts";
 
 type McpPromptRowProps = {
   prompt: McpPrompt;
@@ -10,26 +10,26 @@ const McpPromptRow = ({ prompt, serverName }: McpPromptRowProps) => {
     <div
       key={prompt.name}
       style={{
-        padding: '3px 0',
+        padding: "3px 0",
       }}
     >
       <div
         data-testid="prompt-row-container"
         onClick={(e) => e.stopPropagation()}
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '4px',
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "4px",
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', minWidth: 0, flex: '1 1 auto' }}>
+        <div style={{ display: "flex", alignItems: "center", minWidth: 0, flex: "1 1 auto" }}>
           <span
             className="codicon codicon-comment-discussion"
-            style={{ marginRight: '6px', flexShrink: 0 }}
+            style={{ marginRight: "6px", flexShrink: 0 }}
           />
-          <span style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <span style={{ fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis" }}>
             {prompt.title || prompt.name}
           </span>
         </div>
@@ -37,10 +37,10 @@ const McpPromptRow = ({ prompt, serverName }: McpPromptRowProps) => {
       {prompt.description && (
         <div
           style={{
-            marginLeft: '0px',
-            marginTop: '4px',
+            marginLeft: "0px",
+            marginTop: "4px",
             opacity: 0.8,
-            fontSize: '12px',
+            fontSize: "12px",
           }}
         >
           {prompt.description}
@@ -49,20 +49,20 @@ const McpPromptRow = ({ prompt, serverName }: McpPromptRowProps) => {
       {prompt.arguments && prompt.arguments.length > 0 && (
         <div
           style={{
-            marginTop: '8px',
-            fontSize: '12px',
+            marginTop: "8px",
+            fontSize: "12px",
             border:
-              '1px solid color-mix(in srgb, var(--vscode-descriptionForeground) 30%, transparent)',
-            borderRadius: '3px',
-            padding: '8px',
+              "1px solid color-mix(in srgb, var(--vscode-descriptionForeground) 30%, transparent)",
+            borderRadius: "3px",
+            padding: "8px",
           }}
         >
           <div
             style={{
-              marginBottom: '4px',
+              marginBottom: "4px",
               opacity: 0.8,
-              fontSize: '11px',
-              textTransform: 'uppercase',
+              fontSize: "11px",
+              textTransform: "uppercase",
             }}
           >
             Arguments
@@ -71,22 +71,22 @@ const McpPromptRow = ({ prompt, serverName }: McpPromptRowProps) => {
             <div
               key={arg.name}
               style={{
-                display: 'flex',
-                alignItems: 'baseline',
-                marginTop: '4px',
+                display: "flex",
+                alignItems: "baseline",
+                marginTop: "4px",
               }}
             >
               <code
                 style={{
-                  color: 'var(--vscode-textPreformat-foreground)',
-                  marginRight: '8px',
+                  color: "var(--vscode-textPreformat-foreground)",
+                  marginRight: "8px",
                 }}
               >
                 {arg.name}
                 {arg.required && (
                   <span
                     style={{
-                      color: 'var(--vscode-errorForeground)',
+                      color: "var(--vscode-errorForeground)",
                     }}
                   >
                     *
@@ -96,11 +96,11 @@ const McpPromptRow = ({ prompt, serverName }: McpPromptRowProps) => {
               <span
                 style={{
                   opacity: 0.8,
-                  overflowWrap: 'break-word',
-                  wordBreak: 'break-word',
+                  overflowWrap: "break-word",
+                  wordBreak: "break-word",
                 }}
               >
-                {arg.description || 'No description'}
+                {arg.description || "No description"}
               </span>
             </div>
           ))}

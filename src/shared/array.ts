@@ -48,7 +48,7 @@ export function parsePartialArrayString(arrayString: string): string[] {
     // Remove leading ["
     let content = trimmed.slice(2);
     // Remove trailing "] if it exists
-    content = content.replace(/"]$/, '');
+    content = content.replace(/"]$/, "");
     if (!content) {
       return [];
     }

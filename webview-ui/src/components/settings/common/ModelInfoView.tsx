@@ -1,15 +1,15 @@
-import { type ModelInfo, geminiModels } from '@shared/api.ts';
-import { VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
-import { useState } from 'react';
-import styled from 'styled-components';
-import { ModelDescriptionMarkdown } from '../ModelDescriptionMarkdown';
+import { type ModelInfo, geminiModels } from "@shared/api.ts";
+import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
+import { useState } from "react";
+import styled from "styled-components";
+import { ModelDescriptionMarkdown } from "../ModelDescriptionMarkdown";
 import {
   formatPrice,
   hasThinkingBudget,
   supportsBrowserUse,
   supportsImages,
   supportsPromptCache,
-} from '../utils/pricingUtils';
+} from "../utils/pricingUtils";
 
 // ========== Styled Components ==========
 
@@ -56,12 +56,12 @@ const CollapsibleHeader = styled.div`
 const CollapsibleArrow = styled.span<{ $isExpanded: boolean }>`
 	font-size: 10px;
 	transition: transform 0.15s ease;
-	transform: rotate(${({ $isExpanded }) => ($isExpanded ? '90deg' : '0deg')});
+	transform: rotate(${({ $isExpanded }) => ($isExpanded ? "90deg" : "0deg")});
 `;
 
 const CollapsibleContent = styled.div<{ $isExpanded: boolean }>`
-	max-height: ${({ $isExpanded }) => ($isExpanded ? '800px' : '0')};
-	overflow: ${({ $isExpanded }) => ($isExpanded ? 'visible' : 'hidden')};
+	max-height: ${({ $isExpanded }) => ($isExpanded ? "800px" : "0")};
+	overflow: ${({ $isExpanded }) => ($isExpanded ? "visible" : "hidden")};
 	transition: max-height 0.2s ease;
 `;
 
@@ -103,10 +103,10 @@ const ProviderRoutingLabel = styled.label`
  */
 const formatCompactPrice = (price: number | undefined): string => {
   if (price === undefined) {
-    return 'N/A';
+    return "N/A";
   }
   if (price === 0) {
-    return 'Free';
+    return "Free";
   }
   if (price < 0.01) {
     return `$${price.toFixed(4)}/M`;
@@ -122,7 +122,7 @@ const formatCompactPrice = (price: number | undefined): string => {
  */
 const formatCompactContext = (contextWindow: number | undefined): string => {
   if (!contextWindow) {
-    return 'N/A';
+    return "N/A";
   }
   if (contextWindow >= 1_000_000) {
     return `${(contextWindow / 1_000_000).toFixed(contextWindow % 1_000_000 === 0 ? 0 : 1)}M`;
@@ -134,8 +134,8 @@ const formatCompactContext = (contextWindow: number | undefined): string => {
  * Returns an array of formatted tier strings
  */
 const formatTiers = (
-  tiers: ModelInfo['tiers'],
-  priceType: 'inputPrice' | 'outputPrice' | 'cacheReadsPrice' | 'cacheWritesPrice',
+  tiers: ModelInfo["tiers"],
+  priceType: "inputPrice" | "outputPrice" | "cacheReadsPrice" | "cacheWritesPrice",
 ): JSX.Element[] => {
   if (!tiers || tiers.length === 0) {
     return [];
@@ -151,19 +151,19 @@ const formatTiers = (
       }
 
       return (
-        <span key={`tier-${tier.contextWindow}`} style={{ paddingLeft: '15px' }}>
+        <span key={`tier-${tier.contextWindow}`} style={{ paddingLeft: "15px" }}>
           {formatPrice(price)}/million tokens (
           {tier.contextWindow === Number.POSITIVE_INFINITY ||
           tier.contextWindow >= Number.MAX_SAFE_INTEGER ? (
             <span>
-              {'>'} {prevLimit.toLocaleString()}
+              {">"} {prevLimit.toLocaleString()}
             </span>
           ) : (
             <span>
-              {'<='} {tier.contextWindow?.toLocaleString()}
+              {"<="} {tier.contextWindow?.toLocaleString()}
             </span>
           )}
-          {' tokens)'}
+          {" tokens)"}
           {index < arr.length - 1 && <br />}
         </span>
       );
@@ -255,16 +255,16 @@ export const ModelInfoView = ({
           {/* Capabilities */}
           <AdvancedRow>
             <AdvancedLabel>Images</AdvancedLabel>
-            <AdvancedValue>{hasImages ? 'Yes' : 'No'}</AdvancedValue>
+            <AdvancedValue>{hasImages ? "Yes" : "No"}</AdvancedValue>
           </AdvancedRow>
           <AdvancedRow>
             <AdvancedLabel>Browser</AdvancedLabel>
-            <AdvancedValue>{hasBrowser ? 'Yes' : 'No'}</AdvancedValue>
+            <AdvancedValue>{hasBrowser ? "Yes" : "No"}</AdvancedValue>
           </AdvancedRow>
           {!isGemini && (
             <AdvancedRow>
               <AdvancedLabel>Prompt Caching</AdvancedLabel>
-              <AdvancedValue>{hasCaching ? 'Yes' : 'No'}</AdvancedValue>
+              <AdvancedValue>{hasCaching ? "Yes" : "No"}</AdvancedValue>
             </AdvancedRow>
           )}
 
@@ -295,12 +295,12 @@ export const ModelInfoView = ({
                   <div>
                     <span style={{ fontWeight: 500 }}>Input:</span>
                     <br />
-                    {formatTiers(modelInfo.tiers, 'inputPrice')}
+                    {formatTiers(modelInfo.tiers, "inputPrice")}
                   </div>
                   <div style={{ marginTop: 4 }}>
                     <span style={{ fontWeight: 500 }}>Output:</span>
                     <br />
-                    {formatTiers(modelInfo.tiers, 'outputPrice')}
+                    {formatTiers(modelInfo.tiers, "outputPrice")}
                   </div>
                 </>
               )}
@@ -313,8 +313,8 @@ export const ModelInfoView = ({
               <ProviderRoutingLabel>Provider Routing</ProviderRoutingLabel>
               <VSCodeDropdown
                 onChange={(e: any) => onProviderSortingChange(e.target.value)}
-                style={{ width: '100%' }}
-                value={providerSorting || ''}
+                style={{ width: "100%" }}
+                value={providerSorting || ""}
               >
                 <VSCodeOption value="">Default</VSCodeOption>
                 <VSCodeOption value="price">Price</VSCodeOption>
@@ -323,20 +323,20 @@ export const ModelInfoView = ({
               </VSCodeDropdown>
               <p
                 style={{
-                  fontSize: '11px',
+                  fontSize: "11px",
                   marginTop: 4,
                   marginBottom: 0,
-                  color: 'var(--vscode-descriptionForeground)',
+                  color: "var(--vscode-descriptionForeground)",
                 }}
               >
                 {!providerSorting &&
-                  'Load balance across providers (AWS, Google Vertex, etc.), prioritizing price while considering uptime'}
-                {providerSorting === 'price' &&
-                  'Sort by price, prioritizing the lowest cost provider'}
-                {providerSorting === 'throughput' &&
-                  'Sort by throughput, prioritizing highest throughput (may increase cost)'}
-                {providerSorting === 'latency' &&
-                  'Sort by response time, prioritizing lowest latency'}
+                  "Load balance across providers (AWS, Google Vertex, etc.), prioritizing price while considering uptime"}
+                {providerSorting === "price" &&
+                  "Sort by price, prioritizing the lowest cost provider"}
+                {providerSorting === "throughput" &&
+                  "Sort by throughput, prioritizing highest throughput (may increase cost)"}
+                {providerSorting === "latency" &&
+                  "Sort by response time, prioritizing lowest latency"}
               </p>
             </ProviderRoutingContainer>
           )}

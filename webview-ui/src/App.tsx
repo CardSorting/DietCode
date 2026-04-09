@@ -1,17 +1,17 @@
-import type { Boolean, EmptyRequest } from '@shared/nice-grpc/cline/common';
-import { useCallback, useEffect, useState } from 'react';
-import { Providers } from './Providers';
-import AccountView from './components/account/AccountView';
-import ChatView from './components/chat/ChatView';
-import HistoryView from './components/history/HistoryView';
-import McpView from './components/mcp/configuration/McpConfigurationView';
-import OnboardingView from './components/onboarding/OnboardingView';
-import SettingsView from './components/settings/SettingsView';
-import WelcomeView from './components/welcome/WelcomeView';
-import WorktreesView from './components/worktrees/WorktreesView';
-import { useClineAuth } from './context/ClineAuthContext';
-import { useExtensionState } from './context/ExtensionStateContext';
-import { StateServiceClient, UiServiceClient } from './services/grpc-client';
+import type { Boolean as ProtoBoolean, EmptyRequest } from "@shared/nice-grpc/cline/common";
+import { useCallback, useEffect, useState } from "react";
+import { Providers } from "./Providers";
+import AccountView from "./components/account/AccountView";
+import ChatView from "./components/chat/ChatView";
+import HistoryView from "./components/history/HistoryView";
+import McpView from "./components/mcp/configuration/McpConfigurationView";
+import OnboardingView from "./components/onboarding/OnboardingView";
+import SettingsView from "./components/settings/SettingsView";
+import WelcomeView from "./components/welcome/WelcomeView";
+import WorktreesView from "./components/worktrees/WorktreesView";
+import { useClineAuth } from "./context/ClineAuthContext";
+import { useExtensionState } from "./context/ExtensionStateContext";
+import { StateServiceClient, UiServiceClient } from "./services/grpc-client";
 
 const AppContent = () => {
   const {

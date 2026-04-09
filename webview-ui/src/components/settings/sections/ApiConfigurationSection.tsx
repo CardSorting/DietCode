@@ -1,18 +1,18 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { StateServiceClient } from '@/services/grpc-client';
-import { UpdateSettingsRequest } from '@shared/nice-grpc/cline/state.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
-import { useState } from 'react';
-import { TabButton } from '../../mcp/configuration/McpConfigurationView';
-import ApiOptions from '../ApiOptions';
-import Section from '../Section';
-import { syncModeConfigurations } from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { StateServiceClient } from "@/services/grpc-client";
+import { UpdateSettingsRequest } from "@shared/nice-grpc/cline/state.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
+import { useState } from "react";
+import { TabButton } from "../../mcp/configuration/McpConfigurationView";
+import ApiOptions from "../ApiOptions";
+import Section from "../Section";
+import { syncModeConfigurations } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 interface ApiConfigurationSectionProps {
   renderSectionHeader?: (tabId: string) => JSX.Element | null;
-  initialModelTab?: 'recommended' | 'free';
+  initialModelTab?: "recommended" | "free";
 }
 
 const ApiConfigurationSection = ({
@@ -24,30 +24,30 @@ const ApiConfigurationSection = ({
   const { handleFieldsChange } = useApiConfigurationHandlers();
   return (
     <div>
-      {renderSectionHeader?.('api-config')}
+      {renderSectionHeader?.("api-config")}
       <Section>
         {/* Tabs container */}
         {planActSeparateModelsSetting ? (
           <div className="rounded-md mb-5">
             <div className="flex gap-px mb-[10px] -mt-2 border-0 border-b border-solid border-(--vscode-panel-border)">
               <TabButton
-                disabled={currentTab === 'plan'}
-                isActive={currentTab === 'plan'}
-                onClick={() => setCurrentTab('plan')}
+                disabled={currentTab === "plan"}
+                isActive={currentTab === "plan"}
+                onClick={() => setCurrentTab("plan")}
                 style={{
                   opacity: 1,
-                  cursor: 'pointer',
+                  cursor: "pointer",
                 }}
               >
                 Plan Mode
               </TabButton>
               <TabButton
-                disabled={currentTab === 'act'}
-                isActive={currentTab === 'act'}
-                onClick={() => setCurrentTab('act')}
+                disabled={currentTab === "act"}
+                isActive={currentTab === "act"}
+                onClick={() => setCurrentTab("act")}
                 style={{
                   opacity: 1,
-                  cursor: 'pointer',
+                  cursor: "pointer",
                 }}
               >
                 Act Mode
@@ -88,7 +88,7 @@ const ApiConfigurationSection = ({
                   }),
                 );
               } catch (error) {
-                console.error('Failed to update separate models setting:', error);
+                console.error("Failed to update separate models setting:", error);
               }
             }}
           >

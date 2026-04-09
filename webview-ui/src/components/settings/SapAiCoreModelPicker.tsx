@@ -1,9 +1,9 @@
-import { sapAiCoreModels } from '@shared/api.ts';
-import type { SapAiCoreModelDeployment } from '@shared/nice-grpc/index.cline.ts';
-import { VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
-import type React from 'react';
-import { memo, useEffect, useMemo } from 'react';
-import { DropdownContainer } from './common/ModelSelector';
+import { sapAiCoreModels } from "@shared/api.ts";
+import type { SapAiCoreModelDeployment } from "@shared/nice-grpc/index.cline.ts";
+import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
+import type React from "react";
+import { memo, useEffect, useMemo } from "react";
+import { DropdownContainer } from "./common/ModelSelector";
 
 export const SAP_AI_CORE_MODEL_PICKER_Z_INDEX = 1_000;
 
@@ -19,7 +19,7 @@ export interface SapAiCoreModelPickerProps {
 interface CategorizedModel {
   id: string;
   isDeployed: boolean;
-  section: 'deployed' | 'supported';
+  section: "deployed" | "supported";
 }
 
 const SapAiCoreModelPicker: React.FC<SapAiCoreModelPickerProps> = ({
@@ -27,7 +27,7 @@ const SapAiCoreModelPicker: React.FC<SapAiCoreModelPickerProps> = ({
   selectedModelId,
   selectedDeploymentId,
   onModelChange,
-  placeholder = 'Select a model...',
+  placeholder = "Select a model...",
   useOrchestrationMode = false,
 }) => {
   // Auto-fix deployment ID mismatch or missing deployment ID when deployments change (when ai core creds changes)
@@ -47,7 +47,7 @@ const SapAiCoreModelPicker: React.FC<SapAiCoreModelPickerProps> = ({
       }
     } else if (sapAiCoreModelDeployments.length > 0 && selectedDeploymentId) {
       // deployments loaded, but none match the selected model, which means the model is not deployed
-      onModelChange(selectedModelId, '');
+      onModelChange(selectedModelId, "");
     }
   }, [sapAiCoreModelDeployments, selectedModelId, selectedDeploymentId, onModelChange]);
 
@@ -66,7 +66,7 @@ const SapAiCoreModelPicker: React.FC<SapAiCoreModelPickerProps> = ({
       onModelChange(deployment.modelName, deployment.deploymentId);
     } else {
       // Undeployed model: use empty deployment ID
-      onModelChange(newModelId, '');
+      onModelChange(newModelId, "");
     }
   };
 
@@ -87,13 +87,13 @@ const SapAiCoreModelPicker: React.FC<SapAiCoreModelPickerProps> = ({
     const deployed: CategorizedModel[] = deployedAndSupported.map((modelName: string) => ({
       id: modelName,
       isDeployed: true,
-      section: 'deployed' as const,
+      section: "deployed" as const,
     }));
 
     const supported: CategorizedModel[] = supportedButNotDeployed.map((id: string) => ({
       id,
       isDeployed: false,
-      section: 'supported' as const,
+      section: "supported" as const,
     }));
 
     return { deployed, supported };
@@ -170,7 +170,7 @@ const SapAiCoreModelPicker: React.FC<SapAiCoreModelPickerProps> = ({
         id="sap-ai-core-model-dropdown"
         key={`sap-ai-core-dropdown-${useOrchestrationMode}`}
         onChange={handleModelChange}
-        style={{ width: '100%' }}
+        style={{ width: "100%" }}
         value={selectedModelId}
       >
         {renderOptions()}

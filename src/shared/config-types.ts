@@ -4,10 +4,10 @@
  */
 
 export enum Environment {
-  production = 'production',
-  staging = 'staging',
-  local = 'local',
-  selfHosted = 'selfHosted',
+  production = "production",
+  staging = "staging",
+  local = "local",
+  selfHosted = "selfHosted",
 }
 
 export interface EnvironmentConfig {

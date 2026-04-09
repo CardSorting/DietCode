@@ -1,9 +1,9 @@
-import { useClineAuth } from '@/context/ClineAuthContext';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { AccountServiceClient } from '@/services/grpc-client';
-import { EmptyRequest } from '@shared/nice-grpc/cline/common.ts';
-import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
-import { useState } from 'react';
+import { useClineAuth } from "@/context/ClineAuthContext";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { AccountServiceClient } from "@/services/grpc-client";
+import { EmptyRequest } from "@shared/nice-grpc/cline/common.ts";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { useState } from "react";
 
 export const ClineAccountInfoCard = () => {
   const { clineUser } = useClineAuth();
@@ -15,7 +15,7 @@ export const ClineAccountInfoCard = () => {
   const handleLogin = () => {
     setIsLoading(true);
     AccountServiceClient.accountLoginClicked(EmptyRequest.create())
-      .catch((err) => console.error('Failed to get login URL:', err))
+      .catch((err) => console.error("Failed to get login URL:", err))
       .finally(() => {
         setIsLoading(false);
       });

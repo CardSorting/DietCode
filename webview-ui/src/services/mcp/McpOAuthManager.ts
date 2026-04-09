@@ -1,16 +1,16 @@
-import crypto from 'node:crypto';
-import { HostProvider } from '@/hosts/host-provider';
-import { Logger } from '@/shared/services/Logger';
-import { openExternal } from '@/utils/env';
-import { getMcpServerCallbackPath, getServerAuthHash } from '@/utils/mcpAuth';
-import { StateManager } from '@core/storage/StateManager';
-import type { OAuthClientProvider } from '@modelcontextprotocol/sdk/client/auth.js';
+import crypto from "node:crypto";
+import { HostProvider } from "@/hosts/host-provider";
+import { Logger } from "@/shared/services/Logger";
+import { openExternal } from "@/utils/env";
+import { getMcpServerCallbackPath, getServerAuthHash } from "@/utils/mcpAuth";
+import { StateManager } from "@core/storage/StateManager";
+import type { OAuthClientProvider } from "@modelcontextprotocol/sdk/client/auth.js";
 import type {
   OAuthClientInformationFull,
   OAuthClientMetadata,
   OAuthTokens,
-} from '@modelcontextprotocol/sdk/shared/auth.js';
-import { McpOAuthRedirectResolver } from './McpOAuthRedirectResolver';
+} from "@modelcontextprotocol/sdk/shared/auth.js";
+import { McpOAuthRedirectResolver } from "./McpOAuthRedirectResolver";
 
 /**
  * Structure for all OAuth data stored in the single mcpOAuthSecrets JSON
@@ -33,14 +33,14 @@ interface McpOAuthSecrets {
  */
 function getMcpOAuthSecrets(): McpOAuthSecrets {
   const stateManager = StateManager.get();
-  const secretsJson = stateManager.getSecretKey('mcpOAuthSecrets');
+  const secretsJson = stateManager.getSecretKey("mcpOAuthSecrets");
   if (!secretsJson) {
     return {};
   }
   try {
     return JSON.parse(secretsJson) as McpOAuthSecrets;
   } catch (error) {
-    Logger.error('[McpOAuth] Failed to parse MCP OAuth secrets:', error);
+    Logger.error("[McpOAuth] Failed to parse MCP OAuth secrets:", error);
     return {};
   }
 }
@@ -50,7 +50,7 @@ function getMcpOAuthSecrets(): McpOAuthSecrets {
  */
 function saveMcpOAuthSecrets(secrets: McpOAuthSecrets): void {
   const stateManager = StateManager.get();
-  stateManager.setSecret('mcpOAuthSecrets', JSON.stringify(secrets));
+  stateManager.setSecret("mcpOAuthSecrets", JSON.stringify(secrets));
 }
 
 /**
@@ -70,7 +70,7 @@ class ClineOAuthClientProvider implements OAuthClientProvider {
     this.serverHash = getServerAuthHash(serverName, serverUrl);
 
     // Redirect URL and registration validity will be set when initialize() is called
-    this._redirectUrl = '';
+    this._redirectUrl = "";
     this.isRegistrationValid = false;
   }
 
@@ -98,18 +98,18 @@ class ClineOAuthClientProvider implements OAuthClientProvider {
   get clientMetadata(): OAuthClientMetadata {
     return {
       redirect_uris: [this._redirectUrl],
-      token_endpoint_auth_method: 'none',
-      grant_types: ['authorization_code', 'refresh_token'],
-      response_types: ['code'],
-      client_name: 'Cline',
-      client_uri: 'https://cline.bot',
-      software_id: 'cline',
+      token_endpoint_auth_method: "none",
+      grant_types: ["authorization_code", "refresh_token"],
+      response_types: ["code"],
+      client_name: "Cline",
+      client_uri: "https://cline.bot",
+      software_id: "cline",
     };
   }
 
   state(): string {
     // State is managed through storage, not instance variable
-    return crypto.randomBytes(32).toString('hex');
+    return crypto.randomBytes(32).toString("hex");
   }
 
   async clientInformation(): Promise<OAuthClientInformationFull | undefined> {
@@ -237,8 +237,8 @@ class ClineOAuthClientProvider implements OAuthClientProvider {
     }
 
     // Generate and add state parameter for CSRF protection
-    const state = crypto.randomBytes(32).toString('hex');
-    authorizationUrl.searchParams.set('state', state);
+    const state = crypto.randomBytes(32).toString("hex");
+    authorizationUrl.searchParams.set("state", state);
 
     // Save state, timestamp, and the complete auth URL for later use
     // These will be used when the user clicks "Authenticate" button

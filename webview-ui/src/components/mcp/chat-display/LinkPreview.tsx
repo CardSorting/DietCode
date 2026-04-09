@@ -1,9 +1,9 @@
-import ChatErrorBoundary from '@/components/chat/ChatErrorBoundary';
-import { WebServiceClient } from '@/services/grpc-client';
-import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
-import DOMPurify from 'dompurify';
-import React from 'react';
-import { getSafeHostname, normalizeRelativeUrl } from './utils/mcpRichUtil';
+import ChatErrorBoundary from "@/components/chat/ChatErrorBoundary";
+import { WebServiceClient } from "@/services/grpc-client";
+import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
+import DOMPurify from "dompurify";
+import React from "react";
+import { getSafeHostname, normalizeRelativeUrl } from "./utils/mcpRichUtil";
 
 interface OpenGraphData {
   title?: string;
@@ -34,7 +34,7 @@ interface LinkPreviewState {
 }
 
 // Error types for better UI feedback
-type ErrorType = 'timeout' | 'network' | 'general' | null;
+type ErrorType = "timeout" | "network" | "general" | null;
 
 // Use a class component to ensure complete isolation between instances
 class LinkPreview extends React.Component<LinkPreviewProps, LinkPreviewState> {
@@ -88,7 +88,7 @@ class LinkPreview extends React.Component<LinkPreviewProps, LinkPreviewState> {
   private cleanup() {
     // Clean up event listeners and timeouts
     if (this.messageListener) {
-      window.removeEventListener('message', this.messageListener);
+      window.removeEventListener("message", this.messageListener);
       this.messageListener = null;
     }
 
@@ -134,8 +134,8 @@ class LinkPreview extends React.Component<LinkPreviewProps, LinkPreviewState> {
         });
       } else {
         this.setState({
-          error: 'network',
-          errorMessage: 'Failed to fetch Open Graph data',
+          error: "network",
+          errorMessage: "Failed to fetch Open Graph data",
           loading: false,
           hasCompletedFetch: true,
         });
@@ -154,8 +154,8 @@ class LinkPreview extends React.Component<LinkPreviewProps, LinkPreviewState> {
       }, 1000);
     } catch (err) {
       this.setState({
-        error: 'general',
-        errorMessage: err instanceof Error ? err.message : 'Unknown error occurred',
+        error: "general",
+        errorMessage: err instanceof Error ? err.message : "Unknown error occurred",
         loading: false,
         hasCompletedFetch: true, // Mark as completed on error
       });
@@ -176,27 +176,27 @@ class LinkPreview extends React.Component<LinkPreviewProps, LinkPreviewState> {
         <div
           className="link-preview-loading"
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            border: '1px solid var(--vscode-editorWidget-border, rgba(127, 127, 127, 0.3))',
-            borderRadius: '4px',
-            height: '128px',
-            maxWidth: '512px',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            border: "1px solid var(--vscode-editorWidget-border, rgba(127, 127, 127, 0.3))",
+            borderRadius: "4px",
+            height: "128px",
+            maxWidth: "512px",
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
             <div
               className="loading-spinner"
               style={{
-                marginRight: '8px',
-                width: '16px',
-                height: '16px',
-                border: '2px solid rgba(127, 127, 127, 0.3)',
-                borderTopColor: 'var(--vscode-textLink-foreground, #3794ff)',
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite',
+                marginRight: "8px",
+                width: "16px",
+                height: "16px",
+                border: "2px solid rgba(127, 127, 127, 0.3)",
+                borderTopColor: "var(--vscode-textLink-foreground, #3794ff)",
+                borderRadius: "50%",
+                animation: "spin 1s linear infinite",
               }}
             />
             <style>
@@ -209,7 +209,7 @@ class LinkPreview extends React.Component<LinkPreviewProps, LinkPreviewState> {
             Loading preview for {getSafeHostname(url)}...
           </div>
           {elapsedSeconds > 5 && (
-            <div style={{ fontSize: '11px', color: 'var(--vscode-descriptionForeground)' }}>
+            <div style={{ fontSize: "11px", color: "var(--vscode-descriptionForeground)" }}>
               {elapsedSeconds > 60
                 ? `Waiting for ${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s...`
                 : `Waiting for ${elapsedSeconds}s...`}
@@ -221,12 +221,12 @@ class LinkPreview extends React.Component<LinkPreviewProps, LinkPreviewState> {
 
     // Handle different error states with specific messages
     if (error) {
-      let errorDisplay = 'Unable to load preview';
+      let errorDisplay = "Unable to load preview";
 
-      if (error === 'timeout') {
-        errorDisplay = 'Preview request timed out';
-      } else if (error === 'network') {
-        errorDisplay = 'Network error loading preview';
+      if (error === "timeout") {
+        errorDisplay = "Preview request timed out";
+      } else if (error === "network") {
+        errorDisplay = "Network error loading preview";
       }
 
       return (
@@ -240,29 +240,29 @@ class LinkPreview extends React.Component<LinkPreviewProps, LinkPreviewState> {
                 }),
               );
             } catch (err) {
-              console.error('Error opening URL in browser:', err);
+              console.error("Error opening URL in browser:", err);
             }
           }}
           style={{
-            padding: '12px',
-            border: '1px solid var(--vscode-editorWidget-border, rgba(127, 127, 127, 0.3))',
-            borderRadius: '4px',
-            color: 'var(--vscode-errorForeground)',
-            height: '128px',
-            maxWidth: '512px',
-            overflow: 'auto',
+            padding: "12px",
+            border: "1px solid var(--vscode-editorWidget-border, rgba(127, 127, 127, 0.3))",
+            borderRadius: "4px",
+            color: "var(--vscode-errorForeground)",
+            height: "128px",
+            maxWidth: "512px",
+            overflow: "auto",
           }}
         >
-          <div style={{ fontWeight: 'bold' }}>{errorDisplay}</div>
-          <div style={{ fontSize: '12px', marginTop: '4px' }}>{getSafeHostname(url)}</div>
+          <div style={{ fontWeight: "bold" }}>{errorDisplay}</div>
+          <div style={{ fontSize: "12px", marginTop: "4px" }}>{getSafeHostname(url)}</div>
           {errorMessage && (
-            <div style={{ fontSize: '11px', marginTop: '4px', opacity: 0.8 }}>{errorMessage}</div>
+            <div style={{ fontSize: "11px", marginTop: "4px", opacity: 0.8 }}>{errorMessage}</div>
           )}
           <div
             style={{
-              fontSize: '11px',
-              marginTop: '8px',
-              color: 'var(--vscode-textLink-foreground)',
+              fontSize: "11px",
+              marginTop: "8px",
+              color: "var(--vscode-textLink-foreground)",
             }}
           >
             Click to open in browser
@@ -274,7 +274,7 @@ class LinkPreview extends React.Component<LinkPreviewProps, LinkPreviewState> {
     // Create a fallback object if ogData is null
     const data = ogData || {
       title: getSafeHostname(url),
-      description: 'No description available',
+      description: "No description available",
       siteName: getSafeHostname(url),
       url: url,
     };
@@ -291,30 +291,30 @@ class LinkPreview extends React.Component<LinkPreviewProps, LinkPreviewState> {
               }),
             );
           } catch (err) {
-            console.error('Error opening URL in browser:', err);
+            console.error("Error opening URL in browser:", err);
           }
         }}
         style={{
-          display: 'flex',
-          border: '1px solid var(--vscode-editorWidget-border, rgba(127, 127, 127, 0.3))',
-          borderRadius: '4px',
-          overflow: 'hidden',
-          cursor: 'pointer',
-          height: '128px',
-          maxWidth: '512px',
+          display: "flex",
+          border: "1px solid var(--vscode-editorWidget-border, rgba(127, 127, 127, 0.3))",
+          borderRadius: "4px",
+          overflow: "hidden",
+          cursor: "pointer",
+          height: "128px",
+          maxWidth: "512px",
         }}
       >
         {data.image && (
           <div
             className="link-preview-image"
-            style={{ width: '128px', height: '128px', flexShrink: 0 }}
+            style={{ width: "128px", height: "128px", flexShrink: 0 }}
           >
             <img
               alt=""
               onError={(e) => {
                 console.log(`Image could not be loaded: ${data.image}`);
                 // Hide the broken image
-                (e.target as HTMLImageElement).style.display = 'none';
+                (e.target as HTMLImageElement).style.display = "none";
               }}
               onLoad={(e) => {
                 // Check aspect ratio to determine if we should use contain or cover
@@ -324,18 +324,18 @@ class LinkPreview extends React.Component<LinkPreviewProps, LinkPreviewState> {
 
                   // Use contain for extreme aspect ratios (logos), cover for photos
                   if (aspectRatio > 2.5 || aspectRatio < 0.4) {
-                    img.style.objectFit = 'contain';
+                    img.style.objectFit = "contain";
                   } else {
-                    img.style.objectFit = 'cover';
+                    img.style.objectFit = "cover";
                   }
                 }
               }}
               src={DOMPurify.sanitize(normalizeRelativeUrl(data.image, url))}
               style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'contain', // Use contain for link preview thumbnails to handle logos
-                objectPosition: 'center', // Center the image
+                width: "100%",
+                height: "100%",
+                objectFit: "contain", // Use contain for link preview thumbnails to handle logos
+                objectPosition: "center", // Center the image
               }}
             />
           </div>
@@ -345,11 +345,11 @@ class LinkPreview extends React.Component<LinkPreviewProps, LinkPreviewState> {
           className="link-preview-content"
           style={{
             flex: 1,
-            padding: '12px',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-            height: '100%', // Ensure full height
+            padding: "12px",
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+            height: "100%", // Ensure full height
           }}
         >
           {/* Top section with title and URL - top aligned */}
@@ -357,25 +357,25 @@ class LinkPreview extends React.Component<LinkPreviewProps, LinkPreviewState> {
             <div
               className="link-preview-title"
               style={{
-                fontWeight: 'bold',
-                marginBottom: '4px',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
+                fontWeight: "bold",
+                marginBottom: "4px",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
               }}
             >
-              {data.title || 'No title'}
+              {data.title || "No title"}
             </div>
 
             <div
               className="link-preview-url"
               style={{
-                fontSize: '12px',
-                color: 'var(--vscode-textLink-foreground, #3794ff)',
-                marginBottom: '8px', // Increased for better separation
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
+                fontSize: "12px",
+                color: "var(--vscode-textLink-foreground, #3794ff)",
+                marginBottom: "8px", // Increased for better separation
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
               }}
             >
               {data.siteName || getSafeHostname(url)}
@@ -387,24 +387,24 @@ class LinkPreview extends React.Component<LinkPreviewProps, LinkPreviewState> {
             className="link-preview-description-container"
             style={{
               flex: 1, // Take up remaining space
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-around', // Space around in the remaining area
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-around", // Space around in the remaining area
             }}
           >
             <div
               className="link-preview-description"
               style={{
-                fontSize: '12px',
-                color: 'var(--vscode-descriptionForeground, rgba(204, 204, 204, 0.7))',
-                overflow: 'hidden',
-                display: '-webkit-box',
+                fontSize: "12px",
+                color: "var(--vscode-descriptionForeground, rgba(204, 204, 204, 0.7))",
+                overflow: "hidden",
+                display: "-webkit-box",
                 WebkitLineClamp: 3,
-                WebkitBoxOrient: 'vertical',
-                textOverflow: 'ellipsis',
+                WebkitBoxOrient: "vertical",
+                textOverflow: "ellipsis",
               }}
             >
-              {data.description || 'No description available'}
+              {data.description || "No description available"}
             </div>
           </div>
         </div>

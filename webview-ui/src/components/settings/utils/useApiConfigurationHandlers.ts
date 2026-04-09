@@ -1,9 +1,9 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { ModelsServiceClient } from '@/services/grpc-client';
-import type { ApiConfiguration } from '@shared/api.ts';
-import { UpdateApiConfigurationRequest } from '@shared/nice-grpc/cline/models.ts';
-import { convertApiConfigurationToProto } from '@shared/proto-conversions/models/api-configuration-conversion.ts';
-import type { Mode } from '@shared/storage/types.ts';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { ModelsServiceClient } from "@/services/grpc-client";
+import type { ApiConfiguration } from "@shared/api.ts";
+import { UpdateApiConfigurationRequest } from "@shared/nice-grpc/cline/models.ts";
+import { convertApiConfigurationToProto } from "@shared/proto-conversions/models/api-configuration-conversion.ts";
+import type { Mode } from "@shared/storage/types.ts";
 
 export const useApiConfigurationHandlers = () => {
   const { apiConfiguration, planActSeparateModelsSetting } = useExtensionState();
@@ -96,7 +96,7 @@ export const useApiConfigurationHandlers = () => {
       // Update only the current mode's fields
       const updates: Partial<ApiConfiguration> = {};
       Object.entries(fieldPairs).forEach(([key, { plan, act }]) => {
-        const targetField = currentMode === 'plan' ? plan : act;
+        const targetField = currentMode === "plan" ? plan : act;
         updates[targetField] = values[key];
       });
       await handleFieldsChange(updates);

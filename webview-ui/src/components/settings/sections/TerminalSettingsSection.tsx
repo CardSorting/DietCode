@@ -1,19 +1,19 @@
-import { PlatformType } from '@/config/platform.config';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { usePlatform } from '@/context/PlatformContext';
-import type { UpdateTerminalConnectionTimeoutResponse } from '@shared/nice-grpc/index.cline.ts';
+import { PlatformType } from "@/config/platform.config";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { usePlatform } from "@/context/PlatformContext";
+import type { UpdateTerminalConnectionTimeoutResponse } from "@shared/nice-grpc/index.cline.ts";
 import {
   VSCodeCheckbox,
   VSCodeDropdown,
   VSCodeOption,
   VSCodeTextField,
-} from '@vscode/webview-ui-toolkit/react';
-import type React from 'react';
-import { useState } from 'react';
-import { StateServiceClient } from '../../../services/grpc-client';
-import Section from '../Section';
-import TerminalOutputLineLimitSlider from '../TerminalOutputLineLimitSlider';
-import { updateSetting } from '../utils/settingsHandlers';
+} from "@vscode/webview-ui-toolkit/react";
+import type React from "react";
+import { useState } from "react";
+import { StateServiceClient } from "../../../services/grpc-client";
+import Section from "../Section";
+import TerminalOutputLineLimitSlider from "../TerminalOutputLineLimitSlider";
+import { updateSetting } from "../utils/settingsHandlers";
 
 interface TerminalSettingsSectionProps {
   renderSectionHeader: (tabId: string) => JSX.Element | null;
@@ -43,7 +43,7 @@ export const TerminalSettingsSection: React.FC<TerminalSettingsSectionProps> = (
 
     const seconds = Number.parseFloat(value);
     if (Number.isNaN(seconds) || seconds <= 0) {
-      setInputError('Please enter a positive number');
+      setInputError("Please enter a positive number");
       return;
     }
 
@@ -60,7 +60,7 @@ export const TerminalSettingsSection: React.FC<TerminalSettingsSectionProps> = (
         }
       })
       .catch((error) => {
-        console.error('Failed to update terminal connection timeout:', error);
+        console.error("Failed to update terminal connection timeout:", error);
       });
   };
 
@@ -74,13 +74,13 @@ export const TerminalSettingsSection: React.FC<TerminalSettingsSectionProps> = (
   const handleTerminalReuseChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
     const checked = target.checked;
-    updateSetting('terminalReuseEnabled', checked);
+    updateSetting("terminalReuseEnabled", checked);
   };
 
   const handleExecutionModeChange = (event: Event) => {
     const target = event.target as HTMLSelectElement;
-    const value = target.value === 'backgroundExec' ? 'backgroundExec' : 'vscodeTerminal';
-    updateSetting('vscodeTerminalExecutionMode', value);
+    const value = target.value === "backgroundExec" ? "backgroundExec" : "vscodeTerminal";
+    updateSetting("vscodeTerminalExecutionMode", value);
   };
 
   // Use any to avoid type conflicts between Event and FormEvent
@@ -89,14 +89,14 @@ export const TerminalSettingsSection: React.FC<TerminalSettingsSectionProps> = (
     const profileId = target.value;
 
     // Save immediately using the consolidated updateSettings approach
-    updateSetting('defaultTerminalProfile', profileId || 'default');
+    updateSetting("defaultTerminalProfile", profileId || "default");
   };
 
   const profilesToShow = availableTerminalProfiles;
 
   return (
     <div>
-      {renderSectionHeader('terminal')}
+      {renderSectionHeader("terminal")}
       <Section>
         <div className="mb-5" id="terminal-settings-section">
           <div className="mb-4">
@@ -107,7 +107,7 @@ export const TerminalSettingsSection: React.FC<TerminalSettingsSectionProps> = (
               className="w-full"
               id="default-terminal-profile"
               onChange={handleDefaultTerminalProfileChange}
-              value={defaultTerminalProfile || 'default'}
+              value={defaultTerminalProfile || "default"}
             >
               {profilesToShow.map((profile) => (
                 <VSCodeOption key={profile.id} title={profile.description} value={profile.id}>
@@ -122,10 +122,13 @@ export const TerminalSettingsSection: React.FC<TerminalSettingsSectionProps> = (
 
           <div className="mb-4">
             <div className="mb-2">
-              <label className="font-medium block mb-1">Shell integration timeout (seconds)</label>
+              <label className="font-medium block mb-1" htmlFor="shell-integration-timeout">
+                Shell integration timeout (seconds)
+              </label>
               <div className="flex items-center">
                 <VSCodeTextField
                   className="w-full"
+                  id="shell-integration-timeout"
                   onBlur={handleInputBlur}
                   onChange={(event) => handleTimeoutChange(event as Event)}
                   placeholder="Enter timeout in seconds"
@@ -166,12 +169,12 @@ export const TerminalSettingsSection: React.FC<TerminalSettingsSectionProps> = (
                 className="w-full"
                 id="terminal-execution-mode"
                 onChange={(event) => handleExecutionModeChange(event as Event)}
-                value={vscodeTerminalExecutionMode ?? 'vscodeTerminal'}
+                value={vscodeTerminalExecutionMode ?? "vscodeTerminal"}
               >
                 <VSCodeOption value="vscodeTerminal">VS Code Terminal</VSCodeOption>
                 <VSCodeOption value="backgroundExec">Background Exec</VSCodeOption>
               </VSCodeDropdown>
-              <p className="text-xs text-[var(--vscode-descriptionForeground)] mt-1">
+              <p className="text-xs text-(--vscode-descriptionForeground) mt-1">
                 Choose whether Cline runs commands in the VS Code terminal or a background process.
               </p>
             </div>
@@ -179,7 +182,7 @@ export const TerminalSettingsSection: React.FC<TerminalSettingsSectionProps> = (
           <TerminalOutputLineLimitSlider />
           <div className="mt-5 p-3 bg-(--vscode-textBlockQuote-background) rounded border border-(--vscode-textBlockQuote-border)">
             <p className="text-[13px] m-0">
-              <strong>Having terminal issues?</strong> Check our{' '}
+              <strong>Having terminal issues?</strong> Check our{" "}
               <a
                 className="text-(--vscode-textLink-foreground) underline hover:no-underline"
                 href="https://docs.cline.bot/troubleshooting/terminal-quick-fixes"
@@ -187,8 +190,8 @@ export const TerminalSettingsSection: React.FC<TerminalSettingsSectionProps> = (
                 target="_blank"
               >
                 Terminal Quick Fixes
-              </a>{' '}
-              or the{' '}
+              </a>{" "}
+              or the{" "}
               <a
                 className="text-(--vscode-textLink-foreground) underline hover:no-underline"
                 href="https://docs.cline.bot/troubleshooting/terminal-integration-guide"

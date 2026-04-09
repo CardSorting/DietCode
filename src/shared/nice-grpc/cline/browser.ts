@@ -5,8 +5,8 @@
 // source: cline/browser.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
-import { EmptyRequest, Metadata, String, StringRequest } from './common';
+import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { EmptyRequest, Metadata, String, StringRequest } from "./common";
 
 export interface BrowserConnectionInfo {
   isConnected: boolean;
@@ -152,7 +152,7 @@ export const BrowserConnectionInfo: MessageFns<BrowserConnectionInfo> = {
 };
 
 function createBaseBrowserConnection(): BrowserConnection {
-  return { success: false, message: '', endpoint: undefined };
+  return { success: false, message: "", endpoint: undefined };
 }
 
 export const BrowserConnection: MessageFns<BrowserConnection> = {
@@ -160,7 +160,7 @@ export const BrowserConnection: MessageFns<BrowserConnection> = {
     if (message.success !== false) {
       writer.uint32(8).bool(message.success);
     }
-    if (message.message !== '') {
+    if (message.message !== "") {
       writer.uint32(18).string(message.message);
     }
     if (message.endpoint !== undefined) {
@@ -212,7 +212,7 @@ export const BrowserConnection: MessageFns<BrowserConnection> = {
   fromJSON(object: any): BrowserConnection {
     return {
       success: isSet(object.success) ? globalThis.Boolean(object.success) : false,
-      message: isSet(object.message) ? globalThis.String(object.message) : '',
+      message: isSet(object.message) ? globalThis.String(object.message) : "",
       endpoint: isSet(object.endpoint) ? globalThis.String(object.endpoint) : undefined,
     };
   },
@@ -222,7 +222,7 @@ export const BrowserConnection: MessageFns<BrowserConnection> = {
     if (message.success !== false) {
       obj.success = message.success;
     }
-    if (message.message !== '') {
+    if (message.message !== "") {
       obj.message = message.message;
     }
     if (message.endpoint !== undefined) {
@@ -237,19 +237,19 @@ export const BrowserConnection: MessageFns<BrowserConnection> = {
   fromPartial<I extends Exact<DeepPartial<BrowserConnection>, I>>(object: I): BrowserConnection {
     const message = createBaseBrowserConnection();
     message.success = object.success ?? false;
-    message.message = object.message ?? '';
+    message.message = object.message ?? "";
     message.endpoint = object.endpoint ?? undefined;
     return message;
   },
 };
 
 function createBaseChromePath(): ChromePath {
-  return { path: '', isBundled: false };
+  return { path: "", isBundled: false };
 }
 
 export const ChromePath: MessageFns<ChromePath> = {
   encode(message: ChromePath, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.path !== '') {
+    if (message.path !== "") {
       writer.uint32(10).string(message.path);
     }
     if (message.isBundled !== false) {
@@ -292,7 +292,7 @@ export const ChromePath: MessageFns<ChromePath> = {
 
   fromJSON(object: any): ChromePath {
     return {
-      path: isSet(object.path) ? globalThis.String(object.path) : '',
+      path: isSet(object.path) ? globalThis.String(object.path) : "",
       isBundled: isSet(object.isBundled)
         ? globalThis.Boolean(object.isBundled)
         : isSet(object.is_bundled)
@@ -303,7 +303,7 @@ export const ChromePath: MessageFns<ChromePath> = {
 
   toJSON(message: ChromePath): unknown {
     const obj: any = {};
-    if (message.path !== '') {
+    if (message.path !== "") {
       obj.path = message.path;
     }
     if (message.isBundled !== false) {
@@ -317,7 +317,7 @@ export const ChromePath: MessageFns<ChromePath> = {
   },
   fromPartial<I extends Exact<DeepPartial<ChromePath>, I>>(object: I): ChromePath {
     const message = createBaseChromePath();
-    message.path = object.path ?? '';
+    message.path = object.path ?? "";
     message.isBundled = object.isBundled ?? false;
     return message;
   },
@@ -768,11 +768,11 @@ export const UpdateBrowserSettingsRequest: MessageFns<UpdateBrowserSettingsReque
 
 export type BrowserServiceDefinition = typeof BrowserServiceDefinition;
 export const BrowserServiceDefinition = {
-  name: 'BrowserService',
-  fullName: 'cline.BrowserService',
+  name: "BrowserService",
+  fullName: "cline.BrowserService",
   methods: {
     getBrowserConnectionInfo: {
-      name: 'getBrowserConnectionInfo',
+      name: "getBrowserConnectionInfo",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: BrowserConnectionInfo,
@@ -780,7 +780,7 @@ export const BrowserServiceDefinition = {
       options: {},
     },
     testBrowserConnection: {
-      name: 'testBrowserConnection',
+      name: "testBrowserConnection",
       requestType: StringRequest,
       requestStream: false,
       responseType: BrowserConnection,
@@ -788,7 +788,7 @@ export const BrowserServiceDefinition = {
       options: {},
     },
     discoverBrowser: {
-      name: 'discoverBrowser',
+      name: "discoverBrowser",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: BrowserConnection,
@@ -796,7 +796,7 @@ export const BrowserServiceDefinition = {
       options: {},
     },
     getDetectedChromePath: {
-      name: 'getDetectedChromePath',
+      name: "getDetectedChromePath",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: ChromePath,
@@ -804,7 +804,7 @@ export const BrowserServiceDefinition = {
       options: {},
     },
     relaunchChromeDebugMode: {
-      name: 'relaunchChromeDebugMode',
+      name: "relaunchChromeDebugMode",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: String,

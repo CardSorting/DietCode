@@ -5,7 +5,7 @@
 // source: host/testing.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 export type GetWebviewHtmlRequest = {};
 
@@ -121,11 +121,11 @@ export const GetWebviewHtmlResponse: MessageFns<GetWebviewHtmlResponse> = {
 /** This is for use in integration tests to get the contents of the webview. */
 export type TestingServiceDefinition = typeof TestingServiceDefinition;
 export const TestingServiceDefinition = {
-  name: 'TestingService',
-  fullName: 'host.TestingService',
+  name: "TestingService",
+  fullName: "host.TestingService",
   methods: {
     getWebviewHtml: {
-      name: 'getWebviewHtml',
+      name: "getWebviewHtml",
       requestType: GetWebviewHtmlRequest,
       requestStream: false,
       responseType: GetWebviewHtmlResponse,

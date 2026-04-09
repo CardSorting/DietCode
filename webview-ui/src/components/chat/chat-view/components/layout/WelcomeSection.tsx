@@ -1,34 +1,33 @@
-import BannerCarousel from '@/components/common/BannerCarousel';
-import BannerCarousel from '@/components/common/BannerCarousel';
-import HistoryPreview from '@/components/history/HistoryPreview';
-import { useApiConfigurationHandlers } from '@/components/settings/utils/useApiConfigurationHandlers';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import HomeHeader from '@/components/welcome/HomeHeader';
-import { SuggestedTasks } from '@/components/welcome/SuggestedTasks';
-import CreateWorktreeModal from '@/components/worktrees/CreateWorktreeModal';
-import { useClineAuth } from '@/context/ClineAuthContext';
-import { useExtensionState } from '@/context/ExtensionStateContext';
+import BannerCarousel from "@/components/common/BannerCarousel";
+import HistoryPreview from "@/components/history/HistoryPreview";
+import { useApiConfigurationHandlers } from "@/components/settings/utils/useApiConfigurationHandlers";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import HomeHeader from "@/components/welcome/HomeHeader";
+import { SuggestedTasks } from "@/components/welcome/SuggestedTasks";
+import CreateWorktreeModal from "@/components/worktrees/CreateWorktreeModal";
+import { useClineAuth } from "@/context/ClineAuthContext";
+import { useExtensionState } from "@/context/ExtensionStateContext";
 import {
   AccountServiceClient,
   StateServiceClient,
   UiServiceClient,
   WorktreeServiceClient,
-} from '@/services/grpc-client';
-import { convertBannerData } from '@/utils/bannerUtils';
-import { getCurrentPlatform } from '@/utils/platformUtils';
+} from "@/services/grpc-client";
+import { convertBannerData } from "@/utils/bannerUtils";
+import { getCurrentPlatform } from "@/utils/platformUtils";
 import {
   BANNER_DATA,
   type BannerAction,
   BannerActionType,
   type BannerCardData,
-} from '@shared/cline/banner.ts';
-import { EmptyRequest } from '@shared/nice-grpc/cline/common.ts';
-import type { Worktree } from '@shared/nice-grpc/cline/worktree';
-import { TrackWorktreeViewOpenedRequest } from '@shared/nice-grpc/cline/worktree.ts';
-import { GitBranch } from 'lucide-react';
-import type React from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { WelcomeSectionProps } from '../../types/chatTypes';
+} from "@shared/cline/banner.ts";
+import { EmptyRequest } from "@shared/nice-grpc/cline/common.ts";
+import type { Worktree } from "@shared/nice-grpc/cline/worktree";
+import { TrackWorktreeViewOpenedRequest } from "@shared/nice-grpc/cline/worktree.ts";
+import { GitBranch } from "lucide-react";
+import type React from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { WelcomeSectionProps } from "../../types/chatTypes";
 
 /**
  * Welcome section shown when there's no active task
@@ -80,7 +79,7 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
   // Handle click on home page worktree element with telemetry
   const handleWorktreeClick = useCallback(() => {
     WorktreeServiceClient.trackWorktreeViewOpened(
-      TrackWorktreeViewOpenedRequest.create({ source: 'home_page' }),
+      TrackWorktreeViewOpenedRequest.create({ source: "home_page" }),
     ).catch(console.error);
     navigateToWorktrees();
   }, [navigateToWorktrees]);
@@ -100,13 +99,13 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
       }
 
       // Legacy version-based tracking (deprecated)
-      if (bannerId.startsWith('info-banner')) {
+      if (bannerId.startsWith("info-banner")) {
         return (lastDismissedInfoBannerVersion ?? 0) >= 1;
       }
-      if (bannerId.startsWith('new-model')) {
+      if (bannerId.startsWith("new-model")) {
         return (lastDismissedModelBannerVersion ?? 0) >= 1;
       }
-      if (bannerId.startsWith('cli-')) {
+      if (bannerId.startsWith("cli-")) {
         return (lastDismissedCliBannerVersion ?? 0) >= 1;
       }
       return false;
@@ -156,23 +155,23 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
           break;
 
         case BannerActionType.SetModel: {
-          const modelId = action.arg || 'anthropic/claude-sonnet-4.5';
-          const initialModelTab = action.tab || 'recommended';
+          const modelId = action.arg || "anthropic/claude-sonnet-4.5";
+          const initialModelTab = action.tab || "recommended";
           handleFieldsChange({
             planModeOpenRouterModelId: modelId,
             actModeOpenRouterModelId: modelId,
             planModeOpenRouterModelInfo: openRouterModels[modelId],
             actModeOpenRouterModelInfo: openRouterModels[modelId],
-            planModeApiProvider: 'cline',
-            actModeApiProvider: 'cline',
+            planModeApiProvider: "cline",
+            actModeApiProvider: "cline",
           });
-          navigateToSettingsModelPicker({ targetSection: 'api-config', initialModelTab });
+          navigateToSettingsModelPicker({ targetSection: "api-config", initialModelTab });
           break;
         }
 
         case BannerActionType.ShowAccount:
           AccountServiceClient.accountLoginClicked({}).catch((err) =>
-            console.error('Failed to get login URL:', err),
+            console.error("Failed to get login URL:", err),
           );
           break;
 
@@ -184,21 +183,21 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
               actModeApiProvider: action.arg as any,
             });
           }
-          navigateToSettings('api-config');
+          navigateToSettings("api-config");
           break;
 
         case BannerActionType.ShowFeatureSettings:
-          navigateToSettings('features');
+          navigateToSettings("features");
           break;
 
         case BannerActionType.InstallCli:
           StateServiceClient.installClineCli({}).catch((error) =>
-            console.error('Failed to initiate CLI installation:', error),
+            console.error("Failed to initiate CLI installation:", error),
           );
           break;
 
         default:
-          console.warn('Unknown banner action:', action.action);
+          console.warn("Unknown banner action:", action.action);
       }
     },
     [handleFieldsChange, openRouterModels, navigateToSettings, navigateToSettingsModelPicker],
@@ -211,11 +210,11 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
     // !! Do not continue use these version numbers or add new banners that don't have unique IDs. !!
     // Banner versions are **deprecated**. Going forward, we are tracking which banners have
     // been dismissed using the **banner ID**.
-    if (bannerId.startsWith('info-banner')) {
+    if (bannerId.startsWith("info-banner")) {
       StateServiceClient.updateInfoBannerVersion({ value: 1 }).catch(console.error);
-    } else if (bannerId.startsWith('new-model')) {
+    } else if (bannerId.startsWith("new-model")) {
       StateServiceClient.updateModelBannerVersion({ value: 1 }).catch(console.error);
-    } else if (bannerId.startsWith('cli-')) {
+    } else if (bannerId.startsWith("cli-")) {
       StateServiceClient.updateCliBannerVersion({ value: 1 }).catch(console.error);
     } else {
       // Mark the banner as dismissed by its ID.
@@ -264,7 +263,7 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
 								<Tooltip>
 									<TooltipTrigger asChild>
 										<button
-											className="flex items-center gap-2 px-4 py-2 rounded-full border border-[var(--vscode-foreground)]/30 text-[var(--vscode-foreground)] bg-transparent hover:bg-[var(--vscode-list-hoverBackground)] active:opacity-80 text-sm font-medium cursor-pointer"
+											className="flex items-center gap-2 px-4 py-2 rounded-full border border-(--vscode-foreground)/30 text-(--vscode-foreground) bg-transparent hover:bg-(--vscode-list-hoverBackground) active:opacity-80 text-sm font-medium cursor-pointer"
 											onClick={() => setShowCreateWorktreeModal(true)}
 											type="button">
 											<span className="codicon codicon-empty-window"></span>
@@ -273,7 +272,7 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
 									</TooltipTrigger>
 									<TooltipContent side="top">
 										Create a new git worktree and open it in a separate window. Great for running parallel
-										Cline tasks.
+										DietCode tasks.
 									</TooltipContent>
 								</Tooltip>
 								*/}
@@ -281,15 +280,15 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
-                      className="flex flex-col items-center gap-0.5 text-xs text-[var(--vscode-descriptionForeground)] hover:text-[var(--vscode-foreground)] cursor-pointer bg-transparent border-none p-1 rounded"
+                      className="flex flex-col items-center gap-0.5 text-xs text-(--vscode-descriptionForeground) hover:text-(--vscode-foreground) cursor-pointer bg-transparent border-none p-1 rounded"
                       onClick={handleWorktreeClick}
                       type="button"
                     >
                       <div className="flex items-center gap-1.5 text-xs">
-                        <GitBranch className="w-3 h-3 stroke-[2.5] flex-shrink-0" />
+                        <GitBranch className="w-3 h-3 stroke-[2.5] shrink-0" />
                         <span className="break-all text-center">
-                          <span className="font-semibold">Current:</span>{' '}
-                          {currentWorktree.branch || 'detached HEAD'}
+                          <span className="font-semibold">Current:</span>{" "}
+                          {currentWorktree.branch || "detached HEAD"}
                         </span>
                       </div>
                       <span className="break-all text-center max-w-[300px]">
@@ -298,7 +297,7 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
                     </button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">
-                    View and manage git worktrees. Great for running parallel Cline tasks.
+                    View and manage git worktrees. Great for running parallel DietCode tasks.
                   </TooltipContent>
                 </Tooltip>
               )}

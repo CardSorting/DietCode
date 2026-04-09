@@ -1,14 +1,14 @@
-import type { ClineMessage, ClineSayTool } from '@shared/ExtensionMessage';
-import type { Mode } from '@shared/storage/types';
-import type { LucideIcon } from 'lucide-react';
-import type React from 'react';
-import { useMemo } from 'react';
-import { cleanPathPrefix } from '../common/CodeAccordian';
-import ErrorRow from './ErrorRow';
-import { ThinkingRow } from './ThinkingRow';
-import { TypewriterText } from './TypewriterText';
-import { getIconByToolName } from './chat-view';
-import { isApiReqAbsorbable, isLowStakesTool } from './chat-view/utils/messageUtils';
+import type { ClineMessage, ClineSayTool } from "@shared/ExtensionMessage";
+import type { Mode } from "@shared/storage/types";
+import type { LucideIcon } from "lucide-react";
+import type React from "react";
+import { useMemo } from "react";
+import { cleanPathPrefix } from "../common/CodeAccordian";
+import ErrorRow from "./ErrorRow";
+import { ThinkingRow } from "./ThinkingRow";
+import { TypewriterText } from "./TypewriterText";
+import { getIconByToolName } from "./chat-view";
+import { isApiReqAbsorbable, isLowStakesTool } from "./chat-view/utils/messageUtils";
 
 interface RequestStartRowProps {
   message: ClineMessage;
@@ -25,34 +25,34 @@ interface RequestStartRowProps {
 }
 
 // State type for api_req_started rendering
-type ApiReqState = 'pre' | 'thinking' | 'error' | 'final';
+type ApiReqState = "pre" | "thinking" | "error" | "final";
 
 // Helper to format search regex for display - show all terms separated by |
 const formatSearchRegex = (regex: string, path: string, filePattern?: string): string => {
   const cleanedPath = cleanPathPrefix(path);
   const terms = regex
-    .split('|')
-    .map((t) => t.trim().replace(/\\b/g, '').replace(/\\s\?/g, ' '))
+    .split("|")
+    .map((t) => t.trim().replace(/\\b/g, "").replace(/\\s\?/g, " "))
     .filter(Boolean)
-    .join(' | ');
-  return filePattern && filePattern !== '*'
+    .join(" | ");
+  return filePattern && filePattern !== "*"
     ? `"${terms}" in ${cleanedPath}/ (${filePattern})`
     : `"${terms}" in ${cleanedPath}/`;
 };
 // Format activity text based on tool type
 const getActivityText = (tool: ClineSayTool): string | null => {
-  const cleanedPath = cleanPathPrefix(tool.path || '');
+  const cleanedPath = cleanPathPrefix(tool.path || "");
   switch (tool.tool) {
-    case 'readFile':
+    case "readFile":
       return tool.path ? `Reading ${cleanedPath}...` : null;
-    case 'listFilesTopLevel':
-    case 'listFilesRecursive':
+    case "listFilesTopLevel":
+    case "listFilesRecursive":
       return tool.path ? `Exploring ${cleanedPath}/...` : null;
-    case 'searchFiles':
+    case "searchFiles":
       return tool.regex && tool.path
         ? `Searching ${formatSearchRegex(tool.regex, tool.path, tool.filePattern)}...`
         : null;
-    case 'listCodeDefinitionNames':
+    case "listCodeDefinitionNames":
       return tool.path ? `Analyzing ${cleanedPath}/...` : null;
     default:
       return null;
@@ -77,12 +77,12 @@ const collectToolsInRange = (
 
     // Only collect tools that are currently executing (ask === "tool")
     // Skip completed tools (say === "tool") - they should be in the completed list
-    if (msg.say === 'tool' || msg.ask !== 'tool') {
+    if (msg.say === "tool" || msg.ask !== "tool") {
       continue;
     }
 
     try {
-      const tool = JSON.parse(msg.text || '{}') as ClineSayTool;
+      const tool = JSON.parse(msg.text || "{}") as ClineSayTool;
       const activityText = getActivityText(tool);
       if (activityText) {
         const toolIcon = getIconByToolName(tool.tool);
@@ -101,7 +101,7 @@ const findCurrentApiReq = (
 ): { index: number; hasCost: boolean } | null => {
   for (let i = messages.length - 1; i >= 0; i--) {
     const msg = messages[i];
-    if (msg.say === 'api_req_started' && msg.text) {
+    if (msg.say === "api_req_started" && msg.text) {
       try {
         const info = JSON.parse(msg.text);
         return { index: i, hasCost: info.cost != null };
@@ -117,7 +117,7 @@ const findCurrentApiReq = (
 const findPrevCompletedApiReq = (messages: ClineMessage[], beforeIdx: number): number => {
   for (let i = beforeIdx - 1; i >= 0; i--) {
     const msg = messages[i];
-    if (msg.say === 'api_req_started' && msg.text) {
+    if (msg.say === "api_req_started" && msg.text) {
       try {
         const info = JSON.parse(msg.text);
         if (info.cost != null) {
@@ -152,18 +152,18 @@ export const RequestStartRow: React.FC<RequestStartRowProps> = ({
   const hasReasoning = !!reasoningContent;
   const hasCompletionResult = clineMessages.some(
     (msg) =>
-      msg.ask === 'completion_result' ||
-      msg.say === 'completion_result' ||
-      msg.ask === 'plan_mode_respond',
+      msg.ask === "completion_result" ||
+      msg.say === "completion_result" ||
+      msg.ask === "plan_mode_respond",
   );
 
   const apiReqState: ApiReqState = hasError
-    ? 'error'
+    ? "error"
     : hasCost
-      ? 'final'
+      ? "final"
       : hasReasoning
-        ? 'thinking'
-        : 'pre';
+        ? "thinking"
+        : "pre";
 
   // While reasoning is streaming, keep the Brain ThinkingBlock exactly as-is.
   // Once response content starts (any text/tool/command), collapse into a compact
@@ -199,12 +199,12 @@ export const RequestStartRow: React.FC<RequestStartRowProps> = ({
   const hasCompletedTools = useMemo(() => {
     // Look for any completed low-stakes tool messages that would be in a tool group
     return clineMessages.some((msg, idx) => {
-      if (msg.say === 'tool' && isLowStakesTool(msg)) {
+      if (msg.say === "tool" && isLowStakesTool(msg)) {
         // Check if this tool is from a completed API request
         // (looking backwards for an api_req with cost)
         for (let i = idx - 1; i >= 0; i--) {
           const prevMsg = clineMessages[i];
-          if (prevMsg.say === 'api_req_started' && prevMsg.text) {
+          if (prevMsg.say === "api_req_started" && prevMsg.text) {
             try {
               const info = JSON.parse(prevMsg.text);
               return info.cost != null;
@@ -227,7 +227,7 @@ export const RequestStartRow: React.FC<RequestStartRowProps> = ({
 
   return (
     <div>
-      {apiReqState === 'pre' && shouldShowActivities && (
+      {apiReqState === "pre" && shouldShowActivities && (
         <div className="flex items-center text-description w-full text-sm">
           <div className="ml-1 flex-1 w-full h-full">
             <div className="flex flex-col gap-0.5 w-full min-h-1">
@@ -265,7 +265,7 @@ export const RequestStartRow: React.FC<RequestStartRowProps> = ({
           />
         ))}
 
-      {apiReqState === 'error' && (
+      {apiReqState === "error" && (
         <ErrorRow
           apiReqStreamingFailedMessage={apiReqStreamingFailedMessage}
           apiRequestFailedMessage={apiRequestFailedMessage}

@@ -1,24 +1,24 @@
-import { FileServiceClient } from '@/services/grpc-client';
-import { validateSlashCommand } from '@/utils/slash-commands';
-import { mentionRegexGlobal } from '@shared/context-mentions.ts';
-import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
+import { FileServiceClient } from "@/services/grpc-client";
+import { validateSlashCommand } from "@/utils/slash-commands";
+import { mentionRegexGlobal } from "@shared/context-mentions.ts";
+import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
 
 // Optimized highlighting functions
 const highlightSlashCommands = (text: string, withShadow = true) => {
   const match = text.match(/^\s*\/([a-zA-Z0-9_-]+)(\s*|$)/);
-  if (!match || validateSlashCommand(match[1]) !== 'full') {
+  if (!match || validateSlashCommand(match[1]) !== "full") {
     return text;
   }
 
   const commandName = match[1];
   const commandEndIndex = match[0].length;
-  const beforeCommand = text.substring(0, text.indexOf('/'));
+  const beforeCommand = text.substring(0, text.indexOf("/"));
   const afterCommand = match[2] + text.substring(commandEndIndex);
 
   return [
     beforeCommand,
     <span
-      className={withShadow ? 'mention-context-highlight-with-shadow' : 'mention-context-highlight'}
+      className={withShadow ? "mention-context-highlight-with-shadow" : "mention-context-highlight"}
       key="slashCommand"
     >
       /{commandName}
@@ -43,7 +43,7 @@ export const highlightMentions = (text: string, withShadow = true) => {
     } else {
       result.push(
         <span
-          className={`${withShadow ? 'mention-context-highlight-with-shadow' : 'mention-context-highlight'} cursor-pointer`}
+          className={`${withShadow ? "mention-context-highlight-with-shadow" : "mention-context-highlight"} cursor-pointer`}
           key={`mention-${Math.floor(i / 2)}`}
           onClick={() => FileServiceClient.openMention(StringRequest.create({ value: parts[i] }))}
         >

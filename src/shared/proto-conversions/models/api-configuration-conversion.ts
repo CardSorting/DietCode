@@ -6,7 +6,7 @@ import {
   ApiProvider as ProtoApiProvider,
   type OcaModelInfo as ProtoOcaModelInfo,
   type ThinkingConfig,
-} from '@shared/proto/cline/models';
+} from "@shared/proto/cline/models";
 import type {
   ApiConfiguration,
   ApiProvider,
@@ -15,12 +15,12 @@ import type {
   BedrockModelId,
   ModelInfo,
   OcaModelInfo,
-} from '../../api';
-import type { OpenaiReasoningEffort } from '../../storage/types';
+} from "../../api";
+import type { OpenaiReasoningEffort } from "../../storage/types";
 
 // Convert application ThinkingConfig to proto ThinkingConfig
 function convertThinkingConfigToProto(
-  config: ModelInfo['thinkingConfig'],
+  config: ModelInfo["thinkingConfig"],
 ): ThinkingConfig | undefined {
   if (!config) {
     return undefined;
@@ -36,7 +36,7 @@ function convertThinkingConfigToProto(
 // Convert proto ThinkingConfig to application ThinkingConfig
 function convertProtoToThinkingConfig(
   config: ThinkingConfig | undefined,
-): ModelInfo['thinkingConfig'] | undefined {
+): ModelInfo["thinkingConfig"] | undefined {
   if (!config) {
     return undefined;
   }
@@ -258,89 +258,89 @@ function convertProtoToOpenAiCompatibleModelInfo(
 // Convert application ApiProvider to proto ApiProvider
 function convertApiProviderToProto(provider: string | undefined): ProtoApiProvider {
   switch (provider) {
-    case 'anthropic':
+    case "anthropic":
       return ProtoApiProvider.ANTHROPIC;
-    case 'openrouter':
+    case "openrouter":
       return ProtoApiProvider.OPENROUTER;
-    case 'bedrock':
+    case "bedrock":
       return ProtoApiProvider.BEDROCK;
-    case 'vertex':
+    case "vertex":
       return ProtoApiProvider.VERTEX;
-    case 'openai':
+    case "openai":
       return ProtoApiProvider.OPENAI;
-    case 'ollama':
+    case "ollama":
       return ProtoApiProvider.OLLAMA;
-    case 'lmstudio':
+    case "lmstudio":
       return ProtoApiProvider.LMSTUDIO;
-    case 'gemini':
+    case "gemini":
       return ProtoApiProvider.GEMINI;
-    case 'openai-native':
+    case "openai-native":
       return ProtoApiProvider.OPENAI_NATIVE;
-    case 'requesty':
+    case "requesty":
       return ProtoApiProvider.REQUESTY;
-    case 'together':
+    case "together":
       return ProtoApiProvider.TOGETHER;
-    case 'deepseek':
+    case "deepseek":
       return ProtoApiProvider.DEEPSEEK;
-    case 'qwen':
+    case "qwen":
       return ProtoApiProvider.QWEN;
-    case 'qwen-code':
+    case "qwen-code":
       return ProtoApiProvider.QWEN_CODE;
-    case 'doubao':
+    case "doubao":
       return ProtoApiProvider.DOUBAO;
-    case 'mistral':
+    case "mistral":
       return ProtoApiProvider.MISTRAL;
-    case 'vscode-lm':
+    case "vscode-lm":
       return ProtoApiProvider.VSCODE_LM;
-    case 'cline':
+    case "cline":
       return ProtoApiProvider.CLINE;
-    case 'litellm':
+    case "litellm":
       return ProtoApiProvider.LITELLM;
-    case 'moonshot':
+    case "moonshot":
       return ProtoApiProvider.MOONSHOT;
-    case 'huggingface':
+    case "huggingface":
       return ProtoApiProvider.HUGGINGFACE;
-    case 'nebius':
+    case "nebius":
       return ProtoApiProvider.NEBIUS;
-    case 'wandb':
+    case "wandb":
       return ProtoApiProvider.WANDB;
-    case 'fireworks':
+    case "fireworks":
       return ProtoApiProvider.FIREWORKS;
-    case 'asksage':
+    case "asksage":
       return ProtoApiProvider.ASKSAGE;
-    case 'xai':
+    case "xai":
       return ProtoApiProvider.XAI;
-    case 'sambanova':
+    case "sambanova":
       return ProtoApiProvider.SAMBANOVA;
-    case 'cerebras':
+    case "cerebras":
       return ProtoApiProvider.CEREBRAS;
-    case 'groq':
+    case "groq":
       return ProtoApiProvider.GROQ;
-    case 'baseten':
+    case "baseten":
       return ProtoApiProvider.BASETEN;
-    case 'sapaicore':
+    case "sapaicore":
       return ProtoApiProvider.SAPAICORE;
-    case 'claude-code':
+    case "claude-code":
       return ProtoApiProvider.CLAUDE_CODE;
-    case 'huawei-cloud-maas':
+    case "huawei-cloud-maas":
       return ProtoApiProvider.HUAWEI_CLOUD_MAAS;
-    case 'vercel-ai-gateway':
+    case "vercel-ai-gateway":
       return ProtoApiProvider.VERCEL_AI_GATEWAY;
-    case 'zai':
+    case "zai":
       return ProtoApiProvider.ZAI;
-    case 'dify':
+    case "dify":
       return ProtoApiProvider.DIFY;
-    case 'oca':
+    case "oca":
       return ProtoApiProvider.OCA;
-    case 'aihubmix':
+    case "aihubmix":
       return ProtoApiProvider.AIHUBMIX;
-    case 'minimax':
+    case "minimax":
       return ProtoApiProvider.MINIMAX;
-    case 'hicap':
+    case "hicap":
       return ProtoApiProvider.HICAP;
-    case 'nousResearch':
+    case "nousResearch":
       return ProtoApiProvider.NOUSRESEARCH;
-    case 'openai-codex':
+    case "openai-codex":
       return ProtoApiProvider.OPENAI_CODEX;
     default:
       return ProtoApiProvider.ANTHROPIC;
@@ -351,91 +351,91 @@ function convertApiProviderToProto(provider: string | undefined): ProtoApiProvid
 export function convertProtoToApiProvider(provider: ProtoApiProvider): ApiProvider {
   switch (provider) {
     case ProtoApiProvider.ANTHROPIC:
-      return 'anthropic';
+      return "anthropic";
     case ProtoApiProvider.OPENROUTER:
-      return 'openrouter';
+      return "openrouter";
     case ProtoApiProvider.BEDROCK:
-      return 'bedrock';
+      return "bedrock";
     case ProtoApiProvider.VERTEX:
-      return 'vertex';
+      return "vertex";
     case ProtoApiProvider.OPENAI:
-      return 'openai';
+      return "openai";
     case ProtoApiProvider.OLLAMA:
-      return 'ollama';
+      return "ollama";
     case ProtoApiProvider.LMSTUDIO:
-      return 'lmstudio';
+      return "lmstudio";
     case ProtoApiProvider.GEMINI:
-      return 'gemini';
+      return "gemini";
     case ProtoApiProvider.OPENAI_NATIVE:
-      return 'openai-native';
+      return "openai-native";
     case ProtoApiProvider.REQUESTY:
-      return 'requesty';
+      return "requesty";
     case ProtoApiProvider.TOGETHER:
-      return 'together';
+      return "together";
     case ProtoApiProvider.DEEPSEEK:
-      return 'deepseek';
+      return "deepseek";
     case ProtoApiProvider.QWEN:
-      return 'qwen';
+      return "qwen";
     case ProtoApiProvider.QWEN_CODE:
-      return 'qwen-code';
+      return "qwen-code";
     case ProtoApiProvider.DOUBAO:
-      return 'doubao';
+      return "doubao";
     case ProtoApiProvider.MISTRAL:
-      return 'mistral';
+      return "mistral";
     case ProtoApiProvider.VSCODE_LM:
-      return 'vscode-lm';
+      return "vscode-lm";
     case ProtoApiProvider.CLINE:
-      return 'cline';
+      return "cline";
     case ProtoApiProvider.LITELLM:
-      return 'litellm';
+      return "litellm";
     case ProtoApiProvider.MOONSHOT:
-      return 'moonshot';
+      return "moonshot";
     case ProtoApiProvider.HUGGINGFACE:
-      return 'huggingface';
+      return "huggingface";
     case ProtoApiProvider.NEBIUS:
-      return 'nebius';
+      return "nebius";
     case ProtoApiProvider.WANDB:
-      return 'wandb';
+      return "wandb";
     case ProtoApiProvider.FIREWORKS:
-      return 'fireworks';
+      return "fireworks";
     case ProtoApiProvider.ASKSAGE:
-      return 'asksage';
+      return "asksage";
     case ProtoApiProvider.XAI:
-      return 'xai';
+      return "xai";
     case ProtoApiProvider.SAMBANOVA:
-      return 'sambanova';
+      return "sambanova";
     case ProtoApiProvider.CEREBRAS:
-      return 'cerebras';
+      return "cerebras";
     case ProtoApiProvider.GROQ:
-      return 'groq';
+      return "groq";
     case ProtoApiProvider.BASETEN:
-      return 'baseten';
+      return "baseten";
     case ProtoApiProvider.SAPAICORE:
-      return 'sapaicore';
+      return "sapaicore";
     case ProtoApiProvider.CLAUDE_CODE:
-      return 'claude-code';
+      return "claude-code";
     case ProtoApiProvider.HUAWEI_CLOUD_MAAS:
-      return 'huawei-cloud-maas';
+      return "huawei-cloud-maas";
     case ProtoApiProvider.VERCEL_AI_GATEWAY:
-      return 'vercel-ai-gateway';
+      return "vercel-ai-gateway";
     case ProtoApiProvider.ZAI:
-      return 'zai';
+      return "zai";
     case ProtoApiProvider.HICAP:
-      return 'hicap';
+      return "hicap";
     case ProtoApiProvider.DIFY:
-      return 'dify';
+      return "dify";
     case ProtoApiProvider.OCA:
-      return 'oca';
+      return "oca";
     case ProtoApiProvider.AIHUBMIX:
-      return 'aihubmix';
+      return "aihubmix";
     case ProtoApiProvider.MINIMAX:
-      return 'minimax';
+      return "minimax";
     case ProtoApiProvider.NOUSRESEARCH:
-      return 'nousResearch';
+      return "nousResearch";
     case ProtoApiProvider.OPENAI_CODEX:
-      return 'openai-codex';
+      return "openai-codex";
     default:
-      return 'anthropic';
+      return "anthropic";
   }
 }
 

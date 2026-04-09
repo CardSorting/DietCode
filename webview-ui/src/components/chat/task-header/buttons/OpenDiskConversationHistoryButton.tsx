@@ -1,9 +1,9 @@
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils';
-import { FileServiceClient } from '@/services/grpc-client';
-import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
-import { ArrowDownToLineIcon } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import { FileServiceClient } from "@/services/grpc-client";
+import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
+import { ArrowDownToLineIcon } from "lucide-react";
 
 const OpenDiskConversationHistoryButton: React.FC<{
   taskId?: string;
@@ -24,7 +24,7 @@ const OpenDiskConversationHistoryButton: React.FC<{
   return (
     <Tooltip>
       <TooltipContent>Open Conversation History File</TooltipContent>
-      <TooltipTrigger className={cn('flex items-center', className)}>
+      <TooltipTrigger className={cn("flex items-center", className)}>
         <Button
           aria-label="Open Disk Conversation History"
           onClick={(e) => {
@@ -42,5 +42,5 @@ const OpenDiskConversationHistoryButton: React.FC<{
   );
 };
 
-OpenDiskConversationHistoryButton.displayName = 'OpenDiskConversationHistoryButton';
+OpenDiskConversationHistoryButton.displayName = "OpenDiskConversationHistoryButton";
 export default OpenDiskConversationHistoryButton;

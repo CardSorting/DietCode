@@ -5,8 +5,8 @@
 // source: host/diff.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
-import { Metadata } from '../cline/common';
+import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { Metadata } from "../cline/common";
 
 export interface OpenDiffRequest {
   metadata?: Metadata | undefined;
@@ -1312,12 +1312,12 @@ export const OpenMultiFileDiffResponse: MessageFns<OpenMultiFileDiffResponse> = 
 /** Provides methods for diff views. */
 export type DiffServiceDefinition = typeof DiffServiceDefinition;
 export const DiffServiceDefinition = {
-  name: 'DiffService',
-  fullName: 'host.DiffService',
+  name: "DiffService",
+  fullName: "host.DiffService",
   methods: {
     /** Open the diff view/editor. */
     openDiff: {
-      name: 'openDiff',
+      name: "openDiff",
       requestType: OpenDiffRequest,
       requestStream: false,
       responseType: OpenDiffResponse,
@@ -1326,7 +1326,7 @@ export const DiffServiceDefinition = {
     },
     /** Get the contents of the diff view. */
     getDocumentText: {
-      name: 'getDocumentText',
+      name: "getDocumentText",
       requestType: GetDocumentTextRequest,
       requestStream: false,
       responseType: GetDocumentTextResponse,
@@ -1335,7 +1335,7 @@ export const DiffServiceDefinition = {
     },
     /** Replace a text selection in the diff. */
     replaceText: {
-      name: 'replaceText',
+      name: "replaceText",
       requestType: ReplaceTextRequest,
       requestStream: false,
       responseType: ReplaceTextResponse,
@@ -1343,7 +1343,7 @@ export const DiffServiceDefinition = {
       options: {},
     },
     scrollDiff: {
-      name: 'scrollDiff',
+      name: "scrollDiff",
       requestType: ScrollDiffRequest,
       requestStream: false,
       responseType: ScrollDiffResponse,
@@ -1352,7 +1352,7 @@ export const DiffServiceDefinition = {
     },
     /** Truncate the diff document. */
     truncateDocument: {
-      name: 'truncateDocument',
+      name: "truncateDocument",
       requestType: TruncateDocumentRequest,
       requestStream: false,
       responseType: TruncateDocumentResponse,
@@ -1361,7 +1361,7 @@ export const DiffServiceDefinition = {
     },
     /** Save the diff document. */
     saveDocument: {
-      name: 'saveDocument',
+      name: "saveDocument",
       requestType: SaveDocumentRequest,
       requestStream: false,
       responseType: SaveDocumentResponse,
@@ -1373,7 +1373,7 @@ export const DiffServiceDefinition = {
      * Any diff editors with unsaved content should not be closed.
      */
     closeAllDiffs: {
-      name: 'closeAllDiffs',
+      name: "closeAllDiffs",
       requestType: CloseAllDiffsRequest,
       requestStream: false,
       responseType: CloseAllDiffsResponse,
@@ -1385,7 +1385,7 @@ export const DiffServiceDefinition = {
      * Content is passed as in-memory data, not read from the file system.
      */
     openMultiFileDiff: {
-      name: 'openMultiFileDiff',
+      name: "openMultiFileDiff",
       requestType: OpenMultiFileDiffRequest,
       requestStream: false,
       responseType: OpenMultiFileDiffResponse,

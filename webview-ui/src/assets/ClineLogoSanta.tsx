@@ -1,6 +1,6 @@
-import type { Environment } from '@shared/config-types';
-import type { SVGProps } from 'react';
-import { getEnvironmentColor } from '../utils/environmentColors';
+import type { Environment } from "@shared/config-types";
+import type { SVGProps } from "react";
+import { getEnvironmentColor } from "../utils/environmentColors";
 
 /**
  * ClineLogoSanta component renders the Cline logo with a festive Santa hat
@@ -18,7 +18,7 @@ const ClineLogoSanta = (props: SVGProps<SVGSVGElement> & { environment?: Environ
   // Determine fill color based on environment
   const fillColor = environment
     ? getEnvironmentColor(environment)
-    : 'var(--vscode-icon-foreground)';
+    : "var(--vscode-icon-foreground)";
 
   return (
     <svg

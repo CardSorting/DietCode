@@ -1,7 +1,7 @@
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { CheckCheckIcon, CopyIcon } from 'lucide-react';
-import { forwardRef, useCallback, useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { CheckCheckIcon, CopyIcon } from "lucide-react";
+import { forwardRef, useCallback, useState } from "react";
 
 interface CopyButtonProps {
   textToCopy?: string;
@@ -14,7 +14,7 @@ interface WithCopyButtonProps {
   children: React.ReactNode;
   textToCopy?: string;
   onCopy?: () => string | undefined | null;
-  position?: 'top-right' | 'bottom-right';
+  position?: "top-right" | "bottom-right";
   style?: React.CSSProperties;
   className?: string;
   copyButtonClassname?: string;
@@ -25,8 +25,8 @@ interface WithCopyButtonProps {
 const COPIED_TIMEOUT = 1500;
 
 const POSITION_CLASSES = {
-  'top-right': 'top-5 right-5',
-  'bottom-right': 'bottom-1 right-2',
+  "top-right": "top-5 right-5",
+  "bottom-right": "bottom-1 right-2",
 } as const;
 
 /**
@@ -52,13 +52,13 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
         setCopied(true);
         setTimeout(() => setCopied(false), COPIED_TIMEOUT);
       })
-      .catch((err) => console.error('Copy failed', err));
+      .catch((err) => console.error("Copy failed", err));
   }, [textToCopy, onCopy]);
 
   return (
     <Button
-      aria-label={copied ? 'Copied' : ariaLabel || 'Copy'}
-      className={cn('scale-90', className)}
+      aria-label={copied ? "Copied" : ariaLabel || "Copy"}
+      className={cn("scale-90", className)}
       onClick={handleCopy}
       size="icon"
       variant="icon"
@@ -77,7 +77,7 @@ export const WithCopyButton = forwardRef<HTMLDivElement, WithCopyButtonProps>(
       children,
       textToCopy,
       onCopy,
-      position = 'top-right',
+      position = "top-right",
       style,
       className,
       copyButtonClassname,
@@ -91,7 +91,7 @@ export const WithCopyButton = forwardRef<HTMLDivElement, WithCopyButtonProps>(
 
     return (
       <div
-        className={cn('group relative w-full', className)}
+        className={cn("group relative w-full", className)}
         onMouseUp={onMouseUp}
         ref={ref}
         style={style}
@@ -100,7 +100,7 @@ export const WithCopyButton = forwardRef<HTMLDivElement, WithCopyButtonProps>(
         {hasCopyFunctionality && (
           <div
             className={cn(
-              'absolute opacity-0 group-hover:opacity-100 transition-opacity',
+              "absolute opacity-0 group-hover:opacity-100 transition-opacity",
               POSITION_CLASSES[position],
               copyButtonClassname,
             )}
@@ -114,4 +114,4 @@ export const WithCopyButton = forwardRef<HTMLDivElement, WithCopyButtonProps>(
   },
 );
 
-WithCopyButton.displayName = 'WithCopyButton';
+WithCopyButton.displayName = "WithCopyButton";

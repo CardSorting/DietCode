@@ -1,5 +1,5 @@
-import type React from 'react';
-import styled from 'styled-components';
+import type React from "react";
+import styled from "styled-components";
 
 export interface FeaturedModelCardProps {
   modelId: string;

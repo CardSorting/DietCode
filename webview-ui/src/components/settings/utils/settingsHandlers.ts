@@ -1,5 +1,5 @@
-import { StateServiceClient } from '@/services/grpc-client';
-import { McpDisplayMode, UpdateSettingsRequest } from '@shared/nice-grpc/cline/state.ts';
+import { StateServiceClient } from "@/services/grpc-client";
+import { McpDisplayMode, UpdateSettingsRequest } from "@shared/nice-grpc/cline/state.ts";
 
 /**
  * Converts values to their corresponding proto format
@@ -9,13 +9,13 @@ import { McpDisplayMode, UpdateSettingsRequest } from '@shared/nice-grpc/cline/s
  * @throws Error if the value is invalid for the field
  */
 const convertToProtoValue = (field: keyof UpdateSettingsRequest, value: any): any => {
-  if (field === 'mcpDisplayMode' && typeof value === 'string') {
+  if (field === "mcpDisplayMode" && typeof value === "string") {
     switch (value) {
-      case 'rich':
+      case "rich":
         return McpDisplayMode.RICH;
-      case 'plain':
+      case "plain":
         return McpDisplayMode.PLAIN;
-      case 'markdown':
+      case "markdown":
         return McpDisplayMode.MARKDOWN;
       default:
         throw new Error(`Invalid MCP display mode value: ${value}`);

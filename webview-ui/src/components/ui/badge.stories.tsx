@@ -1,15 +1,15 @@
-import type { Meta } from '@storybook/react-vite';
-import { ClockIcon, XIcon } from 'lucide-react';
-import { Badge } from './badge';
+import type { Meta } from "@storybook/react-vite";
+import { ClockIcon, XIcon } from "lucide-react";
+import { Badge } from "./badge";
 
 const meta: Meta<typeof Badge> = {
-  title: 'Ui/Badge',
+  title: "Ui/Badge",
   component: Badge,
   parameters: {
     docs: {
       description: {
         component:
-          'Displays a badge with different variants (default, info, danger, outline, brand, neutral, gray, success, warning) and types (default, round, icon). Used to highlight status, categories, or counts.',
+          "Displays a badge with different variants (default, info, danger, outline, brand, neutral, gray, success, warning) and types (default, round, icon). Used to highlight status, categories, or counts.",
       },
     },
   },
@@ -18,12 +18,12 @@ const meta: Meta<typeof Badge> = {
 export default meta;
 
 export const Default = () => {
-  const variants = ['default', 'info', 'danger', 'outline', 'cline', 'success', 'warning'] as const;
+  const variants = ["default", "info", "danger", "outline", "cline", "success", "warning"] as const;
 
   const types = [
-    { value: 'default', label: 'Default' },
-    { value: 'icon', label: 'With Icon' },
-    { value: 'round', label: 'Icon Only' },
+    { value: "default", label: "Default" },
+    { value: "icon", label: "With Icon" },
+    { value: "round", label: "Icon Only" },
   ] as const;
 
   return (
@@ -35,8 +35,8 @@ export const Default = () => {
             <div className="flex flex-wrap gap-3 items-center">
               {variants.map((variant) => (
                 <Badge key={variant} type={type.value} variant={variant}>
-                  {type.value === 'icon' && <ClockIcon />}
-                  {type.value === 'round' ? (
+                  {type.value === "icon" && <ClockIcon />}
+                  {type.value === "round" ? (
                     <ClockIcon />
                   ) : (
                     variant.charAt(0).toUpperCase() + variant.slice(1)
@@ -52,7 +52,7 @@ export const Default = () => {
 };
 
 export const Dismissible = () => {
-  const variants = ['cline', 'danger', 'success', 'warning'] as const;
+  const variants = ["cline", "danger", "success", "warning"] as const;
 
   return (
     <div className="w-screen flex justify-center p-8">

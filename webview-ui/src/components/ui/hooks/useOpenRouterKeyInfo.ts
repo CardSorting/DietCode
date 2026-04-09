@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { z } from 'zod';
+import { useEffect, useState } from "react";
+import { z } from "zod";
 
 const CACHE_DURATION_MS = 30 * 1000; // 30 seconds
-const OpenRouterBaseURL = 'https://openrouter.ai/api/v1';
+const OpenRouterBaseURL = "https://openrouter.ai/api/v1";
 
 // Define schema for OpenRouter key response
 const openRouterKeyInfoSchema = z.object({
@@ -18,7 +18,7 @@ const openRouterKeyInfoSchema = z.object({
     limit: z.number().nullable(),
   }),
 });
-export type OpenRouterKeyInfo = z.infer<typeof openRouterKeyInfoSchema>['data'];
+export type OpenRouterKeyInfo = z.infer<typeof openRouterKeyInfoSchema>["data"];
 
 // Module-level cache variables
 let moduleCachedData: OpenRouterKeyInfo | null = null;
@@ -39,7 +39,7 @@ async function getOpenRouterKeyInfo(
 
     if (!response.ok) {
       if (response.status === 401) {
-        console.warn('OpenRouter API key is invalid or unauthorized.');
+        console.warn("OpenRouter API key is invalid or unauthorized.");
       } else {
         console.error(`Error fetching OpenRouter key info: HTTP ${response.status}`);
       }
@@ -50,15 +50,15 @@ async function getOpenRouterKeyInfo(
     const result = openRouterKeyInfoSchema.safeParse(responseData);
     if (!result.success) {
       console.error(
-        'OpenRouter API key info validation failed:',
+        "OpenRouter API key info validation failed:",
         result.error.flatten().fieldErrors,
       );
       return null;
     }
     return result.data.data;
   } catch (error: any) {
-    if (error.name !== 'AbortError') {
-      console.error('Error fetching OpenRouter key info:', error);
+    if (error.name !== "AbortError") {
+      console.error("Error fetching OpenRouter key info:", error);
     }
     return null;
   }
@@ -129,8 +129,8 @@ export const useOpenRouterKeyInfo = (apiKey?: string) => {
         })
         .catch((err) => {
           if (!signal.aborted) {
-            console.error('[useOpenRouterKeyInfo] Fetch error:', err);
-            setError(err instanceof Error ? err : new Error('An unknown error occurred'));
+            console.error("[useOpenRouterKeyInfo] Fetch error:", err);
+            setError(err instanceof Error ? err : new Error("An unknown error occurred"));
             if (!isBackgroundFetch) {
               setData(null);
               moduleCachedData = null;

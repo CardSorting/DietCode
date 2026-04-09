@@ -1,18 +1,18 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { ModelsServiceClient } from '@/services/grpc-client';
-import type { ModelInfo } from '@shared/api.ts';
-import { UpdateApiConfigurationRequestNew } from '@shared/nice-grpc/index.cline.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { VSCodeButton, VSCodeLink } from '@vscode/webview-ui-toolkit/react';
-import { RefreshCwIcon } from 'lucide-react';
-import { useState } from 'react';
-import ThinkingBudgetSlider from '../ThinkingBudgetSlider';
-import { DebouncedTextField } from '../common/DebouncedTextField';
-import { ModelAutocomplete } from '../common/ModelAutocomplete';
-import { ModelInfoView } from '../common/ModelInfoView';
-import { LockIcon, RemotelyConfiguredInputWrapper } from '../common/RemotelyConfiguredInputWrapper';
-import { normalizeApiConfiguration } from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { ModelsServiceClient } from "@/services/grpc-client";
+import type { ModelInfo } from "@shared/api.ts";
+import { UpdateApiConfigurationRequestNew } from "@shared/nice-grpc/index.cline.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { RefreshCwIcon } from "lucide-react";
+import { useState } from "react";
+import ThinkingBudgetSlider from "../ThinkingBudgetSlider";
+import { DebouncedTextField } from "../common/DebouncedTextField";
+import { ModelAutocomplete } from "../common/ModelAutocomplete";
+import { ModelInfoView } from "../common/ModelInfoView";
+import { LockIcon, RemotelyConfiguredInputWrapper } from "../common/RemotelyConfiguredInputWrapper";
+import { normalizeApiConfiguration } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 /**
  * Props for the LiteLlmProvider component
@@ -43,8 +43,8 @@ export const LiteLlmProvider = ({
   const handleModelChange = (newModelId: string, modelInfo: ModelInfo | undefined) => {
     handleModeFieldsChange(
       {
-        liteLlmModelId: { plan: 'planModeLiteLlmModelId', act: 'actModeLiteLlmModelId' },
-        liteLlmModelInfo: { plan: 'planModeLiteLlmModelInfo', act: 'actModeLiteLlmModelInfo' },
+        liteLlmModelId: { plan: "planModeLiteLlmModelId", act: "actModeLiteLlmModelId" },
+        liteLlmModelInfo: { plan: "planModeLiteLlmModelInfo", act: "actModeLiteLlmModelInfo" },
       },
       {
         liteLlmModelId: newModelId,
@@ -68,7 +68,7 @@ export const LiteLlmProvider = ({
       <RemotelyConfiguredInputWrapper hidden={remoteConfigSettings?.liteLlmBaseUrl === undefined}>
         <DebouncedTextField
           disabled={remoteConfigSettings?.liteLlmBaseUrl !== undefined}
-          initialValue={apiConfiguration?.liteLlmBaseUrl || ''}
+          initialValue={apiConfiguration?.liteLlmBaseUrl || ""}
           onChange={async (value) => {
             await ModelsServiceClient.updateApiConfiguration(
               UpdateApiConfigurationRequestNew.create({
@@ -77,12 +77,12 @@ export const LiteLlmProvider = ({
                     liteLlmBaseUrl: value,
                   },
                 },
-                updateMask: ['options.liteLlmBaseUrl'],
+                updateMask: ["options.liteLlmBaseUrl"],
               }),
             );
           }}
-          placeholder={'Default: http://localhost:4000'}
-          style={{ width: '100%' }}
+          placeholder={"Default: http://localhost:4000"}
+          style={{ width: "100%" }}
           type="text"
         >
           <div className="flex items-center gap-2 mb-1">
@@ -94,7 +94,7 @@ export const LiteLlmProvider = ({
       <RemotelyConfiguredInputWrapper hidden={!remoteConfigSettings?.configuredApiKeys?.litellm}>
         <DebouncedTextField
           disabled={remoteConfigSettings?.configuredApiKeys?.litellm}
-          initialValue={apiConfiguration?.liteLlmApiKey || ''}
+          initialValue={apiConfiguration?.liteLlmApiKey || ""}
           onChange={async (value) => {
             await ModelsServiceClient.updateApiConfiguration(
               UpdateApiConfigurationRequestNew.create({
@@ -103,12 +103,12 @@ export const LiteLlmProvider = ({
                     liteLlmApiKey: value,
                   },
                 },
-                updateMask: ['secrets.liteLlmApiKey'],
+                updateMask: ["secrets.liteLlmApiKey"],
               }),
             );
           }}
           placeholder="Default: noop"
-          style={{ width: '100%' }}
+          style={{ width: "100%" }}
           type="password"
         >
           <div className="flex items-center gap-2 mb-1">
@@ -127,12 +127,12 @@ export const LiteLlmProvider = ({
             selectedModelId={selectedModelId}
           />
           <VSCodeButton
-            className={`my-2 ${isLoading ? 'animate-pulse' : ''}`}
+            className={`my-2 ${isLoading ? "animate-pulse" : ""}`}
             disabled={isLoading}
             onClick={onRefreshModels}
           >
             {isLoading ? (
-              'Loading...'
+              "Loading..."
             ) : (
               <>
                 Refresh models <RefreshCwIcon className="ml-1" />
@@ -153,16 +153,16 @@ export const LiteLlmProvider = ({
       )}
       <p
         style={{
-          fontSize: '12px',
-          marginTop: '5px',
-          color: 'var(--vscode-descriptionForeground)',
+          fontSize: "12px",
+          marginTop: "5px",
+          color: "var(--vscode-descriptionForeground)",
         }}
       >
         Extended thinking is available for models such as Sonnet-4, o3-mini, Deepseek R1, etc. More
-        info on{' '}
+        info on{" "}
         <VSCodeLink
           href="https://docs.litellm.ai/docs/reasoning_content"
-          style={{ display: 'inline', fontSize: 'inherit' }}
+          style={{ display: "inline", fontSize: "inherit" }}
         >
           thinking mode configuration
         </VSCodeLink>
@@ -170,18 +170,18 @@ export const LiteLlmProvider = ({
 
       <p
         style={{
-          fontSize: '12px',
-          marginTop: '5px',
-          color: 'var(--vscode-descriptionForeground)',
+          fontSize: "12px",
+          marginTop: "5px",
+          color: "var(--vscode-descriptionForeground)",
         }}
       >
-        LiteLLM provides a unified interface to access various LLM providers' models. See their{' '}
+        LiteLLM provides a unified interface to access various LLM providers' models. See their{" "}
         <VSCodeLink
           href="https://docs.litellm.ai/docs/"
-          style={{ display: 'inline', fontSize: 'inherit' }}
+          style={{ display: "inline", fontSize: "inherit" }}
         >
           quickstart guide
-        </VSCodeLink>{' '}
+        </VSCodeLink>{" "}
         for more information.
       </p>
     </div>

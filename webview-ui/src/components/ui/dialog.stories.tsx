@@ -1,6 +1,6 @@
-import ClineLogoWhite from '@/assets/ClineLogoWhite';
-import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Button } from './button';
+import ClineLogoWhite from "@/assets/ClineLogoWhite";
+import type { Meta, StoryObj } from "@storybook/react-vite";
+import { Button } from "./button";
 import {
   Dialog,
   DialogClose,
@@ -10,16 +10,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from './dialog';
+} from "./dialog";
 
 const meta: Meta = {
-  title: 'Ui/Dialog',
+  title: "Ui/Dialog",
   component: Dialog,
   parameters: {
     docs: {
       description: {
         component:
-          'A modal dialog component built on Radix UI. Displays content in a layer above the main application with an overlay backdrop. Includes header, footer, title, description, and close button components for composing dialog layouts.',
+          "A modal dialog component built on Radix UI. Displays content in a layer above the main application with an overlay backdrop. Includes header, footer, title, description, and close button components for composing dialog layouts.",
       },
     },
   },
@@ -35,61 +35,61 @@ type StoryProps = {
   hideClose: boolean;
   cancelText: string;
   confirmText: string;
-  triggerVariant: 'default' | 'secondary' | 'danger' | 'outline' | 'ghost' | 'link';
-  confirmVariant: 'default' | 'secondary' | 'danger' | 'outline' | 'ghost';
+  triggerVariant: "default" | "secondary" | "danger" | "outline" | "ghost" | "link";
+  confirmVariant: "default" | "secondary" | "danger" | "outline" | "ghost";
 };
 
 // Interactive story with controls
 export const Interactive: StoryObj<StoryProps> = {
   args: {
-    dialogTitle: 'Dialog Title',
-    dialogDescription: 'This is a description of what this dialog is about.',
-    dialogContent: 'This is the main content area of the dialog.',
+    dialogTitle: "Dialog Title",
+    dialogDescription: "This is a description of what this dialog is about.",
+    dialogContent: "This is the main content area of the dialog.",
     showFooter: true,
     hideClose: false,
-    cancelText: 'Cancel',
-    confirmText: 'Confirm',
-    triggerVariant: 'default',
-    confirmVariant: 'default',
+    cancelText: "Cancel",
+    confirmText: "Confirm",
+    triggerVariant: "default",
+    confirmVariant: "default",
   },
   argTypes: {
     dialogTitle: {
-      control: 'text',
-      description: 'Dialog title text',
+      control: "text",
+      description: "Dialog title text",
     },
     dialogDescription: {
-      control: 'text',
-      description: 'Dialog description text',
+      control: "text",
+      description: "Dialog description text",
     },
     dialogContent: {
-      control: 'text',
-      description: 'Main content of the dialog',
+      control: "text",
+      description: "Main content of the dialog",
     },
     showFooter: {
-      control: 'boolean',
-      description: 'Show or hide the footer with action buttons',
+      control: "boolean",
+      description: "Show or hide the footer with action buttons",
     },
     cancelText: {
-      control: 'text',
-      description: 'Cancel button text',
+      control: "text",
+      description: "Cancel button text",
     },
     confirmText: {
-      control: 'text',
-      description: 'Confirm button text',
+      control: "text",
+      description: "Confirm button text",
     },
     triggerVariant: {
-      control: 'select',
-      options: ['default', 'secondary', 'danger', 'outline', 'ghost', 'link'],
-      description: 'Trigger button variant',
+      control: "select",
+      options: ["default", "secondary", "danger", "outline", "ghost", "link"],
+      description: "Trigger button variant",
     },
     confirmVariant: {
-      control: 'select',
-      options: ['default', 'secondary', 'danger', 'outline', 'ghost'],
-      description: 'Confirm button variant',
+      control: "select",
+      options: ["default", "secondary", "danger", "outline", "ghost"],
+      description: "Confirm button variant",
     },
     hideClose: {
-      control: 'boolean',
-      description: 'Hide or show the close button in the dialog',
+      control: "boolean",
+      description: "Hide or show the close button in the dialog",
     },
   },
   render: (args) => (
@@ -134,42 +134,42 @@ export const Interactive: StoryObj<StoryProps> = {
 export const Overview = () => {
   const variants = [
     {
-      label: 'Complete',
-      triggerVariant: 'default' as const,
-      title: 'Dialog Title',
+      label: "Complete",
+      triggerVariant: "default" as const,
+      title: "Dialog Title",
       description:
         "This is a description of what this dialog is about. It provides context to the user about the action they're taking.",
       content:
-        'This is the main content area of the dialog. You can put any content here, such as forms, information, or other interactive elements.',
+        "This is the main content area of the dialog. You can put any content here, such as forms, information, or other interactive elements.",
       hasFooter: true,
-      cancelVariant: 'ghost' as const,
-      confirmVariant: 'default' as const,
-      confirmText: 'Confirm',
+      cancelVariant: "ghost" as const,
+      confirmVariant: "default" as const,
+      confirmText: "Confirm",
     },
     {
-      label: 'Simple',
-      triggerVariant: 'secondary' as const,
-      title: 'Simple Dialog',
-      description: 'This dialog has no footer, just content.',
-      content: 'This is a simpler dialog without action buttons in the footer.',
+      label: "Simple",
+      triggerVariant: "secondary" as const,
+      title: "Simple Dialog",
+      description: "This dialog has no footer, just content.",
+      content: "This is a simpler dialog without action buttons in the footer.",
       hasFooter: false,
     },
     {
-      label: 'Confirmation',
-      triggerVariant: 'danger' as const,
-      title: 'Are you sure?',
-      description: 'This action cannot be undone. This will permanently delete the item.',
+      label: "Confirmation",
+      triggerVariant: "danger" as const,
+      title: "Are you sure?",
+      description: "This action cannot be undone. This will permanently delete the item.",
       content: null,
       hasFooter: true,
-      cancelVariant: 'secondary' as const,
-      confirmVariant: 'danger' as const,
-      confirmText: 'Delete',
+      cancelVariant: "secondary" as const,
+      confirmVariant: "danger" as const,
+      confirmText: "Delete",
     },
     {
-      label: 'With Form',
-      triggerVariant: 'outline' as const,
-      title: 'Edit Profile',
-      description: 'Make changes to your profile here.',
+      label: "With Form",
+      triggerVariant: "outline" as const,
+      title: "Edit Profile",
+      description: "Make changes to your profile here.",
       content: (
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
@@ -196,9 +196,9 @@ export const Overview = () => {
         </div>
       ),
       hasFooter: true,
-      cancelVariant: 'secondary' as const,
-      confirmVariant: 'default' as const,
-      confirmText: 'Save Changes',
+      cancelVariant: "secondary" as const,
+      confirmVariant: "default" as const,
+      confirmText: "Save Changes",
     },
   ];
 
@@ -217,7 +217,7 @@ export const Overview = () => {
                   <DialogTitle>{variant.title}</DialogTitle>
                   <DialogDescription>{variant.description}</DialogDescription>
                 </DialogHeader>
-                {typeof variant.content === 'string' ? (
+                {typeof variant.content === "string" ? (
                   <p className="text-sm">{variant.content}</p>
                 ) : (
                   variant.content

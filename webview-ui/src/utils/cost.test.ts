@@ -1,15 +1,15 @@
-import { describe, it } from 'mocha';
-import 'should';
-import type { ModelInfo } from '@shared/api.ts';
+import { describe, it } from "mocha";
+import "should";
+import type { ModelInfo } from "@shared/api.ts";
 import {
   calculateApiCostAnthropic,
   calculateApiCostOpenAI,
   calculateApiCostQwen,
-} from '@utils/cost';
+} from "@utils/cost";
 
-describe('Cost Utilities', () => {
-  describe('calculateApiCostAnthropic', () => {
-    it('should calculate basic input/output costs', () => {
+describe("Cost Utilities", () => {
+  describe("calculateApiCostAnthropic", () => {
+    it("should calculate basic input/output costs", () => {
       const modelInfo: ModelInfo = {
         supportsPromptCache: false,
         inputPrice: 3.0, // $3 per million tokens
@@ -23,7 +23,7 @@ describe('Cost Utilities', () => {
       cost.should.equal(0.0105);
     });
 
-    it('should handle missing prices', () => {
+    it("should handle missing prices", () => {
       const modelInfo: ModelInfo = {
         supportsPromptCache: true,
         // No prices specified
@@ -33,7 +33,7 @@ describe('Cost Utilities', () => {
       cost.should.equal(0);
     });
 
-    it('should use real model configuration (Claude 3.5 Sonnet)', () => {
+    it("should use real model configuration (Claude 3.5 Sonnet)", () => {
       const modelInfo: ModelInfo = {
         maxTokens: 8192,
         contextWindow: 200_000,
@@ -54,7 +54,7 @@ describe('Cost Utilities', () => {
       cost.should.equal(0.026775);
     });
 
-    it('should handle zero token counts', () => {
+    it("should handle zero token counts", () => {
       const modelInfo: ModelInfo = {
         supportsPromptCache: true,
         inputPrice: 3.0,
@@ -68,8 +68,8 @@ describe('Cost Utilities', () => {
     });
   });
 
-  describe('calculateApiCostOpenAI', () => {
-    it('should calculate basic input/output costs', () => {
+  describe("calculateApiCostOpenAI", () => {
+    it("should calculate basic input/output costs", () => {
       const modelInfo: ModelInfo = {
         supportsPromptCache: false,
         inputPrice: 3.0, // $3 per million tokens
@@ -83,7 +83,7 @@ describe('Cost Utilities', () => {
       cost.should.equal(0.0105);
     });
 
-    it('should handle missing prices', () => {
+    it("should handle missing prices", () => {
       const modelInfo: ModelInfo = {
         supportsPromptCache: true,
         // No prices specified
@@ -93,7 +93,7 @@ describe('Cost Utilities', () => {
       cost.should.equal(0);
     });
 
-    it('should use real model configuration (Claude 3.5 Sonnet)', () => {
+    it("should use real model configuration (Claude 3.5 Sonnet)", () => {
       const modelInfo: ModelInfo = {
         maxTokens: 8192,
         contextWindow: 200_000,
@@ -114,7 +114,7 @@ describe('Cost Utilities', () => {
       cost.should.equal(0.021075);
     });
 
-    it('should handle zero token counts', () => {
+    it("should handle zero token counts", () => {
       const modelInfo: ModelInfo = {
         supportsPromptCache: true,
         inputPrice: 3.0,
@@ -128,8 +128,8 @@ describe('Cost Utilities', () => {
     });
   });
 
-  describe('calculateApiCostQwen', () => {
-    it('should calculate basic input/output costs', () => {
+  describe("calculateApiCostQwen", () => {
+    it("should calculate basic input/output costs", () => {
       const modelInfo: ModelInfo = {
         supportsPromptCache: false,
         inputPrice: 0.15, // Qwen 30B pricing
@@ -143,7 +143,7 @@ describe('Cost Utilities', () => {
       cost.should.equal(0.00045);
     });
 
-    it('should handle missing prices', () => {
+    it("should handle missing prices", () => {
       const modelInfo: ModelInfo = {
         supportsPromptCache: true,
         // No prices specified
@@ -153,7 +153,7 @@ describe('Cost Utilities', () => {
       cost.should.equal(0);
     });
 
-    it('should use real Qwen model configuration (30B)', () => {
+    it("should use real Qwen model configuration (30B)", () => {
       const modelInfo: ModelInfo = {
         maxTokens: 8192,
         contextWindow: 262_144,
@@ -170,7 +170,7 @@ describe('Cost Utilities', () => {
       cost.should.equal(0.00045);
     });
 
-    it('should handle cache tokens correctly (Qwen-style)', () => {
+    it("should handle cache tokens correctly (Qwen-style)", () => {
       const modelInfo: ModelInfo = {
         supportsPromptCache: true,
         inputPrice: 0.15,
@@ -189,7 +189,7 @@ describe('Cost Utilities', () => {
       cost.should.equal(0.00094);
     });
 
-    it('should handle zero token counts', () => {
+    it("should handle zero token counts", () => {
       const modelInfo: ModelInfo = {
         supportsPromptCache: true,
         inputPrice: 0.15,

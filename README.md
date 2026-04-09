@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/vsix/logo.svg" width="400" alt="DietCode Logo">
+</p>
+
 # 🥗 DietCode: Sovereign Hive
 
 > **"The most sharded, modular, and Level 10 hardened AI orchestration infrastructure in the ecosystem."**

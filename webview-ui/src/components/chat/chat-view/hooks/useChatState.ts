@@ -1,6 +1,6 @@
-import type { ClineMessage } from '@shared/ExtensionMessage.ts';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { ChatState } from '../types/chatTypes';
+import type { ClineMessage } from "@shared/ExtensionMessage.ts";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { ChatState } from "../types/chatTypes";
 
 /**
  * Custom hook for managing chat state
@@ -8,7 +8,7 @@ import type { ChatState } from '../types/chatTypes';
  */
 export function useChatState(messages: ClineMessage[]): ChatState {
   // Input and selection state
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [activeQuote, setActiveQuote] = useState<string | null>(null);
   const [isTextAreaFocused, setIsTextAreaFocused] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
@@ -17,8 +17,8 @@ export function useChatState(messages: ClineMessage[]): ChatState {
   // UI state
   const [sendingDisabled, setSendingDisabled] = useState(false);
   const [enableButtons, setEnableButtons] = useState<boolean>(false);
-  const [primaryButtonText, setPrimaryButtonText] = useState<string | undefined>('Approve');
-  const [secondaryButtonText, setSecondaryButtonText] = useState<string | undefined>('Reject');
+  const [primaryButtonText, setPrimaryButtonText] = useState<string | undefined>("Approve");
+  const [secondaryButtonText, setSecondaryButtonText] = useState<string | undefined>("Reject");
   const [expandedRows, setExpandedRows] = useState<Record<number, boolean>>({});
 
   // Refs
@@ -28,7 +28,7 @@ export function useChatState(messages: ClineMessage[]): ChatState {
   const lastMessage = useMemo(() => messages.at(-1), [messages]);
   const secondLastMessage = useMemo(() => messages.at(-2), [messages]);
   const clineAsk = useMemo(
-    () => (lastMessage?.type === 'ask' ? lastMessage.ask : undefined),
+    () => (lastMessage?.type === "ask" ? lastMessage.ask : undefined),
     [lastMessage],
   );
 
@@ -40,7 +40,7 @@ export function useChatState(messages: ClineMessage[]): ChatState {
 
   // Reset state when starting new conversation
   const resetState = useCallback(() => {
-    setInputValue('');
+    setInputValue("");
     setActiveQuote(null);
     setSelectedImages([]);
     setSelectedFiles([]);

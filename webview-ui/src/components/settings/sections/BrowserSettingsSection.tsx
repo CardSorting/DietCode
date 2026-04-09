@@ -1,20 +1,20 @@
-import { BROWSER_VIEWPORT_PRESETS } from '@shared/BrowserSettings.ts';
-import { EmptyRequest, StringRequest } from '@shared/nice-grpc/cline/common.ts';
+import { BROWSER_VIEWPORT_PRESETS } from "@shared/BrowserSettings.ts";
+import { EmptyRequest, StringRequest } from "@shared/nice-grpc/cline/common.ts";
 import {
   VSCodeButton,
   VSCodeCheckbox,
   VSCodeDropdown,
   VSCodeOption,
-} from '@vscode/webview-ui-toolkit/react';
-import type React from 'react';
-import { useCallback, useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { useExtensionState } from '../../../context/ExtensionStateContext';
-import { BrowserServiceClient } from '../../../services/grpc-client';
-import CollapsibleContent from '../CollapsibleContent';
-import Section from '../Section';
-import { DebouncedTextField } from '../common/DebouncedTextField';
-import { updateSetting } from '../utils/settingsHandlers';
+} from "@vscode/webview-ui-toolkit/react";
+import type React from "react";
+import { useCallback, useEffect, useState } from "react";
+import styled from "styled-components";
+import { useExtensionState } from "../../../context/ExtensionStateContext";
+import { BrowserServiceClient } from "../../../services/grpc-client";
+import CollapsibleContent from "../CollapsibleContent";
+import Section from "../Section";
+import { DebouncedTextField } from "../common/DebouncedTextField";
+import { updateSetting } from "../utils/settingsHandlers";
 
 interface BrowserSettingsSectionProps {
   renderSectionHeader: (tabId: string) => JSX.Element | null;
@@ -43,10 +43,10 @@ const ConnectionStatusIndicator = ({
       ) : isConnected === true ? (
         <>
           <CheckIcon className="codicon codicon-check" />
-          <StatusText style={{ color: 'var(--vscode-terminal-ansiGreen)' }}>Connected</StatusText>
+          <StatusText style={{ color: "var(--vscode-terminal-ansiGreen)" }}>Connected</StatusText>
         </>
       ) : isConnected === false ? (
-        <StatusText style={{ color: 'var(--vscode-errorForeground)' }}>Not connected</StatusText>
+        <StatusText style={{ color: "var(--vscode-errorForeground)" }}>Not connected</StatusText>
       ) : null}
     </StatusContainer>
   );
@@ -84,7 +84,7 @@ export const BrowserSettingsSection: React.FC<BrowserSettingsSectionProps> = ({
         setIsBundled(result.isBundled);
       })
       .catch((error) => {
-        console.error('Error getting detected Chrome path:', error);
+        console.error("Error getting detected Chrome path:", error);
       });
   }, []);
 
@@ -98,7 +98,7 @@ export const BrowserSettingsSection: React.FC<BrowserSettingsSectionProps> = ({
           setConnectionStatus(result.success);
         })
         .catch((error) => {
-          console.error('Error testing browser connection:', error);
+          console.error("Error testing browser connection:", error);
           setConnectionStatus(false);
         });
     } else {
@@ -107,7 +107,7 @@ export const BrowserSettingsSection: React.FC<BrowserSettingsSectionProps> = ({
           setConnectionStatus(result.success);
         })
         .catch((error) => {
-          console.error('Error discovering browser:', error);
+          console.error("Error discovering browser:", error);
           setConnectionStatus(false);
         });
     }
@@ -133,7 +133,7 @@ export const BrowserSettingsSection: React.FC<BrowserSettingsSectionProps> = ({
     const selectedSize =
       BROWSER_VIEWPORT_PRESETS[target.value as keyof typeof BROWSER_VIEWPORT_PRESETS];
     if (selectedSize) {
-      updateSetting('browserSettings', {
+      updateSetting("browserSettings", {
         viewport: {
           width: selectedSize.width,
           height: selectedSize.height,
@@ -155,7 +155,7 @@ export const BrowserSettingsSection: React.FC<BrowserSettingsSectionProps> = ({
         setDebugMode(false);
       })
       .catch((error) => {
-        console.error('Error relaunching Chrome:', error);
+        console.error("Error relaunching Chrome:", error);
         setRelaunchResult({
           success: false,
           message: `Error relaunching Chrome: ${error.message}`,
@@ -171,7 +171,7 @@ export const BrowserSettingsSection: React.FC<BrowserSettingsSectionProps> = ({
 
   return (
     <div>
-      {renderSectionHeader('browser')}
+      {renderSectionHeader("browser")}
       <Section>
         <div id="browser-settings-section" style={{ marginBottom: 20 }}>
           {/* Master Toggle */}
@@ -179,7 +179,7 @@ export const BrowserSettingsSection: React.FC<BrowserSettingsSectionProps> = ({
             <VSCodeCheckbox
               checked={browserSettings.disableToolUse || false}
               onChange={(e) =>
-                updateSetting('browserSettings', {
+                updateSetting("browserSettings", {
                   disableToolUse: (e.target as HTMLInputElement).checked,
                 })
               }
@@ -188,9 +188,9 @@ export const BrowserSettingsSection: React.FC<BrowserSettingsSectionProps> = ({
             </VSCodeCheckbox>
             <p
               style={{
-                fontSize: '12px',
-                color: 'var(--vscode-descriptionForeground)',
-                margin: '4px 0 0 0px',
+                fontSize: "12px",
+                color: "var(--vscode-descriptionForeground)",
+                margin: "4px 0 0 0px",
               }}
             >
               Prevent Cline from using browser actions (e.g. launch, click, type).
@@ -200,12 +200,12 @@ export const BrowserSettingsSection: React.FC<BrowserSettingsSectionProps> = ({
           <CollapsibleContent isOpen={isSubSettingsOpen}>
             <div style={{ marginBottom: 15 }}>
               <div style={{ marginBottom: 8 }}>
-                <label style={{ fontWeight: '500', display: 'block', marginBottom: 5 }}>
+                <label style={{ fontWeight: "500", display: "block", marginBottom: 5 }}>
                   Viewport size
                 </label>
                 <VSCodeDropdown
                   onChange={(event) => handleViewportChange(event as Event)}
-                  style={{ width: '100%' }}
+                  style={{ width: "100%" }}
                   value={
                     Object.entries(BROWSER_VIEWPORT_PRESETS).find(([_, size]) => {
                       const typedSize = size as { width: number; height: number };
@@ -225,8 +225,8 @@ export const BrowserSettingsSection: React.FC<BrowserSettingsSectionProps> = ({
               </div>
               <p
                 style={{
-                  fontSize: '12px',
-                  color: 'var(--vscode-descriptionForeground)',
+                  fontSize: "12px",
+                  color: "var(--vscode-descriptionForeground)",
                   margin: 0,
                 }}
               >
@@ -235,24 +235,24 @@ export const BrowserSettingsSection: React.FC<BrowserSettingsSectionProps> = ({
             </div>
 
             <div style={{ marginBottom: 0 }}>
-              {' '}
+              {" "}
               {/* This div now contains Remote Connection & Chrome Path */}
               <div
                 style={{
                   marginBottom: 4,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
                 }}
               >
                 <VSCodeCheckbox
                   checked={browserSettings.remoteBrowserEnabled}
                   onChange={(e) => {
                     const enabled = (e.target as HTMLInputElement).checked;
-                    updateSetting('browserSettings', { remoteBrowserEnabled: enabled });
+                    updateSetting("browserSettings", { remoteBrowserEnabled: enabled });
                     // If disabling, also clear the host
                     if (!enabled) {
-                      updateSetting('browserSettings', { remoteBrowserHost: undefined });
+                      updateSetting("browserSettings", { remoteBrowserHost: undefined });
                     }
                   }}
                 >
@@ -266,48 +266,48 @@ export const BrowserSettingsSection: React.FC<BrowserSettingsSectionProps> = ({
               </div>
               <p
                 style={{
-                  fontSize: '12px',
-                  color: 'var(--vscode-descriptionForeground)',
-                  margin: '0 0 6px 0px',
+                  fontSize: "12px",
+                  color: "var(--vscode-descriptionForeground)",
+                  margin: "0 0 6px 0px",
                 }}
               >
                 Enable Cline to use your Chrome
                 {isBundled
-                  ? '(not detected on your machine)'
+                  ? "(not detected on your machine)"
                   : detectedChromePath
                     ? ` (${detectedChromePath})`
-                    : ''}
+                    : ""}
                 . You can specify a custom path below. Using a remote browser connection requires
                 starting Chrome in debug mode
                 {browserSettings.remoteBrowserEnabled ? (
                   <>
-                    {' '}
+                    {" "}
                     manually (<code>--remote-debugging-port=9222</code>) or using the button below.
                     Enter the host address or leave it blank for automatic discovery.
                   </>
                 ) : (
-                  '.'
+                  "."
                 )}
               </p>
               {/* Moved remote-specific settings to appear directly after enabling remote connection */}
               {browserSettings.remoteBrowserEnabled && (
                 <div style={{ marginLeft: 0, marginTop: 8 }}>
                   <DebouncedTextField
-                    initialValue={browserSettings.remoteBrowserHost || ''}
+                    initialValue={browserSettings.remoteBrowserHost || ""}
                     onChange={(value) =>
-                      updateSetting('browserSettings', { remoteBrowserHost: value || undefined })
+                      updateSetting("browserSettings", { remoteBrowserHost: value || undefined })
                     }
                     placeholder="http://localhost:9222"
-                    style={{ width: '100%', marginBottom: 8 }}
+                    style={{ width: "100%", marginBottom: 8 }}
                   />
 
                   {shouldShowRelaunchButton && (
                     <div
                       style={{
-                        display: 'flex',
-                        gap: '10px',
+                        display: "flex",
+                        gap: "10px",
                         marginBottom: 8,
-                        justifyContent: 'center',
+                        justifyContent: "center",
                       }}
                     >
                       <VSCodeButton
@@ -315,7 +315,7 @@ export const BrowserSettingsSection: React.FC<BrowserSettingsSectionProps> = ({
                         onClick={relaunchChromeDebugMode}
                         style={{ flex: 1 }}
                       >
-                        {debugMode ? 'Launching Browser...' : 'Launch Browser with Debug Mode'}
+                        {debugMode ? "Launching Browser..." : "Launch Browser with Debug Mode"}
                       </VSCodeButton>
                     </div>
                   )}
@@ -323,18 +323,18 @@ export const BrowserSettingsSection: React.FC<BrowserSettingsSectionProps> = ({
                   {relaunchResult && (
                     <div
                       style={{
-                        padding: '8px',
-                        marginBottom: '8px',
+                        padding: "8px",
+                        marginBottom: "8px",
                         backgroundColor: relaunchResult.success
-                          ? 'rgba(0, 128, 0, 0.1)'
-                          : 'rgba(255, 0, 0, 0.1)',
+                          ? "rgba(0, 128, 0, 0.1)"
+                          : "rgba(255, 0, 0, 0.1)",
                         color: relaunchResult.success
-                          ? 'var(--vscode-terminal-ansiGreen)'
-                          : 'var(--vscode-terminal-ansiRed)',
-                        borderRadius: '3px',
-                        fontSize: '11px',
-                        whiteSpace: 'pre-wrap',
-                        wordBreak: 'break-word',
+                          ? "var(--vscode-terminal-ansiGreen)"
+                          : "var(--vscode-terminal-ansiRed)",
+                        borderRadius: "3px",
+                        fontSize: "11px",
+                        whiteSpace: "pre-wrap",
+                        wordBreak: "break-word",
                       }}
                     >
                       {relaunchResult.message}
@@ -343,8 +343,8 @@ export const BrowserSettingsSection: React.FC<BrowserSettingsSectionProps> = ({
 
                   <p
                     style={{
-                      fontSize: '12px',
-                      color: 'var(--vscode-descriptionForeground)',
+                      fontSize: "12px",
+                      color: "var(--vscode-descriptionForeground)",
                       margin: 0,
                     }}
                   />
@@ -354,24 +354,24 @@ export const BrowserSettingsSection: React.FC<BrowserSettingsSectionProps> = ({
               <div style={{ marginBottom: 8, marginTop: 8 }}>
                 <label
                   htmlFor="chrome-executable-path"
-                  style={{ fontWeight: '500', display: 'block', marginBottom: 5 }}
+                  style={{ fontWeight: "500", display: "block", marginBottom: 5 }}
                 >
                   Chrome Executable Path (Optional)
                 </label>
                 <DebouncedTextField
                   id="chrome-executable-path"
-                  initialValue={browserSettings.chromeExecutablePath || ''}
+                  initialValue={browserSettings.chromeExecutablePath || ""}
                   onChange={(value) =>
-                    updateSetting('browserSettings', { chromeExecutablePath: value })
+                    updateSetting("browserSettings", { chromeExecutablePath: value })
                   }
                   placeholder="e.g., /usr/bin/google-chrome or C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
-                  style={{ width: '100%' }}
+                  style={{ width: "100%" }}
                 />
                 <p
                   style={{
-                    fontSize: '12px',
-                    color: 'var(--vscode-descriptionForeground)',
-                    margin: '4px 0 0 0',
+                    fontSize: "12px",
+                    color: "var(--vscode-descriptionForeground)",
+                    margin: "4px 0 0 0",
                   }}
                 >
                   Leave blank to auto-detect.
@@ -381,22 +381,22 @@ export const BrowserSettingsSection: React.FC<BrowserSettingsSectionProps> = ({
               <div style={{ marginBottom: 8, marginTop: 8 }}>
                 <label
                   htmlFor="custom-browser-args"
-                  style={{ fontWeight: '500', display: 'block', marginBottom: 5 }}
+                  style={{ fontWeight: "500", display: "block", marginBottom: 5 }}
                 >
                   Custom Browser Arguments (Optional)
                 </label>
                 <DebouncedTextField
                   id="custom-browser-args"
-                  initialValue={browserSettings.customArgs || ''}
-                  onChange={(value) => updateSetting('browserSettings', { customArgs: value })}
+                  initialValue={browserSettings.customArgs || ""}
+                  onChange={(value) => updateSetting("browserSettings", { customArgs: value })}
                   placeholder="e.g., --no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu --no-first-run --no-zygote"
-                  style={{ width: '100%' }}
+                  style={{ width: "100%" }}
                 />
                 <p
                   style={{
-                    fontSize: '12px',
-                    color: 'var(--vscode-descriptionForeground)',
-                    margin: '4px 0 0 0',
+                    fontSize: "12px",
+                    color: "var(--vscode-descriptionForeground)",
+                    margin: "4px 0 0 0",
                   }}
                 >
                   Space-separated arguments to pass to the browser executable.

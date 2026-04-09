@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useState } from "react";
 
 // TypewriterText with shimmer effect after typing completes
 export const TypewriterText = memo(({ text, speed = 30 }: { text: string; speed?: number }) => {
@@ -34,4 +34,4 @@ export const TypewriterText = memo(({ text, speed = 30 }: { text: string; speed?
   return <span className="truncate">{text.slice(0, displayedLength)}</span>;
 });
 
-TypewriterText.displayName = 'TypewriterText';
+TypewriterText.displayName = "TypewriterText";

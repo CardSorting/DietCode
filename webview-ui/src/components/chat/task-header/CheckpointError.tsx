@@ -1,6 +1,6 @@
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { useMemo } from 'react';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { useMemo } from "react";
 
 interface CheckpointErrorProps {
   checkpointManagerErrorMessage?: string;
@@ -11,12 +11,12 @@ export const CheckpointError: React.FC<CheckpointErrorProps> = ({
   handleCheckpointSettingsClick,
 }) => {
   const messages = useMemo(() => {
-    const message = checkpointManagerErrorMessage?.replace(/disabling checkpoints\.$/, '');
+    const message = checkpointManagerErrorMessage?.replace(/disabling checkpoints\.$/, "");
     const showDisableButton =
-      checkpointManagerErrorMessage?.endsWith('disabling checkpoints.') ||
-      checkpointManagerErrorMessage?.includes('multi-root workspaces');
+      checkpointManagerErrorMessage?.endsWith("disabling checkpoints.") ||
+      checkpointManagerErrorMessage?.includes("multi-root workspaces");
     const showGitInstructions = checkpointManagerErrorMessage?.includes(
-      'Git must be installed to use checkpoints.',
+      "Git must be installed to use checkpoints.",
     );
     return { message, showDisableButton, showGitInstructions };
   }, [checkpointManagerErrorMessage]);

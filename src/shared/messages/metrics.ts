@@ -1,4 +1,4 @@
-import type { Mode } from '../storage/types';
+import type { Mode } from "../storage/types";
 
 export interface ClineMessageModelInfo {
   modelId: string;

@@ -1,20 +1,20 @@
 import {
   clearOnboardingModelsCache,
   getClineOnboardingModels,
-} from '@/core/controller/models/getClineOnboardingModels';
-import type { OnboardingModel } from '@/shared/proto/cline/state';
-import { Logger } from '@/shared/services/Logger';
+} from "@/core/controller/models/getClineOnboardingModels";
+import type { OnboardingModel } from "@/shared/proto/cline/state";
+import { Logger } from "@/shared/services/Logger";
 import {
   FEATURE_FLAGS,
   FeatureFlag,
   FeatureFlagDefaultValue,
-} from '@/shared/services/feature-flags/feature-flags';
-import { telemetryService } from '../telemetry';
+} from "@/shared/services/feature-flags/feature-flags";
+import { telemetryService } from "../telemetry";
 import type {
   FeatureFlagPayload,
   FeatureFlagsAndPayloads,
   IFeatureFlagsProvider,
-} from './providers/IFeatureFlagsProvider';
+} from "./providers/IFeatureFlagsProvider";
 
 // Default cache time-to-live (TTL) for feature flags - an hour
 const DEFAULT_CACHE_TTL = 60 * 60 * 1000;
@@ -87,7 +87,7 @@ export class FeatureFlagsService {
 
       if (!this.cache.has(flagName) || this.cache.get(flagName) !== value) {
         telemetryService.capture({
-          event: '$feature_flag_called',
+          event: "$feature_flag_called",
           properties: {
             $feature_flag: flagName,
             $feature_flag_response: flagValue,
@@ -131,7 +131,7 @@ export class FeatureFlagsService {
   public getOnboardingOverrides() {
     const payload = this.cache.get(FeatureFlag.ONBOARDING_MODELS);
     // Check if payload is object
-    if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+    if (payload && typeof payload === "object" && !Array.isArray(payload)) {
       return payload.models as unknown as Record<string, OnboardingModel & { hidden?: boolean }>;
     }
     clearOnboardingModelsCache();
@@ -166,7 +166,7 @@ export class FeatureFlagsService {
    * For testing: directly set a feature flag in the cache
    */
   public test(flagName: FeatureFlag, value: boolean) {
-    if (process.env.NODE_ENV === 'true') {
+    if (process.env.NODE_ENV === "true") {
       this.cache.set(flagName, value);
     }
   }

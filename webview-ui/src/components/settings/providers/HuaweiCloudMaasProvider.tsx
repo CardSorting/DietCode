@@ -1,11 +1,11 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { huaweiCloudMaasModels } from '@shared/api.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { ApiKeyField } from '../common/ApiKeyField';
-import { ModelInfoView } from '../common/ModelInfoView';
-import { ModelSelector } from '../common/ModelSelector';
-import { normalizeApiConfiguration } from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { huaweiCloudMaasModels } from "@shared/api.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { ApiKeyField } from "../common/ApiKeyField";
+import { ModelInfoView } from "../common/ModelInfoView";
+import { ModelSelector } from "../common/ModelSelector";
+import { normalizeApiConfiguration } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 interface HuaweiCloudMaasProviderProps {
   showModelOptions: boolean;
@@ -29,8 +29,8 @@ export const HuaweiCloudMaasProvider = ({
   return (
     <div>
       <ApiKeyField
-        initialValue={apiConfiguration?.huaweiCloudMaasApiKey || ''}
-        onChange={(value) => handleFieldChange('huaweiCloudMaasApiKey', value)}
+        initialValue={apiConfiguration?.huaweiCloudMaasApiKey || ""}
+        onChange={(value) => handleFieldChange("huaweiCloudMaasApiKey", value)}
         providerName="Huawei Cloud MaaS"
         signupUrl="https://support.huaweicloud.com/intl/zh-cn/usermanual-maas/maas_01_0001.html"
       />
@@ -45,14 +45,14 @@ export const HuaweiCloudMaasProvider = ({
                 huaweiCloudMaasModels[modelId as keyof typeof huaweiCloudMaasModels];
               handleModeFieldsChange(
                 {
-                  apiModelId: { plan: 'planModeApiModelId', act: 'actModeApiModelId' },
+                  apiModelId: { plan: "planModeApiModelId", act: "actModeApiModelId" },
                   huaweiCloudMaaSModelId: {
-                    plan: 'planModeHuaweiCloudMaasModelId',
-                    act: 'actModeHuaweiCloudMaasModelId',
+                    plan: "planModeHuaweiCloudMaasModelId",
+                    act: "actModeHuaweiCloudMaasModelId",
                   },
                   huaweiCloudMaaSModelInfo: {
-                    plan: 'planModeHuaweiCloudMaasModelInfo',
-                    act: 'actModeHuaweiCloudMaasModelInfo',
+                    plan: "planModeHuaweiCloudMaasModelInfo",
+                    act: "actModeHuaweiCloudMaasModelInfo",
                   },
                 },
                 {

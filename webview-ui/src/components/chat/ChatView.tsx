@@ -1,17 +1,17 @@
-import { normalizeApiConfiguration } from '@/components/settings/utils/providerUtils';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { useShowNavbar } from '@/context/PlatformContext';
-import { FileServiceClient, UiServiceClient } from '@/services/grpc-client';
-import { combineApiRequests } from '@shared/combineApiRequests.ts';
-import { combineCommandSequences } from '@shared/combineCommandSequences.ts';
-import { combineErrorRetryMessages } from '@shared/combineErrorRetryMessages.ts';
-import { combineHookSequences } from '@shared/combineHookSequences.ts';
-import { getApiMetrics, getLastApiReqTotalTokens } from '@shared/getApiMetrics.ts';
-import { BooleanRequest, StringRequest } from '@shared/nice-grpc/cline/common.ts';
-import { useCallback, useEffect, useMemo } from 'react';
-import { useMount } from 'react-use';
-import { Navbar } from '../menu/Navbar';
-import AutoApproveBar from './auto-approve-menu/AutoApproveBar';
+import { normalizeApiConfiguration } from "@/components/settings/utils/providerUtils";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { useShowNavbar } from "@/context/PlatformContext";
+import { FileServiceClient, UiServiceClient } from "@/services/grpc-client";
+import { combineApiRequests } from "@shared/combineApiRequests.ts";
+import { combineCommandSequences } from "@shared/combineCommandSequences.ts";
+import { combineErrorRetryMessages } from "@shared/combineErrorRetryMessages.ts";
+import { combineHookSequences } from "@shared/combineHookSequences.ts";
+import { getApiMetrics, getLastApiReqTotalTokens } from "@shared/getApiMetrics.ts";
+import { BooleanRequest, StringRequest } from "@shared/nice-grpc/cline/common.ts";
+import { useCallback, useEffect, useMemo } from "react";
+import { useMount } from "react-use";
+import { Navbar } from "../menu/Navbar";
+import AutoApproveBar from "./auto-approve-menu/AutoApproveBar";
 // Import utilities and hooks from the new structure
 import {
   ActionButtons,
@@ -28,7 +28,7 @@ import {
   useChatState,
   useMessageHandlers,
   useScrollBehavior,
-} from './chat-view';
+} from "./chat-view";
 
 interface ChatViewProps {
   isHidden: boolean;
@@ -53,7 +53,7 @@ const ChatView = ({ isHidden, showHistoryView }: ChatViewProps) => {
     focusChainSettings,
     hooksEnabled,
   } = useExtensionState();
-  const isProdHostedApp = userInfo?.apiBaseUrl === 'https://app.cline.bot';
+  const isProdHostedApp = userInfo?.apiBaseUrl === "https://app.cline.bot";
   const shouldShowQuickWins =
     isProdHostedApp && (!taskHistory || taskHistory.length < QUICK_WINS_HISTORY_THRESHOLD);
 
@@ -95,8 +95,8 @@ const ChatView = ({ isHidden, showHistoryView }: ChatViewProps) => {
       // let the default browser behavior handle it.
       if (
         targetElement &&
-        (targetElement.tagName === 'INPUT' ||
-          targetElement.tagName === 'TEXTAREA' ||
+        (targetElement.tagName === "INPUT" ||
+          targetElement.tagName === "TEXTAREA" ||
           targetElement.isContentEditable)
       ) {
         return;
@@ -116,16 +116,16 @@ const ChatView = ({ isHidden, showHistoryView }: ChatViewProps) => {
               : commonAncestor.parentElement;
           let preferPlainTextCopy = false;
           while (currentElement) {
-            if (currentElement.tagName === 'PRE' && currentElement.querySelector('code')) {
+            if (currentElement.tagName === "PRE" && currentElement.querySelector("code")) {
               preferPlainTextCopy = true;
               break;
             }
             // Check computed white-space style
             const computedStyle = window.getComputedStyle(currentElement);
             if (
-              computedStyle.whiteSpace === 'pre' ||
-              computedStyle.whiteSpace === 'pre-wrap' ||
-              computedStyle.whiteSpace === 'pre-line'
+              computedStyle.whiteSpace === "pre" ||
+              computedStyle.whiteSpace === "pre-wrap" ||
+              computedStyle.whiteSpace === "pre-line"
             ) {
               // If the element itself or an ancestor has pre-like white-space,
               // and the selection is likely contained within it, prefer plain text.
@@ -136,9 +136,9 @@ const ChatView = ({ isHidden, showHistoryView }: ChatViewProps) => {
 
             // Stop searching if we reach a known chat message boundary or body
             if (
-              currentElement.classList.contains('chat-row-assistant-message-container') ||
-              currentElement.classList.contains('chat-row-user-message-container') ||
-              currentElement.tagName === 'BODY'
+              currentElement.classList.contains("chat-row-assistant-message-container") ||
+              currentElement.classList.contains("chat-row-user-message-container") ||
+              currentElement.tagName === "BODY"
             ) {
               break;
             }
@@ -151,7 +151,7 @@ const ChatView = ({ isHidden, showHistoryView }: ChatViewProps) => {
           } else {
             // For other content, use the existing HTML-to-Markdown conversion
             const clonedSelection = range.cloneContents();
-            const div = document.createElement('div');
+            const div = document.createElement("div");
             div.appendChild(clonedSelection);
             const selectedHtml = div.innerHTML;
             textToCopy = await convertHtmlToMarkdown(selectedHtml);
@@ -161,21 +161,21 @@ const ChatView = ({ isHidden, showHistoryView }: ChatViewProps) => {
             try {
               FileServiceClient.copyToClipboard(StringRequest.create({ value: textToCopy })).catch(
                 (err) => {
-                  console.error('Error copying to clipboard:', err);
+                  console.error("Error copying to clipboard:", err);
                 },
               );
               e.preventDefault();
             } catch (error) {
-              console.error('Error copying to clipboard:', error);
+              console.error("Error copying to clipboard:", error);
             }
           }
         }
       }
     };
-    document.addEventListener('copy', handleCopy);
+    document.addEventListener("copy", handleCopy);
 
     return () => {
-      document.removeEventListener('copy', handleCopy);
+      document.removeEventListener("copy", handleCopy);
     };
   }, []);
   // Button state is now managed by useButtonState hook
@@ -225,7 +225,7 @@ const ChatView = ({ isHidden, showHistoryView }: ChatViewProps) => {
         }
       }
     } catch (error) {
-      console.error('Error selecting images & files:', error);
+      console.error("Error selecting images & files:", error);
     }
   }, [selectedModelInfo.supportsImages]);
 
@@ -244,10 +244,10 @@ const ChatView = ({ isHidden, showHistoryView }: ChatViewProps) => {
           }
         },
         onError: (error) => {
-          console.error('Error in showWebview subscription:', error);
+          console.error("Error in showWebview subscription:", error);
         },
         onComplete: () => {
-          console.log('showWebview subscription completed');
+          console.log("showWebview subscription completed");
         },
       },
     );
@@ -278,10 +278,10 @@ const ChatView = ({ isHidden, showHistoryView }: ChatViewProps) => {
           }
         },
         onError: (error) => {
-          console.error('Error in addToInput subscription:', error);
+          console.error("Error in addToInput subscription:", error);
         },
         onComplete: () => {
-          console.log('addToInput subscription completed');
+          console.log("addToInput subscription completed");
         },
       },
     );
@@ -322,7 +322,7 @@ const ChatView = ({ isHidden, showHistoryView }: ChatViewProps) => {
     // Fall back to the last task_progress message if no state focus chain list
     const lastProgressMessage = [...modifiedMessages]
       .reverse()
-      .find((message) => message.say === 'task_progress');
+      .find((message) => message.say === "task_progress");
     return lastProgressMessage?.text;
   }, [focusChainSettings.enabled, modifiedMessages, currentFocusChainChecklist]);
 
@@ -345,7 +345,7 @@ const ChatView = ({ isHidden, showHistoryView }: ChatViewProps) => {
   );
 
   const placeholderText = useMemo(() => {
-    const text = task ? 'Type a message...' : 'Type your task here...';
+    const text = task ? "Type a message..." : "Type your task here...";
     return text;
   }, [task]);
 
@@ -386,7 +386,7 @@ const ChatView = ({ isHidden, showHistoryView }: ChatViewProps) => {
           />
         )}
       </div>
-      <footer className="bg-(--vscode-sidebar-background)" style={{ gridRow: '2' }}>
+      <footer className="bg-(--vscode-sidebar-background)" style={{ gridRow: "2" }}>
         <AutoApproveBar />
         <ActionButtons
           chatState={chatState}

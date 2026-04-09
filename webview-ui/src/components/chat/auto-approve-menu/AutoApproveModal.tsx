@@ -1,17 +1,17 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { useAutoApproveActions } from '@/hooks/useAutoApproveActions';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { useAutoApproveActions } from "@/hooks/useAutoApproveActions";
 import {
   VSC_DESCRIPTION_FOREGROUND,
   VSC_TITLEBAR_INACTIVE_FOREGROUND,
   getAsVar,
-} from '@/utils/vscStyles';
-import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
-import type React from 'react';
-import { useEffect, useRef, useState } from 'react';
-import { useClickAway } from 'react-use';
-import AutoApproveMenuItem from './AutoApproveMenuItem';
-import { updateAutoApproveSettings } from './AutoApproveSettingsAPI';
-import type { ActionMetadata } from './types';
+} from "@/utils/vscStyles";
+import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
+import { useClickAway } from "react-use";
+import AutoApproveMenuItem from "./AutoApproveMenuItem";
+import { updateAutoApproveSettings } from "./AutoApproveSettingsAPI";
+import type { ActionMetadata } from "./types";
 
 const breakpoint = 500;
 
@@ -79,19 +79,27 @@ const AutoApproveModal: React.FC<AutoApproveModalProps> = ({
       <div
         className="overflow-y-auto pb-3 px-3.5 overscroll-contain"
         style={{
-          maxHeight: '60vh',
+          maxHeight: "60vh",
         }}
       >
         <div
           className="mb-2.5 text-muted-foreground text-xs cursor-pointer"
           onClick={() => setIsVisible(false)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setIsVisible(false);
+            }
+          }}
+          role="button"
+          tabIndex={0}
         >
-          Let Cline take these actions without asking for approval.{' '}
+          Let Cline take these actions without asking for approval.{" "}
           <a
             className="text-link hover:text-link-hover"
             href="https://docs.cline.bot/features/auto-approve#auto-approve"
             rel="noreferrer noopener"
-            style={{ fontSize: 'inherit' }}
+            style={{ fontSize: "inherit" }}
             target="_blank"
           >
             Docs
@@ -103,7 +111,7 @@ const AutoApproveModal: React.FC<AutoApproveModalProps> = ({
           ref={itemsContainerRef}
           style={{
             columnCount: containerWidth > breakpoint ? 2 : 1,
-            columnGap: '4px',
+            columnGap: "4px",
           }}
         >
           {/* Vertical separator line - only visible in two-column mode */}
@@ -112,7 +120,7 @@ const AutoApproveModal: React.FC<AutoApproveModalProps> = ({
               className="absolute left-1/2 top-0 bottom-0 opacity-20"
               style={{
                 background: getAsVar(VSC_TITLEBAR_INACTIVE_FOREGROUND),
-                transform: 'translateX(-50%)', // Center the line
+                transform: "translateX(-50%)", // Center the line
               }}
             />
           )}
@@ -131,10 +139,10 @@ const AutoApproveModal: React.FC<AutoApproveModalProps> = ({
         {/* Separator line */}
         <div
           style={{
-            height: '0.5px',
+            height: "0.5px",
             background: getAsVar(VSC_DESCRIPTION_FOREGROUND),
             opacity: 0.1,
-            margin: '8px 0',
+            margin: "8px 0",
           }}
         />
 

@@ -5,9 +5,9 @@
 // source: cline/checkpoints.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
-import { Timestamp } from '../google/protobuf/timestamp';
-import { Empty, Int64Request, Metadata, StringArrayRequest } from './common';
+import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { Timestamp } from "../google/protobuf/timestamp";
+import { Empty, Int64Request, Metadata, StringArrayRequest } from "./common";
 
 export interface CheckpointRestoreRequest {
   metadata: Metadata | undefined;
@@ -39,13 +39,13 @@ export enum CheckpointEvent_OperationType {
 export function checkpointEvent_OperationTypeFromJSON(object: any): CheckpointEvent_OperationType {
   switch (object) {
     case 0:
-    case 'CHECKPOINT_INIT':
+    case "CHECKPOINT_INIT":
       return CheckpointEvent_OperationType.CHECKPOINT_INIT;
     case 1:
-    case 'CHECKPOINT_COMMIT':
+    case "CHECKPOINT_COMMIT":
       return CheckpointEvent_OperationType.CHECKPOINT_COMMIT;
     case 2:
-    case 'CHECKPOINT_RESTORE':
+    case "CHECKPOINT_RESTORE":
       return CheckpointEvent_OperationType.CHECKPOINT_RESTORE;
     default:
       return CheckpointEvent_OperationType.UNRECOGNIZED;
@@ -55,13 +55,13 @@ export function checkpointEvent_OperationTypeFromJSON(object: any): CheckpointEv
 export function checkpointEvent_OperationTypeToJSON(object: CheckpointEvent_OperationType): string {
   switch (object) {
     case CheckpointEvent_OperationType.CHECKPOINT_INIT:
-      return 'CHECKPOINT_INIT';
+      return "CHECKPOINT_INIT";
     case CheckpointEvent_OperationType.CHECKPOINT_COMMIT:
-      return 'CHECKPOINT_COMMIT';
+      return "CHECKPOINT_COMMIT";
     case CheckpointEvent_OperationType.CHECKPOINT_RESTORE:
-      return 'CHECKPOINT_RESTORE';
+      return "CHECKPOINT_RESTORE";
     default:
-      return 'UNRECOGNIZED';
+      return "UNRECOGNIZED";
   }
 }
 
@@ -75,7 +75,7 @@ export interface PathHashMap_PathHashEntry {
 }
 
 function createBaseCheckpointRestoreRequest(): CheckpointRestoreRequest {
-  return { metadata: undefined, number: 0, restoreType: '', offset: undefined };
+  return { metadata: undefined, number: 0, restoreType: "", offset: undefined };
 }
 
 export const CheckpointRestoreRequest: MessageFns<CheckpointRestoreRequest> = {
@@ -89,7 +89,7 @@ export const CheckpointRestoreRequest: MessageFns<CheckpointRestoreRequest> = {
     if (message.number !== 0) {
       writer.uint32(16).int64(message.number);
     }
-    if (message.restoreType !== '') {
+    if (message.restoreType !== "") {
       writer.uint32(26).string(message.restoreType);
     }
     if (message.offset !== undefined) {
@@ -154,7 +154,7 @@ export const CheckpointRestoreRequest: MessageFns<CheckpointRestoreRequest> = {
         ? globalThis.String(object.restoreType)
         : isSet(object.restore_type)
           ? globalThis.String(object.restore_type)
-          : '',
+          : "",
       offset: isSet(object.offset) ? globalThis.Number(object.offset) : undefined,
     };
   },
@@ -167,7 +167,7 @@ export const CheckpointRestoreRequest: MessageFns<CheckpointRestoreRequest> = {
     if (message.number !== 0) {
       obj.number = Math.round(message.number);
     }
-    if (message.restoreType !== '') {
+    if (message.restoreType !== "") {
       obj.restoreType = message.restoreType;
     }
     if (message.offset !== undefined) {
@@ -190,14 +190,14 @@ export const CheckpointRestoreRequest: MessageFns<CheckpointRestoreRequest> = {
         ? Metadata.fromPartial(object.metadata)
         : undefined;
     message.number = object.number ?? 0;
-    message.restoreType = object.restoreType ?? '';
+    message.restoreType = object.restoreType ?? "";
     message.offset = object.offset ?? undefined;
     return message;
   },
 };
 
 function createBaseCheckpointSubscriptionRequest(): CheckpointSubscriptionRequest {
-  return { cwdHash: '' };
+  return { cwdHash: "" };
 }
 
 export const CheckpointSubscriptionRequest: MessageFns<CheckpointSubscriptionRequest> = {
@@ -205,7 +205,7 @@ export const CheckpointSubscriptionRequest: MessageFns<CheckpointSubscriptionReq
     message: CheckpointSubscriptionRequest,
     writer: BinaryWriter = new BinaryWriter(),
   ): BinaryWriter {
-    if (message.cwdHash !== '') {
+    if (message.cwdHash !== "") {
       writer.uint32(10).string(message.cwdHash);
     }
     return writer;
@@ -241,13 +241,13 @@ export const CheckpointSubscriptionRequest: MessageFns<CheckpointSubscriptionReq
         ? globalThis.String(object.cwdHash)
         : isSet(object.cwd_hash)
           ? globalThis.String(object.cwd_hash)
-          : '',
+          : "",
     };
   },
 
   toJSON(message: CheckpointSubscriptionRequest): unknown {
     const obj: any = {};
-    if (message.cwdHash !== '') {
+    if (message.cwdHash !== "") {
       obj.cwdHash = message.cwdHash;
     }
     return obj;
@@ -262,7 +262,7 @@ export const CheckpointSubscriptionRequest: MessageFns<CheckpointSubscriptionReq
     object: I,
   ): CheckpointSubscriptionRequest {
     const message = createBaseCheckpointSubscriptionRequest();
-    message.cwdHash = object.cwdHash ?? '';
+    message.cwdHash = object.cwdHash ?? "";
     return message;
   },
 };
@@ -270,7 +270,7 @@ export const CheckpointSubscriptionRequest: MessageFns<CheckpointSubscriptionReq
 function createBaseCheckpointEvent(): CheckpointEvent {
   return {
     operation: 0,
-    cwdHash: '',
+    cwdHash: "",
     isActive: false,
     timestamp: undefined,
     taskId: undefined,
@@ -283,7 +283,7 @@ export const CheckpointEvent: MessageFns<CheckpointEvent> = {
     if (message.operation !== 0) {
       writer.uint32(8).int32(message.operation);
     }
-    if (message.cwdHash !== '') {
+    if (message.cwdHash !== "") {
       writer.uint32(18).string(message.cwdHash);
     }
     if (message.isActive !== false) {
@@ -374,7 +374,7 @@ export const CheckpointEvent: MessageFns<CheckpointEvent> = {
         ? globalThis.String(object.cwdHash)
         : isSet(object.cwd_hash)
           ? globalThis.String(object.cwd_hash)
-          : '',
+          : "",
       isActive: isSet(object.isActive)
         ? globalThis.Boolean(object.isActive)
         : isSet(object.is_active)
@@ -399,7 +399,7 @@ export const CheckpointEvent: MessageFns<CheckpointEvent> = {
     if (message.operation !== 0) {
       obj.operation = checkpointEvent_OperationTypeToJSON(message.operation);
     }
-    if (message.cwdHash !== '') {
+    if (message.cwdHash !== "") {
       obj.cwdHash = message.cwdHash;
     }
     if (message.isActive !== false) {
@@ -423,7 +423,7 @@ export const CheckpointEvent: MessageFns<CheckpointEvent> = {
   fromPartial<I extends Exact<DeepPartial<CheckpointEvent>, I>>(object: I): CheckpointEvent {
     const message = createBaseCheckpointEvent();
     message.operation = object.operation ?? 0;
-    message.cwdHash = object.cwdHash ?? '';
+    message.cwdHash = object.cwdHash ?? "";
     message.isActive = object.isActive ?? false;
     message.timestamp =
       object.timestamp !== undefined && object.timestamp !== null
@@ -528,7 +528,7 @@ export const PathHashMap: MessageFns<PathHashMap> = {
 };
 
 function createBasePathHashMap_PathHashEntry(): PathHashMap_PathHashEntry {
-  return { key: '', value: '' };
+  return { key: "", value: "" };
 }
 
 export const PathHashMap_PathHashEntry: MessageFns<PathHashMap_PathHashEntry> = {
@@ -536,10 +536,10 @@ export const PathHashMap_PathHashEntry: MessageFns<PathHashMap_PathHashEntry> = 
     message: PathHashMap_PathHashEntry,
     writer: BinaryWriter = new BinaryWriter(),
   ): BinaryWriter {
-    if (message.key !== '') {
+    if (message.key !== "") {
       writer.uint32(10).string(message.key);
     }
-    if (message.value !== '') {
+    if (message.value !== "") {
       writer.uint32(18).string(message.value);
     }
     return writer;
@@ -579,17 +579,17 @@ export const PathHashMap_PathHashEntry: MessageFns<PathHashMap_PathHashEntry> = 
 
   fromJSON(object: any): PathHashMap_PathHashEntry {
     return {
-      key: isSet(object.key) ? globalThis.String(object.key) : '',
-      value: isSet(object.value) ? globalThis.String(object.value) : '',
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      value: isSet(object.value) ? globalThis.String(object.value) : "",
     };
   },
 
   toJSON(message: PathHashMap_PathHashEntry): unknown {
     const obj: any = {};
-    if (message.key !== '') {
+    if (message.key !== "") {
       obj.key = message.key;
     }
-    if (message.value !== '') {
+    if (message.value !== "") {
       obj.value = message.value;
     }
     return obj;
@@ -604,19 +604,19 @@ export const PathHashMap_PathHashEntry: MessageFns<PathHashMap_PathHashEntry> = 
     object: I,
   ): PathHashMap_PathHashEntry {
     const message = createBasePathHashMap_PathHashEntry();
-    message.key = object.key ?? '';
-    message.value = object.value ?? '';
+    message.key = object.key ?? "";
+    message.value = object.value ?? "";
     return message;
   },
 };
 
 export type CheckpointsServiceDefinition = typeof CheckpointsServiceDefinition;
 export const CheckpointsServiceDefinition = {
-  name: 'CheckpointsService',
-  fullName: 'cline.CheckpointsService',
+  name: "CheckpointsService",
+  fullName: "cline.CheckpointsService",
   methods: {
     checkpointDiff: {
-      name: 'checkpointDiff',
+      name: "checkpointDiff",
       requestType: Int64Request,
       requestStream: false,
       responseType: Empty,
@@ -624,7 +624,7 @@ export const CheckpointsServiceDefinition = {
       options: {},
     },
     checkpointRestore: {
-      name: 'checkpointRestore',
+      name: "checkpointRestore",
       requestType: CheckpointRestoreRequest,
       requestStream: false,
       responseType: Empty,
@@ -632,7 +632,7 @@ export const CheckpointsServiceDefinition = {
       options: {},
     },
     subscribeToCheckpoints: {
-      name: 'subscribeToCheckpoints',
+      name: "subscribeToCheckpoints",
       requestType: CheckpointSubscriptionRequest,
       requestStream: false,
       responseType: CheckpointEvent,
@@ -640,7 +640,7 @@ export const CheckpointsServiceDefinition = {
       options: {},
     },
     getCwdHash: {
-      name: 'getCwdHash',
+      name: "getCwdHash",
       requestType: StringArrayRequest,
       requestStream: false,
       responseType: PathHashMap,
@@ -683,7 +683,7 @@ function fromJsonTimestamp(o: any): Timestamp {
   if (o instanceof globalThis.Date) {
     return toTimestamp(o);
   }
-  if (typeof o === 'string') {
+  if (typeof o === "string") {
     return toTimestamp(new globalThis.Date(o));
   }
   return Timestamp.fromJSON(o);
@@ -692,16 +692,16 @@ function fromJsonTimestamp(o: any): Timestamp {
 function longToNumber(int64: { toString(): string }): number {
   const num = globalThis.Number(int64.toString());
   if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error('Value is larger than Number.MAX_SAFE_INTEGER');
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
   }
   if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error('Value is smaller than Number.MIN_SAFE_INTEGER');
+    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
   }
   return num;
 }
 
 function isObject(value: any): boolean {
-  return typeof value === 'object' && value !== null;
+  return typeof value === "object" && value !== null;
 }
 
 function isSet(value: any): boolean {

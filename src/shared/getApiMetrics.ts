@@ -1,4 +1,4 @@
-import type { ClineMessage } from './ExtensionMessage';
+import type { ClineMessage } from "./ExtensionMessage";
 
 interface ApiMetrics {
   totalTokensIn: number;
@@ -39,29 +39,29 @@ export function getApiMetrics(messages: ClineMessage[]): ApiMetrics {
 
   for (const message of messages) {
     if (
-      message.type === 'say' &&
-      (message.say === 'api_req_started' ||
-        message.say === 'deleted_api_reqs' ||
-        message.say === 'subagent_usage') &&
+      message.type === "say" &&
+      (message.say === "api_req_started" ||
+        message.say === "deleted_api_reqs" ||
+        message.say === "subagent_usage") &&
       message.text
     ) {
       try {
         const parsedData = JSON.parse(message.text);
         const { tokensIn, tokensOut, cacheWrites, cacheReads, cost } = parsedData;
 
-        if (typeof tokensIn === 'number') {
+        if (typeof tokensIn === "number") {
           result.totalTokensIn += tokensIn;
         }
-        if (typeof tokensOut === 'number') {
+        if (typeof tokensOut === "number") {
           result.totalTokensOut += tokensOut;
         }
-        if (typeof cacheWrites === 'number') {
+        if (typeof cacheWrites === "number") {
           result.totalCacheWrites = (result.totalCacheWrites ?? 0) + cacheWrites;
         }
-        if (typeof cacheReads === 'number') {
+        if (typeof cacheReads === "number") {
           result.totalCacheReads = (result.totalCacheReads ?? 0) + cacheReads;
         }
-        if (typeof cost === 'number') {
+        if (typeof cost === "number") {
           result.totalCost += cost;
         }
       } catch {
@@ -85,7 +85,7 @@ export function getApiMetrics(messages: ClineMessage[]): ApiMetrics {
 export function getLastApiReqTotalTokens(messages: ClineMessage[]): number {
   for (let i = messages.length - 1; i >= 0; i--) {
     const msg = messages[i];
-    if (msg.type === 'say' && msg.say === 'api_req_started' && msg.text) {
+    if (msg.type === "say" && msg.say === "api_req_started" && msg.text) {
       try {
         const { tokensIn, tokensOut, cacheWrites, cacheReads } = JSON.parse(msg.text);
         const total = (tokensIn || 0) + (tokensOut || 0) + (cacheWrites || 0) + (cacheReads || 0);

@@ -2,9 +2,9 @@
  * Utility functions for message filtering, grouping, and manipulation
  */
 
-import type { ClineMessage, ClineSayBrowserAction, ClineSayTool } from '@shared/ExtensionMessage';
-import { combineApiRequests } from '@shared/combineApiRequests.ts';
-import { combineCommandSequences } from '@shared/combineCommandSequences.ts';
+import type { ClineMessage, ClineSayBrowserAction, ClineSayTool } from "@shared/ExtensionMessage";
+import { combineApiRequests } from "@shared/combineApiRequests.ts";
+import { combineCommandSequences } from "@shared/combineCommandSequences.ts";
 import {
   FileIcon,
   FolderOpenDotIcon,
@@ -12,28 +12,28 @@ import {
   SearchIcon,
   ShapesIcon,
   WrenchIcon,
-} from 'lucide-react';
+} from "lucide-react";
 
 /**
  * Low-stakes tool types that should be grouped together
  */
 const LOW_STAKES_TOOLS = new Set([
-  'readFile',
-  'listFilesTopLevel',
-  'listFilesRecursive',
-  'listCodeDefinitionNames',
-  'searchFiles',
+  "readFile",
+  "listFilesTopLevel",
+  "listFilesRecursive",
+  "listCodeDefinitionNames",
+  "searchFiles",
 ]);
 
 /**
  * Check if a tool message is a low-stakes tool
  */
 export function isLowStakesTool(message: ClineMessage): boolean {
-  if (message.say !== 'tool' && message.ask !== 'tool') {
+  if (message.say !== "tool" && message.ask !== "tool") {
     return false;
   }
   try {
-    const tool = JSON.parse(message.text || '{}') as ClineSayTool;
+    const tool = JSON.parse(message.text || "{}") as ClineSayTool;
     return LOW_STAKES_TOOLS.has(tool.tool);
   } catch {
     return false;
@@ -62,40 +62,40 @@ export function processMessages(messages: ClineMessage[]): ClineMessage[] {
 export function filterVisibleMessages(messages: ClineMessage[]): ClineMessage[] {
   return messages.filter((message, index, arr) => {
     switch (message.ask) {
-      case 'completion_result':
+      case "completion_result":
         // don't show a chat row for a completion_result ask without text. This specific type of message only occurs if cline wants to execute a command as part of its completion result, in which case we interject the completion_result tool with the execute_command tool.
-        if (message.text === '') {
+        if (message.text === "") {
           return false;
         }
         break;
-      case 'api_req_failed': // this message is used to update the latest api_req_started that the request failed
-      case 'resume_task':
-      case 'resume_completed_task':
+      case "api_req_failed": // this message is used to update the latest api_req_started that the request failed
+      case "resume_task":
+      case "resume_completed_task":
         return false;
-      case 'use_subagents':
+      case "use_subagents":
         if (
           arr
             .slice(index + 1)
-            .some((candidate) => candidate.type === 'say' && candidate.say === 'subagent')
+            .some((candidate) => candidate.type === "say" && candidate.say === "subagent")
         ) {
           return false;
         }
         break;
     }
     switch (message.say) {
-      case 'api_req_finished': // combineApiRequests removes this from modifiedMessages anyways
-      case 'api_req_retried': // this message is used to update the latest api_req_started that the request was retried
-      case 'deleted_api_reqs': // aggregated api_req metrics from deleted messages
-      case 'subagent_usage': // aggregated subagent usage metrics for task-level accounting
-      case 'task_progress': // task progress messages are displayed in TaskHeader, not in main chat
+      case "api_req_finished": // combineApiRequests removes this from modifiedMessages anyways
+      case "api_req_retried": // this message is used to update the latest api_req_started that the request was retried
+      case "deleted_api_reqs": // aggregated api_req metrics from deleted messages
+      case "subagent_usage": // aggregated subagent usage metrics for task-level accounting
+      case "task_progress": // task progress messages are displayed in TaskHeader, not in main chat
         return false;
       // NOTE: reasoning passes through to be included in tool groups
-      case 'api_req_started': {
+      case "api_req_started": {
         // api_req_started rows only render visible content for errors/cancels.
         // Reasoning has its own standalone ChatRows. Everything else renders
         // as invisible padding. Filter out unless there's an error.
         try {
-          const info = JSON.parse(message.text || '{}');
+          const info = JSON.parse(message.text || "{}");
           if (info.cancelReason || info.streamingFailedMessage) {
             break; // keep - has error content
           }
@@ -104,19 +104,19 @@ export function filterVisibleMessages(messages: ClineMessage[]): ClineMessage[] 
         }
         return false;
       }
-      case 'text':
+      case "text":
         // Sometimes cline returns an empty text message, we don't want to render these. (We also use a say text for user messages, so in case they just sent images we still render that)
-        if ((message.text ?? '') === '' && (message.images?.length ?? 0) === 0) {
+        if ((message.text ?? "") === "" && (message.images?.length ?? 0) === 0) {
           return false;
         }
         break;
-      case 'mcp_server_request_started':
+      case "mcp_server_request_started":
         return false;
-      case 'use_subagents':
+      case "use_subagents":
         if (
           arr
             .slice(index + 1)
-            .some((candidate) => candidate.type === 'say' && candidate.say === 'subagent')
+            .some((candidate) => candidate.type === "say" && candidate.say === "subagent")
         ) {
           return false;
         }
@@ -130,19 +130,19 @@ export function filterVisibleMessages(messages: ClineMessage[]): ClineMessage[] 
  * Check if a message is part of a browser session
  */
 export function isBrowserSessionMessage(message: ClineMessage): boolean {
-  if (message.type === 'ask') {
-    return ['browser_action_launch'].includes(message.ask!);
+  if (message.type === "ask") {
+    return ["browser_action_launch"].includes(message.ask!);
   }
-  if (message.type === 'say') {
+  if (message.type === "say") {
     return [
-      'browser_action_launch',
-      'api_req_started',
-      'text',
-      'browser_action',
-      'browser_action_result',
-      'checkpoint_created',
-      'reasoning',
-      'error_retry',
+      "browser_action_launch",
+      "api_req_started",
+      "text",
+      "browser_action",
+      "browser_action_result",
+      "checkpoint_created",
+      "reasoning",
+      "error_retry",
     ].includes(message.say!);
   }
   return false;
@@ -165,7 +165,7 @@ export function groupMessages(visibleMessages: ClineMessage[]): (ClineMessage | 
   };
 
   for (const message of visibleMessages) {
-    if (message.ask === 'browser_action_launch' || message.say === 'browser_action_launch') {
+    if (message.ask === "browser_action_launch" || message.say === "browser_action_launch") {
       // complete existing browser session if any
       endBrowserSession();
       // start new
@@ -173,11 +173,11 @@ export function groupMessages(visibleMessages: ClineMessage[]): (ClineMessage | 
       currentGroup.push(message);
     } else if (isInBrowserSession) {
       // end session if api_req_started is cancelled
-      if (message.say === 'api_req_started') {
+      if (message.say === "api_req_started") {
         // get last api_req_started in currentGroup to check if it's cancelled
         const lastApiReqStarted = [...currentGroup]
           .reverse()
-          .find((m) => m.say === 'api_req_started');
+          .find((m) => m.say === "api_req_started");
         if (lastApiReqStarted?.text != null) {
           const info = JSON.parse(lastApiReqStarted.text);
           const isCancelled = info.cancelReason != null;
@@ -193,9 +193,9 @@ export function groupMessages(visibleMessages: ClineMessage[]): (ClineMessage | 
         currentGroup.push(message);
 
         // Check if this is a close action
-        if (message.say === 'browser_action') {
-          const browserAction = JSON.parse(message.text || '{}') as ClineSayBrowserAction;
-          if (browserAction.action === 'close') {
+        if (message.say === "browser_action") {
+          const browserAction = JSON.parse(message.text || "{}") as ClineSayBrowserAction;
+          if (browserAction.action === "close") {
             endBrowserSession();
           }
         }
@@ -240,7 +240,7 @@ export function findReasoningForApiReq(
   allMessages: ClineMessage[],
 ): { reasoning: string | undefined; responseStarted: boolean } {
   const apiReqIndex = allMessages.findIndex(
-    (m) => m.ts === apiReqTs && m.say === 'api_req_started',
+    (m) => m.ts === apiReqTs && m.say === "api_req_started",
   );
   if (apiReqIndex === -1) {
     return { reasoning: undefined, responseStarted: false };
@@ -253,27 +253,27 @@ export function findReasoningForApiReq(
   for (let i = apiReqIndex + 1; i < allMessages.length; i++) {
     const msg = allMessages[i];
     // Stop at next api_req_started
-    if (msg.say === 'api_req_started') {
+    if (msg.say === "api_req_started") {
       break;
     }
     // Collect reasoning content
-    if (msg.say === 'reasoning' && msg.text) {
+    if (msg.say === "reasoning" && msg.text) {
       reasoningParts.push(msg.text);
     }
     // Check if non-reasoning response content has started (text, tool calls, etc.)
     if (
-      msg.say === 'text' ||
-      msg.say === 'tool' ||
-      msg.ask === 'tool' ||
-      msg.ask === 'command' ||
-      msg.say === 'command'
+      msg.say === "text" ||
+      msg.say === "tool" ||
+      msg.ask === "tool" ||
+      msg.ask === "command" ||
+      msg.say === "command"
     ) {
       responseStarted = true;
     }
   }
 
   return {
-    reasoning: reasoningParts.length > 0 ? reasoningParts.join('\n\n') : undefined,
+    reasoning: reasoningParts.length > 0 ? reasoningParts.join("\n\n") : undefined,
     responseStarted,
   };
 }
@@ -288,7 +288,7 @@ export function findApiReqInfoForCheckpoint(
   allMessages: ClineMessage[],
 ): { cost: number | undefined; request: string | undefined } {
   const checkpointIndex = allMessages.findIndex(
-    (m) => m.ts === checkpointTs && m.say === 'checkpoint_created',
+    (m) => m.ts === checkpointTs && m.say === "checkpoint_created",
   );
   if (checkpointIndex === -1) {
     return { cost: undefined, request: undefined };
@@ -297,7 +297,7 @@ export function findApiReqInfoForCheckpoint(
   // Look backwards for the most recent api_req_started
   for (let i = checkpointIndex - 1; i >= 0; i--) {
     const msg = allMessages[i];
-    if (msg.say === 'api_req_started' && msg.text) {
+    if (msg.say === "api_req_started" && msg.text) {
       try {
         const info = JSON.parse(msg.text);
         return {
@@ -324,24 +324,24 @@ function isDisplayedCheckpoint(checkpointIndex: number, allMessages: ClineMessag
     const msg = allMessages[i];
 
     // Skip api_req messages - they don't affect tool group status
-    if (msg.say === 'api_req_started' || msg.say === 'api_req_finished') {
+    if (msg.say === "api_req_started" || msg.say === "api_req_finished") {
       continue;
     }
 
     // Skip reasoning messages
-    if (msg.say === 'reasoning') {
+    if (msg.say === "reasoning") {
       continue;
     }
 
     // Skip other checkpoints - they don't end tool groups
-    if (msg.say === 'checkpoint_created') {
+    if (msg.say === "checkpoint_created") {
       continue;
     }
 
     // If preceded by a low-stakes tool, this checkpoint is in the tool group (absorbed)
-    if (msg.say === 'tool' || msg.ask === 'tool') {
+    if (msg.say === "tool" || msg.ask === "tool") {
       try {
-        const tool = JSON.parse(msg.text || '{}') as ClineSayTool;
+        const tool = JSON.parse(msg.text || "{}") as ClineSayTool;
         if (LOW_STAKES_TOOLS.has(tool.tool)) {
           return false; // absorbed into tool group
         }
@@ -369,7 +369,7 @@ export function findNextSegmentCost(
   allMessages: ClineMessage[],
 ): number | undefined {
   const checkpointIndex = allMessages.findIndex(
-    (m) => m.ts === checkpointTs && m.say === 'checkpoint_created',
+    (m) => m.ts === checkpointTs && m.say === "checkpoint_created",
   );
   if (checkpointIndex === -1) {
     return undefined;
@@ -377,7 +377,7 @@ export function findNextSegmentCost(
   // Find the next DISPLAYED checkpoint (skip absorbed ones)
   let nextDisplayedCheckpointIndex = -1;
   for (let i = checkpointIndex + 1; i < allMessages.length; i++) {
-    if (allMessages[i].say === 'checkpoint_created') {
+    if (allMessages[i].say === "checkpoint_created") {
       if (isDisplayedCheckpoint(i, allMessages)) {
         nextDisplayedCheckpointIndex = i;
         break;
@@ -394,10 +394,10 @@ export function findNextSegmentCost(
   let totalCost = 0;
   for (let i = checkpointIndex + 1; i < endIndex; i++) {
     const msg = allMessages[i];
-    if (msg.say === 'api_req_started' && msg.text) {
+    if (msg.say === "api_req_started" && msg.text) {
       try {
         const info = JSON.parse(msg.text);
-        if (typeof info.cost === 'number') {
+        if (typeof info.cost === "number") {
           totalCost += info.cost;
         }
       } catch {
@@ -423,7 +423,7 @@ export function isTextMessagePendingToolCall(textTs: number, allMessages: ClineM
   // Look backwards for the most recent api_req_started
   for (let i = textIndex - 1; i >= 0; i--) {
     const msg = allMessages[i];
-    if (msg.say === 'api_req_started' && msg.text) {
+    if (msg.say === "api_req_started" && msg.text) {
       try {
         const info = JSON.parse(msg.text);
         // If no cost, the request is still in progress
@@ -461,7 +461,7 @@ export function isToolGroupInFlight(
   let mostRecentApiReq: ClineMessage | null = null;
   let mostRecentApiReqIndex = -1;
   for (let i = allMessages.length - 1; i >= 0; i--) {
-    if (allMessages[i].say === 'api_req_started') {
+    if (allMessages[i].say === "api_req_started") {
       mostRecentApiReq = allMessages[i];
       mostRecentApiReqIndex = i;
       break;
@@ -501,7 +501,7 @@ export function isToolGroupInFlight(
     let prevCompletedApiReqIndex = -1;
     for (let i = mostRecentApiReqIndex - 1; i >= 0; i--) {
       const msg = allMessages[i];
-      if (msg.say === 'api_req_started' && msg.text) {
+      if (msg.say === "api_req_started" && msg.text) {
         try {
           const prevInfo = JSON.parse(msg.text);
           if (prevInfo.cost != null) {
@@ -552,7 +552,7 @@ export function getToolsNotInCurrentActivities(
   let mostRecentApiReqIndex = -1;
   let mostRecentApiReq: ClineMessage | null = null;
   for (let i = allMessages.length - 1; i >= 0; i--) {
-    if (allMessages[i].say === 'api_req_started') {
+    if (allMessages[i].say === "api_req_started") {
       mostRecentApiReqIndex = i;
       mostRecentApiReq = allMessages[i];
       break;
@@ -586,7 +586,7 @@ export function getToolsNotInCurrentActivities(
     let prevCompletedApiReqIndex = -1;
     for (let i = mostRecentApiReqIndex - 1; i >= 0; i--) {
       const msg = allMessages[i];
-      if (msg.say === 'api_req_started' && msg.text) {
+      if (msg.say === "api_req_started" && msg.text) {
         try {
           const prevInfo = JSON.parse(msg.text);
           if (prevInfo.cost != null) {
@@ -613,7 +613,7 @@ export function getToolsNotInCurrentActivities(
 
       // Filter out only tools awaiting approval (ask === 'tool')
       // Completed tools (say === 'tool') should still be shown
-      if (msg.ask === 'tool') {
+      if (msg.ask === "tool") {
         const toolIndex = tsToIndex.get(msg.ts);
         if (toolIndex === undefined) {
           return true;
@@ -641,7 +641,7 @@ export function getToolsNotInCurrentActivities(
 
     // Filter out only tools awaiting approval (ask === 'tool')
     // Completed tools (say === 'tool') should still be shown
-    if (msg.ask === 'tool') {
+    if (msg.ask === "tool") {
       const toolIndex = tsToIndex.get(msg.ts);
       if (toolIndex === undefined) {
         return true;
@@ -670,7 +670,7 @@ export function getToolsNotInCurrentActivities(
  */
 export function isApiReqAbsorbable(apiReqTs: number, allMessages: ClineMessage[]): boolean {
   const apiReqIndex = allMessages.findIndex(
-    (m) => m.ts === apiReqTs && m.say === 'api_req_started',
+    (m) => m.ts === apiReqTs && m.say === "api_req_started",
   );
   if (apiReqIndex === -1) {
     return false;
@@ -680,23 +680,23 @@ export function isApiReqAbsorbable(apiReqTs: number, allMessages: ClineMessage[]
   let hasReasoning = false;
   for (let i = apiReqIndex + 1; i < allMessages.length; i++) {
     const msg = allMessages[i];
-    if (msg.say === 'api_req_started') {
+    if (msg.say === "api_req_started") {
       break;
     }
 
     // Reasoning - mark it but don't absorb if present
-    if (msg.say === 'reasoning') {
+    if (msg.say === "reasoning") {
       hasReasoning = true;
       continue;
     }
 
     // Checkpoints do not affect absorbability
-    if (msg.say === 'checkpoint_created') {
+    if (msg.say === "checkpoint_created") {
       continue;
     }
 
     // Text is allowed (we still want to absorb api_req into the tool group)
-    if (msg.say === 'text') {
+    if (msg.say === "text") {
       continue;
     }
 
@@ -708,10 +708,10 @@ export function isApiReqAbsorbable(apiReqTs: number, allMessages: ClineMessage[]
 
     // Any other tool/command is considered high-stakes; do not absorb
     if (
-      msg.say === 'tool' ||
-      msg.ask === 'tool' ||
-      msg.say === 'command' ||
-      msg.ask === 'command'
+      msg.say === "tool" ||
+      msg.ask === "tool" ||
+      msg.say === "command" ||
+      msg.ask === "command"
     ) {
       return false;
     }
@@ -741,11 +741,11 @@ function isApiReqFollowedOnlyByLowStakesTools(
     }
     const msg = item;
     // Another api_req_started - stop checking
-    if (msg.say === 'api_req_started') {
+    if (msg.say === "api_req_started") {
       break;
     }
     // Reasoning - mark it but don't absorb if present
-    if (msg.say === 'reasoning') {
+    if (msg.say === "reasoning") {
       hasReasoning = true;
       continue;
     }
@@ -755,19 +755,19 @@ function isApiReqFollowedOnlyByLowStakesTools(
       continue;
     }
     // Checkpoint is OK
-    if (msg.say === 'checkpoint_created') {
+    if (msg.say === "checkpoint_created") {
       continue;
     }
     // Text is OK - it will render separately, but we still absorb api_req
-    if (msg.say === 'text') {
+    if (msg.say === "text") {
       continue;
     }
     // High-stakes tool (write, edit, command, etc.) - don't absorb
     if (
-      msg.say === 'tool' ||
-      msg.ask === 'tool' ||
-      msg.ask === 'command' ||
-      msg.say === 'command'
+      msg.say === "tool" ||
+      msg.ask === "tool" ||
+      msg.ask === "command" ||
+      msg.say === "command"
     ) {
       return false;
     }
@@ -850,14 +850,14 @@ export function groupLowStakesTools(
       toolGroup.push(message);
       // If the streaming has stopped and the last message is still an ask,
       // this means the tool requires user approval - show the old tool block UI.
-      if (message.type === 'ask' && !message.partial && isLast) {
+      if (message.type === "ask" && !message.partial && isLast) {
         pendingTools.push(message);
       }
       continue;
     }
 
     // Reasoning - add to group if active, otherwise queue
-    if (messageType === 'reasoning') {
+    if (messageType === "reasoning") {
       if (hasTools) {
         toolGroup.push(message);
       } else {
@@ -867,7 +867,7 @@ export function groupLowStakesTools(
     }
 
     // API request - absorb if followed by low-stakes tools, otherwise render
-    if (messageType === 'api_req_started') {
+    if (messageType === "api_req_started") {
       if (isApiReqFollowedOnlyByLowStakesTools(i, groupedMessages)) {
         absorbPending();
         pendingApiReq.push(message);
@@ -880,14 +880,14 @@ export function groupLowStakesTools(
     }
 
     // Checkpoint - absorb into active tool group
-    if (messageType === 'checkpoint_created' && hasTools) {
+    if (messageType === "checkpoint_created" && hasTools) {
       toolGroup.push(message);
       continue;
     }
 
     // Text - once a tool group is active, ignore additional text so it
     // doesn't continue mutating the text row rendered above the group.
-    if (messageType === 'text') {
+    if (messageType === "text") {
       if (hasTools) {
         continue;
       }
@@ -915,15 +915,15 @@ export function groupLowStakesTools(
 
 export function getIconByToolName(toolName: string) {
   switch (toolName) {
-    case 'readFile':
+    case "readFile":
       return FileIcon;
-    case 'listFilesTopLevel':
+    case "listFilesTopLevel":
       return FolderOpenIcon;
-    case 'listFilesRecursive':
+    case "listFilesRecursive":
       return FolderOpenDotIcon;
-    case 'searchFiles':
+    case "searchFiles":
       return SearchIcon;
-    case 'listCodeDefinitionNames':
+    case "listCodeDefinitionNames":
       return ShapesIcon;
     default:
       return WrenchIcon;

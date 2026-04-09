@@ -42,7 +42,7 @@ export async function retryWithBackoff<T>(
     baseDelayMs = 50,
     maxDelayMs = Number.POSITIVE_INFINITY,
     multiplier = 2,
-    operationName = 'Operation',
+    operationName = "Operation",
     shouldRetry = () => true,
     onRetry,
   } = options;
@@ -87,7 +87,7 @@ export async function retryOperation<T>(
     try {
       // Create a timeout promise
       const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Operation timeout')), timeoutPerAttempt),
+        setTimeout(() => reject(new Error("Operation timeout")), timeoutPerAttempt),
       );
 
       // Race the operation against timeout

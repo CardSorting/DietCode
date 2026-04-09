@@ -1,11 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
-import { TypewriterText } from './TypewriterText';
+import type { Meta, StoryObj } from "@storybook/react-vite";
+import { TypewriterText } from "./TypewriterText";
 
 const meta: Meta<typeof TypewriterText> = {
-  title: 'Views/Components/TypewriterText',
+  title: "Views/Components/TypewriterText",
   component: TypewriterText,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
     docs: {
       description: {
         component: `
@@ -35,24 +35,24 @@ Use the controls below to test different text content and typing speeds interact
   },
   argTypes: {
     text: {
-      control: 'text',
-      description: 'The text to display with typewriter effect',
+      control: "text",
+      description: "The text to display with typewriter effect",
       table: {
-        type: { summary: 'string' },
+        type: { summary: "string" },
       },
     },
     speed: {
-      control: { type: 'range', min: 10, max: 200, step: 10 },
-      description: 'Speed in milliseconds per character (lower = faster)',
+      control: { type: "range", min: 10, max: 200, step: 10 },
+      description: "Speed in milliseconds per character (lower = faster)",
       table: {
-        type: { summary: 'number' },
-        defaultValue: { summary: '30' },
+        type: { summary: "number" },
+        defaultValue: { summary: "30" },
       },
     },
   },
   decorators: [
     (Story) => (
-      <div className="w-full max-w-2xl p-6 bg-[var(--vscode-editor-background)] text-[var(--vscode-editor-foreground)]">
+      <div className="w-full max-w-2xl p-6 bg-(--vscode-editor-background) text-(--vscode-editor-foreground)">
         <Story />
       </div>
     ),

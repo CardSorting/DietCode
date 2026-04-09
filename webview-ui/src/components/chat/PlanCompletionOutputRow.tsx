@@ -1,8 +1,8 @@
-import { CopyButton } from '@/components/common/CopyButton';
-import MarkdownBlock from '@/components/common/MarkdownBlock';
-import { cn } from '@/lib/utils';
-import { NotepadTextIcon } from 'lucide-react';
-import { memo } from 'react';
+import { CopyButton } from "@/components/common/CopyButton";
+import MarkdownBlock from "@/components/common/MarkdownBlock";
+import { cn } from "@/lib/utils";
+import { NotepadTextIcon } from "lucide-react";
+import { memo } from "react";
 
 interface PlanCompletionOutputProps {
   text: string;
@@ -18,12 +18,12 @@ const PlanCompletionOutputRow = memo(({ text, headClassNames }: PlanCompletionOu
   return (
     <div className="rounded-sm border border-description/50 overflow-visible bg-code p-2 pt-3">
       {/* Header */}
-      <div className={cn(headClassNames, 'justify-between px-1')}>
+      <div className={cn(headClassNames, "justify-between px-1")}>
         <div className="flex gap-2 items-center">
           <NotepadTextIcon className="size-2" />
           <span className="text-foreground font-bold">Plan Created</span>
         </div>
-        <CopyButton textToCopy={text || ''} />
+        <CopyButton textToCopy={text || ""} />
       </div>
 
       {/* Content */}
@@ -38,6 +38,6 @@ const PlanCompletionOutputRow = memo(({ text, headClassNames }: PlanCompletionOu
   );
 });
 
-PlanCompletionOutputRow.displayName = 'PlanCompletionOutputRow';
+PlanCompletionOutputRow.displayName = "PlanCompletionOutputRow";
 
 export default PlanCompletionOutputRow;

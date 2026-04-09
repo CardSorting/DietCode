@@ -5,7 +5,7 @@
  * Enable with: TEL_DEBUG_DIAGNOSTICS=true or IS_DEV=true
  */
 
-import { Logger } from '@/shared/services/Logger';
+import { Logger } from "@/shared/services/Logger";
 
 /**
  * Wraps a metrics exporter with minimal diagnostic logging
@@ -15,7 +15,7 @@ export function wrapMetricsExporterWithDiagnostics(
   protocol: string,
   endpoint: string,
 ): void {
-  if (!exporter || typeof exporter.export !== 'function') {
+  if (!exporter || typeof exporter.export !== "function") {
     return;
   }
 
@@ -36,7 +36,7 @@ export function wrapMetricsExporterWithDiagnostics(
         );
       } else {
         Logger.error(
-          `[OTEL METRICS] Export #${exportCount} FAILED - protocol=${protocol} url=${endpoint} elapsed=${elapsed}ms error="${result.error?.message || 'unknown'}"`,
+          `[OTEL METRICS] Export #${exportCount} FAILED - protocol=${protocol} url=${endpoint} elapsed=${elapsed}ms error="${result.error?.message || "unknown"}"`,
         );
       }
 
@@ -63,7 +63,7 @@ export function wrapLogsExporterWithDiagnostics(
   protocol: string,
   endpoint: string,
 ): void {
-  if (!exporter || typeof exporter.export !== 'function') {
+  if (!exporter || typeof exporter.export !== "function") {
     return;
   }
 
@@ -84,7 +84,7 @@ export function wrapLogsExporterWithDiagnostics(
         );
       } else {
         Logger.error(
-          `[OTEL LOGS] Export #${exportCount} FAILED - protocol=${protocol} url=${endpoint} elapsed=${elapsed}ms error="${result.error?.message || 'unknown'}"`,
+          `[OTEL LOGS] Export #${exportCount} FAILED - protocol=${protocol} url=${endpoint} elapsed=${elapsed}ms error="${result.error?.message || "unknown"}"`,
         );
       }
 

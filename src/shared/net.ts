@@ -93,9 +93,9 @@
  * ```
  */
 
-import { buildExternalBasicHeaders } from '@/services/EnvUtils';
-import OpenAI, { type ClientOptions as OpenAIClientOptions } from 'openai';
-import { EnvHttpProxyAgent, setGlobalDispatcher, fetch as undiciFetch } from 'undici';
+import { buildExternalBasicHeaders } from "@/services/EnvUtils";
+import OpenAI, { type ClientOptions as OpenAIClientOptions } from "openai";
+import { EnvHttpProxyAgent, setGlobalDispatcher, fetch as undiciFetch } from "undici";
 
 let mockFetch: typeof globalThis.fetch | undefined;
 
@@ -116,7 +116,7 @@ export const fetch: typeof globalThis.fetch = (() => {
   // Note: See esbuild.mjs, process.env.IS_STANDALONE is statically rewritten
   // to "true" or "false" (as strings) in the JetBrains/CLI build.
   // We must use explicit string comparison because "false" is truthy in JS.
-  if (process.env.IS_STANDALONE === 'true') {
+  if (process.env.IS_STANDALONE === "true") {
     // Configure undici with ProxyAgent
     const agent = new EnvHttpProxyAgent({});
     setGlobalDispatcher(agent);
@@ -173,7 +173,7 @@ export function mockFetchForTesting<T>(theFetch: typeof globalThis.fetch, callba
  */
 export function getAxiosSettings(): { adapter?: any; fetch?: typeof globalThis.fetch } {
   return {
-    adapter: 'fetch' as any,
+    adapter: "fetch" as any,
     fetch, // Use our configured fetch
   };
 }

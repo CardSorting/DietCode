@@ -3,15 +3,15 @@
  * where each tool name is the combination of the server name + identifier + tool name.
  * This enables to uniquely identify which MCP server a tool belongs to.
  */
-export const CLINE_MCP_TOOL_IDENTIFIER = '0mcp0';
+export const CLINE_MCP_TOOL_IDENTIFIER = "0mcp0";
 export const DEFAULT_MCP_TIMEOUT_SECONDS = 60; // matches Anthropic's default timeout in their MCP SDK
 export const MIN_MCP_TIMEOUT_SECONDS = 1;
-export type McpMode = 'full' | 'server-use-only' | 'off';
+export type McpMode = "full" | "server-use-only" | "off";
 
 export type McpServer = {
   name: string;
   config: string;
-  status: 'connected' | 'connecting' | 'disconnected';
+  status: "connected" | "connecting" | "disconnected";
   error?: string;
   tools?: McpTool[];
   resources?: McpResource[];
@@ -24,7 +24,7 @@ export type McpServer = {
   oauthAuthStatus?: McpOAuthAuthStatus;
 };
 
-export type McpOAuthAuthStatus = 'authenticated' | 'unauthenticated' | 'pending';
+export type McpOAuthAuthStatus = "authenticated" | "unauthenticated" | "pending";
 
 export type McpTool = {
   name: string;
@@ -62,21 +62,21 @@ export type McpPrompt = {
 
 export type McpPromptMessageContent =
   | {
-      type: 'text';
+      type: "text";
       text: string;
     }
   | {
-      type: 'image';
+      type: "image";
       data: string;
       mimeType: string;
     }
   | {
-      type: 'audio';
+      type: "audio";
       data: string;
       mimeType: string;
     }
   | {
-      type: 'resource';
+      type: "resource";
       resource: {
         uri: string;
         mimeType?: string;
@@ -86,7 +86,7 @@ export type McpPromptMessageContent =
     };
 
 export type McpPromptMessage = {
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: McpPromptMessageContent;
 };
 
@@ -109,21 +109,21 @@ export type McpToolCallResponse = {
   _meta?: Record<string, any>;
   content: Array<
     | {
-        type: 'text';
+        type: "text";
         text: string;
       }
     | {
-        type: 'image';
+        type: "image";
         data: string;
         mimeType: string;
       }
     | {
-        type: 'audio';
+        type: "audio";
         data: string;
         mimeType: string;
       }
     | {
-        type: 'resource';
+        type: "resource";
         resource: {
           uri: string;
           mimeType?: string;
@@ -132,7 +132,7 @@ export type McpToolCallResponse = {
         };
       }
     | {
-        type: 'resource_link';
+        type: "resource_link";
         uri: string;
         name?: string;
         description?: string;
@@ -178,4 +178,4 @@ export interface McpDownloadResponse {
   requiresApiKey: boolean;
 }
 
-export type McpViewTab = 'marketplace' | 'addRemote' | 'configure';
+export type McpViewTab = "marketplace" | "addRemote" | "configure";

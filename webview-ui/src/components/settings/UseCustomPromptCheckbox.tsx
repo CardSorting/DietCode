@@ -1,8 +1,8 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
-import type React from 'react';
-import { useCallback, useState } from 'react';
-import { updateSetting } from './utils/settingsHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
+import type React from "react";
+import { useCallback, useState } from "react";
+import { updateSetting } from "./utils/settingsHandlers";
 
 interface CustomPromptCheckboxProps {
   providerId: string;
@@ -14,12 +14,12 @@ interface CustomPromptCheckboxProps {
 const UseCustomPromptCheckbox: React.FC<CustomPromptCheckboxProps> = ({ providerId }) => {
   const { customPrompt } = useExtensionState();
   const [isCompactPromptEnabled, setIsCompactPromptEnabled] = useState<boolean>(
-    customPrompt === 'compact',
+    customPrompt === "compact",
   );
 
   const toggleCompactPrompt = useCallback((isChecked: boolean) => {
     setIsCompactPromptEnabled(isChecked);
-    updateSetting('customPrompt', isChecked ? 'compact' : '');
+    updateSetting("customPrompt", isChecked ? "compact" : "");
   }, []);
 
   return (

@@ -3,7 +3,7 @@
  * Supports ${env:VAR_NAME} syntax for referencing environment variables.
  */
 
-import { Logger } from '@/shared/services/Logger';
+import { Logger } from "@/shared/services/Logger";
 
 /**
  * Expands environment variables in a string value.
@@ -51,7 +51,7 @@ function expandString(value: string): string {
  */
 export function expandEnvironmentVariables<T>(value: T): T {
   // Handle string values
-  if (typeof value === 'string') {
+  if (typeof value === "string") {
     return expandString(value) as T;
   }
 
@@ -61,7 +61,7 @@ export function expandEnvironmentVariables<T>(value: T): T {
   }
 
   // Handle objects (but not null)
-  if (value && typeof value === 'object') {
+  if (value && typeof value === "object") {
     const result: any = {};
     for (const [key, val] of Object.entries(value)) {
       result[key] = expandEnvironmentVariables(val);

@@ -1,12 +1,12 @@
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
-import { Progress } from '@/components/ui/progress';
-import { formatLargeNumber as formatTokenNumber } from '@/utils/format';
-import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
-import debounce from 'debounce';
-import type React from 'react';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ContextWindowSummary } from './ContextWindowSummary';
-import CompactTaskButton from './buttons/CompactTaskButton';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { Progress } from "@/components/ui/progress";
+import { formatLargeNumber as formatTokenNumber } from "@/utils/format";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import debounce from "debounce";
+import type React from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ContextWindowSummary } from "./ContextWindowSummary";
+import CompactTaskButton from "./buttons/CompactTaskButton";
 
 // Type definitions
 interface ContextWindowInfoProps {
@@ -53,7 +53,7 @@ const ConfirmationDialog = memo<{
     </span>
   </div>
 ));
-ConfirmationDialog.displayName = 'ConfirmationDialog';
+ConfirmationDialog.displayName = "ConfirmationDialog";
 
 const ContextWindow: React.FC<ContextWindowProgressProps> = ({
   contextWindow = 0,
@@ -82,7 +82,7 @@ const ContextWindow: React.FC<ContextWindowProgressProps> = ({
     (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      onSendMessage?.('/compact', [], []);
+      onSendMessage?.("/compact", [], []);
       setConfirmationNeeded(false);
     },
     [onSendMessage],
@@ -124,7 +124,7 @@ const ContextWindow: React.FC<ContextWindowProgressProps> = ({
       const isInsideProgressBar = progressBarRef.current?.contains(target as Node);
 
       // Check if click is inside any tooltip content by looking for our custom class
-      const isInsideTooltipContent = target.closest('.context-window-tooltip-content') !== null;
+      const isInsideTooltipContent = target.closest(".context-window-tooltip-content") !== null;
 
       if (!isInsideProgressBar && !isInsideTooltipContent) {
         setIsOpened(false);
@@ -132,8 +132,8 @@ const ContextWindow: React.FC<ContextWindowProgressProps> = ({
     };
 
     if (isOpened) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [isOpened]);
 

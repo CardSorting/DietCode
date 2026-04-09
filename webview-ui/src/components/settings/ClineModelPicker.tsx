@@ -1,32 +1,32 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { ModelsServiceClient, StateServiceClient } from '@/services/grpc-client';
-import { CLAUDE_SONNET_1M_SUFFIX, openRouterDefaultModelId } from '@shared/api.ts';
-import { CLINE_RECOMMENDED_MODELS_FALLBACK } from '@shared/cline/recommended-models.ts';
-import { EmptyRequest, StringRequest } from '@shared/nice-grpc/cline/common.ts';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { ModelsServiceClient, StateServiceClient } from "@/services/grpc-client";
+import { CLAUDE_SONNET_1M_SUFFIX, openRouterDefaultModelId } from "@shared/api.ts";
+import { CLINE_RECOMMENDED_MODELS_FALLBACK } from "@shared/cline/recommended-models.ts";
+import { EmptyRequest, StringRequest } from "@shared/nice-grpc/cline/common.ts";
 import {
   type ClineRecommendedModel,
   ClineRecommendedModelsResponse,
-} from '@shared/nice-grpc/cline/models.ts';
-import type { Mode } from '@shared/storage/types';
-import { VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
-import Fuse from 'fuse.js';
-import type React from 'react';
-import { type KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useMount } from 'react-use';
-import styled from 'styled-components';
-import { highlight } from '../history/HistoryView';
-import FeaturedModelCard from './FeaturedModelCard';
-import ReasoningEffortSelector from './ReasoningEffortSelector';
-import ThinkingBudgetSlider from './ThinkingBudgetSlider';
-import { ContextWindowSwitcher } from './common/ContextWindowSwitcher';
-import { ModelInfoView } from './common/ModelInfoView';
+} from "@shared/nice-grpc/cline/models.ts";
+import type { Mode } from "@shared/storage/types";
+import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import Fuse from "fuse.js";
+import type React from "react";
+import { type KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useMount } from "react-use";
+import styled from "styled-components";
+import { highlight } from "../history/HistoryView";
+import FeaturedModelCard from "./FeaturedModelCard";
+import ReasoningEffortSelector from "./ReasoningEffortSelector";
+import ThinkingBudgetSlider from "./ThinkingBudgetSlider";
+import { ContextWindowSwitcher } from "./common/ContextWindowSwitcher";
+import { ModelInfoView } from "./common/ModelInfoView";
 import {
   filterOpenRouterModelIds,
   getModeSpecificFields,
   normalizeApiConfiguration,
   supportsReasoningEffortForModelId,
-} from './utils/providerUtils';
-import { useApiConfigurationHandlers } from './utils/useApiConfigurationHandlers';
+} from "./utils/providerUtils";
+import { useApiConfigurationHandlers } from "./utils/useApiConfigurationHandlers";
 
 // Star icon for favorites
 const StarIcon = ({
@@ -37,20 +37,20 @@ const StarIcon = ({
     <div
       onClick={onClick}
       style={{
-        cursor: 'pointer',
+        cursor: "pointer",
         color: isFavorite
-          ? 'var(--vscode-terminal-ansiBlue)'
-          : 'var(--vscode-descriptionForeground)',
-        marginLeft: '8px',
-        fontSize: '16px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        userSelect: 'none',
-        WebkitUserSelect: 'none',
+          ? "var(--vscode-terminal-ansiBlue)"
+          : "var(--vscode-descriptionForeground)",
+        marginLeft: "8px",
+        fontSize: "16px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        userSelect: "none",
+        WebkitUserSelect: "none",
       }}
     >
-      {isFavorite ? '★' : '☆'}
+      {isFavorite ? "★" : "☆"}
     </div>
   );
 };
@@ -59,7 +59,7 @@ export interface ClineModelPickerProps {
   isPopup?: boolean;
   currentMode: Mode;
   showProviderRouting?: boolean;
-  initialTab?: 'recommended' | 'free';
+  initialTab?: "recommended" | "free";
 }
 
 interface FeaturedModelCardEntry {
@@ -75,7 +75,7 @@ function normalizeModelId(modelId: string): string {
 }
 
 function toFeaturedModelCardEntry(
-  model: Pick<ClineRecommendedModel, 'id' | 'description' | 'tags'>,
+  model: Pick<ClineRecommendedModel, "id" | "description" | "tags">,
   fallbackLabel: string,
 ): FeaturedModelCardEntry | null {
   if (!model.id) {
@@ -84,23 +84,23 @@ function toFeaturedModelCardEntry(
 
   const firstTag = model.tags?.[0];
   const normalizedLabel =
-    typeof firstTag === 'string' && firstTag.length > 0 ? firstTag.toUpperCase() : undefined;
+    typeof firstTag === "string" && firstTag.length > 0 ? firstTag.toUpperCase() : undefined;
 
   return {
     id: model.id,
     description:
-      model.description || (fallbackLabel === 'FREE' ? 'Free model' : 'Recommended model'),
+      model.description || (fallbackLabel === "FREE" ? "Free model" : "Recommended model"),
     label: normalizedLabel || fallbackLabel,
   };
 }
 
 const RECOMMENDED_MODELS_FALLBACK: FeaturedModelCardEntry[] =
   CLINE_RECOMMENDED_MODELS_FALLBACK.recommended
-    .map((model) => toFeaturedModelCardEntry(model, 'RECOMMENDED'))
+    .map((model) => toFeaturedModelCardEntry(model, "RECOMMENDED"))
     .filter((model): model is FeaturedModelCardEntry => model !== null);
 
 const FREE_MODELS_FALLBACK: FeaturedModelCardEntry[] = CLINE_RECOMMENDED_MODELS_FALLBACK.free
-  .map((model) => toFeaturedModelCardEntry(model, 'FREE'))
+  .map((model) => toFeaturedModelCardEntry(model, "FREE"))
   .filter((model): model is FeaturedModelCardEntry => model !== null);
 
 const ClineModelPicker: React.FC<ClineModelPickerProps> = ({
@@ -131,7 +131,7 @@ const ClineModelPicker: React.FC<ClineModelPickerProps> = ({
     () => new Set(freeClineModelIds.map((modelId) => normalizeModelId(modelId))),
     [freeClineModelIds],
   );
-  const [activeTab, setActiveTab] = useState<'recommended' | 'free'>(initialTab ?? 'recommended');
+  const [activeTab, setActiveTab] = useState<"recommended" | "free">(initialTab ?? "recommended");
   const recommendedModels = useMemo(
     () =>
       clineRecommendedModels.length > 0 ? clineRecommendedModels : RECOMMENDED_MODELS_FALLBACK,
@@ -148,22 +148,22 @@ const ClineModelPicker: React.FC<ClineModelPickerProps> = ({
   const refreshClineRecommendedModels = useCallback(async (): Promise<boolean> => {
     try {
       const response = await ModelsServiceClient.makeUnaryRequest(
-        'refreshClineRecommendedModelsRpc',
+        "refreshClineRecommendedModelsRpc",
         EmptyRequest.create({}),
         EmptyRequest.toJSON,
         ClineRecommendedModelsResponse.fromJSON,
       );
       const recommended = (response.recommended ?? [])
-        .map((model) => toFeaturedModelCardEntry(model, 'RECOMMENDED'))
+        .map((model) => toFeaturedModelCardEntry(model, "RECOMMENDED"))
         .filter((model): model is FeaturedModelCardEntry => model !== null);
       const free = (response.free ?? [])
-        .map((model) => toFeaturedModelCardEntry(model, 'FREE'))
+        .map((model) => toFeaturedModelCardEntry(model, "FREE"))
         .filter((model): model is FeaturedModelCardEntry => model !== null);
       setClineRecommendedModels(recommended);
       setClineFreeModels(free);
       return true;
     } catch (error) {
-      console.error('Failed to refresh Cline recommended models:', error);
+      console.error("Failed to refresh Cline recommended models:", error);
       return false;
     }
   }, []);
@@ -218,7 +218,7 @@ const ClineModelPicker: React.FC<ClineModelPickerProps> = ({
     }
     const currentModelId = modeFields.clineModelId || openRouterDefaultModelId;
     setActiveTab(
-      freeClineModelIdSet.has(normalizeModelId(currentModelId)) ? 'free' : 'recommended',
+      freeClineModelIdSet.has(normalizeModelId(currentModelId)) ? "free" : "recommended",
     );
   }, [modeFields.clineModelId, freeClineModelIdSet, initialTab]);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -230,8 +230,8 @@ const ClineModelPicker: React.FC<ClineModelPickerProps> = ({
 
     handleModeFieldsChange(
       {
-        clineModelId: { plan: 'planModeClineModelId', act: 'actModeClineModelId' },
-        clineModelInfo: { plan: 'planModeClineModelInfo', act: 'actModeClineModelInfo' },
+        clineModelId: { plan: "planModeClineModelId", act: "actModeClineModelId" },
+        clineModelInfo: { plan: "planModeClineModelInfo", act: "actModeClineModelInfo" },
       },
       {
         clineModelId: newModelId,
@@ -279,15 +279,15 @@ const ClineModelPicker: React.FC<ClineModelPickerProps> = ({
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
   const modelIds = useMemo(() => {
     const unfilteredModelIds = Object.keys(clineModels ?? {}).sort((a, b) => a.localeCompare(b));
-    return filterOpenRouterModelIds(unfilteredModelIds, 'cline', freeClineModelIds);
+    return filterOpenRouterModelIds(unfilteredModelIds, "cline", freeClineModelIds);
   }, [clineModels, freeClineModelIds]);
 
   const searchableItems = useMemo(() => {
@@ -299,7 +299,7 @@ const ClineModelPicker: React.FC<ClineModelPickerProps> = ({
 
   const fuse = useMemo(() => {
     return new Fuse(searchableItems, {
-      keys: ['html'], // highlight function will update this
+      keys: ["html"], // highlight function will update this
       threshold: 0.6,
       shouldSort: true,
       isCaseSensitive: false,
@@ -315,7 +315,7 @@ const ClineModelPicker: React.FC<ClineModelPickerProps> = ({
 
     // Then get search results for non-favorited models
     const searchResults = searchTerm
-      ? highlight(fuse.search(searchTerm), 'model-item-highlight').filter(
+      ? highlight(fuse.search(searchTerm), "model-item-highlight").filter(
           (item) => !favoritedModelIds.includes(item.id),
         )
       : searchableItems.filter((item) => !favoritedModelIds.includes(item.id));
@@ -330,15 +330,15 @@ const ClineModelPicker: React.FC<ClineModelPickerProps> = ({
     }
 
     switch (event.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         event.preventDefault();
         setSelectedIndex((prev) => (prev < modelSearchResults.length - 1 ? prev + 1 : prev));
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         event.preventDefault();
         setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
         break;
-      case 'Enter':
+      case "Enter":
         event.preventDefault();
         if (selectedIndex >= 0 && selectedIndex < modelSearchResults.length) {
           handleModelChange(modelSearchResults[selectedIndex].id);
@@ -348,7 +348,7 @@ const ClineModelPicker: React.FC<ClineModelPickerProps> = ({
           setIsDropdownVisible(false);
         }
         break;
-      case 'Escape':
+      case "Escape":
         setIsDropdownVisible(false);
         setSelectedIndex(-1);
         break;
@@ -373,13 +373,13 @@ const ClineModelPicker: React.FC<ClineModelPickerProps> = ({
   useEffect(() => {
     if (selectedIndex >= 0 && itemRefs.current[selectedIndex]) {
       itemRefs.current[selectedIndex]?.scrollIntoView({
-        block: 'nearest',
-        behavior: 'smooth',
+        block: "nearest",
+        behavior: "smooth",
       });
     }
   }, [selectedIndex]);
 
-  const selectedModelIdLower = selectedModelId?.toLowerCase() || '';
+  const selectedModelIdLower = selectedModelId?.toLowerCase() || "";
   const showReasoningEffort = useMemo(
     () => supportsReasoningEffortForModelId(selectedModelId),
     [selectedModelId],
@@ -393,25 +393,25 @@ const ClineModelPicker: React.FC<ClineModelPickerProps> = ({
       Object.entries(clineModels ?? {})?.some(
         ([id, m]) => id === selectedModelId && m.thinkingConfig,
       ) ||
-      selectedModelIdLower.includes('claude-opus-4.6') ||
-      selectedModelIdLower.includes('claude-haiku-4.5') ||
-      selectedModelIdLower.includes('claude-4.5-haiku') ||
-      selectedModelIdLower.includes('claude-sonnet-4.6') ||
-      selectedModelIdLower.includes('claude-sonnet-4-6') ||
-      selectedModelIdLower.includes('claude-4.6-sonnet') ||
-      selectedModelIdLower.includes('claude-sonnet-4.5') ||
-      selectedModelIdLower.includes('claude-sonnet-4') ||
-      selectedModelIdLower.includes('claude-opus-4.1') ||
-      selectedModelIdLower.includes('claude-opus-4') ||
-      selectedModelIdLower.includes('claude-opus-4.5') ||
-      selectedModelIdLower.includes('claude-3-7-sonnet') ||
-      selectedModelIdLower.includes('claude-3.7-sonnet') ||
-      selectedModelIdLower.includes('claude-3.7-sonnet:thinking')
+      selectedModelIdLower.includes("claude-opus-4.6") ||
+      selectedModelIdLower.includes("claude-haiku-4.5") ||
+      selectedModelIdLower.includes("claude-4.5-haiku") ||
+      selectedModelIdLower.includes("claude-sonnet-4.6") ||
+      selectedModelIdLower.includes("claude-sonnet-4-6") ||
+      selectedModelIdLower.includes("claude-4.6-sonnet") ||
+      selectedModelIdLower.includes("claude-sonnet-4.5") ||
+      selectedModelIdLower.includes("claude-sonnet-4") ||
+      selectedModelIdLower.includes("claude-opus-4.1") ||
+      selectedModelIdLower.includes("claude-opus-4") ||
+      selectedModelIdLower.includes("claude-opus-4.5") ||
+      selectedModelIdLower.includes("claude-3-7-sonnet") ||
+      selectedModelIdLower.includes("claude-3.7-sonnet") ||
+      selectedModelIdLower.includes("claude-3.7-sonnet:thinking")
     );
   }, [clineModels, selectedModelId, selectedModelIdLower, showReasoningEffort]);
 
   return (
-    <div style={{ width: '100%', paddingBottom: 2 }}>
+    <div style={{ width: "100%", paddingBottom: 2 }}>
       <style>
         {`
 				.model-item-highlight {
@@ -420,7 +420,7 @@ const ClineModelPicker: React.FC<ClineModelPickerProps> = ({
 				}
 				`}
       </style>
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: "flex", flexDirection: "column" }}>
         <label htmlFor="model-search">
           <span style={{ fontWeight: 500 }}>Model</span>
         </label>
@@ -428,17 +428,17 @@ const ClineModelPicker: React.FC<ClineModelPickerProps> = ({
         <>
           {/* Tabs */}
           <TabsContainer style={{ marginTop: 4 }}>
-            <Tab active={activeTab === 'recommended'} onClick={() => setActiveTab('recommended')}>
+            <Tab active={activeTab === "recommended"} onClick={() => setActiveTab("recommended")}>
               Recommended
             </Tab>
-            <Tab active={activeTab === 'free'} onClick={() => setActiveTab('free')}>
+            <Tab active={activeTab === "free"} onClick={() => setActiveTab("free")}>
               Free
             </Tab>
           </TabsContainer>
 
           {/* Model Cards */}
-          <div style={{ marginBottom: '6px' }}>
-            {activeTab === 'recommended' &&
+          <div style={{ marginBottom: "6px" }}>
+            {activeTab === "recommended" &&
               recommendedModels.map((model) => (
                 <FeaturedModelCard
                   description={model.description}
@@ -452,7 +452,7 @@ const ClineModelPicker: React.FC<ClineModelPickerProps> = ({
                   }}
                 />
               ))}
-            {activeTab === 'free' &&
+            {activeTab === "free" &&
               freeModels.map((model) => (
                 <FeaturedModelCard
                   description={model.description}
@@ -479,16 +479,16 @@ const ClineModelPicker: React.FC<ClineModelPickerProps> = ({
             }}
             onFocus={() => setIsDropdownVisible(true)}
             onInput={(e) => {
-              setSearchTerm((e.target as HTMLInputElement)?.value.toLowerCase() || '');
+              setSearchTerm((e.target as HTMLInputElement)?.value.toLowerCase() || "");
               setIsDropdownVisible(true);
             }}
             onKeyDown={handleKeyDown}
             placeholder="Search and select a model..."
             role="combobox"
             style={{
-              width: '100%',
+              width: "100%",
               zIndex: CLINE_MODEL_PICKER_Z_INDEX,
-              position: 'relative',
+              position: "relative",
             }}
             value={searchTerm}
           >
@@ -497,15 +497,15 @@ const ClineModelPicker: React.FC<ClineModelPickerProps> = ({
                 aria-label="Clear search"
                 className="input-icon-button codicon codicon-close"
                 onClick={() => {
-                  setSearchTerm('');
+                  setSearchTerm("");
                   setIsDropdownVisible(true);
                 }}
                 slot="end"
                 style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: '100%',
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "100%",
                 }}
               />
             )}
@@ -528,9 +528,9 @@ const ClineModelPicker: React.FC<ClineModelPickerProps> = ({
                   >
                     <div
                       style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
                       }}
                     >
                       <span dangerouslySetInnerHTML={{ __html: item.html }} />
@@ -541,7 +541,7 @@ const ClineModelPicker: React.FC<ClineModelPickerProps> = ({
                           StateServiceClient.toggleFavoriteModel(
                             StringRequest.create({ value: item.id }),
                           ).catch((error) =>
-                            console.error('Failed to toggle favorite model:', error),
+                            console.error("Failed to toggle favorite model:", error),
                           );
                         }}
                       />
@@ -595,7 +595,7 @@ const ClineModelPicker: React.FC<ClineModelPickerProps> = ({
             isPopup={isPopup}
             modelInfo={selectedModelInfo}
             onProviderSortingChange={(value) =>
-              handleFieldChange('openRouterProviderSorting', value)
+              handleFieldChange("openRouterProviderSorting", value)
             }
             providerSorting={apiConfiguration?.openRouterProviderSorting}
             selectedModelId={selectedModelId}
@@ -605,9 +605,9 @@ const ClineModelPicker: React.FC<ClineModelPickerProps> = ({
       ) : (
         <p
           style={{
-            fontSize: '12px',
+            fontSize: "12px",
             marginTop: 0,
-            color: 'var(--vscode-descriptionForeground)',
+            color: "var(--vscode-descriptionForeground)",
           }}
         >
           The extension automatically fetches the latest Cline model list. If you're unsure which
@@ -647,7 +647,7 @@ const DropdownItem = styled.div<{ isSelected: boolean }>`
 	word-break: break-all;
 	white-space: normal;
 
-	background-color: ${({ isSelected }) => (isSelected ? 'var(--vscode-list-activeSelectionBackground)' : 'inherit')};
+	background-color: ${({ isSelected }) => (isSelected ? "var(--vscode-list-activeSelectionBackground)" : "inherit")};
 
 	&:hover {
 		background-color: var(--vscode-list-activeSelectionBackground);
@@ -666,8 +666,8 @@ const Tab = styled.div<{ active: boolean }>`
 	cursor: pointer;
 	font-size: 12px;
 	font-weight: 500;
-	color: ${({ active }) => (active ? 'var(--vscode-foreground)' : 'var(--vscode-descriptionForeground)')};
-	border-bottom: 2px solid ${({ active }) => (active ? 'var(--vscode-textLink-foreground)' : 'transparent')};
+	color: ${({ active }) => (active ? "var(--vscode-foreground)" : "var(--vscode-descriptionForeground)")};
+	border-bottom: 2px solid ${({ active }) => (active ? "var(--vscode-textLink-foreground)" : "transparent")};
 	transition: all 0.15s ease;
 
 	&:hover {

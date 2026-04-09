@@ -2,8 +2,8 @@
  * Banner message types for Cline extension
  */
 
-export type BannerSeverity = 'info' | 'success' | 'warning';
-export type BannerPlacement = 'top' | 'bottom' | 'welcome';
+export type BannerSeverity = "info" | "success" | "warning";
+export type BannerPlacement = "top" | "bottom" | "welcome";
 
 export interface Banner {
   id: string;
@@ -37,7 +37,7 @@ export interface BannersResponse {
 /**
  * Audience targeting options
  */
-export type BannerAudience = 'all' | 'team_admin_only' | 'team_members' | 'personal_only';
+export type BannerAudience = "all" | "team_admin_only" | "team_members" | "personal_only";
 
 /**
  * Rules that can be evaluated for banner targeting
@@ -54,7 +54,7 @@ export interface BannerRules {
   /** Target specific audience segment */
   audience?: BannerAudience[];
   /**  Target team vs enterprise organizations */
-  org_type?: 'all' | 'team_only' | 'enterprise_only' | '';
+  org_type?: "all" | "team_only" | "enterprise_only" | "";
   /** Minimum extension version required (e.g., "3.39.2") */
   min_extension_version?: string;
   /** Optional actions embedded in rules JSON for banners */
@@ -64,7 +64,7 @@ export interface BannerRules {
 /**
  * Banner event types for telemetry
  */
-export type BannerEventType = 'dismiss';
+export type BannerEventType = "dismiss";
 
 /**
  * Banner event payload sent to the telemetry API
@@ -72,7 +72,7 @@ export type BannerEventType = 'dismiss';
 export interface BannerEventPayload {
   banner_id: string;
   instance_id: string;
-  surface: 'vscode' | 'jetbrains' | 'cli';
+  surface: "vscode" | "jetbrains" | "cli";
   event_type: BannerEventType;
 }
 

@@ -1,15 +1,15 @@
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { TaskServiceClient } from '@/services/grpc-client';
-import { HistoryIcon, PlusIcon, SettingsIcon, UserCircleIcon } from 'lucide-react';
-import { useMemo } from 'react';
-import { useExtensionState } from '../../context/ExtensionStateContext';
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { TaskServiceClient } from "@/services/grpc-client";
+import { HistoryIcon, PlusIcon, SettingsIcon, UserCircleIcon } from "lucide-react";
+import { useMemo } from "react";
+import { useExtensionState } from "../../context/ExtensionStateContext";
 
 // Custom MCP Server Icon component using VSCode codicon
 const McpServerIcon = ({ className, size }: { className?: string; size?: number }) => (
   <span
-    className={`codicon codicon-server flex items-center ${className || ''}`}
-    style={{ fontSize: size ? `${size}px` : '12.5px', marginBottom: '1px' }}
+    className={`codicon codicon-server flex items-center ${className || ""}`}
+    style={{ fontSize: size ? `${size}px` : "12.5px", marginBottom: "1px" }}
   />
 );
 
@@ -25,44 +25,44 @@ export const Navbar = () => {
   const SETTINGS_TABS = useMemo(
     () => [
       {
-        id: 'chat',
-        name: 'Chat',
-        tooltip: 'New Task',
+        id: "chat",
+        name: "Chat",
+        tooltip: "New Task",
         icon: PlusIcon,
         navigate: () => {
           // Close the current task, then navigate to the chat view
           TaskServiceClient.clearTask({})
             .catch((error) => {
-              console.error('Failed to clear task:', error);
+              console.error("Failed to clear task:", error);
             })
             .finally(() => navigateToChat());
         },
       },
       {
-        id: 'mcp',
-        name: 'MCP',
-        tooltip: 'MCP Servers',
+        id: "mcp",
+        name: "MCP",
+        tooltip: "MCP Servers",
         icon: McpServerIcon,
         navigate: navigateToMcp,
       },
       {
-        id: 'history',
-        name: 'History',
-        tooltip: 'History',
+        id: "history",
+        name: "History",
+        tooltip: "History",
         icon: HistoryIcon,
         navigate: navigateToHistory,
       },
       {
-        id: 'account',
-        name: 'Account',
-        tooltip: 'Account',
+        id: "account",
+        name: "Account",
+        tooltip: "Account",
         icon: UserCircleIcon,
         navigate: navigateToAccount,
       },
       {
-        id: 'settings',
-        name: 'Settings',
-        tooltip: 'Settings',
+        id: "settings",
+        name: "Settings",
+        tooltip: "Settings",
         icon: SettingsIcon,
         navigate: navigateToSettings,
       },

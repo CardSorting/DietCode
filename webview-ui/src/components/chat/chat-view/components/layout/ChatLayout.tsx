@@ -1,5 +1,5 @@
-import type React from 'react';
-import styled from 'styled-components';
+import type React from "react";
+import styled from "styled-components";
 
 interface ChatLayoutProps {
   isHidden: boolean;
@@ -19,9 +19,9 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({ isHidden, children }) =>
 };
 
 const ChatLayoutContainer = styled.div.withConfig({
-  shouldForwardProp: (prop) => !['isHidden'].includes(prop),
+  shouldForwardProp: (prop) => !["isHidden"].includes(prop),
 })<{ isHidden: boolean }>`
-	display: ${(props) => (props.isHidden ? 'none' : 'grid')};
+	display: ${(props) => (props.isHidden ? "none" : "grid")};
 	grid-template-rows: 1fr auto;
 	overflow: hidden;
 	padding: 0;

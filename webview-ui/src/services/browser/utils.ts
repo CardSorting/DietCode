@@ -1,10 +1,10 @@
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
-import { HostProvider } from '@/hosts/host-provider';
-import { fileExistsAtPath } from '@utils/fs';
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
+import { HostProvider } from "@/hosts/host-provider";
+import { fileExistsAtPath } from "@utils/fs";
 // @ts-ignore
-import PCR from 'puppeteer-chromium-resolver';
-import type { launch } from 'puppeteer-core';
+import PCR from "puppeteer-chromium-resolver";
+import type { launch } from "puppeteer-core";
 
 interface PCRStats {
   puppeteer: { launch: typeof launch };
@@ -12,7 +12,7 @@ interface PCRStats {
 }
 
 export async function ensureChromiumExists(): Promise<PCRStats> {
-  const puppeteerDir = path.join(HostProvider.get().globalStorageFsPath, 'puppeteer');
+  const puppeteerDir = path.join(HostProvider.get().globalStorageFsPath, "puppeteer");
   const dirExists = await fileExistsAtPath(puppeteerDir);
   if (!dirExists) {
     await fs.mkdir(puppeteerDir, { recursive: true });

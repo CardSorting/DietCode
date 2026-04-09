@@ -1,8 +1,8 @@
-import { exec } from 'node:child_process';
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
-import { promisify } from 'node:util';
-import ignore from 'ignore';
+import { exec } from "node:child_process";
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
+import { promisify } from "node:util";
+import ignore from "ignore";
 
 const execAsync = promisify(exec);
 
@@ -14,11 +14,11 @@ const COPY_BATCH_SIZE = 100;
  */
 async function parseIgnoreFile(filePath: string): Promise<string[]> {
   try {
-    const content = await fs.readFile(filePath, 'utf-8');
+    const content = await fs.readFile(filePath, "utf-8");
     return content
-      .split('\n')
+      .split("\n")
       .map((line) => line.trim())
-      .filter((line) => line && !line.startsWith('#'));
+      .filter((line) => line && !line.startsWith("#"));
   } catch {
     return [];
   }
@@ -29,10 +29,10 @@ async function parseIgnoreFile(filePath: string): Promise<string[]> {
  */
 async function isDirectoryPattern(sourceDir: string, pattern: string): Promise<string | null> {
   // Normalize pattern - remove trailing slash
-  const cleanPattern = pattern.replace(/\/$/, '');
+  const cleanPattern = pattern.replace(/\/$/, "");
 
   // Skip patterns with wildcards - these need file-by-file matching
-  if (cleanPattern.includes('*') || cleanPattern.includes('?') || cleanPattern.includes('[')) {
+  if (cleanPattern.includes("*") || cleanPattern.includes("?") || cleanPattern.includes("[")) {
     return null;
   }
 
@@ -58,7 +58,7 @@ async function copyDirectoryNative(source: string, target: string): Promise<void
   await fs.mkdir(path.dirname(target), { recursive: true });
 
   // Use native cp for performance (10-20x faster than Node.js)
-  const isWindows = process.platform === 'win32';
+  const isWindows = process.platform === "win32";
   if (isWindows) {
     // Windows: use robocopy or xcopy
     await execAsync(`xcopy "${source}" "${target}" /E /I /H /Y /Q`);
@@ -82,7 +82,7 @@ async function getAllFiles(dir: string, baseDir: string): Promise<string[]> {
 
         if (entry.isDirectory()) {
           // Skip .git directory
-          if (entry.name === '.git') return [];
+          if (entry.name === ".git") return [];
           return getAllFiles(fullPath, baseDir);
         }
         return [relativePath];
@@ -126,10 +126,10 @@ async function copyFilesInBatches(
     );
 
     for (const result of results) {
-      if (result.status === 'fulfilled') {
+      if (result.status === "fulfilled") {
         copiedCount++;
       } else {
-        errors.push(result.reason?.message || 'Unknown error');
+        errors.push(result.reason?.message || "Unknown error");
       }
     }
   }
@@ -155,7 +155,7 @@ export async function copyWorktreeIncludeFiles(
   let copiedCount = 0;
 
   // Read .worktreeinclude file
-  const worktreeIncludePath = path.join(sourceDir, '.worktreeinclude');
+  const worktreeIncludePath = path.join(sourceDir, ".worktreeinclude");
   const includePatterns = await parseIgnoreFile(worktreeIncludePath);
 
   if (includePatterns.length === 0) {
@@ -163,7 +163,7 @@ export async function copyWorktreeIncludeFiles(
   }
 
   // Read .gitignore file
-  const gitignorePath = path.join(sourceDir, '.gitignore');
+  const gitignorePath = path.join(sourceDir, ".gitignore");
   const gitignorePatterns = await parseIgnoreFile(gitignorePath);
 
   if (gitignorePatterns.length === 0) {
@@ -246,7 +246,7 @@ export async function copyWorktreeIncludeFiles(
  */
 export async function hasWorktreeInclude(dir: string): Promise<boolean> {
   try {
-    await fs.access(path.join(dir, '.worktreeinclude'));
+    await fs.access(path.join(dir, ".worktreeinclude"));
     return true;
   } catch {
     return false;

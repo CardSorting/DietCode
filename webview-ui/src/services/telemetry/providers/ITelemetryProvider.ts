@@ -3,7 +3,7 @@
  * Allows switching between different analytics providers (PostHog, etc.)
  */
 
-import type { ClineAccountUserInfo } from '../../auth/AuthService';
+import type { ClineAccountUserInfo } from "../../auth/AuthService";
 
 /**
  * JSON-serializable primitive types for telemetry properties
@@ -38,7 +38,7 @@ export interface TelemetrySettings {
   /** Whether the host environment's telemetry is enabled */
   hostEnabled: boolean;
   /** The level of telemetry to collect */
-  level?: 'all' | 'off' | 'error' | 'crash';
+  level?: "all" | "off" | "error" | "crash";
 }
 
 /**

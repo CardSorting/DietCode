@@ -1,5 +1,5 @@
-import type React from 'react';
-import type { QuickWinTask } from './quickWinTasks';
+import type React from "react";
+import type { QuickWinTask } from "./quickWinTasks";
 
 interface QuickWinCardProps {
   task: QuickWinTask;
@@ -11,16 +11,16 @@ const renderIcon = (iconName?: string) => {
     return <span className="codicon codicon-rocket text-[28px]! leading-none!" />;
   }
 
-  let iconClass = 'codicon-rocket';
+  let iconClass = "codicon-rocket";
   switch (iconName) {
-    case 'WebAppIcon':
-      iconClass = 'codicon-dashboard';
+    case "WebAppIcon":
+      iconClass = "codicon-dashboard";
       break;
-    case 'TerminalIcon':
-      iconClass = 'codicon-terminal';
+    case "TerminalIcon":
+      iconClass = "codicon-terminal";
       break;
-    case 'GameIcon':
-      iconClass = 'codicon-game';
+    case "GameIcon":
+      iconClass = "codicon-game";
       break;
     default:
       break;

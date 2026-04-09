@@ -1,11 +1,11 @@
-import { serializeError } from 'serialize-error';
-import { CLINE_ACCOUNT_AUTH_ERROR_MESSAGE } from '../../shared/ClineAccount';
+import { serializeError } from "serialize-error";
+import { CLINE_ACCOUNT_AUTH_ERROR_MESSAGE } from "../../shared/ClineAccount";
 
 export enum ClineErrorType {
-  Auth = 'auth',
-  Network = 'network',
-  RateLimit = 'rateLimit',
-  Balance = 'balance',
+  Auth = "auth",
+  Network = "network",
+  RateLimit = "rateLimit",
+  Balance = "balance",
 }
 
 interface ErrorDetails {
@@ -50,7 +50,7 @@ const RATE_LIMIT_PATTERNS = [
 ];
 
 export class ClineError extends Error {
-  readonly title = 'ClineError';
+  readonly title = "ClineError";
   readonly _error: ErrorDetails;
 
   // Error details per providers:
@@ -83,7 +83,7 @@ export class ClineError extends Error {
         error.error?.request_id ||
         error.request_id ||
         error.response?.request_id ||
-        error.response?.headers?.['x-request-id'],
+        error.response?.headers?.["x-request-id"],
       code: error.code || error?.cause?.code,
       modelId: this.modelId,
       providerId: this.providerId,
@@ -112,7 +112,7 @@ export class ClineError extends Error {
    * Parses a stringified error into a ClineError instance.
    */
   static parse(errorStr?: string, modelId?: string): ClineError | undefined {
-    if (!errorStr || typeof errorStr !== 'string') {
+    if (!errorStr || typeof errorStr !== "string") {
       return undefined;
     }
     return ClineError.transform(errorStr, modelId);
@@ -151,13 +151,13 @@ export class ClineError extends Error {
     )?.toLowerCase();
 
     // Check balance error first (most specific)
-    if (code === 'insufficient_credits' && typeof details?.current_balance === 'number') {
+    if (code === "insufficient_credits" && typeof details?.current_balance === "number") {
       return ClineErrorType.Balance;
     }
 
     // Check auth errors
     const isAuthStatus = status !== undefined && status > 400 && status < 429;
-    if (code === 'ERR_BAD_REQUEST' || err instanceof AuthInvalidTokenError || isAuthStatus) {
+    if (code === "ERR_BAD_REQUEST" || err instanceof AuthInvalidTokenError || isAuthStatus) {
       return ClineErrorType.Auth;
     }
 

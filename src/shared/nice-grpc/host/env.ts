@@ -5,8 +5,8 @@
 // source: host/env.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
-import { Empty, EmptyRequest, String, StringRequest } from '../cline/common';
+import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { Empty, EmptyRequest, String, StringRequest } from "../cline/common";
 
 export enum Setting {
   /** UNSUPPORTED - This host does not support this setting. */
@@ -19,13 +19,13 @@ export enum Setting {
 export function settingFromJSON(object: any): Setting {
   switch (object) {
     case 0:
-    case 'UNSUPPORTED':
+    case "UNSUPPORTED":
       return Setting.UNSUPPORTED;
     case 1:
-    case 'ENABLED':
+    case "ENABLED":
       return Setting.ENABLED;
     case 2:
-    case 'DISABLED':
+    case "DISABLED":
       return Setting.DISABLED;
     default:
       return Setting.UNRECOGNIZED;
@@ -35,13 +35,13 @@ export function settingFromJSON(object: any): Setting {
 export function settingToJSON(object: Setting): string {
   switch (object) {
     case Setting.UNSUPPORTED:
-      return 'UNSUPPORTED';
+      return "UNSUPPORTED";
     case Setting.ENABLED:
-      return 'ENABLED';
+      return "ENABLED";
     case Setting.DISABLED:
-      return 'DISABLED';
+      return "DISABLED";
     default:
-      return 'UNRECOGNIZED';
+      return "UNRECOGNIZED";
   }
 }
 
@@ -403,12 +403,12 @@ export const TelemetrySettingsEvent: MessageFns<TelemetrySettingsEvent> = {
 /** Provides methods for working with the user's environment. */
 export type EnvServiceDefinition = typeof EnvServiceDefinition;
 export const EnvServiceDefinition = {
-  name: 'EnvService',
-  fullName: 'host.EnvService',
+  name: "EnvService",
+  fullName: "host.EnvService",
   methods: {
     /** Writes text to the system clipboard. */
     clipboardWriteText: {
-      name: 'clipboardWriteText',
+      name: "clipboardWriteText",
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -417,7 +417,7 @@ export const EnvServiceDefinition = {
     },
     /** Reads text from the system clipboard. */
     clipboardReadText: {
-      name: 'clipboardReadText',
+      name: "clipboardReadText",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: String,
@@ -426,7 +426,7 @@ export const EnvServiceDefinition = {
     },
     /** Returns the name and version of the host IDE or environment. */
     getHostVersion: {
-      name: 'getHostVersion',
+      name: "getHostVersion",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: GetHostVersionResponse,
@@ -439,7 +439,7 @@ export const EnvServiceDefinition = {
      * If the host does not support URIs it should return empty.
      */
     getIdeRedirectUri: {
-      name: 'getIdeRedirectUri',
+      name: "getIdeRedirectUri",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: String,
@@ -451,7 +451,7 @@ export const EnvServiceDefinition = {
      * if the host does not specify telemetry settings for the plugin.
      */
     getTelemetrySettings: {
-      name: 'getTelemetrySettings',
+      name: "getTelemetrySettings",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: GetTelemetrySettingsResponse,
@@ -460,7 +460,7 @@ export const EnvServiceDefinition = {
     },
     /** Returns events when the telemetry settings change. */
     subscribeToTelemetrySettings: {
-      name: 'subscribeToTelemetrySettings',
+      name: "subscribeToTelemetrySettings",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: TelemetrySettingsEvent,
@@ -469,7 +469,7 @@ export const EnvServiceDefinition = {
     },
     /** Initiates a graceful shutdown of the host bridge service. */
     shutdown: {
-      name: 'shutdown',
+      name: "shutdown",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -478,7 +478,7 @@ export const EnvServiceDefinition = {
     },
     /** Logs a debug message to the host environment's log/output console. */
     debugLog: {
-      name: 'debugLog',
+      name: "debugLog",
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -491,7 +491,7 @@ export const EnvServiceDefinition = {
      * to the user's local machine to open in their local browser.
      */
     openExternal: {
-      name: 'openExternal',
+      name: "openExternal",
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,

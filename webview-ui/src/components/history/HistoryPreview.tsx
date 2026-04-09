@@ -1,7 +1,7 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { TaskServiceClient } from '@/services/grpc-client';
-import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
-import { memo } from 'react';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { TaskServiceClient } from "@/services/grpc-client";
+import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
+import { memo } from "react";
 
 type HistoryPreviewProps = {
   showHistoryView: () => void;
@@ -11,15 +11,15 @@ const HistoryPreview = ({ showHistoryView }: HistoryPreviewProps) => {
   const { taskHistory } = useExtensionState();
   const handleHistorySelect = (id: string) => {
     TaskServiceClient.showTaskWithId(StringRequest.create({ value: id })).catch((error) =>
-      console.error('Error showing task:', error),
+      console.error("Error showing task:", error),
     );
   };
 
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp);
-    return date?.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
+    return date?.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -106,26 +106,26 @@ const HistoryPreview = ({ showHistoryView }: HistoryPreviewProps) => {
       <div
         className="history-header"
         style={{
-          color: 'var(--vscode-descriptionForeground)',
-          margin: '10px 16px 10px 16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          color: "var(--vscode-descriptionForeground)",
+          margin: "10px 16px 10px 16px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div style={{ display: "flex", alignItems: "center" }}>
           <span
             className="codicon codicon-comment-discussion"
             style={{
-              marginRight: '4px',
-              transform: 'scale(0.9)',
+              marginRight: "4px",
+              transform: "scale(0.9)",
             }}
           />
           <span
             style={{
               fontWeight: 500,
-              fontSize: '0.85em',
-              textTransform: 'uppercase',
+              fontSize: "0.85em",
+              textTransform: "uppercase",
             }}
           >
             Recent
@@ -162,7 +162,7 @@ const HistoryPreview = ({ showHistoryView }: HistoryPreviewProps) => {
                         aria-label="Favorited"
                         className="codicon codicon-star-full"
                         style={{
-                          color: 'var(--vscode-button-background)',
+                          color: "var(--vscode-button-background)",
                           flexShrink: 0,
                         }}
                       />
@@ -180,10 +180,10 @@ const HistoryPreview = ({ showHistoryView }: HistoryPreviewProps) => {
           ) : (
             <div
               style={{
-                textAlign: 'center',
-                color: 'var(--vscode-descriptionForeground)',
-                fontSize: 'var(--vscode-font-size)',
-                padding: '10px 0',
+                textAlign: "center",
+                color: "var(--vscode-descriptionForeground)",
+                fontSize: "var(--vscode-font-size)",
+                padding: "10px 0",
               }}
             >
               No recent tasks

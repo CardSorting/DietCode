@@ -1,5 +1,5 @@
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
 
 /**
  * Parse proto files to extract service definitions
@@ -11,15 +11,15 @@ export async function parseProtoForServices(protoFilePaths, protoDir) {
   const services = {};
 
   for (const protoFilePath of protoFilePaths) {
-    const content = await fs.readFile(path.join(protoDir, protoFilePath), 'utf8');
+    const content = await fs.readFile(path.join(protoDir, protoFilePath), "utf8");
     const serviceMatches = content.matchAll(/service\s+(\w+Service)\s*\{([\s\S]*?)\}/g);
 
     // Determine proto package from file path
-    const protoPackage = protoFilePath.startsWith('host/') ? 'host' : 'cline';
+    const protoPackage = protoFilePath.startsWith("host/") ? "host" : "cline";
 
     for (const serviceMatch of serviceMatches) {
       const serviceName = serviceMatch[1];
-      const serviceKey = serviceName.replace('Service', '').toLowerCase();
+      const serviceKey = serviceName.replace("Service", "").toLowerCase();
       const serviceBody = serviceMatch[2];
       const methodMatches = serviceBody.matchAll(
         /rpc\s+(\w+)\s*\((stream\s)?([\w.]+)\)\s*returns\s*\((stream\s)?([\w.]+)\)/g,
@@ -49,7 +49,7 @@ export async function parseProtoForServices(protoFilePaths, protoDir) {
 export function createServiceNameMap(services) {
   const serviceNameMap = {};
   for (const [serviceKey, serviceDef] of Object.entries(services)) {
-    const packagePrefix = serviceDef.protoPackage === 'host' ? 'host' : 'cline';
+    const packagePrefix = serviceDef.protoPackage === "host" ? "host" : "cline";
     serviceNameMap[serviceKey] = `${packagePrefix}.${serviceDef.name}`;
   }
   return serviceNameMap;
@@ -60,7 +60,7 @@ export function createServiceNameMap(services) {
  * @param {string} message - Message to log
  */
 export function logVerbose(message) {
-  if (process.argv.includes('-v') || process.argv.includes('--verbose')) {
+  if (process.argv.includes("-v") || process.argv.includes("--verbose")) {
     console.log(message);
   }
 }

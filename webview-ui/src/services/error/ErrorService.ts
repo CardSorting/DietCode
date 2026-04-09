@@ -1,7 +1,7 @@
-import { Logger } from '@/shared/services/Logger';
-import { ClineError } from './ClineError';
-import { ErrorProviderFactory } from './ErrorProviderFactory';
-import type { IErrorProvider } from './providers/IErrorProvider';
+import { Logger } from "@/shared/services/Logger";
+import { ClineError } from "./ClineError";
+import { ErrorProviderFactory } from "./ErrorProviderFactory";
+import type { IErrorProvider } from "./providers/IErrorProvider";
 
 /**
  * ErrorService handles error logging and tracking for the Cline extension
@@ -18,7 +18,7 @@ export class ErrorService {
    */
   public static async initialize(): Promise<ErrorService> {
     if (ErrorService.instance) {
-      throw new Error('ErrorService has already been initialized.');
+      throw new Error("ErrorService has already been initialized.");
     }
 
     const provider = await ErrorProviderFactory.createProvider(
@@ -33,7 +33,7 @@ export class ErrorService {
    */
   public static get(): ErrorService {
     if (!ErrorService.instance) {
-      throw new Error('ErrorService not setup. Call ErrorService.initialize() first.');
+      throw new Error("ErrorService not setup. Call ErrorService.initialize() first.");
     }
     return ErrorService.instance;
   }
@@ -48,12 +48,12 @@ export class ErrorService {
 
   public logException(error: Error | ClineError, properties?: Record<string, unknown>): void {
     this.provider.logException(error, properties);
-    Logger.error('[ErrorService] Logging exception', JSON.stringify(error));
+    Logger.error("[ErrorService] Logging exception", JSON.stringify(error));
   }
 
   public logMessage(
     message: string,
-    level: 'error' | 'warning' | 'log' | 'debug' | 'info' = 'log',
+    level: "error" | "warning" | "log" | "debug" | "info" = "log",
     properties?: Record<string, unknown>,
   ): void {
     this.provider.logMessage(message, level, properties);

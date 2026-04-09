@@ -1,11 +1,11 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { SlashServiceClient, TaskServiceClient } from '@/services/grpc-client';
-import type { ClineMessage } from '@shared/ExtensionMessage';
-import { EmptyRequest, StringRequest } from '@shared/nice-grpc/cline/common.ts';
-import { AskResponseRequest, NewTaskRequest } from '@shared/nice-grpc/cline/task.ts';
-import { useCallback, useRef } from 'react';
-import type { ButtonActionType } from '../shared/buttonConfig';
-import type { ChatState, MessageHandlers } from '../types/chatTypes';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { SlashServiceClient, TaskServiceClient } from "@/services/grpc-client";
+import type { ClineMessage } from "@shared/ExtensionMessage";
+import { EmptyRequest, StringRequest } from "@shared/nice-grpc/cline/common.ts";
+import { AskResponseRequest, NewTaskRequest } from "@shared/nice-grpc/cline/task.ts";
+import { useCallback, useRef } from "react";
+import type { ButtonActionType } from "../shared/buttonConfig";
+import type { ChatState, MessageHandlers } from "../types/chatTypes";
 
 /**
  * Custom hook for managing message handlers
@@ -37,14 +37,14 @@ export function useMessageHandlers(
 
       // Prepend the active quote if it exists
       if (activeQuote && hasContent) {
-        const prefix = '[context] \n> ';
+        const prefix = "[context] \n> ";
         const formattedQuote = activeQuote;
-        const suffix = '\n[/context] \n\n';
+        const suffix = "\n[/context] \n\n";
         messageToSend = `${prefix} ${formattedQuote} ${suffix} ${messageToSend}`;
       }
 
       if (hasContent) {
-        console.log('[ChatView] handleSendMessage - Sending message:', messageToSend);
+        console.log("[ChatView] handleSendMessage - Sending message:", messageToSend);
         let messageSent = false;
 
         if (messages.length === 0) {
@@ -59,10 +59,10 @@ export function useMessageHandlers(
         } else if (clineAsk) {
           // For resume_task and resume_completed_task, use yesButtonClicked to match Resume button behavior
           // This ensures Enter key and Resume button work identically
-          if (clineAsk === 'resume_task' || clineAsk === 'resume_completed_task') {
+          if (clineAsk === "resume_task" || clineAsk === "resume_completed_task") {
             await TaskServiceClient.askResponse(
               AskResponseRequest.create({
-                responseType: 'yesButtonClicked',
+                responseType: "yesButtonClicked",
                 text: messageToSend,
                 images,
                 files,
@@ -72,23 +72,23 @@ export function useMessageHandlers(
           } else {
             // All other ask types use messageResponse
             switch (clineAsk) {
-              case 'followup':
-              case 'plan_mode_respond':
-              case 'tool':
-              case 'browser_action_launch':
-              case 'command':
-              case 'command_output':
-              case 'use_mcp_server':
-              case 'use_subagents':
-              case 'completion_result':
-              case 'mistake_limit_reached':
-              case 'api_req_failed':
-              case 'new_task':
-              case 'condense':
-              case 'report_bug':
+              case "followup":
+              case "plan_mode_respond":
+              case "tool":
+              case "browser_action_launch":
+              case "command":
+              case "command_output":
+              case "use_mcp_server":
+              case "use_subagents":
+              case "completion_result":
+              case "mistake_limit_reached":
+              case "api_req_failed":
+              case "new_task":
+              case "condense":
+              case "report_bug":
                 await TaskServiceClient.askResponse(
                   AskResponseRequest.create({
-                    responseType: 'messageResponse',
+                    responseType: "messageResponse",
                     text: messageToSend,
                     images,
                     files,
@@ -104,13 +104,13 @@ export function useMessageHandlers(
           const lastMessage = messages[messages.length - 1];
           const isTaskRunning =
             lastMessage.partial === true ||
-            (lastMessage.type === 'say' && lastMessage.say === 'api_req_started');
+            (lastMessage.type === "say" && lastMessage.say === "api_req_started");
 
           if (isTaskRunning) {
             // Task is running - send message as interruption/feedback
             await TaskServiceClient.askResponse(
               AskResponseRequest.create({
-                responseType: 'messageResponse',
+                responseType: "messageResponse",
                 text: messageToSend,
                 images,
                 files,
@@ -122,7 +122,7 @@ export function useMessageHandlers(
 
         // Only clear input and disable UI if message was actually sent
         if (messageSent) {
-          setInputValue('');
+          setInputValue("");
           setActiveQuote(null);
           setSendingDisabled(true);
           setSelectedImages([]);
@@ -130,7 +130,7 @@ export function useMessageHandlers(
           setEnableButtons(false);
 
           // Reset auto-scroll
-          if ('disableAutoScrollRef' in chatState) {
+          if ("disableAutoScrollRef" in chatState) {
             (chatState as any).disableAutoScrollRef.current = false;
           }
         }
@@ -158,7 +158,7 @@ export function useMessageHandlers(
 
   // Clear input state helper
   const clearInputState = useCallback(() => {
-    setInputValue('');
+    setInputValue("");
     setActiveQuote(null);
     setSelectedImages([]);
     setSelectedFiles([]);
@@ -172,20 +172,20 @@ export function useMessageHandlers(
         trimmedInput || (images && images.length > 0) || (files && files.length > 0);
 
       switch (actionType) {
-        case 'retry':
+        case "retry":
           // For API retry (api_req_failed), always send simple approval without content
           await TaskServiceClient.askResponse(
             AskResponseRequest.create({
-              responseType: 'yesButtonClicked',
+              responseType: "yesButtonClicked",
             }),
           );
           clearInputState();
           break;
-        case 'approve':
+        case "approve":
           if (hasContent) {
             await TaskServiceClient.askResponse(
               AskResponseRequest.create({
-                responseType: 'yesButtonClicked',
+                responseType: "yesButtonClicked",
                 text: trimmedInput,
                 images: images,
                 files: files,
@@ -194,18 +194,18 @@ export function useMessageHandlers(
           } else {
             await TaskServiceClient.askResponse(
               AskResponseRequest.create({
-                responseType: 'yesButtonClicked',
+                responseType: "yesButtonClicked",
               }),
             );
           }
           clearInputState();
           break;
 
-        case 'reject':
+        case "reject":
           if (hasContent) {
             await TaskServiceClient.askResponse(
               AskResponseRequest.create({
-                responseType: 'noButtonClicked',
+                responseType: "noButtonClicked",
                 text: trimmedInput,
                 images: images,
                 files: files,
@@ -214,18 +214,18 @@ export function useMessageHandlers(
           } else {
             await TaskServiceClient.askResponse(
               AskResponseRequest.create({
-                responseType: 'noButtonClicked',
+                responseType: "noButtonClicked",
               }),
             );
           }
           clearInputState();
           break;
 
-        case 'proceed':
+        case "proceed":
           if (hasContent) {
             await TaskServiceClient.askResponse(
               AskResponseRequest.create({
-                responseType: 'yesButtonClicked',
+                responseType: "yesButtonClicked",
                 text: trimmedInput,
                 images: images,
                 files: files,
@@ -234,15 +234,15 @@ export function useMessageHandlers(
           } else {
             await TaskServiceClient.askResponse(
               AskResponseRequest.create({
-                responseType: 'yesButtonClicked',
+                responseType: "yesButtonClicked",
               }),
             );
           }
           clearInputState();
           break;
 
-        case 'new_task':
-          if (clineAsk === 'new_task') {
+        case "new_task":
+          if (clineAsk === "new_task") {
             await TaskServiceClient.newTask(
               NewTaskRequest.create({
                 text: lastMessage?.text,
@@ -255,7 +255,7 @@ export function useMessageHandlers(
           }
           break;
 
-        case 'cancel': {
+        case "cancel": {
           if (cancelInFlightRef.current) {
             return;
           }
@@ -265,7 +265,7 @@ export function useMessageHandlers(
           try {
             if (backgroundCommandRunning) {
               await TaskServiceClient.cancelBackgroundCommand(EmptyRequest.create({})).catch(
-                (err) => console.error('Failed to cancel background command:', err),
+                (err) => console.error("Failed to cancel background command:", err),
               );
             }
             await TaskServiceClient.cancelTask(EmptyRequest.create({}));
@@ -278,14 +278,14 @@ export function useMessageHandlers(
           break;
         }
 
-        case 'utility':
+        case "utility":
           switch (clineAsk) {
-            case 'condense':
+            case "condense":
               await SlashServiceClient.condense(
                 StringRequest.create({ value: lastMessage?.text }),
               ).catch((err) => console.error(err));
               break;
-            case 'report_bug':
+            case "report_bug":
               await SlashServiceClient.reportBug(
                 StringRequest.create({ value: lastMessage?.text }),
               ).catch((err) => console.error(err));
@@ -294,7 +294,7 @@ export function useMessageHandlers(
           break;
       }
 
-      if ('disableAutoScrollRef' in chatState) {
+      if ("disableAutoScrollRef" in chatState) {
         (chatState as any).disableAutoScrollRef.current = false;
       }
     },

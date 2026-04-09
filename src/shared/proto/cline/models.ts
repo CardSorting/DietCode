@@ -5,9 +5,9 @@
 // source: cline/models.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
-import { FieldMask } from '../google/protobuf/field_mask';
-import { Empty, EmptyRequest, Metadata, StringArray, StringRequest } from './common';
+import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { FieldMask } from "../google/protobuf/field_mask";
+import { Empty, EmptyRequest, Metadata, StringArray, StringRequest } from "./common";
 
 /** API Provider enumeration */
 export enum ApiProvider {
@@ -59,130 +59,130 @@ export enum ApiProvider {
 export function apiProviderFromJSON(object: any): ApiProvider {
   switch (object) {
     case 0:
-    case 'ANTHROPIC':
+    case "ANTHROPIC":
       return ApiProvider.ANTHROPIC;
     case 1:
-    case 'OPENROUTER':
+    case "OPENROUTER":
       return ApiProvider.OPENROUTER;
     case 2:
-    case 'BEDROCK':
+    case "BEDROCK":
       return ApiProvider.BEDROCK;
     case 3:
-    case 'VERTEX':
+    case "VERTEX":
       return ApiProvider.VERTEX;
     case 4:
-    case 'OPENAI':
+    case "OPENAI":
       return ApiProvider.OPENAI;
     case 5:
-    case 'OLLAMA':
+    case "OLLAMA":
       return ApiProvider.OLLAMA;
     case 6:
-    case 'LMSTUDIO':
+    case "LMSTUDIO":
       return ApiProvider.LMSTUDIO;
     case 7:
-    case 'GEMINI':
+    case "GEMINI":
       return ApiProvider.GEMINI;
     case 8:
-    case 'OPENAI_NATIVE':
+    case "OPENAI_NATIVE":
       return ApiProvider.OPENAI_NATIVE;
     case 9:
-    case 'REQUESTY':
+    case "REQUESTY":
       return ApiProvider.REQUESTY;
     case 10:
-    case 'TOGETHER':
+    case "TOGETHER":
       return ApiProvider.TOGETHER;
     case 11:
-    case 'DEEPSEEK':
+    case "DEEPSEEK":
       return ApiProvider.DEEPSEEK;
     case 12:
-    case 'QWEN':
+    case "QWEN":
       return ApiProvider.QWEN;
     case 13:
-    case 'DOUBAO':
+    case "DOUBAO":
       return ApiProvider.DOUBAO;
     case 14:
-    case 'MISTRAL':
+    case "MISTRAL":
       return ApiProvider.MISTRAL;
     case 15:
-    case 'VSCODE_LM':
+    case "VSCODE_LM":
       return ApiProvider.VSCODE_LM;
     case 16:
-    case 'CLINE':
+    case "CLINE":
       return ApiProvider.CLINE;
     case 17:
-    case 'LITELLM':
+    case "LITELLM":
       return ApiProvider.LITELLM;
     case 18:
-    case 'NEBIUS':
+    case "NEBIUS":
       return ApiProvider.NEBIUS;
     case 19:
-    case 'FIREWORKS':
+    case "FIREWORKS":
       return ApiProvider.FIREWORKS;
     case 20:
-    case 'ASKSAGE':
+    case "ASKSAGE":
       return ApiProvider.ASKSAGE;
     case 21:
-    case 'XAI':
+    case "XAI":
       return ApiProvider.XAI;
     case 22:
-    case 'SAMBANOVA':
+    case "SAMBANOVA":
       return ApiProvider.SAMBANOVA;
     case 23:
-    case 'CEREBRAS':
+    case "CEREBRAS":
       return ApiProvider.CEREBRAS;
     case 24:
-    case 'GROQ':
+    case "GROQ":
       return ApiProvider.GROQ;
     case 25:
-    case 'SAPAICORE':
+    case "SAPAICORE":
       return ApiProvider.SAPAICORE;
     case 26:
-    case 'CLAUDE_CODE':
+    case "CLAUDE_CODE":
       return ApiProvider.CLAUDE_CODE;
     case 27:
-    case 'MOONSHOT':
+    case "MOONSHOT":
       return ApiProvider.MOONSHOT;
     case 28:
-    case 'HUGGINGFACE':
+    case "HUGGINGFACE":
       return ApiProvider.HUGGINGFACE;
     case 29:
-    case 'HUAWEI_CLOUD_MAAS':
+    case "HUAWEI_CLOUD_MAAS":
       return ApiProvider.HUAWEI_CLOUD_MAAS;
     case 30:
-    case 'BASETEN':
+    case "BASETEN":
       return ApiProvider.BASETEN;
     case 31:
-    case 'ZAI':
+    case "ZAI":
       return ApiProvider.ZAI;
     case 32:
-    case 'VERCEL_AI_GATEWAY':
+    case "VERCEL_AI_GATEWAY":
       return ApiProvider.VERCEL_AI_GATEWAY;
     case 33:
-    case 'QWEN_CODE':
+    case "QWEN_CODE":
       return ApiProvider.QWEN_CODE;
     case 34:
-    case 'DIFY':
+    case "DIFY":
       return ApiProvider.DIFY;
     case 35:
-    case 'OCA':
+    case "OCA":
       return ApiProvider.OCA;
     case 36:
-    case 'MINIMAX':
+    case "MINIMAX":
       return ApiProvider.MINIMAX;
     case 37:
-    case 'HICAP':
+    case "HICAP":
       return ApiProvider.HICAP;
     case 38:
-    case 'AIHUBMIX':
+    case "AIHUBMIX":
       return ApiProvider.AIHUBMIX;
     case 39:
-    case 'NOUSRESEARCH':
+    case "NOUSRESEARCH":
       return ApiProvider.NOUSRESEARCH;
     case 40:
-    case 'OPENAI_CODEX':
+    case "OPENAI_CODEX":
       return ApiProvider.OPENAI_CODEX;
     case 41:
-    case 'WANDB':
+    case "WANDB":
       return ApiProvider.WANDB;
     default:
       return ApiProvider.UNRECOGNIZED;
@@ -192,91 +192,91 @@ export function apiProviderFromJSON(object: any): ApiProvider {
 export function apiProviderToJSON(object: ApiProvider): string {
   switch (object) {
     case ApiProvider.ANTHROPIC:
-      return 'ANTHROPIC';
+      return "ANTHROPIC";
     case ApiProvider.OPENROUTER:
-      return 'OPENROUTER';
+      return "OPENROUTER";
     case ApiProvider.BEDROCK:
-      return 'BEDROCK';
+      return "BEDROCK";
     case ApiProvider.VERTEX:
-      return 'VERTEX';
+      return "VERTEX";
     case ApiProvider.OPENAI:
-      return 'OPENAI';
+      return "OPENAI";
     case ApiProvider.OLLAMA:
-      return 'OLLAMA';
+      return "OLLAMA";
     case ApiProvider.LMSTUDIO:
-      return 'LMSTUDIO';
+      return "LMSTUDIO";
     case ApiProvider.GEMINI:
-      return 'GEMINI';
+      return "GEMINI";
     case ApiProvider.OPENAI_NATIVE:
-      return 'OPENAI_NATIVE';
+      return "OPENAI_NATIVE";
     case ApiProvider.REQUESTY:
-      return 'REQUESTY';
+      return "REQUESTY";
     case ApiProvider.TOGETHER:
-      return 'TOGETHER';
+      return "TOGETHER";
     case ApiProvider.DEEPSEEK:
-      return 'DEEPSEEK';
+      return "DEEPSEEK";
     case ApiProvider.QWEN:
-      return 'QWEN';
+      return "QWEN";
     case ApiProvider.DOUBAO:
-      return 'DOUBAO';
+      return "DOUBAO";
     case ApiProvider.MISTRAL:
-      return 'MISTRAL';
+      return "MISTRAL";
     case ApiProvider.VSCODE_LM:
-      return 'VSCODE_LM';
+      return "VSCODE_LM";
     case ApiProvider.CLINE:
-      return 'CLINE';
+      return "CLINE";
     case ApiProvider.LITELLM:
-      return 'LITELLM';
+      return "LITELLM";
     case ApiProvider.NEBIUS:
-      return 'NEBIUS';
+      return "NEBIUS";
     case ApiProvider.FIREWORKS:
-      return 'FIREWORKS';
+      return "FIREWORKS";
     case ApiProvider.ASKSAGE:
-      return 'ASKSAGE';
+      return "ASKSAGE";
     case ApiProvider.XAI:
-      return 'XAI';
+      return "XAI";
     case ApiProvider.SAMBANOVA:
-      return 'SAMBANOVA';
+      return "SAMBANOVA";
     case ApiProvider.CEREBRAS:
-      return 'CEREBRAS';
+      return "CEREBRAS";
     case ApiProvider.GROQ:
-      return 'GROQ';
+      return "GROQ";
     case ApiProvider.SAPAICORE:
-      return 'SAPAICORE';
+      return "SAPAICORE";
     case ApiProvider.CLAUDE_CODE:
-      return 'CLAUDE_CODE';
+      return "CLAUDE_CODE";
     case ApiProvider.MOONSHOT:
-      return 'MOONSHOT';
+      return "MOONSHOT";
     case ApiProvider.HUGGINGFACE:
-      return 'HUGGINGFACE';
+      return "HUGGINGFACE";
     case ApiProvider.HUAWEI_CLOUD_MAAS:
-      return 'HUAWEI_CLOUD_MAAS';
+      return "HUAWEI_CLOUD_MAAS";
     case ApiProvider.BASETEN:
-      return 'BASETEN';
+      return "BASETEN";
     case ApiProvider.ZAI:
-      return 'ZAI';
+      return "ZAI";
     case ApiProvider.VERCEL_AI_GATEWAY:
-      return 'VERCEL_AI_GATEWAY';
+      return "VERCEL_AI_GATEWAY";
     case ApiProvider.QWEN_CODE:
-      return 'QWEN_CODE';
+      return "QWEN_CODE";
     case ApiProvider.DIFY:
-      return 'DIFY';
+      return "DIFY";
     case ApiProvider.OCA:
-      return 'OCA';
+      return "OCA";
     case ApiProvider.MINIMAX:
-      return 'MINIMAX';
+      return "MINIMAX";
     case ApiProvider.HICAP:
-      return 'HICAP';
+      return "HICAP";
     case ApiProvider.AIHUBMIX:
-      return 'AIHUBMIX';
+      return "AIHUBMIX";
     case ApiProvider.NOUSRESEARCH:
-      return 'NOUSRESEARCH';
+      return "NOUSRESEARCH";
     case ApiProvider.OPENAI_CODEX:
-      return 'OPENAI_CODEX';
+      return "OPENAI_CODEX";
     case ApiProvider.WANDB:
-      return 'WANDB';
+      return "WANDB";
     default:
-      return 'UNRECOGNIZED';
+      return "UNRECOGNIZED";
   }
 }
 
@@ -293,22 +293,22 @@ export enum ApiFormat {
 export function apiFormatFromJSON(object: any): ApiFormat {
   switch (object) {
     case 0:
-    case 'ANTHROPIC_CHAT':
+    case "ANTHROPIC_CHAT":
       return ApiFormat.ANTHROPIC_CHAT;
     case 1:
-    case 'GEMINI_CHAT':
+    case "GEMINI_CHAT":
       return ApiFormat.GEMINI_CHAT;
     case 2:
-    case 'OPENAI_CHAT':
+    case "OPENAI_CHAT":
       return ApiFormat.OPENAI_CHAT;
     case 3:
-    case 'R1_CHAT':
+    case "R1_CHAT":
       return ApiFormat.R1_CHAT;
     case 4:
-    case 'OPENAI_RESPONSES':
+    case "OPENAI_RESPONSES":
       return ApiFormat.OPENAI_RESPONSES;
     case 5:
-    case 'OPENAI_RESPONSES_WEBSOCKET_MODE':
+    case "OPENAI_RESPONSES_WEBSOCKET_MODE":
       return ApiFormat.OPENAI_RESPONSES_WEBSOCKET_MODE;
     default:
       return ApiFormat.UNRECOGNIZED;
@@ -318,19 +318,19 @@ export function apiFormatFromJSON(object: any): ApiFormat {
 export function apiFormatToJSON(object: ApiFormat): string {
   switch (object) {
     case ApiFormat.ANTHROPIC_CHAT:
-      return 'ANTHROPIC_CHAT';
+      return "ANTHROPIC_CHAT";
     case ApiFormat.GEMINI_CHAT:
-      return 'GEMINI_CHAT';
+      return "GEMINI_CHAT";
     case ApiFormat.OPENAI_CHAT:
-      return 'OPENAI_CHAT';
+      return "OPENAI_CHAT";
     case ApiFormat.R1_CHAT:
-      return 'R1_CHAT';
+      return "R1_CHAT";
     case ApiFormat.OPENAI_RESPONSES:
-      return 'OPENAI_RESPONSES';
+      return "OPENAI_RESPONSES";
     case ApiFormat.OPENAI_RESPONSES_WEBSOCKET_MODE:
-      return 'OPENAI_RESPONSES_WEBSOCKET_MODE';
+      return "OPENAI_RESPONSES_WEBSOCKET_MODE";
     default:
-      return 'UNRECOGNIZED';
+      return "UNRECOGNIZED";
   }
 }
 
@@ -1928,7 +1928,7 @@ export const OpenRouterCompatibleModelInfo: MessageFns<OpenRouterCompatibleModel
 };
 
 function createBaseOpenRouterCompatibleModelInfo_ModelsEntry(): OpenRouterCompatibleModelInfo_ModelsEntry {
-  return { key: '', value: undefined };
+  return { key: "", value: undefined };
 }
 
 export const OpenRouterCompatibleModelInfo_ModelsEntry: MessageFns<OpenRouterCompatibleModelInfo_ModelsEntry> =
@@ -1937,7 +1937,7 @@ export const OpenRouterCompatibleModelInfo_ModelsEntry: MessageFns<OpenRouterCom
       message: OpenRouterCompatibleModelInfo_ModelsEntry,
       writer: BinaryWriter = new BinaryWriter(),
     ): BinaryWriter {
-      if (message.key !== '') {
+      if (message.key !== "") {
         writer.uint32(10).string(message.key);
       }
       if (message.value !== undefined) {
@@ -1983,14 +1983,14 @@ export const OpenRouterCompatibleModelInfo_ModelsEntry: MessageFns<OpenRouterCom
 
     fromJSON(object: any): OpenRouterCompatibleModelInfo_ModelsEntry {
       return {
-        key: isSet(object.key) ? globalThis.String(object.key) : '',
+        key: isSet(object.key) ? globalThis.String(object.key) : "",
         value: isSet(object.value) ? OpenRouterModelInfo.fromJSON(object.value) : undefined,
       };
     },
 
     toJSON(message: OpenRouterCompatibleModelInfo_ModelsEntry): unknown {
       const obj: any = {};
-      if (message.key !== '') {
+      if (message.key !== "") {
         obj.key = message.key;
       }
       if (message.value !== undefined) {
@@ -2008,7 +2008,7 @@ export const OpenRouterCompatibleModelInfo_ModelsEntry: MessageFns<OpenRouterCom
       object: I,
     ): OpenRouterCompatibleModelInfo_ModelsEntry {
       const message = createBaseOpenRouterCompatibleModelInfo_ModelsEntry();
-      message.key = object.key ?? '';
+      message.key = object.key ?? "";
       message.value =
         object.value !== undefined && object.value !== null
           ? OpenRouterModelInfo.fromPartial(object.value)
@@ -2018,18 +2018,18 @@ export const OpenRouterCompatibleModelInfo_ModelsEntry: MessageFns<OpenRouterCom
   };
 
 function createBaseClineRecommendedModel(): ClineRecommendedModel {
-  return { id: '', name: '', description: '', tags: [] };
+  return { id: "", name: "", description: "", tags: [] };
 }
 
 export const ClineRecommendedModel: MessageFns<ClineRecommendedModel> = {
   encode(message: ClineRecommendedModel, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== '') {
+    if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
-    if (message.name !== '') {
+    if (message.name !== "") {
       writer.uint32(18).string(message.name);
     }
-    if (message.description !== '') {
+    if (message.description !== "") {
       writer.uint32(26).string(message.description);
     }
     for (const v of message.tags) {
@@ -2088,9 +2088,9 @@ export const ClineRecommendedModel: MessageFns<ClineRecommendedModel> = {
 
   fromJSON(object: any): ClineRecommendedModel {
     return {
-      id: isSet(object.id) ? globalThis.String(object.id) : '',
-      name: isSet(object.name) ? globalThis.String(object.name) : '',
-      description: isSet(object.description) ? globalThis.String(object.description) : '',
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      description: isSet(object.description) ? globalThis.String(object.description) : "",
       tags: globalThis.Array.isArray(object?.tags)
         ? object.tags.map((e: any) => globalThis.String(e))
         : [],
@@ -2099,13 +2099,13 @@ export const ClineRecommendedModel: MessageFns<ClineRecommendedModel> = {
 
   toJSON(message: ClineRecommendedModel): unknown {
     const obj: any = {};
-    if (message.id !== '') {
+    if (message.id !== "") {
       obj.id = message.id;
     }
-    if (message.name !== '') {
+    if (message.name !== "") {
       obj.name = message.name;
     }
-    if (message.description !== '') {
+    if (message.description !== "") {
       obj.description = message.description;
     }
     if (message.tags?.length) {
@@ -2121,9 +2121,9 @@ export const ClineRecommendedModel: MessageFns<ClineRecommendedModel> = {
     object: I,
   ): ClineRecommendedModel {
     const message = createBaseClineRecommendedModel();
-    message.id = object.id ?? '';
-    message.name = object.name ?? '';
-    message.description = object.description ?? '';
+    message.id = object.id ?? "";
+    message.name = object.name ?? "";
+    message.description = object.description ?? "";
     message.tags = object.tags?.map((e) => e) || [];
     return message;
   },
@@ -2218,7 +2218,7 @@ export const ClineRecommendedModelsResponse: MessageFns<ClineRecommendedModelsRe
 };
 
 function createBaseOpenAiModelsRequest(): OpenAiModelsRequest {
-  return { metadata: undefined, baseUrl: '', apiKey: '' };
+  return { metadata: undefined, baseUrl: "", apiKey: "" };
 }
 
 export const OpenAiModelsRequest: MessageFns<OpenAiModelsRequest> = {
@@ -2226,10 +2226,10 @@ export const OpenAiModelsRequest: MessageFns<OpenAiModelsRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.baseUrl !== '') {
+    if (message.baseUrl !== "") {
       writer.uint32(18).string(message.baseUrl);
     }
-    if (message.apiKey !== '') {
+    if (message.apiKey !== "") {
       writer.uint32(26).string(message.apiKey);
     }
     return writer;
@@ -2282,12 +2282,12 @@ export const OpenAiModelsRequest: MessageFns<OpenAiModelsRequest> = {
         ? globalThis.String(object.baseUrl)
         : isSet(object.base_url)
           ? globalThis.String(object.base_url)
-          : '',
+          : "",
       apiKey: isSet(object.apiKey)
         ? globalThis.String(object.apiKey)
         : isSet(object.api_key)
           ? globalThis.String(object.api_key)
-          : '',
+          : "",
     };
   },
 
@@ -2296,10 +2296,10 @@ export const OpenAiModelsRequest: MessageFns<OpenAiModelsRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.baseUrl !== '') {
+    if (message.baseUrl !== "") {
       obj.baseUrl = message.baseUrl;
     }
-    if (message.apiKey !== '') {
+    if (message.apiKey !== "") {
       obj.apiKey = message.apiKey;
     }
     return obj;
@@ -2316,8 +2316,8 @@ export const OpenAiModelsRequest: MessageFns<OpenAiModelsRequest> = {
       object.metadata !== undefined && object.metadata !== null
         ? Metadata.fromPartial(object.metadata)
         : undefined;
-    message.baseUrl = object.baseUrl ?? '';
-    message.apiKey = object.apiKey ?? '';
+    message.baseUrl = object.baseUrl ?? "";
+    message.apiKey = object.apiKey ?? "";
     return message;
   },
 };
@@ -2325,11 +2325,11 @@ export const OpenAiModelsRequest: MessageFns<OpenAiModelsRequest> = {
 function createBaseSapAiCoreModelsRequest(): SapAiCoreModelsRequest {
   return {
     metadata: undefined,
-    clientId: '',
-    clientSecret: '',
-    baseUrl: '',
-    tokenUrl: '',
-    resourceGroup: '',
+    clientId: "",
+    clientSecret: "",
+    baseUrl: "",
+    tokenUrl: "",
+    resourceGroup: "",
   };
 }
 
@@ -2338,19 +2338,19 @@ export const SapAiCoreModelsRequest: MessageFns<SapAiCoreModelsRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.clientId !== '') {
+    if (message.clientId !== "") {
       writer.uint32(18).string(message.clientId);
     }
-    if (message.clientSecret !== '') {
+    if (message.clientSecret !== "") {
       writer.uint32(26).string(message.clientSecret);
     }
-    if (message.baseUrl !== '') {
+    if (message.baseUrl !== "") {
       writer.uint32(34).string(message.baseUrl);
     }
-    if (message.tokenUrl !== '') {
+    if (message.tokenUrl !== "") {
       writer.uint32(42).string(message.tokenUrl);
     }
-    if (message.resourceGroup !== '') {
+    if (message.resourceGroup !== "") {
       writer.uint32(50).string(message.resourceGroup);
     }
     return writer;
@@ -2427,27 +2427,27 @@ export const SapAiCoreModelsRequest: MessageFns<SapAiCoreModelsRequest> = {
         ? globalThis.String(object.clientId)
         : isSet(object.client_id)
           ? globalThis.String(object.client_id)
-          : '',
+          : "",
       clientSecret: isSet(object.clientSecret)
         ? globalThis.String(object.clientSecret)
         : isSet(object.client_secret)
           ? globalThis.String(object.client_secret)
-          : '',
+          : "",
       baseUrl: isSet(object.baseUrl)
         ? globalThis.String(object.baseUrl)
         : isSet(object.base_url)
           ? globalThis.String(object.base_url)
-          : '',
+          : "",
       tokenUrl: isSet(object.tokenUrl)
         ? globalThis.String(object.tokenUrl)
         : isSet(object.token_url)
           ? globalThis.String(object.token_url)
-          : '',
+          : "",
       resourceGroup: isSet(object.resourceGroup)
         ? globalThis.String(object.resourceGroup)
         : isSet(object.resource_group)
           ? globalThis.String(object.resource_group)
-          : '',
+          : "",
     };
   },
 
@@ -2456,19 +2456,19 @@ export const SapAiCoreModelsRequest: MessageFns<SapAiCoreModelsRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.clientId !== '') {
+    if (message.clientId !== "") {
       obj.clientId = message.clientId;
     }
-    if (message.clientSecret !== '') {
+    if (message.clientSecret !== "") {
       obj.clientSecret = message.clientSecret;
     }
-    if (message.baseUrl !== '') {
+    if (message.baseUrl !== "") {
       obj.baseUrl = message.baseUrl;
     }
-    if (message.tokenUrl !== '') {
+    if (message.tokenUrl !== "") {
       obj.tokenUrl = message.tokenUrl;
     }
-    if (message.resourceGroup !== '') {
+    if (message.resourceGroup !== "") {
       obj.resourceGroup = message.resourceGroup;
     }
     return obj;
@@ -2487,17 +2487,17 @@ export const SapAiCoreModelsRequest: MessageFns<SapAiCoreModelsRequest> = {
       object.metadata !== undefined && object.metadata !== null
         ? Metadata.fromPartial(object.metadata)
         : undefined;
-    message.clientId = object.clientId ?? '';
-    message.clientSecret = object.clientSecret ?? '';
-    message.baseUrl = object.baseUrl ?? '';
-    message.tokenUrl = object.tokenUrl ?? '';
-    message.resourceGroup = object.resourceGroup ?? '';
+    message.clientId = object.clientId ?? "";
+    message.clientSecret = object.clientSecret ?? "";
+    message.baseUrl = object.baseUrl ?? "";
+    message.tokenUrl = object.tokenUrl ?? "";
+    message.resourceGroup = object.resourceGroup ?? "";
     return message;
   },
 };
 
 function createBaseSapAiCoreModelDeployment(): SapAiCoreModelDeployment {
-  return { modelName: '', deploymentId: '' };
+  return { modelName: "", deploymentId: "" };
 }
 
 export const SapAiCoreModelDeployment: MessageFns<SapAiCoreModelDeployment> = {
@@ -2505,10 +2505,10 @@ export const SapAiCoreModelDeployment: MessageFns<SapAiCoreModelDeployment> = {
     message: SapAiCoreModelDeployment,
     writer: BinaryWriter = new BinaryWriter(),
   ): BinaryWriter {
-    if (message.modelName !== '') {
+    if (message.modelName !== "") {
       writer.uint32(10).string(message.modelName);
     }
-    if (message.deploymentId !== '') {
+    if (message.deploymentId !== "") {
       writer.uint32(18).string(message.deploymentId);
     }
     return writer;
@@ -2552,21 +2552,21 @@ export const SapAiCoreModelDeployment: MessageFns<SapAiCoreModelDeployment> = {
         ? globalThis.String(object.modelName)
         : isSet(object.model_name)
           ? globalThis.String(object.model_name)
-          : '',
+          : "",
       deploymentId: isSet(object.deploymentId)
         ? globalThis.String(object.deploymentId)
         : isSet(object.deployment_id)
           ? globalThis.String(object.deployment_id)
-          : '',
+          : "",
     };
   },
 
   toJSON(message: SapAiCoreModelDeployment): unknown {
     const obj: any = {};
-    if (message.modelName !== '') {
+    if (message.modelName !== "") {
       obj.modelName = message.modelName;
     }
-    if (message.deploymentId !== '') {
+    if (message.deploymentId !== "") {
       obj.deploymentId = message.deploymentId;
     }
     return obj;
@@ -2581,8 +2581,8 @@ export const SapAiCoreModelDeployment: MessageFns<SapAiCoreModelDeployment> = {
     object: I,
   ): SapAiCoreModelDeployment {
     const message = createBaseSapAiCoreModelDeployment();
-    message.modelName = object.modelName ?? '';
-    message.deploymentId = object.deploymentId ?? '';
+    message.modelName = object.modelName ?? "";
+    message.deploymentId = object.deploymentId ?? "";
     return message;
   },
 };
@@ -6295,7 +6295,7 @@ export const ModelsApiOptions: MessageFns<ModelsApiOptions> = {
 };
 
 function createBaseModelsApiOptions_OpenAiHeadersEntry(): ModelsApiOptions_OpenAiHeadersEntry {
-  return { key: '', value: '' };
+  return { key: "", value: "" };
 }
 
 export const ModelsApiOptions_OpenAiHeadersEntry: MessageFns<ModelsApiOptions_OpenAiHeadersEntry> =
@@ -6304,10 +6304,10 @@ export const ModelsApiOptions_OpenAiHeadersEntry: MessageFns<ModelsApiOptions_Op
       message: ModelsApiOptions_OpenAiHeadersEntry,
       writer: BinaryWriter = new BinaryWriter(),
     ): BinaryWriter {
-      if (message.key !== '') {
+      if (message.key !== "") {
         writer.uint32(10).string(message.key);
       }
-      if (message.value !== '') {
+      if (message.value !== "") {
         writer.uint32(18).string(message.value);
       }
       return writer;
@@ -6347,17 +6347,17 @@ export const ModelsApiOptions_OpenAiHeadersEntry: MessageFns<ModelsApiOptions_Op
 
     fromJSON(object: any): ModelsApiOptions_OpenAiHeadersEntry {
       return {
-        key: isSet(object.key) ? globalThis.String(object.key) : '',
-        value: isSet(object.value) ? globalThis.String(object.value) : '',
+        key: isSet(object.key) ? globalThis.String(object.key) : "",
+        value: isSet(object.value) ? globalThis.String(object.value) : "",
       };
     },
 
     toJSON(message: ModelsApiOptions_OpenAiHeadersEntry): unknown {
       const obj: any = {};
-      if (message.key !== '') {
+      if (message.key !== "") {
         obj.key = message.key;
       }
-      if (message.value !== '') {
+      if (message.value !== "") {
         obj.value = message.value;
       }
       return obj;
@@ -6372,8 +6372,8 @@ export const ModelsApiOptions_OpenAiHeadersEntry: MessageFns<ModelsApiOptions_Op
       object: I,
     ): ModelsApiOptions_OpenAiHeadersEntry {
       const message = createBaseModelsApiOptions_OpenAiHeadersEntry();
-      message.key = object.key ?? '';
-      message.value = object.value ?? '';
+      message.key = object.key ?? "";
+      message.value = object.value ?? "";
       return message;
     },
   };
@@ -6795,7 +6795,7 @@ function createBaseOcaModelInfo(): OcaModelInfo {
     surveyContent: undefined,
     surveyId: undefined,
     banner: undefined,
-    modelName: '',
+    modelName: "",
     apiFormat: undefined,
     supportsReasoning: undefined,
     reasoningEffortOptions: [],
@@ -6846,7 +6846,7 @@ export const OcaModelInfo: MessageFns<OcaModelInfo> = {
     if (message.banner !== undefined) {
       writer.uint32(130).string(message.banner);
     }
-    if (message.modelName !== '') {
+    if (message.modelName !== "") {
       writer.uint32(138).string(message.modelName);
     }
     if (message.apiFormat !== undefined) {
@@ -7085,7 +7085,7 @@ export const OcaModelInfo: MessageFns<OcaModelInfo> = {
         ? globalThis.String(object.modelName)
         : isSet(object.model_name)
           ? globalThis.String(object.model_name)
-          : '',
+          : "",
       apiFormat: isSet(object.apiFormat)
         ? apiFormatFromJSON(object.apiFormat)
         : isSet(object.api_format)
@@ -7148,7 +7148,7 @@ export const OcaModelInfo: MessageFns<OcaModelInfo> = {
     if (message.banner !== undefined) {
       obj.banner = message.banner;
     }
-    if (message.modelName !== '') {
+    if (message.modelName !== "") {
       obj.modelName = message.modelName;
     }
     if (message.apiFormat !== undefined) {
@@ -7185,7 +7185,7 @@ export const OcaModelInfo: MessageFns<OcaModelInfo> = {
     message.surveyContent = object.surveyContent ?? undefined;
     message.surveyId = object.surveyId ?? undefined;
     message.banner = object.banner ?? undefined;
-    message.modelName = object.modelName ?? '';
+    message.modelName = object.modelName ?? "";
     message.apiFormat = object.apiFormat ?? undefined;
     message.supportsReasoning = object.supportsReasoning ?? undefined;
     message.reasoningEffortOptions = object.reasoningEffortOptions?.map((e) => e) || [];
@@ -7301,7 +7301,7 @@ export const OcaCompatibleModelInfo: MessageFns<OcaCompatibleModelInfo> = {
 };
 
 function createBaseOcaCompatibleModelInfo_ModelsEntry(): OcaCompatibleModelInfo_ModelsEntry {
-  return { key: '', value: undefined };
+  return { key: "", value: undefined };
 }
 
 export const OcaCompatibleModelInfo_ModelsEntry: MessageFns<OcaCompatibleModelInfo_ModelsEntry> = {
@@ -7309,7 +7309,7 @@ export const OcaCompatibleModelInfo_ModelsEntry: MessageFns<OcaCompatibleModelIn
     message: OcaCompatibleModelInfo_ModelsEntry,
     writer: BinaryWriter = new BinaryWriter(),
   ): BinaryWriter {
-    if (message.key !== '') {
+    if (message.key !== "") {
       writer.uint32(10).string(message.key);
     }
     if (message.value !== undefined) {
@@ -7352,14 +7352,14 @@ export const OcaCompatibleModelInfo_ModelsEntry: MessageFns<OcaCompatibleModelIn
 
   fromJSON(object: any): OcaCompatibleModelInfo_ModelsEntry {
     return {
-      key: isSet(object.key) ? globalThis.String(object.key) : '',
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
       value: isSet(object.value) ? OcaModelInfo.fromJSON(object.value) : undefined,
     };
   },
 
   toJSON(message: OcaCompatibleModelInfo_ModelsEntry): unknown {
     const obj: any = {};
-    if (message.key !== '') {
+    if (message.key !== "") {
       obj.key = message.key;
     }
     if (message.value !== undefined) {
@@ -7377,7 +7377,7 @@ export const OcaCompatibleModelInfo_ModelsEntry: MessageFns<OcaCompatibleModelIn
     object: I,
   ): OcaCompatibleModelInfo_ModelsEntry {
     const message = createBaseOcaCompatibleModelInfo_ModelsEntry();
-    message.key = object.key ?? '';
+    message.key = object.key ?? "";
     message.value =
       object.value !== undefined && object.value !== null
         ? OcaModelInfo.fromPartial(object.value)
@@ -11976,7 +11976,7 @@ export const ModelsApiConfiguration: MessageFns<ModelsApiConfiguration> = {
 };
 
 function createBaseModelsApiConfiguration_OpenAiHeadersEntry(): ModelsApiConfiguration_OpenAiHeadersEntry {
-  return { key: '', value: '' };
+  return { key: "", value: "" };
 }
 
 export const ModelsApiConfiguration_OpenAiHeadersEntry: MessageFns<ModelsApiConfiguration_OpenAiHeadersEntry> =
@@ -11985,10 +11985,10 @@ export const ModelsApiConfiguration_OpenAiHeadersEntry: MessageFns<ModelsApiConf
       message: ModelsApiConfiguration_OpenAiHeadersEntry,
       writer: BinaryWriter = new BinaryWriter(),
     ): BinaryWriter {
-      if (message.key !== '') {
+      if (message.key !== "") {
         writer.uint32(10).string(message.key);
       }
-      if (message.value !== '') {
+      if (message.value !== "") {
         writer.uint32(18).string(message.value);
       }
       return writer;
@@ -12031,17 +12031,17 @@ export const ModelsApiConfiguration_OpenAiHeadersEntry: MessageFns<ModelsApiConf
 
     fromJSON(object: any): ModelsApiConfiguration_OpenAiHeadersEntry {
       return {
-        key: isSet(object.key) ? globalThis.String(object.key) : '',
-        value: isSet(object.value) ? globalThis.String(object.value) : '',
+        key: isSet(object.key) ? globalThis.String(object.key) : "",
+        value: isSet(object.value) ? globalThis.String(object.value) : "",
       };
     },
 
     toJSON(message: ModelsApiConfiguration_OpenAiHeadersEntry): unknown {
       const obj: any = {};
-      if (message.key !== '') {
+      if (message.key !== "") {
         obj.key = message.key;
       }
-      if (message.value !== '') {
+      if (message.value !== "") {
         obj.value = message.value;
       }
       return obj;
@@ -12056,8 +12056,8 @@ export const ModelsApiConfiguration_OpenAiHeadersEntry: MessageFns<ModelsApiConf
       object: I,
     ): ModelsApiConfiguration_OpenAiHeadersEntry {
       const message = createBaseModelsApiConfiguration_OpenAiHeadersEntry();
-      message.key = object.key ?? '';
-      message.value = object.value ?? '';
+      message.key = object.key ?? "";
+      message.value = object.value ?? "";
       return message;
     },
   };
@@ -12065,12 +12065,12 @@ export const ModelsApiConfiguration_OpenAiHeadersEntry: MessageFns<ModelsApiConf
 /** Service for model-related operations */
 export type ModelsServiceDefinition = typeof ModelsServiceDefinition;
 export const ModelsServiceDefinition = {
-  name: 'ModelsService',
-  fullName: 'cline.ModelsService',
+  name: "ModelsService",
+  fullName: "cline.ModelsService",
   methods: {
     /** Fetches available models from Ollama */
     getOllamaModels: {
-      name: 'getOllamaModels',
+      name: "getOllamaModels",
       requestType: StringRequest,
       requestStream: false,
       responseType: StringArray,
@@ -12079,7 +12079,7 @@ export const ModelsServiceDefinition = {
     },
     /** Fetches available models from LM Studio */
     getLmStudioModels: {
-      name: 'getLmStudioModels',
+      name: "getLmStudioModels",
       requestType: StringRequest,
       requestStream: false,
       responseType: StringArray,
@@ -12088,7 +12088,7 @@ export const ModelsServiceDefinition = {
     },
     /** Fetches available models from VS Code LM API */
     getVsCodeLmModels: {
-      name: 'getVsCodeLmModels',
+      name: "getVsCodeLmModels",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: VsCodeLmModelsArray,
@@ -12097,7 +12097,7 @@ export const ModelsServiceDefinition = {
     },
     /** Refreshes and returns OpenRouter models */
     refreshOpenRouterModelsRpc: {
-      name: 'refreshOpenRouterModelsRpc',
+      name: "refreshOpenRouterModelsRpc",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -12106,7 +12106,7 @@ export const ModelsServiceDefinition = {
     },
     /** Refreshes and returns recommended and free Cline models */
     refreshClineRecommendedModelsRpc: {
-      name: 'refreshClineRecommendedModelsRpc',
+      name: "refreshClineRecommendedModelsRpc",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: ClineRecommendedModelsResponse,
@@ -12115,7 +12115,7 @@ export const ModelsServiceDefinition = {
     },
     /** Refreshes and returns Cline provider models */
     refreshClineModelsRpc: {
-      name: 'refreshClineModelsRpc',
+      name: "refreshClineModelsRpc",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -12124,7 +12124,7 @@ export const ModelsServiceDefinition = {
     },
     /** Refreshes and returns Hugging Face models */
     refreshHuggingFaceModels: {
-      name: 'refreshHuggingFaceModels',
+      name: "refreshHuggingFaceModels",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -12133,7 +12133,7 @@ export const ModelsServiceDefinition = {
     },
     /** Refreshes and returns OpenAI models */
     refreshOpenAiModels: {
-      name: 'refreshOpenAiModels',
+      name: "refreshOpenAiModels",
       requestType: OpenAiModelsRequest,
       requestStream: false,
       responseType: StringArray,
@@ -12142,7 +12142,7 @@ export const ModelsServiceDefinition = {
     },
     /** Refreshes and returns Requesty models */
     refreshRequestyModels: {
-      name: 'refreshRequestyModels',
+      name: "refreshRequestyModels",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -12151,7 +12151,7 @@ export const ModelsServiceDefinition = {
     },
     /** Refreshes and returns Hicap models */
     refreshHicapModels: {
-      name: 'refreshHicapModels',
+      name: "refreshHicapModels",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -12160,7 +12160,7 @@ export const ModelsServiceDefinition = {
     },
     /** Refreshes and returns LiteLLM models */
     refreshLiteLlmModelsRpc: {
-      name: 'refreshLiteLlmModelsRpc',
+      name: "refreshLiteLlmModelsRpc",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -12169,7 +12169,7 @@ export const ModelsServiceDefinition = {
     },
     /** Subscribe to OpenRouter models updates */
     subscribeToOpenRouterModels: {
-      name: 'subscribeToOpenRouterModels',
+      name: "subscribeToOpenRouterModels",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -12178,7 +12178,7 @@ export const ModelsServiceDefinition = {
     },
     /** Subscribe to LiteLLM models updates */
     subscribeToLiteLlmModels: {
-      name: 'subscribeToLiteLlmModels',
+      name: "subscribeToLiteLlmModels",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -12187,7 +12187,7 @@ export const ModelsServiceDefinition = {
     },
     /** Updates API configuration (legacy - uses combined configuration) */
     updateApiConfigurationProto: {
-      name: 'updateApiConfigurationProto',
+      name: "updateApiConfigurationProto",
       requestType: UpdateApiConfigurationRequest,
       requestStream: false,
       responseType: Empty,
@@ -12196,7 +12196,7 @@ export const ModelsServiceDefinition = {
     },
     /** Updates API configuration (new - uses separate options and secrets) */
     updateApiConfiguration: {
-      name: 'updateApiConfiguration',
+      name: "updateApiConfiguration",
       requestType: UpdateApiConfigurationRequestNew,
       requestStream: false,
       responseType: Empty,
@@ -12205,7 +12205,7 @@ export const ModelsServiceDefinition = {
     },
     /** Updates API configuration with partial values (only updates fields that are explicitly set) */
     updateApiConfigurationPartial: {
-      name: 'updateApiConfigurationPartial',
+      name: "updateApiConfigurationPartial",
       requestType: UpdateApiConfigurationPartialRequest,
       requestStream: false,
       responseType: Empty,
@@ -12214,7 +12214,7 @@ export const ModelsServiceDefinition = {
     },
     /** Refreshes and returns Groq models */
     refreshGroqModelsRpc: {
-      name: 'refreshGroqModelsRpc',
+      name: "refreshGroqModelsRpc",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -12223,7 +12223,7 @@ export const ModelsServiceDefinition = {
     },
     /** Refreshes and returns Baseten models */
     refreshBasetenModelsRpc: {
-      name: 'refreshBasetenModelsRpc',
+      name: "refreshBasetenModelsRpc",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -12232,7 +12232,7 @@ export const ModelsServiceDefinition = {
     },
     /** Fetches available models from SAP AI Core */
     getSapAiCoreModels: {
-      name: 'getSapAiCoreModels',
+      name: "getSapAiCoreModels",
       requestType: SapAiCoreModelsRequest,
       requestStream: false,
       responseType: SapAiCoreModelsResponse,
@@ -12241,7 +12241,7 @@ export const ModelsServiceDefinition = {
     },
     /** Fetches available models from OCA */
     refreshOcaModels: {
-      name: 'refreshOcaModels',
+      name: "refreshOcaModels",
       requestType: StringRequest,
       requestStream: false,
       responseType: OcaCompatibleModelInfo,
@@ -12250,7 +12250,7 @@ export const ModelsServiceDefinition = {
     },
     /** Fetches available models from AIhubmix */
     getAihubmixModels: {
-      name: 'getAihubmixModels',
+      name: "getAihubmixModels",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -12259,7 +12259,7 @@ export const ModelsServiceDefinition = {
     },
     /** Refreshes and returns Vercel AI Gateway models */
     refreshVercelAiGatewayModelsRpc: {
-      name: 'refreshVercelAiGatewayModelsRpc',
+      name: "refreshVercelAiGatewayModelsRpc",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: OpenRouterCompatibleModelInfo,
@@ -12289,16 +12289,16 @@ type Exact<P, I extends P> = P extends Builtin
 function longToNumber(int64: { toString(): string }): number {
   const num = globalThis.Number(int64.toString());
   if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error('Value is larger than Number.MAX_SAFE_INTEGER');
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
   }
   if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error('Value is smaller than Number.MIN_SAFE_INTEGER');
+    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
   }
   return num;
 }
 
 function isObject(value: any): boolean {
-  return typeof value === 'object' && value !== null;
+  return typeof value === "object" && value !== null;
 }
 
 function isSet(value: any): boolean {

@@ -1,11 +1,11 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { doubaoModels } from '@shared/api.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { ApiKeyField } from '../common/ApiKeyField';
-import { ModelInfoView } from '../common/ModelInfoView';
-import { ModelSelector } from '../common/ModelSelector';
-import { normalizeApiConfiguration } from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { doubaoModels } from "@shared/api.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { ApiKeyField } from "../common/ApiKeyField";
+import { ModelInfoView } from "../common/ModelInfoView";
+import { ModelSelector } from "../common/ModelSelector";
+import { normalizeApiConfiguration } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 /**
  * Props for the DoubaoProvider component
@@ -32,8 +32,8 @@ export const DoubaoProvider = ({ showModelOptions, isPopup, currentMode }: Douba
   return (
     <div>
       <ApiKeyField
-        initialValue={apiConfiguration?.doubaoApiKey || ''}
-        onChange={(value) => handleFieldChange('doubaoApiKey', value)}
+        initialValue={apiConfiguration?.doubaoApiKey || ""}
+        onChange={(value) => handleFieldChange("doubaoApiKey", value)}
         providerName="Doubao"
         signupUrl="https://console.volcengine.com/home"
       />
@@ -45,7 +45,7 @@ export const DoubaoProvider = ({ showModelOptions, isPopup, currentMode }: Douba
             models={doubaoModels}
             onChange={(e: any) =>
               handleModeFieldChange(
-                { plan: 'planModeApiModelId', act: 'actModeApiModelId' },
+                { plan: "planModeApiModelId", act: "actModeApiModelId" },
                 e.target.value,
                 currentMode,
               )

@@ -3,25 +3,25 @@
  * Tests API fetching, caching, auth updates, and rate limit backoff
  */
 
-import { ClineEnv, Environment } from '@/config';
-import type { Controller } from '@/core/controller';
-import { StateManager } from '@/core/storage/StateManager';
-import { HostRegistryInfo } from '@/registry';
-import { AuthService } from '@/services/auth/AuthService';
-import { getFeatureFlagsService } from '@/services/feature-flags';
-import { mockFetchForTesting } from '@/shared/net';
-import { Logger } from '@/shared/services/Logger';
-import { FeatureFlag } from '@/shared/services/feature-flags/feature-flags';
-import type { BannerRules } from '@shared/ClineBanner';
-import { expect } from 'chai';
-import { afterEach, beforeEach, describe, it } from 'mocha';
-import * as sinon from 'sinon';
-import { BannerService } from '../BannerService';
+import { ClineEnv, Environment } from "@/config";
+import type { Controller } from "@/core/controller";
+import { StateManager } from "@/core/storage/StateManager";
+import { HostRegistryInfo } from "@/registry";
+import { AuthService } from "@/services/auth/AuthService";
+import { getFeatureFlagsService } from "@/services/feature-flags";
+import { mockFetchForTesting } from "@/shared/net";
+import { Logger } from "@/shared/services/Logger";
+import { FeatureFlag } from "@/shared/services/feature-flags/feature-flags";
+import type { BannerRules } from "@shared/ClineBanner";
+import { expect } from "chai";
+import { afterEach, beforeEach, describe, it } from "mocha";
+import * as sinon from "sinon";
+import { BannerService } from "../BannerService";
 
-describe('BannerService', () => {
+describe("BannerService", () => {
   let sandbox: sinon.SinonSandbox;
   let mockFetch: sinon.SinonStub;
-  let token: string | null = 'fake-token';
+  let token: string | null = "fake-token";
 
   // Default mock state manager configuration
   let mockStateManagerConfig: {
@@ -42,13 +42,13 @@ describe('BannerService', () => {
       postStateToWebview: mockedPostStateToWebview,
     } as any;
 
-    sandbox.stub(Logger, 'log');
-    sandbox.stub(Logger, 'error');
+    sandbox.stub(Logger, "log");
+    sandbox.stub(Logger, "error");
 
     // Mock feature flag service to enable remote banners
-    sandbox.stub(getFeatureFlagsService(), 'getBooleanFlagEnabled').returns(true);
+    sandbox.stub(getFeatureFlagsService(), "getBooleanFlagEnabled").returns(true);
     flagPayloadStub = sandbox
-      .stub(getFeatureFlagsService(), 'getFlagPayload')
+      .stub(getFeatureFlagsService(), "getFlagPayload")
       .callsFake((flag: FeatureFlag) =>
         flag === FeatureFlag.EXTENSION_REMOTE_BANNERS_TTL ? 24 * 60 * 60 * 1000 : undefined,
       );
@@ -61,14 +61,14 @@ describe('BannerService', () => {
     };
 
     // Mock StateManager.get() to return our mock
-    sandbox.stub(StateManager, 'get').returns({
+    sandbox.stub(StateManager, "get").returns({
       getApiConfiguration: () => mockStateManagerConfig.apiConfiguration,
       getGlobalSettingsKey: (key: string) =>
-        key === 'mode' ? mockStateManagerConfig.mode : undefined,
+        key === "mode" ? mockStateManagerConfig.mode : undefined,
       getGlobalStateKey: (key: string) =>
-        key === 'dismissedBanners' ? mockStateManagerConfig.dismissedBanners : [],
+        key === "dismissedBanners" ? mockStateManagerConfig.dismissedBanners : [],
       setGlobalState: (key: string, value: unknown) => {
-        if (key === 'dismissedBanners') {
+        if (key === "dismissedBanners") {
           mockStateManagerConfig.dismissedBanners = value as Array<{
             bannerId: string;
             dismissedAt: number;
@@ -78,25 +78,25 @@ describe('BannerService', () => {
     } as unknown as StateManager);
 
     // Mock HostRegistryInfo.get() to return mock host info
-    sandbox.stub(HostRegistryInfo, 'get').returns({
-      extensionVersion: '1.0.0',
-      platform: 'darwin',
-      os: 'darwin',
-      ide: 'vscode',
-      distinctId: 'test-distinct-id',
+    sandbox.stub(HostRegistryInfo, "get").returns({
+      extensionVersion: "1.0.0",
+      platform: "darwin",
+      os: "darwin",
+      ide: "vscode",
+      distinctId: "test-distinct-id",
     });
 
     // Mock ClineEnv.config() to return a valid config
-    sandbox.stub(ClineEnv, 'config').returns({
+    sandbox.stub(ClineEnv, "config").returns({
       environment: Environment.production,
-      appBaseUrl: 'https://app.cline-mock.bot',
-      apiBaseUrl: 'https://api.cline-mock.bot',
-      mcpBaseUrl: 'https://api.cline-mock.bot/v1/mcp',
+      appBaseUrl: "https://app.cline-mock.bot",
+      apiBaseUrl: "https://api.cline-mock.bot",
+      mcpBaseUrl: "https://api.cline-mock.bot/v1/mcp",
     });
 
     const authService = AuthService.getInstance();
-    token = 'fake-token';
-    sandbox.replace(authService, 'getAuthToken', () => Promise.resolve(token));
+    token = "fake-token";
+    sandbox.replace(authService, "getAuthToken", () => Promise.resolve(token));
 
     // Create mock fetch
     mockFetch = sandbox.stub();
@@ -128,18 +128,18 @@ describe('BannerService', () => {
     };
   }
 
-  describe('API Fetching', () => {
-    it('should fetch banners from API successfully', async () => {
+  describe("API Fetching", () => {
+    it("should fetch banners from API successfully", async () => {
       const mockResponse = {
         data: {
           items: [
             {
-              id: 'bnr_test1',
-              titleMd: 'Test Banner',
-              bodyMd: 'This is a test',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: '{}',
+              id: "bnr_test1",
+              titleMd: "Test Banner",
+              bodyMd: "This is a test",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: "{}",
             },
           ],
         },
@@ -157,14 +157,14 @@ describe('BannerService', () => {
         expect(mockFetch.calledOnce).to.be.true;
         const banners = bannerService.getActiveBanners(); // Get banners after fetch completes
         expect(banners).to.have.lengthOf(1);
-        expect(banners[0].id).to.equal('bnr_test1');
-        expect(banners[0].title).to.equal('Test Banner');
-        expect(banners[0].description).to.equal('This is a test');
+        expect(banners[0].id).to.equal("bnr_test1");
+        expect(banners[0].title).to.equal("Test Banner");
+        expect(banners[0].description).to.equal("This is a test");
       });
     });
 
-    it('should handle API errors gracefully', async () => {
-      mockFetch.rejects(new Error('Network error'));
+    it("should handle API errors gracefully", async () => {
+      mockFetch.rejects(new Error("Network error"));
 
       await mockFetchForTesting(mockFetch, async () => {
         const bannerService = BannerService.initialize(mockController);
@@ -177,7 +177,7 @@ describe('BannerService', () => {
       });
     });
 
-    it('should cache banners for the configured hours from PostHog', async () => {
+    it("should cache banners for the configured hours from PostHog", async () => {
       const clock = sandbox.useFakeTimers(Date.now());
       flagPayloadStub.callsFake((flag: FeatureFlag) =>
         flag === FeatureFlag.EXTENSION_REMOTE_BANNERS_TTL ? 4 * 60 * 60 * 1000 : undefined,
@@ -187,12 +187,12 @@ describe('BannerService', () => {
         data: {
           items: [
             {
-              id: 'bnr_cached',
-              titleMd: 'Cached Banner',
-              bodyMd: 'Test',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: '{}',
+              id: "bnr_cached",
+              titleMd: "Cached Banner",
+              bodyMd: "Test",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: "{}",
             },
           ],
         },
@@ -236,22 +236,22 @@ describe('BannerService', () => {
       clock.restore();
     });
 
-    it('should fall back to 24 hours when payload is invalid', async () => {
+    it("should fall back to 24 hours when payload is invalid", async () => {
       const clock = sandbox.useFakeTimers(Date.now());
       flagPayloadStub.callsFake((flag: FeatureFlag) =>
-        flag === FeatureFlag.EXTENSION_REMOTE_BANNERS_TTL ? 'invalid' : undefined,
+        flag === FeatureFlag.EXTENSION_REMOTE_BANNERS_TTL ? "invalid" : undefined,
       );
 
       const mockResponse = {
         data: {
           items: [
             {
-              id: 'bnr_cached',
-              titleMd: 'Cached Banner',
-              bodyMd: 'Test',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: '{}',
+              id: "bnr_cached",
+              titleMd: "Cached Banner",
+              bodyMd: "Test",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: "{}",
             },
           ],
         },
@@ -281,21 +281,21 @@ describe('BannerService', () => {
     });
   });
 
-  describe('API Provider Rule Evaluation (Client-Side)', () => {
-    it('should show banner when user has selected the required API provider in act mode', async () => {
-      mockStateManagerConfig.apiConfiguration = { actModeApiProvider: 'openai' };
-      mockStateManagerConfig.mode = 'act';
+  describe("API Provider Rule Evaluation (Client-Side)", () => {
+    it("should show banner when user has selected the required API provider in act mode", async () => {
+      mockStateManagerConfig.apiConfiguration = { actModeApiProvider: "openai" };
+      mockStateManagerConfig.mode = "act";
 
       const mockResponse = {
         data: {
           items: [
             {
-              id: 'bnr_openai',
-              titleMd: 'OpenAI Users',
-              bodyMd: 'For OpenAI API',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: JSON.stringify({ providers: ['openai'] } as BannerRules),
+              id: "bnr_openai",
+              titleMd: "OpenAI Users",
+              bodyMd: "For OpenAI API",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: JSON.stringify({ providers: ["openai"] } as BannerRules),
             },
           ],
         },
@@ -312,24 +312,24 @@ describe('BannerService', () => {
 
         const banners = bannerService.getActiveBanners();
         expect(banners).to.have.lengthOf(1);
-        expect(banners[0].id).to.equal('bnr_openai');
+        expect(banners[0].id).to.equal("bnr_openai");
       });
     });
 
-    it('should show banner when user has selected the required API provider in plan mode', async () => {
-      mockStateManagerConfig.apiConfiguration = { planModeApiProvider: 'anthropic' };
-      mockStateManagerConfig.mode = 'plan';
+    it("should show banner when user has selected the required API provider in plan mode", async () => {
+      mockStateManagerConfig.apiConfiguration = { planModeApiProvider: "anthropic" };
+      mockStateManagerConfig.mode = "plan";
 
       const mockResponse = {
         data: {
           items: [
             {
-              id: 'bnr_anthropic',
-              titleMd: 'Anthropic Users',
-              bodyMd: 'For Anthropic API',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: JSON.stringify({ providers: ['anthropic'] } as BannerRules),
+              id: "bnr_anthropic",
+              titleMd: "Anthropic Users",
+              bodyMd: "For Anthropic API",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: JSON.stringify({ providers: ["anthropic"] } as BannerRules),
             },
           ],
         },
@@ -346,24 +346,24 @@ describe('BannerService', () => {
 
         const banners = bannerService.getActiveBanners();
         expect(banners).to.have.lengthOf(1);
-        expect(banners[0].id).to.equal('bnr_anthropic');
+        expect(banners[0].id).to.equal("bnr_anthropic");
       });
     });
 
-    it('should NOT show banner when user has selected a different API provider', async () => {
-      mockStateManagerConfig.apiConfiguration = { actModeApiProvider: 'anthropic' };
-      mockStateManagerConfig.mode = 'act';
+    it("should NOT show banner when user has selected a different API provider", async () => {
+      mockStateManagerConfig.apiConfiguration = { actModeApiProvider: "anthropic" };
+      mockStateManagerConfig.mode = "act";
 
       const mockResponse = {
         data: {
           items: [
             {
-              id: 'bnr_openai',
-              titleMd: 'OpenAI Users',
-              bodyMd: 'For OpenAI API',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: JSON.stringify({ providers: ['openai'] } as BannerRules),
+              id: "bnr_openai",
+              titleMd: "OpenAI Users",
+              bodyMd: "For OpenAI API",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: JSON.stringify({ providers: ["openai"] } as BannerRules),
             },
           ],
         },
@@ -383,20 +383,20 @@ describe('BannerService', () => {
       });
     });
 
-    it('should show banner if user has selected ANY of multiple specified providers', async () => {
-      mockStateManagerConfig.apiConfiguration = { actModeApiProvider: 'anthropic' };
-      mockStateManagerConfig.mode = 'act';
+    it("should show banner if user has selected ANY of multiple specified providers", async () => {
+      mockStateManagerConfig.apiConfiguration = { actModeApiProvider: "anthropic" };
+      mockStateManagerConfig.mode = "act";
 
       const mockResponse = {
         data: {
           items: [
             {
-              id: 'bnr_multi',
-              titleMd: 'Multiple Providers',
-              bodyMd: 'For Anthropic or OpenAI users',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: JSON.stringify({ providers: ['anthropic', 'openai'] } as BannerRules),
+              id: "bnr_multi",
+              titleMd: "Multiple Providers",
+              bodyMd: "For Anthropic or OpenAI users",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: JSON.stringify({ providers: ["anthropic", "openai"] } as BannerRules),
             },
           ],
         },
@@ -413,24 +413,24 @@ describe('BannerService', () => {
 
         const banners = bannerService.getActiveBanners();
         expect(banners).to.have.lengthOf(1);
-        expect(banners[0].id).to.equal('bnr_multi');
+        expect(banners[0].id).to.equal("bnr_multi");
       });
     });
 
-    it('should NOT show banner when no provider is selected', async () => {
+    it("should NOT show banner when no provider is selected", async () => {
       mockStateManagerConfig.apiConfiguration = {};
-      mockStateManagerConfig.mode = 'act';
+      mockStateManagerConfig.mode = "act";
 
       const mockResponse = {
         data: {
           items: [
             {
-              id: 'bnr_openai',
-              titleMd: 'OpenAI Users',
-              bodyMd: 'For OpenAI API',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: JSON.stringify({ providers: ['openai'] } as BannerRules),
+              id: "bnr_openai",
+              titleMd: "OpenAI Users",
+              bodyMd: "For OpenAI API",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: JSON.stringify({ providers: ["openai"] } as BannerRules),
             },
           ],
         },
@@ -451,18 +451,18 @@ describe('BannerService', () => {
     });
   });
 
-  describe('Invalid or No Banner Rules', () => {
-    it('should handle malformed rules gracefully (fail open)', async () => {
+  describe("Invalid or No Banner Rules", () => {
+    it("should handle malformed rules gracefully (fail open)", async () => {
       const mockResponse = {
         data: {
           items: [
             {
-              id: 'bnr_malformed',
-              titleMd: 'Malformed',
-              bodyMd: 'Test',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: '{ invalid json',
+              id: "bnr_malformed",
+              titleMd: "Malformed",
+              bodyMd: "Test",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: "{ invalid json",
             },
           ],
         },
@@ -482,17 +482,17 @@ describe('BannerService', () => {
       });
     });
 
-    it('should handle banners with no rules', async () => {
+    it("should handle banners with no rules", async () => {
       const mockResponse = {
         data: {
           items: [
             {
-              id: 'bnr_norules',
-              titleMd: 'No Rules',
-              bodyMd: 'Test',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: '{}',
+              id: "bnr_norules",
+              titleMd: "No Rules",
+              bodyMd: "Test",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: "{}",
             },
           ],
         },
@@ -509,23 +509,23 @@ describe('BannerService', () => {
 
         const banners = bannerService.getActiveBanners();
         expect(banners).to.have.lengthOf(1);
-        expect(banners[0].id).to.equal('bnr_norules');
+        expect(banners[0].id).to.equal("bnr_norules");
       });
     });
   });
 
-  describe('Cache Management', () => {
-    it('should clear cache when requested', async () => {
+  describe("Cache Management", () => {
+    it("should clear cache when requested", async () => {
       const mockResponse = {
         data: {
           items: [
             {
-              id: 'bnr_test',
-              titleMd: 'Test',
-              bodyMd: 'Test',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: '{}',
+              id: "bnr_test",
+              titleMd: "Test",
+              bodyMd: "Test",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: "{}",
             },
           ],
         },
@@ -551,18 +551,18 @@ describe('BannerService', () => {
     });
   });
 
-  describe('OS Parameter Integration', () => {
-    it('should send OS parameter in API request', async () => {
+  describe("OS Parameter Integration", () => {
+    it("should send OS parameter in API request", async () => {
       const mockResponse = {
         data: {
           items: [
             {
-              id: 'bnr_test',
-              titleMd: 'Test Banner',
-              bodyMd: 'This is a test',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: '{}',
+              id: "bnr_test",
+              titleMd: "Test Banner",
+              bodyMd: "This is a test",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: "{}",
             },
           ],
         },
@@ -580,27 +580,27 @@ describe('BannerService', () => {
         expect(mockFetch.calledOnce).to.be.true;
         const call = mockFetch.getCall(0);
         const url = call.args[0];
-        expect(url).to.include('os=');
+        expect(url).to.include("os=");
       });
     });
   });
 
-  describe('Banner to BannerCardData Conversion', () => {
-    it('should convert banner with valid action types', async () => {
+  describe("Banner to BannerCardData Conversion", () => {
+    it("should convert banner with valid action types", async () => {
       const mockResponse = {
         data: {
           items: [
             {
-              id: 'bnr_valid_actions',
-              titleMd: 'Valid Actions Banner',
-              bodyMd: 'Has valid actions',
-              icon: 'lightbulb',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: '{}',
+              id: "bnr_valid_actions",
+              titleMd: "Valid Actions Banner",
+              bodyMd: "Has valid actions",
+              icon: "lightbulb",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: "{}",
               actions: [
-                { title: 'Link', action: 'link', arg: 'https://example.com' },
-                { title: 'Settings', action: 'show-api-settings' },
+                { title: "Link", action: "link", arg: "https://example.com" },
+                { title: "Settings", action: "show-api-settings" },
               ],
             },
           ],
@@ -618,31 +618,31 @@ describe('BannerService', () => {
 
         const banners = bannerService.getActiveBanners();
         expect(banners).to.have.lengthOf(1);
-        expect(banners[0].id).to.equal('bnr_valid_actions');
-        expect(banners[0].title).to.equal('Valid Actions Banner');
-        expect(banners[0].description).to.equal('Has valid actions');
-        expect(banners[0].icon).to.equal('lightbulb');
+        expect(banners[0].id).to.equal("bnr_valid_actions");
+        expect(banners[0].title).to.equal("Valid Actions Banner");
+        expect(banners[0].description).to.equal("Has valid actions");
+        expect(banners[0].icon).to.equal("lightbulb");
         expect(banners[0].actions).to.have.lengthOf(2);
-        expect(banners[0].actions?.[0].title).to.equal('Link');
-        expect(banners[0].actions?.[0].action).to.equal('link');
-        expect(banners[0].actions?.[0].arg).to.equal('https://example.com');
-        expect(banners[0].actions?.[1].title).to.equal('Settings');
-        expect(banners[0].actions?.[1].action).to.equal('show-api-settings');
+        expect(banners[0].actions?.[0].title).to.equal("Link");
+        expect(banners[0].actions?.[0].action).to.equal("link");
+        expect(banners[0].actions?.[0].arg).to.equal("https://example.com");
+        expect(banners[0].actions?.[1].title).to.equal("Settings");
+        expect(banners[0].actions?.[1].action).to.equal("show-api-settings");
       });
     });
 
-    it('should drop banner with invalid action type and log error', async () => {
+    it("should drop banner with invalid action type and log error", async () => {
       const mockResponse = {
         data: {
           items: [
             {
-              id: 'bnr_invalid_action',
-              titleMd: 'Invalid Action Banner',
-              bodyMd: 'Has invalid action type',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: '{}',
-              actions: [{ title: 'Invalid', action: 'unknown-action-type', arg: 'test' }],
+              id: "bnr_invalid_action",
+              titleMd: "Invalid Action Banner",
+              bodyMd: "Has invalid action type",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: "{}",
+              actions: [{ title: "Invalid", action: "unknown-action-type", arg: "test" }],
             },
           ],
         },
@@ -662,35 +662,35 @@ describe('BannerService', () => {
       });
     });
 
-    it('should keep valid banners and drop only invalid ones', async () => {
+    it("should keep valid banners and drop only invalid ones", async () => {
       const mockResponse = {
         data: {
           items: [
             {
-              id: 'bnr_valid',
-              titleMd: 'Valid Banner',
-              bodyMd: 'This one is valid',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: '{}',
-              actions: [{ title: 'Link', action: 'link', arg: 'https://example.com' }],
+              id: "bnr_valid",
+              titleMd: "Valid Banner",
+              bodyMd: "This one is valid",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: "{}",
+              actions: [{ title: "Link", action: "link", arg: "https://example.com" }],
             },
             {
-              id: 'bnr_invalid',
-              titleMd: 'Invalid Banner',
-              bodyMd: 'This one has invalid action',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: '{}',
-              actions: [{ title: 'Bad', action: 'not-a-real-action' }],
+              id: "bnr_invalid",
+              titleMd: "Invalid Banner",
+              bodyMd: "This one has invalid action",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: "{}",
+              actions: [{ title: "Bad", action: "not-a-real-action" }],
             },
             {
-              id: 'bnr_also_valid',
-              titleMd: 'Also Valid Banner',
-              bodyMd: 'This one is also valid',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: '{}',
+              id: "bnr_also_valid",
+              titleMd: "Also Valid Banner",
+              bodyMd: "This one is also valid",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: "{}",
             },
           ],
         },
@@ -707,22 +707,22 @@ describe('BannerService', () => {
 
         const banners = bannerService.getActiveBanners();
         expect(banners).to.have.lengthOf(2);
-        expect(banners[0].id).to.equal('bnr_valid');
-        expect(banners[1].id).to.equal('bnr_also_valid');
+        expect(banners[0].id).to.equal("bnr_valid");
+        expect(banners[1].id).to.equal("bnr_also_valid");
       });
     });
 
-    it('should convert banner with no actions', async () => {
+    it("should convert banner with no actions", async () => {
       const mockResponse = {
         data: {
           items: [
             {
-              id: 'bnr_no_actions',
-              titleMd: 'No Actions Banner',
-              bodyMd: 'Has no actions',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: '{}',
+              id: "bnr_no_actions",
+              titleMd: "No Actions Banner",
+              bodyMd: "Has no actions",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: "{}",
             },
           ],
         },
@@ -739,22 +739,22 @@ describe('BannerService', () => {
 
         const banners = bannerService.getActiveBanners();
         expect(banners).to.have.lengthOf(1);
-        expect(banners[0].id).to.equal('bnr_no_actions');
+        expect(banners[0].id).to.equal("bnr_no_actions");
         expect(banners[0].actions).to.have.lengthOf(0);
       });
     });
 
-    it('should convert banner with empty actions array', async () => {
+    it("should convert banner with empty actions array", async () => {
       const mockResponse = {
         data: {
           items: [
             {
-              id: 'bnr_empty_actions',
-              titleMd: 'Empty Actions Banner',
-              bodyMd: 'Has empty actions array',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: '{}',
+              id: "bnr_empty_actions",
+              titleMd: "Empty Actions Banner",
+              bodyMd: "Has empty actions array",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: "{}",
               actions: [],
             },
           ],
@@ -772,23 +772,23 @@ describe('BannerService', () => {
 
         const banners = bannerService.getActiveBanners();
         expect(banners).to.have.lengthOf(1);
-        expect(banners[0].id).to.equal('bnr_empty_actions');
+        expect(banners[0].id).to.equal("bnr_empty_actions");
         expect(banners[0].actions).to.have.lengthOf(0);
       });
     });
 
-    it('should drop banner when action has undefined action type', async () => {
+    it("should drop banner when action has undefined action type", async () => {
       const mockResponse = {
         data: {
           items: [
             {
-              id: 'bnr_undefined_action',
-              titleMd: 'Undefined Action Type',
-              bodyMd: 'Action has no type defined',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: '{}',
-              actions: [{ title: 'Just a label' }],
+              id: "bnr_undefined_action",
+              titleMd: "Undefined Action Type",
+              bodyMd: "Action has no type defined",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: "{}",
+              actions: [{ title: "Just a label" }],
             },
           ],
         },
@@ -808,26 +808,26 @@ describe('BannerService', () => {
       });
     });
 
-    it('should accept all valid BannerActionType values', async () => {
+    it("should accept all valid BannerActionType values", async () => {
       const validActionTypes = [
-        'link',
-        'show-api-settings',
-        'show-feature-settings',
-        'show-account',
-        'set-model',
-        'install-cli',
+        "link",
+        "show-api-settings",
+        "show-feature-settings",
+        "show-account",
+        "set-model",
+        "install-cli",
       ];
 
       const mockResponse = {
         data: {
           items: [
             {
-              id: 'bnr_all_valid_types',
-              titleMd: 'All Valid Types',
-              bodyMd: 'Has all valid action types',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: '{}',
+              id: "bnr_all_valid_types",
+              titleMd: "All Valid Types",
+              bodyMd: "Has all valid action types",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: "{}",
               actions: validActionTypes.map((type, index) => ({
                 title: `Action ${index}`,
                 action: type,
@@ -857,26 +857,26 @@ describe('BannerService', () => {
     });
   });
 
-  describe('IDE Type Detection', () => {
+  describe("IDE Type Detection", () => {
     function stubHostInfo(overrides: { ide?: string; platform?: string }) {
       (HostRegistryInfo.get as sinon.SinonStub).returns({
-        extensionVersion: '1.0.0',
-        platform: overrides.platform ?? 'darwin',
-        os: 'darwin',
-        ide: overrides.ide ?? 'vscode',
-        distinctId: 'test-distinct-id',
+        extensionVersion: "1.0.0",
+        platform: overrides.platform ?? "darwin",
+        os: "darwin",
+        ide: overrides.ide ?? "vscode",
+        distinctId: "test-distinct-id",
       });
     }
 
     async function getIdeParam(fetch: sinon.SinonStub): Promise<string> {
       const url = new URL(fetch.getCall(fetch.callCount - 1).args[0]);
-      return url.searchParams.get('ide') ?? '';
+      return url.searchParams.get("ide") ?? "";
     }
 
     const emptyResponse = { data: { items: [] } };
 
     it('should return "vscode" when ide contains "vscode"', async () => {
-      stubHostInfo({ ide: 'vscode' });
+      stubHostInfo({ ide: "vscode" });
       mockFetch.resolves(createSuccessResponse(emptyResponse));
 
       await mockFetchForTesting(mockFetch, async () => {
@@ -884,12 +884,12 @@ describe('BannerService', () => {
         bannerService.getActiveBanners();
         await new Promise((resolve) => setTimeout(resolve, 10));
 
-        expect(await getIdeParam(mockFetch)).to.equal('vscode');
+        expect(await getIdeParam(mockFetch)).to.equal("vscode");
       });
     });
 
     it('should return "vscode" when ide is "VSCode Extension" (case-insensitive)', async () => {
-      stubHostInfo({ ide: 'VSCode Extension' });
+      stubHostInfo({ ide: "VSCode Extension" });
       mockFetch.resolves(createSuccessResponse(emptyResponse));
 
       await mockFetchForTesting(mockFetch, async () => {
@@ -897,12 +897,12 @@ describe('BannerService', () => {
         bannerService.getActiveBanners();
         await new Promise((resolve) => setTimeout(resolve, 10));
 
-        expect(await getIdeParam(mockFetch)).to.equal('vscode');
+        expect(await getIdeParam(mockFetch)).to.equal("vscode");
       });
     });
 
     it('should return "jetbrains" when ide contains "jetbrains"', async () => {
-      stubHostInfo({ ide: 'jetbrains' });
+      stubHostInfo({ ide: "jetbrains" });
       mockFetch.resolves(createSuccessResponse(emptyResponse));
 
       await mockFetchForTesting(mockFetch, async () => {
@@ -910,12 +910,12 @@ describe('BannerService', () => {
         bannerService.getActiveBanners();
         await new Promise((resolve) => setTimeout(resolve, 10));
 
-        expect(await getIdeParam(mockFetch)).to.equal('jetbrains');
+        expect(await getIdeParam(mockFetch)).to.equal("jetbrains");
       });
     });
 
     it('should return "jetbrains" when ide is "Cline for JetBrains" (case-insensitive)', async () => {
-      stubHostInfo({ ide: 'Cline for JetBrains' });
+      stubHostInfo({ ide: "Cline for JetBrains" });
       mockFetch.resolves(createSuccessResponse(emptyResponse));
 
       await mockFetchForTesting(mockFetch, async () => {
@@ -923,12 +923,12 @@ describe('BannerService', () => {
         bannerService.getActiveBanners();
         await new Promise((resolve) => setTimeout(resolve, 10));
 
-        expect(await getIdeParam(mockFetch)).to.equal('jetbrains');
+        expect(await getIdeParam(mockFetch)).to.equal("jetbrains");
       });
     });
 
     it('should return "cli" when ide contains "cli"', async () => {
-      stubHostInfo({ ide: 'cli' });
+      stubHostInfo({ ide: "cli" });
       mockFetch.resolves(createSuccessResponse(emptyResponse));
 
       await mockFetchForTesting(mockFetch, async () => {
@@ -936,12 +936,12 @@ describe('BannerService', () => {
         bannerService.getActiveBanners();
         await new Promise((resolve) => setTimeout(resolve, 10));
 
-        expect(await getIdeParam(mockFetch)).to.equal('cli');
+        expect(await getIdeParam(mockFetch)).to.equal("cli");
       });
     });
 
     it('should fall back to "vscode" when ide is empty but platform contains "Visual Studio"', async () => {
-      stubHostInfo({ ide: '', platform: 'Visual Studio Code 1.103.0' });
+      stubHostInfo({ ide: "", platform: "Visual Studio Code 1.103.0" });
       mockFetch.resolves(createSuccessResponse(emptyResponse));
 
       await mockFetchForTesting(mockFetch, async () => {
@@ -949,12 +949,12 @@ describe('BannerService', () => {
         bannerService.getActiveBanners();
         await new Promise((resolve) => setTimeout(resolve, 10));
 
-        expect(await getIdeParam(mockFetch)).to.equal('vscode');
+        expect(await getIdeParam(mockFetch)).to.equal("vscode");
       });
     });
 
     it('should fall back to "vscode" when ide is empty but platform contains "vscode"', async () => {
-      stubHostInfo({ ide: '', platform: 'vscode' });
+      stubHostInfo({ ide: "", platform: "vscode" });
       mockFetch.resolves(createSuccessResponse(emptyResponse));
 
       await mockFetchForTesting(mockFetch, async () => {
@@ -962,12 +962,12 @@ describe('BannerService', () => {
         bannerService.getActiveBanners();
         await new Promise((resolve) => setTimeout(resolve, 10));
 
-        expect(await getIdeParam(mockFetch)).to.equal('vscode');
+        expect(await getIdeParam(mockFetch)).to.equal("vscode");
       });
     });
 
     it('should return "unknown" when both ide and platform are unrecognized', async () => {
-      stubHostInfo({ ide: 'some-random-ide', platform: 'some-random-platform' });
+      stubHostInfo({ ide: "some-random-ide", platform: "some-random-platform" });
       mockFetch.resolves(createSuccessResponse(emptyResponse));
 
       await mockFetchForTesting(mockFetch, async () => {
@@ -975,12 +975,12 @@ describe('BannerService', () => {
         bannerService.getActiveBanners();
         await new Promise((resolve) => setTimeout(resolve, 10));
 
-        expect(await getIdeParam(mockFetch)).to.equal('unknown');
+        expect(await getIdeParam(mockFetch)).to.equal("unknown");
       });
     });
 
     it('should return "unknown" when both ide and platform are empty', async () => {
-      stubHostInfo({ ide: '', platform: '' });
+      stubHostInfo({ ide: "", platform: "" });
       mockFetch.resolves(createSuccessResponse(emptyResponse));
 
       await mockFetchForTesting(mockFetch, async () => {
@@ -988,12 +988,12 @@ describe('BannerService', () => {
         bannerService.getActiveBanners();
         await new Promise((resolve) => setTimeout(resolve, 10));
 
-        expect(await getIdeParam(mockFetch)).to.equal('unknown');
+        expect(await getIdeParam(mockFetch)).to.equal("unknown");
       });
     });
 
-    it('should prefer ide field over platform field for detection', async () => {
-      stubHostInfo({ ide: 'Cline for JetBrains', platform: 'Visual Studio Code 1.103.0' });
+    it("should prefer ide field over platform field for detection", async () => {
+      stubHostInfo({ ide: "Cline for JetBrains", platform: "Visual Studio Code 1.103.0" });
       mockFetch.resolves(createSuccessResponse(emptyResponse));
 
       await mockFetchForTesting(mockFetch, async () => {
@@ -1001,13 +1001,13 @@ describe('BannerService', () => {
         bannerService.getActiveBanners();
         await new Promise((resolve) => setTimeout(resolve, 10));
 
-        expect(await getIdeParam(mockFetch)).to.equal('jetbrains');
+        expect(await getIdeParam(mockFetch)).to.equal("jetbrains");
       });
     });
   });
 
-  describe('Rate Limit Backoff (429)', () => {
-    it('should trigger backoff on 429 response and return cached banners during backoff', async () => {
+  describe("Rate Limit Backoff (429)", () => {
+    it("should trigger backoff on 429 response and return cached banners during backoff", async () => {
       const clock = sandbox.useFakeTimers(Date.now());
 
       // First, cache a banner
@@ -1015,12 +1015,12 @@ describe('BannerService', () => {
         data: {
           items: [
             {
-              id: 'bnr_cached',
-              titleMd: 'Cached Banner',
-              bodyMd: 'This is cached',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: '{}',
+              id: "bnr_cached",
+              titleMd: "Cached Banner",
+              bodyMd: "This is cached",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: "{}",
             },
           ],
         },
@@ -1055,20 +1055,20 @@ describe('BannerService', () => {
     });
   });
 
-  describe('onAuthUpdate', () => {
-    it('should update the user id and trigger fetch after debounce', async () => {
+  describe("onAuthUpdate", () => {
+    it("should update the user id and trigger fetch after debounce", async () => {
       const clock = sandbox.useFakeTimers(Date.now());
 
       const mockResponse = {
         data: {
           items: [
             {
-              id: 'bnr_test',
-              titleMd: 'Test Banner',
-              bodyMd: 'Test',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: '{}',
+              id: "bnr_test",
+              titleMd: "Test Banner",
+              bodyMd: "Test",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: "{}",
             },
           ],
         },
@@ -1086,7 +1086,7 @@ describe('BannerService', () => {
         expect(mockFetch.callCount).to.equal(1);
 
         // Call onAuthUpdate with a new token
-        const authPromise = BannerService.onAuthUpdate('new-user-id');
+        const authPromise = BannerService.onAuthUpdate("new-user-id");
         await clock.tickAsync(1000); // Advance past debounce (AUTH_DEBOUNCE_MS)
         await authPromise;
 
@@ -1102,19 +1102,19 @@ describe('BannerService', () => {
       clock.restore();
     });
 
-    it('should clear pending retry timeout on auth update', async () => {
+    it("should clear pending retry timeout on auth update", async () => {
       const clock = sandbox.useFakeTimers(Date.now());
 
       const successResponse = {
         data: {
           items: [
             {
-              id: 'bnr_test',
-              titleMd: 'Test',
-              bodyMd: 'Test',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: '{}',
+              id: "bnr_test",
+              titleMd: "Test",
+              bodyMd: "Test",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: "{}",
             },
           ],
         },
@@ -1140,7 +1140,7 @@ describe('BannerService', () => {
         // Now update auth - should clear the retry timeout
         // Note: onAuthUpdate has 1000ms debounce (AUTH_DEBOUNCE_MS), so we need to advance the clock
         mockFetch.resolves(createSuccessResponse(successResponse));
-        const authPromise = BannerService.onAuthUpdate('user-id');
+        const authPromise = BannerService.onAuthUpdate("user-id");
         await clock.tickAsync(1000); // Advance past debounce
         await authPromise;
 
@@ -1155,33 +1155,33 @@ describe('BannerService', () => {
       clock.restore();
     });
 
-    it('should handle auth update when service is not initialized', async () => {
+    it("should handle auth update when service is not initialized", async () => {
       // Ensure service is not initialized
       BannerService.reset();
 
       // This should not throw (onAuthUpdate will initialize the service)
       let error: Error | null = null;
       try {
-        await BannerService.onAuthUpdate('user-id');
+        await BannerService.onAuthUpdate("user-id");
       } catch (e) {
         error = e as Error;
       }
       expect(error).to.be.null;
     });
 
-    it('should handle null user-id (logout)', async () => {
+    it("should handle null user-id (logout)", async () => {
       const clock = sandbox.useFakeTimers(Date.now());
 
       const mockResponse = {
         data: {
           items: [
             {
-              id: 'bnr_test',
-              titleMd: 'Test',
-              bodyMd: 'Test',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: '{}',
+              id: "bnr_test",
+              titleMd: "Test",
+              bodyMd: "Test",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: "{}",
             },
           ],
         },
@@ -1198,7 +1198,7 @@ describe('BannerService', () => {
         expect(mockFetch.callCount).to.equal(1);
 
         // Set a user id first
-        const authPromise1 = BannerService.onAuthUpdate('usr-id');
+        const authPromise1 = BannerService.onAuthUpdate("usr-id");
         await clock.tickAsync(1000); // Advance past debounce
         await authPromise1;
         expect(mockFetch.callCount).to.equal(2);
@@ -1219,19 +1219,19 @@ describe('BannerService', () => {
       clock.restore();
     });
 
-    it('should debounce rapid auth updates', async () => {
+    it("should debounce rapid auth updates", async () => {
       const clock = sandbox.useFakeTimers(Date.now());
 
       const mockResponse = {
         data: {
           items: [
             {
-              id: 'bnr_test',
-              titleMd: 'Test Banner',
-              bodyMd: 'Test',
-              severity: 'info' as const,
-              placement: 'top' as const,
-              rulesJson: '{}',
+              id: "bnr_test",
+              titleMd: "Test Banner",
+              bodyMd: "Test",
+              severity: "info" as const,
+              placement: "top" as const,
+              rulesJson: "{}",
             },
           ],
         },
@@ -1248,13 +1248,13 @@ describe('BannerService', () => {
         await clock.tickAsync(0);
         expect(mockFetch.callCount).to.equal(1);
 
-        const updatedToken = 'test-updated-token';
+        const updatedToken = "test-updated-token";
         token = updatedToken;
 
         // Simulate rapid auth updates during startup (common scenario)
-        const promise1 = BannerService.onAuthUpdate('usr-1');
-        const promise2 = BannerService.onAuthUpdate('usr-2');
-        const promise3 = BannerService.onAuthUpdate('usr-3');
+        const promise1 = BannerService.onAuthUpdate("usr-1");
+        const promise2 = BannerService.onAuthUpdate("usr-2");
+        const promise3 = BannerService.onAuthUpdate("usr-3");
 
         // Advance past debounce period and allow async callback to complete
         // The debounce timer fires at 1000ms (AUTH_DEBOUNCE_MS), then we need additional ticks for the async fetch

@@ -2,28 +2,28 @@
  * Apply Patch constants
  */
 export const PATCH_MARKERS = {
-  BEGIN: '*** Begin Patch',
-  END: '*** End Patch',
-  ADD: '*** Add File: ',
-  UPDATE: '*** Update File: ',
-  DELETE: '*** Delete File: ',
-  MOVE: '*** Move to: ',
-  SECTION: '@@',
-  END_FILE: '*** End of File',
+  BEGIN: "*** Begin Patch",
+  END: "*** End Patch",
+  ADD: "*** Add File: ",
+  UPDATE: "*** Update File: ",
+  DELETE: "*** Delete File: ",
+  MOVE: "*** Move to: ",
+  SECTION: "@@",
+  END_FILE: "*** End of File",
 } as const;
 
 /**
  * Expected bash wrappers for apply patch content
  */
-export const BASH_WRAPPERS = ['%%bash', 'apply_patch', 'EOF', '```'] as const;
+export const BASH_WRAPPERS = ["%%bash", "apply_patch", "EOF", "```"] as const;
 
 /**
  * Domains of patch actions
  */
 export enum PatchActionType {
-  ADD = 'add',
-  DELETE = 'delete', // TODO: Implement delete action in diff editor.
-  UPDATE = 'update',
+  ADD = "add",
+  DELETE = "delete", // TODO: Implement delete action in diff editor.
+  UPDATE = "update",
 }
 
 export interface PatchChunk {
@@ -60,6 +60,6 @@ export interface Patch {
 export class DiffError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'DiffError';
+    this.name = "DiffError";
   }
 }

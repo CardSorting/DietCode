@@ -1,7 +1,7 @@
-import ClineLogoWhite from '@/assets/ClineLogoWhite';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import DietCodeLogo from "@/assets/DietCodeLogo";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Item,
   ItemContent,
@@ -9,16 +9,16 @@ import {
   ItemHeader,
   ItemMedia,
   ItemTitle,
-} from '@/components/ui/item';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { cn } from '@/lib/utils';
-import { AccountServiceClient, StateServiceClient } from '@/services/grpc-client';
-import type { ModelInfo } from '@shared/api';
+} from "@/components/ui/item";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { cn } from "@/lib/utils";
+import { AccountServiceClient, StateServiceClient } from "@/services/grpc-client";
+import type { ModelInfo } from "@shared/api";
 import type {
   OnboardingModel,
   OnboardingModelGroup,
   OpenRouterModelInfo,
-} from '@shared/nice-grpc/index.cline';
+} from "@shared/nice-grpc/index.cline";
 import {
   AlertCircleIcon,
   CircleCheckIcon,
@@ -27,10 +27,10 @@ import {
   LoaderCircleIcon,
   StarIcon,
   ZapIcon,
-} from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import ApiConfigurationSection from '../settings/sections/ApiConfigurationSection';
-import { useApiConfigurationHandlers } from '../settings/utils/useApiConfigurationHandlers';
+} from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import ApiConfigurationSection from "../settings/sections/ApiConfigurationSection";
+import { useApiConfigurationHandlers } from "../settings/utils/useApiConfigurationHandlers";
 import {
   type OnboardingModelsByGroup,
   getCapabilities,
@@ -38,8 +38,8 @@ import {
   getOverviewLabel,
   getPriceRange,
   getSpeedLabel,
-} from './data-models';
-import { NEW_USER_TYPE, STEP_CONFIG, USER_TYPE_SELECTIONS } from './data-steps';
+} from "./data-models";
+import { NEW_USER_TYPE, STEP_CONFIG, USER_TYPE_SELECTIONS } from "./data-steps";
 
 type ModelSelectionProps = {
   userType: NEW_USER_TYPE.FREE | NEW_USER_TYPE.POWER;
@@ -60,7 +60,7 @@ const ModelSelection = ({
   setSearchTerm,
   onboardingModels,
 }: ModelSelectionProps) => {
-  const modelGroups = onboardingModels[userType === NEW_USER_TYPE.FREE ? 'free' : 'power'];
+  const modelGroups = onboardingModels[userType === NEW_USER_TYPE.FREE ? "free" : "power"];
 
   const searchedModels = useMemo(() => {
     if (!models || !searchTerm) {
@@ -70,7 +70,7 @@ const ModelSelection = ({
     // Filter out embedding models and already listed models
     const filtered = Object.entries(models).filter(
       ([id, _info]) =>
-        !id.includes('embedding') &&
+        !id.includes("embedding") &&
         !flattenedModels.includes(id) &&
         id.includes(searchTerm.toLowerCase()),
     );
@@ -85,8 +85,8 @@ const ModelSelection = ({
   }: { id: string; model: OnboardingModel; isSelected: boolean }) => {
     return (
       <Item
-        className={cn('cursor-pointer hover:cursor-pointer', {
-          'bg-input-background/80 border border-button-background': isSelected,
+        className={cn("cursor-pointer hover:cursor-pointer", {
+          "bg-input-background/80 border border-button-background": isSelected,
         })}
         key={id}
         onClick={() => onSelectModel(id)}
@@ -105,7 +105,7 @@ const ModelSelection = ({
             <ItemDescription>
               <span className="text-foreground/70 text-sm">Support: </span>
               <span className="text-foreground text-sm">
-                {getCapabilities(model.info).join(', ')}
+                {getCapabilities(model.info).join(", ")}
               </span>
             </ItemDescription>
           )}
@@ -174,11 +174,11 @@ const ModelSelection = ({
             className="focus-visible:border-button-background"
             onChange={(e) => {
               if (!e.target?.value) {
-                onSelectModel('');
+                onSelectModel("");
               }
               setSearchTerm(e.target.value);
             }}
-            onClick={() => onSelectModel('')}
+            onClick={() => onSelectModel("")}
             placeholder="Search model..."
             type="search"
             value={searchTerm}
@@ -215,8 +215,8 @@ const ModelSelection = ({
                   info: modelInfo,
                   score: 0,
                   latency: 0,
-                  badge: '',
-                  group: '',
+                  badge: "",
+                  group: "",
                 };
                 return (
                   <ModelItem id={id} isSelected={isSelected} key={id} model={onboardingModel} />
@@ -247,8 +247,8 @@ const UserTypeSelectionStep = ({ userType, onSelectUserType }: UserTypeSelection
 
         return (
           <Item
-            className={cn('cursor-pointer hover:cursor-pointer w-full', {
-              'bg-input-background/50 border border-input-foreground/30': isSelected,
+            className={cn("cursor-pointer hover:cursor-pointer w-full", {
+              "bg-input-background/50 border border-input-foreground/30": isSelected,
             })}
             key={option.type}
             onClick={() => onSelectUserType(option.type)}
@@ -325,13 +325,13 @@ const OnboardingView = ({ onboardingModels }: { onboardingModels: OnboardingMode
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [userType, setUserType] = useState<NEW_USER_TYPE>(NEW_USER_TYPE.FREE);
 
-  const [selectedModelId, setSelectedModelId] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedModelId, setSelectedModelId] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const models = useMemo(() => getClineUIOnboardingGroups(onboardingModels), [onboardingModels]);
 
   useEffect(() => {
-    setSearchTerm('');
+    setSearchTerm("");
     const userGroup = userType === NEW_USER_TYPE.POWER ? NEW_USER_TYPE.POWER : NEW_USER_TYPE.FREE;
     const modelGroup = models[userGroup][0];
     const userGroupInitModel = modelGroup.models[0];
@@ -342,10 +342,10 @@ const OnboardingView = ({ onboardingModels }: { onboardingModels: OnboardingMode
     setUserType(userType);
     const action =
       userType === NEW_USER_TYPE.POWER
-        ? 'power_user_selected'
+        ? "power_user_selected"
         : userType === NEW_USER_TYPE.FREE
-          ? 'free_user_selected'
-          : 'byok_user_selected';
+          ? "free_user_selected"
+          : "byok_user_selected";
     // User selection is available in step 0 only
     StateServiceClient.captureOnboardingProgress({ step: 0, action });
   }, []);
@@ -356,7 +356,7 @@ const OnboardingView = ({ onboardingModels }: { onboardingModels: OnboardingMode
     StateServiceClient.captureOnboardingProgress({
       step: 1,
       modelSelected,
-      action: 'model_selected',
+      action: "model_selected",
     });
   }, []);
 
@@ -369,13 +369,13 @@ const OnboardingView = ({ onboardingModels }: { onboardingModels: OnboardingMode
           actModeOpenRouterModelId: selectedModelId,
           planModeOpenRouterModelInfo: openRouterModels[selectedModelId],
           actModeOpenRouterModelInfo: openRouterModels[selectedModelId],
-          planModeApiProvider: 'cline',
-          actModeApiProvider: 'cline',
+          planModeApiProvider: "cline",
+          actModeApiProvider: "cline",
         });
       }
       hideAccount();
       hideSettings();
-      const action = 'onboarding_completed';
+      const action = "onboarding_completed";
       StateServiceClient.captureOnboardingProgress({
         step,
         modelSelected,
@@ -387,9 +387,9 @@ const OnboardingView = ({ onboardingModels }: { onboardingModels: OnboardingMode
   );
 
   const handleFooterAction = useCallback(
-    async (action: 'signin' | 'next' | 'back' | 'done' | 'signup') => {
+    async (action: "signin" | "next" | "back" | "done" | "signup") => {
       switch (action) {
-        case 'signup':
+        case "signup":
           setStepNumber(stepNumber + 1);
           setIsActionLoading(true);
           await AccountServiceClient.accountLoginClicked({})
@@ -397,22 +397,22 @@ const OnboardingView = ({ onboardingModels }: { onboardingModels: OnboardingMode
             .finally(() => setIsActionLoading(false));
           await finishOnboarding(true, stepNumber + 1);
           break;
-        case 'signin':
+        case "signin":
           setIsActionLoading(true);
           await AccountServiceClient.accountLoginClicked({})
             .catch(() => {})
             .finally(() => setIsActionLoading(false));
           await finishOnboarding(true, stepNumber + 1);
           break;
-        case 'next':
+        case "next":
           StateServiceClient.captureOnboardingProgress({ step: stepNumber + 1 });
           setStepNumber(stepNumber + 1);
           break;
-        case 'back':
+        case "back":
           StateServiceClient.captureOnboardingProgress({ step: stepNumber - 1 });
           setStepNumber(stepNumber - 1);
           break;
-        case 'done':
+        case "done":
           await StateServiceClient.setWelcomeViewCompleted({ value: true }).catch(() => {});
           setShowWelcome(false);
           await finishOnboarding(false, stepNumber);
@@ -437,15 +437,15 @@ const OnboardingView = ({ onboardingModels }: { onboardingModels: OnboardingMode
   return (
     <div className="fixed inset-0 p-0 flex flex-col w-full">
       <div className="h-full px-5 xs:mx-10 overflow-auto flex flex-col gap-4 items-center justify-center">
-        <ClineLogoWhite className="size-16 flex-shrink-0" />
-        <h2 className="text-lg font-semibold p-0 flex-shrink-0">{stepDisplayInfo.title}</h2>
+        <DietCodeLogo className="size-16 shrink-0" />
+        <h2 className="text-lg font-semibold p-0 shrink-0">{stepDisplayInfo.title}</h2>
         {stepNumber === 2 && (
           <div className="flex w-full max-w-lg flex-col gap-6 my-4 items-center ">
             <LoaderCircleIcon className="animate-spin" />
           </div>
         )}
         {stepDisplayInfo.description && (
-          <p className="text-foreground text-sm text-center m-0 p-0 flex-shrink-0">
+          <p className="text-foreground text-sm text-center m-0 p-0 shrink-0">
             {stepDisplayInfo.description}
           </p>
         )}
@@ -464,10 +464,10 @@ const OnboardingView = ({ onboardingModels }: { onboardingModels: OnboardingMode
           />
         </div>
 
-        <footer className="flex w-full max-w-lg flex-col gap-3 my-2 px-2 overflow-hidden flex-shrink-0">
+        <footer className="flex w-full max-w-lg flex-col gap-3 my-2 px-2 overflow-hidden shrink-0">
           {stepDisplayInfo.buttons.map((btn) => (
             <Button
-              className={`w-full rounded-xs ${isActionLoading ? 'animate-pulse' : ''}`}
+              className={`w-full rounded-xs ${isActionLoading ? "animate-pulse" : ""}`}
               disabled={isActionLoading}
               key={btn.text}
               onClick={() => handleFooterAction(btn.action)}

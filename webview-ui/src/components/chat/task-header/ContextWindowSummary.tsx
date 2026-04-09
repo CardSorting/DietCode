@@ -1,7 +1,7 @@
-import { formatLargeNumber as formatTokenNumber } from '@/utils/format';
-import { ChevronDownIcon, ChevronRightIcon } from 'lucide-react';
-import type React from 'react';
-import { memo, useCallback, useMemo, useState } from 'react';
+import { formatLargeNumber as formatTokenNumber } from "@/utils/format";
+import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
+import type React from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 
 interface TokenUsageInfoProps {
   tokensIn?: number;
@@ -60,14 +60,14 @@ const AccordionItem = memo<{
     </div>
   );
 });
-AccordionItem.displayName = 'AccordionItem';
+AccordionItem.displayName = "AccordionItem";
 
 // Constants
-const TOKEN_DETAILS_CONFIG: Omit<TokenDetail, 'value'>[] = [
-  { title: 'Prompt Tokens', icon: 'codicon-arrow-up' },
-  { title: 'Completion Tokens', icon: 'codicon-arrow-down' },
-  { title: 'Cache Writes', icon: 'codicon-arrow-left' },
-  { title: 'Cache Reads', icon: 'codicon-arrow-right' },
+const TOKEN_DETAILS_CONFIG: Omit<TokenDetail, "value">[] = [
+  { title: "Prompt Tokens", icon: "codicon-arrow-up" },
+  { title: "Completion Tokens", icon: "codicon-arrow-down" },
+  { title: "Cache Writes", icon: "codicon-arrow-left" },
+  { title: "Cache Reads", icon: "codicon-arrow-right" },
 ];
 
 const TokenUsageDetails = memo<TokenUsageInfoProps>(
@@ -96,7 +96,7 @@ const TokenUsageDetails = memo<TokenUsageInfoProps>(
     );
   },
 );
-TokenUsageDetails.displayName = 'TokenUsageDetails';
+TokenUsageDetails.displayName = "TokenUsageDetails";
 
 export const ContextWindowSummary: React.FC<TaskContextWindowButtonsProps> = ({
   contextWindow,
@@ -133,8 +133,8 @@ export const ContextWindowSummary: React.FC<TaskContextWindowButtonsProps> = ({
     <div className="context-window-tooltip-content flex flex-col gap-2 bg-menu rounded shadow-sm z-100 w-60 p-1">
       {autoCompactThreshold > 0 && (
         <AccordionItem
-          isExpanded={expandedSections.has('threshold')}
-          onToggle={(event) => toggleSection('threshold', event)}
+          isExpanded={expandedSections.has("threshold")}
+          onToggle={(event) => toggleSection("threshold", event)}
           title="Auto Condense Threshold"
           value={
             <span className="text-muted-foreground">{`${(autoCompactThreshold * 100).toFixed(0)}%`}</span>
@@ -153,8 +153,8 @@ export const ContextWindowSummary: React.FC<TaskContextWindowButtonsProps> = ({
       )}
 
       <AccordionItem
-        isExpanded={expandedSections.has('context')}
-        onToggle={(event) => toggleSection('context', event)}
+        isExpanded={expandedSections.has("context")}
+        onToggle={(event) => toggleSection("context", event)}
         title="Context Window"
         value={percentage ? `${percentage.toFixed(1)}%` : formatTokenNumber(contextWindow)}
       >
@@ -176,8 +176,8 @@ export const ContextWindowSummary: React.FC<TaskContextWindowButtonsProps> = ({
 
       {totalTokens > 0 && (
         <AccordionItem
-          isExpanded={expandedSections.has('tokens')}
-          onToggle={(event) => toggleSection('tokens', event)}
+          isExpanded={expandedSections.has("tokens")}
+          onToggle={(event) => toggleSection("tokens", event)}
           title="Token Usage"
           value={`${formatTokenNumber(totalTokens)}`}
         >

@@ -1,24 +1,24 @@
-import { BrowserSettingsMenu } from '@/components/browser/BrowserSettingsMenu';
-import { ChatRowContent, ProgressIndicator } from '@/components/chat/ChatRow';
-import CodeBlock, { CODE_BLOCK_BG_COLOR } from '@/components/common/CodeBlock';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { cn } from '@/lib/utils';
-import { FileServiceClient } from '@/services/grpc-client';
-import { BROWSER_VIEWPORT_PRESETS } from '@shared/BrowserSettings.ts';
+import { BrowserSettingsMenu } from "@/components/browser/BrowserSettingsMenu";
+import { ChatRowContent, ProgressIndicator } from "@/components/chat/ChatRow";
+import CodeBlock, { CODE_BLOCK_BG_COLOR } from "@/components/common/CodeBlock";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { cn } from "@/lib/utils";
+import { FileServiceClient } from "@/services/grpc-client";
+import { BROWSER_VIEWPORT_PRESETS } from "@shared/BrowserSettings.ts";
 import type {
   BrowserAction,
   BrowserActionResult,
   ClineMessage,
   ClineSayBrowserAction,
-} from '@shared/ExtensionMessage.ts';
-import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
-import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
-import deepEqual from 'fast-deep-equal';
-import { ChevronDownIcon, ChevronRightIcon } from 'lucide-react';
-import type React from 'react';
-import { type CSSProperties, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useSize } from 'react-use';
-import styled from 'styled-components';
+} from "@shared/ExtensionMessage.ts";
+import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import deepEqual from "fast-deep-equal";
+import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
+import type React from "react";
+import { type CSSProperties, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSize } from "react-use";
+import styled from "styled-components";
 
 interface BrowserSessionRowProps {
   messages: ClineMessage[];
@@ -31,83 +31,83 @@ interface BrowserSessionRowProps {
 }
 
 const browserSessionRowContainerInnerStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '10px',
-  marginBottom: '10px',
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+  marginBottom: "10px",
 };
 const browserIconStyle: CSSProperties = {
-  color: 'var(--vscode-foreground)',
-  marginBottom: '-1.5px',
+  color: "var(--vscode-foreground)",
+  marginBottom: "-1.5px",
 };
-const approveTextStyle: CSSProperties = { fontWeight: 'bold' };
+const approveTextStyle: CSSProperties = { fontWeight: "bold" };
 const urlBarContainerStyle: CSSProperties = {
-  margin: '5px auto',
-  width: 'calc(100% - 10px)',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '4px',
+  margin: "5px auto",
+  width: "calc(100% - 10px)",
+  display: "flex",
+  alignItems: "center",
+  gap: "4px",
 };
 const imgScreenshotStyle: CSSProperties = {
-  position: 'absolute',
+  position: "absolute",
   top: 0,
   left: 0,
-  width: '100%',
-  height: '100%',
-  objectFit: 'contain',
-  cursor: 'pointer',
+  width: "100%",
+  height: "100%",
+  objectFit: "contain",
+  cursor: "pointer",
 };
 const noScreenshotContainerStyle: CSSProperties = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
 };
 const noScreenshotIconStyle: CSSProperties = {
-  fontSize: '80px',
-  color: 'var(--vscode-descriptionForeground)',
+  fontSize: "80px",
+  color: "var(--vscode-descriptionForeground)",
 };
-const consoleLogsContainerStyle: CSSProperties = { width: '100%' };
-const consoleLogsTextStyle: CSSProperties = { fontSize: '0.8em' };
+const consoleLogsContainerStyle: CSSProperties = { width: "100%" };
+const consoleLogsTextStyle: CSSProperties = { fontSize: "0.8em" };
 const paginationContainerStyle: CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  padding: '8px 0px',
-  marginTop: '15px',
-  borderTop: '1px solid var(--vscode-editorGroup-border)',
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  padding: "8px 0px",
+  marginTop: "15px",
+  borderTop: "1px solid var(--vscode-editorGroup-border)",
 };
-const paginationButtonGroupStyle: CSSProperties = { display: 'flex', gap: '4px' };
-const browserSessionStartedTextStyle: CSSProperties = { fontWeight: 'bold' };
+const paginationButtonGroupStyle: CSSProperties = { display: "flex", gap: "4px" };
+const browserSessionStartedTextStyle: CSSProperties = { fontWeight: "bold" };
 const codeBlockContainerStyle: CSSProperties = {
   borderRadius: 3,
-  border: '1px solid var(--vscode-editorGroup-border)',
-  overflow: 'hidden',
+  border: "1px solid var(--vscode-editorGroup-border)",
+  overflow: "hidden",
   backgroundColor: CODE_BLOCK_BG_COLOR,
 };
-const browserActionBoxContainerStyle: CSSProperties = { padding: '10px 0 0 0' };
+const browserActionBoxContainerStyle: CSSProperties = { padding: "10px 0 0 0" };
 const browserActionBoxContainerInnerStyle: CSSProperties = {
   borderRadius: 3,
   backgroundColor: CODE_BLOCK_BG_COLOR,
-  overflow: 'hidden',
-  border: '1px solid var(--vscode-editorGroup-border)',
+  overflow: "hidden",
+  border: "1px solid var(--vscode-editorGroup-border)",
 };
 const browseActionRowContainerStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  padding: '9px 10px',
+  display: "flex",
+  alignItems: "center",
+  padding: "9px 10px",
 };
 const browseActionRowStyle: CSSProperties = {
-  whiteSpace: 'normal',
-  wordBreak: 'break-word',
+  whiteSpace: "normal",
+  wordBreak: "break-word",
 };
 const browseActionTextStyle: CSSProperties = { fontWeight: 500 };
-const chatRowContentContainerStyle: CSSProperties = { padding: '10px 0 10px 0' };
+const chatRowContentContainerStyle: CSSProperties = { padding: "10px 0 10px 0" };
 const headerStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '10px',
-  marginBottom: '10px',
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+  marginBottom: "10px",
 };
 
 const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
@@ -119,14 +119,14 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
 
   const isLastApiReqInterrupted = useMemo(() => {
     // Check if last api_req_started is cancelled
-    const lastApiReqStarted = [...messages].reverse().find((m) => m.say === 'api_req_started');
+    const lastApiReqStarted = [...messages].reverse().find((m) => m.say === "api_req_started");
     if (lastApiReqStarted?.text != null) {
       const info = JSON.parse(lastApiReqStarted.text);
       if (info.cancelReason != null) {
         return true;
       }
     }
-    const lastApiReqFailed = isLast && lastModifiedMessage?.ask === 'api_req_failed';
+    const lastApiReqFailed = isLast && lastModifiedMessage?.ask === "api_req_failed";
     if (lastApiReqFailed) {
       return true;
     }
@@ -137,14 +137,14 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
   const isLastMessageResume = useMemo(() => {
     // Check if last message is resume completion
     return (
-      lastModifiedMessage?.ask === 'resume_task' ||
-      lastModifiedMessage?.ask === 'resume_completed_task'
+      lastModifiedMessage?.ask === "resume_task" ||
+      lastModifiedMessage?.ask === "resume_completed_task"
     );
   }, [lastModifiedMessage?.ask]);
 
   const isBrowsing = useMemo(() => {
     return (
-      isLast && messages.some((m) => m.say === 'browser_action_result') && !isLastApiReqInterrupted
+      isLast && messages.some((m) => m.say === "browser_action_result") && !isLastApiReqInterrupted
     ); // after user approves, browser_action_result with "" is sent to indicate that the session has started
   }, [isLast, messages, isLastApiReqInterrupted]);
 
@@ -166,18 +166,18 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
     let currentStateMessages: ClineMessage[] = [];
     let nextActionMessages: ClineMessage[] = [];
 
-    messages.forEach((message) => {
-      if (message.ask === 'browser_action_launch' || message.say === 'browser_action_launch') {
+    for (const message of messages) {
+      if (message.ask === "browser_action_launch" || message.say === "browser_action_launch") {
         // Start first page
         currentStateMessages = [message];
-      } else if (message.say === 'browser_action_result') {
-        if (message.text === '') {
+      } else if (message.say === "browser_action_result") {
+        if (message.text === "") {
           // first browser_action_result is an empty string that signals that session has started
-          return;
+          continue;
         }
         // Complete current state
         currentStateMessages.push(message);
-        const resultData = JSON.parse(message.text || '{}') as BrowserActionResult;
+        const resultData = JSON.parse(message.text || "{}") as BrowserActionResult;
 
         // Add page with current state and previous next actions
         result.push({
@@ -200,11 +200,11 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
         currentStateMessages = [];
         nextActionMessages = [];
       } else if (
-        message.say === 'api_req_started' ||
-        message.say === 'text' ||
-        message.say === 'reasoning' ||
-        message.say === 'browser_action' ||
-        message.say === 'error_retry'
+        message.say === "api_req_started" ||
+        message.say === "text" ||
+        message.say === "reasoning" ||
+        message.say === "browser_action" ||
+        message.say === "error_retry"
       ) {
         // These messages lead to the next result, so they should always go in nextActionMessages
         nextActionMessages.push(message);
@@ -212,7 +212,7 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
         // Any other message types
         currentStateMessages.push(message);
       }
-    });
+    }
 
     // Add incomplete page if exists
     if (currentStateMessages.length > 0 || nextActionMessages.length > 0) {
@@ -241,16 +241,16 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
   // Get initial URL from launch message
   const initialUrl = useMemo(() => {
     const launchMessage = messages.find(
-      (m) => m.ask === 'browser_action_launch' || m.say === 'browser_action_launch',
+      (m) => m.ask === "browser_action_launch" || m.say === "browser_action_launch",
     );
-    return launchMessage?.text || '';
+    return launchMessage?.text || "";
   }, [messages]);
 
   const isAutoApproved = useMemo(() => {
     const launchMessage = messages.find(
-      (m) => m.ask === 'browser_action_launch' || m.say === 'browser_action_launch',
+      (m) => m.ask === "browser_action_launch" || m.say === "browser_action_launch",
     );
-    return launchMessage?.say === 'browser_action_launch';
+    return launchMessage?.say === "browser_action_launch";
   }, [messages]);
 
   // const lastCheckpointMessageTs = useMemo(() => {
@@ -317,8 +317,8 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
         />
       ))}
       {!isBrowsing &&
-        messages.some((m) => m.say === 'browser_action_result') &&
-        currentPageIndex === 0 && <BrowserActionBox action={'launch'} text={initialUrl} />}
+        messages.some((m) => m.say === "browser_action_result") &&
+        currentPageIndex === 0 && <BrowserActionBox action={"launch"} text={initialUrl} />}
     </div>,
   );
 
@@ -341,9 +341,9 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
     const actions = currentPage?.nextAction?.messages || [];
     for (let i = actions.length - 1; i >= 0; i--) {
       const message = actions[i];
-      if (message.say === 'browser_action') {
-        const browserAction = JSON.parse(message.text || '{}') as ClineSayBrowserAction;
-        if (browserAction.action === 'click' && browserAction.coordinate) {
+      if (message.say === "browser_action") {
+        const browserAction = JSON.parse(message.text || "{}") as ClineSayBrowserAction;
+        if (browserAction.action === "click" && browserAction.coordinate) {
           return browserAction.coordinate;
         }
       }
@@ -364,13 +364,13 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
   const _shouldShowSettings = useMemo(() => {
     const lastMessage = messages[messages.length - 1];
     return (
-      lastMessage?.ask === 'browser_action_launch' || lastMessage?.say === 'browser_action_launch'
+      lastMessage?.ask === "browser_action_launch" || lastMessage?.say === "browser_action_launch"
     );
   }, [messages]);
 
   // Calculate maxWidth
   const maxWidth =
-    browserSettings.viewport.width < BROWSER_VIEWPORT_PRESETS['Small Desktop (900x600)'].width
+    browserSettings.viewport.width < BROWSER_VIEWPORT_PRESETS["Small Desktop (900x600)"].width
       ? 200
       : undefined;
 
@@ -385,32 +385,32 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
           <span className="codicon codicon-inspect" style={browserIconStyle} />
         )}
         <span style={approveTextStyle}>
-          {isAutoApproved ? 'Cline is using the browser:' : 'Cline wants to use the browser:'}
+          {isAutoApproved ? "DietCode is using the browser:" : "DietCode wants to use the browser:"}
         </span>
       </div>
       <div
         style={{
           borderRadius: 3,
-          border: '1px solid var(--vscode-editorGroup-border)',
+          border: "1px solid var(--vscode-editorGroup-border)",
           // overflow: "hidden",
           backgroundColor: CODE_BLOCK_BG_COLOR,
           // marginBottom: 10,
           maxWidth,
-          margin: '0 auto 10px auto', // Center the container
+          margin: "0 auto 10px auto", // Center the container
         }}
       >
         {/* URL Bar */}
         <div style={urlBarContainerStyle}>
           <div
             className={cn(
-              'flex bg-input-background border border-input-border rounded-sm px-1 py-0.5 min-w-0 text-description w-full justify-center',
+              "flex bg-input-background border border-input-border rounded-sm px-1 py-0.5 min-w-0 text-description w-full justify-center",
               {
-                'text-input-foreground': !!displayState.url,
+                "text-input-foreground": !!displayState.url,
               },
             )}
           >
             <span className="text-xs text-ellipsis overflow-hidden whitespace-nowrap">
-              {displayState.url || 'http'}
+              {displayState.url || "http"}
             </span>
           </div>
           <BrowserSettingsMenu />
@@ -419,23 +419,41 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
         {/* Screenshot Area */}
         <div
           style={{
-            width: '100%',
+            width: "100%",
             paddingBottom: `${(browserSettings.viewport.height / browserSettings.viewport.width) * 100}%`,
-            position: 'relative',
-            backgroundColor: 'var(--vscode-input-background)',
+            position: "relative",
+            backgroundColor: "var(--vscode-input-background)",
           }}
         >
           {displayState.screenshot ? (
-            <img
-              alt="Browser screenshot"
+            <button
               onClick={() =>
                 FileServiceClient.openImage(
                   StringRequest.create({ value: displayState.screenshot }),
-                ).catch((err) => console.error('Failed to open image:', err))
+                ).catch((err) => console.error("Failed to open image:", err))
               }
-              src={displayState.screenshot}
-              style={imgScreenshotStyle}
-            />
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  FileServiceClient.openImage(
+                    StringRequest.create({ value: displayState.screenshot }),
+                  ).catch((err) => console.error("Failed to open image:", err));
+                }
+              }}
+              style={{
+                ...imgScreenshotStyle,
+                appearance: "none",
+                background: "none",
+                border: "none",
+                padding: 0,
+              }}
+              type="button"
+            >
+              <img
+                alt="Browser screenshot"
+                src={displayState.screenshot}
+                style={{ width: "100%", height: "100%", objectFit: "contain" }}
+              />
+            </button>
           ) : (
             <div style={noScreenshotContainerStyle}>
               <span className="codicon codicon-globe" style={noScreenshotIconStyle} />
@@ -444,36 +462,47 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
           {displayState.mousePosition && (
             <BrowserCursor
               style={{
-                position: 'absolute',
-                top: `${(Number.parseInt(mousePosition.split(',')[1]) / browserSettings.viewport.height) * 100}%`,
-                left: `${(Number.parseInt(mousePosition.split(',')[0]) / browserSettings.viewport.width) * 100}%`,
-                transition: 'top 0.3s ease-out, left 0.3s ease-out',
+                position: "absolute",
+                top: `${(Number.parseInt(mousePosition.split(",")[1]) / browserSettings.viewport.height) * 100}%`,
+                left: `${(Number.parseInt(mousePosition.split(",")[0]) / browserSettings.viewport.width) * 100}%`,
+                transition: "top 0.3s ease-out, left 0.3s ease-out",
               }}
             />
           )}
         </div>
 
         <div style={consoleLogsContainerStyle}>
-          <div
+          <button
             onClick={() => {
               setConsoleLogsExpanded(!consoleLogsExpanded);
             }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              // width: "100%",
-              justifyContent: 'flex-start',
-              cursor: 'pointer',
-              padding: `9px 8px ${consoleLogsExpanded ? 0 : 8}px 8px`,
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                setConsoleLogsExpanded(!consoleLogsExpanded);
+              }
             }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              width: "100%",
+              justifyContent: "flex-start",
+              cursor: "pointer",
+              padding: `9px 8px ${consoleLogsExpanded ? 0 : 8}px 8px`,
+              appearance: "none",
+              background: "none",
+              border: "none",
+              color: "inherit",
+              font: "inherit",
+            }}
+            type="button"
           >
             {consoleLogsExpanded ? <ChevronDownIcon size={16} /> : <ChevronRightIcon size={16} />}
             <span style={consoleLogsTextStyle}>Console Logs</span>
-          </div>
+          </button>
           {consoleLogsExpanded && (
             <CodeBlock
-              source={`${'```'}shell\n${displayState.consoleLogs || '(No new logs)'}\n${'```'}`}
+              source={`${"```"}shell\n${displayState.consoleLogs || "(No new logs)"}\n${"```"}`}
             />
           )}
         </div>
@@ -529,7 +558,7 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
 }, deepEqual);
 
 interface BrowserSessionRowContentProps
-  extends Omit<BrowserSessionRowProps, 'messages' | 'onHeightChange'> {
+  extends Omit<BrowserSessionRowProps, "messages" | "onHeightChange"> {
   message: ClineMessage;
   setMaxActionHeight: (height: number) => void;
   onSetQuote: (text: string) => void;
@@ -546,32 +575,32 @@ const BrowserSessionRowContent = memo(
     onSetQuote,
   }: BrowserSessionRowContentProps) => {
     const handleToggle = useCallback(() => {
-      if (message.say === 'api_req_started') {
+      if (message.say === "api_req_started") {
         setMaxActionHeight(0);
       }
       onToggleExpand(message.ts);
     }, [onToggleExpand, message.ts, setMaxActionHeight]);
 
-    if (message.ask === 'browser_action_launch' || message.say === 'browser_action_launch') {
+    if (message.ask === "browser_action_launch" || message.say === "browser_action_launch") {
       return (
         <>
           <div style={headerStyle}>
             <span style={browserSessionStartedTextStyle}>Browser Session Started</span>
           </div>
           <div style={codeBlockContainerStyle}>
-            <CodeBlock forceWrap={true} source={`${'```'}shell\n${message.text}\n${'```'}`} />
+            <CodeBlock forceWrap={true} source={`${"```"}shell\n${message.text}\n${"```"}`} />
           </div>
         </>
       );
     }
 
     switch (message.type) {
-      case 'say':
+      case "say":
         switch (message.say) {
-          case 'api_req_started':
-          case 'text':
-          case 'reasoning':
-          case 'error_retry':
+          case "api_req_started":
+          case "text":
+          case "reasoning":
+          case "error_retry":
             return (
               <div style={chatRowContentContainerStyle}>
                 <ChatRowContent
@@ -585,8 +614,8 @@ const BrowserSessionRowContent = memo(
               </div>
             );
 
-          case 'browser_action': {
-            const browserAction = JSON.parse(message.text || '{}') as ClineSayBrowserAction;
+          case "browser_action": {
+            const browserAction = JSON.parse(message.text || "{}") as ClineSayBrowserAction;
             return (
               <BrowserActionBox
                 action={browserAction.action}
@@ -600,7 +629,7 @@ const BrowserSessionRowContent = memo(
             return null;
         }
 
-      case 'ask':
+      case "ask":
         switch (message.ask) {
           default:
             return null;
@@ -617,18 +646,18 @@ const BrowserActionBox = ({
 }: { action: BrowserAction; coordinate?: string; text?: string }) => {
   const getBrowserActionText = (action: BrowserAction, coordinate?: string, text?: string) => {
     switch (action) {
-      case 'launch':
+      case "launch":
         return `Launch browser at ${text}`;
-      case 'click':
-        return `Click (${coordinate?.replace(',', ', ')})`;
-      case 'type':
+      case "click":
+        return `Click (${coordinate?.replace(",", ", ")})`;
+      case "type":
         return `Type "${text}"`;
-      case 'scroll_down':
-        return 'Scroll down';
-      case 'scroll_up':
-        return 'Scroll up';
-      case 'close':
-        return 'Close browser';
+      case "scroll_down":
+        return "Scroll down";
+      case "scroll_up":
+        return "Scroll up";
+      case "close":
+        return "Close browser";
       default:
         return action;
     }
@@ -650,15 +679,15 @@ const BrowserActionBox = ({
 const BrowserCursor: React.FC<{ style?: CSSProperties }> = ({ style }) => {
   // (can't use svgs in vsc extensions)
   const cursorBase64 =
-    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAYCAYAAAAVibZIAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAFaADAAQAAAABAAAAGAAAAADwi9a/AAADGElEQVQ4EZ2VbUiTURTH772be/PxZdsz3cZwC4RVaB8SAjMpxQwSWZbQG/TFkN7oW1Df+h6IRV9C+hCpKUSIZUXOfGM5tAKViijFFEyfZ7Ol29S1Pbdzl8Uw9+aBu91zzv3/nt17zt2DEZjBYOAkKrtFMXIghAWM8U2vMN/FctsxGRMpM7NbEEYNMM2CYUSInlJx3OpawO9i+XSNQYkmk2uFb9njzkcfVSr1p/GJiQKMULVaw2WuBv296UKRxWJR6wxGCmM1EAhSNppv33GBH9qI32cPTAtss9lUm6EM3N7R+RbigT+5/CeosFCZKpjEW+iorS1pb30wDUXzQfHqtD/9L3ieZ2ee1OJCmbL8QHnRs+4uj0wmW4QzrpCwvJ8zGg3JqAmhTLynuLiwv8/5KyND8Q3cEkUEDWu15oJE4KRQJt5hs1rcriGNRqP+DK4dyyWXXm/aFQ+cEpSJ8/LyDGPuEZNOmzsOroUSOqzXG/dtBU4ZysTZYKNut91sNo2Cq6cE9enz86s2g9OCMrFSqVC5hgb32u072W3jKMU90Hb1seC0oUwsB+t92bO/rKx0EFGkgFCnjjc1/gVvC8rE0L+4o63t4InjxwbAJQjTe3qD8QrLkXA4DC24fWtuajp06cLFYSBIFKGmXKPRRmAnME9sPt+yLwIWb9WN69fKoTneQz4Dh2mpPNkvfeV0jjecb9wNAkwIEVQq5VJOds4Kb+DXoAsiVquVwI1Dougpij6UyGYx+5cKroeDEFibm5lWRRMbH1+npmYrq6qhwlQHIbajZEf1fElcqGGFpGg9HMuKzpfBjhytCTMgkJ56RX09zy/ysENTBElmjIgJnmNChJqohDVQqpEfwkILE8v/o0GAnV9F1eEvofVQCbiTBEXOIPQh5PGgefDZeAcjrpGZjULBr/m3tZOnz7oEQWRAQZLjWlEU/XEJWySiILgRc5Cz1DkcAyuBFcnpfF0JiXWKpcolQXizhS5hKAqFpr0MVbgbuxJ6+5xX+P4wNpbqPPrugZfbmIbLmgQR3Aw8QSi66hUXulOFbF73GxqjE5BNXWNeAAAAAElFTkSuQmCC';
+    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAYCAYAAAAVibZIAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAFaADAAQAAAABAAAAGAAAAADwi9a/AAADGElEQVQ4EZ2VbUiTURTH772be/PxZdsz3cZwC4RVaB8SAjMpxQwSWZbQG/TFkN7oW1Df+h6IRV9C+hCpKUSIZUXOfGM5tAKViijFFEyfZ7Ol29S1Pbdzl8Uw9+aBu91zzv3/nt17zt2DEZjBYOAkKrtFMXIghAWM8U2vMN/FctsxGRMpM7NbEEYNMM2CYUSInlJx3OpawO9i+XSNQYkmk2uFb9njzkcfVSr1p/GJiQKMULVaw2WuBv296UKRxWJR6wxGCmM1EAhSNppv33GBH9qI32cPTAtss9lUm6EM3N7R+RbigT+5/CeosFCZKpjEW+iorS1pb30wDUXzQfHqtD/9L3ieZ2ee1OJCmbL8QHnRs+4uj0wmW4QzrpCwvJ8zGg3JqAmhTLynuLiwv8/5KyND8Q3cEkUEDWu15oJE4KRQJt5hs1rcriGNRqP+DK4dyyWXXm/aFQ+cEpSJ8/LyDGPuEZNOmzsOroUSOqzXG/dtBU4ZysTZYKNut91sNo2Cq6cE9enz86s2g9OCMrFSqVC5hgb32u072W3jKMU90Hb1seC0oUwsB+t92bO/rKx0EFGkgFCnjjc1/gVvC8rE0L+4o63t4InjxwbAJQjTe3qD8QrLkXA4DC24fWtuajp06cLFYSBIFKGmXKPRRmAnME9sPt+yLwIWb9WN69fKoTneQz4Dh2mpPNkvfeV0jjecb9wNAkwIEVQq5VJOds4Kb+DXoAsiVquVwI1Dougpij6UyGYx+5cKroeDEFibm5lWRRMbH1+npmYrq6qhwlQHIbajZEf1fElcqGGFpGg9HMuKzpfBjhytCTMgkJ56RX09zy/ysENTBElmjIgJnmNChJqohDVQqpEfwkILE8v/o0GAnV9F1eEvofVQCbiTBEXOIPQh5PGgefDZeAcjrpGZjULBr/m3tZOnz7oEQWRAQZLjWlEU/XEJWySiILgRc5Cz1DkcAyuBFcnpfF0JiXWKpcolQXizhS5hKAqFpr0MVbgbuxJ6+5xX+P4wNpbqPPrugZfbmIbLmgQR3Aw8QSi66hUXulOFbF73GxqjE5BNXWNeAAAAAElFTkSuQmCC";
 
   return (
     <img
       alt="cursor"
       src={cursorBase64}
       style={{
-        width: '17px',
-        height: '22px',
+        width: "17px",
+        height: "22px",
         ...style,
       }}
     />

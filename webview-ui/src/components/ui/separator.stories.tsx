@@ -1,14 +1,14 @@
-import type { Meta } from '@storybook/react-vite';
-import { Separator } from './separator';
+import type { Meta } from "@storybook/react-vite";
+import { Separator } from "./separator";
 
 const meta: Meta<typeof Separator> = {
-  title: 'Ui/Separator',
+  title: "Ui/Separator",
   component: Separator,
   parameters: {
     docs: {
       description: {
         component:
-          'Visually separates content with a horizontal or vertical line. Built on Radix UI and supports both orientations for flexible layout separation.',
+          "Visually separates content with a horizontal or vertical line. Built on Radix UI and supports both orientations for flexible layout separation.",
       },
     },
   },

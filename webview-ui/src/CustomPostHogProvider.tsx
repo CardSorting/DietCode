@@ -1,14 +1,14 @@
-import { posthogConfig } from '@shared/services/config/posthog-config.ts';
-import posthog from 'posthog-js';
-import { PostHogProvider } from 'posthog-js/react';
-import { type ReactNode, useEffect, useState } from 'react';
-import { useExtensionState } from './context/ExtensionStateContext';
+import { posthogConfig } from "@shared/services/config/posthog-config.ts";
+import posthog from "posthog-js";
+import { PostHogProvider } from "posthog-js/react";
+import { type ReactNode, useEffect, useState } from "react";
+import { useExtensionState } from "./context/ExtensionStateContext";
 
 export function CustomPostHogProvider({ children }: { children: ReactNode }) {
   const { distinctId, version, userInfo, environment } = useExtensionState();
 
   // Skip PostHog entirely in self-hosted mode or when environment is unknown (safety fallback)
-  const isSelfHostedOrUnknown = !environment || environment === 'selfHosted';
+  const isSelfHostedOrUnknown = !environment || environment === "selfHosted";
 
   // NOTE: This is a hack to stop recording webview click events temporarily.
   // Remove this to re-enable.
@@ -44,7 +44,7 @@ export function CustomPostHogProvider({ children }: { children: ReactNode }) {
     posthog.set_config({
       before_send: (payload) => {
         // Only filter out events if telemetry is disabled, but allow feature flag requests
-        if (!isTelemetryEnabled && payload?.event !== '$feature_flag_called') {
+        if (!isTelemetryEnabled && payload?.event !== "$feature_flag_called") {
           return null;
         }
 

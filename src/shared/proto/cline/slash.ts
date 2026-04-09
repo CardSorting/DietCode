@@ -5,8 +5,8 @@
 // source: cline/slash.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
-import { Empty, EmptyRequest, StringRequest } from './common';
+import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { Empty, EmptyRequest, StringRequest } from "./common";
 
 /** Slash command definition for autocomplete */
 export interface SlashCommandInfo {
@@ -26,18 +26,18 @@ export interface SlashCommandsResponse {
 }
 
 function createBaseSlashCommandInfo(): SlashCommandInfo {
-  return { name: '', description: '', section: '', cliCompatible: false };
+  return { name: "", description: "", section: "", cliCompatible: false };
 }
 
 export const SlashCommandInfo: MessageFns<SlashCommandInfo> = {
   encode(message: SlashCommandInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.name !== '') {
+    if (message.name !== "") {
       writer.uint32(10).string(message.name);
     }
-    if (message.description !== '') {
+    if (message.description !== "") {
       writer.uint32(18).string(message.description);
     }
-    if (message.section !== '') {
+    if (message.section !== "") {
       writer.uint32(26).string(message.section);
     }
     if (message.cliCompatible !== false) {
@@ -96,9 +96,9 @@ export const SlashCommandInfo: MessageFns<SlashCommandInfo> = {
 
   fromJSON(object: any): SlashCommandInfo {
     return {
-      name: isSet(object.name) ? globalThis.String(object.name) : '',
-      description: isSet(object.description) ? globalThis.String(object.description) : '',
-      section: isSet(object.section) ? globalThis.String(object.section) : '',
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      description: isSet(object.description) ? globalThis.String(object.description) : "",
+      section: isSet(object.section) ? globalThis.String(object.section) : "",
       cliCompatible: isSet(object.cliCompatible)
         ? globalThis.Boolean(object.cliCompatible)
         : isSet(object.cli_compatible)
@@ -109,13 +109,13 @@ export const SlashCommandInfo: MessageFns<SlashCommandInfo> = {
 
   toJSON(message: SlashCommandInfo): unknown {
     const obj: any = {};
-    if (message.name !== '') {
+    if (message.name !== "") {
       obj.name = message.name;
     }
-    if (message.description !== '') {
+    if (message.description !== "") {
       obj.description = message.description;
     }
-    if (message.section !== '') {
+    if (message.section !== "") {
       obj.section = message.section;
     }
     if (message.cliCompatible !== false) {
@@ -129,9 +129,9 @@ export const SlashCommandInfo: MessageFns<SlashCommandInfo> = {
   },
   fromPartial<I extends Exact<DeepPartial<SlashCommandInfo>, I>>(object: I): SlashCommandInfo {
     const message = createBaseSlashCommandInfo();
-    message.name = object.name ?? '';
-    message.description = object.description ?? '';
-    message.section = object.section ?? '';
+    message.name = object.name ?? "";
+    message.description = object.description ?? "";
+    message.section = object.section ?? "";
     message.cliCompatible = object.cliCompatible ?? false;
     return message;
   },
@@ -204,12 +204,12 @@ export const SlashCommandsResponse: MessageFns<SlashCommandsResponse> = {
 /** SlashService provides methods for managing slash commands */
 export type SlashServiceDefinition = typeof SlashServiceDefinition;
 export const SlashServiceDefinition = {
-  name: 'SlashService',
-  fullName: 'cline.SlashService',
+  name: "SlashService",
+  fullName: "cline.SlashService",
   methods: {
     /** Sends button click message */
     reportBug: {
-      name: 'reportBug',
+      name: "reportBug",
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -217,7 +217,7 @@ export const SlashServiceDefinition = {
       options: {},
     },
     condense: {
-      name: 'condense',
+      name: "condense",
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -226,7 +226,7 @@ export const SlashServiceDefinition = {
     },
     /** Get available slash commands for autocomplete (used by CLI) */
     getAvailableSlashCommands: {
-      name: 'getAvailableSlashCommands',
+      name: "getAvailableSlashCommands",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: SlashCommandsResponse,

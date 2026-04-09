@@ -1,16 +1,16 @@
-import ContextMenu from '@/components/chat/ContextMenu';
-import SlashCommandMenu from '@/components/chat/SlashCommandMenu';
-import { CHAT_CONSTANTS } from '@/components/chat/chat-view/constants';
-import Thumbnails from '@/components/common/Thumbnails';
+import ContextMenu from "@/components/chat/ContextMenu";
+import SlashCommandMenu from "@/components/chat/SlashCommandMenu";
+import { CHAT_CONSTANTS } from "@/components/chat/chat-view/constants";
+import Thumbnails from "@/components/common/Thumbnails";
 import {
   getModeSpecificFields,
   normalizeApiConfiguration,
-} from '@/components/settings/utils/providerUtils';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { usePlatform } from '@/context/PlatformContext';
-import { cn } from '@/lib/utils';
-import { FileServiceClient, StateServiceClient } from '@/services/grpc-client';
+} from "@/components/settings/utils/providerUtils";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { usePlatform } from "@/context/PlatformContext";
+import { cn } from "@/lib/utils";
+import { FileServiceClient, StateServiceClient } from "@/services/grpc-client";
 import {
   ContextMenuOptionType,
   type SearchResult,
@@ -20,9 +20,9 @@ import {
   insertMentionDirectly,
   removeMention,
   shouldShowContextMenu,
-} from '@/utils/context-mentions';
-import { useMetaKeyDetection, useShortcut } from '@/utils/hooks';
-import { isSafari } from '@/utils/platformUtils';
+} from "@/utils/context-mentions";
+import { useMetaKeyDetection, useShortcut } from "@/utils/hooks";
+import { isSafari } from "@/utils/platformUtils";
 import {
   getMatchingSlashCommands,
   insertSlashCommand,
@@ -31,20 +31,20 @@ import {
   slashCommandDeleteRegex,
   slashCommandRegexGlobal,
   validateSlashCommand,
-} from '@/utils/slash-commands';
-import { mentionRegex, mentionRegexGlobal } from '@shared/context-mentions.ts';
-import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
+} from "@/utils/slash-commands";
+import { mentionRegex, mentionRegexGlobal } from "@shared/context-mentions.ts";
+import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
 import {
   FileSearchRequest,
   FileSearchType,
   RelativePathsRequest,
-} from '@shared/nice-grpc/cline/file.ts';
-import { PlanActMode, TogglePlanActModeRequest } from '@shared/nice-grpc/cline/state.ts';
-import type { SlashCommand } from '@shared/slashCommands.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
-import { AtSignIcon, PlusIcon } from 'lucide-react';
-import type React from 'react';
+} from "@shared/nice-grpc/cline/file.ts";
+import { PlanActMode, TogglePlanActModeRequest } from "@shared/nice-grpc/cline/state.ts";
+import type { SlashCommand } from "@shared/slashCommands.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { AtSignIcon, PlusIcon } from "lucide-react";
+import type React from "react";
 import {
   forwardRef,
   useCallback,
@@ -53,11 +53,11 @@ import {
   useMemo,
   useRef,
   useState,
-} from 'react';
-import DynamicTextArea from 'react-textarea-autosize';
-import styled from 'styled-components';
-import ClineRulesToggleModal from '../cline-rules/ClineRulesToggleModal';
-import ServersToggleModal from './ServersToggleModal';
+} from "react";
+import DynamicTextArea from "react-textarea-autosize";
+import styled from "styled-components";
+import ClineRulesToggleModal from "../cline-rules/ClineRulesToggleModal";
+import ServersToggleModal from "./ServersToggleModal";
 
 const { MAX_IMAGES_AND_FILES_PER_MESSAGE } = CHAT_CONSTANTS;
 
@@ -66,14 +66,14 @@ const getImageDimensions = (dataUrl: string): Promise<{ width: number; height: n
     const img = new Image();
     img.onload = () => {
       if (img.naturalWidth > 7500 || img.naturalHeight > 7500) {
-        reject(new Error('Image dimensions exceed maximum allowed size of 7500px.'));
+        reject(new Error("Image dimensions exceed maximum allowed size of 7500px."));
       } else {
         resolve({ width: img.naturalWidth, height: img.naturalHeight });
       }
     };
     img.onerror = (err) => {
-      console.error('Failed to load image for dimension check:', err);
-      reject(new Error('Failed to load image to check dimensions.'));
+      console.error("Failed to load image for dimension check:", err);
+      reject(new Error("Failed to load image to check dimensions."));
     };
     img.src = dataUrl;
   });
@@ -106,8 +106,8 @@ interface GitCommit {
   description: string;
 }
 
-const PLAN_MODE_COLOR = 'var(--vscode-activityWarningBadge-background)';
-const ACT_MODE_COLOR = 'var(--vscode-focusBorder)';
+const PLAN_MODE_COLOR = "var(--vscode-activityWarningBadge-background)";
+const ACT_MODE_COLOR = "var(--vscode-focusBorder)";
 
 const SwitchContainer = styled.div<{ disabled: boolean }>`
 	display: flex;
@@ -116,7 +116,7 @@ const SwitchContainer = styled.div<{ disabled: boolean }>`
 	border: 1px solid var(--vscode-input-border);
 	border-radius: 12px;
 	overflow: hidden;
-	cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
+	cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
 	opacity: ${(props) => (props.disabled ? 0.5 : 1)};
 	transform: scale(1);
 	transform-origin: right center;
@@ -125,14 +125,14 @@ const SwitchContainer = styled.div<{ disabled: boolean }>`
 `;
 
 const Slider = styled.div.withConfig({
-  shouldForwardProp: (prop) => !['isAct', 'isPlan'].includes(prop),
+  shouldForwardProp: (prop) => !["isAct", "isPlan"].includes(prop),
 })<{ isAct: boolean; isPlan?: boolean }>`
 	position: absolute;
 	height: 100%;
 	width: 50%;
 	background-color: ${(props) => (props.isPlan ? PLAN_MODE_COLOR : ACT_MODE_COLOR)};
 	transition: transform 0.2s ease;
-	transform: translateX(${(props) => (props.isAct ? '100%' : '0%')});
+	transform: translateX(${(props) => (props.isAct ? "100%" : "0%")});
 `;
 
 const ButtonGroup = styled.div`
@@ -166,32 +166,36 @@ const ModelButtonWrapper = styled.div`
 	max-width: 100%; // Don't overflow parent
 `;
 
-const ModelDisplayButton = styled.a<{ isActive?: boolean; disabled?: boolean }>`
+const ModelDisplayButton = styled.button.withConfig({
+  shouldForwardProp: (prop) => !["isActive", "disabled"].includes(prop),
+})<{ isActive?: boolean; disabled?: boolean }>`
+	background: transparent;
+	border: none;
 	padding: 0px 0px;
 	height: 20px;
 	width: 100%;
 	min-width: 0;
-	cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
-	text-decoration: ${(props) => (props.isActive ? 'underline' : 'none')};
-	color: ${(props) => (props.isActive ? 'var(--vscode-foreground)' : 'var(--vscode-descriptionForeground)')};
+	cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+	text-decoration: ${(props) => (props.isActive ? "underline" : "none")};
+	color: ${(props) => (props.isActive ? "var(--vscode-foreground)" : "var(--vscode-descriptionForeground)")};
 	display: flex;
 	align-items: center;
 	font-size: 10px;
 	outline: none;
 	user-select: none;
 	opacity: ${(props) => (props.disabled ? 0.5 : 1)};
-	pointer-events: ${(props) => (props.disabled ? 'none' : 'auto')};
+	pointer-events: ${(props) => (props.disabled ? "none" : "auto")};
 
 	&:hover,
 	&:focus {
-		color: ${(props) => (props.disabled ? 'var(--vscode-descriptionForeground)' : 'var(--vscode-foreground)')};
-		text-decoration: ${(props) => (props.disabled ? 'none' : 'underline')};
+		color: ${(props) => (props.disabled ? "var(--vscode-descriptionForeground)" : "var(--vscode-foreground)")};
+		text-decoration: ${(props) => (props.disabled ? "none" : "underline")};
 		outline: none;
 	}
 
 	&:active {
-		color: ${(props) => (props.disabled ? 'var(--vscode-descriptionForeground)' : 'var(--vscode-foreground)')};
-		text-decoration: ${(props) => (props.disabled ? 'none' : 'underline')};
+		color: ${(props) => (props.disabled ? "var(--vscode-descriptionForeground)" : "var(--vscode-foreground)")};
+		text-decoration: ${(props) => (props.disabled ? "none" : "underline")};
 		outline: none;
 	}
 
@@ -244,14 +248,14 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
     const [gitCommits, setGitCommits] = useState<GitCommit[]>([]);
     const [showSlashCommandsMenu, setShowSlashCommandsMenu] = useState(false);
     const [selectedSlashCommandsIndex, setSelectedSlashCommandsIndex] = useState(0);
-    const [slashCommandsQuery, setSlashCommandsQuery] = useState('');
+    const [slashCommandsQuery, setSlashCommandsQuery] = useState("");
     const slashCommandsMenuContainerRef = useRef<HTMLDivElement>(null);
 
     const [thumbnailsHeight, setThumbnailsHeight] = useState(0);
     const [textAreaBaseHeight, setTextAreaBaseHeight] = useState<number | undefined>(undefined);
     const [showContextMenu, setShowContextMenu] = useState(false);
     const [cursorPosition, setCursorPosition] = useState(0);
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState("");
     const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
     const [isMouseDownOnMenu, setIsMouseDownOnMenu] = useState(false);
     const highlightLayerRef = useRef<HTMLDivElement>(null);
@@ -278,7 +282,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
     // Fetch git commits when Git is selected or when typing a hash
     useEffect(() => {
       if (selectedType === ContextMenuOptionType.Git || /^[a-f0-9]+$/i.test(searchQuery)) {
-        FileServiceClient.searchCommits(StringRequest.create({ value: searchQuery || '' }))
+        FileServiceClient.searchCommits(StringRequest.create({ value: searchQuery || "" }))
           .then((response) => {
             if (response.commits) {
               const commits: GitCommit[] = response.commits.map(
@@ -299,15 +303,15 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
             }
           })
           .catch((error) => {
-            console.error('Error searching commits:', error);
+            console.error("Error searching commits:", error);
           });
       }
     }, [selectedType, searchQuery]);
 
     const queryItems = useMemo(() => {
       return [
-        { type: ContextMenuOptionType.Problems, value: 'problems' },
-        { type: ContextMenuOptionType.Terminal, value: 'terminal' },
+        { type: ContextMenuOptionType.Problems, value: "problems" },
+        { type: ContextMenuOptionType.Terminal, value: "terminal" },
         ...gitCommits,
       ];
     }, [gitCommits]);
@@ -323,11 +327,11 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
       };
 
       if (showContextMenu) {
-        document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener("mousedown", handleClickOutside);
       }
 
       return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
+        document.removeEventListener("mousedown", handleClickOutside);
       };
     }, [showContextMenu, setShowContextMenu]);
 
@@ -342,11 +346,11 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
       };
 
       if (showSlashCommandsMenu) {
-        document.addEventListener('mousedown', handleClickOutsideSlashMenu);
+        document.addEventListener("mousedown", handleClickOutsideSlashMenu);
       }
 
       return () => {
-        document.removeEventListener('mousedown', handleClickOutsideSlashMenu);
+        document.removeEventListener("mousedown", handleClickOutsideSlashMenu);
       };
     }, [showSlashCommandsMenu]);
 
@@ -363,7 +367,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
         ) {
           if (!value) {
             setSelectedType(type);
-            setSearchQuery('');
+            setSearchQuery("");
             setSelectedMenuIndex(0);
 
             // Trigger search with the selected type
@@ -380,8 +384,8 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 
               FileServiceClient.searchFiles(
                 FileSearchRequest.create({
-                  query: '',
-                  mentionsRequestId: '',
+                  query: "",
+                  mentionsRequestId: "",
                   selectedType: searchType,
                 }),
               )
@@ -390,7 +394,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
                   setSearchLoading(false);
                 })
                 .catch((error) => {
-                  console.error('Error searching files:', error);
+                  console.error("Error searching files:", error);
                   setFileSearchResults([]);
                   setSearchLoading(false);
                 });
@@ -402,20 +406,20 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
         setShowContextMenu(false);
         setSelectedType(null);
         const queryLength = searchQuery.length;
-        setSearchQuery('');
+        setSearchQuery("");
 
         if (textAreaRef.current) {
-          let insertValue = value || '';
+          let insertValue = value || "";
           if (type === ContextMenuOptionType.URL) {
-            insertValue = value || '';
+            insertValue = value || "";
           } else if (type === ContextMenuOptionType.File || type === ContextMenuOptionType.Folder) {
-            insertValue = value || '';
+            insertValue = value || "";
           } else if (type === ContextMenuOptionType.Problems) {
-            insertValue = 'problems';
+            insertValue = "problems";
           } else if (type === ContextMenuOptionType.Terminal) {
-            insertValue = 'terminal';
+            insertValue = "terminal";
           } else if (type === ContextMenuOptionType.Git) {
-            insertValue = value || '';
+            insertValue = value || "";
           }
 
           const { newValue, mentionIndex } = insertMention(
@@ -426,7 +430,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
           );
 
           setInputValue(newValue);
-          const newCursorPosition = newValue.indexOf(' ', mentionIndex + insertValue.length) + 1;
+          const newCursorPosition = newValue.indexOf(" ", mentionIndex + insertValue.length) + 1;
           setCursorPosition(newCursorPosition);
           setIntendedCursorPosition(newCursorPosition);
           // textAreaRef.current.focus()
@@ -447,7 +451,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
       (command: SlashCommand) => {
         setShowSlashCommandsMenu(false);
         const queryLength = slashCommandsQuery.length;
-        setSlashCommandsQuery('');
+        setSlashCommandsQuery("");
 
         if (textAreaRef.current) {
           const { newValue, commandIndex } = insertSlashCommand(
@@ -457,7 +461,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
             cursorPosition,
           );
           const newCursorPosition =
-            newValue.indexOf(' ', commandIndex + 1 + command.name.length) + 1;
+            newValue.indexOf(" ", commandIndex + 1 + command.name.length) + 1;
 
           setInputValue(newValue);
           setCursorPosition(newCursorPosition);
@@ -479,7 +483,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
           (event.metaKey || event.ctrlKey) &&
           !event.shiftKey &&
           !event.altKey &&
-          event.key.toLowerCase() === 'a';
+          event.key.toLowerCase() === "a";
         if (isSelectAllShortcut) {
           event.preventDefault();
           event.stopPropagation();
@@ -490,16 +494,16 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
         }
 
         if (showSlashCommandsMenu) {
-          if (event.key === 'Escape') {
+          if (event.key === "Escape") {
             setShowSlashCommandsMenu(false);
-            setSlashCommandsQuery('');
+            setSlashCommandsQuery("");
             return;
           }
 
-          if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+          if (event.key === "ArrowUp" || event.key === "ArrowDown") {
             event.preventDefault();
             setSelectedSlashCommandsIndex((prevIndex) => {
-              const direction = event.key === 'ArrowUp' ? -1 : 1;
+              const direction = event.key === "ArrowUp" ? -1 : 1;
               // Get commands with workflow toggles
               const allCommands = getMatchingSlashCommands(
                 slashCommandsQuery,
@@ -524,7 +528,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
             return;
           }
 
-          if ((event.key === 'Enter' || event.key === 'Tab') && selectedSlashCommandsIndex !== -1) {
+          if ((event.key === "Enter" || event.key === "Tab") && selectedSlashCommandsIndex !== -1) {
             event.preventDefault();
             const commands = getMatchingSlashCommands(
               slashCommandsQuery,
@@ -541,18 +545,18 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
           }
         }
         if (showContextMenu) {
-          if (event.key === 'Escape') {
+          if (event.key === "Escape") {
             setShowContextMenu(false);
             setSelectedType(null);
             setSelectedMenuIndex(DEFAULT_CONTEXT_MENU_OPTION);
-            setSearchQuery('');
+            setSearchQuery("");
             return;
           }
 
-          if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+          if (event.key === "ArrowUp" || event.key === "ArrowDown") {
             event.preventDefault();
             setSelectedMenuIndex((prevIndex) => {
-              const direction = event.key === 'ArrowUp' ? -1 : 1;
+              const direction = event.key === "ArrowUp" ? -1 : 1;
               const options = getContextMenuOptions(
                 searchQuery,
                 selectedType,
@@ -588,7 +592,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
             });
             return;
           }
-          if ((event.key === 'Enter' || event.key === 'Tab') && selectedMenuIndex !== -1) {
+          if ((event.key === "Enter" || event.key === "Tab") && selectedMenuIndex !== -1) {
             event.preventDefault();
             const selectedOption = getContextMenuOptions(
               searchQuery,
@@ -602,7 +606,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
               selectedOption.type !== ContextMenuOptionType.NoResults
             ) {
               // Use label if it contains workspace prefix, otherwise use value
-              const mentionValue = selectedOption.label?.includes(':')
+              const mentionValue = selectedOption.label?.includes(":")
                 ? selectedOption.label
                 : selectedOption.value;
               handleMentionSelect(selectedOption.type, mentionValue);
@@ -615,7 +619,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
         const isComposing = isSafari
           ? event.nativeEvent.keyCode === 229
           : (event.nativeEvent?.isComposing ?? false);
-        if (event.key === 'Enter' && !event.shiftKey && !isComposing) {
+        if (event.key === "Enter" && !event.shiftKey && !isComposing) {
           event.preventDefault();
 
           if (!sendingDisabled) {
@@ -624,14 +628,14 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
           }
         }
 
-        if (event.key === 'Backspace' && !isComposing) {
+        if (event.key === "Backspace" && !isComposing) {
           const charBeforeCursor = inputValue[cursorPosition - 1];
           const charAfterCursor = inputValue[cursorPosition + 1];
 
           const charBeforeIsWhitespace =
-            charBeforeCursor === ' ' || charBeforeCursor === '\n' || charBeforeCursor === '\r\n';
+            charBeforeCursor === " " || charBeforeCursor === "\n" || charBeforeCursor === "\r\n";
           const charAfterIsWhitespace =
-            charAfterCursor === ' ' || charAfterCursor === '\n' || charAfterCursor === '\r\n';
+            charAfterCursor === " " || charAfterCursor === "\n" || charAfterCursor === "\r\n";
 
           // Check if we're right after a space that follows a mention or slash command
           if (
@@ -750,7 +754,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 
     const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    const currentSearchQueryRef = useRef<string>('');
+    const currentSearchQueryRef = useRef<string>("");
 
     const handleInputChange = useCallback(
       (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -773,17 +777,17 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
         if (showSlashCommandsMenu) {
           // Find the slash nearest to cursor (before cursor position)
           const beforeCursor = newValue.slice(0, newCursorPosition);
-          const slashIndex = beforeCursor.lastIndexOf('/');
+          const slashIndex = beforeCursor.lastIndexOf("/");
           const query = newValue.slice(slashIndex + 1, newCursorPosition);
           setSlashCommandsQuery(query);
           setSelectedSlashCommandsIndex(0);
         } else {
-          setSlashCommandsQuery('');
+          setSlashCommandsQuery("");
           setSelectedSlashCommandsIndex(0);
         }
 
         if (showMenu) {
-          const lastAtIndex = newValue.lastIndexOf('@', newCursorPosition - 1);
+          const lastAtIndex = newValue.lastIndexOf("@", newCursorPosition - 1);
           const query = newValue.slice(lastAtIndex + 1, newCursorPosition);
           setSearchQuery(query);
           currentSearchQueryRef.current = query;
@@ -829,7 +833,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
                   setSearchLoading(false);
                 })
                 .catch((error) => {
-                  console.error('Error searching files:', error);
+                  console.error("Error searching files:", error);
                   setFileSearchResults([]);
                   setSearchLoading(false);
                 });
@@ -838,7 +842,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
             setSelectedMenuIndex(DEFAULT_CONTEXT_MENU_OPTION);
           }
         } else {
-          setSearchQuery('');
+          setSearchQuery("");
           setSelectedMenuIndex(-1);
           setFileSearchResults([]);
         }
@@ -877,7 +881,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
       async (e: React.ClipboardEvent) => {
         const items = e.clipboardData.items;
 
-        const pastedText = e.clipboardData.getData('text');
+        const pastedText = e.clipboardData.getData("text");
         // Check if the pasted content is a URL, add space after so user can easily delete if they don't want it
         const urlRegex = /^\S+:\/\/\S+$/;
         if (urlRegex.test(pastedText.trim())) {
@@ -905,10 +909,10 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
           return;
         }
 
-        const acceptedTypes = ['png', 'jpeg', 'webp']; // supported by anthropic and openrouter (jpg is just a file extension but the image will be recognized as jpeg)
+        const acceptedTypes = ["png", "jpeg", "webp"]; // supported by anthropic and openrouter (jpg is just a file extension but the image will be recognized as jpeg)
         const imageItems = Array.from(items).filter((item) => {
-          const [type, subtype] = item.type.split('/');
-          return type === 'image' && acceptedTypes.includes(subtype);
+          const [type, subtype] = item.type.split("/");
+          return type === "image" && acceptedTypes.includes(subtype);
         });
         if (!shouldDisableFilesAndImages && imageItems.length > 0) {
           e.preventDefault();
@@ -922,11 +926,11 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
               const reader = new FileReader();
               reader.onloadend = async () => {
                 if (reader.error) {
-                  console.error('Error reading file:', reader.error);
+                  console.error("Error reading file:", reader.error);
                   resolve(null);
                 } else {
                   const result = reader.result;
-                  if (typeof result === 'string') {
+                  if (typeof result === "string") {
                     try {
                       await getImageDimensions(result);
                       resolve(result);
@@ -955,7 +959,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
               setSelectedImages((prevImages) => [...prevImages, ...dataUrls.slice(0, imagesToAdd)]);
             }
           } else {
-            console.warn('No valid images were processed');
+            console.warn("No valid images were processed");
           }
         }
       },
@@ -993,8 +997,8 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
       let processedText = textAreaRef.current.value;
 
       processedText = processedText
-        .replace(/\n$/, '\n\n')
-        .replace(/[<>&]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' })[c] || c)
+        .replace(/\n$/, "\n\n")
+        .replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" })[c] || c)
         // highlight @mentions
         .replace(mentionRegexGlobal, '<mark class="mention-context-textarea-highlight">$&</mark>');
 
@@ -1043,7 +1047,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 
     const handleKeyUp = useCallback(
       (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key)) {
+        if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(e.key)) {
           updateCursorPosition();
         }
       },
@@ -1052,7 +1056,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 
     const onModeToggle = useCallback(() => {
       void (async () => {
-        const convertedProtoMode = mode === 'plan' ? PlanActMode.ACT : PlanActMode.PLAN;
+        const convertedProtoMode = mode === "plan" ? PlanActMode.ACT : PlanActMode.PLAN;
         const response = await StateServiceClient.togglePlanActModeProto(
           TogglePlanActModeRequest.create({
             mode: convertedProtoMode,
@@ -1066,7 +1070,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
         // Focus the textarea after mode toggle with slight delay
         setTimeout(() => {
           if (response.value) {
-            setInputValue('');
+            setInputValue("");
           }
           textAreaRef.current?.focus();
         }, 100);
@@ -1083,7 +1087,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
       if (!inputValue.trim()) {
         const event = {
           target: {
-            value: '@',
+            value: "@",
             selectionStart: 1,
           },
         } as React.ChangeEvent<HTMLTextAreaElement>;
@@ -1093,7 +1097,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
       }
 
       // If input ends with space or is empty, just append @
-      if (inputValue.endsWith(' ')) {
+      if (inputValue.endsWith(" ")) {
         const event = {
           target: {
             value: `${inputValue}@`,
@@ -1117,7 +1121,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
     }, [inputValue, handleInputChange, updateHighlights]);
 
     const handleModelButtonClick = () => {
-      navigateToSettingsModelPicker({ targetSection: 'api-config' });
+      navigateToSettingsModelPicker({ targetSection: "api-config" });
     };
 
     // Get model display name
@@ -1135,29 +1139,29 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
         requestyModelId,
         vercelAiGatewayModelId,
       } = getModeSpecificFields(apiConfiguration, mode);
-      const unknownModel = 'unknown';
+      const unknownModel = "unknown";
 
       if (!apiConfiguration) {
         return unknownModel;
       }
       switch (selectedProvider) {
-        case 'cline':
+        case "cline":
           return `${selectedProvider}:${selectedModelId}`;
-        case 'openai':
+        case "openai":
           return `openai-compat:${selectedModelId}`;
-        case 'vscode-lm':
-          return `vscode-lm:${vsCodeLmModelSelector ? `${vsCodeLmModelSelector.vendor ?? ''}/${vsCodeLmModelSelector.family ?? ''}` : unknownModel}`;
-        case 'together':
+        case "vscode-lm":
+          return `vscode-lm:${vsCodeLmModelSelector ? `${vsCodeLmModelSelector.vendor ?? ""}/${vsCodeLmModelSelector.family ?? ""}` : unknownModel}`;
+        case "together":
           return `${selectedProvider}:${togetherModelId}`;
-        case 'lmstudio':
+        case "lmstudio":
           return `${selectedProvider}:${lmStudioModelId}`;
-        case 'ollama':
+        case "ollama":
           return `${selectedProvider}:${ollamaModelId}`;
-        case 'litellm':
+        case "litellm":
           return `${selectedProvider}:${liteLlmModelId}`;
-        case 'requesty':
+        case "requesty":
           return `${selectedProvider}:${requestyModelId}`;
-        case 'vercel-ai-gateway':
+        case "vercel-ai-gateway":
           return `${selectedProvider}:${vercelAiGatewayModelId || selectedModelId}`;
         default:
           return `${selectedProvider}:${selectedModelId}`;
@@ -1186,13 +1190,13 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
       setIsDraggingOver(true);
 
       // Check if files are being dragged
-      if (e.dataTransfer.types.includes('Files')) {
+      if (e.dataTransfer.types.includes("Files")) {
         // Check if any of the files are not images
         const items = Array.from(e.dataTransfer.items);
         const hasNonImageFile = items.some((item) => {
-          if (item.kind === 'file') {
-            const type = item.type.split('/')[0];
-            return type !== 'image';
+          if (item.kind === "file") {
+            const type = item.type.split("/")[0];
+            return type !== "image";
           }
           return false;
         });
@@ -1234,10 +1238,10 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
         // Don't clear error message, let it time out naturally
       };
 
-      document.addEventListener('dragend', handleGlobalDragEnd);
+      document.addEventListener("dragend", handleGlobalDragEnd);
 
       return () => {
-        document.removeEventListener('dragend', handleGlobalDragEnd);
+        document.removeEventListener("dragend", handleGlobalDragEnd);
       };
     }, []);
 
@@ -1260,8 +1264,8 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 
       // --- 1. VSCode Explorer Drop Handling ---
       let uris: string[] = [];
-      const resourceUrlsData = e.dataTransfer.getData('resourceurls');
-      const vscodeUriListData = e.dataTransfer.getData('application/vnd.code.uri-list');
+      const resourceUrlsData = e.dataTransfer.getData("resourceurls");
+      const vscodeUriListData = e.dataTransfer.getData("application/vnd.code.uri-list");
 
       // 1a. Try 'resourceurls' first (used for multi-select)
       if (resourceUrlsData) {
@@ -1269,23 +1273,23 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
           uris = JSON.parse(resourceUrlsData);
           uris = uris.map((uri) => decodeURIComponent(uri));
         } catch (error) {
-          console.error('Failed to parse resourceurls JSON:', error);
+          console.error("Failed to parse resourceurls JSON:", error);
           uris = []; // Reset if parsing failed
         }
       }
 
       // 1b. Fallback to 'application/vnd.code.uri-list' (newline separated)
       if (uris.length === 0 && vscodeUriListData) {
-        uris = vscodeUriListData.split('\n').map((uri) => uri.trim());
+        uris = vscodeUriListData.split("\n").map((uri) => uri.trim());
       }
 
       // 1c. Filter for valid schemes (file or vscode-file) and non-empty strings
       const validUris = uris.filter(
         (uri) =>
           uri &&
-          (uri.startsWith('vscode-file:') ||
-            uri.startsWith('file:') ||
-            uri.startsWith('vscode-remote:')),
+          (uri.startsWith("vscode-file:") ||
+            uri.startsWith("file:") ||
+            uri.startsWith("vscode-remote:")),
       );
 
       if (validUris.length > 0) {
@@ -1303,12 +1307,12 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
             }
           })
           .catch((error) => {
-            console.error('Error getting relative paths:', error);
+            console.error("Error getting relative paths:", error);
           });
         return;
       }
 
-      const text = e.dataTransfer.getData('text');
+      const text = e.dataTransfer.getData("text");
       if (text) {
         handleTextDrop(text);
         return;
@@ -1317,10 +1321,10 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
       // --- 3. Image Drop Handling ---
       // Only proceed if it wasn't a VSCode resource or plain text drop
       const files = Array.from(e.dataTransfer.files);
-      const acceptedTypes = ['png', 'jpeg', 'webp'];
+      const acceptedTypes = ["png", "jpeg", "webp"];
       const imageFiles = files.filter((file) => {
-        const [type, subtype] = file.type.split('/');
-        return type === 'image' && acceptedTypes.includes(subtype);
+        const [type, subtype] = file.type.split("/");
+        return type === "image" && acceptedTypes.includes(subtype);
       });
 
       if (shouldDisableFilesAndImages || imageFiles.length === 0) {
@@ -1339,7 +1343,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
           setSelectedImages((prevImages) => [...prevImages, ...dataUrls.slice(0, imagesToAdd)]);
         }
       } else {
-        console.warn('No valid images were processed');
+        console.warn("No valid images were processed");
       }
     };
 
@@ -1374,11 +1378,11 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
               reader.onloadend = async () => {
                 // Make async
                 if (reader.error) {
-                  console.error('Error reading file:', reader.error);
+                  console.error("Error reading file:", reader.error);
                   resolve(null);
                 } else {
                   const result = reader.result;
-                  if (typeof result === 'string') {
+                  if (typeof result === "string") {
                     try {
                       await getImageDimensions(result); // Check dimensions
                       resolve(result);
@@ -1399,7 +1403,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
     };
     // Replace Meta with the platform specific key and uppercase the command letter.
     const togglePlanActKeys = usePlatform()
-      .togglePlanActKeys.replace('Meta', metaKeyChar)
+      .togglePlanActKeys.replace("Meta", metaKeyChar)
       .replace(/.$/, (match) => match.toUpperCase());
 
     return (
@@ -1459,22 +1463,22 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
           )}
           <div
             className={cn(
-              'absolute bottom-2.5 top-2.5 whitespace-pre-wrap break-words rounded-xs overflow-hidden bg-input-background',
+              "absolute bottom-2.5 top-2.5 whitespace-pre-wrap wrap-break-word rounded-xs overflow-hidden bg-input-background",
               isTextAreaFocused
-                ? 'left-3.5 right-3.5'
-                : 'left-3.5 right-3.5 border border-input-border',
+                ? "left-3.5 right-3.5"
+                : "left-3.5 right-3.5 border border-input-border",
             )}
             ref={highlightLayerRef}
             style={{
-              position: 'absolute',
-              pointerEvents: 'none',
-              whiteSpace: 'pre-wrap',
-              wordWrap: 'break-word',
-              color: 'transparent',
-              overflow: 'hidden',
-              fontFamily: 'var(--vscode-font-family)',
-              fontSize: 'var(--vscode-editor-font-size)',
-              lineHeight: 'var(--vscode-editor-line-height)',
+              position: "absolute",
+              pointerEvents: "none",
+              whiteSpace: "pre-wrap",
+              wordWrap: "break-word",
+              color: "transparent",
+              overflow: "hidden",
+              fontFamily: "var(--vscode-font-family)",
+              fontSize: "var(--vscode-editor-font-size)",
+              lineHeight: "var(--vscode-editor-line-height)",
               borderRadius: 2,
               borderLeft: isTextAreaFocused ? 0 : undefined,
               borderRight: isTextAreaFocused ? 0 : undefined,
@@ -1509,9 +1513,9 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
             onPaste={handlePaste}
             onScroll={() => updateHighlights()}
             onSelect={updateCursorPosition}
-            placeholder={showUnsupportedFileError || showDimensionError ? '' : placeholderText}
+            placeholder={showUnsupportedFileError || showDimensionError ? "" : placeholderText}
             ref={(el) => {
-              if (typeof ref === 'function') {
+              if (typeof ref === "function") {
                 ref(el);
               } else if (ref) {
                 ref.current = el;
@@ -1519,41 +1523,41 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
               textAreaRef.current = el;
             }}
             style={{
-              width: '100%',
-              boxSizing: 'border-box',
-              backgroundColor: 'transparent',
-              color: 'var(--vscode-input-foreground)',
+              width: "100%",
+              boxSizing: "border-box",
+              backgroundColor: "transparent",
+              color: "var(--vscode-input-foreground)",
               //border: "1px solid var(--vscode-input-border)",
               borderRadius: 2,
-              fontFamily: 'var(--vscode-font-family)',
-              fontSize: 'var(--vscode-editor-font-size)',
-              lineHeight: 'var(--vscode-editor-line-height)',
-              resize: 'none',
-              overflowX: 'hidden',
-              overflowY: 'scroll',
-              scrollbarWidth: 'none',
+              fontFamily: "var(--vscode-font-family)",
+              fontSize: "var(--vscode-editor-font-size)",
+              lineHeight: "var(--vscode-editor-line-height)",
+              resize: "none",
+              overflowX: "hidden",
+              overflowY: "scroll",
+              scrollbarWidth: "none",
               // Since we have maxRows, when text is long enough it starts to overflow the bottom padding, appearing behind the thumbnails. To fix this, we use a transparent border to push the text up instead. (https://stackoverflow.com/questions/42631947/maintaining-a-padding-inside-of-text-area/52538410#52538410)
               // borderTop: "9px solid transparent",
               borderLeft: 0,
               borderRight: 0,
               borderTop: 0,
               borderBottom: `${thumbnailsHeight}px solid transparent`,
-              borderColor: 'transparent',
+              borderColor: "transparent",
               // borderRight: "54px solid transparent",
               // borderLeft: "9px solid transparent", // NOTE: react-textarea-autosize doesn't calculate correct height when using borderLeft/borderRight so we need to use horizontal padding instead
               // Instead of using boxShadow, we use a div with a border to better replicate the behavior when the textarea is focused
               // boxShadow: "0px 0px 0px 1px var(--vscode-input-border)",
-              padding: '9px 28px 9px 9px',
-              cursor: 'text',
+              padding: "9px 28px 9px 9px",
+              cursor: "text",
               flex: 1,
               zIndex: 1,
               outline:
                 isDraggingOver && !showUnsupportedFileError // Only show drag outline if not showing error
-                  ? '2px dashed var(--vscode-focusBorder)'
+                  ? "2px dashed var(--vscode-focusBorder)"
                   : isTextAreaFocused
-                    ? `1px solid ${mode === 'plan' ? PLAN_MODE_COLOR : 'var(--vscode-focusBorder)'}`
-                    : 'none',
-              outlineOffset: isDraggingOver && !showUnsupportedFileError ? '1px' : '0px', // Add offset for drag-over outline
+                    ? `1px solid ${mode === "plan" ? PLAN_MODE_COLOR : "var(--vscode-focusBorder)"}`
+                    : "none",
+              outlineOffset: isDraggingOver && !showUnsupportedFileError ? "1px" : "0px", // Add offset for drag-over outline
             }}
             value={inputValue}
           />
@@ -1571,7 +1575,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
               setFiles={setSelectedFiles}
               setImages={setSelectedImages}
               style={{
-                position: 'absolute',
+                position: "absolute",
                 paddingTop: 4,
                 bottom: 14,
                 left: 22,
@@ -1585,19 +1589,21 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
             style={{ height: textAreaBaseHeight }}
           >
             <div className="flex flex-row items-center">
-              <div
+              <button
                 className={cn(
-                  'input-icon-button',
+                  "input-icon-button",
                   { disabled: sendingDisabled },
-                  'codicon codicon-send text-sm',
+                  "codicon codicon-send text-sm",
                 )}
                 data-testid="send-button"
+                disabled={sendingDisabled}
                 onClick={() => {
                   if (!sendingDisabled) {
                     setIsTextAreaFocused(false);
                     onSend();
                   }
                 }}
+                type="button"
               />
             </div>
           </div>
@@ -1655,8 +1661,6 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
                   <ModelDisplayButton
                     disabled={false}
                     onClick={handleModelButtonClick}
-                    role="button"
-                    tabIndex={0}
                     title="Open API Settings"
                   >
                     <ModelButtonContent className="text-xs">{modelDisplayName}</ModelButtonContent>
@@ -1672,26 +1676,35 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
               hidden={shownTooltipMode === null}
               side="top"
             >
-              {`In ${shownTooltipMode === 'act' ? 'Act' : 'Plan'}  mode, Cline will ${shownTooltipMode === 'act' ? 'complete the task immediately' : 'gather information to architect a plan'}`}
+              {`In ${shownTooltipMode === "act" ? "Act" : "Plan"}  mode, Cline will ${shownTooltipMode === "act" ? "complete the task immediately" : "gather information to architect a plan"}`}
               <p className="text-description/80 text-xs mb-0">
                 Toggle w/ <kbd className="text-muted-foreground mx-1">{togglePlanActKeys}</kbd>
               </p>
             </TooltipContent>
             <TooltipTrigger>
               <SwitchContainer data-testid="mode-switch" disabled={false} onClick={onModeToggle}>
-                <Slider isAct={mode === 'act'} isPlan={mode === 'plan'} />
-                {['Plan', 'Act'].map((m) => (
+                <Slider isAct={mode === "act"} isPlan={mode === "plan"} />
+                {["Plan", "Act"].map((m) => (
                   <div
                     aria-checked={mode === m.toLowerCase()}
                     className={cn(
-                      'pt-0.5 pb-px px-2 z-10 text-xs w-1/2 text-center bg-transparent',
-                      mode === m.toLowerCase() ? 'text-white' : 'text-input-foreground',
+                      "pt-0.5 pb-px px-2 z-10 text-xs w-1/2 text-center bg-transparent",
+                      mode === m.toLowerCase() ? "text-white" : "text-input-foreground",
                     )}
+                    key={m}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        onModeToggle();
+                      }
+                    }}
+                    onFocus={() => setShownTooltipMode(m.toLowerCase() === "plan" ? "plan" : "act")}
+                    onBlur={() => setShownTooltipMode(null)}
                     onMouseLeave={() => setShownTooltipMode(null)}
                     onMouseOver={() =>
-                      setShownTooltipMode(m.toLowerCase() === 'plan' ? 'plan' : 'act')
+                      setShownTooltipMode(m.toLowerCase() === "plan" ? "plan" : "act")
                     }
                     role="switch"
+                    tabIndex={0}
                   >
                     {m}
                   </div>

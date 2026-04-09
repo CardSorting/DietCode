@@ -1,23 +1,23 @@
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { type VariantProps, cva } from 'class-variance-authority';
-import { AlertTriangleIcon, XIcon } from 'lucide-react';
-import * as React from 'react';
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { type VariantProps, cva } from "class-variance-authority";
+import { AlertTriangleIcon, XIcon } from "lucide-react";
+import * as React from "react";
 
 const alertVariants = cva(
-  'relative w-full rounded-sm border p-2 text-sm [&>svg+div]:translate-y-[-3px] [&>svg]:text-foreground [&>svg~*]:pl-7 flex flex-col gap-1 mb-1',
+  "relative w-full rounded-sm border p-2 text-sm [&>svg+div]:translate-y-[-3px] [&>svg]:text-foreground [&>svg~*]:pl-7 flex flex-col gap-1 mb-1",
   {
     variants: {
       variant: {
-        default: 'bg-banner-background text-banner-foreground border-foreground/20',
-        warning: 'bg-warning/50 border-foreground/20 [&>svg]:text-warning-foreground',
+        default: "bg-banner-background text-banner-foreground border-foreground/20",
+        warning: "bg-warning/50 border-foreground/20 [&>svg]:text-warning-foreground",
         danger:
-          'bg-input-error-background text-foreground border-foreground/20 [&>svg]:text-input-error-foreground',
-        cline: 'bg-cline/20 text-fg-cline border-cline [&>svg]:text-fg-cline',
+          "bg-input-error-background text-foreground border-foreground/20 [&>svg]:text-input-error-foreground",
+        cline: "bg-cline/20 text-fg-cline border-cline [&>svg]:text-fg-cline",
       },
     },
     defaultVariants: {
-      variant: 'default',
+      variant: "default",
     },
   },
 );
@@ -63,13 +63,13 @@ const Alert = React.forwardRef<
     </div>
   );
 });
-Alert.displayName = 'Alert';
+Alert.displayName = "Alert";
 
 const AlertTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
   ({ className, ...props }, ref) => (
     <h5
       className={cn(
-        'font-medium leading-none tracking-tight text-base flex gap-1 items-center grow',
+        "font-medium leading-none tracking-tight text-base flex gap-1 items-center grow",
         className,
       )}
       ref={ref}
@@ -77,14 +77,14 @@ const AlertTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTM
     />
   ),
 );
-AlertTitle.displayName = 'AlertTitle';
+AlertTitle.displayName = "AlertTitle";
 
 const AlertDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
-  <div className={cn('text-sm [&_p]:leading-relaxed', className)} ref={ref} {...props} />
+  <div className={cn("text-sm [&_p]:leading-relaxed", className)} ref={ref} {...props} />
 ));
-AlertDescription.displayName = 'AlertDescription';
+AlertDescription.displayName = "AlertDescription";
 
 export { Alert, AlertTitle, AlertDescription };

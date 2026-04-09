@@ -1,6 +1,6 @@
-import { getModeSpecificFields } from '@/components/settings/utils/providerUtils';
-import { type ApiConfiguration, type ModelInfo, openRouterDefaultModelId } from '@shared/api.ts';
-import type { Mode } from '@shared/storage/types.ts';
+import { getModeSpecificFields } from "@/components/settings/utils/providerUtils";
+import { type ApiConfiguration, type ModelInfo, openRouterDefaultModelId } from "@shared/api.ts";
+import type { Mode } from "@shared/storage/types.ts";
 
 export function validateApiConfiguration(
   currentMode: Mode,
@@ -18,166 +18,166 @@ export function validateApiConfiguration(
     } = getModeSpecificFields(apiConfiguration, currentMode);
 
     switch (apiProvider) {
-      case 'anthropic':
+      case "anthropic":
         if (!apiConfiguration.apiKey) {
-          return 'You must provide a valid API key or choose a different provider.';
+          return "You must provide a valid API key or choose a different provider.";
         }
         break;
-      case 'bedrock':
+      case "bedrock":
         if (!apiConfiguration.awsRegion) {
-          return 'You must choose a region to use with AWS Bedrock.';
+          return "You must choose a region to use with AWS Bedrock.";
         }
         break;
-      case 'openrouter':
+      case "openrouter":
         if (!apiConfiguration.openRouterApiKey) {
-          return 'You must provide a valid API key or choose a different provider.';
+          return "You must provide a valid API key or choose a different provider.";
         }
         break;
-      case 'vertex':
+      case "vertex":
         if (!apiConfiguration.vertexProjectId || !apiConfiguration.vertexRegion) {
-          return 'You must provide a valid Google Cloud Project ID and Region.';
+          return "You must provide a valid Google Cloud Project ID and Region.";
         }
         break;
-      case 'gemini':
+      case "gemini":
         if (!apiConfiguration.geminiApiKey) {
-          return 'You must provide a valid API key or choose a different provider.';
+          return "You must provide a valid API key or choose a different provider.";
         }
         break;
-      case 'openai-native':
+      case "openai-native":
         if (!apiConfiguration.openAiNativeApiKey) {
-          return 'You must provide a valid API key or choose a different provider.';
+          return "You must provide a valid API key or choose a different provider.";
         }
         break;
-      case 'deepseek':
+      case "deepseek":
         if (!apiConfiguration.deepSeekApiKey) {
-          return 'You must provide a valid API key or choose a different provider.';
+          return "You must provide a valid API key or choose a different provider.";
         }
         break;
-      case 'xai':
+      case "xai":
         if (!apiConfiguration.xaiApiKey) {
-          return 'You must provide a valid API key or choose a different provider.';
+          return "You must provide a valid API key or choose a different provider.";
         }
         break;
-      case 'qwen':
+      case "qwen":
         if (!apiConfiguration.qwenApiKey) {
-          return 'You must provide a valid API key or choose a different provider.';
+          return "You must provide a valid API key or choose a different provider.";
         }
         break;
-      case 'doubao':
+      case "doubao":
         if (!apiConfiguration.doubaoApiKey) {
-          return 'You must provide a valid API key or choose a different provider.';
+          return "You must provide a valid API key or choose a different provider.";
         }
         break;
-      case 'mistral':
+      case "mistral":
         if (!apiConfiguration.mistralApiKey) {
-          return 'You must provide a valid API key or choose a different provider.';
+          return "You must provide a valid API key or choose a different provider.";
         }
         break;
-      case 'cline':
+      case "cline":
         break;
-      case 'openai-codex':
+      case "openai-codex":
         // Authentication is handled via OAuth, not API key
         // Validation happens at runtime in the handler
         break;
-      case 'openai':
+      case "openai":
         if (
           !apiConfiguration.openAiBaseUrl ||
           (!apiConfiguration.openAiApiKey && !apiConfiguration.azureIdentity) ||
           !openAiModelId
         ) {
-          return 'You must provide a valid base URL, API key, and model ID.';
+          return "You must provide a valid base URL, API key, and model ID.";
         }
         break;
-      case 'requesty':
+      case "requesty":
         if (!apiConfiguration.requestyApiKey) {
-          return 'You must provide a valid API key or choose a different provider.';
+          return "You must provide a valid API key or choose a different provider.";
         }
         break;
-      case 'fireworks':
+      case "fireworks":
         if (!apiConfiguration.fireworksApiKey) {
-          return 'You must provide a valid API key or choose a different provider.';
+          return "You must provide a valid API key or choose a different provider.";
         }
         break;
-      case 'together':
+      case "together":
         if (!apiConfiguration.togetherApiKey || !togetherModelId) {
-          return 'You must provide a valid API key or choose a different provider.';
+          return "You must provide a valid API key or choose a different provider.";
         }
         break;
-      case 'ollama':
+      case "ollama":
         if (!ollamaModelId) {
-          return 'You must provide a valid model ID.';
+          return "You must provide a valid model ID.";
         }
         break;
-      case 'lmstudio':
+      case "lmstudio":
         if (!lmStudioModelId) {
-          return 'You must provide a valid model ID.';
+          return "You must provide a valid model ID.";
         }
         break;
-      case 'vscode-lm':
+      case "vscode-lm":
         if (!vsCodeLmModelSelector) {
-          return 'You must provide a valid model selector.';
+          return "You must provide a valid model selector.";
         }
         break;
-      case 'moonshot':
+      case "moonshot":
         if (!apiConfiguration.moonshotApiKey) {
-          return 'You must provide a valid API key or choose a different provider.';
+          return "You must provide a valid API key or choose a different provider.";
         }
         break;
-      case 'nebius':
+      case "nebius":
         if (!apiConfiguration.nebiusApiKey) {
-          return 'You must provide a valid API key or choose a different provider.';
+          return "You must provide a valid API key or choose a different provider.";
         }
         break;
-      case 'asksage':
+      case "asksage":
         if (!apiConfiguration.asksageApiKey) {
-          return 'You must provide a valid API key or choose a different provider.';
+          return "You must provide a valid API key or choose a different provider.";
         }
         break;
-      case 'sambanova':
+      case "sambanova":
         if (!apiConfiguration.sambanovaApiKey) {
-          return 'You must provide a valid API key or choose a different provider.';
+          return "You must provide a valid API key or choose a different provider.";
         }
         break;
-      case 'sapaicore':
+      case "sapaicore":
         if (!apiConfiguration.sapAiCoreBaseUrl) {
-          return 'You must provide a valid Base URL key or choose a different provider.';
+          return "You must provide a valid Base URL key or choose a different provider.";
         }
         if (!apiConfiguration.sapAiCoreClientId) {
-          return 'You must provide a valid Client Id or choose a different provider.';
+          return "You must provide a valid Client Id or choose a different provider.";
         }
         if (!apiConfiguration.sapAiCoreClientSecret) {
-          return 'You must provide a valid Client Secret or choose a different provider.';
+          return "You must provide a valid Client Secret or choose a different provider.";
         }
         if (!apiConfiguration.sapAiCoreTokenUrl) {
-          return 'You must provide a valid Auth URL or choose a different provider.';
+          return "You must provide a valid Auth URL or choose a different provider.";
         }
         break;
-      case 'zai':
+      case "zai":
         if (!apiConfiguration.zaiApiKey) {
-          return 'You must provide a valid API key or choose a different provider.';
+          return "You must provide a valid API key or choose a different provider.";
         }
         break;
-      case 'dify':
+      case "dify":
         if (!apiConfiguration.difyBaseUrl) {
-          return 'You must provide a valid Base URL or choose a different provider.';
+          return "You must provide a valid Base URL or choose a different provider.";
         }
         if (!apiConfiguration.difyApiKey) {
-          return 'You must provide a valid API key or choose a different provider.';
+          return "You must provide a valid API key or choose a different provider.";
         }
         break;
-      case 'minimax':
+      case "minimax":
         if (!apiConfiguration.minimaxApiKey) {
-          return 'You must provide a valid API key or choose a different provider.';
+          return "You must provide a valid API key or choose a different provider.";
         }
         break;
-      case 'hicap':
+      case "hicap":
         if (!apiConfiguration.hicapApiKey) {
-          return 'You must provide a valid API key';
+          return "You must provide a valid API key";
         }
         break;
-      case 'wandb':
+      case "wandb":
         if (!apiConfiguration.wandbApiKey) {
-          return 'You must provide a valid API key or choose a different provider.';
+          return "You must provide a valid API key or choose a different provider.";
         }
         break;
     }
@@ -197,24 +197,24 @@ export function validateModelId(
       currentMode,
     );
     switch (apiProvider) {
-      case 'openrouter': {
+      case "openrouter": {
         const modelId = openRouterModelId || openRouterDefaultModelId; // in case the user hasn't changed the model id, it will be undefined by default
         if (!modelId) {
-          return 'You must provide a model ID.';
+          return "You must provide a model ID.";
         }
         if (openRouterModels && !Object.keys(openRouterModels).includes(modelId)) {
           // even if the model list endpoint failed, extensionstatecontext will always have the default model info
-          return 'The model ID you provided is not available. Please choose a different model.';
+          return "The model ID you provided is not available. Please choose a different model.";
         }
         break;
       }
-      case 'cline': {
+      case "cline": {
         const clineResolvedModelId = clineModelId || openRouterDefaultModelId;
         if (!clineResolvedModelId) {
-          return 'You must provide a model ID.';
+          return "You must provide a model ID.";
         }
         if (clineModels && !Object.keys(clineModels).includes(clineResolvedModelId)) {
-          return 'The model ID you provided is not available. Please choose a different model.';
+          return "The model ID you provided is not available. Please choose a different model.";
         }
         break;
       }

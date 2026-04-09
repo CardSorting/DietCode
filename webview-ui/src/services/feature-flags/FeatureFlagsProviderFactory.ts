@@ -1,17 +1,17 @@
-import { ClineEndpoint } from '@/config';
-import { Logger } from '@/shared/services/Logger';
-import { isPostHogConfigValid, posthogConfig } from '@/shared/services/config/posthog-config';
-import { PostHogClientProvider } from '../telemetry/providers/posthog/PostHogClientProvider';
+import { ClineEndpoint } from "@/config";
+import { Logger } from "@/shared/services/Logger";
+import { isPostHogConfigValid, posthogConfig } from "@/shared/services/config/posthog-config";
+import { PostHogClientProvider } from "../telemetry/providers/posthog/PostHogClientProvider";
 import type {
   FeatureFlagsAndPayloads,
   IFeatureFlagsProvider,
-} from './providers/IFeatureFlagsProvider';
-import { PostHogFeatureFlagsProvider } from './providers/PostHogFeatureFlagsProvider';
+} from "./providers/IFeatureFlagsProvider";
+import { PostHogFeatureFlagsProvider } from "./providers/PostHogFeatureFlagsProvider";
 
 /**
  * Supported feature flags provider types
  */
-export type FeatureFlagsProviderType = 'posthog' | 'no-op';
+export type FeatureFlagsProviderType = "posthog" | "no-op";
 
 /**
  * Configuration for feature flags providers
@@ -32,7 +32,7 @@ export class FeatureFlagsProviderFactory {
    */
   public static createProvider(config: FeatureFlagsProviderConfig): IFeatureFlagsProvider {
     switch (config.type) {
-      case 'posthog': {
+      case "posthog": {
         // Get the shared PostHog client from PostHogClientProvider
         const sharedClient = PostHogClientProvider.getClient();
         if (sharedClient) {
@@ -53,11 +53,11 @@ export class FeatureFlagsProviderFactory {
   public static getDefaultConfig(): FeatureFlagsProviderConfig {
     // Use no-op provider in self-hosted mode to avoid external network calls
     if (ClineEndpoint.isSelfHosted()) {
-      return { type: 'no-op' };
+      return { type: "no-op" };
     }
     const hasValidConfig = isPostHogConfigValid(posthogConfig);
     return {
-      type: hasValidConfig ? 'posthog' : 'no-op',
+      type: hasValidConfig ? "posthog" : "no-op",
     };
   }
 }
@@ -85,6 +85,6 @@ class NoOpFeatureFlagsProvider implements IFeatureFlagsProvider {
   }
 
   public async dispose(): Promise<void> {
-    Logger.info('[NoOpFeatureFlagsProvider] Disposing');
+    Logger.info("[NoOpFeatureFlagsProvider] Disposing");
   }
 }

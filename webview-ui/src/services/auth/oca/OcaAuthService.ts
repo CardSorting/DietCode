@@ -1,14 +1,14 @@
-import type { Controller } from '@/core/controller';
-import { type StreamingResponseHandler, getRequestRegistry } from '@/core/controller/grpc-handler';
-import { AuthHandler } from '@/hosts/external/AuthHandler';
-import { Logger } from '@/shared/services/Logger';
-import { openExternal } from '@/utils/env';
-import { type EmptyRequest, String as ProtoString } from '@shared/nice-grpc/cline/common.ts';
-import { OcaAuthState, OcaUserInfo } from '@shared/nice-grpc/cline/oca_account.ts';
-import { LogoutReason } from '../types';
-import { OcaAuthProvider } from './providers/OcaAuthProvider';
-import type { OcaConfig } from './utils/types';
-import { getOcaConfig } from './utils/utils';
+import type { Controller } from "@/core/controller";
+import { type StreamingResponseHandler, getRequestRegistry } from "@/core/controller/grpc-handler";
+import { AuthHandler } from "@/hosts/external/AuthHandler";
+import { Logger } from "@/shared/services/Logger";
+import { openExternal } from "@/utils/env";
+import { type EmptyRequest, String as ProtoString } from "@shared/nice-grpc/cline/common.ts";
+import { OcaAuthState, OcaUserInfo } from "@shared/nice-grpc/cline/oca_account.ts";
+import { LogoutReason } from "../types";
+import { OcaAuthProvider } from "./providers/OcaAuthProvider";
+import type { OcaConfig } from "./utils/types";
+import { getOcaConfig } from "./utils/utils";
 // import { AuthHandler } from "@/hosts/external/AuthHandler"
 
 export class OcaAuthService {
@@ -34,12 +34,12 @@ export class OcaAuthService {
     if (this._controller) {
       return this._controller;
     }
-    throw new Error('Controller has not been initialized');
+    throw new Error("Controller has not been initialized");
   }
 
   private requireProvider(): OcaAuthProvider {
     if (!this._provider) {
-      throw new Error('Auth provider is not set');
+      throw new Error("Auth provider is not set");
     }
     return this._provider;
   }
@@ -63,7 +63,7 @@ export class OcaAuthService {
   public static getInstance(): OcaAuthService {
     if (!OcaAuthService.instance || !OcaAuthService.instance._controller) {
       throw new Error(
-        'OcaAuthService not initialized. Call OcaAuthService.initialize(controller) first.',
+        "OcaAuthService not initialized. Call OcaAuthService.initialize(controller) first.",
       );
     }
     return OcaAuthService.instance;
@@ -135,23 +135,23 @@ export class OcaAuthService {
     this.requireController();
     if (this._authenticated) {
       this.sendAuthStatusUpdate();
-      return ProtoString.create({ value: 'Already authenticated' });
+      return ProtoString.create({ value: "Already authenticated" });
     }
     const ocaMode =
-      this.requireController().stateManager.getGlobalSettingsKey('ocaMode') || 'internal';
+      this.requireController().stateManager.getGlobalSettingsKey("ocaMode") || "internal";
     const idcsUrl =
-      ocaMode === 'external' ? this._config.external.idcs_url : this._config.internal.idcs_url;
+      ocaMode === "external" ? this._config.external.idcs_url : this._config.internal.idcs_url;
     if (!idcsUrl) {
-      throw new Error('IDCS URI is not configured');
+      throw new Error("IDCS URI is not configured");
     }
     // Start the auth handler
     const authHandler = AuthHandler.getInstance();
     authHandler.setEnabled(true);
-    const callbackUrl = await authHandler.getCallbackUrl('/auth/oca');
+    const callbackUrl = await authHandler.getCallbackUrl("/auth/oca");
     const authUrl = this.requireProvider().getAuthUrl(callbackUrl!, ocaMode);
-    const authUrlString = authUrl?.toString() || '';
+    const authUrlString = authUrl?.toString() || "";
     if (!authUrlString) {
-      throw new Error('Failed to generate authentication URL');
+      throw new Error("Failed to generate authentication URL");
     }
     await openExternal(authUrlString);
     return ProtoString.create({ value: authUrlString });
@@ -164,7 +164,7 @@ export class OcaAuthService {
       this._authenticated = false;
       await this.sendAuthStatusUpdate();
     } catch (error) {
-      Logger.error('Error signing out:', error);
+      Logger.error("Error signing out:", error);
       throw error;
     }
   }
@@ -182,7 +182,7 @@ export class OcaAuthService {
       this._authenticated = true;
       await this.sendAuthStatusUpdate();
     } catch (error) {
-      Logger.error('Error signing in with custom token:', error);
+      Logger.error("Error signing in with custom token:", error);
       throw error;
     } finally {
       const authHandler = AuthHandler.getInstance();
@@ -200,10 +200,10 @@ export class OcaAuthService {
         await this.sendAuthStatusUpdate();
         return;
       }
-      Logger.warn('No user found after restoring auth token');
+      Logger.warn("No user found after restoring auth token");
       await this.kickstartInteractiveLoginAsFallback();
     } catch (error) {
-      Logger.error('Error restoring auth token:', error);
+      Logger.error("Error restoring auth token:", error);
       await this.kickstartInteractiveLoginAsFallback(error);
     }
   }
@@ -231,10 +231,10 @@ export class OcaAuthService {
         await new Promise((r) => setTimeout(r, pollMs));
       }
       if (!this._authenticated) {
-        Logger.warn('Interactive OCA login timed out after 120 seconds');
+        Logger.warn("Interactive OCA login timed out after 120 seconds");
       }
     } catch (e) {
-      Logger.error('Failed to initiate interactive OCA login:', e);
+      Logger.error("Failed to initiate interactive OCA login:", e);
     } finally {
       this._interactiveLoginPending = false;
     }
@@ -245,7 +245,7 @@ export class OcaAuthService {
     responseStream: StreamingResponseHandler<OcaAuthState>,
     requestId?: string,
   ): Promise<void> {
-    Logger.log('Subscribing to authStatusUpdate');
+    Logger.log("Subscribing to authStatusUpdate");
     const ctrl = this.requireController();
     if (!this._ocaAuthState) {
       this._ocaAuthState = await this.requireProvider().getExistingAuthState(ctrl);
@@ -260,14 +260,14 @@ export class OcaAuthService {
       getRequestRegistry().registerRequest(
         requestId,
         cleanup,
-        { type: 'authStatusUpdate_subscription' },
+        { type: "authStatusUpdate_subscription" },
         responseStream,
       );
     }
     try {
       await this.sendAuthStatusUpdate();
     } catch (error) {
-      Logger.error('Error sending initial auth status:', error);
+      Logger.error("Error sending initial auth status:", error);
       this._activeAuthStatusUpdateSubscriptions.delete(entry);
     }
   }
@@ -287,7 +287,7 @@ export class OcaAuthService {
           await ctrl.postStateToWebview();
         }
       } catch (error) {
-        Logger.error('Error sending authStatusUpdate event:', error);
+        Logger.error("Error sending authStatusUpdate event:", error);
         this._activeAuthStatusUpdateSubscriptions.delete(entry);
       }
     });

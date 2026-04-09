@@ -1,13 +1,13 @@
-import { OptionsButtons } from '@/components/chat/OptionsButtons';
-import { CheckmarkControl } from '@/components/common/CheckmarkControl';
-import { WithCopyButton } from '@/components/common/CopyButton';
-import McpResponseDisplay from '@/components/mcp/chat-display/McpResponseDisplay';
-import McpResourceRow from '@/components/mcp/configuration/tabs/installed/server-row/McpResourceRow';
-import McpToolRow from '@/components/mcp/configuration/tabs/installed/server-row/McpToolRow';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { cn } from '@/lib/utils';
-import { FileServiceClient, UiServiceClient } from '@/services/grpc-client';
-import { findMatchingResourceOrTemplate, getMcpServerDisplayName } from '@/utils/mcp';
+import { OptionsButtons } from "@/components/chat/OptionsButtons";
+import { CheckmarkControl } from "@/components/common/CheckmarkControl";
+import { WithCopyButton } from "@/components/common/CopyButton";
+import McpResponseDisplay from "@/components/mcp/chat-display/McpResponseDisplay";
+import McpResourceRow from "@/components/mcp/configuration/tabs/installed/server-row/McpResourceRow";
+import McpToolRow from "@/components/mcp/configuration/tabs/installed/server-row/McpToolRow";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { cn } from "@/lib/utils";
+import { FileServiceClient, UiServiceClient } from "@/services/grpc-client";
+import { findMatchingResourceOrTemplate, getMcpServerDisplayName } from "@/utils/mcp";
 import {
   COMPLETION_RESULT_CHANGES_FLAG,
   type ClineApiReqInfo,
@@ -17,11 +17,11 @@ import {
   type ClinePlanModeResponse,
   type ClineSayGenerateExplanation,
   type ClineSayTool,
-} from '@shared/ExtensionMessage';
-import { COMMAND_OUTPUT_STRING } from '@shared/combineCommandSequences.ts';
-import { BooleanRequest, StringRequest } from '@shared/nice-grpc/cline/common.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import deepEqual from 'fast-deep-equal';
+} from "@shared/ExtensionMessage";
+import { COMMAND_OUTPUT_STRING } from "@shared/combineCommandSequences.ts";
+import { BooleanRequest, StringRequest } from "@shared/nice-grpc/cline/common.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import deepEqual from "fast-deep-equal";
 import {
   ArrowRightIcon,
   BellIcon,
@@ -45,28 +45,28 @@ import {
   SquareMinusIcon,
   TerminalIcon,
   TriangleAlertIcon,
-} from 'lucide-react';
-import { type MouseEvent, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useSize } from 'react-use';
-import CodeAccordian, { cleanPathPrefix } from '../common/CodeAccordian';
-import { CommandOutputContent, CommandOutputRow } from './CommandOutputRow';
-import { CompletionOutputRow } from './CompletionOutputRow';
-import { DiffEditRow } from './DiffEditRow';
-import ErrorRow from './ErrorRow';
-import { FeatureTip } from './FeatureTip';
-import HookMessage from './HookMessage';
-import { MarkdownRow } from './MarkdownRow';
-import NewTaskPreview from './NewTaskPreview';
-import PlanCompletionOutputRow from './PlanCompletionOutputRow';
-import QuoteButton from './QuoteButton';
-import ReportBugPreview from './ReportBugPreview';
-import { RequestStartRow } from './RequestStartRow';
-import SearchResultsDisplay from './SearchResultsDisplay';
-import SubagentStatusRow from './SubagentStatusRow';
-import { ThinkingRow } from './ThinkingRow';
-import UserMessage from './UserMessage';
+} from "lucide-react";
+import { type MouseEvent, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSize } from "react-use";
+import CodeAccordian, { cleanPathPrefix } from "../common/CodeAccordian";
+import { CommandOutputContent, CommandOutputRow } from "./CommandOutputRow";
+import { CompletionOutputRow } from "./CompletionOutputRow";
+import { DiffEditRow } from "./DiffEditRow";
+import ErrorRow from "./ErrorRow";
+import { FeatureTip } from "./FeatureTip";
+import HookMessage from "./HookMessage";
+import { MarkdownRow } from "./MarkdownRow";
+import NewTaskPreview from "./NewTaskPreview";
+import PlanCompletionOutputRow from "./PlanCompletionOutputRow";
+import QuoteButton from "./QuoteButton";
+import ReportBugPreview from "./ReportBugPreview";
+import { RequestStartRow } from "./RequestStartRow";
+import SearchResultsDisplay from "./SearchResultsDisplay";
+import SubagentStatusRow from "./SubagentStatusRow";
+import { ThinkingRow } from "./ThinkingRow";
+import UserMessage from "./UserMessage";
 
-const HEADER_CLASSNAMES = 'flex items-center gap-2.5 mb-3';
+const HEADER_CLASSNAMES = "flex items-center gap-2.5 mb-3";
 
 interface ChatRowProps {
   message: ClineMessage;
@@ -92,7 +92,7 @@ export interface QuoteButtonState {
   selectedText: string;
 }
 
-interface ChatRowContentProps extends Omit<ChatRowProps, 'onHeightChange'> {}
+interface ChatRowContentProps extends Omit<ChatRowProps, "onHeightChange"> {}
 
 export const ProgressIndicator = () => <LoaderCircleIcon className="size-2 mr-2 animate-spin" />;
 const InvisibleSpacer = () => <div aria-hidden className="h-px" />;
@@ -168,7 +168,7 @@ export const ChatRowContent = memo(
       visible: false,
       top: 0,
       left: 0,
-      selectedText: '',
+      selectedText: "",
     });
     const contentRef = useRef<HTMLDivElement>(null);
 
@@ -183,7 +183,7 @@ export const ChatRowContent = memo(
     // Auto-expand completion output when it's the last message (runs once per message)
     useEffect(() => {
       const isCompletionResult =
-        message.ask === 'completion_result' || message.say === 'completion_result';
+        message.ask === "completion_result" || message.say === "completion_result";
 
       // Auto-expand if it's last and we haven't already auto-expanded
       if (isLast && isCompletionResult && !hasAutoExpandedRef.current) {
@@ -195,7 +195,7 @@ export const ChatRowContent = memo(
     // Auto-collapse completion output ONCE when transitioning from last to not-last
     useEffect(() => {
       const isCompletionResult =
-        message.ask === 'completion_result' || message.say === 'completion_result';
+        message.ask === "completion_result" || message.say === "completion_result";
       const wasLast = prevIsLastRef.current;
 
       // Only auto-collapse if transitioning from last to not-last, and we haven't already auto-collapsed
@@ -208,7 +208,7 @@ export const ChatRowContent = memo(
     }, [isLast, message.ask, message.say]);
 
     const [cost, apiReqCancelReason, apiReqStreamingFailedMessage] = useMemo(() => {
-      if (message.text != null && message.say === 'api_req_started') {
+      if (message.text != null && message.say === "api_req_started") {
         const info: ClineApiReqInfo = JSON.parse(message.text);
         return [info.cost, info.cancelReason, info.streamingFailedMessage, info.retryStatus];
       }
@@ -217,13 +217,13 @@ export const ChatRowContent = memo(
 
     // when resuming task last won't be api_req_failed but a resume_task message so api_req_started will show loading spinner. that's why we just remove the last api_req_started that failed without streaming anything
     const apiRequestFailedMessage =
-      isLast && lastModifiedMessage?.ask === 'api_req_failed' // if request is retried then the latest message is a api_req_retried
+      isLast && lastModifiedMessage?.ask === "api_req_failed" // if request is retried then the latest message is a api_req_retried
         ? lastModifiedMessage?.text
         : undefined;
 
-    const type = message.type === 'ask' ? message.ask : message.say;
+    const type = message.type === "ask" ? message.ask : message.say;
 
-    const isCommandMessage = type === 'command';
+    const isCommandMessage = type === "command";
     // Check if command has output to determine if it's actually executing
     const commandHasOutput = message.text?.includes(COMMAND_OUTPUT_STRING) ?? false;
     // A command is executing if it has output but hasn't completed yet
@@ -234,7 +234,7 @@ export const ChatRowContent = memo(
     const isCommandCompleted = isCommandMessage && message.commandCompleted === true;
 
     const isMcpServerResponding =
-      isLast && lastModifiedMessage?.say === 'mcp_server_request_started';
+      isLast && lastModifiedMessage?.say === "mcp_server_request_started";
 
     const handleToggle = useCallback(() => {
       onToggleExpand(message.ts);
@@ -253,24 +253,24 @@ export const ChatRowContent = memo(
     const handleQuoteClick = useCallback(() => {
       onSetQuote(quoteButtonState.selectedText);
       window.getSelection()?.removeAllRanges(); // Clear the browser selection
-      setQuoteButtonState({ visible: false, top: 0, left: 0, selectedText: '' });
+      setQuoteButtonState({ visible: false, top: 0, left: 0, selectedText: "" });
     }, [onSetQuote, quoteButtonState.selectedText]); // <-- Use onSetQuote from props
 
     const handleMouseUp = useCallback((event: MouseEvent<HTMLDivElement>) => {
       // Get the target element immediately, before the timeout
       const targetElement = event.target as Element;
-      const isClickOnButton = !!targetElement.closest('.quote-button-class');
+      const isClickOnButton = !!targetElement.closest(".quote-button-class");
 
       // Delay the selection check slightly
       setTimeout(() => {
         // Now, check the selection state *after* the browser has likely updated it
         const selection = window.getSelection();
-        const selectedText = selection?.toString().trim() ?? '';
+        const selectedText = selection?.toString().trim() ?? "";
 
         let shouldShowButton = false;
         let buttonTop = 0;
         let buttonLeft = 0;
-        let textToQuote = '';
+        let textToQuote = "";
 
         // Condition 1: Check if there's a valid, non-collapsed selection within bounds
         // Ensure contentRef.current still exists in case component unmounted during timeout
@@ -319,7 +319,7 @@ export const ChatRowContent = memo(
           });
         } else if (!isClickOnButton) {
           // Scenario B: No valid selection AND click was NOT on button -> Hide button
-          setQuoteButtonState({ visible: false, top: 0, left: 0, selectedText: '' });
+          setQuoteButtonState({ visible: false, top: 0, left: 0, selectedText: "" });
         }
         // Scenario C (Click WAS on button): Do nothing here, handleQuoteClick takes over.
       }, 0); // Delay of 0ms pushes execution after current event cycle
@@ -327,52 +327,62 @@ export const ChatRowContent = memo(
 
     const [icon, title] = useMemo(() => {
       switch (type) {
-        case 'error':
+        case "error":
           return [
-            <span className="codicon codicon-error text-error mb-[-1.5px]" />,
-            <span className="text-error font-bold">Error</span>,
+            <span key="icon" className="codicon codicon-error text-error mb-[-1.5px]" />,
+            <span key="title" className="text-error font-bold">
+              Error
+            </span>,
           ];
-        case 'mistake_limit_reached':
+        case "mistake_limit_reached":
           return [
-            <CircleXIcon className="text-error size-2" />,
-            <span className="text-error font-bold">Cline is having trouble...</span>,
+            <CircleXIcon key="icon" className="text-error size-2" />,
+            <span key="title" className="text-error font-bold">
+              DietCode is having trouble...
+            </span>,
           ];
-        case 'command':
+        case "command":
           return [
-            <TerminalIcon className="text-foreground size-2" />,
-            <span className="font-bold text-foreground">Cline wants to execute this command:</span>,
+            <TerminalIcon key="icon" className="text-foreground size-2" />,
+            <span key="title" className="font-bold text-foreground">
+              DietCode wants to execute this command:
+            </span>,
           ];
-        case 'use_mcp_server': {
-          const mcpServerUse = JSON.parse(message.text || '{}') as ClineAskUseMcpServer;
+        case "use_mcp_server": {
+          const mcpServerUse = JSON.parse(message.text || "{}") as ClineAskUseMcpServer;
           return [
             isMcpServerResponding ? (
-              <ProgressIndicator />
+              <ProgressIndicator key="icon" />
             ) : (
-              <span className="codicon codicon-server text-foreground mb-[-1.5px]" />
+              <span key="icon" className="codicon codicon-server text-foreground mb-[-1.5px]" />
             ),
-            <span className="ph-no-capture font-bold text-foreground break-words">
-              Cline wants to{' '}
-              {mcpServerUse.type === 'use_mcp_tool' ? 'use a tool' : 'access a resource'} on the{' '}
+            <span key="title" className="ph-no-capture font-bold text-foreground wrap-break-word">
+              DietCode wants to{" "}
+              {mcpServerUse.type === "use_mcp_tool" ? "use a tool" : "access a resource"} on the{" "}
               <code className="break-all">
                 {getMcpServerDisplayName(mcpServerUse.serverName, mcpMarketplaceCatalog)}
-              </code>{' '}
+              </code>{" "}
               MCP server:
             </span>,
           ];
         }
-        case 'completion_result':
+        case "completion_result":
           return [
-            <span className="codicon codicon-check text-success mb-[-1.5px]" />,
-            <span className="text-success font-bold">Task Completed</span>,
+            <span key="icon" className="codicon codicon-check text-success mb-[-1.5px]" />,
+            <span key="title" className="text-success font-bold">
+              Task Completed
+            </span>,
           ];
-        case 'api_req_started':
+        case "api_req_started":
           // API request rows no longer render the request payload/cost accordion.
           // Thinking/reasoning is handled directly in the api_req_started renderer below.
           return [null, null];
-        case 'followup':
+        case "followup":
           return [
-            <span className="codicon codicon-question text-foreground mb-[-1.5px]" />,
-            <span className="font-bold text-foreground">Cline has a question:</span>,
+            <span key="icon" className="codicon codicon-question text-foreground mb-[-1.5px]" />,
+            <span key="title" className="font-bold text-foreground">
+              DietCode has a question:
+            </span>,
           ];
         default:
           return [null, null];
@@ -389,17 +399,17 @@ export const ChatRowContent = memo(
     ]);
 
     const tool = useMemo(() => {
-      if (message.ask === 'tool' || message.say === 'tool') {
-        return JSON.parse(message.text || '{}') as ClineSayTool;
+      if (message.ask === "tool" || message.say === "tool") {
+        return JSON.parse(message.text || "{}") as ClineSayTool;
       }
       return null;
     }, [message.ask, message.say, message.text]);
 
     const conditionalRulesInfo = useMemo(() => {
-      if (message.say !== 'conditional_rules_applied' || !message.text) return null;
+      if (message.say !== "conditional_rules_applied" || !message.text) return null;
       try {
         const parsed = JSON.parse(message.text) as unknown;
-        if (!parsed || typeof parsed !== 'object' || !Array.isArray((parsed as any).rules)) {
+        if (!parsed || typeof parsed !== "object" || !Array.isArray((parsed as any).rules)) {
           return null;
         }
         return parsed as {
@@ -412,26 +422,26 @@ export const ChatRowContent = memo(
 
     // Helper function to check if file is an image
     const isImageFile = (filePath: string): boolean => {
-      const imageExtensions = ['.png', '.jpg', '.jpeg', '.webp'];
-      const extension = filePath.toLowerCase().split('.').pop();
+      const imageExtensions = [".png", ".jpg", ".jpeg", ".webp"];
+      const extension = filePath.toLowerCase().split(".").pop();
       return extension ? imageExtensions.includes(`.${extension}`) : false;
     };
 
     if (conditionalRulesInfo) {
-      const names = conditionalRulesInfo.rules.map((r: { name: string }) => r.name).join(', ');
+      const names = conditionalRulesInfo.rules.map((r: { name: string }) => r.name).join(", ");
       return (
         <div className={HEADER_CLASSNAMES}>
-          <span style={{ fontWeight: 'bold' }}>Conditional rules applied:</span>
-          <span className="ph-no-capture break-words whitespace-pre-wrap">{names}</span>
+          <span style={{ fontWeight: "bold" }}>Conditional rules applied:</span>
+          <span className="ph-no-capture wrap-break-word whitespace-pre-wrap">{names}</span>
         </div>
       );
     }
 
     if (tool) {
       const colorMap = {
-        red: 'var(--vscode-errorForeground)',
-        yellow: 'var(--vscode-editorWarning-foreground)',
-        green: 'var(--vscode-charts-green)',
+        red: "var(--vscode-errorForeground)",
+        yellow: "var(--vscode-editorWarning-foreground)",
+        green: "var(--vscode-charts-green)",
       };
       const toolIcon = (name: string, color?: string, rotation?: number, title?: string) => (
         <span
@@ -439,8 +449,8 @@ export const ChatRowContent = memo(
           style={{
             color: color
               ? colorMap[color as keyof typeof colorMap] || color
-              : 'var(--vscode-foreground)',
-            marginBottom: '-1.5px',
+              : "var(--vscode-foreground)",
+            marginBottom: "-1.5px",
             transform: rotation ? `rotate(${rotation}deg)` : undefined,
           }}
           title={title}
@@ -448,20 +458,20 @@ export const ChatRowContent = memo(
       );
 
       switch (tool.tool) {
-        case 'editedExistingFile': {
-          const content = tool?.content || '';
+        case "editedExistingFile": {
+          const content = tool?.content || "";
           const isApplyingPatch =
-            content?.startsWith('%%bash') && !content.endsWith('*** End Patch\nEOF');
+            content?.startsWith("%%bash") && !content.endsWith("*** End Patch\nEOF");
           const editToolTitle = isApplyingPatch
-            ? 'Cline is creating patches to edit this file:'
-            : 'Cline wants to edit this file:';
+            ? "DietCode is creating patches to edit this file:"
+            : "DietCode wants to edit this file:";
           return (
             <div>
               <div className={HEADER_CLASSNAMES}>
                 <PencilIcon className="size-2" />
                 {tool.operationIsLocatedInWorkspace === false &&
-                  toolIcon('sign-out', 'yellow', -90, 'This file is outside of your workspace')}
-                <span style={{ fontWeight: 'bold' }}>{editToolTitle}</span>
+                  toolIcon("sign-out", "yellow", -90, "This file is outside of your workspace")}
+                <span style={{ fontWeight: "bold" }}>{editToolTitle}</span>
               </div>
               {backgroundEditEnabled && tool.path && tool.content ? (
                 <DiffEditRow
@@ -476,38 +486,38 @@ export const ChatRowContent = memo(
                   code={tool.content}
                   isExpanded={isExpanded}
                   onToggleExpand={handleToggle}
-                  path={tool.path!}
+                  path={tool.path ?? ""}
                 />
               )}
             </div>
           );
         }
-        case 'fileDeleted':
+        case "fileDeleted":
           return (
             <div>
               <div className={HEADER_CLASSNAMES}>
                 <SquareMinusIcon className="size-2" />
                 {tool.operationIsLocatedInWorkspace === false &&
-                  toolIcon('sign-out', 'yellow', -90, 'This file is outside of your workspace')}
-                <span style={{ fontWeight: 'bold' }}>Cline wants to delete this file:</span>
+                  toolIcon("sign-out", "yellow", -90, "This file is outside of your workspace")}
+                <span style={{ fontWeight: "bold" }}>DietCode wants to delete this file:</span>
               </div>
               <CodeAccordian
                 // isLoading={message.partial}
                 code={tool.content}
                 isExpanded={isExpanded}
                 onToggleExpand={handleToggle}
-                path={tool.path!}
+                path={tool.path ?? ""}
               />
             </div>
           );
-        case 'newFileCreated':
+        case "newFileCreated":
           return (
             <div>
               <div className={HEADER_CLASSNAMES}>
                 <FilePlus2Icon className="size-2" />
                 {tool.operationIsLocatedInWorkspace === false &&
-                  toolIcon('sign-out', 'yellow', -90, 'This file is outside of your workspace')}
-                <span className="font-bold">Cline wants to create a new file:</span>
+                  toolIcon("sign-out", "yellow", -90, "This file is outside of your workspace")}
+                <span className="font-bold">DietCode wants to create a new file:</span>
               </div>
               {backgroundEditEnabled && tool.path && tool.content ? (
                 <DiffEditRow
@@ -517,17 +527,17 @@ export const ChatRowContent = memo(
                 />
               ) : (
                 <CodeAccordian
-                  code={tool.content!}
+                  code={tool.content ?? ""}
                   isExpanded={isExpanded}
                   isLoading={message.partial}
                   onToggleExpand={handleToggle}
-                  path={tool.path!}
+                  path={tool.path ?? ""}
                 />
               )}
             </div>
           );
-        case 'readFile': {
-          const isImage = isImageFile(tool.path || '');
+        case "readFile": {
+          const isImage = isImageFile(tool.path || "");
           return (
             <div>
               <div className={HEADER_CLASSNAMES}>
@@ -537,32 +547,41 @@ export const ChatRowContent = memo(
                   <FileCode2Icon className="size-2" />
                 )}
                 {tool.operationIsLocatedInWorkspace === false &&
-                  toolIcon('sign-out', 'yellow', -90, 'This file is outside of your workspace')}
-                <span className="font-bold">Cline wants to read this file:</span>
+                  toolIcon("sign-out", "yellow", -90, "This file is outside of your workspace")}
+                <span className="font-bold">DietCode wants to read this file:</span>
               </div>
               <div className="bg-code rounded-sm overflow-hidden border border-editor-group-border">
                 <div
                   className={cn(
-                    'text-description flex items-center cursor-pointer select-none py-2 px-2.5',
+                    "text-description flex items-center cursor-pointer select-none py-2 px-2.5",
                     {
-                      'cursor-default select-text': isImage,
+                      "cursor-default select-text": isImage,
                     },
                   )}
                   onClick={() => {
                     if (!isImage) {
                       FileServiceClient.openFile(
                         StringRequest.create({ value: tool.content }),
-                      ).catch((err) => console.error('Failed to open file:', err));
+                      ).catch((err) => console.error("Failed to open file:", err));
                     }
                   }}
+                  onKeyDown={(e) => {
+                    if (!isImage && (e.key === "Enter" || e.key === " ")) {
+                      FileServiceClient.openFile(
+                        StringRequest.create({ value: tool.content }),
+                      ).catch((err) => console.error("Failed to open file:", err));
+                    }
+                  }}
+                  role={isImage ? undefined : "button"}
+                  tabIndex={isImage ? undefined : 0}
                 >
-                  {tool.path?.startsWith('.') && <span>.</span>}
-                  {tool.path && !tool.path.startsWith('.') && <span>/</span>}
+                  {tool.path?.startsWith(".") && <span>.</span>}
+                  {tool.path && !tool.path.startsWith(".") && <span>/</span>}
                   <span className="ph-no-capture whitespace-nowrap overflow-hidden text-ellipsis mr-2 text-left [direction: rtl]">
-                    {`${cleanPathPrefix(tool.path ?? '')}\u200E`}
+                    {`${cleanPathPrefix(tool.path ?? "")}\u200E`}
                     {tool.readLineStart != null && tool.readLineEnd != null ? (
                       <span className="opacity-80">
-                        {' '}
+                        {" "}
                         ({tool.readLineStart}-{tool.readLineEnd})
                       </span>
                     ) : null}
@@ -574,106 +593,106 @@ export const ChatRowContent = memo(
             </div>
           );
         }
-        case 'listFilesTopLevel':
+        case "listFilesTopLevel":
           return (
             <div>
               <div className={HEADER_CLASSNAMES}>
-                {toolIcon('folder-opened')}
+                {toolIcon("folder-opened")}
                 {tool.operationIsLocatedInWorkspace === false &&
-                  toolIcon('sign-out', 'yellow', -90, 'This is outside of your workspace')}
-                <span style={{ fontWeight: 'bold' }}>
-                  {message.type === 'ask'
-                    ? 'Cline wants to view the top level files in this directory:'
-                    : 'Cline viewed the top level files in this directory:'}
+                  toolIcon("sign-out", "yellow", -90, "This is outside of your workspace")}
+                <span style={{ fontWeight: "bold" }}>
+                  {message.type === "ask"
+                    ? "DietCode wants to view the top level files in this directory:"
+                    : "DietCode viewed the top level files in this directory:"}
                 </span>
               </div>
               <CodeAccordian
-                code={tool.content!}
+                code={tool.content ?? ""}
                 isExpanded={isExpanded}
                 language="shell-session"
                 onToggleExpand={handleToggle}
-                path={tool.path!}
+                path={tool.path ?? ""}
               />
             </div>
           );
-        case 'listFilesRecursive':
+        case "listFilesRecursive":
           return (
             <div>
               <div className={HEADER_CLASSNAMES}>
-                {toolIcon('folder-opened')}
+                {toolIcon("folder-opened")}
                 {tool.operationIsLocatedInWorkspace === false &&
-                  toolIcon('sign-out', 'yellow', -90, 'This is outside of your workspace')}
-                <span style={{ fontWeight: 'bold' }}>
-                  {message.type === 'ask'
-                    ? 'Cline wants to recursively view all files in this directory:'
-                    : 'Cline recursively viewed all files in this directory:'}
+                  toolIcon("sign-out", "yellow", -90, "This is outside of your workspace")}
+                <span style={{ fontWeight: "bold" }}>
+                  {message.type === "ask"
+                    ? "DietCode wants to recursively view all files in this directory:"
+                    : "DietCode recursively viewed all files in this directory:"}
                 </span>
               </div>
               <CodeAccordian
-                code={tool.content!}
+                code={tool.content ?? ""}
                 isExpanded={isExpanded}
                 language="shell-session"
                 onToggleExpand={handleToggle}
-                path={tool.path!}
+                path={tool.path ?? ""}
               />
             </div>
           );
-        case 'listCodeDefinitionNames':
+        case "listCodeDefinitionNames":
           return (
             <div>
               <div className={HEADER_CLASSNAMES}>
-                {toolIcon('file-code')}
+                {toolIcon("file-code")}
                 {tool.operationIsLocatedInWorkspace === false &&
-                  toolIcon('sign-out', 'yellow', -90, 'This file is outside of your workspace')}
-                <span style={{ fontWeight: 'bold' }}>
-                  {message.type === 'ask'
-                    ? 'Cline wants to view source code definition names used in this directory:'
-                    : 'Cline viewed source code definition names used in this directory:'}
+                  toolIcon("sign-out", "yellow", -90, "This file is outside of your workspace")}
+                <span style={{ fontWeight: "bold" }}>
+                  {message.type === "ask"
+                    ? "DietCode wants to view source code definition names used in this directory:"
+                    : "DietCode viewed source code definition names used in this directory:"}
                 </span>
               </div>
               <CodeAccordian
-                code={tool.content!}
+                code={tool.content ?? ""}
                 isExpanded={isExpanded}
                 onToggleExpand={handleToggle}
-                path={tool.path!}
+                path={tool.path ?? ""}
               />
             </div>
           );
-        case 'searchFiles':
+        case "searchFiles":
           return (
             <div>
               <div className={HEADER_CLASSNAMES}>
-                {toolIcon('search')}
+                {toolIcon("search")}
                 {tool.operationIsLocatedInWorkspace === false &&
-                  toolIcon('sign-out', 'yellow', -90, 'This is outside of your workspace')}
+                  toolIcon("sign-out", "yellow", -90, "This is outside of your workspace")}
                 <span className="font-bold">
-                  Cline wants to search this directory for{' '}
+                  DietCode wants to search this directory for{" "}
                   <code className="break-all">{tool.regex}</code>:
                 </span>
               </div>
               <SearchResultsDisplay
-                content={tool.content!}
+                content={tool.content ?? ""}
                 filePattern={tool.filePattern}
                 isExpanded={isExpanded}
                 onToggleExpand={handleToggle}
-                path={tool.path!}
+                path={tool.path ?? ""}
               />
             </div>
           );
-        case 'summarizeTask':
+        case "summarizeTask":
           return (
             <div>
               <div className={HEADER_CLASSNAMES}>
                 <FoldVerticalIcon className="size-2" />
-                <span className="font-bold">Cline is condensing the conversation:</span>
+                <span className="font-bold">DietCode is condensing the conversation:</span>
               </div>
               <div className="bg-code overflow-hidden border border-editor-group-border rounded-[3px]">
                 <div
-                  aria-label={isExpanded ? 'Collapse summary' : 'Expand summary'}
+                  aria-label={isExpanded ? "Collapse summary" : "Expand summary"}
                   className="text-description py-2 px-2.5 cursor-pointer select-none"
                   onClick={handleToggle}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
                       e.stopPropagation();
                       handleToggle();
@@ -687,7 +706,7 @@ export const ChatRowContent = memo(
                         <div className="grow" />
                         <ChevronDownIcon className="my-0.5 shrink-0 size-4" />
                       </div>
-                      <span className="ph-no-capture break-words whitespace-pre-wrap">
+                      <span className="ph-no-capture wrap-break-word whitespace-pre-wrap">
                         {tool.content}
                       </span>
                     </div>
@@ -703,49 +722,61 @@ export const ChatRowContent = memo(
               </div>
             </div>
           );
-        case 'webFetch':
+        case "webFetch":
           return (
             <div>
               <div className={HEADER_CLASSNAMES}>
                 <Link2Icon className="size-2" />
                 {tool.operationIsLocatedInWorkspace === false &&
-                  toolIcon('sign-out', 'yellow', -90, 'This URL is external')}
+                  toolIcon("sign-out", "yellow", -90, "This URL is external")}
                 <span className="font-bold">
-                  {message.type === 'ask'
-                    ? 'Cline wants to fetch content from this URL:'
-                    : 'Cline fetched content from this URL:'}
+                  {message.type === "ask"
+                    ? "DietCode wants to fetch content from this URL:"
+                    : "DietCode fetched content from this URL:"}
                 </span>
               </div>
-              <div
-                className="bg-code rounded-xs overflow-hidden border border-editor-group-border py-2 px-2.5 cursor-pointer select-none"
+              <button
+                className="bg-code rounded-xs overflow-hidden border border-editor-group-border py-2 px-2.5 cursor-pointer select-none w-full text-left"
                 onClick={() => {
                   // Open the URL in the default browser using gRPC
                   if (tool.path) {
                     UiServiceClient.openUrl(StringRequest.create({ value: tool.path })).catch(
                       (err) => {
-                        console.error('Failed to open URL:', err);
+                        console.error("Failed to open URL:", err);
                       },
                     );
                   }
                 }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    if (tool.path) {
+                      UiServiceClient.openUrl(StringRequest.create({ value: tool.path })).catch(
+                        (err) => {
+                          console.error("Failed to open URL:", err);
+                        },
+                      );
+                    }
+                  }
+                }}
+                type="button"
               >
                 <span className="ph-no-capture whitespace-nowrap overflow-hidden text-ellipsis mr-2 [direction:rtl] text-left text-link underline">
                   {`${tool.path}\u200E`}
                 </span>
-              </div>
+              </button>
             </div>
           );
-        case 'webSearch':
+        case "webSearch":
           return (
             <div>
               <div className={HEADER_CLASSNAMES}>
                 <SearchIcon className="size-2 rotate-90" />
                 {tool.operationIsLocatedInWorkspace === false &&
-                  toolIcon('sign-out', 'yellow', -90, 'This search is external')}
+                  toolIcon("sign-out", "yellow", -90, "This search is external")}
                 <span className="font-bold">
-                  {message.type === 'ask'
-                    ? 'Cline wants to search the web for:'
-                    : 'Cline searched the web for:'}
+                  {message.type === "ask"
+                    ? "DietCode wants to search the web for:"
+                    : "DietCode searched the web for:"}
                 </span>
               </div>
               <div className="bg-code border border-editor-group-border overflow-hidden rounded-xs select-text py-[9px] px-2.5">
@@ -755,12 +786,12 @@ export const ChatRowContent = memo(
               </div>
             </div>
           );
-        case 'useSkill':
+        case "useSkill":
           return (
             <div>
               <div className={HEADER_CLASSNAMES}>
                 <LightbulbIcon className="size-2" />
-                <span className="font-bold">Cline loaded the skill:</span>
+                <span className="font-bold">DietCode loaded the skill:</span>
               </div>
               <div className="bg-code border border-editor-group-border overflow-hidden rounded-xs py-[9px] px-2.5">
                 <span className="ph-no-capture font-medium">{tool.path}</span>
@@ -796,11 +827,11 @@ export const ChatRowContent = memo(
       }
     }, [isCommandMessage, isCommandExecuting, isExpanded, onToggleExpand, message.ts]);
 
-    if (message.ask === 'command' || message.say === 'command') {
+    if (message.ask === "command" || message.say === "command") {
       return (
         <CommandOutputRow
           icon={icon}
-          isBackgroundExec={vscodeTerminalExecutionMode === 'backgroundExec'}
+          isBackgroundExec={vscodeTerminalExecutionMode === "backgroundExec"}
           isCommandCompleted={isCommandCompleted}
           isCommandExecuting={isCommandExecuting}
           isCommandPending={isCommandPending}
@@ -813,7 +844,7 @@ export const ChatRowContent = memo(
       );
     }
 
-    if (message.ask === 'use_subagents' || message.say === 'use_subagents') {
+    if (message.ask === "use_subagents" || message.say === "use_subagents") {
       return (
         <SubagentStatusRow
           isLast={isLast}
@@ -823,8 +854,8 @@ export const ChatRowContent = memo(
       );
     }
 
-    if (message.ask === 'use_mcp_server' || message.say === 'use_mcp_server') {
-      const useMcpServer = JSON.parse(message.text || '{}') as ClineAskUseMcpServer;
+    if (message.ask === "use_mcp_server" || message.say === "use_mcp_server") {
+      const useMcpServer = JSON.parse(message.text || "{}") as ClineAskUseMcpServer;
       const server = mcpServers.find((server) => server.name === useMcpServer.serverName);
       return (
         <div>
@@ -834,40 +865,44 @@ export const ChatRowContent = memo(
           </div>
 
           <div className="bg-code rounded-xs py-2 px-2.5 mt-2">
-            {useMcpServer.type === 'access_mcp_resource' && (
+            {useMcpServer.type === "access_mcp_resource" && (
               <McpResourceRow
                 item={{
                   ...(findMatchingResourceOrTemplate(
-                    useMcpServer.uri || '',
+                    useMcpServer.uri || "",
                     server?.resources,
                     server?.resourceTemplates,
                   ) || {
-                    name: '',
-                    mimeType: '',
-                    description: '',
+                    name: "",
+                    mimeType: "",
+                    description: "",
                   }),
-                  uri: useMcpServer.uri || '',
+                  uri: useMcpServer.uri || "",
                 }}
               />
             )}
 
-            {useMcpServer.type === 'use_mcp_tool' && (
+            {useMcpServer.type === "use_mcp_tool" && (
               <div>
-                <div onClick={(e) => e.stopPropagation()}>
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
+                  role="presentation"
+                >
                   <McpToolRow
                     serverName={useMcpServer.serverName}
                     tool={{
-                      name: useMcpServer.toolName || '',
+                      name: useMcpServer.toolName || "",
                       description:
                         server?.tools?.find((tool) => tool.name === useMcpServer.toolName)
-                          ?.description || '',
+                          ?.description || "",
                       autoApprove:
                         server?.tools?.find((tool) => tool.name === useMcpServer.toolName)
                           ?.autoApprove || false,
                     }}
                   />
                 </div>
-                {useMcpServer.arguments && useMcpServer.arguments !== '{}' && (
+                {useMcpServer.arguments && useMcpServer.arguments !== "{}" && (
                   <div className="mt-2">
                     <div className="mb-1 opacity-80 uppercase">Arguments</div>
                     <CodeAccordian
@@ -886,9 +921,9 @@ export const ChatRowContent = memo(
     }
 
     switch (message.type) {
-      case 'say':
+      case "say":
         switch (message.say) {
-          case 'api_req_started':
+          case "api_req_started":
             return (
               <RequestStartRow
                 apiReqStreamingFailedMessage={apiReqStreamingFailedMessage}
@@ -903,21 +938,21 @@ export const ChatRowContent = memo(
                 responseStarted={responseStarted}
               />
             );
-          case 'api_req_finished':
+          case "api_req_finished":
             return <InvisibleSpacer />; // we should never see this message type
-          case 'mcp_server_response':
-            return <McpResponseDisplay responseText={message.text || ''} />;
-          case 'mcp_notification':
+          case "mcp_server_response":
+            return <McpResponseDisplay responseText={message.text || ""} />;
+          case "mcp_notification":
             return (
               <div className="flex items-start gap-2 py-2.5 px-3 bg-quote rounded-sm text-base text-foreground opacity-90 mb-2">
                 <BellIcon className="mt-0.5 size-2 text-notification-foreground shrink-0" />
-                <div className="break-words flex-1">
+                <div className="wrap-break-word flex-1">
                   <span className="font-medium">MCP Notification: </span>
                   <span className="ph-no-capture">{message.text}</span>
                 </div>
               </div>
             );
-          case 'text': {
+          case "text": {
             return (
               <WithCopyButton
                 onMouseUp={handleMouseUp}
@@ -926,7 +961,7 @@ export const ChatRowContent = memo(
                 textToCopy={message.text}
               >
                 <div className="flex items-center">
-                  <div className={cn('flex-1 min-w-0 pl-1')}>
+                  <div className={cn("flex-1 min-w-0 pl-1")}>
                     <MarkdownRow markdown={message.text} showCursor={false} />
                   </div>
                 </div>
@@ -940,7 +975,7 @@ export const ChatRowContent = memo(
               </WithCopyButton>
             );
           }
-          case 'reasoning': {
+          case "reasoning": {
             const isReasoningStreaming = message.partial === true;
             const hasReasoningText = !!message.text?.trim();
             // Show feature tips throughout the entire thinking/reasoning phase
@@ -955,13 +990,13 @@ export const ChatRowContent = memo(
                   reasoningContent={message.text}
                   showChevron={!isReasoningStreaming || hasReasoningText}
                   showTitle={true}
-                  title={isReasoningStreaming ? 'Thinking...' : 'Thinking'}
+                  title={isReasoningStreaming ? "Thinking..." : "Thinking"}
                 />
                 {isReasoningStreaming && showFeatureTips !== false && <FeatureTip />}
               </div>
             );
           }
-          case 'user_feedback':
+          case "user_feedback":
             return (
               <UserMessage
                 files={message.files}
@@ -971,12 +1006,12 @@ export const ChatRowContent = memo(
                 text={message.text}
               />
             );
-          case 'user_feedback_diff': {
-            const tool = JSON.parse(message.text || '{}') as ClineSayTool;
+          case "user_feedback_diff": {
+            const tool = JSON.parse(message.text || "{}") as ClineSayTool;
             return (
               <div className="w-full -mt-2.5">
                 <CodeAccordian
-                  diff={tool.diff!}
+                  diff={tool.diff ?? ""}
                   isExpanded={isExpanded}
                   isFeedback={true}
                   onToggleExpand={handleToggle}
@@ -984,32 +1019,32 @@ export const ChatRowContent = memo(
               </div>
             );
           }
-          case 'error':
+          case "error":
             return <ErrorRow errorType="error" message={message} />;
-          case 'diff_error':
+          case "diff_error":
             return <ErrorRow errorType="diff_error" message={message} />;
-          case 'clineignore_error':
+          case "clineignore_error":
             return <ErrorRow errorType="clineignore_error" message={message} />;
-          case 'checkpoint_created':
+          case "checkpoint_created":
             return (
               <CheckmarkControl
                 isCheckpointCheckedOut={message.isCheckpointCheckedOut}
                 messageTs={message.ts}
               />
             );
-          case 'load_mcp_documentation':
+          case "load_mcp_documentation":
             return (
               <div className="text-foreground flex items-center opacity-70 text-[12px] py-1 px-0">
                 <i className="codicon codicon-book mr-1.5" />
                 Loading MCP documentation
               </div>
             );
-          case 'generate_explanation': {
+          case "generate_explanation": {
             let explanationInfo: ClineSayGenerateExplanation = {
-              title: 'code changes',
-              fromRef: '',
-              toRef: '',
-              status: 'generating',
+              title: "code changes",
+              fromRef: "",
+              toRef: "",
+              status: "generating",
             };
             try {
               if (message.text) {
@@ -1022,12 +1057,12 @@ export const ChatRowContent = memo(
             // 1. If status is "generating" but this isn't the last message, it was interrupted
             // 2. If status is "generating" and lastModifiedMessage is a resume ask, task was just cancelled
             const wasCancelled =
-              explanationInfo.status === 'generating' &&
+              explanationInfo.status === "generating" &&
               (!isLast ||
-                lastModifiedMessage?.ask === 'resume_task' ||
-                lastModifiedMessage?.ask === 'resume_completed_task');
-            const isGenerating = explanationInfo.status === 'generating' && !wasCancelled;
-            const isError = explanationInfo.status === 'error';
+                lastModifiedMessage?.ask === "resume_task" ||
+                lastModifiedMessage?.ask === "resume_completed_task");
+            const isGenerating = explanationInfo.status === "generating" && !wasCancelled;
+            const isError = explanationInfo.status === "error";
             return (
               <div className="bg-code flex flex-col border border-editor-group-border rounded-sm py-2.5 px-3">
                 <div className="flex items-center">
@@ -1042,16 +1077,16 @@ export const ChatRowContent = memo(
                   )}
                   <span className="font-semibold">
                     {isGenerating
-                      ? 'Generating explanation'
+                      ? "Generating explanation"
                       : isError
-                        ? 'Failed to generate explanation'
+                        ? "Failed to generate explanation"
                         : wasCancelled
-                          ? 'Explanation cancelled'
-                          : 'Generated explanation'}
+                          ? "Explanation cancelled"
+                          : "Generated explanation"}
                   </span>
                 </div>
                 {isError && explanationInfo.error && (
-                  <div className="opacity-80 ml-6 mt-1.5 text-error break-words">
+                  <div className="opacity-80 ml-6 mt-1.5 text-error wrap-break-word">
                     {explanationInfo.error}
                   </div>
                 )}
@@ -1065,7 +1100,7 @@ export const ChatRowContent = memo(
                         </code>
                         <ArrowRightIcon className="inline size-2 mx-1" />
                         <code className="bg-quote rounded-sm py-0.5 px-1.5">
-                          {explanationInfo.toRef || 'working directory'}
+                          {explanationInfo.toRef || "working directory"}
                         </code>
                       </div>
                     )}
@@ -1074,7 +1109,7 @@ export const ChatRowContent = memo(
               </div>
             );
           }
-          case 'completion_result': {
+          case "completion_result": {
             const hasChanges = message.text?.endsWith(COMPLETION_RESULT_CHANGES_FLAG) ?? false;
             const text = hasChanges
               ? message.text?.slice(0, -COMPLETION_RESULT_CHANGES_FLAG.length)
@@ -1091,11 +1126,11 @@ export const ChatRowContent = memo(
                 setExplainChangesDisabled={setExplainChangesDisabled}
                 setSeeNewChangesDisabled={setSeeNewChangesDisabled}
                 showActionRow={message.partial !== true && hasChanges}
-                text={text || ''}
+                text={text || ""}
               />
             );
           }
-          case 'shell_integration_warning':
+          case "shell_integration_warning":
             return (
               <div className="flex flex-col bg-warning/20 p-2 rounded-xs border border-error">
                 <div className="flex items-center mb-1">
@@ -1103,9 +1138,9 @@ export const ChatRowContent = memo(
                   <span className="font-medium text-foreground">Shell Integration Unavailable</span>
                 </div>
                 <div className="text-foreground opacity-80">
-                  Cline may have trouble viewing the command's output. Please update VSCode (
+                  DietCode may have trouble viewing the command's output. Please update VSCode (
                   <code>CMD/CTRL + Shift + P</code> → "Update") and make sure you're using a
-                  supported shell: zsh, bash, fish, or PowerShell (<code>CMD/CTRL + Shift + P</code>{' '}
+                  supported shell: zsh, bash, fish, or PowerShell (<code>CMD/CTRL + Shift + P</code>{" "}
                   → "Terminal: Select Default Profile").
                   <a
                     className="px-1"
@@ -1116,9 +1151,9 @@ export const ChatRowContent = memo(
                 </div>
               </div>
             );
-          case 'error_retry':
+          case "error_retry":
             try {
-              const retryInfo = JSON.parse(message.text || '{}');
+              const retryInfo = JSON.parse(message.text || "{}");
               const { attempt, maxAttempts, delaySeconds, failed, errorMessage } = retryInfo;
               const isFailed = failed === true;
 
@@ -1129,7 +1164,7 @@ export const ChatRowContent = memo(
                       {errorMessage}
                     </p>
                   )}
-                  <div className="flex flex-col bg-quote p-0 rounded-[3px] text-[12px] p-3">
+                  <div className="flex flex-col bg-quote rounded-[3px] text-[12px] p-3">
                     <div className="flex items-center mb-1">
                       {isFailed && !isRequestInProgress ? (
                         <TriangleAlertIcon className="mr-2 size-2" />
@@ -1137,7 +1172,7 @@ export const ChatRowContent = memo(
                         <RefreshCwIcon className="mr-2 size-2 animate-spin" />
                       )}
                       <span className="font-medium text-foreground">
-                        {isFailed ? 'Auto-Retry Failed' : 'Auto-Retry in Progress'}
+                        {isFailed ? "Auto-Retry Failed" : "Auto-Retry in Progress"}
                       </span>
                     </div>
                     <div className="text-foreground opacity-80">
@@ -1164,12 +1199,12 @@ export const ChatRowContent = memo(
                 </div>
               );
             }
-          case 'hook_status':
+          case "hook_status":
             return <HookMessage CommandOutput={CommandOutputContent} message={message} />;
-          case 'hook_output_stream':
+          case "hook_output_stream":
             // hook_output_stream messages are combined with hook_status messages, so we don't render them separately
             return <InvisibleSpacer />;
-          case 'subagent':
+          case "subagent":
             return (
               <SubagentStatusRow
                 isLast={isLast}
@@ -1177,8 +1212,8 @@ export const ChatRowContent = memo(
                 message={message}
               />
             );
-          case 'shell_integration_warning_with_suggestion': {
-            const isBackgroundModeEnabled = vscodeTerminalExecutionMode === 'backgroundExec';
+          case "shell_integration_warning_with_suggestion": {
+            const isBackgroundModeEnabled = vscodeTerminalExecutionMode === "backgroundExec";
             return (
               <div className="p-2 bg-link/10 border border-link/30 rounded-xs">
                 <div className="flex items-center mb-1">
@@ -1191,9 +1226,9 @@ export const ChatRowContent = memo(
                 </div>
                 <button
                   className={cn(
-                    'bg-button-background text-button-foreground border-0 rounded-xs py-1.5 px-3 text-[12px] flex items-center gap-1.5 cursor-pointer hover:bg-button-hover',
+                    "bg-button-background text-button-foreground border-0 rounded-xs py-1.5 px-3 text-[12px] flex items-center gap-1.5 cursor-pointer hover:bg-button-hover",
                     {
-                      'cursor-default opacity-80 bg-success': isBackgroundModeEnabled,
+                      "cursor-default opacity-80 bg-success": isBackgroundModeEnabled,
                     },
                   )}
                   disabled={isBackgroundModeEnabled}
@@ -1204,19 +1239,19 @@ export const ChatRowContent = memo(
                         BooleanRequest.create({ value: true }),
                       );
                     } catch (error) {
-                      console.error('Failed to enable background terminal:', error);
+                      console.error("Failed to enable background terminal:", error);
                     }
                   }}
                 >
                   <SettingsIcon className="size-2" />
                   {isBackgroundModeEnabled
-                    ? 'Background Terminal Enabled'
-                    : 'Enable Background Terminal (Recommended)'}
+                    ? "Background Terminal Enabled"
+                    : "Enable Background Terminal (Recommended)"}
                 </button>
               </div>
             );
           }
-          case 'task_progress':
+          case "task_progress":
             return <InvisibleSpacer />; // task_progress messages should be displayed in TaskHeader only, not in chat
           default:
             return (
@@ -1233,11 +1268,11 @@ export const ChatRowContent = memo(
               </div>
             );
         }
-      case 'ask':
+      case "ask":
         switch (message.ask) {
-          case 'mistake_limit_reached':
+          case "mistake_limit_reached":
             return <ErrorRow errorType="mistake_limit_reached" message={message} />;
-          case 'completion_result':
+          case "completion_result":
             if (message.text) {
               const hasChanges = message.text.endsWith(COMPLETION_RESULT_CHANGES_FLAG) ?? false;
               const text = hasChanges
@@ -1254,18 +1289,18 @@ export const ChatRowContent = memo(
                   setExplainChangesDisabled={setExplainChangesDisabled}
                   setSeeNewChangesDisabled={setSeeNewChangesDisabled}
                   showActionRow={message.partial !== true && hasChanges}
-                  text={text || ''}
+                  text={text || ""}
                 />
               );
             }
             // Virtuoso cannot handle zero-height items; render a spacer instead of null
             return <InvisibleSpacer />;
-          case 'followup': {
+          case "followup": {
             let question: string | undefined;
             let options: string[] | undefined;
             let selected: string | undefined;
             try {
-              const parsedMessage = JSON.parse(message.text || '{}') as ClineAskQuestion;
+              const parsedMessage = JSON.parse(message.text || "{}") as ClineAskQuestion;
               question = parsedMessage.question;
               options = parsedMessage.options;
               selected = parsedMessage.selected;
@@ -1304,7 +1339,7 @@ export const ChatRowContent = memo(
                   <OptionsButtons
                     inputValue={inputValue}
                     isActive={
-                      (isLast && lastModifiedMessage?.ask === 'followup') ||
+                      (isLast && lastModifiedMessage?.ask === "followup") ||
                       (!selected && options && options.length > 0)
                     }
                     options={options}
@@ -1314,48 +1349,48 @@ export const ChatRowContent = memo(
               </div>
             );
           }
-          case 'new_task':
+          case "new_task":
             return (
               <div>
                 <div className={HEADER_CLASSNAMES}>
                   <FilePlus2Icon className="size-2" />
                   <span className="text-foreground font-bold">
-                    Cline wants to start a new task:
+                    DietCode wants to start a new task:
                   </span>
                 </div>
-                <NewTaskPreview context={message.text || ''} />
+                <NewTaskPreview context={message.text || ""} />
               </div>
             );
-          case 'condense':
+          case "condense":
             return (
               <div>
                 <div className={HEADER_CLASSNAMES}>
                   <FilePlus2Icon className="size-2" />
                   <span className="text-foreground font-bold">
-                    Cline wants to condense your conversation:
+                    DietCode wants to condense your conversation:
                   </span>
                 </div>
-                <NewTaskPreview context={message.text || ''} />
+                <NewTaskPreview context={message.text || ""} />
               </div>
             );
-          case 'report_bug':
+          case "report_bug":
             return (
               <div>
                 <div className={HEADER_CLASSNAMES}>
                   <FilePlus2Icon className="size-2" />
                   <span className="text-foreground font-bold">
-                    Cline wants to create a Github issue:
+                    DietCode wants to create a Github issue:
                   </span>
                 </div>
-                <ReportBugPreview data={message.text || ''} />
+                <ReportBugPreview data={message.text || ""} />
               </div>
             );
-          case 'plan_mode_respond': {
+          case "plan_mode_respond": {
             let response: string | undefined;
             let options: string[] | undefined;
             let selected: string | undefined;
             try {
-              const parsedMessage = JSON.parse(message.text || '{}') as ClinePlanModeResponse;
+              const parsedMessage = JSON.parse(message.text || "{}") as ClinePlanModeResponse;
               response = parsedMessage.response;
               options = parsedMessage.options;
               selected = parsedMessage.selected;
@@ -1367,12 +1402,12 @@ export const ChatRowContent = memo(
               <div>
                 <PlanCompletionOutputRow
                   headClassNames={HEADER_CLASSNAMES}
-                  text={response || message.text || ''}
+                  text={response || message.text || ""}
                 />
                 <OptionsButtons
                   inputValue={inputValue}
                   isActive={
-                    (isLast && lastModifiedMessage?.ask === 'plan_mode_respond') ||
+                    (isLast && lastModifiedMessage?.ask === "plan_mode_respond") ||
                     (!selected && options && options.length > 0)
                   }
                   options={options}

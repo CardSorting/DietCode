@@ -1,12 +1,12 @@
-import { CODE_BLOCK_BG_COLOR } from '@/components/common/CodeBlock';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { CheckpointsServiceClient } from '@/services/grpc-client';
-import { CheckpointRestoreRequest } from '@shared/nice-grpc/cline/checkpoints.ts';
-import { Int64Request } from '@shared/nice-grpc/cline/common.ts';
-import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
-import { useEffect, useRef, useState } from 'react';
-import { useClickAway } from 'react-use';
-import styled from 'styled-components';
+import { CODE_BLOCK_BG_COLOR } from "@/components/common/CodeBlock";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { CheckpointsServiceClient } from "@/services/grpc-client";
+import { CheckpointRestoreRequest } from "@shared/nice-grpc/cline/checkpoints.ts";
+import { Int64Request } from "@shared/nice-grpc/cline/common.ts";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { useEffect, useRef, useState } from "react";
+import { useClickAway } from "react-use";
+import styled from "styled-components";
 
 interface CheckpointOverlayProps {
   messageTs?: number;
@@ -47,11 +47,11 @@ export const CheckpointOverlay = ({ messageTs }: CheckpointOverlayProps) => {
       await CheckpointsServiceClient.checkpointRestore(
         CheckpointRestoreRequest.create({
           number: messageTs,
-          restoreType: 'task',
+          restoreType: "task",
         }),
       );
     } catch (err) {
-      console.error('Checkpoint restore task error:', err);
+      console.error("Checkpoint restore task error:", err);
       setRestoreTaskDisabled(false);
     }
   };
@@ -62,11 +62,11 @@ export const CheckpointOverlay = ({ messageTs }: CheckpointOverlayProps) => {
       await CheckpointsServiceClient.checkpointRestore(
         CheckpointRestoreRequest.create({
           number: messageTs,
-          restoreType: 'workspace',
+          restoreType: "workspace",
         }),
       );
     } catch (err) {
-      console.error('Checkpoint restore workspace error:', err);
+      console.error("Checkpoint restore workspace error:", err);
       setRestoreWorkspaceDisabled(false);
     }
   };
@@ -77,11 +77,11 @@ export const CheckpointOverlay = ({ messageTs }: CheckpointOverlayProps) => {
       await CheckpointsServiceClient.checkpointRestore(
         CheckpointRestoreRequest.create({
           number: messageTs,
-          restoreType: 'taskAndWorkspace',
+          restoreType: "taskAndWorkspace",
         }),
       );
     } catch (err) {
-      console.error('Checkpoint restore both error:', err);
+      console.error("Checkpoint restore both error:", err);
       setRestoreBothDisabled(false);
     }
   };
@@ -132,24 +132,24 @@ export const CheckpointOverlay = ({ messageTs }: CheckpointOverlayProps) => {
               }),
             );
           } catch (err) {
-            console.error('CheckpointDiff error:', err);
+            console.error("CheckpointDiff error:", err);
           } finally {
             setCompareDisabled(false);
           }
         }}
-        style={{ cursor: compareDisabled ? 'wait' : 'pointer' }}
+        style={{ cursor: compareDisabled ? "wait" : "pointer" }}
         title="Compare"
       >
-        <i className="codicon codicon-diff-multiple" style={{ position: 'absolute' }} />
+        <i className="codicon codicon-diff-multiple" style={{ position: "absolute" }} />
       </VSCodeButton>
-      <div ref={containerRef} style={{ position: 'relative' }}>
+      <div ref={containerRef} style={{ position: "relative" }}>
         <VSCodeButton
           appearance="secondary"
           onClick={() => setShowRestoreConfirm(true)}
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: "pointer" }}
           title="Restore"
         >
-          <i className="codicon codicon-discard" style={{ position: 'absolute' }} />
+          <i className="codicon codicon-discard" style={{ position: "absolute" }} />
         </VSCodeButton>
         {showRestoreConfirm && (
           <RestoreConfirmTooltip
@@ -162,7 +162,7 @@ export const CheckpointOverlay = ({ messageTs }: CheckpointOverlayProps) => {
                 disabled={restoreBothDisabled}
                 onClick={handleRestoreBoth}
                 style={{
-                  cursor: restoreBothDisabled ? 'wait' : 'pointer',
+                  cursor: restoreBothDisabled ? "wait" : "pointer",
                 }}
               >
                 Restore Task and Workspace
@@ -176,7 +176,7 @@ export const CheckpointOverlay = ({ messageTs }: CheckpointOverlayProps) => {
                 disabled={restoreTaskDisabled}
                 onClick={handleRestoreTask}
                 style={{
-                  cursor: restoreTaskDisabled ? 'wait' : 'pointer',
+                  cursor: restoreTaskDisabled ? "wait" : "pointer",
                 }}
               >
                 Restore Task Only
@@ -188,7 +188,7 @@ export const CheckpointOverlay = ({ messageTs }: CheckpointOverlayProps) => {
                 disabled={restoreWorkspaceDisabled}
                 onClick={handleRestoreWorkspace}
                 style={{
-                  cursor: restoreWorkspaceDisabled ? 'wait' : 'pointer',
+                  cursor: restoreWorkspaceDisabled ? "wait" : "pointer",
                 }}
               >
                 Restore Workspace Only

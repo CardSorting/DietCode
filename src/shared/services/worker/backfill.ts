@@ -6,15 +6,15 @@
  * configuration changes.
  */
 
-import * as fs from 'node:fs/promises';
+import * as fs from "node:fs/promises";
 import {
   GlobalFileNames,
   getSavedApiConversationHistory,
   getTaskHistoryStateFilePath,
-} from '@/core/storage/disk';
-import { Logger } from '@/shared/services/Logger';
-import { syncWorker } from './sync';
-import { getTaskTimestamp } from './utils';
+} from "@/core/storage/disk";
+import { Logger } from "@/shared/services/Logger";
+import { syncWorker } from "./sync";
+import { getTaskTimestamp } from "./utils";
 
 /**
  * Result of a backfill operation for a single task.
@@ -56,12 +56,12 @@ async function listTaskIds(before?: string, after?: string): Promise<string[]> {
   try {
     const historyFile = await getTaskHistoryStateFilePath();
     // Read the history file to get task json names
-    const data = await fs.readFile(historyFile, 'utf-8');
+    const data = await fs.readFile(historyFile, "utf-8");
     const history = JSON.parse(data) as { id: string }[];
     return (
       history
         ?.map((item) => item.id)
-        ?.filter((id) => typeof id === 'string')
+        ?.filter((id) => typeof id === "string")
         .filter((id) => {
           if (before && id >= before) {
             return false;
@@ -92,11 +92,11 @@ export async function backfillTask(taskId: string): Promise<BackfillTaskResult> 
   try {
     const queue = syncWorker().getSyncQueue();
     if (!queue) {
-      result.error = 'S3 storage not configured';
+      result.error = "S3 storage not configured";
       return result;
     }
     const existingItem = queue.getItem(taskId, GlobalFileNames.apiConversationHistory);
-    if (existingItem?.status === 'synced') {
+    if (existingItem?.status === "synced") {
       // Already synced, skip
       return result;
     }
@@ -105,7 +105,7 @@ export async function backfillTask(taskId: string): Promise<BackfillTaskResult> 
       queue.enqueue(taskId, GlobalFileNames.apiConversationHistory, JSON.stringify(data));
       result.filesQueued.push(taskId);
     } catch (err) {
-      if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
+      if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
         Logger.error(`Failed to queue ${taskId}:`, err);
       }
       // Skip missing files silently

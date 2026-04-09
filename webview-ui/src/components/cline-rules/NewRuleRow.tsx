@@ -1,14 +1,14 @@
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { FileServiceClient } from '@/services/grpc-client';
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { FileServiceClient } from "@/services/grpc-client";
 import {
   CreateHookRequest,
   CreateSkillRequest,
   RuleFileRequest,
-} from '@shared/nice-grpc/index.cline.ts';
-import { PlusIcon } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useClickAway } from 'react-use';
+} from "@shared/nice-grpc/index.cline.ts";
+import { PlusIcon } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useClickAway } from "react-use";
 
 interface NewRuleRowProps {
   isGlobal: boolean;
@@ -18,14 +18,14 @@ interface NewRuleRowProps {
 }
 
 const HOOK_TYPES = [
-  { name: 'TaskStart', description: 'Executes when a new task begins' },
-  { name: 'TaskResume', description: 'Executes when a task is resumed' },
-  { name: 'TaskCancel', description: 'Executes when a task is cancelled' },
-  { name: 'TaskComplete', description: 'Executes when a task completes' },
-  { name: 'PreToolUse', description: 'Executes before any tool is used' },
-  { name: 'PostToolUse', description: 'Executes after any tool is used' },
-  { name: 'UserPromptSubmit', description: 'Executes when user submits a prompt' },
-  { name: 'PreCompact', description: 'Executes before conversation compaction' },
+  { name: "TaskStart", description: "Executes when a new task begins" },
+  { name: "TaskResume", description: "Executes when a task is resumed" },
+  { name: "TaskCancel", description: "Executes when a task is cancelled" },
+  { name: "TaskComplete", description: "Executes when a task completes" },
+  { name: "PreToolUse", description: "Executes before any tool is used" },
+  { name: "PostToolUse", description: "Executes after any tool is used" },
+  { name: "UserPromptSubmit", description: "Executes when user submits a prompt" },
+  { name: "PreCompact", description: "Executes before conversation compaction" },
 ];
 
 const NewRuleRow: React.FC<NewRuleRowProps> = ({
@@ -35,7 +35,7 @@ const NewRuleRow: React.FC<NewRuleRowProps> = ({
   workspaceName,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [filename, setFilename] = useState('');
+  const [filename, setFilename] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,21 +57,21 @@ const NewRuleRow: React.FC<NewRuleRowProps> = ({
   useClickAway(componentRef, () => {
     if (isExpanded) {
       setIsExpanded(false);
-      setFilename('');
+      setFilename("");
       setError(null);
     }
   });
 
   const getExtension = (filename: string): string => {
-    if (filename.startsWith('.') && !filename.includes('.', 1)) {
-      return '';
+    if (filename.startsWith(".") && !filename.includes(".", 1)) {
+      return "";
     }
     const match = filename.match(/\.[^.]+$/);
-    return match ? match[0].toLowerCase() : '';
+    return match ? match[0].toLowerCase() : "";
   };
 
   const isValidExtension = (ext: string): boolean => {
-    return ext === '' || ext === '.md' || ext === '.txt';
+    return ext === "" || ext === ".md" || ext === ".txt";
   };
 
   const handleCreateHook = async (hookName: string) => {
@@ -86,7 +86,7 @@ const NewRuleRow: React.FC<NewRuleRowProps> = ({
         }),
       );
     } catch (err) {
-      console.error('Error creating hook:', err);
+      console.error("Error creating hook:", err);
     }
   };
 
@@ -97,10 +97,10 @@ const NewRuleRow: React.FC<NewRuleRowProps> = ({
       const trimmedFilename = filename.trim();
 
       // Skills use directory names, not file extensions
-      if (ruleType === 'skill') {
+      if (ruleType === "skill") {
         // Validate skill name - only allow alphanumeric, dashes, underscores
         if (!/^[a-zA-Z0-9_-]+$/.test(trimmedFilename)) {
-          setError('Skill name can only contain letters, numbers, dashes, and underscores');
+          setError("Skill name can only contain letters, numbers, dashes, and underscores");
           return;
         }
 
@@ -111,11 +111,11 @@ const NewRuleRow: React.FC<NewRuleRowProps> = ({
               isGlobal,
             }),
           );
-          setFilename('');
+          setFilename("");
           setError(null);
           setIsExpanded(false);
         } catch (err) {
-          setError(err instanceof Error ? err.message : 'Failed to create skill');
+          setError(err instanceof Error ? err.message : "Failed to create skill");
         }
         return;
       }
@@ -123,12 +123,12 @@ const NewRuleRow: React.FC<NewRuleRowProps> = ({
       const extension = getExtension(trimmedFilename);
 
       if (!isValidExtension(extension)) {
-        setError('Only .md, .txt, or no file extension allowed');
+        setError("Only .md, .txt, or no file extension allowed");
         return;
       }
 
       let finalFilename = trimmedFilename;
-      if (extension === '') {
+      if (extension === "") {
         finalFilename = `${trimmedFilename}.md`;
       }
 
@@ -137,52 +137,52 @@ const NewRuleRow: React.FC<NewRuleRowProps> = ({
           RuleFileRequest.create({
             isGlobal,
             filename: finalFilename,
-            type: ruleType || 'cline',
+            type: ruleType || "cline",
           }),
         );
       } catch (err) {
-        console.error('Error creating rule file:', err);
+        console.error("Error creating rule file:", err);
       }
 
-      setFilename('');
+      setFilename("");
       setError(null);
       setIsExpanded(false);
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       setIsExpanded(false);
-      setFilename('');
+      setFilename("");
     }
   };
 
   return (
     <>
       <div
-        className={cn('mb-2.5 transition-all duration-300 ease-in-out', {
-          'opacity-100': isExpanded,
-          'opacity-70 hover:opacity-100': !isExpanded,
+        className={cn("mb-2.5 transition-all duration-300 ease-in-out", {
+          "opacity-100": isExpanded,
+          "opacity-70 hover:opacity-100": !isExpanded,
         })}
-        onClick={() => !isExpanded && ruleType !== 'hook' && setIsExpanded(true)}
+        onClick={() => !isExpanded && ruleType !== "hook" && setIsExpanded(true)}
         ref={componentRef}
       >
         <div
           className={cn(
-            'flex items-center px-2 py-4 rounded bg-input-background transition-all duration-300 ease-in-out h-5',
+            "flex items-center px-2 py-4 rounded bg-input-background transition-all duration-300 ease-in-out h-5",
             {
-              'shadow-sm': isExpanded,
+              "shadow-sm": isExpanded,
             },
           )}
         >
-          {ruleType === 'hook' ? (
+          {ruleType === "hook" ? (
             <>
               <label className="sr-only" htmlFor="hook-type-select">
                 Select hook type to create
               </label>
               <span className="sr-only" id="hook-select-description">
                 Choose a hook type to create. Hooks execute at specific points in Cline's lifecycle.
-                Available: {availableHookTypes.map((h) => h.name).join(', ')}
+                Available: {availableHookTypes.map((h) => h.name).join(", ")}
               </span>
               <select
                 aria-describedby="hook-select-description"
@@ -194,21 +194,21 @@ const NewRuleRow: React.FC<NewRuleRowProps> = ({
                   if (e.target.value) {
                     handleCreateHook(e.target.value);
                     // Reset selection after creating
-                    e.target.value = '';
+                    e.target.value = "";
                   }
                 }}
                 style={{
-                  fontStyle: 'italic',
-                  appearance: 'none',
+                  fontStyle: "italic",
+                  appearance: "none",
                   backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23cccccc' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right 8px center',
-                  paddingRight: '24px',
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "right 8px center",
+                  paddingRight: "24px",
                 }}
                 value=""
               >
                 <option disabled value="">
-                  {availableHookTypes.length === 0 ? 'All hooks created' : 'New hook...'}
+                  {availableHookTypes.length === 0 ? "All hooks created" : "New hook..."}
                 </option>
                 {availableHookTypes.map((hook) => (
                   <option key={hook.name} title={hook.description} value={hook.name}>
@@ -221,7 +221,7 @@ const NewRuleRow: React.FC<NewRuleRowProps> = ({
             <form className="flex flex-1 items-center" onSubmit={handleSubmit}>
               <input
                 className={cn(
-                  'flex-1 bg-input-background text-input-foreground border-0 outline-0 rounded focus:outline-none focus:ring-0 focus:border-transparent',
+                  "flex-1 bg-input-background text-input-foreground border-0 outline-0 rounded focus:outline-none focus:ring-0 focus:border-transparent",
                   {
                     italic: !isExpanded,
                   },
@@ -229,33 +229,33 @@ const NewRuleRow: React.FC<NewRuleRowProps> = ({
                 onChange={(e) => setFilename(e.target.value)}
                 placeholder={
                   isExpanded
-                    ? ruleType === 'workflow'
-                      ? 'workflow-name (.md, .txt, or no extension)'
-                      : ruleType === 'skill'
-                        ? 'skill-name (letters, numbers, dashes, underscores)'
-                        : 'rule-name (.md, .txt, or no extension)'
-                    : ruleType === 'workflow'
-                      ? 'New workflow file...'
-                      : ruleType === 'skill'
-                        ? 'New skill...'
-                        : 'New rule file...'
+                    ? ruleType === "workflow"
+                      ? "workflow-name (.md, .txt, or no extension)"
+                      : ruleType === "skill"
+                        ? "skill-name (letters, numbers, dashes, underscores)"
+                        : "rule-name (.md, .txt, or no extension)"
+                    : ruleType === "workflow"
+                      ? "New workflow file..."
+                      : ruleType === "skill"
+                        ? "New skill..."
+                        : "New rule file..."
                 }
                 ref={inputRef}
                 type="text"
-                value={isExpanded ? filename : ''}
+                value={isExpanded ? filename : ""}
               />
 
               <Button
                 aria-label={
                   isExpanded
-                    ? ruleType === 'skill'
-                      ? 'Create skill'
-                      : 'Create file'
-                    : ruleType === 'workflow'
-                      ? 'New workflow file...'
-                      : ruleType === 'skill'
-                        ? 'New skill...'
-                        : 'New rule file...'
+                    ? ruleType === "skill"
+                      ? "Create skill"
+                      : "Create file"
+                    : ruleType === "workflow"
+                      ? "New workflow file..."
+                      : ruleType === "skill"
+                        ? "New skill..."
+                        : "New rule file..."
                 }
                 className="mx-0.5"
                 onClick={(e) => {
@@ -266,9 +266,9 @@ const NewRuleRow: React.FC<NewRuleRowProps> = ({
                 }}
                 size="icon"
                 title={
-                  isExpanded ? (ruleType === 'skill' ? 'Create skill' : 'Create file') : 'New file'
+                  isExpanded ? (ruleType === "skill" ? "Create skill" : "Create file") : "New file"
                 }
-                type={isExpanded ? 'submit' : 'button'}
+                type={isExpanded ? "submit" : "button"}
                 variant="icon"
               >
                 <PlusIcon />

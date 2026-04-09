@@ -1,33 +1,33 @@
-import * as fs from 'node:fs/promises';
-import * as os from 'node:os';
-import * as path from 'node:path';
-import { Logger } from '@/shared/services/Logger';
-import { workspaceResolver } from '@core/workspace';
-import { isDirectory } from '@utils/fs';
-import { arePathsEqual } from '@utils/path';
-import { type Options, globby } from 'globby';
+import * as fs from "node:fs/promises";
+import * as os from "node:os";
+import * as path from "node:path";
+import { Logger } from "@/shared/services/Logger";
+import { workspaceResolver } from "@core/workspace";
+import { isDirectory } from "@utils/fs";
+import { arePathsEqual } from "@utils/path";
+import { type Options, globby } from "globby";
 
 // Constants
 const DEFAULT_IGNORE_DIRECTORIES = [
-  'node_modules',
-  '__pycache__',
-  'env',
-  'venv',
-  'target/dependency',
-  'build/dependencies',
-  'dist',
-  'out',
-  'bundle',
-  'vendor',
-  'tmp',
-  'temp',
-  'deps',
-  'Pods',
+  "node_modules",
+  "__pycache__",
+  "env",
+  "venv",
+  "target/dependency",
+  "build/dependencies",
+  "dist",
+  "out",
+  "bundle",
+  "vendor",
+  "tmp",
+  "temp",
+  "deps",
+  "Pods",
 ];
 
 // Helper functions
 function isRestrictedPath(absolutePath: string): boolean {
-  const root = process.platform === 'win32' ? path.parse(absolutePath).root : '/';
+  const root = process.platform === "win32" ? path.parse(absolutePath).root : "/";
   const isRoot = arePathsEqual(absolutePath, root);
   if (isRoot) {
     return true;
@@ -45,9 +45,9 @@ function isRestrictedPath(absolutePath: string): boolean {
 function isTargetingHiddenDirectory(absolutePath: string): boolean {
   const dirName = workspaceResolver.getBasename(
     absolutePath,
-    'Services.glob.isTargetingHiddenDirectory',
+    "Services.glob.isTargetingHiddenDirectory",
   );
-  return dirName.startsWith('.');
+  return dirName.startsWith(".");
 }
 
 /**
@@ -64,23 +64,23 @@ function isTargetingHiddenDirectory(absolutePath: string): boolean {
  */
 async function readGitignorePatterns(dirPath: string): Promise<string[]> {
   try {
-    const gitignorePath = path.join(dirPath, '.gitignore');
-    const content = await fs.readFile(gitignorePath, 'utf8');
+    const gitignorePath = path.join(dirPath, ".gitignore");
+    const content = await fs.readFile(gitignorePath, "utf8");
     const patterns: string[] = [];
 
-    for (const line of content.split('\n')) {
+    for (const line of content.split("\n")) {
       const trimmed = line.trim();
       // Skip empty lines and comments
-      if (!trimmed || trimmed.startsWith('#')) {
+      if (!trimmed || trimmed.startsWith("#")) {
         continue;
       }
       // Skip negation patterns - they're complex to convert and rarely
       // critical for the directory listing use case
-      if (trimmed.startsWith('!')) {
+      if (trimmed.startsWith("!")) {
         continue;
       }
       // Convert gitignore patterns to glob ignore patterns
-      if (trimmed.endsWith('/')) {
+      if (trimmed.endsWith("/")) {
         // Directory pattern: "ignored-dir/" → match the directory itself and its contents.
         // Two explicit patterns avoid ambiguity across glob library versions:
         const dirName = trimmed.slice(0, -1);
@@ -106,7 +106,7 @@ async function buildIgnorePatterns(absolutePath: string): Promise<string[]> {
 
   // Only ignore hidden directories if we're not explicitly targeting a hidden directory
   if (!isTargetHidden) {
-    patterns.push('.*');
+    patterns.push(".*");
   }
 
   const globPatterns = patterns.map((dir) => `**/${dir}/**`);
@@ -127,11 +127,11 @@ export async function listFiles(
 ): Promise<[string[], boolean]> {
   const absolutePathResult = workspaceResolver.resolveWorkspacePath(
     dirPath,
-    '',
-    'Services.glob.listFiles',
+    "",
+    "Services.glob.listFiles",
   );
   const absolutePath =
-    typeof absolutePathResult === 'string' ? absolutePathResult : absolutePathResult.absolutePath;
+    typeof absolutePathResult === "string" ? absolutePathResult : absolutePathResult.absolutePath;
 
   // Do not allow listing files in root or home directory
   if (isRestrictedPath(absolutePath)) {
@@ -156,7 +156,7 @@ export async function listFiles(
 
   const filePaths = recursive
     ? await globbyLevelByLevel(limit, options)
-    : (await globby('*', options)).slice(0, limit);
+    : (await globby("*", options)).slice(0, limit);
 
   return [filePaths, filePaths.length >= limit];
 }
@@ -178,7 +178,7 @@ Breadth-first traversal of directory structure level by level up to a limit:
 */
 async function globbyLevelByLevel(limit: number, options?: Options) {
   const results: Set<string> = new Set();
-  const queue: string[] = ['*'];
+  const queue: string[] = ["*"];
   // Track all ignore patterns, starting with whatever was passed in options.
   // We'll add patterns from .gitignore files as we discover non-ignored directories.
   const currentIgnore: string[] = [...((options?.ignore as string[]) ?? [])];
@@ -195,7 +195,7 @@ async function globbyLevelByLevel(limit: number, options?: Options) {
           break;
         }
         results.add(file);
-        if (file.endsWith('/')) {
+        if (file.endsWith("/")) {
           // This directory passed the ignore filters, so it's not gitignored.
           // Read its .gitignore (if any) and add patterns to the ignore list
           // so deeper traversal respects them.
@@ -208,15 +208,15 @@ async function globbyLevelByLevel(limit: number, options?: Options) {
           // are checked against relative entry paths, not absolute ones. Using absolute
           // patterns causes false matches when the project is under a directory whose
           // name collides with DEFAULT_IGNORE_DIRECTORIES (e.g., /tmp on Linux).
-          const cwd = options?.cwd?.toString() ?? '';
+          const cwd = options?.cwd?.toString() ?? "";
           const relativeDir = path.relative(cwd, file);
           // Escape backslashes and parentheses in the path to prevent glob pattern interpretation.
           // This is crucial for NextJS folder naming conventions which use parentheses like (auth), (dashboard).
           // Without escaping, glob treats backslashes as escapes and parentheses as special pattern grouping characters.
           const escapedDir = relativeDir
-            .replace(/\\/g, '\\\\')
-            .replace(/\(/g, '\\(')
-            .replace(/\)/g, '\\)');
+            .replace(/\\/g, "\\\\")
+            .replace(/\(/g, "\\(")
+            .replace(/\)/g, "\\)");
           queue.push(`${escapedDir}/*`);
         }
       }
@@ -226,12 +226,12 @@ async function globbyLevelByLevel(limit: number, options?: Options) {
 
   // Timeout after 10 seconds and return partial results
   const timeoutPromise = new Promise<string[]>((_, reject) => {
-    setTimeout(() => reject(new Error('Globbing timeout')), 10_000);
+    setTimeout(() => reject(new Error("Globbing timeout")), 10_000);
   });
   try {
     return await Promise.race([globbingProcess(), timeoutPromise]);
   } catch (_error) {
-    Logger.warn('Globbing timed out, returning partial results');
+    Logger.warn("Globbing timed out, returning partial results");
     return Array.from(results);
   }
 }

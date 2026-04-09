@@ -1,78 +1,78 @@
-import { FileServiceClient } from '@/services/grpc-client';
-import { useDebounceEffect } from '@/utils/useDebounceEffect';
-import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
-import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
-import mermaid from 'mermaid';
-import { useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
+import { FileServiceClient } from "@/services/grpc-client";
+import { useDebounceEffect } from "@/utils/useDebounceEffect";
+import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import mermaid from "mermaid";
+import { useEffect, useRef, useState } from "react";
+import styled from "styled-components";
 
 const MERMAID_THEME = {
-  background: '#1e1e1e', // VS Code dark theme background
-  textColor: '#ffffff', // Main text color
-  mainBkg: '#2d2d2d', // Background for nodes
-  nodeBorder: '#888888', // Border color for nodes
-  lineColor: '#cccccc', // Lines connecting nodes
-  primaryColor: '#3c3c3c', // Primary color for highlights
-  primaryTextColor: '#ffffff', // Text in primary colored elements
-  primaryBorderColor: '#888888',
-  secondaryColor: '#2d2d2d', // Secondary color for alternate elements
-  tertiaryColor: '#454545', // Third color for special elements
+  background: "#1e1e1e", // VS Code dark theme background
+  textColor: "#ffffff", // Main text color
+  mainBkg: "#2d2d2d", // Background for nodes
+  nodeBorder: "#888888", // Border color for nodes
+  lineColor: "#cccccc", // Lines connecting nodes
+  primaryColor: "#3c3c3c", // Primary color for highlights
+  primaryTextColor: "#ffffff", // Text in primary colored elements
+  primaryBorderColor: "#888888",
+  secondaryColor: "#2d2d2d", // Secondary color for alternate elements
+  tertiaryColor: "#454545", // Third color for special elements
 
   // Class diagram specific
-  classText: '#ffffff',
+  classText: "#ffffff",
 
   // State diagram specific
-  labelColor: '#ffffff',
+  labelColor: "#ffffff",
 
   // Sequence diagram specific
-  actorLineColor: '#cccccc',
-  actorBkg: '#2d2d2d',
-  actorBorder: '#888888',
-  actorTextColor: '#ffffff',
+  actorLineColor: "#cccccc",
+  actorBkg: "#2d2d2d",
+  actorBorder: "#888888",
+  actorTextColor: "#ffffff",
 
   // Flow diagram specific
-  fillType0: '#2d2d2d',
-  fillType1: '#3c3c3c',
-  fillType2: '#454545',
+  fillType0: "#2d2d2d",
+  fillType1: "#3c3c3c",
+  fillType2: "#454545",
 };
 
 mermaid.initialize({
   startOnLoad: false,
-  securityLevel: 'loose',
-  theme: 'dark',
+  securityLevel: "loose",
+  theme: "dark",
   themeVariables: {
     ...MERMAID_THEME,
-    fontSize: '16px',
+    fontSize: "16px",
     fontFamily: "var(--vscode-font-family, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif)",
 
     // Additional styling
-    noteTextColor: '#ffffff',
-    noteBkgColor: '#454545',
-    noteBorderColor: '#888888',
+    noteTextColor: "#ffffff",
+    noteBkgColor: "#454545",
+    noteBorderColor: "#888888",
 
     // Improve contrast for special elements
-    critBorderColor: '#ff9580',
-    critBkgColor: '#803d36',
+    critBorderColor: "#ff9580",
+    critBkgColor: "#803d36",
 
     // Task diagram specific
-    taskTextColor: '#ffffff',
-    taskTextOutsideColor: '#ffffff',
-    taskTextLightColor: '#ffffff',
+    taskTextColor: "#ffffff",
+    taskTextOutsideColor: "#ffffff",
+    taskTextLightColor: "#ffffff",
 
     // Numbers/sections
-    sectionBkgColor: '#2d2d2d',
-    sectionBkgColor2: '#3c3c3c',
+    sectionBkgColor: "#2d2d2d",
+    sectionBkgColor2: "#3c3c3c",
 
     // Alt sections in sequence diagrams
-    altBackground: '#2d2d2d',
+    altBackground: "#2d2d2d",
 
     // Links
-    linkColor: '#6cb6ff',
+    linkColor: "#6cb6ff",
 
     // Borders and lines
-    compositeBackground: '#2d2d2d',
-    compositeBorder: '#888888',
-    titleColor: '#ffffff',
+    compositeBackground: "#2d2d2d",
+    compositeBorder: "#888888",
+    titleColor: "#ffffff",
   },
 });
 
@@ -93,13 +93,13 @@ export default function MermaidBlock({ code }: MermaidBlockProps) {
   useDebounceEffect(
     () => {
       if (containerRef.current) {
-        containerRef.current.innerHTML = '';
+        containerRef.current.innerHTML = "";
       }
       mermaid
         .parse(code, { suppressErrors: true })
         .then((isValid) => {
           if (!isValid) {
-            throw new Error('Invalid or incomplete Mermaid code');
+            throw new Error("Invalid or incomplete Mermaid code");
           }
           const id = `mermaid-${Math.random().toString(36).substring(2)}`;
           return mermaid.render(id, code);
@@ -110,8 +110,8 @@ export default function MermaidBlock({ code }: MermaidBlockProps) {
           }
         })
         .catch((err) => {
-          console.warn('Mermaid parse/render failed:', err);
-          containerRef.current!.innerHTML = code.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          console.warn("Mermaid parse/render failed:", err);
+          containerRef.current!.innerHTML = code.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         })
         .finally(() => {
           setIsLoading(false);
@@ -129,7 +129,7 @@ export default function MermaidBlock({ code }: MermaidBlockProps) {
     if (!containerRef.current) {
       return;
     }
-    const svgEl = containerRef.current.querySelector('svg');
+    const svgEl = containerRef.current.querySelector("svg");
     if (!svgEl) {
       return;
     }
@@ -137,10 +137,10 @@ export default function MermaidBlock({ code }: MermaidBlockProps) {
     try {
       const pngDataUrl = await svgToPng(svgEl);
       FileServiceClient.openImage(StringRequest.create({ value: pngDataUrl })).catch((err) =>
-        console.error('Failed to open image:', err),
+        console.error("Failed to open image:", err),
       );
     } catch (err) {
-      console.error('Error converting SVG to PNG:', err);
+      console.error("Error converting SVG to PNG:", err);
     }
   };
 
@@ -148,7 +148,7 @@ export default function MermaidBlock({ code }: MermaidBlockProps) {
     try {
       await navigator.clipboard.writeText(code);
     } catch (err) {
-      console.error('Copy failed', err);
+      console.error("Copy failed", err);
     }
   };
 
@@ -166,12 +166,12 @@ export default function MermaidBlock({ code }: MermaidBlockProps) {
 }
 
 async function svgToPng(svgEl: SVGElement): Promise<string> {
-  console.log('svgToPng function called');
+  console.log("svgToPng function called");
   // Clone the SVG to avoid modifying the original
   const svgClone = svgEl.cloneNode(true) as SVGElement;
 
   // Get the original viewBox
-  const viewBox = svgClone.getAttribute('viewBox')?.split(' ').map(Number) || [];
+  const viewBox = svgClone.getAttribute("viewBox")?.split(" ").map(Number) || [];
   const originalWidth = viewBox[2] || svgClone.clientWidth;
   const originalHeight = viewBox[3] || svgClone.clientHeight;
 
@@ -185,26 +185,26 @@ async function svgToPng(svgEl: SVGElement): Promise<string> {
   const scaledHeight = originalHeight * scale;
 
   // Update SVG dimensions
-  svgClone.setAttribute('width', `${editorWidth}`);
-  svgClone.setAttribute('height', `${scaledHeight}`);
+  svgClone.setAttribute("width", `${editorWidth}`);
+  svgClone.setAttribute("height", `${scaledHeight}`);
 
   const serializer = new XMLSerializer();
   const svgString = serializer.serializeToString(svgClone);
   const encoder = new TextEncoder();
   const bytes = encoder.encode(svgString);
-  const base64 = btoa(Array.from(bytes, (byte) => String.fromCharCode(byte)).join(''));
+  const base64 = btoa(Array.from(bytes, (byte) => String.fromCharCode(byte)).join(""));
   const svgDataUrl = `data:image/svg+xml;base64,${base64}`;
 
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
-      const canvas = document.createElement('canvas');
+      const canvas = document.createElement("canvas");
       canvas.width = editorWidth;
       canvas.height = scaledHeight;
 
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext("2d");
       if (!ctx) {
-        return reject('Canvas context not available');
+        return reject("Canvas context not available");
       }
 
       // Fill background with Mermaid's dark theme background color
@@ -212,10 +212,10 @@ async function svgToPng(svgEl: SVGElement): Promise<string> {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
+      ctx.imageSmoothingQuality = "high";
 
       ctx.drawImage(img, 0, 0, editorWidth, scaledHeight);
-      resolve(canvas.toDataURL('image/png', 1.0));
+      resolve(canvas.toDataURL("image/png", 1.0));
     };
     img.onerror = reject;
     img.src = svgDataUrl;

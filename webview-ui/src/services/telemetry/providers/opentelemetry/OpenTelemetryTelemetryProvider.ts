@@ -1,19 +1,19 @@
-import { StateManager } from '@/core/storage/StateManager';
-import { HostProvider } from '@/hosts/host-provider';
-import { getErrorLevelFromString } from '@/services/error';
-import { getDistinctId, setDistinctId } from '@/services/logging/distinctId';
-import { Setting } from '@/shared/proto/index.host';
-import { Logger } from '@/shared/services/Logger';
-import type { Meter } from '@opentelemetry/api';
-import type { Logger as OTELLogger } from '@opentelemetry/api-logs';
-import type { LoggerProvider } from '@opentelemetry/sdk-logs';
-import type { MeterProvider } from '@opentelemetry/sdk-metrics';
-import type { ClineAccountUserInfo } from '../../../auth/AuthService';
+import { StateManager } from "@/core/storage/StateManager";
+import { HostProvider } from "@/hosts/host-provider";
+import { getErrorLevelFromString } from "@/services/error";
+import { getDistinctId, setDistinctId } from "@/services/logging/distinctId";
+import { Setting } from "@/shared/proto/index.host";
+import { Logger } from "@/shared/services/Logger";
+import type { Meter } from "@opentelemetry/api";
+import type { Logger as OTELLogger } from "@opentelemetry/api-logs";
+import type { LoggerProvider } from "@opentelemetry/sdk-logs";
+import type { MeterProvider } from "@opentelemetry/sdk-metrics";
+import type { ClineAccountUserInfo } from "../../../auth/AuthService";
 import type {
   ITelemetryProvider,
   TelemetryProperties,
   TelemetrySettings,
-} from '../ITelemetryProvider';
+} from "../ITelemetryProvider";
 
 /**
  * OpenTelemetry implementation of the telemetry provider interface.
@@ -25,9 +25,9 @@ export class OpenTelemetryTelemetryProvider implements ITelemetryProvider {
   private telemetrySettings: TelemetrySettings;
   private userAttributes: Record<string, string> = {};
   // Lazy instrument caches for metrics
-  private counters = new Map<string, ReturnType<Meter['createCounter']>>();
-  private histograms = new Map<string, ReturnType<Meter['createHistogram']>>();
-  private gauges = new Map<string, ReturnType<Meter['createObservableGauge']>>();
+  private counters = new Map<string, ReturnType<Meter["createCounter"]>>();
+  private histograms = new Map<string, ReturnType<Meter["createHistogram"]>>();
+  private gauges = new Map<string, ReturnType<Meter["createObservableGauge"]>>();
   private gaugeValues = new Map<
     string,
     Map<string, { value: number; attributes?: TelemetryProperties }>
@@ -44,22 +44,22 @@ export class OpenTelemetryTelemetryProvider implements ITelemetryProvider {
     loggerProvider: LoggerProvider | null,
     { name, bypassUserSettings }: { name?: string; bypassUserSettings: boolean },
   ) {
-    this.name = name || 'OpenTelemetryProvider';
+    this.name = name || "OpenTelemetryProvider";
     this.bypassUserSettings = bypassUserSettings;
 
     // Initialize telemetry settings
     this.telemetrySettings = {
       hostEnabled: true,
-      level: 'all',
+      level: "all",
     };
 
     if (meterProvider) {
-      this.meter = meterProvider.getMeter('cline');
+      this.meter = meterProvider.getMeter("cline");
       this.meterProvider = meterProvider;
     }
 
     if (loggerProvider) {
-      this.logger = loggerProvider.getLogger('cline');
+      this.logger = loggerProvider.getLogger("cline");
       this.loggerProvider = loggerProvider;
     }
 
@@ -103,13 +103,13 @@ export class OpenTelemetryTelemetryProvider implements ITelemetryProvider {
   }
 
   public log(event: string, properties?: TelemetryProperties): void {
-    if (!this.isEnabled() || this.telemetrySettings.level === 'off') {
+    if (!this.isEnabled() || this.telemetrySettings.level === "off") {
       return;
     }
 
     // Filter events based on telemetry level
-    if (this.telemetrySettings.level === 'error') {
-      if (!event.includes('error')) {
+    if (this.telemetrySettings.level === "error") {
+      if (!event.includes("error")) {
         return;
       }
     }
@@ -117,7 +117,7 @@ export class OpenTelemetryTelemetryProvider implements ITelemetryProvider {
     // Record log event (primary path)
     if (this.logger) {
       this.logger.emit({
-        severityText: 'INFO',
+        severityText: "INFO",
         body: event,
         attributes: {
           distinct_id: getDistinctId(),
@@ -132,7 +132,7 @@ export class OpenTelemetryTelemetryProvider implements ITelemetryProvider {
     // Required events always go through regardless of settings
     if (this.logger) {
       this.logger.emit({
-        severityText: 'INFO',
+        severityText: "INFO",
         body: event,
         attributes: {
           distinct_id: getDistinctId(),
@@ -161,8 +161,8 @@ export class OpenTelemetryTelemetryProvider implements ITelemetryProvider {
     if (userInfo.id !== distinctId) {
       if (this.logger) {
         this.logger.emit({
-          severityText: 'INFO',
-          body: 'user_identified',
+          severityText: "INFO",
+          body: "user_identified",
           attributes: {
             ...this.userAttributes,
             alias: distinctId,
@@ -187,13 +187,13 @@ export class OpenTelemetryTelemetryProvider implements ITelemetryProvider {
 
     return {
       user_id: userInfo.id,
-      user_name: userInfo.displayName || '',
+      user_name: userInfo.displayName || "",
 
       ...(activeOrg && {
         organization_id: activeOrg.organizationId,
         organization_name: activeOrg.name,
         member_id: activeOrg.memberId,
-        member_role: activeOrg.roles[0] || 'member',
+        member_role: activeOrg.roles[0] || "member",
       }),
       ...this.flattenProperties(properties),
     };
@@ -202,7 +202,7 @@ export class OpenTelemetryTelemetryProvider implements ITelemetryProvider {
   public isEnabled(): boolean {
     return (
       this.bypassUserSettings ||
-      (StateManager.get().getGlobalSettingsKey('telemetrySetting') !== 'disabled' &&
+      (StateManager.get().getGlobalSettingsKey("telemetrySetting") !== "disabled" &&
         this.telemetrySettings.hostEnabled)
     );
   }
@@ -278,7 +278,7 @@ export class OpenTelemetryTelemetryProvider implements ITelemetryProvider {
       return;
     }
 
-    const attrKey = attributes ? JSON.stringify(attributes) : '';
+    const attrKey = attributes ? JSON.stringify(attributes) : "";
 
     const existingSeries = this.gaugeValues.get(name);
 
@@ -345,14 +345,14 @@ export class OpenTelemetryTelemetryProvider implements ITelemetryProvider {
   /**
    * Get the current telemetry level from VS Code settings
    */
-  private async getTelemetryLevel(): Promise<TelemetrySettings['level']> {
+  private async getTelemetryLevel(): Promise<TelemetrySettings["level"]> {
     if (this.bypassUserSettings) {
-      return 'all';
+      return "all";
     }
 
     const hostSettings = await HostProvider.env.getTelemetrySettings({});
     if (hostSettings.isEnabled === Setting.DISABLED) {
-      return 'off';
+      return "off";
     }
     return getErrorLevelFromString(hostSettings.errorLevel);
   }
@@ -365,7 +365,7 @@ export class OpenTelemetryTelemetryProvider implements ITelemetryProvider {
    */
   private flattenProperties(
     properties?: TelemetryProperties,
-    prefix = '',
+    prefix = "",
     seen: WeakSet<object> = new WeakSet(),
     depth = 0,
   ): Record<string, string | number | boolean> {
@@ -379,7 +379,7 @@ export class OpenTelemetryTelemetryProvider implements ITelemetryProvider {
 
     for (const [key, value] of Object.entries(properties)) {
       // Skip prototype pollution vectors
-      if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+      if (key === "__proto__" || key === "constructor" || key === "prototype") {
         continue;
       }
 
@@ -393,13 +393,13 @@ export class OpenTelemetryTelemetryProvider implements ITelemetryProvider {
         try {
           flattened[fullKey] = JSON.stringify(limited);
         } catch {
-          flattened[fullKey] = '[UnserializableArray]';
+          flattened[fullKey] = "[UnserializableArray]";
         }
         if (value.length > MAX_ARRAY_SIZE) {
           flattened[`${fullKey}_truncated`] = true;
           flattened[`${fullKey}_original_length`] = value.length;
         }
-      } else if (typeof value === 'object') {
+      } else if (typeof value === "object") {
         // Handle special objects
         if (value instanceof Date) {
           flattened[fullKey] = value.toISOString();
@@ -412,12 +412,12 @@ export class OpenTelemetryTelemetryProvider implements ITelemetryProvider {
 
         // Check for circular references
         if (seen.has(value as object)) {
-          flattened[fullKey] = '[Circular]';
+          flattened[fullKey] = "[Circular]";
           continue;
         }
         // Depth guard
         if (depth >= MAX_DEPTH) {
-          flattened[fullKey] = '[MaxDepthExceeded]';
+          flattened[fullKey] = "[MaxDepthExceeded]";
           continue;
         }
 
@@ -427,9 +427,9 @@ export class OpenTelemetryTelemetryProvider implements ITelemetryProvider {
           this.flattenProperties(value as TelemetryProperties, fullKey, seen, depth + 1),
         );
       } else if (
-        typeof value === 'string' ||
-        typeof value === 'number' ||
-        typeof value === 'boolean'
+        typeof value === "string" ||
+        typeof value === "number" ||
+        typeof value === "boolean"
       ) {
         flattened[fullKey] = value;
       } else {

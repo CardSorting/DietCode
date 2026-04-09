@@ -1,13 +1,13 @@
-import { basetenDefaultModelId, basetenModels } from '@shared/api.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { VSCodeLink, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
-import Fuse from 'fuse.js';
-import React, { type KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react';
-import { useExtensionState } from '../../context/ExtensionStateContext';
-import { highlight } from '../history/HistoryView';
-import { ModelInfoView } from './common/ModelInfoView';
-import { getModeSpecificFields, normalizeApiConfiguration } from './utils/providerUtils';
-import { useApiConfigurationHandlers } from './utils/useApiConfigurationHandlers';
+import { basetenDefaultModelId, basetenModels } from "@shared/api.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { VSCodeLink, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import Fuse from "fuse.js";
+import React, { type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
+import { useExtensionState } from "../../context/ExtensionStateContext";
+import { highlight } from "../history/HistoryView";
+import { ModelInfoView } from "./common/ModelInfoView";
+import { getModeSpecificFields, normalizeApiConfiguration } from "./utils/providerUtils";
+import { useApiConfigurationHandlers } from "./utils/useApiConfigurationHandlers";
 
 export interface BasetenModelPickerProps {
   isPopup?: boolean;
@@ -33,8 +33,8 @@ const BasetenModelPicker: React.FC<BasetenModelPickerProps> = ({ isPopup, curren
 
     handleModeFieldsChange(
       {
-        basetenModelId: { plan: 'planModeBasetenModelId', act: 'actModeBasetenModelId' },
-        basetenModelInfo: { plan: 'planModeBasetenModelInfo', act: 'actModeBasetenModelInfo' },
+        basetenModelId: { plan: "planModeBasetenModelId", act: "actModeBasetenModelId" },
+        basetenModelInfo: { plan: "planModeBasetenModelInfo", act: "actModeBasetenModelInfo" },
       },
       {
         basetenModelId: newModelId,
@@ -73,9 +73,9 @@ const BasetenModelPicker: React.FC<BasetenModelPickerProps> = ({ isPopup, curren
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -97,7 +97,7 @@ const BasetenModelPicker: React.FC<BasetenModelPickerProps> = ({ isPopup, curren
 
   const fuse = useMemo(() => {
     return new Fuse(searchableItems, {
-      keys: ['html'], // highlight function will update this
+      keys: ["html"], // highlight function will update this
       threshold: 0.6,
       shouldSort: true,
       isCaseSensitive: false,
@@ -109,7 +109,7 @@ const BasetenModelPicker: React.FC<BasetenModelPickerProps> = ({ isPopup, curren
 
   const modelSearchResults = useMemo(() => {
     const results: { id: string; html: string }[] = debouncedSearchTerm
-      ? highlight(fuse.search(debouncedSearchTerm), 'model-item-highlight')
+      ? highlight(fuse.search(debouncedSearchTerm), "model-item-highlight")
       : searchableItems;
     return results;
   }, [searchableItems, debouncedSearchTerm, fuse]);
@@ -123,7 +123,7 @@ const BasetenModelPicker: React.FC<BasetenModelPickerProps> = ({ isPopup, curren
       .map((part) => {
         if (part.startsWith('<span class="model-item-highlight">')) {
           // Extract text content from span
-          const text = part.replace(/<span class="model-item-highlight">(.*?)<\/span>/, '$1');
+          const text = part.replace(/<span class="model-item-highlight">(.*?)<\/span>/, "$1");
           return (
             <span className="model-item-highlight" key={`highlight-${text}`}>
               {text}
@@ -133,7 +133,7 @@ const BasetenModelPicker: React.FC<BasetenModelPickerProps> = ({ isPopup, curren
         // Return plain text without wrapping in span
         return part || null;
       })
-      .filter((part) => part !== null && part !== '');
+      .filter((part) => part !== null && part !== "");
   }, []);
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -142,22 +142,22 @@ const BasetenModelPicker: React.FC<BasetenModelPickerProps> = ({ isPopup, curren
     }
 
     switch (event.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         event.preventDefault();
         setSelectedIndex((prev) => (prev < modelSearchResults.length - 1 ? prev + 1 : prev));
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         event.preventDefault();
         setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
         break;
-      case 'Enter':
+      case "Enter":
         event.preventDefault();
         if (selectedIndex >= 0 && selectedIndex < modelSearchResults.length) {
           handleModelChange(modelSearchResults[selectedIndex].id);
           setIsDropdownVisible(false);
         }
         break;
-      case 'Escape':
+      case "Escape":
         setIsDropdownVisible(false);
         setSelectedIndex(-1);
         break;
@@ -178,8 +178,8 @@ const BasetenModelPicker: React.FC<BasetenModelPickerProps> = ({ isPopup, curren
   useEffect(() => {
     if (selectedIndex >= 0 && itemRefs.current[selectedIndex]) {
       itemRefs.current[selectedIndex]?.scrollIntoView({
-        block: 'nearest',
-        behavior: 'smooth',
+        block: "nearest",
+        behavior: "smooth",
       });
     }
   }, [selectedIndex]);
@@ -203,16 +203,16 @@ const BasetenModelPicker: React.FC<BasetenModelPickerProps> = ({ isPopup, curren
             id="model-search"
             onFocus={() => setIsDropdownVisible(true)}
             onInput={(e) => {
-              setSearchTerm((e.target as HTMLInputElement)?.value || '');
+              setSearchTerm((e.target as HTMLInputElement)?.value || "");
               setIsDropdownVisible(true);
             }}
             onKeyDown={handleKeyDown}
             placeholder="Search and select a model..."
             role="combobox"
             style={{
-              width: '100%',
+              width: "100%",
               zIndex: BASETEN_MODEL_PICKER_Z_INDEX,
-              position: 'relative',
+              position: "relative",
             }}
             value={searchTerm}
           >
@@ -221,7 +221,7 @@ const BasetenModelPicker: React.FC<BasetenModelPickerProps> = ({ isPopup, curren
                 aria-label="Clear search"
                 className="input-icon-button codicon codicon-close flex justify-center items-center h-full"
                 onClick={() => {
-                  setSearchTerm('');
+                  setSearchTerm("");
                   setIsDropdownVisible(true);
                 }}
                 slot="end"
@@ -234,14 +234,14 @@ const BasetenModelPicker: React.FC<BasetenModelPickerProps> = ({ isPopup, curren
               ref={dropdownListRef}
               role="listbox"
               style={{
-                backgroundColor: 'var(--vscode-dropdown-background)',
+                backgroundColor: "var(--vscode-dropdown-background)",
                 zIndex: BASETEN_MODEL_PICKER_Z_INDEX - 1,
               }}
             >
               {modelSearchResults.map((item, index) => (
                 <div
                   className={`px-2.5 py-1.5 cursor-pointer break-all whitespace-normal hover:bg-(--vscode-list-activeSelectionBackground) ${
-                    index === selectedIndex ? 'bg-(--vscode-list-activeSelectionBackground)' : ''
+                    index === selectedIndex ? "bg-(--vscode-list-activeSelectionBackground)" : ""
                   }`}
                   key={item.id}
                   onClick={() => {
@@ -270,17 +270,17 @@ const BasetenModelPicker: React.FC<BasetenModelPickerProps> = ({ isPopup, curren
         />
       ) : (
         <p className="text-xs mt-0 text-(--vscode-descriptionForeground)">
-          The extension automatically fetches the latest list of models available on{' '}
+          The extension automatically fetches the latest list of models available on{" "}
           <VSCodeLink
             className="inline text-inherit"
             href="https://www.baseten.co/products/model-apis/"
           >
             Baseten.
           </VSCodeLink>
-          If you're unsure which model to choose, Cline works best with{' '}
+          If you're unsure which model to choose, Cline works best with{" "}
           <VSCodeLink
             className="inline text-inherit"
-            onClick={() => handleModelChange('moonshotai/Kimi-K2-Instruct')}
+            onClick={() => handleModelChange("moonshotai/Kimi-K2-Instruct")}
           >
             moonshotai/Kimi-K2-Instruct.
           </VSCodeLink>

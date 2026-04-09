@@ -1,25 +1,25 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { ModelsServiceClient, OcaAccountServiceClient } from '@/services/grpc-client';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { ModelsServiceClient, OcaAccountServiceClient } from "@/services/grpc-client";
 import {
   VSC_BUTTON_BACKGROUND,
   VSC_BUTTON_FOREGROUND,
   VSC_DESCRIPTION_FOREGROUND,
-} from '@/utils/vscStyles';
-import type { OcaModelInfo } from '@shared/api';
-import type { OcaAuthState, OcaUserInfo } from '@shared/nice-grpc/index.cline';
-import { EmptyRequest, StringRequest } from '@shared/nice-grpc/index.cline.ts';
-import type { Mode } from '@shared/storage/types.ts';
+} from "@/utils/vscStyles";
+import type { OcaModelInfo } from "@shared/api";
+import type { OcaAuthState, OcaUserInfo } from "@shared/nice-grpc/index.cline";
+import { EmptyRequest, StringRequest } from "@shared/nice-grpc/index.cline.ts";
+import type { Mode } from "@shared/storage/types.ts";
 import {
   VSCodeButton,
   VSCodeCheckbox,
   VSCodeLink,
   VSCodeProgressRing,
-} from '@vscode/webview-ui-toolkit/react';
-import type React from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { BaseUrlField } from '../common/BaseUrlField';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
-import OcaModelPicker from './OcaModelPicker';
+} from "@vscode/webview-ui-toolkit/react";
+import type React from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { BaseUrlField } from "../common/BaseUrlField";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
+import OcaModelPicker from "./OcaModelPicker";
 
 /**
  * Props for the OcaProvider component
@@ -63,7 +63,7 @@ function useOcaAuth() {
     try {
       await OcaAccountServiceClient.ocaAccountLoginClicked(EmptyRequest.create());
     } catch (error) {
-      console.error('OCA login failed:', error);
+      console.error("OCA login failed:", error);
     }
   }, []);
 
@@ -71,7 +71,7 @@ function useOcaAuth() {
     try {
       await OcaAccountServiceClient.ocaAccountLogoutClicked(EmptyRequest.create());
     } catch (error) {
-      console.error('OCA logout failed:', error);
+      console.error("OCA logout failed:", error);
     }
   }, []);
 
@@ -92,7 +92,7 @@ function useOcaAuth() {
       },
       onError: (err: Error) => {
         if (!unmountedRef.current) {
-          console.error('OCA auth callback subscription error:', err);
+          console.error("OCA auth callback subscription error:", err);
           if (!initialReceivedRef.current) {
             initialReceivedRef.current = true;
             setReady(true);
@@ -143,7 +143,7 @@ function useOcaModels({
     setHasError(false);
     try {
       const resp = await ModelsServiceClient.refreshOcaModels(
-        StringRequest.create({ value: url || '' }),
+        StringRequest.create({ value: url || "" }),
       );
       // Only apply if still latest and still mounted
       if (!unmountedRef.current && myReqId === reqIdRef.current) {
@@ -157,7 +157,7 @@ function useOcaModels({
       }
     } catch (err) {
       if (!unmountedRef.current && myReqId === reqIdRef.current) {
-        console.error('Failed to refresh Oca models:', err);
+        console.error("Failed to refresh Oca models:", err);
         setHasError(true);
       }
     } finally {
@@ -184,7 +184,7 @@ function useOcaModels({
     }
 
     debounceTimerRef.current = window.setTimeout(() => {
-      void doRefresh(baseUrl || '');
+      void doRefresh(baseUrl || "");
     }, 250);
 
     return () => {
@@ -206,7 +206,7 @@ function useOcaModels({
     async function tryRefresh(retry = false): Promise<boolean> {
       try {
         const resp = await ModelsServiceClient.refreshOcaModels(
-          StringRequest.create({ value: baseUrl || '' }),
+          StringRequest.create({ value: baseUrl || "" }),
         );
         if (resp.error) {
           throw new Error(resp.error);
@@ -242,11 +242,11 @@ export const OcaProvider = ({ isPopup, currentMode }: OcaProviderProps) => {
 
   const { user: ocaUser, isAuthenticated, ready, login, logout } = useOcaAuth();
 
-  const ocaBaseUrl = apiConfiguration?.ocaBaseUrl || '';
+  const ocaBaseUrl = apiConfiguration?.ocaBaseUrl || "";
   const ocaMode = apiConfiguration?.ocaMode;
 
-  const handleToggleMode = (nextMode: 'internal' | 'external') => {
-    handleFieldChange('ocaMode', nextMode);
+  const handleToggleMode = (nextMode: "internal" | "external") => {
+    handleFieldChange("ocaMode", nextMode);
   };
 
   const {
@@ -297,10 +297,10 @@ export const OcaProvider = ({ isPopup, currentMode }: OcaProviderProps) => {
             }}
           >
             <VSCodeCheckbox
-              checked={ocaMode !== 'external'}
+              checked={ocaMode !== "external"}
               onChange={(e: any) => {
                 const checked = (e?.target as HTMLInputElement)?.checked;
-                handleToggleMode(checked ? 'internal' : 'external');
+                handleToggleMode(checked ? "internal" : "external");
               }}
             >
               I’m an Oracle Employee
@@ -316,14 +316,14 @@ export const OcaProvider = ({ isPopup, currentMode }: OcaProviderProps) => {
               background: `var(${VSC_BUTTON_BACKGROUND}, #0078d4)`,
               color: `var(${VSC_BUTTON_FOREGROUND}, #fff)`,
               minWidth: 0,
-              margin: '12px 0',
+              margin: "12px 0",
             }}
           >
             Sign in with Oracle Code Assist
           </VSCodeButton>
           <p className="text-xs mt-0 text-(--vscode-descriptionForeground)">
             Please ask your IT administrator to set up Oracle Code Assist as a model provider.
-            Oracle Employees, please see the{' '}
+            Oracle Employees, please see the{" "}
             <VSCodeLink
               href="https://confluence.oraclecorp.com/confluence/display/AICODE/Oracle+Code+Assist+via+Cline"
               rel="noopener noreferrer"
@@ -362,7 +362,7 @@ export const OcaProvider = ({ isPopup, currentMode }: OcaProviderProps) => {
               defaultValue={undefined}
               initialValue={ocaBaseUrl}
               label="Custom Base URL (optional)"
-              onChange={(value) => handleFieldChange('ocaBaseUrl', value)}
+              onChange={(value) => handleFieldChange("ocaBaseUrl", value)}
             />
           </div>
 
@@ -448,10 +448,10 @@ export const OcaProvider = ({ isPopup, currentMode }: OcaProviderProps) => {
           >
             <div
               style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center', // center title and button
-                width: '100%',
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center", // center title and button
+                width: "100%",
               }}
             >
               <div
@@ -468,35 +468,35 @@ export const OcaProvider = ({ isPopup, currentMode }: OcaProviderProps) => {
             </div>
             <div
               style={{
-                width: '100%',
-                display: 'flex',
-                justifyContent: 'center',
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
                 marginTop: 8,
               }}
             >
               <a
                 href={
-                  ocaMode === 'internal'
-                    ? 'https://apexsurveys.oracle.com/ords/surveys/t/oca-nps/survey?k=oracle-code-assist-internal-link-share&sc=SMM1BNSNUI'
-                    : 'https://customersurveys.oracle.com/ords/surveys/t/aicode/survey?k=oracle-code-assist&sc=SUDN1ZXYQ5'
+                  ocaMode === "internal"
+                    ? "https://apexsurveys.oracle.com/ords/surveys/t/oca-nps/survey?k=oracle-code-assist-internal-link-share&sc=SMM1BNSNUI"
+                    : "https://customersurveys.oracle.com/ords/surveys/t/aicode/survey?k=oracle-code-assist&sc=SUDN1ZXYQ5"
                 }
                 rel="noopener noreferrer"
                 style={{
                   fontSize: 14,
                   fontWeight: 500,
-                  textDecoration: 'none',
-                  background: 'var(--vscode-button-background)',
-                  color: 'var(--vscode-button-foreground)',
-                  padding: '8px 14px',
+                  textDecoration: "none",
+                  background: "var(--vscode-button-background)",
+                  color: "var(--vscode-button-foreground)",
+                  padding: "8px 14px",
                   minHeight: 28,
-                  border: '1px solid var(--vscode-button-border, transparent)',
+                  border: "1px solid var(--vscode-button-border, transparent)",
                   borderRadius: 0,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                   minWidth: 0,
-                  boxSizing: 'border-box',
-                  cursor: 'pointer',
+                  boxSizing: "border-box",
+                  cursor: "pointer",
                 }}
                 target="_blank"
               >

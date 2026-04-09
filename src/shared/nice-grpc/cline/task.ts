@@ -5,7 +5,7 @@
 // source: cline/task.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import {
   Empty,
   EmptyRequest,
@@ -15,8 +15,8 @@ import {
   String,
   StringArrayRequest,
   StringRequest,
-} from './common';
-import { Settings } from './state';
+} from "./common";
+import { Settings } from "./state";
 
 /** Request message for creating a new task */
 export interface NewTaskRequest {
@@ -108,7 +108,7 @@ export interface ExplainChangesRequest {
 }
 
 function createBaseNewTaskRequest(): NewTaskRequest {
-  return { metadata: undefined, text: '', images: [], files: [], taskSettings: undefined };
+  return { metadata: undefined, text: "", images: [], files: [], taskSettings: undefined };
 }
 
 export const NewTaskRequest: MessageFns<NewTaskRequest> = {
@@ -116,7 +116,7 @@ export const NewTaskRequest: MessageFns<NewTaskRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.text !== '') {
+    if (message.text !== "") {
       writer.uint32(18).string(message.text);
     }
     for (const v of message.images) {
@@ -190,7 +190,7 @@ export const NewTaskRequest: MessageFns<NewTaskRequest> = {
   fromJSON(object: any): NewTaskRequest {
     return {
       metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
-      text: isSet(object.text) ? globalThis.String(object.text) : '',
+      text: isSet(object.text) ? globalThis.String(object.text) : "",
       images: globalThis.Array.isArray(object?.images)
         ? object.images.map((e: any) => globalThis.String(e))
         : [],
@@ -210,7 +210,7 @@ export const NewTaskRequest: MessageFns<NewTaskRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.text !== '') {
+    if (message.text !== "") {
       obj.text = message.text;
     }
     if (message.images?.length) {
@@ -234,7 +234,7 @@ export const NewTaskRequest: MessageFns<NewTaskRequest> = {
       object.metadata !== undefined && object.metadata !== null
         ? Metadata.fromPartial(object.metadata)
         : undefined;
-    message.text = object.text ?? '';
+    message.text = object.text ?? "";
     message.images = object.images?.map((e) => e) || [];
     message.files = object.files?.map((e) => e) || [];
     message.taskSettings =
@@ -246,7 +246,7 @@ export const NewTaskRequest: MessageFns<NewTaskRequest> = {
 };
 
 function createBaseTaskFavoriteRequest(): TaskFavoriteRequest {
-  return { metadata: undefined, taskId: '', isFavorited: false };
+  return { metadata: undefined, taskId: "", isFavorited: false };
 }
 
 export const TaskFavoriteRequest: MessageFns<TaskFavoriteRequest> = {
@@ -254,7 +254,7 @@ export const TaskFavoriteRequest: MessageFns<TaskFavoriteRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.taskId !== '') {
+    if (message.taskId !== "") {
       writer.uint32(18).string(message.taskId);
     }
     if (message.isFavorited !== false) {
@@ -310,7 +310,7 @@ export const TaskFavoriteRequest: MessageFns<TaskFavoriteRequest> = {
         ? globalThis.String(object.taskId)
         : isSet(object.task_id)
           ? globalThis.String(object.task_id)
-          : '',
+          : "",
       isFavorited: isSet(object.isFavorited)
         ? globalThis.Boolean(object.isFavorited)
         : isSet(object.is_favorited)
@@ -324,7 +324,7 @@ export const TaskFavoriteRequest: MessageFns<TaskFavoriteRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.taskId !== '') {
+    if (message.taskId !== "") {
       obj.taskId = message.taskId;
     }
     if (message.isFavorited !== false) {
@@ -344,7 +344,7 @@ export const TaskFavoriteRequest: MessageFns<TaskFavoriteRequest> = {
       object.metadata !== undefined && object.metadata !== null
         ? Metadata.fromPartial(object.metadata)
         : undefined;
-    message.taskId = object.taskId ?? '';
+    message.taskId = object.taskId ?? "";
     message.isFavorited = object.isFavorited ?? false;
     return message;
   },
@@ -352,8 +352,8 @@ export const TaskFavoriteRequest: MessageFns<TaskFavoriteRequest> = {
 
 function createBaseTaskResponse(): TaskResponse {
   return {
-    id: '',
-    task: '',
+    id: "",
+    task: "",
     ts: 0,
     isFavorited: false,
     size: 0,
@@ -362,16 +362,16 @@ function createBaseTaskResponse(): TaskResponse {
     tokensOut: 0,
     cacheWrites: 0,
     cacheReads: 0,
-    modelId: '',
+    modelId: "",
   };
 }
 
 export const TaskResponse: MessageFns<TaskResponse> = {
   encode(message: TaskResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== '') {
+    if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
-    if (message.task !== '') {
+    if (message.task !== "") {
       writer.uint32(18).string(message.task);
     }
     if (message.ts !== 0) {
@@ -398,7 +398,7 @@ export const TaskResponse: MessageFns<TaskResponse> = {
     if (message.cacheReads !== 0) {
       writer.uint32(80).int32(message.cacheReads);
     }
-    if (message.modelId !== '') {
+    if (message.modelId !== "") {
       writer.uint32(90).string(message.modelId);
     }
     return writer;
@@ -510,8 +510,8 @@ export const TaskResponse: MessageFns<TaskResponse> = {
 
   fromJSON(object: any): TaskResponse {
     return {
-      id: isSet(object.id) ? globalThis.String(object.id) : '',
-      task: isSet(object.task) ? globalThis.String(object.task) : '',
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      task: isSet(object.task) ? globalThis.String(object.task) : "",
       ts: isSet(object.ts) ? globalThis.Number(object.ts) : 0,
       isFavorited: isSet(object.isFavorited)
         ? globalThis.Boolean(object.isFavorited)
@@ -548,16 +548,16 @@ export const TaskResponse: MessageFns<TaskResponse> = {
         ? globalThis.String(object.modelId)
         : isSet(object.model_id)
           ? globalThis.String(object.model_id)
-          : '',
+          : "",
     };
   },
 
   toJSON(message: TaskResponse): unknown {
     const obj: any = {};
-    if (message.id !== '') {
+    if (message.id !== "") {
       obj.id = message.id;
     }
-    if (message.task !== '') {
+    if (message.task !== "") {
       obj.task = message.task;
     }
     if (message.ts !== 0) {
@@ -584,7 +584,7 @@ export const TaskResponse: MessageFns<TaskResponse> = {
     if (message.cacheReads !== 0) {
       obj.cacheReads = Math.round(message.cacheReads);
     }
-    if (message.modelId !== '') {
+    if (message.modelId !== "") {
       obj.modelId = message.modelId;
     }
     return obj;
@@ -595,8 +595,8 @@ export const TaskResponse: MessageFns<TaskResponse> = {
   },
   fromPartial<I extends Exact<DeepPartial<TaskResponse>, I>>(object: I): TaskResponse {
     const message = createBaseTaskResponse();
-    message.id = object.id ?? '';
-    message.task = object.task ?? '';
+    message.id = object.id ?? "";
+    message.task = object.task ?? "";
     message.ts = object.ts ?? 0;
     message.isFavorited = object.isFavorited ?? false;
     message.size = object.size ?? 0;
@@ -605,7 +605,7 @@ export const TaskResponse: MessageFns<TaskResponse> = {
     message.tokensOut = object.tokensOut ?? 0;
     message.cacheWrites = object.cacheWrites ?? 0;
     message.cacheReads = object.cacheReads ?? 0;
-    message.modelId = object.modelId ?? '';
+    message.modelId = object.modelId ?? "";
     return message;
   },
 };
@@ -614,8 +614,8 @@ function createBaseGetTaskHistoryRequest(): GetTaskHistoryRequest {
   return {
     metadata: undefined,
     favoritesOnly: false,
-    searchQuery: '',
-    sortBy: '',
+    searchQuery: "",
+    sortBy: "",
     currentWorkspaceOnly: false,
   };
 }
@@ -628,10 +628,10 @@ export const GetTaskHistoryRequest: MessageFns<GetTaskHistoryRequest> = {
     if (message.favoritesOnly !== false) {
       writer.uint32(16).bool(message.favoritesOnly);
     }
-    if (message.searchQuery !== '') {
+    if (message.searchQuery !== "") {
       writer.uint32(26).string(message.searchQuery);
     }
-    if (message.sortBy !== '') {
+    if (message.sortBy !== "") {
       writer.uint32(34).string(message.sortBy);
     }
     if (message.currentWorkspaceOnly !== false) {
@@ -708,12 +708,12 @@ export const GetTaskHistoryRequest: MessageFns<GetTaskHistoryRequest> = {
         ? globalThis.String(object.searchQuery)
         : isSet(object.search_query)
           ? globalThis.String(object.search_query)
-          : '',
+          : "",
       sortBy: isSet(object.sortBy)
         ? globalThis.String(object.sortBy)
         : isSet(object.sort_by)
           ? globalThis.String(object.sort_by)
-          : '',
+          : "",
       currentWorkspaceOnly: isSet(object.currentWorkspaceOnly)
         ? globalThis.Boolean(object.currentWorkspaceOnly)
         : isSet(object.current_workspace_only)
@@ -730,10 +730,10 @@ export const GetTaskHistoryRequest: MessageFns<GetTaskHistoryRequest> = {
     if (message.favoritesOnly !== false) {
       obj.favoritesOnly = message.favoritesOnly;
     }
-    if (message.searchQuery !== '') {
+    if (message.searchQuery !== "") {
       obj.searchQuery = message.searchQuery;
     }
-    if (message.sortBy !== '') {
+    if (message.sortBy !== "") {
       obj.sortBy = message.sortBy;
     }
     if (message.currentWorkspaceOnly !== false) {
@@ -754,8 +754,8 @@ export const GetTaskHistoryRequest: MessageFns<GetTaskHistoryRequest> = {
         ? Metadata.fromPartial(object.metadata)
         : undefined;
     message.favoritesOnly = object.favoritesOnly ?? false;
-    message.searchQuery = object.searchQuery ?? '';
-    message.sortBy = object.sortBy ?? '';
+    message.searchQuery = object.searchQuery ?? "";
+    message.sortBy = object.sortBy ?? "";
     message.currentWorkspaceOnly = object.currentWorkspaceOnly ?? false;
     return message;
   },
@@ -845,8 +845,8 @@ export const TaskHistoryArray: MessageFns<TaskHistoryArray> = {
 
 function createBaseTaskItem(): TaskItem {
   return {
-    id: '',
-    task: '',
+    id: "",
+    task: "",
     ts: 0,
     isFavorited: false,
     size: 0,
@@ -855,16 +855,16 @@ function createBaseTaskItem(): TaskItem {
     tokensOut: 0,
     cacheWrites: 0,
     cacheReads: 0,
-    modelId: '',
+    modelId: "",
   };
 }
 
 export const TaskItem: MessageFns<TaskItem> = {
   encode(message: TaskItem, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== '') {
+    if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
-    if (message.task !== '') {
+    if (message.task !== "") {
       writer.uint32(18).string(message.task);
     }
     if (message.ts !== 0) {
@@ -891,7 +891,7 @@ export const TaskItem: MessageFns<TaskItem> = {
     if (message.cacheReads !== 0) {
       writer.uint32(80).int32(message.cacheReads);
     }
-    if (message.modelId !== '') {
+    if (message.modelId !== "") {
       writer.uint32(90).string(message.modelId);
     }
     return writer;
@@ -1003,8 +1003,8 @@ export const TaskItem: MessageFns<TaskItem> = {
 
   fromJSON(object: any): TaskItem {
     return {
-      id: isSet(object.id) ? globalThis.String(object.id) : '',
-      task: isSet(object.task) ? globalThis.String(object.task) : '',
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      task: isSet(object.task) ? globalThis.String(object.task) : "",
       ts: isSet(object.ts) ? globalThis.Number(object.ts) : 0,
       isFavorited: isSet(object.isFavorited)
         ? globalThis.Boolean(object.isFavorited)
@@ -1041,16 +1041,16 @@ export const TaskItem: MessageFns<TaskItem> = {
         ? globalThis.String(object.modelId)
         : isSet(object.model_id)
           ? globalThis.String(object.model_id)
-          : '',
+          : "",
     };
   },
 
   toJSON(message: TaskItem): unknown {
     const obj: any = {};
-    if (message.id !== '') {
+    if (message.id !== "") {
       obj.id = message.id;
     }
-    if (message.task !== '') {
+    if (message.task !== "") {
       obj.task = message.task;
     }
     if (message.ts !== 0) {
@@ -1077,7 +1077,7 @@ export const TaskItem: MessageFns<TaskItem> = {
     if (message.cacheReads !== 0) {
       obj.cacheReads = Math.round(message.cacheReads);
     }
-    if (message.modelId !== '') {
+    if (message.modelId !== "") {
       obj.modelId = message.modelId;
     }
     return obj;
@@ -1088,8 +1088,8 @@ export const TaskItem: MessageFns<TaskItem> = {
   },
   fromPartial<I extends Exact<DeepPartial<TaskItem>, I>>(object: I): TaskItem {
     const message = createBaseTaskItem();
-    message.id = object.id ?? '';
-    message.task = object.task ?? '';
+    message.id = object.id ?? "";
+    message.task = object.task ?? "";
     message.ts = object.ts ?? 0;
     message.isFavorited = object.isFavorited ?? false;
     message.size = object.size ?? 0;
@@ -1098,13 +1098,13 @@ export const TaskItem: MessageFns<TaskItem> = {
     message.tokensOut = object.tokensOut ?? 0;
     message.cacheWrites = object.cacheWrites ?? 0;
     message.cacheReads = object.cacheReads ?? 0;
-    message.modelId = object.modelId ?? '';
+    message.modelId = object.modelId ?? "";
     return message;
   },
 };
 
 function createBaseAskResponseRequest(): AskResponseRequest {
-  return { metadata: undefined, responseType: '', text: '', images: [], files: [] };
+  return { metadata: undefined, responseType: "", text: "", images: [], files: [] };
 }
 
 export const AskResponseRequest: MessageFns<AskResponseRequest> = {
@@ -1112,10 +1112,10 @@ export const AskResponseRequest: MessageFns<AskResponseRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.responseType !== '') {
+    if (message.responseType !== "") {
       writer.uint32(18).string(message.responseType);
     }
-    if (message.text !== '') {
+    if (message.text !== "") {
       writer.uint32(26).string(message.text);
     }
     for (const v of message.images) {
@@ -1190,8 +1190,8 @@ export const AskResponseRequest: MessageFns<AskResponseRequest> = {
         ? globalThis.String(object.responseType)
         : isSet(object.response_type)
           ? globalThis.String(object.response_type)
-          : '',
-      text: isSet(object.text) ? globalThis.String(object.text) : '',
+          : "",
+      text: isSet(object.text) ? globalThis.String(object.text) : "",
       images: globalThis.Array.isArray(object?.images)
         ? object.images.map((e: any) => globalThis.String(e))
         : [],
@@ -1206,10 +1206,10 @@ export const AskResponseRequest: MessageFns<AskResponseRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.responseType !== '') {
+    if (message.responseType !== "") {
       obj.responseType = message.responseType;
     }
-    if (message.text !== '') {
+    if (message.text !== "") {
       obj.text = message.text;
     }
     if (message.images?.length) {
@@ -1230,8 +1230,8 @@ export const AskResponseRequest: MessageFns<AskResponseRequest> = {
       object.metadata !== undefined && object.metadata !== null
         ? Metadata.fromPartial(object.metadata)
         : undefined;
-    message.responseType = object.responseType ?? '';
-    message.text = object.text ?? '';
+    message.responseType = object.responseType ?? "";
+    message.text = object.text ?? "";
     message.images = object.images?.map((e) => e) || [];
     message.files = object.files?.map((e) => e) || [];
     return message;
@@ -1239,7 +1239,7 @@ export const AskResponseRequest: MessageFns<AskResponseRequest> = {
 };
 
 function createBaseExecuteQuickWinRequest(): ExecuteQuickWinRequest {
-  return { metadata: undefined, command: '', title: '' };
+  return { metadata: undefined, command: "", title: "" };
 }
 
 export const ExecuteQuickWinRequest: MessageFns<ExecuteQuickWinRequest> = {
@@ -1247,10 +1247,10 @@ export const ExecuteQuickWinRequest: MessageFns<ExecuteQuickWinRequest> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.command !== '') {
+    if (message.command !== "") {
       writer.uint32(18).string(message.command);
     }
-    if (message.title !== '') {
+    if (message.title !== "") {
       writer.uint32(26).string(message.title);
     }
     return writer;
@@ -1299,8 +1299,8 @@ export const ExecuteQuickWinRequest: MessageFns<ExecuteQuickWinRequest> = {
   fromJSON(object: any): ExecuteQuickWinRequest {
     return {
       metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
-      command: isSet(object.command) ? globalThis.String(object.command) : '',
-      title: isSet(object.title) ? globalThis.String(object.title) : '',
+      command: isSet(object.command) ? globalThis.String(object.command) : "",
+      title: isSet(object.title) ? globalThis.String(object.title) : "",
     };
   },
 
@@ -1309,10 +1309,10 @@ export const ExecuteQuickWinRequest: MessageFns<ExecuteQuickWinRequest> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.command !== '') {
+    if (message.command !== "") {
       obj.command = message.command;
     }
-    if (message.title !== '') {
+    if (message.title !== "") {
       obj.title = message.title;
     }
     return obj;
@@ -1331,8 +1331,8 @@ export const ExecuteQuickWinRequest: MessageFns<ExecuteQuickWinRequest> = {
       object.metadata !== undefined && object.metadata !== null
         ? Metadata.fromPartial(object.metadata)
         : undefined;
-    message.command = object.command ?? '';
-    message.title = object.title ?? '';
+    message.command = object.command ?? "";
+    message.title = object.title ?? "";
     return message;
   },
 };
@@ -1495,12 +1495,12 @@ export const ExplainChangesRequest: MessageFns<ExplainChangesRequest> = {
 
 export type TaskServiceDefinition = typeof TaskServiceDefinition;
 export const TaskServiceDefinition = {
-  name: 'TaskService',
-  fullName: 'cline.TaskService',
+  name: "TaskService",
+  fullName: "cline.TaskService",
   methods: {
     /** Cancels the currently running task */
     cancelTask: {
-      name: 'cancelTask',
+      name: "cancelTask",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -1509,7 +1509,7 @@ export const TaskServiceDefinition = {
     },
     /** Cancels the currently running background command */
     cancelBackgroundCommand: {
-      name: 'cancelBackgroundCommand',
+      name: "cancelBackgroundCommand",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -1518,7 +1518,7 @@ export const TaskServiceDefinition = {
     },
     /** Clears the current task */
     clearTask: {
-      name: 'clearTask',
+      name: "clearTask",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Empty,
@@ -1527,7 +1527,7 @@ export const TaskServiceDefinition = {
     },
     /** Gets the total size of all tasks */
     getTotalTasksSize: {
-      name: 'getTotalTasksSize',
+      name: "getTotalTasksSize",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: Int64,
@@ -1536,7 +1536,7 @@ export const TaskServiceDefinition = {
     },
     /** Deletes multiple tasks with the given IDs */
     deleteTasksWithIds: {
-      name: 'deleteTasksWithIds',
+      name: "deleteTasksWithIds",
       requestType: StringArrayRequest,
       requestStream: false,
       responseType: Empty,
@@ -1545,7 +1545,7 @@ export const TaskServiceDefinition = {
     },
     /** Creates a new task with the given text and optional images */
     newTask: {
-      name: 'newTask',
+      name: "newTask",
       requestType: NewTaskRequest,
       requestStream: false,
       responseType: String,
@@ -1554,7 +1554,7 @@ export const TaskServiceDefinition = {
     },
     /** Shows a task with the specified ID */
     showTaskWithId: {
-      name: 'showTaskWithId',
+      name: "showTaskWithId",
       requestType: StringRequest,
       requestStream: false,
       responseType: TaskResponse,
@@ -1563,7 +1563,7 @@ export const TaskServiceDefinition = {
     },
     /** Exports a task with the given ID to markdown */
     exportTaskWithId: {
-      name: 'exportTaskWithId',
+      name: "exportTaskWithId",
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -1572,7 +1572,7 @@ export const TaskServiceDefinition = {
     },
     /** Toggles the favorite status of a task */
     toggleTaskFavorite: {
-      name: 'toggleTaskFavorite',
+      name: "toggleTaskFavorite",
       requestType: TaskFavoriteRequest,
       requestStream: false,
       responseType: Empty,
@@ -1581,7 +1581,7 @@ export const TaskServiceDefinition = {
     },
     /** Gets filtered task history */
     getTaskHistory: {
-      name: 'getTaskHistory',
+      name: "getTaskHistory",
       requestType: GetTaskHistoryRequest,
       requestStream: false,
       responseType: TaskHistoryArray,
@@ -1590,7 +1590,7 @@ export const TaskServiceDefinition = {
     },
     /** Sends a response to a previous ask operation */
     askResponse: {
-      name: 'askResponse',
+      name: "askResponse",
       requestType: AskResponseRequest,
       requestStream: false,
       responseType: Empty,
@@ -1599,7 +1599,7 @@ export const TaskServiceDefinition = {
     },
     /** Records task feedback (thumbs up/down) */
     taskFeedback: {
-      name: 'taskFeedback',
+      name: "taskFeedback",
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,
@@ -1608,7 +1608,7 @@ export const TaskServiceDefinition = {
     },
     /** Shows task completion changes diff in a view */
     taskCompletionViewChanges: {
-      name: 'taskCompletionViewChanges',
+      name: "taskCompletionViewChanges",
       requestType: Int64Request,
       requestStream: false,
       responseType: Empty,
@@ -1617,7 +1617,7 @@ export const TaskServiceDefinition = {
     },
     /** Executes a quick win task with command and title */
     executeQuickWin: {
-      name: 'executeQuickWin',
+      name: "executeQuickWin",
       requestType: ExecuteQuickWinRequest,
       requestStream: false,
       responseType: Empty,
@@ -1626,7 +1626,7 @@ export const TaskServiceDefinition = {
     },
     /** Deletes all task history */
     deleteAllTaskHistory: {
-      name: 'deleteAllTaskHistory',
+      name: "deleteAllTaskHistory",
       requestType: EmptyRequest,
       requestStream: false,
       responseType: DeleteAllTaskHistoryCount,
@@ -1635,7 +1635,7 @@ export const TaskServiceDefinition = {
     },
     /** Explains changes with AI and adds inline comments to the diff view */
     explainChanges: {
-      name: 'explainChanges',
+      name: "explainChanges",
       requestType: ExplainChangesRequest,
       requestStream: false,
       responseType: Empty,
@@ -1665,10 +1665,10 @@ type Exact<P, I extends P> = P extends Builtin
 function longToNumber(int64: { toString(): string }): number {
   const num = globalThis.Number(int64.toString());
   if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error('Value is larger than Number.MAX_SAFE_INTEGER');
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
   }
   if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error('Value is smaller than Number.MIN_SAFE_INTEGER');
+    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
   }
   return num;
 }

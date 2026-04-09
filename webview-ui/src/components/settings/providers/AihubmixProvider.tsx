@@ -1,14 +1,14 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { ModelsServiceClient } from '@/services/grpc-client';
-import type { ModelInfo } from '@shared/api.ts';
-import { EmptyRequest } from '@shared/nice-grpc/cline/common.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { useEffect, useState } from 'react';
-import { ApiKeyField } from '../common/ApiKeyField';
-import { ModelInfoView } from '../common/ModelInfoView';
-import { ModelSelector } from '../common/ModelSelector';
-import { normalizeApiConfiguration } from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { ModelsServiceClient } from "@/services/grpc-client";
+import type { ModelInfo } from "@shared/api.ts";
+import { EmptyRequest } from "@shared/nice-grpc/cline/common.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { useEffect, useState } from "react";
+import { ApiKeyField } from "../common/ApiKeyField";
+import { ModelInfoView } from "../common/ModelInfoView";
+import { ModelSelector } from "../common/ModelSelector";
+import { normalizeApiConfiguration } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 /**
  * Props for the AIhubmixProvider component
@@ -50,17 +50,17 @@ export const AIhubmixProvider = ({
     return base;
   };
 
-  console.log('selectedModelId', selectedModelId);
-  console.log('selectedModelInfo', selectedModelInfo);
+  console.log("selectedModelId", selectedModelId);
+  console.log("selectedModelInfo", selectedModelInfo);
 
   // Get the normalized configuration
 
   useEffect(() => {
     try {
-      const cached = window.localStorage.getItem('aihubmixModels');
+      const cached = window.localStorage.getItem("aihubmixModels");
       if (cached) {
         const parsed = JSON.parse(cached) as Record<string, ModelInfo>;
-        if (parsed && typeof parsed === 'object') {
+        if (parsed && typeof parsed === "object") {
           setModels(ensureSelectedPresent(parsed));
         }
       }
@@ -75,23 +75,23 @@ export const AIhubmixProvider = ({
           const injected = ensureSelectedPresent(nextModels);
           setModels(injected);
           try {
-            window.localStorage.setItem('aihubmixModels', JSON.stringify(injected));
+            window.localStorage.setItem("aihubmixModels", JSON.stringify(injected));
           } catch {}
         }
       })
       .catch((error) => {
-        console.error('Failed to fetch AIhubmix models:', error);
+        console.error("Failed to fetch AIhubmix models:", error);
       });
   }, []);
 
-  console.log('apiConfiguration', apiConfiguration);
+  console.log("apiConfiguration", apiConfiguration);
 
   return (
     <div>
       <ApiKeyField
         helpText="Now request 10% discount!"
-        initialValue={apiConfiguration?.aihubmixApiKey || ''}
-        onChange={(value) => handleFieldChange('aihubmixApiKey', value)}
+        initialValue={apiConfiguration?.aihubmixApiKey || ""}
+        onChange={(value) => handleFieldChange("aihubmixApiKey", value)}
         providerName="AIhubmix"
         signupUrl="https://console.aihubmix.com/token"
       />
@@ -107,15 +107,15 @@ export const AIhubmixProvider = ({
               if (newModelInfo) {
                 handleModeFieldsChange(
                   {
-                    id: { plan: 'planModeAihubmixModelId', act: 'actModeAihubmixModelId' },
-                    info: { plan: 'planModeAihubmixModelInfo', act: 'actModeAihubmixModelInfo' },
+                    id: { plan: "planModeAihubmixModelId", act: "actModeAihubmixModelId" },
+                    info: { plan: "planModeAihubmixModelInfo", act: "actModeAihubmixModelInfo" },
                   },
                   { id: newModelId, info: newModelInfo },
                   currentMode,
                 );
               } else {
                 handleModeFieldChange(
-                  { plan: 'planModeAihubmixModelId', act: 'actModeAihubmixModelId' },
+                  { plan: "planModeAihubmixModelId", act: "actModeAihubmixModelId" },
                   newModelId,
                   currentMode,
                 );

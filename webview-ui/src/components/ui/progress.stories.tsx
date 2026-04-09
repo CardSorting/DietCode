@@ -1,14 +1,14 @@
-import type { Meta } from '@storybook/react-vite';
-import { Progress } from './progress';
+import type { Meta } from "@storybook/react-vite";
+import { Progress } from "./progress";
 
 const meta: Meta<typeof Progress> = {
-  title: 'Ui/Progress',
+  title: "Ui/Progress",
   component: Progress,
   parameters: {
     docs: {
       description: {
         component:
-          'Displays a horizontal progress bar with a smooth animated indicator. Built on Radix UI and accepts a value between 0-100 to show completion percentage.',
+          "Displays a horizontal progress bar with a smooth animated indicator. Built on Radix UI and accepts a value between 0-100 to show completion percentage.",
       },
     },
   },

@@ -1,4 +1,4 @@
-import React, { forwardRef, type HTMLAttributes, useCallback } from 'react';
+import React, { forwardRef, type HTMLAttributes, useCallback } from "react";
 
 type TabProps = HTMLAttributes<HTMLDivElement>;
 
@@ -42,7 +42,7 @@ export const TabList = forwardRef<
 >(({ children, className, value, onValueChange, ...props }, ref) => {
   const handleTabSelect = useCallback(
     (tabValue: string) => {
-      console.log('Tab selected:', tabValue);
+      console.log("Tab selected:", tabValue);
       onValueChange(tabValue);
     },
     [onValueChange],

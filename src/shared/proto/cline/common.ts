@@ -5,7 +5,7 @@
 // source: cline/common.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 export enum DiagnosticSeverity {
   DIAGNOSTIC_ERROR = 0,
@@ -18,16 +18,16 @@ export enum DiagnosticSeverity {
 export function diagnosticSeverityFromJSON(object: any): DiagnosticSeverity {
   switch (object) {
     case 0:
-    case 'DIAGNOSTIC_ERROR':
+    case "DIAGNOSTIC_ERROR":
       return DiagnosticSeverity.DIAGNOSTIC_ERROR;
     case 1:
-    case 'DIAGNOSTIC_WARNING':
+    case "DIAGNOSTIC_WARNING":
       return DiagnosticSeverity.DIAGNOSTIC_WARNING;
     case 2:
-    case 'DIAGNOSTIC_INFORMATION':
+    case "DIAGNOSTIC_INFORMATION":
       return DiagnosticSeverity.DIAGNOSTIC_INFORMATION;
     case 3:
-    case 'DIAGNOSTIC_HINT':
+    case "DIAGNOSTIC_HINT":
       return DiagnosticSeverity.DIAGNOSTIC_HINT;
     default:
       return DiagnosticSeverity.UNRECOGNIZED;
@@ -37,15 +37,15 @@ export function diagnosticSeverityFromJSON(object: any): DiagnosticSeverity {
 export function diagnosticSeverityToJSON(object: DiagnosticSeverity): string {
   switch (object) {
     case DiagnosticSeverity.DIAGNOSTIC_ERROR:
-      return 'DIAGNOSTIC_ERROR';
+      return "DIAGNOSTIC_ERROR";
     case DiagnosticSeverity.DIAGNOSTIC_WARNING:
-      return 'DIAGNOSTIC_WARNING';
+      return "DIAGNOSTIC_WARNING";
     case DiagnosticSeverity.DIAGNOSTIC_INFORMATION:
-      return 'DIAGNOSTIC_INFORMATION';
+      return "DIAGNOSTIC_INFORMATION";
     case DiagnosticSeverity.DIAGNOSTIC_HINT:
-      return 'DIAGNOSTIC_HINT';
+      return "DIAGNOSTIC_HINT";
     default:
-      return 'UNRECOGNIZED';
+      return "UNRECOGNIZED";
   }
 }
 
@@ -262,12 +262,12 @@ export const Empty: MessageFns<Empty> = {
 };
 
 function createBaseStringRequest(): StringRequest {
-  return { value: '' };
+  return { value: "" };
 }
 
 export const StringRequest: MessageFns<StringRequest> = {
   encode(message: StringRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.value !== '') {
+    if (message.value !== "") {
       writer.uint32(18).string(message.value);
     }
     return writer;
@@ -298,12 +298,12 @@ export const StringRequest: MessageFns<StringRequest> = {
   },
 
   fromJSON(object: any): StringRequest {
-    return { value: isSet(object.value) ? globalThis.String(object.value) : '' };
+    return { value: isSet(object.value) ? globalThis.String(object.value) : "" };
   },
 
   toJSON(message: StringRequest): unknown {
     const obj: any = {};
-    if (message.value !== '') {
+    if (message.value !== "") {
       obj.value = message.value;
     }
     return obj;
@@ -314,7 +314,7 @@ export const StringRequest: MessageFns<StringRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<StringRequest>, I>>(object: I): StringRequest {
     const message = createBaseStringRequest();
-    message.value = object.value ?? '';
+    message.value = object.value ?? "";
     return message;
   },
 };
@@ -382,12 +382,12 @@ export const StringArrayRequest: MessageFns<StringArrayRequest> = {
 };
 
 function createBaseString(): String {
-  return { value: '' };
+  return { value: "" };
 }
 
 export const String: MessageFns<String> = {
   encode(message: String, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.value !== '') {
+    if (message.value !== "") {
       writer.uint32(10).string(message.value);
     }
     return writer;
@@ -418,12 +418,12 @@ export const String: MessageFns<String> = {
   },
 
   fromJSON(object: any): String {
-    return { value: isSet(object.value) ? globalThis.String(object.value) : '' };
+    return { value: isSet(object.value) ? globalThis.String(object.value) : "" };
   },
 
   toJSON(message: String): unknown {
     const obj: any = {};
-    if (message.value !== '') {
+    if (message.value !== "") {
       obj.value = message.value;
     }
     return obj;
@@ -434,7 +434,7 @@ export const String: MessageFns<String> = {
   },
   fromPartial<I extends Exact<DeepPartial<String>, I>>(object: I): String {
     const message = createBaseString();
-    message.value = object.value ?? '';
+    message.value = object.value ?? "";
     return message;
   },
 };
@@ -988,15 +988,15 @@ export const StringArrays: MessageFns<StringArrays> = {
 };
 
 function createBaseKeyValuePair(): KeyValuePair {
-  return { key: '', value: '' };
+  return { key: "", value: "" };
 }
 
 export const KeyValuePair: MessageFns<KeyValuePair> = {
   encode(message: KeyValuePair, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.key !== '') {
+    if (message.key !== "") {
       writer.uint32(10).string(message.key);
     }
-    if (message.value !== '') {
+    if (message.value !== "") {
       writer.uint32(18).string(message.value);
     }
     return writer;
@@ -1036,17 +1036,17 @@ export const KeyValuePair: MessageFns<KeyValuePair> = {
 
   fromJSON(object: any): KeyValuePair {
     return {
-      key: isSet(object.key) ? globalThis.String(object.key) : '',
-      value: isSet(object.value) ? globalThis.String(object.value) : '',
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      value: isSet(object.value) ? globalThis.String(object.value) : "",
     };
   },
 
   toJSON(message: KeyValuePair): unknown {
     const obj: any = {};
-    if (message.key !== '') {
+    if (message.key !== "") {
       obj.key = message.key;
     }
-    if (message.value !== '') {
+    if (message.value !== "") {
       obj.value = message.value;
     }
     return obj;
@@ -1057,19 +1057,19 @@ export const KeyValuePair: MessageFns<KeyValuePair> = {
   },
   fromPartial<I extends Exact<DeepPartial<KeyValuePair>, I>>(object: I): KeyValuePair {
     const message = createBaseKeyValuePair();
-    message.key = object.key ?? '';
-    message.value = object.value ?? '';
+    message.key = object.key ?? "";
+    message.value = object.value ?? "";
     return message;
   },
 };
 
 function createBaseFileDiagnostics(): FileDiagnostics {
-  return { filePath: '', diagnostics: [] };
+  return { filePath: "", diagnostics: [] };
 }
 
 export const FileDiagnostics: MessageFns<FileDiagnostics> = {
   encode(message: FileDiagnostics, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.filePath !== '') {
+    if (message.filePath !== "") {
       writer.uint32(10).string(message.filePath);
     }
     for (const v of message.diagnostics) {
@@ -1116,7 +1116,7 @@ export const FileDiagnostics: MessageFns<FileDiagnostics> = {
         ? globalThis.String(object.filePath)
         : isSet(object.file_path)
           ? globalThis.String(object.file_path)
-          : '',
+          : "",
       diagnostics: globalThis.Array.isArray(object?.diagnostics)
         ? object.diagnostics.map((e: any) => Diagnostic.fromJSON(e))
         : [],
@@ -1125,7 +1125,7 @@ export const FileDiagnostics: MessageFns<FileDiagnostics> = {
 
   toJSON(message: FileDiagnostics): unknown {
     const obj: any = {};
-    if (message.filePath !== '') {
+    if (message.filePath !== "") {
       obj.filePath = message.filePath;
     }
     if (message.diagnostics?.length) {
@@ -1139,19 +1139,19 @@ export const FileDiagnostics: MessageFns<FileDiagnostics> = {
   },
   fromPartial<I extends Exact<DeepPartial<FileDiagnostics>, I>>(object: I): FileDiagnostics {
     const message = createBaseFileDiagnostics();
-    message.filePath = object.filePath ?? '';
+    message.filePath = object.filePath ?? "";
     message.diagnostics = object.diagnostics?.map((e) => Diagnostic.fromPartial(e)) || [];
     return message;
   },
 };
 
 function createBaseDiagnostic(): Diagnostic {
-  return { message: '', range: undefined, severity: 0, source: undefined };
+  return { message: "", range: undefined, severity: 0, source: undefined };
 }
 
 export const Diagnostic: MessageFns<Diagnostic> = {
   encode(message: Diagnostic, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.message !== '') {
+    if (message.message !== "") {
       writer.uint32(10).string(message.message);
     }
     if (message.range !== undefined) {
@@ -1216,7 +1216,7 @@ export const Diagnostic: MessageFns<Diagnostic> = {
 
   fromJSON(object: any): Diagnostic {
     return {
-      message: isSet(object.message) ? globalThis.String(object.message) : '',
+      message: isSet(object.message) ? globalThis.String(object.message) : "",
       range: isSet(object.range) ? DiagnosticRange.fromJSON(object.range) : undefined,
       severity: isSet(object.severity) ? diagnosticSeverityFromJSON(object.severity) : 0,
       source: isSet(object.source) ? globalThis.String(object.source) : undefined,
@@ -1225,7 +1225,7 @@ export const Diagnostic: MessageFns<Diagnostic> = {
 
   toJSON(message: Diagnostic): unknown {
     const obj: any = {};
-    if (message.message !== '') {
+    if (message.message !== "") {
       obj.message = message.message;
     }
     if (message.range !== undefined) {
@@ -1245,7 +1245,7 @@ export const Diagnostic: MessageFns<Diagnostic> = {
   },
   fromPartial<I extends Exact<DeepPartial<Diagnostic>, I>>(object: I): Diagnostic {
     const message = createBaseDiagnostic();
-    message.message = object.message ?? '';
+    message.message = object.message ?? "";
     message.range =
       object.range !== undefined && object.range !== null
         ? DiagnosticRange.fromPartial(object.range)
@@ -1416,7 +1416,7 @@ export const DiagnosticPosition: MessageFns<DiagnosticPosition> = {
 
 function bytesFromBase64(b64: string): Uint8Array {
   if ((globalThis as any).Buffer) {
-    return Uint8Array.from(globalThis.Buffer.from(b64, 'base64'));
+    return Uint8Array.from(globalThis.Buffer.from(b64, "base64"));
   }
   const bin = globalThis.atob(b64);
   const arr = new Uint8Array(bin.length);
@@ -1428,13 +1428,13 @@ function bytesFromBase64(b64: string): Uint8Array {
 
 function base64FromBytes(arr: Uint8Array): string {
   if ((globalThis as any).Buffer) {
-    return globalThis.Buffer.from(arr).toString('base64');
+    return globalThis.Buffer.from(arr).toString("base64");
   }
   const bin: string[] = [];
   arr.forEach((byte) => {
     bin.push(globalThis.String.fromCharCode(byte));
   });
-  return globalThis.btoa(bin.join(''));
+  return globalThis.btoa(bin.join(""));
 }
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
@@ -1457,10 +1457,10 @@ type Exact<P, I extends P> = P extends Builtin
 function longToNumber(int64: { toString(): string }): number {
   const num = globalThis.Number(int64.toString());
   if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error('Value is larger than Number.MAX_SAFE_INTEGER');
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
   }
   if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error('Value is smaller than Number.MIN_SAFE_INTEGER');
+    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
   }
   return num;
 }

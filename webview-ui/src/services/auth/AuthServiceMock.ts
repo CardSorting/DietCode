@@ -1,22 +1,22 @@
-import { ClineEnv } from '@/config';
-import type { Controller } from '@/core/controller';
-import { setWelcomeViewCompleted } from '@/core/controller/state/setWelcomeViewCompleted';
-import { WebviewProvider } from '@/core/webview';
-import { CLINE_API_ENDPOINT } from '@/shared/cline/api';
-import { fetch } from '@/shared/net';
-import { Logger } from '@/shared/services/Logger';
-import { String } from '@shared/nice-grpc/cline/common.ts';
-import { buildBasicClineHeaders } from '../EnvUtils';
-import { BannerService } from '../banner/BannerService';
-import { AuthService } from './AuthService';
+import { ClineEnv } from "@/config";
+import type { Controller } from "@/core/controller";
+import { setWelcomeViewCompleted } from "@/core/controller/state/setWelcomeViewCompleted";
+import { WebviewProvider } from "@/core/webview";
+import { CLINE_API_ENDPOINT } from "@/shared/cline/api";
+import { fetch } from "@/shared/net";
+import { Logger } from "@/shared/services/Logger";
+import { String } from "@shared/nice-grpc/cline/common.ts";
+import { buildBasicClineHeaders } from "../EnvUtils";
+import { BannerService } from "../banner/BannerService";
+import { AuthService } from "./AuthService";
 
 export class AuthServiceMock extends AuthService {
   protected constructor(controller: Controller) {
     super(controller);
 
-    if (process?.env?.CLINE_ENVIRONMENT !== 'local') {
+    if (process?.env?.CLINE_ENVIRONMENT !== "local") {
       throw new Error(
-        'AuthServiceMock should only be used in local environment for testing purposes.',
+        "AuthServiceMock should only be used in local environment for testing purposes.",
       );
     }
 
@@ -29,8 +29,8 @@ export class AuthServiceMock extends AuthService {
   public static override getInstance(controller?: Controller): AuthServiceMock {
     if (!AuthServiceMock.instance) {
       if (!controller) {
-        Logger.error('Extension controller was not provided to AuthServiceMock.getInstance');
-        throw new Error('Extension controller was not provided to AuthServiceMock.getInstance');
+        Logger.error("Extension controller was not provided to AuthServiceMock.getInstance");
+        throw new Error("Extension controller was not provided to AuthServiceMock.getInstance");
       }
       AuthServiceMock.instance = new AuthServiceMock(controller);
       // Initialize BannerService after AuthService is created
@@ -55,7 +55,7 @@ export class AuthServiceMock extends AuthService {
     const authUrlString = authUrl.toString();
     // Call the parent implementation
     if (this._authenticated && this._clineAuthInfo) {
-      Logger.log('Already authenticated with mock server');
+      Logger.log("Already authenticated with mock server");
       return String.create({ value: authUrlString });
     }
 
@@ -65,18 +65,18 @@ export class AuthServiceMock extends AuthService {
         CLINE_API_ENDPOINT.TOKEN_EXCHANGE,
         ClineEnv.config().apiBaseUrl,
       );
-      const tokenType = 'personal';
+      const tokenType = "personal";
       const testCode = `test-${tokenType}-token`;
 
       const response = await fetch(tokenExchangeUri, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           ...(await buildBasicClineHeaders()),
         },
         body: JSON.stringify({
           code: testCode,
-          grantType: 'authorization_code',
+          grantType: "authorization_code",
         }),
       });
 
@@ -89,7 +89,7 @@ export class AuthServiceMock extends AuthService {
       const responseData = await response.json();
 
       if (!responseData.success || !responseData.data) {
-        throw new Error('Invalid response from mock server');
+        throw new Error("Invalid response from mock server");
       }
 
       const authData = responseData.data;
@@ -108,7 +108,7 @@ export class AuthServiceMock extends AuthService {
           appBaseUrl: ClineEnv.config().appBaseUrl,
           subject: authData.userInfo.subject,
         },
-        provider: this._provider?.name || 'mock',
+        provider: this._provider?.name || "mock",
       };
 
       Logger.log(
@@ -118,11 +118,11 @@ export class AuthServiceMock extends AuthService {
       const visibleWebview = WebviewProvider.getVisibleInstance();
 
       // Use appropriate provider name for callback
-      const providerName = this._provider?.name || 'mock';
+      const providerName = this._provider?.name || "mock";
       // Simulate handling the auth callback as if from a real provider
       await visibleWebview?.controller.handleAuthCallback(authData.accessToken, providerName);
     } catch (error) {
-      Logger.error('Error signing in with mock server:', error);
+      Logger.error("Error signing in with mock server:", error);
       this._authenticated = false;
       this._clineAuthInfo = null;
       throw error;
@@ -137,7 +137,7 @@ export class AuthServiceMock extends AuthService {
       await setWelcomeViewCompleted(this._controller, { value: true });
       await this.sendAuthStatusUpdate();
     } catch (error) {
-      Logger.error('Error signing in with custom token:', error);
+      Logger.error("Error signing in with custom token:", error);
       throw error;
     }
   }
@@ -148,12 +148,12 @@ export class AuthServiceMock extends AuthService {
         this._authenticated = true;
         await this.sendAuthStatusUpdate();
       } else {
-        Logger.warn('No user found after restoring auth token');
+        Logger.warn("No user found after restoring auth token");
         this._authenticated = false;
         this._clineAuthInfo = null;
       }
     } catch (error) {
-      Logger.error('Error restoring auth token:', error);
+      Logger.error("Error restoring auth token:", error);
       this._authenticated = false;
       this._clineAuthInfo = null;
       return;

@@ -5,8 +5,8 @@
 // source: cline/web.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
-import { Empty, StringRequest } from './common';
+import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { Empty, StringRequest } from "./common";
 
 export interface IsImageUrl {
   isImage: boolean;
@@ -23,7 +23,7 @@ export interface OpenGraphData {
 }
 
 function createBaseIsImageUrl(): IsImageUrl {
-  return { isImage: false, url: '' };
+  return { isImage: false, url: "" };
 }
 
 export const IsImageUrl: MessageFns<IsImageUrl> = {
@@ -31,7 +31,7 @@ export const IsImageUrl: MessageFns<IsImageUrl> = {
     if (message.isImage !== false) {
       writer.uint32(8).bool(message.isImage);
     }
-    if (message.url !== '') {
+    if (message.url !== "") {
       writer.uint32(18).string(message.url);
     }
     return writer;
@@ -76,7 +76,7 @@ export const IsImageUrl: MessageFns<IsImageUrl> = {
         : isSet(object.is_image)
           ? globalThis.Boolean(object.is_image)
           : false,
-      url: isSet(object.url) ? globalThis.String(object.url) : '',
+      url: isSet(object.url) ? globalThis.String(object.url) : "",
     };
   },
 
@@ -85,7 +85,7 @@ export const IsImageUrl: MessageFns<IsImageUrl> = {
     if (message.isImage !== false) {
       obj.isImage = message.isImage;
     }
-    if (message.url !== '') {
+    if (message.url !== "") {
       obj.url = message.url;
     }
     return obj;
@@ -97,33 +97,33 @@ export const IsImageUrl: MessageFns<IsImageUrl> = {
   fromPartial<I extends Exact<DeepPartial<IsImageUrl>, I>>(object: I): IsImageUrl {
     const message = createBaseIsImageUrl();
     message.isImage = object.isImage ?? false;
-    message.url = object.url ?? '';
+    message.url = object.url ?? "";
     return message;
   },
 };
 
 function createBaseOpenGraphData(): OpenGraphData {
-  return { title: '', description: '', image: '', url: '', siteName: '', type: '' };
+  return { title: "", description: "", image: "", url: "", siteName: "", type: "" };
 }
 
 export const OpenGraphData: MessageFns<OpenGraphData> = {
   encode(message: OpenGraphData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.title !== '') {
+    if (message.title !== "") {
       writer.uint32(10).string(message.title);
     }
-    if (message.description !== '') {
+    if (message.description !== "") {
       writer.uint32(18).string(message.description);
     }
-    if (message.image !== '') {
+    if (message.image !== "") {
       writer.uint32(26).string(message.image);
     }
-    if (message.url !== '') {
+    if (message.url !== "") {
       writer.uint32(34).string(message.url);
     }
-    if (message.siteName !== '') {
+    if (message.siteName !== "") {
       writer.uint32(42).string(message.siteName);
     }
-    if (message.type !== '') {
+    if (message.type !== "") {
       writer.uint32(50).string(message.type);
     }
     return writer;
@@ -195,37 +195,37 @@ export const OpenGraphData: MessageFns<OpenGraphData> = {
 
   fromJSON(object: any): OpenGraphData {
     return {
-      title: isSet(object.title) ? globalThis.String(object.title) : '',
-      description: isSet(object.description) ? globalThis.String(object.description) : '',
-      image: isSet(object.image) ? globalThis.String(object.image) : '',
-      url: isSet(object.url) ? globalThis.String(object.url) : '',
+      title: isSet(object.title) ? globalThis.String(object.title) : "",
+      description: isSet(object.description) ? globalThis.String(object.description) : "",
+      image: isSet(object.image) ? globalThis.String(object.image) : "",
+      url: isSet(object.url) ? globalThis.String(object.url) : "",
       siteName: isSet(object.siteName)
         ? globalThis.String(object.siteName)
         : isSet(object.site_name)
           ? globalThis.String(object.site_name)
-          : '',
-      type: isSet(object.type) ? globalThis.String(object.type) : '',
+          : "",
+      type: isSet(object.type) ? globalThis.String(object.type) : "",
     };
   },
 
   toJSON(message: OpenGraphData): unknown {
     const obj: any = {};
-    if (message.title !== '') {
+    if (message.title !== "") {
       obj.title = message.title;
     }
-    if (message.description !== '') {
+    if (message.description !== "") {
       obj.description = message.description;
     }
-    if (message.image !== '') {
+    if (message.image !== "") {
       obj.image = message.image;
     }
-    if (message.url !== '') {
+    if (message.url !== "") {
       obj.url = message.url;
     }
-    if (message.siteName !== '') {
+    if (message.siteName !== "") {
       obj.siteName = message.siteName;
     }
-    if (message.type !== '') {
+    if (message.type !== "") {
       obj.type = message.type;
     }
     return obj;
@@ -236,23 +236,23 @@ export const OpenGraphData: MessageFns<OpenGraphData> = {
   },
   fromPartial<I extends Exact<DeepPartial<OpenGraphData>, I>>(object: I): OpenGraphData {
     const message = createBaseOpenGraphData();
-    message.title = object.title ?? '';
-    message.description = object.description ?? '';
-    message.image = object.image ?? '';
-    message.url = object.url ?? '';
-    message.siteName = object.siteName ?? '';
-    message.type = object.type ?? '';
+    message.title = object.title ?? "";
+    message.description = object.description ?? "";
+    message.image = object.image ?? "";
+    message.url = object.url ?? "";
+    message.siteName = object.siteName ?? "";
+    message.type = object.type ?? "";
     return message;
   },
 };
 
 export type WebServiceDefinition = typeof WebServiceDefinition;
 export const WebServiceDefinition = {
-  name: 'WebService',
-  fullName: 'cline.WebService',
+  name: "WebService",
+  fullName: "cline.WebService",
   methods: {
     checkIsImageUrl: {
-      name: 'checkIsImageUrl',
+      name: "checkIsImageUrl",
       requestType: StringRequest,
       requestStream: false,
       responseType: IsImageUrl,
@@ -260,7 +260,7 @@ export const WebServiceDefinition = {
       options: {},
     },
     fetchOpenGraphData: {
-      name: 'fetchOpenGraphData',
+      name: "fetchOpenGraphData",
       requestType: StringRequest,
       requestStream: false,
       responseType: OpenGraphData,
@@ -268,7 +268,7 @@ export const WebServiceDefinition = {
       options: {},
     },
     openInBrowser: {
-      name: 'openInBrowser',
+      name: "openInBrowser",
       requestType: StringRequest,
       requestStream: false,
       responseType: Empty,

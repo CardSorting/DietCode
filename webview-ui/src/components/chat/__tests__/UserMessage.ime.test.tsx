@@ -5,10 +5,10 @@
  * even if you confirm the IME conversion (Enter) in message re-edit mode.
  */
 
-import { fireEvent, render } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { fireEvent, render } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
-vi.mock('@/context/ExtensionStateContext', () => ({
+vi.mock("@/context/ExtensionStateContext", () => ({
   __esModule: true,
   useExtensionState: () => ({
     state: {},
@@ -16,10 +16,10 @@ vi.mock('@/context/ExtensionStateContext', () => ({
   }),
 }));
 
-import UserMessage from '../UserMessage';
+import UserMessage from "../UserMessage";
 
-describe('UserMessage – IME composition handling', () => {
-  it('does NOT send when IME composition Enter is pressed while editing', () => {
+describe("UserMessage – IME composition handling", () => {
+  it("does NOT send when IME composition Enter is pressed while editing", () => {
     const sendMessageFromChatRow = vi.fn();
 
     const { getByText } = render(
@@ -31,13 +31,13 @@ describe('UserMessage – IME composition handling', () => {
       />,
     );
 
-    const editable = getByText('変換テスト') as HTMLElement;
-    editable.setAttribute('contenteditable', 'true');
+    const editable = getByText("変換テスト") as HTMLElement;
+    editable.setAttribute("contenteditable", "true");
     editable.focus();
 
     fireEvent.compositionStart(editable);
     fireEvent.keyDown(editable, {
-      key: 'Enter',
+      key: "Enter",
       keyCode: 13,
       nativeEvent: { isComposing: true },
     });

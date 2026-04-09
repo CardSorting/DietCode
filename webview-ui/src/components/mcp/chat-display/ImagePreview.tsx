@@ -1,9 +1,9 @@
-import ChatErrorBoundary from '@/components/chat/ChatErrorBoundary';
-import { FileServiceClient, WebServiceClient } from '@/services/grpc-client';
-import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
-import DOMPurify from 'dompurify';
-import React from 'react';
-import { checkIfImageUrl, formatUrlForOpening, getSafeHostname } from './utils/mcpRichUtil';
+import ChatErrorBoundary from "@/components/chat/ChatErrorBoundary";
+import { FileServiceClient, WebServiceClient } from "@/services/grpc-client";
+import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
+import DOMPurify from "dompurify";
+import React from "react";
+import { checkIfImageUrl, formatUrlForOpening, getSafeHostname } from "./utils/mcpRichUtil";
 
 interface ImagePreviewProps {
   url: string;
@@ -111,7 +111,7 @@ class ImagePreview extends React.Component<
     };
 
     // Force CORS mode to be anonymous to avoid CORS issues
-    testImg.crossOrigin = 'anonymous';
+    testImg.crossOrigin = "anonymous";
   }
 
   componentWillUnmount() {
@@ -160,28 +160,28 @@ class ImagePreview extends React.Component<
         <div
           className="image-preview-loading"
           style={{
-            padding: '12px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            border: '1px solid var(--vscode-editorWidget-border, rgba(127, 127, 127, 0.3))',
-            borderRadius: '4px',
-            height: '128px',
-            maxWidth: '512px',
+            padding: "12px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            border: "1px solid var(--vscode-editorWidget-border, rgba(127, 127, 127, 0.3))",
+            borderRadius: "4px",
+            height: "128px",
+            maxWidth: "512px",
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
             <div
               className="loading-spinner"
               style={{
-                marginRight: '8px',
-                width: '16px',
-                height: '16px',
-                border: '2px solid rgba(127, 127, 127, 0.3)',
-                borderTopColor: 'var(--vscode-textLink-foreground, #3794ff)',
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite',
+                marginRight: "8px",
+                width: "16px",
+                height: "16px",
+                border: "2px solid rgba(127, 127, 127, 0.3)",
+                borderTopColor: "var(--vscode-textLink-foreground, #3794ff)",
+                borderRadius: "50%",
+                animation: "spin 1s linear infinite",
               }}
             />
             <style>
@@ -194,7 +194,7 @@ class ImagePreview extends React.Component<
             Loading image from {getSafeHostname(url)}...
           </div>
           {elapsedSeconds > 3 && (
-            <div style={{ fontSize: '11px', color: 'var(--vscode-descriptionForeground)' }}>
+            <div style={{ fontSize: "11px", color: "var(--vscode-descriptionForeground)" }}>
               {elapsedSeconds > 60
                 ? `Waiting for ${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s...`
                 : `Waiting for ${elapsedSeconds}s...`}
@@ -206,7 +206,7 @@ class ImagePreview extends React.Component<
               data={DOMPurify.sanitize(url)}
               onError={this.handleImageError}
               onLoad={this.handleImageLoad}
-              style={{ display: 'none' }}
+              style={{ display: "none" }}
               type="image/svg+xml"
             />
           ) : (
@@ -216,7 +216,7 @@ class ImagePreview extends React.Component<
               onLoad={this.handleImageLoad}
               ref={this.imgRef}
               src={DOMPurify.sanitize(url)}
-              style={{ display: 'none' }}
+              style={{ display: "none" }}
             />
           )}
         </div>
@@ -236,23 +236,23 @@ class ImagePreview extends React.Component<
                 }),
               );
             } catch (err) {
-              console.error('Error opening URL in browser:', err);
+              console.error("Error opening URL in browser:", err);
             }
           }}
           style={{
-            padding: '12px',
-            border: '1px solid var(--vscode-editorWidget-border, rgba(127, 127, 127, 0.3))',
-            borderRadius: '4px',
-            color: 'var(--vscode-errorForeground)',
+            padding: "12px",
+            border: "1px solid var(--vscode-editorWidget-border, rgba(127, 127, 127, 0.3))",
+            borderRadius: "4px",
+            color: "var(--vscode-errorForeground)",
           }}
         >
-          <div style={{ fontWeight: 'bold' }}>Failed to load image</div>
-          <div style={{ fontSize: '12px', marginTop: '4px' }}>{getSafeHostname(url)}</div>
+          <div style={{ fontWeight: "bold" }}>Failed to load image</div>
+          <div style={{ fontSize: "12px", marginTop: "4px" }}>{getSafeHostname(url)}</div>
           <div
             style={{
-              fontSize: '11px',
-              marginTop: '8px',
-              color: 'var(--vscode-textLink-foreground)',
+              fontSize: "11px",
+              marginTop: "8px",
+              color: "var(--vscode-textLink-foreground)",
             }}
           >
             Click to open in browser
@@ -268,7 +268,7 @@ class ImagePreview extends React.Component<
         onClick={async () => {
           try {
             // For data URIs, open in VS Code editor (like mermaid diagrams)
-            if (url.startsWith('data:')) {
+            if (url.startsWith("data:")) {
               await FileServiceClient.openImage(StringRequest.create({ value: url }));
             } else {
               // For regular URLs, open in browser
@@ -279,13 +279,13 @@ class ImagePreview extends React.Component<
               );
             }
           } catch (err) {
-            console.error('Error opening image:', err);
+            console.error("Error opening image:", err);
           }
         }}
         style={{
-          margin: '10px 0',
-          maxWidth: '100%',
-          cursor: 'pointer',
+          margin: "10px 0",
+          maxWidth: "100%",
+          cursor: "pointer",
         }}
       >
         {/\.svg(\?.*)?$/i.test(url) ? (
@@ -294,9 +294,9 @@ class ImagePreview extends React.Component<
             aria-label={`SVG from ${getSafeHostname(url)}`}
             data={DOMPurify.sanitize(url)}
             style={{
-              width: '100%',
-              height: 'auto',
-              borderRadius: '4px',
+              width: "100%",
+              height: "auto",
+              borderRadius: "4px",
             }}
             type="image/svg+xml"
           >
@@ -305,9 +305,9 @@ class ImagePreview extends React.Component<
               alt={`SVG from ${getSafeHostname(url)}`}
               src={DOMPurify.sanitize(url)}
               style={{
-                width: '100%',
-                height: 'auto',
-                borderRadius: '4px',
+                width: "100%",
+                height: "auto",
+                borderRadius: "4px",
               }}
             />
           </object>
@@ -317,9 +317,9 @@ class ImagePreview extends React.Component<
             loading="eager"
             src={DOMPurify.sanitize(url)}
             style={{
-              width: '100%',
-              height: 'auto',
-              borderRadius: '4px',
+              width: "100%",
+              height: "auto",
+              borderRadius: "4px",
             }}
           />
         )}

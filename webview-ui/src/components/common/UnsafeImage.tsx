@@ -1,11 +1,11 @@
-import { Button } from '@/components/ui/button';
-import type { ComponentProps } from 'react';
-import type React from 'react';
-import { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import type { ComponentProps } from "react";
+import type React from "react";
+import { useState } from "react";
 
-type UnsafeImageProps = ComponentProps<'img'>;
+type UnsafeImageProps = ComponentProps<"img">;
 
-const UnsafeImage: React.FC<UnsafeImageProps> = ({ src = '', alt = '', ...imgProps }) => {
+const UnsafeImage: React.FC<UnsafeImageProps> = ({ src = "", alt = "", ...imgProps }) => {
   const [approvedSrc, setApprovedSrc] = useState<string>();
   const isApproved = approvedSrc === src;
 
@@ -14,7 +14,7 @@ const UnsafeImage: React.FC<UnsafeImageProps> = ({ src = '', alt = '', ...imgPro
   }
 
   // If it's base-64 encoded image (starts with `data:`), we can render it regardless of consent
-  if (!isApproved && !src.startsWith('data:')) {
+  if (!isApproved && !src.startsWith("data:")) {
     return (
       <span className="my-2 block flex flex-col rounded-md border border-input-border bg-code p-3">
         <span className="block m-0 text-sm font-medium">

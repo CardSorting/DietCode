@@ -4,17 +4,17 @@
  */
 export enum BannerActionType {
   /** Open external URL */
-  Link = 'link',
+  Link = "link",
   /** Open API settings tab */
-  ShowApiSettings = 'show-api-settings',
+  ShowApiSettings = "show-api-settings",
   /** Open feature settings tab */
-  ShowFeatureSettings = 'show-feature-settings',
+  ShowFeatureSettings = "show-feature-settings",
   /** Open account/login view */
-  ShowAccount = 'show-account',
+  ShowAccount = "show-account",
   /** Set the active model */
-  SetModel = 'set-model',
+  SetModel = "set-model",
   /** Trigger CLI installation flow */
-  InstallCli = 'install-cli',
+  InstallCli = "install-cli",
 }
 
 /**
@@ -48,7 +48,7 @@ export interface BannerCardData {
    * Platform filter - only show on specified platforms
    * If undefined, show on all platforms
    */
-  platforms?: ('windows' | 'mac' | 'linux')[];
+  platforms?: ("windows" | "mac" | "linux")[];
 
   /** Only show to Cline users */
   isClineUserOnly?: boolean;
@@ -78,7 +78,7 @@ export interface BannerAction {
   /**
    * Optional model picker tab to open when using SetModel action
    */
-  tab?: 'recommended' | 'free';
+  tab?: "recommended" | "free";
 }
 
 /**
@@ -90,16 +90,16 @@ export const BANNER_DATA: BannerCardData[] = [
   // Sonnet 4.6 banner
   {
     // Bump this version string when copy/CTA changes and you want the banner to reappear.
-    id: 'claude-sonnet-4-6-2026-feb-18',
-    icon: 'sparkles',
-    title: 'Try Claude Sonnet 4.6',
+    id: "claude-sonnet-4-6-2026-feb-18",
+    icon: "sparkles",
+    title: "Try Claude Sonnet 4.6",
     description: "Anthropic's latest model with strong reasoning and coding performance.",
     actions: [
       {
-        title: 'Use Sonnet 4.6',
+        title: "Use Sonnet 4.6",
         action: BannerActionType.SetModel,
-        arg: 'anthropic/claude-sonnet-4.6',
-        tab: 'recommended',
+        arg: "anthropic/claude-sonnet-4.6",
+        tab: "recommended",
       },
     ],
   },
@@ -107,61 +107,61 @@ export const BANNER_DATA: BannerCardData[] = [
   // Minimax free promo banner
   {
     // Bump this version string when copy/CTA changes and you want the banner to reappear.
-    id: 'minimax-m2.5-free-2026-feb-18',
-    icon: 'zap',
-    title: 'Try MiniMax M2.5 Free',
-    description: 'SOTA coding capability with lightning fast inference, free in Cline.',
+    id: "minimax-m2.5-free-2026-feb-18",
+    icon: "zap",
+    title: "Try MiniMax M2.5 Free",
+    description: "SOTA coding capability with lightning fast inference, free in Cline.",
     actions: [
       {
-        title: 'Try now',
+        title: "Try now",
         action: BannerActionType.SetModel,
-        arg: 'minimax/minimax-m2.5',
-        tab: 'free',
+        arg: "minimax/minimax-m2.5",
+        tab: "free",
       },
     ],
   },
 
   // ChatGPT integration banner
   {
-    id: 'chatgpt-integration-v1',
-    icon: 'megaphone',
-    title: 'Use ChatGPT with Cline',
+    id: "chatgpt-integration-v1",
+    icon: "megaphone",
+    title: "Use ChatGPT with Cline",
     description:
-      'Bring your ChatGPT subscription to Cline! Use your existing plan directly with no per token costs or API keys to manage.',
+      "Bring your ChatGPT subscription to Cline! Use your existing plan directly with no per token costs or API keys to manage.",
     actions: [
       {
-        title: 'Connect',
+        title: "Connect",
         action: BannerActionType.ShowApiSettings,
-        arg: 'openai-codex', // Pre-select OpenAI Codex provider
+        arg: "openai-codex", // Pre-select OpenAI Codex provider
       },
     ],
   },
 
   // Jupyter Notebooks banner
   {
-    id: 'jupyter-notebooks-v1',
-    icon: 'book-open',
-    title: 'Jupyter Notebooks',
+    id: "jupyter-notebooks-v1",
+    icon: "book-open",
+    title: "Jupyter Notebooks",
     description:
-      'Comprehensive AI-assisted editing of `.ipynb` files with full cell-level context awareness. [Learn More →](https://docs.cline.bot/features/jupyter-notebooks)',
+      "Comprehensive AI-assisted editing of `.ipynb` files with full cell-level context awareness. [Learn More →](https://docs.cline.bot/features/jupyter-notebooks)",
   },
 
   // Platform-specific banner (Windows)
   {
-    id: 'cli-info-windows-v1',
-    icon: 'terminal',
-    title: 'Cline CLI Info',
-    platforms: ['windows'] satisfies BannerCardData['platforms'],
+    id: "cli-info-windows-v1",
+    icon: "terminal",
+    title: "Cline CLI Info",
+    platforms: ["windows"] satisfies BannerCardData["platforms"],
     description:
-      'Available for macOS and Linux. Coming soon to other platforms. [Learn more](https://docs.cline.bot/cline-cli/overview)',
+      "Available for macOS and Linux. Coming soon to other platforms. [Learn more](https://docs.cline.bot/cline-cli/overview)",
   },
 
   // Info banner with inline link
   {
-    id: 'info-banner-v1',
-    icon: 'lightbulb',
-    title: 'Use Cline in Right Sidebar',
+    id: "info-banner-v1",
+    icon: "lightbulb",
+    title: "Use Cline in Right Sidebar",
     description:
-      'For the best experience, drag the Cline icon to your right sidebar. This keeps your file explorer and editor visible while you chat with Cline, making it easier to navigate your codebase and see changes in real-time. [See how →](https://docs.cline.bot/features/customization/opening-cline-in-sidebar)',
+      "For the best experience, drag the Cline icon to your right sidebar. This keeps your file explorer and editor visible while you chat with Cline, making it easier to navigate your codebase and see changes in real-time. [See how →](https://docs.cline.bot/features/customization/opening-cline-in-sidebar)",
   },
 ];

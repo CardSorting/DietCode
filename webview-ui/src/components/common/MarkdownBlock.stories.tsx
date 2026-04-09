@@ -1,11 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
-import MarkdownBlock from './MarkdownBlock';
+import type { Meta, StoryObj } from "@storybook/react-vite";
+import MarkdownBlock from "./MarkdownBlock";
 
 const meta: Meta<typeof MarkdownBlock> = {
-  title: 'Views/Components/MarkdownBlock',
+  title: "Views/Components/MarkdownBlock",
   component: MarkdownBlock,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
     docs: {
       description: {
         component: `
@@ -39,32 +39,32 @@ Use the controls below to test different markdown content and see how various fe
   },
   argTypes: {
     markdown: {
-      control: 'text',
-      description: 'The markdown content to render',
+      control: "text",
+      description: "The markdown content to render",
       table: {
-        type: { summary: 'string' },
+        type: { summary: "string" },
       },
     },
     compact: {
-      control: 'boolean',
-      description: 'Enables compact mode with reduced spacing',
+      control: "boolean",
+      description: "Enables compact mode with reduced spacing",
       table: {
-        type: { summary: 'boolean' },
-        defaultValue: { summary: 'false' },
+        type: { summary: "boolean" },
+        defaultValue: { summary: "false" },
       },
     },
     showCursor: {
-      control: 'boolean',
-      description: 'Shows a blinking cursor after the content',
+      control: "boolean",
+      description: "Shows a blinking cursor after the content",
       table: {
-        type: { summary: 'boolean' },
-        defaultValue: { summary: 'false' },
+        type: { summary: "boolean" },
+        defaultValue: { summary: "false" },
       },
     },
   },
   decorators: [
     (Story) => (
-      <div className="w-full max-w-3xl p-6 bg-[var(--vscode-editor-background)] text-[var(--vscode-editor-foreground)]">
+      <div className="w-full max-w-3xl p-6 bg-(--vscode-editor-background) text-(--vscode-editor-foreground)">
         <Story />
       </div>
     ),
@@ -98,7 +98,7 @@ The code above demonstrates a simple API fetch function.`,
   parameters: {
     docs: {
       description: {
-        story: 'Basic markdown rendering with text, inline code for file paths, and lists.',
+        story: "Basic markdown rendering with text, inline code for file paths, and lists.",
       },
     },
   },
@@ -138,7 +138,7 @@ You can also visit our website at https://cline.bot for more information.`,
     docs: {
       description: {
         story:
-          'Shows automatic URL detection and conversion to clickable links. Plain URLs in text are converted to links automatically.',
+          "Shows automatic URL detection and conversion to clickable links. Plain URLs in text are converted to links automatically.",
       },
     },
   },
@@ -171,7 +171,7 @@ This flow shows how requests are processed through the system.`,
     docs: {
       description: {
         story:
-          'Demonstrates Mermaid diagram rendering. The diagram is automatically detected and rendered as an interactive SVG.',
+          "Demonstrates Mermaid diagram rendering. The diagram is automatically detected and rendered as an interactive SVG.",
       },
     },
   },
@@ -197,7 +197,7 @@ export const config = {
     docs: {
       description: {
         story:
-          'Shows diff-style syntax highlighting with additions (+) and deletions (-) color-coded.',
+          "Shows diff-style syntax highlighting with additions (+) and deletions (-) color-coded.",
       },
     },
   },
@@ -217,7 +217,7 @@ All formatting still works: **bold**, *italic*, and [links](https://example.com)
     docs: {
       description: {
         story:
-          'Demonstrates compact mode with reduced vertical spacing. Useful for tight layouts or inline messages.',
+          "Demonstrates compact mode with reduced vertical spacing. Useful for tight layouts or inline messages.",
       },
     },
   },
@@ -233,7 +233,7 @@ export const WithCursor: Story = {
     docs: {
       description: {
         story:
-          'Shows the blinking cursor effect, typically used during streaming responses to indicate ongoing generation.',
+          "Shows the blinking cursor effect, typically used during streaming responses to indicate ongoing generation.",
       },
     },
   },
@@ -242,7 +242,7 @@ export const WithCursor: Story = {
 export const FilenameProtection: Story = {
   args: {
     markdown:
-      'I need to update these Python files:\n\n\n- `__init__.py` - Package initializer\n- `__main__.py` - Entry point\n- `__version__.py` - Version info\n\nThe `__init__.py` file should not render with bold text.',
+      "I need to update these Python files:\n\n\n- `__init__.py` - Package initializer\n- `__main__.py` - Entry point\n- `__version__.py` - Version info\n\nThe `__init__.py` file should not render with bold text.",
     compact: false,
     showCursor: false,
   },
@@ -250,7 +250,7 @@ export const FilenameProtection: Story = {
     docs: {
       description: {
         story:
-          'Demonstrates filename protection. Filenames like __init__.py are protected from being parsed as markdown bold (**text**).',
+          "Demonstrates filename protection. Filenames like __init__.py are protected from being parsed as markdown bold (**text**).",
       },
     },
   },

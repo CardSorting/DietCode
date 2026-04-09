@@ -1,9 +1,7 @@
-import ClineLogoSanta from '@/assets/ClineLogoSanta';
-import ClineLogoTired from '@/assets/ClineLogoTired';
-import ClineLogoVariable from '@/assets/ClineLogoVariable';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { UiServiceClient } from '@/services/grpc-client';
-import { EmptyRequest } from '@shared/nice-grpc/cline/common.ts';
+import DietCodeLogoVariable from "@/assets/DietCodeLogoVariable";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { UiServiceClient } from "@/services/grpc-client";
+import { EmptyRequest } from "@shared/nice-grpc/cline/common.ts";
 
 interface HomeHeaderProps {
   shouldShowQuickWins?: boolean;
@@ -16,20 +14,16 @@ const HomeHeader = ({ shouldShowQuickWins = false }: HomeHeaderProps) => {
     try {
       await UiServiceClient.openWalkthrough(EmptyRequest.create());
     } catch (error) {
-      console.error('Error opening walkthrough:', error);
+      console.error("Error opening walkthrough:", error);
     }
   };
 
   // Lazy Teammate Mode takes priority, then December festive logo, then default
   const isDecember = new Date().getMonth() === 11; // 11 = December (0-indexed)
-  const LogoComponent = lazyTeammateModeEnabled
-    ? ClineLogoTired
-    : isDecember
-      ? ClineLogoSanta
-      : ClineLogoVariable;
+  const LogoComponent = DietCodeLogoVariable;
   const headingText = lazyTeammateModeEnabled
     ? "I guess I'm here to help"
-    : 'What can I do for you?';
+    : "What can I do for you?";
 
   return (
     <div className="flex flex-col items-center mb-5">

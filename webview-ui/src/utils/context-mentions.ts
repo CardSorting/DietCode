@@ -1,10 +1,10 @@
-import { PLATFORM_CONFIG } from '@/config/platform.config';
-import { mentionRegex } from '@shared/context-mentions.ts';
-import { Fzf } from 'fzf';
+import { PLATFORM_CONFIG } from "@/config/platform.config";
+import { mentionRegex } from "@shared/context-mentions.ts";
+import { Fzf } from "fzf";
 
 export interface SearchResult {
   path: string;
-  type: 'file' | 'folder';
+  type: "file" | "folder";
   label?: string;
   workspaceName?: string;
 }
@@ -19,11 +19,11 @@ export function insertMention(
   const afterCursor = text.slice(position);
 
   // Find the position of the last '@' symbol before the cursor
-  const lastAtIndex = beforeCursor.lastIndexOf('@');
+  const lastAtIndex = beforeCursor.lastIndexOf("@");
 
   // For file/folder paths that contain spaces, wrap them in quotes
   let formattedValue = value;
-  if (value.startsWith('/') && value.includes(' ')) {
+  if (value.startsWith("/") && value.includes(" ")) {
     formattedValue = `"${value}"`;
   }
   let newValue: string;
@@ -38,7 +38,7 @@ export function insertMention(
     newValue =
       beforeAt +
       formattedValue +
-      (afterPartialQuery.startsWith(' ') ? afterPartialQuery : ` ${afterPartialQuery}`);
+      (afterPartialQuery.startsWith(" ") ? afterPartialQuery : ` ${afterPartialQuery}`);
     mentionIndex = lastAtIndex;
   } else {
     // If there's no '@' symbol, insert the mention at the cursor position
@@ -59,7 +59,7 @@ export function insertMentionDirectly(
 
   // For file/folder paths that contain spaces, wrap them in quotes
   let formattedValue = value;
-  if (value.startsWith('/') && value.includes(' ')) {
+  if (value.startsWith("/") && value.includes(" ")) {
     formattedValue = `"${value}"`;
   }
 
@@ -80,7 +80,7 @@ export function removeMention(
 
   if (matchEnd) {
     // If we're at the end of a mention, remove it
-    const newText = text.slice(0, position - matchEnd[0].length) + afterCursor.replace(' ', ''); // removes the first space after the mention
+    const newText = text.slice(0, position - matchEnd[0].length) + afterCursor.replace(" ", ""); // removes the first space after the mention
     const newPosition = position - matchEnd[0].length;
     return { newText, newPosition };
   }
@@ -90,13 +90,13 @@ export function removeMention(
 }
 
 export enum ContextMenuOptionType {
-  File = 'file',
-  Folder = 'folder',
-  Problems = 'problems',
-  Terminal = 'terminal',
-  URL = 'url',
-  Git = 'git',
-  NoResults = 'noResults',
+  File = "file",
+  Folder = "folder",
+  Problems = "problems",
+  Terminal = "terminal",
+  URL = "url",
+  Git = "git",
+  NoResults = "noResults",
 }
 
 export interface ContextMenuQueryItem {
@@ -133,15 +133,15 @@ export function getContextMenuOptions(
 ): ContextMenuQueryItem[] {
   const workingChanges: ContextMenuQueryItem = {
     type: ContextMenuOptionType.Git,
-    value: 'git-changes',
-    label: 'Working changes',
-    description: 'Current uncommitted changes',
+    value: "git-changes",
+    label: "Working changes",
+    description: "Current uncommitted changes",
   };
 
   const searchResultItems: ContextMenuQueryItem[] = dynamicSearchResults.map((result) => {
-    const formattedPath = result.path.startsWith('/') ? result.path : `/${result.path}`;
+    const formattedPath = result.path.startsWith("/") ? result.path : `/${result.path}`;
     const item = {
-      type: result.type === 'folder' ? ContextMenuOptionType.Folder : ContextMenuOptionType.File,
+      type: result.type === "folder" ? ContextMenuOptionType.Folder : ContextMenuOptionType.File,
       value: formattedPath,
       label: result.label,
       description: formattedPath,
@@ -150,7 +150,7 @@ export function getContextMenuOptions(
     return item;
   });
 
-  if (query === '') {
+  if (query === "") {
     if (selectedType === ContextMenuOptionType.File) {
       const files = searchResultItems
         .filter((item) => item.type === ContextMenuOptionType.File)
@@ -189,19 +189,19 @@ export function getContextMenuOptions(
   const suggestions: ContextMenuQueryItem[] = [];
 
   // Check for top-level option matches
-  if ('git'.startsWith(lowerQuery)) {
+  if ("git".startsWith(lowerQuery)) {
     suggestions.push({
       type: ContextMenuOptionType.Git,
-      label: 'Git Commits',
-      description: 'Search repository history',
+      label: "Git Commits",
+      description: "Search repository history",
     });
-  } else if ('git-changes'.startsWith(lowerQuery)) {
+  } else if ("git-changes".startsWith(lowerQuery)) {
     suggestions.push(workingChanges);
   }
-  if ('problems'.startsWith(lowerQuery)) {
+  if ("problems".startsWith(lowerQuery)) {
     suggestions.push({ type: ContextMenuOptionType.Problems });
   }
-  if (query.startsWith('http')) {
+  if (query.startsWith("http")) {
     suggestions.push({ type: ContextMenuOptionType.URL, value: query });
   }
 
@@ -218,7 +218,7 @@ export function getContextMenuOptions(
         type: ContextMenuOptionType.Git,
         value: lowerQuery,
         label: `Commit ${lowerQuery}`,
-        description: 'Git commit hash',
+        description: "Git commit hash",
       });
     }
   }
@@ -226,7 +226,7 @@ export function getContextMenuOptions(
   // Create searchable strings array for fzf
   const searchableItems = queryItems.map((item) => ({
     original: item,
-    searchStr: [item.value, item.label, item.description].filter(Boolean).join(' '),
+    searchStr: [item.value, item.label, item.description].filter(Boolean).join(" "),
   }));
 
   // Initialize fzf instance for fuzzy search
@@ -279,7 +279,7 @@ export function getContextMenuOptions(
     const deduped = allItems.filter((item) => {
       // Normalize paths for deduplication by ensuring leading slashes
       const normalizedValue =
-        item.value && !item.value.startsWith('/') ? `/${item.value}` : item.value;
+        item.value && !item.value.startsWith("/") ? `/${item.value}` : item.value;
       const key = `${item.type}-${normalizedValue}`;
       if (seen.has(key)) {
         return false;
@@ -296,7 +296,7 @@ export function getContextMenuOptions(
 
 export function shouldShowContextMenu(text: string, position: number): boolean {
   const beforeCursor = text.slice(0, position);
-  const atIndex = beforeCursor.lastIndexOf('@');
+  const atIndex = beforeCursor.lastIndexOf("@");
 
   if (atIndex === -1) {
     return false;
@@ -310,14 +310,14 @@ export function shouldShowContextMenu(text: string, position: number): boolean {
   }
 
   // Don't show the menu if it's a URL
-  if (textAfterAt.toLowerCase().startsWith('http')) {
+  if (textAfterAt.toLowerCase().startsWith("http")) {
     return false;
   }
 
   // Don't show the menu if it's a problems or terminal
   if (
-    textAfterAt.toLowerCase().startsWith('problems') ||
-    textAfterAt.toLowerCase().startsWith('terminal')
+    textAfterAt.toLowerCase().startsWith("problems") ||
+    textAfterAt.toLowerCase().startsWith("terminal")
   ) {
     return false;
   }

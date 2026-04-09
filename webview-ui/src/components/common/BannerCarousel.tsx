@@ -1,9 +1,9 @@
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { ChevronLeft, ChevronRight, XIcon } from 'lucide-react';
-import type React from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useRemark } from 'react-remark';
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { ChevronLeft, ChevronRight, XIcon } from "lucide-react";
+import type React from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRemark } from "react-remark";
 
 interface BannerActions {
   label: string;
@@ -40,24 +40,24 @@ const BannerCardContent: React.FC<BannerCardContentProps> = ({
   const [markdownContent, setMarkdown] = useRemark();
 
   useEffect(() => {
-    setMarkdown(typeof banner.description === 'string' ? banner.description : '');
+    setMarkdown(typeof banner.description === "string" ? banner.description : "");
   }, [banner.description, setMarkdown]);
 
   return (
     <div
-      className={cn('p-3 transition-opacity duration-400 ease-in-out opacity-0', {
-        'opacity-100': isActive && !isTransitioning,
-        'cursor-auto': isActive,
+      className={cn("p-3 transition-opacity duration-400 ease-in-out opacity-0", {
+        "opacity-100": isActive && !isTransitioning,
+        "cursor-auto": isActive,
       })}
       style={{
-        gridArea: 'stack',
-        pointerEvents: isActive ? 'auto' : 'none', // Disable interaction on inactive cards
+        gridArea: "stack",
+        pointerEvents: isActive ? "auto" : "none", // Disable interaction on inactive cards
       }}
     >
       {/* Title with optional icon */}
       <h3
-        className={cn('font-semibold mb-2 flex items-center gap-2 text-base pr-0', {
-          'pr-6': showDismissButton,
+        className={cn("font-semibold mb-2 flex items-center gap-2 text-base pr-0", {
+          "pr-6": showDismissButton,
         })}
       >
         <span className="shrink-0">{banner.icon}</span>

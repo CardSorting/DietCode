@@ -1,12 +1,12 @@
-import type { ModelInfo } from '@shared/api';
+import type { ModelInfo } from "@shared/api";
 
 /**
  * Formats a price as a currency string
  */
 export const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(price);
@@ -64,7 +64,7 @@ export const formatTokenLimit = (limit: number): string => {
  * @returns A valid number, or the default value if parsing fails
  */
 export const parsePrice = (value: string, defaultValue: number): number => {
-  if (value === '' || value === '.') {
+  if (value === "" || value === ".") {
     return defaultValue;
   }
   const num = Number.parseFloat(value);

@@ -1,12 +1,12 @@
-import ChecklistRenderer from '@/components/common/ChecklistRenderer';
-import LightMarkdown from '@/components/common/LightMarkdown';
-import { FileServiceClient } from '@/services/grpc-client';
-import { cn } from '@heroui/react';
-import { isCompletedFocusChainItem, isFocusChainItem } from '@shared/focus-chain-utils.ts';
-import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
-import { ChevronDownIcon, ChevronRightIcon } from 'lucide-react';
-import type React from 'react';
-import { memo, useCallback, useMemo, useState } from 'react';
+import ChecklistRenderer from "@/components/common/ChecklistRenderer";
+import LightMarkdown from "@/components/common/LightMarkdown";
+import { FileServiceClient } from "@/services/grpc-client";
+import { cn } from "@heroui/react";
+import { isCompletedFocusChainItem, isFocusChainItem } from "@shared/focus-chain-utils.ts";
+import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
+import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
+import type React from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 
 // Optimized interface with readonly properties to prevent accidental mutations
 interface TodoInfo {
@@ -24,10 +24,10 @@ interface FocusChainProps {
 }
 
 // Static strings to avoid recreating them
-const COMPLETED_MESSAGE = 'All tasks have been completed!';
-const TODO_LIST_LABEL = 'To-Do list';
-const NEW_STEPS_MESSAGE = 'New steps will be generated if you continue the task';
-const CLICK_TO_EDIT_TITLE = 'Click to edit to-do list in file';
+const COMPLETED_MESSAGE = "All tasks have been completed!";
+const TODO_LIST_LABEL = "To-Do list";
+const NEW_STEPS_MESSAGE = "New steps will be generated if you continue the task";
+const CLICK_TO_EDIT_TITLE = "Click to edit to-do list in file";
 
 // Optimized header component with minimal re-renders
 const ToDoListHeader = memo<{
@@ -42,15 +42,15 @@ const ToDoListHeader = memo<{
 
   return (
     <div
-      className={cn('relative w-full h-full', {
-        'text-success': isCompleted,
+      className={cn("relative w-full h-full", {
+        "text-success": isCompleted,
       })}
     >
       <div
         className={cn(
-          'absolute bottom-0 left-0 transition-[width] duration-300 ease-in-out pointer-events-none z-1 h-1 bg-success',
+          "absolute bottom-0 left-0 transition-[width] duration-300 ease-in-out pointer-events-none z-1 h-1 bg-success",
           {
-            'opacity-0': progressPercentage === 0 || progressPercentage === 100,
+            "opacity-0": progressPercentage === 0 || progressPercentage === 100,
           },
         )}
         style={{
@@ -61,9 +61,9 @@ const ToDoListHeader = memo<{
         <div className="flex items-center gap-1.5 flex-1 min-w-0 text-sm">
           <span
             className={cn(
-              'rounded-lg px-2 py-0.25 inline-block shrink-0 bg-badge-foreground/20 text-foreground text-sm',
+              "rounded-lg px-2 py-0.25 inline-block shrink-0 bg-badge-foreground/20 text-foreground text-sm",
               {
-                'bg-success text-black': isCompleted,
+                "bg-success text-black": isCompleted,
               },
             )}
           >
@@ -85,7 +85,7 @@ const ToDoListHeader = memo<{
   );
 });
 
-ToDoListHeader.displayName = 'ToDoListHeader';
+ToDoListHeader.displayName = "ToDoListHeader";
 
 // Cache for parsed todo info to avoid re-parsing identical text
 const todoInfoCache = new Map<string, TodoInfo | null>();
@@ -110,7 +110,7 @@ const parseCurrentTodoInfo = (text: string): TodoInfo | null => {
 
   // Process text line by line without creating intermediate arrays
   let lineStart = 0;
-  let lineEnd = text.indexOf('\n');
+  let lineEnd = text.indexOf("\n");
 
   while (lineStart < text.length) {
     const line =
@@ -134,7 +134,7 @@ const parseCurrentTodoInfo = (text: string): TodoInfo | null => {
       break;
     }
     lineStart = lineEnd + 1;
-    lineEnd = text.indexOf('\n', lineStart);
+    lineEnd = text.indexOf("\n", lineStart);
   }
 
   if (totalCount === 0) {
@@ -218,11 +218,11 @@ export const FocusChain: React.FC<FocusChainProps> = memo(
 
     return (
       <div
-        aria-label={isExpanded ? 'Collapse focus chain' : 'Expand focus chain'}
+        aria-label={isExpanded ? "Collapse focus chain" : "Expand focus chain"}
         className="relative rounded-sm bg-toolbar-hover/65 flex flex-col gap-1.5 select-none hover:bg-toolbar-hover overflow-hidden opacity-80 hover:opacity-100 transition-[transform,box-shadow] duration-200 cursor-pointer"
         onClick={handleToggle}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
+          if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             e.stopPropagation();
             handleToggle();
@@ -254,4 +254,4 @@ export const FocusChain: React.FC<FocusChainProps> = memo(
   },
 );
 
-FocusChain.displayName = 'FocusChain';
+FocusChain.displayName = "FocusChain";

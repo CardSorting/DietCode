@@ -1,4 +1,4 @@
-import prettyBytes from 'pretty-bytes';
+import prettyBytes from "pretty-bytes";
 
 export function formatLargeNumber(num: number): string {
   if (num >= 1e9) {
@@ -16,7 +16,7 @@ export function formatLargeNumber(num: number): string {
 // Helper to format cents as dollars with 2 decimal places
 export function formatDollars(cents?: number): string {
   if (cents === undefined) {
-    return '';
+    return "";
   }
 
   return (cents / 100).toFixed(2);
@@ -43,12 +43,12 @@ export function formatCreditsBalance(microcredits: number): number {
 export function formatTimestamp(timestamp: string): string {
   const date = new Date(timestamp);
 
-  const dateFormatter = new Intl.DateTimeFormat('en-US', {
-    month: '2-digit',
-    day: '2-digit',
-    year: '2-digit',
-    hour: 'numeric',
-    minute: '2-digit',
+  const dateFormatter = new Intl.DateTimeFormat("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    year: "2-digit",
+    hour: "numeric",
+    minute: "2-digit",
     hour12: true,
   });
 
@@ -57,20 +57,20 @@ export function formatTimestamp(timestamp: string): string {
 
 export function formatSize(bytes?: number) {
   if (bytes === undefined) {
-    return '--kb';
+    return "--kb";
   }
 
   return prettyBytes(bytes);
 }
 export function formatSeconds(seconds?: number): string {
   if (seconds === undefined) {
-    return '--:--';
+    return "--:--";
   }
 
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60)
     .toString()
-    .padStart(2, '0');
+    .padStart(2, "0");
 
   return `${mins}:${secs}`;
 }

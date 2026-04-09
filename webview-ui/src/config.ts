@@ -1,8 +1,8 @@
-import * as fs from 'node:fs/promises';
-import * as os from 'node:os';
-import * as path from 'node:path';
-import { Environment, type EnvironmentConfig } from './shared/config-types';
-import { Logger } from './shared/services/Logger';
+import * as fs from "node:fs/promises";
+import * as os from "node:os";
+import * as path from "node:path";
+import { Environment, type EnvironmentConfig } from "./shared/config-types";
+import { Logger } from "./shared/services/Logger";
 
 export { Environment, type EnvironmentConfig };
 
@@ -23,7 +23,7 @@ interface EndpointsFileSchema {
 export class ClineConfigurationError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'ClineConfigurationError';
+    this.name = "ClineConfigurationError";
   }
 }
 
@@ -66,7 +66,7 @@ class ClineEndpoint {
     const endpointsConfig = await ClineEndpoint.loadEndpointsFile();
     if (endpointsConfig) {
       ClineEndpoint._instance.onPremiseConfig = endpointsConfig;
-      Logger.log('Cline running in self-hosted mode with custom endpoints');
+      Logger.log("Cline running in self-hosted mode with custom endpoints");
     }
 
     ClineEndpoint._initialized = true;
@@ -99,7 +99,7 @@ class ClineEndpoint {
    */
   public static isBundledConfig(): boolean {
     if (!ClineEndpoint._initialized || !ClineEndpoint._instance) {
-      throw new Error('ClineEndpoint not initialized. Call ClineEndpoint.initialize() first.');
+      throw new Error("ClineEndpoint not initialized. Call ClineEndpoint.initialize() first.");
     }
     return ClineEndpoint._instance.isBundled;
   }
@@ -110,7 +110,7 @@ class ClineEndpoint {
    */
   public static get instance(): ClineEndpoint {
     if (!ClineEndpoint._initialized || !ClineEndpoint._instance) {
-      throw new Error('ClineEndpoint not initialized. Call ClineEndpoint.initialize() first.');
+      throw new Error("ClineEndpoint not initialized. Call ClineEndpoint.initialize() first.");
     }
     return ClineEndpoint._instance;
   }
@@ -128,7 +128,7 @@ class ClineEndpoint {
    * Located at ~/.cline/endpoints.json
    */
   private static getEndpointsFilePath(): string {
-    return path.join(os.homedir(), '.cline', 'endpoints.json');
+    return path.join(os.homedir(), ".cline", "endpoints.json");
   }
 
   /**
@@ -136,7 +136,7 @@ class ClineEndpoint {
    * Located in the extension installation directory.
    */
   private static getBundledEndpointsFilePath(): string {
-    return path.join(ClineEndpoint._extensionFsPath, 'endpoints.json');
+    return path.join(ClineEndpoint._extensionFsPath, "endpoints.json");
   }
 
   /**
@@ -152,7 +152,7 @@ class ClineEndpoint {
     try {
       await fs.access(bundledPath);
       // File exists, load and validate it
-      const fileContent = await fs.readFile(bundledPath, 'utf8');
+      const fileContent = await fs.readFile(bundledPath, "utf8");
       let data: unknown;
 
       try {
@@ -185,7 +185,7 @@ class ClineEndpoint {
 
     // File exists, must be valid or we fail
     try {
-      const fileContent = await fs.readFile(userPath, 'utf8');
+      const fileContent = await fs.readFile(userPath, "utf8");
       let data: unknown;
 
       try {
@@ -217,14 +217,14 @@ class ClineEndpoint {
    * @throws ClineConfigurationError if validation fails
    */
   private static validateEndpointsSchema(data: unknown, filePath: string): EndpointsFileSchema {
-    if (typeof data !== 'object' || data === null) {
+    if (typeof data !== "object" || data === null) {
       throw new ClineConfigurationError(
         `Endpoints configuration file (${filePath}) must contain a JSON object`,
       );
     }
 
     const obj = data as Record<string, unknown>;
-    const requiredFields = ['appBaseUrl', 'apiBaseUrl', 'mcpBaseUrl'] as const;
+    const requiredFields = ["appBaseUrl", "apiBaseUrl", "mcpBaseUrl"] as const;
     const result: Partial<EndpointsFileSchema> = {};
 
     for (const field of requiredFields) {
@@ -236,7 +236,7 @@ class ClineEndpoint {
         );
       }
 
-      if (typeof value !== 'string') {
+      if (typeof value !== "string") {
         throw new ClineConfigurationError(
           `Field "${field}" in endpoints configuration file (${filePath}) must be a string`,
         );
@@ -277,15 +277,15 @@ class ClineEndpoint {
   public setEnvironment(env: string) {
     if (this.onPremiseConfig) {
       throw new Error(
-        'Cannot change environment in on-premise mode. Endpoints are configured via ~/.cline/endpoints.json',
+        "Cannot change environment in on-premise mode. Endpoints are configured via ~/.cline/endpoints.json",
       );
     }
 
     switch (env.toLowerCase()) {
-      case 'staging':
+      case "staging":
         this.environment = Environment.staging;
         break;
-      case 'local':
+      case "local":
         this.environment = Environment.local;
         break;
       default:
@@ -314,23 +314,23 @@ class ClineEndpoint {
       case Environment.staging:
         return {
           environment: Environment.staging,
-          appBaseUrl: 'https://staging-app.cline.bot',
-          apiBaseUrl: 'https://core-api.staging.int.cline.bot',
-          mcpBaseUrl: 'https://core-api.staging.int.cline.bot/v1/mcp',
+          appBaseUrl: "https://staging-app.cline.bot",
+          apiBaseUrl: "https://core-api.staging.int.cline.bot",
+          mcpBaseUrl: "https://core-api.staging.int.cline.bot/v1/mcp",
         };
       case Environment.local:
         return {
           environment: Environment.local,
-          appBaseUrl: 'http://localhost:3000',
-          apiBaseUrl: 'http://localhost:7777',
-          mcpBaseUrl: 'https://api.cline.bot/v1/mcp',
+          appBaseUrl: "http://localhost:3000",
+          apiBaseUrl: "http://localhost:7777",
+          mcpBaseUrl: "https://api.cline.bot/v1/mcp",
         };
       default:
         return {
           environment: Environment.production,
-          appBaseUrl: 'https://app.cline.bot',
-          apiBaseUrl: 'https://api.cline.bot',
-          mcpBaseUrl: 'https://api.cline.bot/v1/mcp',
+          appBaseUrl: "https://app.cline.bot",
+          apiBaseUrl: "https://api.cline.bot",
+          mcpBaseUrl: "https://api.cline.bot/v1/mcp",
         };
     }
   }

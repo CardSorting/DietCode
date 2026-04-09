@@ -1,9 +1,9 @@
-import { cn } from '@heroui/react';
-import { parseFocusChainItem } from '@shared/focus-chain-utils.ts';
-import { CheckIcon, CircleIcon } from 'lucide-react';
-import type React from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import LightMarkdown from './LightMarkdown';
+import { cn } from "@heroui/react";
+import { parseFocusChainItem } from "@shared/focus-chain-utils.ts";
+import { CheckIcon, CircleIcon } from "lucide-react";
+import type React from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import LightMarkdown from "./LightMarkdown";
 
 interface ChecklistRendererProps {
   text: string;
@@ -21,7 +21,7 @@ const ChecklistRenderer: React.FC<ChecklistRendererProps> = ({ text }) => {
   const scrollTimeoutRef = useRef<NodeJS.Timeout>();
 
   const parseChecklistItems = (text: string): ChecklistItem[] => {
-    const lines = text.split('\n').filter((line) => line.trim());
+    const lines = text.split("\n").filter((line) => line.trim());
     const items: ChecklistItem[] = [];
 
     for (const line of lines) {
@@ -70,8 +70,8 @@ const ChecklistRenderer: React.FC<ChecklistRendererProps> = ({ text }) => {
         const itemElements = container.children;
         if (itemElements[currentLastCompletedIndex]) {
           itemElements[currentLastCompletedIndex].scrollIntoView({
-            behavior: 'smooth',
-            block: 'start',
+            behavior: "smooth",
+            block: "start",
           });
         }
       }
@@ -89,19 +89,19 @@ const ChecklistRenderer: React.FC<ChecklistRendererProps> = ({ text }) => {
 
   if (items.length === 0) {
     // If no checklist items found, return the original text
-    return <div style={{ whiteSpace: 'pre-wrap' }}>{text}</div>;
+    return <div style={{ whiteSpace: "pre-wrap" }}>{text}</div>;
   }
 
   return (
     <div
       className={cn(
-        'text-sm flex flex-col gap-0.5',
-        items.length >= 10 ? 'max-h-52 overflow-y-auto' : 'h-auto visible',
+        "text-sm flex flex-col gap-0.5",
+        items.length >= 10 ? "max-h-52 overflow-y-auto" : "h-auto visible",
       )}
       onScroll={handleScroll}
       ref={containerRef}
       style={{
-        lineHeight: '1.3',
+        lineHeight: "1.3",
       }}
     >
       {items.map((item, index) => (
@@ -109,16 +109,16 @@ const ChecklistRenderer: React.FC<ChecklistRendererProps> = ({ text }) => {
         <div className="flex items-start gap-1.5 p-0.5" key={`checklist-item-${index}`}>
           <span
             className={cn(
-              'text-sm shrink-0 mt-0.5',
-              item.checked ? 'text-success' : 'text-foreground',
+              "text-sm shrink-0 mt-0.5",
+              item.checked ? "text-success" : "text-foreground",
             )}
           >
             {item.checked ? <CheckIcon size={10} /> : <CircleIcon size={10} />}
           </span>
           <div
             className={cn(
-              'text-sm break-words flex-1 leading-5',
-              item.checked ? 'text-description line-through' : 'text-foreground',
+              "text-sm wrap-break-word flex-1 leading-5",
+              item.checked ? "text-description line-through" : "text-foreground",
             )}
           >
             <LightMarkdown compact text={item.text} />

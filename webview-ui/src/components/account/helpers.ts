@@ -1,38 +1,38 @@
-import type { UsageTransaction as ClineAccountUsageTransaction } from '@shared/ClineAccount';
+import type { UsageTransaction as ClineAccountUsageTransaction } from "@shared/ClineAccount";
 import type {
   UsageTransaction as ProtoUsageTransaction,
   UserOrganization,
-} from '@shared/nice-grpc/cline/account';
+} from "@shared/nice-grpc/cline/account";
 
 export const getMainRole = (roles?: string[]) => {
   if (!roles) {
     return undefined;
   }
 
-  if (roles.includes('owner')) {
-    return 'Owner';
+  if (roles.includes("owner")) {
+    return "Owner";
   }
-  if (roles.includes('admin')) {
-    return 'Admin';
+  if (roles.includes("admin")) {
+    return "Admin";
   }
 
-  return 'Member';
+  return "Member";
 };
 
 export const getClineUris = (
   base: string,
-  type: 'dashboard' | 'credits',
-  route?: 'account' | 'organization',
+  type: "dashboard" | "credits",
+  route?: "account" | "organization",
 ) => {
-  const dashboard = new URL('dashboard', base);
+  const dashboard = new URL("dashboard", base);
 
-  if (type === 'dashboard') {
+  if (type === "dashboard") {
     return dashboard;
   }
 
-  const credits = new URL(`/${route ?? 'account'}`, dashboard);
-  credits.searchParams.set('tab', 'credits');
-  credits.searchParams.set('redirect', 'true');
+  const credits = new URL(`/${route ?? "account"}`, dashboard);
+  credits.searchParams.set("tab", "credits");
+  credits.searchParams.set("redirect", "true");
   return credits;
 };
 
@@ -47,9 +47,9 @@ export function convertProtoUsageTransaction(
     ...protoTransaction,
     id: protoTransaction.generationId, // Use generationId as the id
     metadata: {
-      additionalProp1: '',
-      additionalProp2: '',
-      additionalProp3: '',
+      additionalProp1: "",
+      additionalProp2: "",
+      additionalProp3: "",
     },
   };
 }
@@ -64,5 +64,5 @@ export function convertProtoUsageTransactions(
 }
 
 export const isAdminOrOwner = (activeOrg: UserOrganization): boolean => {
-  return activeOrg.roles.findIndex((role) => role === 'admin' || role === 'owner') > -1;
+  return activeOrg.roles.findIndex((role) => role === "admin" || role === "owner") > -1;
 };

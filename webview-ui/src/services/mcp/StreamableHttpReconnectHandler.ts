@@ -1,4 +1,4 @@
-import { Logger } from '@/shared/services/Logger';
+import { Logger } from "@/shared/services/Logger";
 
 /**
  * Callbacks that the reconnect handler uses to interact with McpHub.
@@ -89,7 +89,7 @@ export class StreamableHttpReconnectHandler {
     }
 
     // Don't retry if intentionally disabled or already mid-reconnect
-    if (connection.server.disabled || connection.server.status === 'connecting') {
+    if (connection.server.disabled || connection.server.status === "connecting") {
       return;
     }
 
@@ -99,7 +99,7 @@ export class StreamableHttpReconnectHandler {
         `StreamableHTTP max reconnect attempts (${this.config.maxAttempts}) ` +
           `exhausted for "${this.serverName}". Server marked as disconnected.`,
       );
-      connection.server.status = 'disconnected';
+      connection.server.status = "disconnected";
       this.callbacks.deleteServerKey(connection.server.uid || this.serverName);
       this.callbacks.appendErrorMessage(
         connection,
@@ -118,7 +118,7 @@ export class StreamableHttpReconnectHandler {
         `${this.attempts}/${this.config.maxAttempts} in ${initialDelay / 1000}s...`,
     );
 
-    connection.server.status = 'connecting';
+    connection.server.status = "connecting";
     await this.callbacks.notifyWebviewOfServerChanges();
 
     await this.callbacks.delay(initialDelay);
@@ -165,7 +165,7 @@ export class StreamableHttpReconnectHandler {
     // The old connection was deleted; check if connectToServer left a partial one.
     const exhaustedConnection = this.callbacks.findConnection();
     if (exhaustedConnection) {
-      exhaustedConnection.server.status = 'disconnected';
+      exhaustedConnection.server.status = "disconnected";
       this.callbacks.deleteServerKey(exhaustedConnection.server.uid || this.serverName);
       this.callbacks.appendErrorMessage(
         exhaustedConnection,

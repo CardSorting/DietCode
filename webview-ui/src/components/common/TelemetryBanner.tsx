@@ -1,7 +1,7 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { StateServiceClient } from '@/services/grpc-client';
-import { TelemetrySettingEnum, TelemetrySettingRequest } from '@shared/nice-grpc/cline/state.ts';
-import { useCallback } from 'react';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { StateServiceClient } from "@/services/grpc-client";
+import { TelemetrySettingEnum, TelemetrySettingRequest } from "@shared/nice-grpc/cline/state.ts";
+import { useCallback } from "react";
 
 const telemetryRequest = TelemetrySettingRequest.create({
   setting: TelemetrySettingEnum.ENABLED,
@@ -21,11 +21,11 @@ export const TelemetryBanner: React.FC = () => {
 
   return (
     <div className="bg-banner-background text-banner-foreground px-3 py-2 flex flex-col gap-1 shrink-0 mb-1 relative text-sm m-4">
-      <h3 className="m-0">Help Improve Cline</h3>
+      <h3 className="m-0">Help Improve DietCode</h3>
       <i>(and access experimental features)</i>
       <p className="m-0">
-        Cline collects error and usage data to help us fix bugs and improve the extension. No code,
-        prompts, or personal information is ever sent.
+        DietCode collects error and usage data to help us fix bugs and improve the extension. No
+        code, prompts, or personal information is ever sent.
       </p>
       <p className="m-0">
         <span>You can turn this setting off in </span>

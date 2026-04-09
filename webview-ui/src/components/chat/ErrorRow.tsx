@@ -1,15 +1,15 @@
-import CreditLimitError from '@/components/chat/CreditLimitError';
-import { Button } from '@/components/ui/button';
-import { useClineAuth, useClineSignIn } from '@/context/ClineAuthContext';
-import { ClineError, ClineErrorType } from '@services/error/ClineError';
-import type { ClineMessage } from '@shared/ExtensionMessage.ts';
-import { memo } from 'react';
+import CreditLimitError from "@/components/chat/CreditLimitError";
+import { Button } from "@/components/ui/button";
+import { useClineAuth, useClineSignIn } from "@/context/ClineAuthContext";
+import { ClineError, ClineErrorType } from "@services/error/ClineError";
+import type { ClineMessage } from "@shared/ExtensionMessage.ts";
+import { memo } from "react";
 
-const _errorColor = 'var(--vscode-errorForeground)';
+const _errorColor = "var(--vscode-errorForeground)";
 
 interface ErrorRowProps {
   message: ClineMessage;
-  errorType: 'error' | 'mistake_limit_reached' | 'diff_error' | 'clineignore_error';
+  errorType: "error" | "mistake_limit_reached" | "diff_error" | "clineignore_error";
   apiRequestFailedMessage?: string;
   apiReqStreamingFailedMessage?: string;
 }
@@ -28,8 +28,8 @@ const ErrorRow = memo(
 
     const renderErrorContent = () => {
       switch (errorType) {
-        case 'error':
-        case 'mistake_limit_reached':
+        case "error":
+        case "mistake_limit_reached":
           // Handle API request errors with special error parsing
           if (rawApiError) {
             // FIXME: ClineError parsing should not be applied to non-Cline providers, but it seems we're using clineErrorMessage below in the default error display
@@ -37,7 +37,7 @@ const ErrorRow = memo(
             const errorMessage = clineError?._error?.message || clineError?.message || rawApiError;
             const requestId = clineError?._error?.request_id;
             const providerId = clineError?.providerId || clineError?._error?.providerId;
-            const isClineProvider = providerId === 'cline';
+            const isClineProvider = providerId === "cline";
             const errorCode = clineError?._error?.code;
 
             if (clineError?.isErrorType(ClineErrorType.Balance)) {
@@ -70,7 +70,7 @@ const ErrorRow = memo(
                     Whoops looks like you're logged out – click below to sign in
                   </div>
                   <Button className="w-full" disabled={isLoginLoading} onClick={handleSignIn}>
-                    Sign in to Cline
+                    Sign in to DietCode
                     {isLoginLoading && (
                       <span className="ml-1 animate-spin">
                         <span className="codicon codicon-refresh" />
@@ -98,9 +98,9 @@ const ErrorRow = memo(
                 </header>
 
                 {/* Windows Powershell Issue */}
-                {errorMessage?.toLowerCase()?.includes('powershell') && (
+                {errorMessage?.toLowerCase()?.includes("powershell") && (
                   <div>
-                    It seems like you're having Windows PowerShell issues, please see this{' '}
+                    It seems like you're having Windows PowerShell issues, please see this{" "}
                     <a
                       className="underline text-inherit"
                       href="https://github.com/cline/cline/wiki/TroubleShooting-%E2%80%90-%22PowerShell-is-not-recognized-as-an-internal-or-external-command%22"
@@ -126,7 +126,7 @@ const ErrorRow = memo(
             <p className="m-0 mt-0 whitespace-pre-wrap text-error wrap-anywhere">{message.text}</p>
           );
 
-        case 'diff_error':
+        case "diff_error":
           return (
             <div className="flex flex-col p-2 rounded text-xs opacity-80 bg-quote text-foreground">
               <div>
@@ -135,11 +135,11 @@ const ErrorRow = memo(
             </div>
           );
 
-        case 'clineignore_error':
+        case "clineignore_error":
           return (
             <div className="flex flex-col p-2 rounded text-xs opacity-80 bg-quote text-foreground">
               <div>
-                Cline tried to access <code>{message.text}</code> which is blocked by the{' '}
+                DietCode tried to access <code>{message.text}</code> which is blocked by the{" "}
                 <code>.clineignore</code>
                 file.
               </div>
@@ -152,7 +152,7 @@ const ErrorRow = memo(
     };
 
     // For diff_error and clineignore_error, we don't show the header separately
-    if (errorType === 'diff_error' || errorType === 'clineignore_error') {
+    if (errorType === "diff_error" || errorType === "clineignore_error") {
       return renderErrorContent();
     }
 

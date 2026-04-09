@@ -1,21 +1,21 @@
-import type { McpServer } from '@shared/mcp.ts';
-import ServerRow from './server-row/ServerRow';
+import type { McpServer } from "@shared/mcp.ts";
+import ServerRow from "./server-row/ServerRow";
 
 const ServersToggleList = ({
   servers,
   isExpandable,
   hasTrashIcon,
-  listGap = 'medium',
+  listGap = "medium",
 }: {
   servers: McpServer[];
   isExpandable: boolean;
   hasTrashIcon: boolean;
-  listGap?: 'small' | 'medium' | 'large';
+  listGap?: "small" | "medium" | "large";
 }) => {
   const gapClasses = {
-    small: 'gap-0',
-    medium: 'gap-2.5',
-    large: 'gap-5',
+    small: "gap-0",
+    medium: "gap-2.5",
+    large: "gap-5",
   };
 
   const gapClass = gapClasses[listGap];

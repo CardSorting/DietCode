@@ -1,9 +1,9 @@
-export * from './api';
-export * from './context';
-export * from './onboarding';
+export * from "./api";
+export * from "./context";
+export * from "./onboarding";
 
 export enum ClineClient {
-  VSCode = 'VSCode Extension',
-  JetBrains = 'JetBrains',
-  Cli = 'CLI',
+  VSCode = "VSCode Extension",
+  JetBrains = "JetBrains",
+  Cli = "CLI",
 }

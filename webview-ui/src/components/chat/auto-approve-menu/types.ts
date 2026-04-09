@@ -1,7 +1,7 @@
-import type { AutoApprovalSettings } from '@shared/AutoApprovalSettings.ts';
+import type { AutoApprovalSettings } from "@shared/AutoApprovalSettings.ts";
 
 export interface ActionMetadata {
-  id: keyof AutoApprovalSettings['actions'] | 'enableNotifications';
+  id: keyof AutoApprovalSettings["actions"] | "enableNotifications";
   label: string;
   shortName: string;
   icon: string;

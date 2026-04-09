@@ -1,14 +1,14 @@
-import { PLATFORM_CONFIG, PlatformType } from '@/config/platform.config';
-import { cn } from '@/lib/utils';
-import { TaskServiceClient } from '@/services/grpc-client';
-import { Int64Request } from '@shared/nice-grpc/cline/common.ts';
-import { CheckIcon } from 'lucide-react';
-import { memo } from 'react';
-import { CopyButton } from '../common/CopyButton';
-import SuccessButton from '../common/SuccessButton';
-import type { QuoteButtonState } from './ChatRow';
-import { MarkdownRow } from './MarkdownRow';
-import QuoteButton from './QuoteButton';
+import { PLATFORM_CONFIG, PlatformType } from "@/config/platform.config";
+import { cn } from "@/lib/utils";
+import { TaskServiceClient } from "@/services/grpc-client";
+import { Int64Request } from "@shared/nice-grpc/cline/common.ts";
+import { CheckIcon } from "lucide-react";
+import { memo } from "react";
+import { CopyButton } from "../common/CopyButton";
+import SuccessButton from "../common/SuccessButton";
+import type { QuoteButtonState } from "./ChatRow";
+import { MarkdownRow } from "./MarkdownRow";
+import QuoteButton from "./QuoteButton";
 
 interface CompletionOutputRowProps {
   text: string;
@@ -40,7 +40,7 @@ export const CompletionOutputRow = memo(
       <div>
         <div className="rounded-sm border border-success/20 overflow-visible bg-success/10 p-2 pt-3">
           {/* Title */}
-          <div className={cn(headClassNames, 'justify-between px-1')}>
+          <div className={cn(headClassNames, "justify-between px-1")}>
             <div className="flex gap-2 items-center">
               <CheckIcon className="size-3 text-success" />
               <span className="text-success font-bold">Task Completed</span>
@@ -76,7 +76,7 @@ export const CompletionOutputRow = memo(
   },
 );
 
-CompletionOutputRow.displayName = 'CompletionOutputRow';
+CompletionOutputRow.displayName = "CompletionOutputRow";
 
 const CompletionOutputActionRow = memo(
   ({
@@ -93,7 +93,7 @@ const CompletionOutputActionRow = memo(
     messageTs: number;
   }) => {
     return (
-      <div style={{ paddingTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ paddingTop: 10, display: "flex", flexDirection: "column", gap: 8 }}>
         <SuccessButton
           disabled={seeNewChangesDisabled}
           onClick={() => {
@@ -102,11 +102,11 @@ const CompletionOutputActionRow = memo(
               Int64Request.create({
                 value: messageTs,
               }),
-            ).catch((err) => console.error('Failed to show task completion view changes:', err));
+            ).catch((err) => console.error("Failed to show task completion view changes:", err));
           }}
           style={{
-            cursor: seeNewChangesDisabled ? 'wait' : 'pointer',
-            width: '100%',
+            cursor: seeNewChangesDisabled ? "wait" : "pointer",
+            width: "100%",
           }}
         >
           <i className="codicon codicon-new-file" style={{ marginRight: 6 }} />
@@ -122,17 +122,17 @@ const CompletionOutputActionRow = memo(
                 metadata: {},
                 messageTs,
               }).catch((err) => {
-                console.error('Failed to explain changes:', err);
+                console.error("Failed to explain changes:", err);
                 setExplainChangesDisabled(false);
               });
             }}
             style={{
-              cursor: explainChangesDisabled ? 'wait' : 'pointer',
-              width: '100%',
+              cursor: explainChangesDisabled ? "wait" : "pointer",
+              width: "100%",
             }}
           >
             <i className="codicon codicon-comment-discussion" style={{ marginRight: 6 }} />
-            {explainChangesDisabled ? 'Explaining...' : 'Explain Changes'}
+            {explainChangesDisabled ? "Explaining..." : "Explain Changes"}
           </SuccessButton>
         )}
       </div>

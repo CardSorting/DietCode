@@ -1,15 +1,15 @@
-import { CODE_BLOCK_BG_COLOR } from '@/components/common/CodeBlock';
-import { TaskServiceClient } from '@/services/grpc-client';
-import { AskResponseRequest } from '@shared/nice-grpc/cline/task.ts';
-import styled from 'styled-components';
+import { CODE_BLOCK_BG_COLOR } from "@/components/common/CodeBlock";
+import { TaskServiceClient } from "@/services/grpc-client";
+import { AskResponseRequest } from "@shared/nice-grpc/cline/task.ts";
+import styled from "styled-components";
 
 const OptionButton = styled.button<{ isSelected?: boolean; isNotSelectable?: boolean }>`
 	padding: 8px 12px;
-	background: ${(props) => (props.isSelected ? 'var(--vscode-focusBorder)' : CODE_BLOCK_BG_COLOR)};
-	color: ${(props) => (props.isSelected ? 'white' : 'var(--vscode-input-foreground)')};
+	background: ${(props) => (props.isSelected ? "var(--vscode-focusBorder)" : CODE_BLOCK_BG_COLOR)};
+	color: ${(props) => (props.isSelected ? "white" : "var(--vscode-input-foreground)")};
 	border: 1px solid var(--vscode-editorGroup-border);
 	border-radius: 2px;
-	cursor: ${(props) => (props.isNotSelectable ? 'default' : 'pointer')};
+	cursor: ${(props) => (props.isNotSelectable ? "default" : "pointer")};
 	text-align: left;
 	font-size: 12px;
 
@@ -43,9 +43,9 @@ export const OptionsButtons = ({
   return (
     <div
       style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '8px',
+        display: "flex",
+        flexDirection: "column",
+        gap: "8px",
       }}
     >
       {/* <div style={{ color: "var(--vscode-descriptionForeground)", fontSize: "11px", textTransform: "uppercase" }}>
@@ -65,13 +65,13 @@ export const OptionsButtons = ({
             try {
               await TaskServiceClient.askResponse(
                 AskResponseRequest.create({
-                  responseType: 'messageResponse',
-                  text: option + (inputValue ? `: ${inputValue?.trim()}` : ''),
+                  responseType: "messageResponse",
+                  text: option + (inputValue ? `: ${inputValue?.trim()}` : ""),
                   images: [],
                 }),
               );
             } catch (error) {
-              console.error('Error sending option response:', error);
+              console.error("Error sending option response:", error);
             }
           }}
         >

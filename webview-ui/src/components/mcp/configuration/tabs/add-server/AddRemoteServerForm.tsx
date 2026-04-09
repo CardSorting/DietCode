@@ -1,49 +1,49 @@
-import { LINKS } from '@/constants';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { McpServiceClient } from '@/services/grpc-client';
-import { EmptyRequest } from '@shared/nice-grpc/cline/common.ts';
-import { AddRemoteMcpServerRequest, type McpServers } from '@shared/nice-grpc/cline/mcp.ts';
-import { convertProtoMcpServersToMcpServers } from '@shared/proto-conversions/mcp/mcp-server-conversion.ts';
+import { LINKS } from "@/constants";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { McpServiceClient } from "@/services/grpc-client";
+import { EmptyRequest } from "@shared/nice-grpc/cline/common.ts";
+import { AddRemoteMcpServerRequest, type McpServers } from "@shared/nice-grpc/cline/mcp.ts";
+import { convertProtoMcpServersToMcpServers } from "@shared/proto-conversions/mcp/mcp-server-conversion.ts";
 import {
   VSCodeButton,
   VSCodeLink,
   VSCodeRadio,
   VSCodeRadioGroup,
   VSCodeTextField,
-} from '@vscode/webview-ui-toolkit/react';
-import { useState } from 'react';
+} from "@vscode/webview-ui-toolkit/react";
+import { useState } from "react";
 
-type TransportType = 'streamableHttp' | 'sse';
+type TransportType = "streamableHttp" | "sse";
 
 const AddRemoteServerForm = ({ onServerAdded }: { onServerAdded: () => void }) => {
-  const [serverName, setServerName] = useState('');
-  const [serverUrl, setServerUrl] = useState('');
-  const [transportType, setTransportType] = useState<TransportType>('streamableHttp');
+  const [serverName, setServerName] = useState("");
+  const [serverUrl, setServerUrl] = useState("");
+  const [transportType, setTransportType] = useState<TransportType>("streamableHttp");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const { setMcpServers } = useExtensionState();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!serverName.trim()) {
-      setError('Server name is required');
+      setError("Server name is required");
       return;
     }
 
     if (!serverUrl.trim()) {
-      setError('Server URL is required');
+      setError("Server URL is required");
       return;
     }
 
     try {
       new URL(serverUrl);
     } catch (_err) {
-      setError('Invalid URL format');
+      setError("Invalid URL format");
       return;
     }
 
-    setError('');
+    setError("");
     setIsSubmitting(true);
 
     try {
@@ -60,20 +60,20 @@ const AddRemoteServerForm = ({ onServerAdded }: { onServerAdded: () => void }) =
       const mcpServers = convertProtoMcpServersToMcpServers(servers.mcpServers);
       setMcpServers(mcpServers);
 
-      setServerName('');
-      setServerUrl('');
+      setServerName("");
+      setServerUrl("");
       onServerAdded();
     } catch (error) {
       setIsSubmitting(false);
-      setError(error instanceof Error ? error.message : 'Failed to add server');
+      setError(error instanceof Error ? error.message : "Failed to add server");
     }
   };
 
   return (
     <div className="p-4 px-5">
       <div className="text-(--vscode-foreground) mb-2">
-        Add a remote MCP server by providing a name and its URL endpoint. Learn more{' '}
-        <VSCodeLink href={LINKS.DOCUMENTATION.REMOTE_MCP_SERVER_DOCS} style={{ display: 'inline' }}>
+        Add a remote MCP server by providing a name and its URL endpoint. Learn more{" "}
+        <VSCodeLink href={LINKS.DOCUMENTATION.REMOTE_MCP_SERVER_DOCS} style={{ display: "inline" }}>
           here.
         </VSCodeLink>
       </div>
@@ -85,7 +85,7 @@ const AddRemoteServerForm = ({ onServerAdded }: { onServerAdded: () => void }) =
             disabled={isSubmitting}
             onChange={(e) => {
               setServerName((e.target as HTMLInputElement).value);
-              setError('');
+              setError("");
             }}
             placeholder="mcp-server"
             value={serverName}
@@ -100,7 +100,7 @@ const AddRemoteServerForm = ({ onServerAdded }: { onServerAdded: () => void }) =
             disabled={isSubmitting}
             onChange={(e) => {
               setServerUrl((e.target as HTMLInputElement).value);
-              setError('');
+              setError("");
             }}
             placeholder="https://example.com/mcp-server"
             value={serverUrl}
@@ -110,7 +110,7 @@ const AddRemoteServerForm = ({ onServerAdded }: { onServerAdded: () => void }) =
         </div>
 
         <div className="mb-3">
-          <label className={`block text-sm font-medium mb-2 ${isSubmitting ? 'opacity-50' : ''}`}>
+          <label className={`block text-sm font-medium mb-2 ${isSubmitting ? "opacity-50" : ""}`}>
             Transport Type
           </label>
           <VSCodeRadioGroup
@@ -121,10 +121,10 @@ const AddRemoteServerForm = ({ onServerAdded }: { onServerAdded: () => void }) =
             }}
             value={transportType}
           >
-            <VSCodeRadio checked={transportType === 'streamableHttp'} value="streamableHttp">
+            <VSCodeRadio checked={transportType === "streamableHttp"} value="streamableHttp">
               Streamable HTTP
             </VSCodeRadio>
-            <VSCodeRadio checked={transportType === 'sse'} value="sse">
+            <VSCodeRadio checked={transportType === "sse"} value="sse">
               SSE (Legacy)
             </VSCodeRadio>
           </VSCodeRadioGroup>
@@ -133,17 +133,17 @@ const AddRemoteServerForm = ({ onServerAdded }: { onServerAdded: () => void }) =
         {error && <div className="mb-3 text-(--vscode-errorForeground)">{error}</div>}
 
         <VSCodeButton className="w-full" disabled={isSubmitting} type="submit">
-          {isSubmitting ? 'Connecting...' : 'Add Server'}
+          {isSubmitting ? "Connecting..." : "Add Server"}
         </VSCodeButton>
 
         <VSCodeButton
           appearance="secondary"
           onClick={() => {
             McpServiceClient.openMcpSettings(EmptyRequest.create({})).catch((error) => {
-              console.error('Error opening MCP settings:', error);
+              console.error("Error opening MCP settings:", error);
             });
           }}
-          style={{ width: '100%', marginBottom: '5px', marginTop: 15 }}
+          style={{ width: "100%", marginBottom: "5px", marginTop: 15 }}
         >
           Edit Configuration
         </VSCodeButton>

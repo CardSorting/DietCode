@@ -1,12 +1,12 @@
-import { formatDollars, formatTimestamp } from '@/utils/format';
-import type { PaymentTransaction, UsageTransaction } from '@shared/ClineAccount';
+import { formatDollars, formatTimestamp } from "@/utils/format";
+import type { PaymentTransaction, UsageTransaction } from "@shared/ClineAccount";
 import {
   VSCodeDataGrid,
   VSCodeDataGridCell,
   VSCodeDataGridRow,
-} from '@vscode/webview-ui-toolkit/react';
-import { memo, useState } from 'react';
-import { TabButton } from '../mcp/configuration/McpConfigurationView';
+} from "@vscode/webview-ui-toolkit/react";
+import { memo, useState } from "react";
+import { TabButton } from "../mcp/configuration/McpConfigurationView";
 
 interface CreditsHistoryTableProps {
   isLoading: boolean;
@@ -17,17 +17,17 @@ interface CreditsHistoryTableProps {
 
 const CreditsHistoryTable = memo(
   ({ isLoading, usageData, paymentsData, showPayments }: CreditsHistoryTableProps) => {
-    const [activeTab, setActiveTab] = useState<'usage' | 'payments'>('usage');
+    const [activeTab, setActiveTab] = useState<"usage" | "payments">("usage");
 
     return (
       <div className="flex flex-col grow h-full">
         {/* Tabs container */}
         <div className="flex border-b border-(--vscode-panel-border)">
-          <TabButton isActive={activeTab === 'usage'} onClick={() => setActiveTab('usage')}>
+          <TabButton isActive={activeTab === "usage"} onClick={() => setActiveTab("usage")}>
             USAGE HISTORY
           </TabButton>
           {showPayments && (
-            <TabButton isActive={activeTab === 'payments'} onClick={() => setActiveTab('payments')}>
+            <TabButton isActive={activeTab === "payments"} onClick={() => setActiveTab("payments")}>
               PAYMENTS HISTORY
             </TabButton>
           )}
@@ -41,7 +41,7 @@ const CreditsHistoryTable = memo(
             </div>
           ) : (
             <>
-              {activeTab === 'usage' &&
+              {activeTab === "usage" &&
                 (usageData.length > 0 ? (
                   <VSCodeDataGrid>
                     <VSCodeDataGridRow row-type="header">
@@ -66,12 +66,12 @@ const CreditsHistoryTable = memo(
                           {formatTimestamp(row.createdAt)}
                         </VSCodeDataGridCell>
                         <VSCodeDataGridCell grid-column="2">
-                          {row.operation === 'web_search'
-                            ? 'Web Search'
-                            : row.operation === 'web_fetch'
-                              ? 'Web Fetch'
-                              : row.operation === 'search_chat_completion'
-                                ? 'Web Fetch (LLM)'
+                          {row.operation === "web_search"
+                            ? "Web Search"
+                            : row.operation === "web_fetch"
+                              ? "Web Fetch"
+                              : row.operation === "search_chat_completion"
+                                ? "Web Fetch (LLM)"
                                 : row.aiModelName}
                         </VSCodeDataGridCell>
                         {/* <VSCodeDataGridCell grid-column="3">{`${row.promptTokens} → ${row.completionTokens}`}</VSCodeDataGridCell> */}
@@ -86,7 +86,7 @@ const CreditsHistoryTable = memo(
                 ))}
 
               {showPayments &&
-                activeTab === 'payments' &&
+                activeTab === "payments" &&
                 (paymentsData.length > 0 ? (
                   <VSCodeDataGrid>
                     <VSCodeDataGridRow row-type="header">

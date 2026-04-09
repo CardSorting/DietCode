@@ -1,4 +1,4 @@
-import type { McpMarketplaceCatalog, McpResource, McpResourceTemplate } from '@shared/mcp.ts';
+import type { McpMarketplaceCatalog, McpResource, McpResourceTemplate } from "@shared/mcp.ts";
 
 /**
  * Matches a URI against an array of URI templates and returns the matching template
@@ -14,10 +14,10 @@ export function findMatchingTemplate(
     // Convert template to regex pattern
     const pattern = String(template.uriTemplate)
       // First escape special regex characters
-      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
       // Then replace {param} with ([^/]+) to match any non-slash characters
       // We need to use \{ and \} because we just escaped them
-      .replace(/\\\{([^}]+)\\\}/g, '([^/]+)');
+      .replace(/\\\{([^}]+)\\\}/g, "([^/]+)");
 
     const regex = new RegExp(`^${pattern}$`);
     return regex.test(uri);

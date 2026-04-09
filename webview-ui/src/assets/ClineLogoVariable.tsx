@@ -1,6 +1,6 @@
-import type { Environment } from '@shared/config-types';
-import type { SVGProps } from 'react';
-import { getEnvironmentColor } from '../utils/environmentColors';
+import type { Environment } from "@shared/config-types";
+import type { SVGProps } from "react";
+import { getEnvironmentColor } from "../utils/environmentColors";
 
 /**
  * ClineLogoVariable component renders the Cline logo with automatic theme adaptation
@@ -20,7 +20,7 @@ const ClineLogoVariable = (props: SVGProps<SVGSVGElement> & { environment?: Envi
   // Determine fill color based on environment
   const fillColor = environment
     ? getEnvironmentColor(environment)
-    : 'var(--vscode-icon-foreground)';
+    : "var(--vscode-icon-foreground)";
 
   return (
     <svg

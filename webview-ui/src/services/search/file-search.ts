@@ -1,14 +1,14 @@
-import * as childProcess from 'node:child_process';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import * as readline from 'node:readline';
-import type { WorkspaceRootManager } from '@/core/workspace';
-import { HostProvider } from '@/hosts/host-provider';
-import { GetOpenTabsRequest } from '@/shared/proto/host/window';
-import { Logger } from '@/shared/services/Logger';
-import { getBinaryLocation } from '@/utils/fs';
-import type { WorkspaceRoot } from '@shared/multi-root/types';
-import type { FzfResultItem } from 'fzf';
+import * as childProcess from "node:child_process";
+import * as fs from "node:fs";
+import * as path from "node:path";
+import * as readline from "node:readline";
+import type { WorkspaceRootManager } from "@/core/workspace";
+import { HostProvider } from "@/hosts/host-provider";
+import { GetOpenTabsRequest } from "@/shared/proto/host/window";
+import { Logger } from "@/shared/services/Logger";
+import { getBinaryLocation } from "@/utils/fs";
+import type { WorkspaceRoot } from "@shared/multi-root/types";
+import type { FzfResultItem } from "fzf";
 
 // Wrapper function for childProcess.spawn
 export type SpawnFunction = typeof childProcess.spawn;
@@ -17,17 +17,17 @@ export const getSpawnFunction = (): SpawnFunction => childProcess.spawn;
 export async function executeRipgrepForFiles(
   workspacePath: string,
   limit = 5000,
-): Promise<{ path: string; type: 'file' | 'folder'; label?: string }[]> {
-  const rgPath = await getBinaryLocation('rg');
+): Promise<{ path: string; type: "file" | "folder"; label?: string }[]> {
+  const rgPath = await getBinaryLocation("rg");
 
   return new Promise((resolve, reject) => {
     // Arguments for ripgrep to list files, follow symlinks, include hidden, and exclude common directories
     const args = [
-      '--files',
-      '--follow',
-      '--hidden',
-      '-g',
-      '!**/{node_modules,.git,.github,out,dist,__pycache__,.venv,.env,venv,env,.cache,tmp,temp}/**',
+      "--files",
+      "--follow",
+      "--hidden",
+      "-g",
+      "!**/{node_modules,.git,.github,out,dist,__pycache__,.venv,.env,venv,env,.cache,tmp,temp}/**",
       workspacePath,
     ];
 
@@ -36,12 +36,12 @@ export async function executeRipgrepForFiles(
     const rl = readline.createInterface({ input: rgProcess.stdout });
 
     // Array to store file results and Set to track unique directories
-    const fileResults: { path: string; type: 'file' | 'folder'; label?: string }[] = [];
+    const fileResults: { path: string; type: "file" | "folder"; label?: string }[] = [];
     const dirSet = new Set<string>();
     let count = 0;
 
     // Handle each line of output from ripgrep (each line is a file path)
-    rl.on('line', (line) => {
+    rl.on("line", (line) => {
       if (count >= limit) {
         rl.close();
         rgProcess.kill();
@@ -54,13 +54,13 @@ export async function executeRipgrepForFiles(
       // Add file result to array
       fileResults.push({
         path: relativePath,
-        type: 'file',
+        type: "file",
         label: path.basename(relativePath),
       });
 
       // Extract and add parent directories to the set
       let dirPath = path.dirname(relativePath);
-      while (dirPath && dirPath !== '.' && dirPath !== '/') {
+      while (dirPath && dirPath !== "." && dirPath !== "/") {
         dirSet.add(dirPath);
         dirPath = path.dirname(dirPath);
       }
@@ -69,13 +69,13 @@ export async function executeRipgrepForFiles(
     });
 
     // Capture any error output from ripgrep
-    let errorOutput = '';
-    rgProcess.stderr.on('data', (data) => {
+    let errorOutput = "";
+    rgProcess.stderr.on("data", (data) => {
       errorOutput += data.toString();
     });
 
     // When ripgrep finishes or is closed
-    rl.on('close', () => {
+    rl.on("close", () => {
       if (errorOutput && fileResults.length === 0) {
         reject(new Error(`ripgrep process error: ${errorOutput.trim()}`));
         return;
@@ -84,9 +84,9 @@ export async function executeRipgrepForFiles(
       // Transform directory paths from Set into structured results
       const dirResults = Array.from(
         dirSet,
-        (dirPath): { path: string; type: 'folder'; label?: string } => ({
+        (dirPath): { path: string; type: "folder"; label?: string } => ({
           path: dirPath,
-          type: 'folder',
+          type: "folder",
           label: path.basename(dirPath),
         }),
       );
@@ -96,7 +96,7 @@ export async function executeRipgrepForFiles(
     });
 
     // Handle process-level errors
-    rgProcess.on('error', (error) => reject(new Error(`ripgrep process error: ${error.message}`)));
+    rgProcess.on("error", (error) => reject(new Error(`ripgrep process error: ${error.message}`)));
   });
 }
 
@@ -111,13 +111,13 @@ export async function searchWorkspaceFiles(
   query: string,
   workspacePath: string,
   limit = 20,
-  selectedType?: 'file' | 'folder',
+  selectedType?: "file" | "folder",
   workspaceName?: string,
-): Promise<{ path: string; type: 'file' | 'folder'; label?: string; workspaceName?: string }[]> {
+): Promise<{ path: string; type: "file" | "folder"; label?: string; workspaceName?: string }[]> {
   try {
     // Get currently active files and convert to search format
     const activeFilePaths = await getActiveFiles();
-    const activeFiles: { path: string; type: 'file' | 'folder'; label?: string }[] = [];
+    const activeFiles: { path: string; type: "file" | "folder"; label?: string }[] = [];
 
     for (const filePath of activeFilePaths) {
       if (
@@ -125,10 +125,10 @@ export async function searchWorkspaceFiles(
         filePath.startsWith(`${workspacePath}/`)
       ) {
         const relativePath = path.relative(workspacePath, filePath);
-        const normalizedPath = relativePath.replace(/\\/g, '/');
+        const normalizedPath = relativePath.replace(/\\/g, "/");
         activeFiles.push({
           path: normalizedPath,
-          type: 'file',
+          type: "file",
           label: path.basename(normalizedPath),
         });
       }
@@ -150,14 +150,14 @@ export async function searchWorkspaceFiles(
       const addWorkspaceName = (items: typeof combinedItems) =>
         workspaceName ? items.map((item) => ({ ...item, workspaceName })) : items;
 
-      if (selectedType === 'file') {
+      if (selectedType === "file") {
         return addWorkspaceName(
-          combinedItems.filter((item) => item.type === 'file').slice(0, limit),
+          combinedItems.filter((item) => item.type === "file").slice(0, limit),
         );
       }
-      if (selectedType === 'folder') {
+      if (selectedType === "folder") {
         return addWorkspaceName(
-          combinedItems.filter((item) => item.type === 'folder').slice(0, limit),
+          combinedItems.filter((item) => item.type === "folder").slice(0, limit),
         );
       }
       return addWorkspaceName(combinedItems.slice(0, limit));
@@ -166,10 +166,10 @@ export async function searchWorkspaceFiles(
     // Match Scoring - Prioritize the label (filename) by including it twice in the search string
     // Use multiple tiebreakers in order of importance: Match score, then length of match (shorter=better)
     // Get more (2x) results than needed for filtering, we pick the top half after sorting
-    const fzfModule = await import('fzf');
+    const fzfModule = await import("fzf");
     const fzf = new fzfModule.Fzf(combinedItems, {
       selector: (item: { label?: string; path: string }) =>
-        `${item.label || ''} ${item.label || ''} ${item.path}`,
+        `${item.label || ""} ${item.label || ""} ${item.path}`,
       tiebreakers: [OrderbyMatchScore, fzfModule.byLengthAsc],
       limit: limit * 2,
     });
@@ -178,13 +178,13 @@ export async function searchWorkspaceFiles(
 
     // Verify if the path exists and is actually a directory
     const verifiedResultsPromises = filteredResults.map(
-      async ({ item }: { item: { path: string; type: 'file' | 'folder'; label?: string } }) => {
+      async ({ item }: { item: { path: string; type: "file" | "folder"; label?: string } }) => {
         const fullPath = path.join(workspacePath, item.path);
         let type = item.type;
 
         try {
           const stats = await fs.promises.lstat(fullPath);
-          type = stats.isDirectory() ? 'folder' : 'file';
+          type = stats.isDirectory() ? "folder" : "file";
         } catch {
           // Keep original type if path doesn't exist
         }
@@ -195,7 +195,7 @@ export async function searchWorkspaceFiles(
 
     return await Promise.all(verifiedResultsPromises);
   } catch (error) {
-    Logger.error('Error in searchWorkspaceFiles:', error);
+    Logger.error("Error in searchWorkspaceFiles:", error);
     return [];
   }
 }
@@ -226,9 +226,9 @@ export async function searchWorkspaceFilesMultiroot(
   query: string,
   workspaceManager: WorkspaceRootManager,
   limit = 20,
-  selectedType?: 'file' | 'folder',
+  selectedType?: "file" | "folder",
   workspaceHint?: string,
-): Promise<{ path: string; type: 'file' | 'folder'; label?: string; workspaceName?: string }[]> {
+): Promise<{ path: string; type: "file" | "folder"; label?: string; workspaceName?: string }[]> {
   try {
     const workspaceRoots = workspaceManager?.getRoots?.() || [];
 
@@ -295,10 +295,10 @@ export async function searchWorkspaceFilesMultiroot(
 
     // Apply fuzzy matching across all results if needed
     if (query.trim() && flatResults.length > limit) {
-      const fzfModule = await import('fzf');
+      const fzfModule = await import("fzf");
       const fzf = new fzfModule.Fzf(flatResults, {
         selector: (item: { label?: string; path: string }) =>
-          `${item.label || ''} ${item.label || ''} ${item.path}`,
+          `${item.label || ""} ${item.label || ""} ${item.path}`,
         tiebreakers: [OrderbyMatchScore, fzfModule.byLengthAsc],
       });
       flatResults = fzf
@@ -311,7 +311,7 @@ export async function searchWorkspaceFilesMultiroot(
 
     return flatResults;
   } catch (error) {
-    Logger.error('[searchWorkspaceFilesMultiroot] Error in multiroot search:', error);
+    Logger.error("[searchWorkspaceFilesMultiroot] Error in multiroot search:", error);
     return [];
   }
 }

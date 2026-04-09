@@ -1,5 +1,5 @@
-import { VSCodeLink } from '@vscode/webview-ui-toolkit/react';
-import { useMemo } from 'react';
+import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { useMemo } from "react";
 
 interface ContextWindowSwitcherProps {
   selectedModelId: string;
@@ -22,14 +22,14 @@ export const ContextWindowSwitcher = ({
       return {
         current: base200kModelId,
         alternate: base1mModelId,
-        linkText: 'Switch to 1M context window model',
+        linkText: "Switch to 1M context window model",
       };
     }
     if (selectedModelId === base1mModelId) {
       return {
         current: base1mModelId,
         alternate: base200kModelId,
-        linkText: 'Switch to 200K context window model',
+        linkText: "Switch to 200K context window model",
       };
     }
     return null;
@@ -44,9 +44,9 @@ export const ContextWindowSwitcher = ({
       <VSCodeLink
         onClick={() => onModelChange(switcherInfo.alternate)}
         style={{
-          display: 'inline',
-          fontSize: '10.5px',
-          color: 'var(--vscode-textLink-foreground)',
+          display: "inline",
+          fontSize: "10.5px",
+          color: "var(--vscode-textLink-foreground)",
         }}
       >
         {switcherInfo.linkText}

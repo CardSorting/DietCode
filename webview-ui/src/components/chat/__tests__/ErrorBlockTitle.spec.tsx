@@ -1,17 +1,17 @@
-import { describe, expect, it } from 'vitest';
-import { ErrorBlockTitle } from '../ErrorBlockTitle';
+import { describe, expect, it } from "vitest";
+import { ErrorBlockTitle } from "../ErrorBlockTitle";
 
-describe('ErrorBlockTitle', () => {
-  it('should return icon and title for API request cancelled', () => {
+describe("ErrorBlockTitle", () => {
+  it("should return icon and title for API request cancelled", () => {
     const [icon, title] = ErrorBlockTitle({
-      apiReqCancelReason: 'user_cancelled',
+      apiReqCancelReason: "user_cancelled",
     });
 
     expect(icon).toBeDefined();
     expect(title).toBeDefined();
   });
 
-  it('should return icon and title for completed API request', () => {
+  it("should return icon and title for completed API request", () => {
     const [icon, title] = ErrorBlockTitle({
       cost: 0.001,
     });
@@ -20,16 +20,16 @@ describe('ErrorBlockTitle', () => {
     expect(title).toBeDefined();
   });
 
-  it('should return icon and title for failed API request', () => {
+  it("should return icon and title for failed API request", () => {
     const [icon, title] = ErrorBlockTitle({
-      apiRequestFailedMessage: 'Request failed',
+      apiRequestFailedMessage: "Request failed",
     });
 
     expect(icon).toBeDefined();
     expect(title).toBeDefined();
   });
 
-  it('should return icon and title for retry status', () => {
+  it("should return icon and title for retry status", () => {
     const [icon, title] = ErrorBlockTitle({
       retryStatus: {
         attempt: 2,
@@ -42,7 +42,7 @@ describe('ErrorBlockTitle', () => {
     expect(title).toBeDefined();
   });
 
-  it('should return icon and title for default API request', () => {
+  it("should return icon and title for default API request", () => {
     const [icon, title] = ErrorBlockTitle({});
 
     expect(icon).toBeDefined();

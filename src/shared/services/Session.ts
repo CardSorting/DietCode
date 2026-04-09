@@ -1,4 +1,4 @@
-import { nanoid } from 'nanoid';
+import { nanoid } from "nanoid";
 
 export interface ToolCallRecord {
   name: string;
@@ -234,10 +234,10 @@ export class Session {
    * Format a timestamp for display (e.g., "2:34:56 PM").
    */
   formatTime(date: Date): string {
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      second: '2-digit',
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      second: "2-digit",
       hour12: true,
     });
   }

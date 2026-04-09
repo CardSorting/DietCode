@@ -1,37 +1,37 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
+import { useExtensionState } from "@/context/ExtensionStateContext";
 import {
   ANTHROPIC_FAST_MODE_SUFFIX,
   CLAUDE_SONNET_1M_SUFFIX,
   anthropicModels,
-} from '@shared/api.ts';
-import type { Mode } from '@shared/storage/types';
-import ThinkingBudgetSlider from '../ThinkingBudgetSlider';
-import { ApiKeyField } from '../common/ApiKeyField';
-import { BaseUrlField } from '../common/BaseUrlField';
-import { ContextWindowSwitcher } from '../common/ContextWindowSwitcher';
-import { ModelInfoView } from '../common/ModelInfoView';
-import { ModelSelector } from '../common/ModelSelector';
-import { RemotelyConfiguredInputWrapper } from '../common/RemotelyConfiguredInputWrapper';
-import { normalizeApiConfiguration } from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+} from "@shared/api.ts";
+import type { Mode } from "@shared/storage/types";
+import ThinkingBudgetSlider from "../ThinkingBudgetSlider";
+import { ApiKeyField } from "../common/ApiKeyField";
+import { BaseUrlField } from "../common/BaseUrlField";
+import { ContextWindowSwitcher } from "../common/ContextWindowSwitcher";
+import { ModelInfoView } from "../common/ModelInfoView";
+import { ModelSelector } from "../common/ModelSelector";
+import { RemotelyConfiguredInputWrapper } from "../common/RemotelyConfiguredInputWrapper";
+import { normalizeApiConfiguration } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 // Anthropic models that support thinking/reasoning mode
 export const SUPPORTED_ANTHROPIC_THINKING_MODELS = [
-  'claude-opus-4-6',
+  "claude-opus-4-6",
   `claude-opus-4-6${ANTHROPIC_FAST_MODE_SUFFIX}`,
   `claude-opus-4-6${CLAUDE_SONNET_1M_SUFFIX}`,
   `claude-opus-4-6${CLAUDE_SONNET_1M_SUFFIX}${ANTHROPIC_FAST_MODE_SUFFIX}`,
-  'claude-sonnet-4-6',
+  "claude-sonnet-4-6",
   `claude-sonnet-4-6${CLAUDE_SONNET_1M_SUFFIX}`,
-  'claude-3-7-sonnet-20250219',
-  'claude-sonnet-4-20250514',
+  "claude-3-7-sonnet-20250219",
+  "claude-sonnet-4-20250514",
   `claude-sonnet-4-20250514${CLAUDE_SONNET_1M_SUFFIX}`,
-  'claude-opus-4-5-20251101',
-  'claude-opus-4-20250514',
-  'claude-opus-4-1-20250805',
-  'claude-sonnet-4-5-20250929',
+  "claude-opus-4-5-20251101",
+  "claude-opus-4-20250514",
+  "claude-opus-4-1-20250805",
+  "claude-sonnet-4-5-20250929",
   `claude-sonnet-4-5-20250929${CLAUDE_SONNET_1M_SUFFIX}`,
-  'claude-haiku-4-5-20251001',
+  "claude-haiku-4-5-20251001",
 ];
 
 /**
@@ -63,7 +63,7 @@ export const AnthropicProvider = ({
   // Helper function for model switching
   const handleModelChange = (modelId: string) => {
     handleModeFieldChange(
-      { plan: 'planModeApiModelId', act: 'actModeApiModelId' },
+      { plan: "planModeApiModelId", act: "actModeApiModelId" },
       modelId,
       currentMode,
     );
@@ -72,8 +72,8 @@ export const AnthropicProvider = ({
   return (
     <div>
       <ApiKeyField
-        initialValue={apiConfiguration?.apiKey || ''}
-        onChange={(value) => handleFieldChange('apiKey', value)}
+        initialValue={apiConfiguration?.apiKey || ""}
+        onChange={(value) => handleFieldChange("apiKey", value)}
         providerName="Anthropic"
         signupUrl="https://console.anthropic.com/settings/keys"
       />
@@ -83,7 +83,7 @@ export const AnthropicProvider = ({
           disabled={!!remoteConfigSettings?.anthropicBaseUrl}
           initialValue={apiConfiguration?.anthropicBaseUrl}
           label="Use custom base URL"
-          onChange={(value) => handleFieldChange('anthropicBaseUrl', value)}
+          onChange={(value) => handleFieldChange("anthropicBaseUrl", value)}
           placeholder="Default: https://api.anthropic.com"
           showLockIcon={!!remoteConfigSettings?.anthropicBaseUrl}
         />
@@ -96,7 +96,7 @@ export const AnthropicProvider = ({
             models={anthropicModels}
             onChange={(e) =>
               handleModeFieldChange(
-                { plan: 'planModeApiModelId', act: 'actModeApiModelId' },
+                { plan: "planModeApiModelId", act: "actModeApiModelId" },
                 e.target.value,
                 currentMode,
               )

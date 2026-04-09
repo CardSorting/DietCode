@@ -1,8 +1,8 @@
-import { ClineEndpoint } from '@/config';
-import { fetch } from '@/shared/net';
-import { Logger } from '@/shared/services/Logger';
-import { posthogConfig } from '@/shared/services/config/posthog-config';
-import { type EventMessage, PostHog } from 'posthog-node';
+import { ClineEndpoint } from "@/config";
+import { fetch } from "@/shared/net";
+import { Logger } from "@/shared/services/Logger";
+import { posthogConfig } from "@/shared/services/config/posthog-config";
+import { type EventMessage, PostHog } from "posthog-node";
 
 export class PostHogClientProvider {
   private static _instance: PostHogClientProvider | null = null;
@@ -38,7 +38,7 @@ export class PostHogClientProvider {
       : null;
 
     if (this.client) {
-      Logger.log('PostHog client initialized');
+      Logger.log("PostHog client initialized");
     }
   }
 
@@ -48,7 +48,7 @@ export class PostHogClientProvider {
    * this is specifically to avoid capturing errors from anything other than Cline
    */
   static eventFilter(event: EventMessage | null) {
-    if (!event || event?.event !== '$exception') {
+    if (!event || event?.event !== "$exception") {
       return event;
     }
     const exceptionList = event.properties?.$exception_list;
@@ -60,7 +60,7 @@ export class PostHogClientProvider {
     for (let i = 0; i < exceptionList.length; i++) {
       const stacktrace = exceptionList[i].stacktrace;
       // Fast check: error message contains "cline"
-      if (stacktrace?.value?.toLowerCase().includes('cline')) {
+      if (stacktrace?.value?.toLowerCase().includes("cline")) {
         return event;
       }
 
@@ -70,7 +70,7 @@ export class PostHogClientProvider {
           const fileName = frames[j]?.filename;
           // The extension filename will include "saoudrizwan"
           // The CLI filename will include "cline"
-          if (fileName?.includes('saoudrizwan') || fileName?.includes('cline')) {
+          if (fileName?.includes("saoudrizwan") || fileName?.includes("cline")) {
             return event;
           }
         }
@@ -83,6 +83,6 @@ export class PostHogClientProvider {
   public async dispose(): Promise<void> {
     await this.client
       ?.shutdown()
-      .catch((error) => Logger.error('Error shutting down PostHog client:', error));
+      .catch((error) => Logger.error("Error shutting down PostHog client:", error));
   }
 }

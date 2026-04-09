@@ -1,11 +1,11 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { qwenCodeModels } from '@shared/api.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { VSCodeLink, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
-import { ModelInfoView } from '../common/ModelInfoView';
-import { ModelSelector } from '../common/ModelSelector';
-import { normalizeApiConfiguration } from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { qwenCodeModels } from "@shared/api.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { VSCodeLink, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import { ModelInfoView } from "../common/ModelInfoView";
+import { ModelSelector } from "../common/ModelSelector";
+import { normalizeApiConfiguration } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 /**
  * Props for the QwenCodeProvider component
@@ -35,19 +35,19 @@ export const QwenCodeProvider = ({
 
   return (
     <div>
-      <h3 style={{ color: 'var(--vscode-foreground)', margin: '8px 0' }}>
+      <h3 style={{ color: "var(--vscode-foreground)", margin: "8px 0" }}>
         Qwen Code API Configuration
       </h3>
       <VSCodeTextField
-        onInput={(e: any) => handleFieldChange('qwenCodeOauthPath', e.target.value)}
+        onInput={(e: any) => handleFieldChange("qwenCodeOauthPath", e.target.value)}
         placeholder="~/.qwen/oauth_creds.json"
-        style={{ width: '100%' }}
-        value={apiConfiguration?.qwenCodeOauthPath || ''}
+        style={{ width: "100%" }}
+        value={apiConfiguration?.qwenCodeOauthPath || ""}
       >
         OAuth Credentials Path
       </VSCodeTextField>
       <div
-        style={{ fontSize: '12px', color: 'var(--vscode-descriptionForeground)', marginTop: '4px' }}
+        style={{ fontSize: "12px", color: "var(--vscode-descriptionForeground)", marginTop: "4px" }}
       >
         Path to your Qwen OAuth credentials file. Use ~/.qwen/oauth_creds.json or provide a custom
         path.
@@ -55,9 +55,9 @@ export const QwenCodeProvider = ({
 
       <div
         style={{
-          fontSize: '12px',
-          color: 'var(--vscode-descriptionForeground)',
-          marginTop: '12px',
+          fontSize: "12px",
+          color: "var(--vscode-descriptionForeground)",
+          marginTop: "12px",
         }}
       >
         Qwen Code is an OAuth-based API that requires authentication through the official Qwen
@@ -65,7 +65,7 @@ export const QwenCodeProvider = ({
       </div>
 
       <div
-        style={{ fontSize: '12px', color: 'var(--vscode-descriptionForeground)', marginTop: '8px' }}
+        style={{ fontSize: "12px", color: "var(--vscode-descriptionForeground)", marginTop: "8px" }}
       >
         To get started:
         <br />
@@ -79,10 +79,10 @@ export const QwenCodeProvider = ({
       <VSCodeLink
         href="https://github.com/QwenLM/qwen-code/blob/main/README.md"
         style={{
-          color: 'var(--vscode-textLink-foreground)',
-          marginTop: '8px',
-          display: 'inline-block',
-          fontSize: '12px',
+          color: "var(--vscode-textLink-foreground)",
+          marginTop: "8px",
+          display: "inline-block",
+          fontSize: "12px",
         }}
       >
         Setup Instructions
@@ -94,7 +94,7 @@ export const QwenCodeProvider = ({
             label="Model"
             models={qwenCodeModels}
             onChange={(modelId) => {
-              const fieldName = currentMode === 'plan' ? 'planModeApiModelId' : 'actModeApiModelId';
+              const fieldName = currentMode === "plan" ? "planModeApiModelId" : "actModeApiModelId";
               handleFieldChange(fieldName, modelId);
             }}
             selectedModelId={selectedModelId}

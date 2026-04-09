@@ -3,7 +3,7 @@ export interface NavigatorUAData {
   brands: { brand: string; version: string }[];
 }
 
-export const unknown = 'Unknown';
+export const unknown = "Unknown";
 
 const platforms = {
   windows: /win32/,
@@ -14,33 +14,33 @@ const platforms = {
 export const detectOS = (platform: string) => {
   let detectedOs = unknown;
   if (platform.match(platforms.windows)) {
-    detectedOs = 'windows';
+    detectedOs = "windows";
   } else if (platform.match(platforms.mac)) {
-    detectedOs = 'mac';
+    detectedOs = "mac";
   } else if (platform.match(platforms.linux)) {
-    detectedOs = 'linux';
+    detectedOs = "linux";
   }
   return detectedOs;
 };
 
 export const detectMetaKeyChar = (platform: string) => {
   if (platform.match(platforms.mac)) {
-    return 'CMD';
+    return "CMD";
   }
   if (platform.match(platforms.windows)) {
-    return 'Win';
+    return "Win";
   }
   if (platform.match(platforms.linux)) {
-    return 'Alt';
+    return "Alt";
   }
-  return 'CMD';
+  return "CMD";
 };
 
-const userAgent = navigator?.userAgent || '';
+const userAgent = navigator?.userAgent || "";
 
-export const isChrome = userAgent.indexOf('Chrome') >= 0;
+export const isChrome = userAgent.indexOf("Chrome") >= 0;
 
-export const isSafari = !isChrome && userAgent.indexOf('Safari') >= 0;
+export const isSafari = !isChrome && userAgent.indexOf("Safari") >= 0;
 
 /**
  * Gets the current platform: 'windows', 'mac', or 'linux'
@@ -49,12 +49,12 @@ export const isSafari = !isChrome && userAgent.indexOf('Safari') >= 0;
 export function getCurrentPlatform() {
   // Fallback to linux if platform is not available
   switch (process?.platform) {
-    case 'win32':
-      return 'windows';
-    case 'darwin':
-      return 'mac';
+    case "win32":
+      return "windows";
+    case "darwin":
+      return "mac";
     default:
-      return 'linux';
+      return "linux";
   }
 }
 
@@ -63,5 +63,5 @@ export function getCurrentPlatform() {
  * @returns true if platform is darwin (macOS) or linux
  */
 export const isMacOSOrLinux = (): boolean => {
-  return getCurrentPlatform() !== 'windows'; // Non-Windows
+  return getCurrentPlatform() !== "windows"; // Non-Windows
 };

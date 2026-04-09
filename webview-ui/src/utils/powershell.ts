@@ -1,6 +1,6 @@
-import * as childProcess from 'node:child_process';
-import { Logger } from '@/shared/services/Logger';
-import { WINDOWS_POWERSHELL_7_PATH, WINDOWS_POWERSHELL_LEGACY_PATH } from './shell';
+import * as childProcess from "node:child_process";
+import { Logger } from "@/shared/services/Logger";
+import { WINDOWS_POWERSHELL_7_PATH, WINDOWS_POWERSHELL_LEGACY_PATH } from "./shell";
 
 const POWERSHELL_PROBE_TIMEOUT_MS = 1200;
 
@@ -17,7 +17,7 @@ export function getFallbackWindowsPowerShellPath(): string {
 }
 
 export function getWindowsPowerShellCandidates(): string[] {
-  const programFiles = process.env.ProgramW6432 || process.env.ProgramFiles || 'C:\\Program Files';
+  const programFiles = process.env.ProgramW6432 || process.env.ProgramFiles || "C:\\Program Files";
 
   const envAbsoluteCandidates = [
     `${programFiles}\\PowerShell\\7\\pwsh.exe`,
@@ -26,7 +26,7 @@ export function getWindowsPowerShellCandidates(): string[] {
     WINDOWS_POWERSHELL_LEGACY_PATH,
   ];
 
-  const commandNameFallbacks = ['pwsh.exe', 'pwsh', 'powershell.exe', 'powershell'];
+  const commandNameFallbacks = ["pwsh.exe", "pwsh", "powershell.exe", "powershell"];
 
   return uniquePreserveOrder([...envAbsoluteCandidates, ...commandNameFallbacks]);
 }
@@ -49,9 +49,9 @@ export async function probeWindowsExecutable(
   return await new Promise<boolean>((resolve) => {
     const child = childProcess.spawn(
       candidate,
-      ['-NoProfile', '-NonInteractive', '-Command', '$PSVersionTable.PSVersion'],
+      ["-NoProfile", "-NonInteractive", "-Command", "$PSVersionTable.PSVersion"],
       {
-        stdio: 'ignore',
+        stdio: "ignore",
         windowsHide: true,
         shell: false,
       },
@@ -70,13 +70,13 @@ export async function probeWindowsExecutable(
 
     const timer = setTimeout(() => {
       if (!child.killed) {
-        child.kill('SIGTERM');
+        child.kill("SIGTERM");
       }
       finish(false);
     }, timeoutMs);
 
-    child.once('error', () => finish(false));
-    child.once('exit', (code) => finish(code === 0));
+    child.once("error", () => finish(false));
+    child.once("exit", (code) => finish(code === 0));
   });
 }
 
@@ -94,7 +94,7 @@ export async function resolveWindowsPowerShellExecutable(): Promise<string> {
 
       const fallback = getFallbackWindowsPowerShellPath();
       Logger.warn(
-        `[PowerShellResolver] Could not resolve PowerShell executable from candidates ${candidates.join(', ')}. Falling back to ${fallback}.`,
+        `[PowerShellResolver] Could not resolve PowerShell executable from candidates ${candidates.join(", ")}. Falling back to ${fallback}.`,
       );
       return fallback;
     })();

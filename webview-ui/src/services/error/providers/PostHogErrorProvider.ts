@@ -1,18 +1,18 @@
-import { StateManager } from '@/core/storage/StateManager';
-import { HostProvider } from '@/hosts/host-provider';
-import { getDistinctId } from '@/services/logging/distinctId';
-import { PostHogClientProvider } from '@/services/telemetry/providers/posthog/PostHogClientProvider';
-import { fetch } from '@/shared/net';
-import { Setting } from '@/shared/proto/index.host';
-import { Logger } from '@/shared/services/Logger';
-import { PostHog } from 'posthog-node';
-import { getErrorLevelFromString } from '..';
-import * as pkg from '../../../../package.json';
-import type { PostHogClientValidConfig } from '../../../shared/services/config/posthog-config';
-import { ClineError } from '../ClineError';
-import type { ErrorSettings, IErrorProvider } from './IErrorProvider';
+import { StateManager } from "@/core/storage/StateManager";
+import { HostProvider } from "@/hosts/host-provider";
+import { getDistinctId } from "@/services/logging/distinctId";
+import { PostHogClientProvider } from "@/services/telemetry/providers/posthog/PostHogClientProvider";
+import { fetch } from "@/shared/net";
+import { Setting } from "@/shared/proto/index.host";
+import { Logger } from "@/shared/services/Logger";
+import { PostHog } from "posthog-node";
+import { getErrorLevelFromString } from "..";
+import * as pkg from "../../../../package.json";
+import type { PostHogClientValidConfig } from "../../../shared/services/config/posthog-config";
+import { ClineError } from "../ClineError";
+import type { ErrorSettings, IErrorProvider } from "./IErrorProvider";
 
-const isDev = process.env.IS_DEV === 'true';
+const isDev = process.env.IS_DEV === "true";
 
 type PostHogErrorClient = PostHogClientValidConfig & {
   enableExceptionAutocapture: boolean;
@@ -39,7 +39,7 @@ export class PostHogErrorProvider implements IErrorProvider {
     this.errorSettings = {
       enabled: true,
       hostEnabled: true,
-      level: 'all',
+      level: "all",
     };
   }
 
@@ -67,7 +67,7 @@ export class PostHogErrorProvider implements IErrorProvider {
   }
 
   captureException(error: Error | ClineError, properties?: Record<string, unknown>): Promise<void> {
-    if (!this.isEnabled() || this.errorSettings.level === 'off') {
+    if (!this.isEnabled() || this.errorSettings.level === "off") {
       return Promise.resolve();
     }
 
@@ -82,7 +82,7 @@ export class PostHogErrorProvider implements IErrorProvider {
   }
 
   public logException(error: Error | ClineError, properties: Record<string, unknown> = {}): void {
-    if (!this.isEnabled() || this.errorSettings.level === 'off') {
+    if (!this.isEnabled() || this.errorSettings.level === "off") {
       return;
     }
 
@@ -105,34 +105,34 @@ export class PostHogErrorProvider implements IErrorProvider {
 
     this.client.capture({
       distinctId: this.distinctId,
-      event: 'extension.error',
+      event: "extension.error",
       properties: {
-        error_type: 'exception',
+        error_type: "exception",
         ...errorDetails,
         timestamp: new Date().toISOString(),
       },
     });
 
-    Logger.error('[PostHogErrorProvider] Logging exception', error);
+    Logger.error("[PostHogErrorProvider] Logging exception", error);
   }
 
   public logMessage(
     message: string,
-    level: 'error' | 'warning' | 'log' | 'debug' | 'info' = 'log',
+    level: "error" | "warning" | "log" | "debug" | "info" = "log",
     properties: Record<string, unknown> = {},
   ): void {
-    if (!this.isEnabled() || this.errorSettings.level === 'off') {
+    if (!this.isEnabled() || this.errorSettings.level === "off") {
       return;
     }
 
     // Filter messages based on error level
-    if (this.errorSettings.level === 'error' && level !== 'error') {
+    if (this.errorSettings.level === "error" && level !== "error") {
       return;
     }
 
     this.client.capture({
       distinctId: this.distinctId,
-      event: 'extension.message',
+      event: "extension.message",
       properties: {
         message: message.substring(0, 500), // Truncate long messages
         level,
@@ -146,7 +146,7 @@ export class PostHogErrorProvider implements IErrorProvider {
 
   public isEnabled(): boolean {
     return (
-      StateManager.get().getGlobalSettingsKey('telemetrySetting') !== 'disabled' &&
+      StateManager.get().getGlobalSettingsKey("telemetrySetting") !== "disabled" &&
       this.errorSettings.hostEnabled
     );
   }
@@ -164,7 +164,7 @@ export class PostHogErrorProvider implements IErrorProvider {
     if (!this.isSharedClient) {
       await this.client
         .shutdown()
-        .catch((error) => Logger.error('Error shutting down PostHog client:', error));
+        .catch((error) => Logger.error("Error shutting down PostHog client:", error));
     }
   }
 }

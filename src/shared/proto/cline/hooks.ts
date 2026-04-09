@@ -5,7 +5,7 @@
 // source: cline/hooks.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 /** Input message for all hooks */
 export interface HookInput {
@@ -178,12 +178,12 @@ export interface PreCompactData {
 
 function createBaseHookInput(): HookInput {
   return {
-    clineVersion: '',
-    hookName: '',
-    timestamp: '',
-    taskId: '',
+    clineVersion: "",
+    hookName: "",
+    timestamp: "",
+    taskId: "",
     workspaceRoots: [],
-    userId: '',
+    userId: "",
     model: undefined,
     preToolUse: undefined,
     postToolUse: undefined,
@@ -199,22 +199,22 @@ function createBaseHookInput(): HookInput {
 
 export const HookInput: MessageFns<HookInput> = {
   encode(message: HookInput, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.clineVersion !== '') {
+    if (message.clineVersion !== "") {
       writer.uint32(10).string(message.clineVersion);
     }
-    if (message.hookName !== '') {
+    if (message.hookName !== "") {
       writer.uint32(18).string(message.hookName);
     }
-    if (message.timestamp !== '') {
+    if (message.timestamp !== "") {
       writer.uint32(26).string(message.timestamp);
     }
-    if (message.taskId !== '') {
+    if (message.taskId !== "") {
       writer.uint32(34).string(message.taskId);
     }
     for (const v of message.workspaceRoots) {
       writer.uint32(42).string(v!);
     }
-    if (message.userId !== '') {
+    if (message.userId !== "") {
       writer.uint32(50).string(message.userId);
     }
     if (message.model !== undefined) {
@@ -400,18 +400,18 @@ export const HookInput: MessageFns<HookInput> = {
         ? globalThis.String(object.clineVersion)
         : isSet(object.cline_version)
           ? globalThis.String(object.cline_version)
-          : '',
+          : "",
       hookName: isSet(object.hookName)
         ? globalThis.String(object.hookName)
         : isSet(object.hook_name)
           ? globalThis.String(object.hook_name)
-          : '',
-      timestamp: isSet(object.timestamp) ? globalThis.String(object.timestamp) : '',
+          : "",
+      timestamp: isSet(object.timestamp) ? globalThis.String(object.timestamp) : "",
       taskId: isSet(object.taskId)
         ? globalThis.String(object.taskId)
         : isSet(object.task_id)
           ? globalThis.String(object.task_id)
-          : '',
+          : "",
       workspaceRoots: globalThis.Array.isArray(object?.workspaceRoots)
         ? object.workspaceRoots.map((e: any) => globalThis.String(e))
         : globalThis.Array.isArray(object?.workspace_roots)
@@ -421,7 +421,7 @@ export const HookInput: MessageFns<HookInput> = {
         ? globalThis.String(object.userId)
         : isSet(object.user_id)
           ? globalThis.String(object.user_id)
-          : '',
+          : "",
       model: isSet(object.model) ? HookModelContext.fromJSON(object.model) : undefined,
       preToolUse: isSet(object.preToolUse)
         ? PreToolUseData.fromJSON(object.preToolUse)
@@ -471,22 +471,22 @@ export const HookInput: MessageFns<HookInput> = {
 
   toJSON(message: HookInput): unknown {
     const obj: any = {};
-    if (message.clineVersion !== '') {
+    if (message.clineVersion !== "") {
       obj.clineVersion = message.clineVersion;
     }
-    if (message.hookName !== '') {
+    if (message.hookName !== "") {
       obj.hookName = message.hookName;
     }
-    if (message.timestamp !== '') {
+    if (message.timestamp !== "") {
       obj.timestamp = message.timestamp;
     }
-    if (message.taskId !== '') {
+    if (message.taskId !== "") {
       obj.taskId = message.taskId;
     }
     if (message.workspaceRoots?.length) {
       obj.workspaceRoots = message.workspaceRoots;
     }
-    if (message.userId !== '') {
+    if (message.userId !== "") {
       obj.userId = message.userId;
     }
     if (message.model !== undefined) {
@@ -527,12 +527,12 @@ export const HookInput: MessageFns<HookInput> = {
   },
   fromPartial<I extends Exact<DeepPartial<HookInput>, I>>(object: I): HookInput {
     const message = createBaseHookInput();
-    message.clineVersion = object.clineVersion ?? '';
-    message.hookName = object.hookName ?? '';
-    message.timestamp = object.timestamp ?? '';
-    message.taskId = object.taskId ?? '';
+    message.clineVersion = object.clineVersion ?? "";
+    message.hookName = object.hookName ?? "";
+    message.timestamp = object.timestamp ?? "";
+    message.taskId = object.taskId ?? "";
     message.workspaceRoots = object.workspaceRoots?.map((e) => e) || [];
-    message.userId = object.userId ?? '';
+    message.userId = object.userId ?? "";
     message.model =
       object.model !== undefined && object.model !== null
         ? HookModelContext.fromPartial(object.model)
@@ -578,15 +578,15 @@ export const HookInput: MessageFns<HookInput> = {
 };
 
 function createBaseHookModelContext(): HookModelContext {
-  return { provider: '', slug: '' };
+  return { provider: "", slug: "" };
 }
 
 export const HookModelContext: MessageFns<HookModelContext> = {
   encode(message: HookModelContext, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.provider !== '') {
+    if (message.provider !== "") {
       writer.uint32(10).string(message.provider);
     }
-    if (message.slug !== '') {
+    if (message.slug !== "") {
       writer.uint32(18).string(message.slug);
     }
     return writer;
@@ -626,17 +626,17 @@ export const HookModelContext: MessageFns<HookModelContext> = {
 
   fromJSON(object: any): HookModelContext {
     return {
-      provider: isSet(object.provider) ? globalThis.String(object.provider) : '',
-      slug: isSet(object.slug) ? globalThis.String(object.slug) : '',
+      provider: isSet(object.provider) ? globalThis.String(object.provider) : "",
+      slug: isSet(object.slug) ? globalThis.String(object.slug) : "",
     };
   },
 
   toJSON(message: HookModelContext): unknown {
     const obj: any = {};
-    if (message.provider !== '') {
+    if (message.provider !== "") {
       obj.provider = message.provider;
     }
-    if (message.slug !== '') {
+    if (message.slug !== "") {
       obj.slug = message.slug;
     }
     return obj;
@@ -647,25 +647,25 @@ export const HookModelContext: MessageFns<HookModelContext> = {
   },
   fromPartial<I extends Exact<DeepPartial<HookModelContext>, I>>(object: I): HookModelContext {
     const message = createBaseHookModelContext();
-    message.provider = object.provider ?? '';
-    message.slug = object.slug ?? '';
+    message.provider = object.provider ?? "";
+    message.slug = object.slug ?? "";
     return message;
   },
 };
 
 function createBaseHookOutput(): HookOutput {
-  return { contextModification: '', cancel: false, errorMessage: '' };
+  return { contextModification: "", cancel: false, errorMessage: "" };
 }
 
 export const HookOutput: MessageFns<HookOutput> = {
   encode(message: HookOutput, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.contextModification !== '') {
+    if (message.contextModification !== "") {
       writer.uint32(10).string(message.contextModification);
     }
     if (message.cancel !== false) {
       writer.uint32(16).bool(message.cancel);
     }
-    if (message.errorMessage !== '') {
+    if (message.errorMessage !== "") {
       writer.uint32(26).string(message.errorMessage);
     }
     return writer;
@@ -717,25 +717,25 @@ export const HookOutput: MessageFns<HookOutput> = {
         ? globalThis.String(object.contextModification)
         : isSet(object.context_modification)
           ? globalThis.String(object.context_modification)
-          : '',
+          : "",
       cancel: isSet(object.cancel) ? globalThis.Boolean(object.cancel) : false,
       errorMessage: isSet(object.errorMessage)
         ? globalThis.String(object.errorMessage)
         : isSet(object.error_message)
           ? globalThis.String(object.error_message)
-          : '',
+          : "",
     };
   },
 
   toJSON(message: HookOutput): unknown {
     const obj: any = {};
-    if (message.contextModification !== '') {
+    if (message.contextModification !== "") {
       obj.contextModification = message.contextModification;
     }
     if (message.cancel !== false) {
       obj.cancel = message.cancel;
     }
-    if (message.errorMessage !== '') {
+    if (message.errorMessage !== "") {
       obj.errorMessage = message.errorMessage;
     }
     return obj;
@@ -746,20 +746,20 @@ export const HookOutput: MessageFns<HookOutput> = {
   },
   fromPartial<I extends Exact<DeepPartial<HookOutput>, I>>(object: I): HookOutput {
     const message = createBaseHookOutput();
-    message.contextModification = object.contextModification ?? '';
+    message.contextModification = object.contextModification ?? "";
     message.cancel = object.cancel ?? false;
-    message.errorMessage = object.errorMessage ?? '';
+    message.errorMessage = object.errorMessage ?? "";
     return message;
   },
 };
 
 function createBasePreToolUseData(): PreToolUseData {
-  return { toolName: '', parameters: {} };
+  return { toolName: "", parameters: {} };
 }
 
 export const PreToolUseData: MessageFns<PreToolUseData> = {
   encode(message: PreToolUseData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.toolName !== '') {
+    if (message.toolName !== "") {
       writer.uint32(10).string(message.toolName);
     }
     globalThis.Object.entries(message.parameters).forEach(([key, value]: [string, string]) => {
@@ -812,7 +812,7 @@ export const PreToolUseData: MessageFns<PreToolUseData> = {
         ? globalThis.String(object.toolName)
         : isSet(object.tool_name)
           ? globalThis.String(object.tool_name)
-          : '',
+          : "",
       parameters: isObject(object.parameters)
         ? (globalThis.Object.entries(object.parameters) as [string, any][]).reduce(
             (acc: { [key: string]: string }, [key, value]: [string, any]) => {
@@ -827,7 +827,7 @@ export const PreToolUseData: MessageFns<PreToolUseData> = {
 
   toJSON(message: PreToolUseData): unknown {
     const obj: any = {};
-    if (message.toolName !== '') {
+    if (message.toolName !== "") {
       obj.toolName = message.toolName;
     }
     if (message.parameters) {
@@ -847,7 +847,7 @@ export const PreToolUseData: MessageFns<PreToolUseData> = {
   },
   fromPartial<I extends Exact<DeepPartial<PreToolUseData>, I>>(object: I): PreToolUseData {
     const message = createBasePreToolUseData();
-    message.toolName = object.toolName ?? '';
+    message.toolName = object.toolName ?? "";
     message.parameters = (
       globalThis.Object.entries(object.parameters ?? {}) as [string, string][]
     ).reduce((acc: { [key: string]: string }, [key, value]: [string, string]) => {
@@ -861,7 +861,7 @@ export const PreToolUseData: MessageFns<PreToolUseData> = {
 };
 
 function createBasePreToolUseData_ParametersEntry(): PreToolUseData_ParametersEntry {
-  return { key: '', value: '' };
+  return { key: "", value: "" };
 }
 
 export const PreToolUseData_ParametersEntry: MessageFns<PreToolUseData_ParametersEntry> = {
@@ -869,10 +869,10 @@ export const PreToolUseData_ParametersEntry: MessageFns<PreToolUseData_Parameter
     message: PreToolUseData_ParametersEntry,
     writer: BinaryWriter = new BinaryWriter(),
   ): BinaryWriter {
-    if (message.key !== '') {
+    if (message.key !== "") {
       writer.uint32(10).string(message.key);
     }
-    if (message.value !== '') {
+    if (message.value !== "") {
       writer.uint32(18).string(message.value);
     }
     return writer;
@@ -912,17 +912,17 @@ export const PreToolUseData_ParametersEntry: MessageFns<PreToolUseData_Parameter
 
   fromJSON(object: any): PreToolUseData_ParametersEntry {
     return {
-      key: isSet(object.key) ? globalThis.String(object.key) : '',
-      value: isSet(object.value) ? globalThis.String(object.value) : '',
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      value: isSet(object.value) ? globalThis.String(object.value) : "",
     };
   },
 
   toJSON(message: PreToolUseData_ParametersEntry): unknown {
     const obj: any = {};
-    if (message.key !== '') {
+    if (message.key !== "") {
       obj.key = message.key;
     }
-    if (message.value !== '') {
+    if (message.value !== "") {
       obj.value = message.value;
     }
     return obj;
@@ -937,19 +937,19 @@ export const PreToolUseData_ParametersEntry: MessageFns<PreToolUseData_Parameter
     object: I,
   ): PreToolUseData_ParametersEntry {
     const message = createBasePreToolUseData_ParametersEntry();
-    message.key = object.key ?? '';
-    message.value = object.value ?? '';
+    message.key = object.key ?? "";
+    message.value = object.value ?? "";
     return message;
   },
 };
 
 function createBasePostToolUseData(): PostToolUseData {
-  return { toolName: '', parameters: {}, result: '', success: false, executionTimeMs: 0 };
+  return { toolName: "", parameters: {}, result: "", success: false, executionTimeMs: 0 };
 }
 
 export const PostToolUseData: MessageFns<PostToolUseData> = {
   encode(message: PostToolUseData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.toolName !== '') {
+    if (message.toolName !== "") {
       writer.uint32(10).string(message.toolName);
     }
     globalThis.Object.entries(message.parameters).forEach(([key, value]: [string, string]) => {
@@ -958,7 +958,7 @@ export const PostToolUseData: MessageFns<PostToolUseData> = {
         writer.uint32(18).fork(),
       ).join();
     });
-    if (message.result !== '') {
+    if (message.result !== "") {
       writer.uint32(26).string(message.result);
     }
     if (message.success !== false) {
@@ -1035,7 +1035,7 @@ export const PostToolUseData: MessageFns<PostToolUseData> = {
         ? globalThis.String(object.toolName)
         : isSet(object.tool_name)
           ? globalThis.String(object.tool_name)
-          : '',
+          : "",
       parameters: isObject(object.parameters)
         ? (globalThis.Object.entries(object.parameters) as [string, any][]).reduce(
             (acc: { [key: string]: string }, [key, value]: [string, any]) => {
@@ -1045,7 +1045,7 @@ export const PostToolUseData: MessageFns<PostToolUseData> = {
             {},
           )
         : {},
-      result: isSet(object.result) ? globalThis.String(object.result) : '',
+      result: isSet(object.result) ? globalThis.String(object.result) : "",
       success: isSet(object.success) ? globalThis.Boolean(object.success) : false,
       executionTimeMs: isSet(object.executionTimeMs)
         ? globalThis.Number(object.executionTimeMs)
@@ -1057,7 +1057,7 @@ export const PostToolUseData: MessageFns<PostToolUseData> = {
 
   toJSON(message: PostToolUseData): unknown {
     const obj: any = {};
-    if (message.toolName !== '') {
+    if (message.toolName !== "") {
       obj.toolName = message.toolName;
     }
     if (message.parameters) {
@@ -1069,7 +1069,7 @@ export const PostToolUseData: MessageFns<PostToolUseData> = {
         });
       }
     }
-    if (message.result !== '') {
+    if (message.result !== "") {
       obj.result = message.result;
     }
     if (message.success !== false) {
@@ -1086,7 +1086,7 @@ export const PostToolUseData: MessageFns<PostToolUseData> = {
   },
   fromPartial<I extends Exact<DeepPartial<PostToolUseData>, I>>(object: I): PostToolUseData {
     const message = createBasePostToolUseData();
-    message.toolName = object.toolName ?? '';
+    message.toolName = object.toolName ?? "";
     message.parameters = (
       globalThis.Object.entries(object.parameters ?? {}) as [string, string][]
     ).reduce((acc: { [key: string]: string }, [key, value]: [string, string]) => {
@@ -1095,7 +1095,7 @@ export const PostToolUseData: MessageFns<PostToolUseData> = {
       }
       return acc;
     }, {});
-    message.result = object.result ?? '';
+    message.result = object.result ?? "";
     message.success = object.success ?? false;
     message.executionTimeMs = object.executionTimeMs ?? 0;
     return message;
@@ -1103,7 +1103,7 @@ export const PostToolUseData: MessageFns<PostToolUseData> = {
 };
 
 function createBasePostToolUseData_ParametersEntry(): PostToolUseData_ParametersEntry {
-  return { key: '', value: '' };
+  return { key: "", value: "" };
 }
 
 export const PostToolUseData_ParametersEntry: MessageFns<PostToolUseData_ParametersEntry> = {
@@ -1111,10 +1111,10 @@ export const PostToolUseData_ParametersEntry: MessageFns<PostToolUseData_Paramet
     message: PostToolUseData_ParametersEntry,
     writer: BinaryWriter = new BinaryWriter(),
   ): BinaryWriter {
-    if (message.key !== '') {
+    if (message.key !== "") {
       writer.uint32(10).string(message.key);
     }
-    if (message.value !== '') {
+    if (message.value !== "") {
       writer.uint32(18).string(message.value);
     }
     return writer;
@@ -1154,17 +1154,17 @@ export const PostToolUseData_ParametersEntry: MessageFns<PostToolUseData_Paramet
 
   fromJSON(object: any): PostToolUseData_ParametersEntry {
     return {
-      key: isSet(object.key) ? globalThis.String(object.key) : '',
-      value: isSet(object.value) ? globalThis.String(object.value) : '',
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      value: isSet(object.value) ? globalThis.String(object.value) : "",
     };
   },
 
   toJSON(message: PostToolUseData_ParametersEntry): unknown {
     const obj: any = {};
-    if (message.key !== '') {
+    if (message.key !== "") {
       obj.key = message.key;
     }
-    if (message.value !== '') {
+    if (message.value !== "") {
       obj.value = message.value;
     }
     return obj;
@@ -1179,19 +1179,19 @@ export const PostToolUseData_ParametersEntry: MessageFns<PostToolUseData_Paramet
     object: I,
   ): PostToolUseData_ParametersEntry {
     const message = createBasePostToolUseData_ParametersEntry();
-    message.key = object.key ?? '';
-    message.value = object.value ?? '';
+    message.key = object.key ?? "";
+    message.value = object.value ?? "";
     return message;
   },
 };
 
 function createBaseUserPromptSubmitData(): UserPromptSubmitData {
-  return { prompt: '', attachments: [] };
+  return { prompt: "", attachments: [] };
 }
 
 export const UserPromptSubmitData: MessageFns<UserPromptSubmitData> = {
   encode(message: UserPromptSubmitData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.prompt !== '') {
+    if (message.prompt !== "") {
       writer.uint32(10).string(message.prompt);
     }
     for (const v of message.attachments) {
@@ -1234,7 +1234,7 @@ export const UserPromptSubmitData: MessageFns<UserPromptSubmitData> = {
 
   fromJSON(object: any): UserPromptSubmitData {
     return {
-      prompt: isSet(object.prompt) ? globalThis.String(object.prompt) : '',
+      prompt: isSet(object.prompt) ? globalThis.String(object.prompt) : "",
       attachments: globalThis.Array.isArray(object?.attachments)
         ? object.attachments.map((e: any) => globalThis.String(e))
         : [],
@@ -1243,7 +1243,7 @@ export const UserPromptSubmitData: MessageFns<UserPromptSubmitData> = {
 
   toJSON(message: UserPromptSubmitData): unknown {
     const obj: any = {};
-    if (message.prompt !== '') {
+    if (message.prompt !== "") {
       obj.prompt = message.prompt;
     }
     if (message.attachments?.length) {
@@ -1259,7 +1259,7 @@ export const UserPromptSubmitData: MessageFns<UserPromptSubmitData> = {
     object: I,
   ): UserPromptSubmitData {
     const message = createBaseUserPromptSubmitData();
-    message.prompt = object.prompt ?? '';
+    message.prompt = object.prompt ?? "";
     message.attachments = object.attachments?.map((e) => e) || [];
     return message;
   },
@@ -1267,53 +1267,53 @@ export const UserPromptSubmitData: MessageFns<UserPromptSubmitData> = {
 
 function createBaseNotificationData(): NotificationData {
   return {
-    event: '',
-    source: '',
-    message: '',
+    event: "",
+    source: "",
+    message: "",
     waitingForUserInput: false,
-    eventVersion: '',
-    eventId: '',
+    eventVersion: "",
+    eventId: "",
     messageTruncated: false,
-    sourceType: '',
-    sourceId: '',
+    sourceType: "",
+    sourceId: "",
     requiresUserAction: false,
-    severity: '',
+    severity: "",
   };
 }
 
 export const NotificationData: MessageFns<NotificationData> = {
   encode(message: NotificationData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.event !== '') {
+    if (message.event !== "") {
       writer.uint32(10).string(message.event);
     }
-    if (message.source !== '') {
+    if (message.source !== "") {
       writer.uint32(18).string(message.source);
     }
-    if (message.message !== '') {
+    if (message.message !== "") {
       writer.uint32(26).string(message.message);
     }
     if (message.waitingForUserInput !== false) {
       writer.uint32(32).bool(message.waitingForUserInput);
     }
-    if (message.eventVersion !== '') {
+    if (message.eventVersion !== "") {
       writer.uint32(42).string(message.eventVersion);
     }
-    if (message.eventId !== '') {
+    if (message.eventId !== "") {
       writer.uint32(50).string(message.eventId);
     }
     if (message.messageTruncated !== false) {
       writer.uint32(56).bool(message.messageTruncated);
     }
-    if (message.sourceType !== '') {
+    if (message.sourceType !== "") {
       writer.uint32(66).string(message.sourceType);
     }
-    if (message.sourceId !== '') {
+    if (message.sourceId !== "") {
       writer.uint32(74).string(message.sourceId);
     }
     if (message.requiresUserAction !== false) {
       writer.uint32(80).bool(message.requiresUserAction);
     }
-    if (message.severity !== '') {
+    if (message.severity !== "") {
       writer.uint32(90).string(message.severity);
     }
     return writer;
@@ -1425,9 +1425,9 @@ export const NotificationData: MessageFns<NotificationData> = {
 
   fromJSON(object: any): NotificationData {
     return {
-      event: isSet(object.event) ? globalThis.String(object.event) : '',
-      source: isSet(object.source) ? globalThis.String(object.source) : '',
-      message: isSet(object.message) ? globalThis.String(object.message) : '',
+      event: isSet(object.event) ? globalThis.String(object.event) : "",
+      source: isSet(object.source) ? globalThis.String(object.source) : "",
+      message: isSet(object.message) ? globalThis.String(object.message) : "",
       waitingForUserInput: isSet(object.waitingForUserInput)
         ? globalThis.Boolean(object.waitingForUserInput)
         : isSet(object.waiting_for_user_input)
@@ -1437,12 +1437,12 @@ export const NotificationData: MessageFns<NotificationData> = {
         ? globalThis.String(object.eventVersion)
         : isSet(object.event_version)
           ? globalThis.String(object.event_version)
-          : '',
+          : "",
       eventId: isSet(object.eventId)
         ? globalThis.String(object.eventId)
         : isSet(object.event_id)
           ? globalThis.String(object.event_id)
-          : '',
+          : "",
       messageTruncated: isSet(object.messageTruncated)
         ? globalThis.Boolean(object.messageTruncated)
         : isSet(object.message_truncated)
@@ -1452,54 +1452,54 @@ export const NotificationData: MessageFns<NotificationData> = {
         ? globalThis.String(object.sourceType)
         : isSet(object.source_type)
           ? globalThis.String(object.source_type)
-          : '',
+          : "",
       sourceId: isSet(object.sourceId)
         ? globalThis.String(object.sourceId)
         : isSet(object.source_id)
           ? globalThis.String(object.source_id)
-          : '',
+          : "",
       requiresUserAction: isSet(object.requiresUserAction)
         ? globalThis.Boolean(object.requiresUserAction)
         : isSet(object.requires_user_action)
           ? globalThis.Boolean(object.requires_user_action)
           : false,
-      severity: isSet(object.severity) ? globalThis.String(object.severity) : '',
+      severity: isSet(object.severity) ? globalThis.String(object.severity) : "",
     };
   },
 
   toJSON(message: NotificationData): unknown {
     const obj: any = {};
-    if (message.event !== '') {
+    if (message.event !== "") {
       obj.event = message.event;
     }
-    if (message.source !== '') {
+    if (message.source !== "") {
       obj.source = message.source;
     }
-    if (message.message !== '') {
+    if (message.message !== "") {
       obj.message = message.message;
     }
     if (message.waitingForUserInput !== false) {
       obj.waitingForUserInput = message.waitingForUserInput;
     }
-    if (message.eventVersion !== '') {
+    if (message.eventVersion !== "") {
       obj.eventVersion = message.eventVersion;
     }
-    if (message.eventId !== '') {
+    if (message.eventId !== "") {
       obj.eventId = message.eventId;
     }
     if (message.messageTruncated !== false) {
       obj.messageTruncated = message.messageTruncated;
     }
-    if (message.sourceType !== '') {
+    if (message.sourceType !== "") {
       obj.sourceType = message.sourceType;
     }
-    if (message.sourceId !== '') {
+    if (message.sourceId !== "") {
       obj.sourceId = message.sourceId;
     }
     if (message.requiresUserAction !== false) {
       obj.requiresUserAction = message.requiresUserAction;
     }
-    if (message.severity !== '') {
+    if (message.severity !== "") {
       obj.severity = message.severity;
     }
     return obj;
@@ -1510,17 +1510,17 @@ export const NotificationData: MessageFns<NotificationData> = {
   },
   fromPartial<I extends Exact<DeepPartial<NotificationData>, I>>(object: I): NotificationData {
     const message = createBaseNotificationData();
-    message.event = object.event ?? '';
-    message.source = object.source ?? '';
-    message.message = object.message ?? '';
+    message.event = object.event ?? "";
+    message.source = object.source ?? "";
+    message.message = object.message ?? "";
     message.waitingForUserInput = object.waitingForUserInput ?? false;
-    message.eventVersion = object.eventVersion ?? '';
-    message.eventId = object.eventId ?? '';
+    message.eventVersion = object.eventVersion ?? "";
+    message.eventId = object.eventId ?? "";
     message.messageTruncated = object.messageTruncated ?? false;
-    message.sourceType = object.sourceType ?? '';
-    message.sourceId = object.sourceId ?? '';
+    message.sourceType = object.sourceType ?? "";
+    message.sourceId = object.sourceId ?? "";
     message.requiresUserAction = object.requiresUserAction ?? false;
-    message.severity = object.severity ?? '';
+    message.severity = object.severity ?? "";
     return message;
   },
 };
@@ -1621,7 +1621,7 @@ export const TaskStartData: MessageFns<TaskStartData> = {
 };
 
 function createBaseTaskStartData_TaskMetadataEntry(): TaskStartData_TaskMetadataEntry {
-  return { key: '', value: '' };
+  return { key: "", value: "" };
 }
 
 export const TaskStartData_TaskMetadataEntry: MessageFns<TaskStartData_TaskMetadataEntry> = {
@@ -1629,10 +1629,10 @@ export const TaskStartData_TaskMetadataEntry: MessageFns<TaskStartData_TaskMetad
     message: TaskStartData_TaskMetadataEntry,
     writer: BinaryWriter = new BinaryWriter(),
   ): BinaryWriter {
-    if (message.key !== '') {
+    if (message.key !== "") {
       writer.uint32(10).string(message.key);
     }
-    if (message.value !== '') {
+    if (message.value !== "") {
       writer.uint32(18).string(message.value);
     }
     return writer;
@@ -1672,17 +1672,17 @@ export const TaskStartData_TaskMetadataEntry: MessageFns<TaskStartData_TaskMetad
 
   fromJSON(object: any): TaskStartData_TaskMetadataEntry {
     return {
-      key: isSet(object.key) ? globalThis.String(object.key) : '',
-      value: isSet(object.value) ? globalThis.String(object.value) : '',
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      value: isSet(object.value) ? globalThis.String(object.value) : "",
     };
   },
 
   toJSON(message: TaskStartData_TaskMetadataEntry): unknown {
     const obj: any = {};
-    if (message.key !== '') {
+    if (message.key !== "") {
       obj.key = message.key;
     }
-    if (message.value !== '') {
+    if (message.value !== "") {
       obj.value = message.value;
     }
     return obj;
@@ -1697,8 +1697,8 @@ export const TaskStartData_TaskMetadataEntry: MessageFns<TaskStartData_TaskMetad
     object: I,
   ): TaskStartData_TaskMetadataEntry {
     const message = createBaseTaskStartData_TaskMetadataEntry();
-    message.key = object.key ?? '';
-    message.value = object.value ?? '';
+    message.key = object.key ?? "";
+    message.value = object.value ?? "";
     return message;
   },
 };
@@ -1850,7 +1850,7 @@ export const TaskResumeData: MessageFns<TaskResumeData> = {
 };
 
 function createBaseTaskResumeData_TaskMetadataEntry(): TaskResumeData_TaskMetadataEntry {
-  return { key: '', value: '' };
+  return { key: "", value: "" };
 }
 
 export const TaskResumeData_TaskMetadataEntry: MessageFns<TaskResumeData_TaskMetadataEntry> = {
@@ -1858,10 +1858,10 @@ export const TaskResumeData_TaskMetadataEntry: MessageFns<TaskResumeData_TaskMet
     message: TaskResumeData_TaskMetadataEntry,
     writer: BinaryWriter = new BinaryWriter(),
   ): BinaryWriter {
-    if (message.key !== '') {
+    if (message.key !== "") {
       writer.uint32(10).string(message.key);
     }
-    if (message.value !== '') {
+    if (message.value !== "") {
       writer.uint32(18).string(message.value);
     }
     return writer;
@@ -1901,17 +1901,17 @@ export const TaskResumeData_TaskMetadataEntry: MessageFns<TaskResumeData_TaskMet
 
   fromJSON(object: any): TaskResumeData_TaskMetadataEntry {
     return {
-      key: isSet(object.key) ? globalThis.String(object.key) : '',
-      value: isSet(object.value) ? globalThis.String(object.value) : '',
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      value: isSet(object.value) ? globalThis.String(object.value) : "",
     };
   },
 
   toJSON(message: TaskResumeData_TaskMetadataEntry): unknown {
     const obj: any = {};
-    if (message.key !== '') {
+    if (message.key !== "") {
       obj.key = message.key;
     }
-    if (message.value !== '') {
+    if (message.value !== "") {
       obj.value = message.value;
     }
     return obj;
@@ -1926,14 +1926,14 @@ export const TaskResumeData_TaskMetadataEntry: MessageFns<TaskResumeData_TaskMet
     object: I,
   ): TaskResumeData_TaskMetadataEntry {
     const message = createBaseTaskResumeData_TaskMetadataEntry();
-    message.key = object.key ?? '';
-    message.value = object.value ?? '';
+    message.key = object.key ?? "";
+    message.value = object.value ?? "";
     return message;
   },
 };
 
 function createBaseTaskResumeData_PreviousStateEntry(): TaskResumeData_PreviousStateEntry {
-  return { key: '', value: '' };
+  return { key: "", value: "" };
 }
 
 export const TaskResumeData_PreviousStateEntry: MessageFns<TaskResumeData_PreviousStateEntry> = {
@@ -1941,10 +1941,10 @@ export const TaskResumeData_PreviousStateEntry: MessageFns<TaskResumeData_Previo
     message: TaskResumeData_PreviousStateEntry,
     writer: BinaryWriter = new BinaryWriter(),
   ): BinaryWriter {
-    if (message.key !== '') {
+    if (message.key !== "") {
       writer.uint32(10).string(message.key);
     }
-    if (message.value !== '') {
+    if (message.value !== "") {
       writer.uint32(18).string(message.value);
     }
     return writer;
@@ -1984,17 +1984,17 @@ export const TaskResumeData_PreviousStateEntry: MessageFns<TaskResumeData_Previo
 
   fromJSON(object: any): TaskResumeData_PreviousStateEntry {
     return {
-      key: isSet(object.key) ? globalThis.String(object.key) : '',
-      value: isSet(object.value) ? globalThis.String(object.value) : '',
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      value: isSet(object.value) ? globalThis.String(object.value) : "",
     };
   },
 
   toJSON(message: TaskResumeData_PreviousStateEntry): unknown {
     const obj: any = {};
-    if (message.key !== '') {
+    if (message.key !== "") {
       obj.key = message.key;
     }
-    if (message.value !== '') {
+    if (message.value !== "") {
       obj.value = message.value;
     }
     return obj;
@@ -2009,8 +2009,8 @@ export const TaskResumeData_PreviousStateEntry: MessageFns<TaskResumeData_Previo
     object: I,
   ): TaskResumeData_PreviousStateEntry {
     const message = createBaseTaskResumeData_PreviousStateEntry();
-    message.key = object.key ?? '';
-    message.value = object.value ?? '';
+    message.key = object.key ?? "";
+    message.value = object.value ?? "";
     return message;
   },
 };
@@ -2111,7 +2111,7 @@ export const TaskCancelData: MessageFns<TaskCancelData> = {
 };
 
 function createBaseTaskCancelData_TaskMetadataEntry(): TaskCancelData_TaskMetadataEntry {
-  return { key: '', value: '' };
+  return { key: "", value: "" };
 }
 
 export const TaskCancelData_TaskMetadataEntry: MessageFns<TaskCancelData_TaskMetadataEntry> = {
@@ -2119,10 +2119,10 @@ export const TaskCancelData_TaskMetadataEntry: MessageFns<TaskCancelData_TaskMet
     message: TaskCancelData_TaskMetadataEntry,
     writer: BinaryWriter = new BinaryWriter(),
   ): BinaryWriter {
-    if (message.key !== '') {
+    if (message.key !== "") {
       writer.uint32(10).string(message.key);
     }
-    if (message.value !== '') {
+    if (message.value !== "") {
       writer.uint32(18).string(message.value);
     }
     return writer;
@@ -2162,17 +2162,17 @@ export const TaskCancelData_TaskMetadataEntry: MessageFns<TaskCancelData_TaskMet
 
   fromJSON(object: any): TaskCancelData_TaskMetadataEntry {
     return {
-      key: isSet(object.key) ? globalThis.String(object.key) : '',
-      value: isSet(object.value) ? globalThis.String(object.value) : '',
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      value: isSet(object.value) ? globalThis.String(object.value) : "",
     };
   },
 
   toJSON(message: TaskCancelData_TaskMetadataEntry): unknown {
     const obj: any = {};
-    if (message.key !== '') {
+    if (message.key !== "") {
       obj.key = message.key;
     }
-    if (message.value !== '') {
+    if (message.value !== "") {
       obj.value = message.value;
     }
     return obj;
@@ -2187,8 +2187,8 @@ export const TaskCancelData_TaskMetadataEntry: MessageFns<TaskCancelData_TaskMet
     object: I,
   ): TaskCancelData_TaskMetadataEntry {
     const message = createBaseTaskCancelData_TaskMetadataEntry();
-    message.key = object.key ?? '';
-    message.value = object.value ?? '';
+    message.key = object.key ?? "";
+    message.value = object.value ?? "";
     return message;
   },
 };
@@ -2289,7 +2289,7 @@ export const TaskCompleteData: MessageFns<TaskCompleteData> = {
 };
 
 function createBaseTaskCompleteData_TaskMetadataEntry(): TaskCompleteData_TaskMetadataEntry {
-  return { key: '', value: '' };
+  return { key: "", value: "" };
 }
 
 export const TaskCompleteData_TaskMetadataEntry: MessageFns<TaskCompleteData_TaskMetadataEntry> = {
@@ -2297,10 +2297,10 @@ export const TaskCompleteData_TaskMetadataEntry: MessageFns<TaskCompleteData_Tas
     message: TaskCompleteData_TaskMetadataEntry,
     writer: BinaryWriter = new BinaryWriter(),
   ): BinaryWriter {
-    if (message.key !== '') {
+    if (message.key !== "") {
       writer.uint32(10).string(message.key);
     }
-    if (message.value !== '') {
+    if (message.value !== "") {
       writer.uint32(18).string(message.value);
     }
     return writer;
@@ -2340,17 +2340,17 @@ export const TaskCompleteData_TaskMetadataEntry: MessageFns<TaskCompleteData_Tas
 
   fromJSON(object: any): TaskCompleteData_TaskMetadataEntry {
     return {
-      key: isSet(object.key) ? globalThis.String(object.key) : '',
-      value: isSet(object.value) ? globalThis.String(object.value) : '',
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      value: isSet(object.value) ? globalThis.String(object.value) : "",
     };
   },
 
   toJSON(message: TaskCompleteData_TaskMetadataEntry): unknown {
     const obj: any = {};
-    if (message.key !== '') {
+    if (message.key !== "") {
       obj.key = message.key;
     }
-    if (message.value !== '') {
+    if (message.value !== "") {
       obj.value = message.value;
     }
     return obj;
@@ -2365,18 +2365,18 @@ export const TaskCompleteData_TaskMetadataEntry: MessageFns<TaskCompleteData_Tas
     object: I,
   ): TaskCompleteData_TaskMetadataEntry {
     const message = createBaseTaskCompleteData_TaskMetadataEntry();
-    message.key = object.key ?? '';
-    message.value = object.value ?? '';
+    message.key = object.key ?? "";
+    message.value = object.value ?? "";
     return message;
   },
 };
 
 function createBasePreCompactData(): PreCompactData {
   return {
-    taskId: '',
-    ulid: '',
+    taskId: "",
+    ulid: "",
     contextSize: 0,
-    compactionStrategy: '',
+    compactionStrategy: "",
     previousApiReqIndex: 0,
     tokensIn: 0,
     tokensOut: 0,
@@ -2384,23 +2384,23 @@ function createBasePreCompactData(): PreCompactData {
     tokensOutCache: 0,
     deletedRangeStart: 0,
     deletedRangeEnd: 0,
-    contextJsonPath: '',
-    contextRawPath: '',
+    contextJsonPath: "",
+    contextRawPath: "",
   };
 }
 
 export const PreCompactData: MessageFns<PreCompactData> = {
   encode(message: PreCompactData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.taskId !== '') {
+    if (message.taskId !== "") {
       writer.uint32(10).string(message.taskId);
     }
-    if (message.ulid !== '') {
+    if (message.ulid !== "") {
       writer.uint32(18).string(message.ulid);
     }
     if (message.contextSize !== 0) {
       writer.uint32(24).int64(message.contextSize);
     }
-    if (message.compactionStrategy !== '') {
+    if (message.compactionStrategy !== "") {
       writer.uint32(34).string(message.compactionStrategy);
     }
     if (message.previousApiReqIndex !== 0) {
@@ -2424,10 +2424,10 @@ export const PreCompactData: MessageFns<PreCompactData> = {
     if (message.deletedRangeEnd !== 0) {
       writer.uint32(88).int32(message.deletedRangeEnd);
     }
-    if (message.contextJsonPath !== '') {
+    if (message.contextJsonPath !== "") {
       writer.uint32(98).string(message.contextJsonPath);
     }
-    if (message.contextRawPath !== '') {
+    if (message.contextRawPath !== "") {
       writer.uint32(106).string(message.contextRawPath);
     }
     return writer;
@@ -2559,8 +2559,8 @@ export const PreCompactData: MessageFns<PreCompactData> = {
         ? globalThis.String(object.taskId)
         : isSet(object.task_id)
           ? globalThis.String(object.task_id)
-          : '',
-      ulid: isSet(object.ulid) ? globalThis.String(object.ulid) : '',
+          : "",
+      ulid: isSet(object.ulid) ? globalThis.String(object.ulid) : "",
       contextSize: isSet(object.contextSize)
         ? globalThis.Number(object.contextSize)
         : isSet(object.context_size)
@@ -2570,7 +2570,7 @@ export const PreCompactData: MessageFns<PreCompactData> = {
         ? globalThis.String(object.compactionStrategy)
         : isSet(object.compaction_strategy)
           ? globalThis.String(object.compaction_strategy)
-          : '',
+          : "",
       previousApiReqIndex: isSet(object.previousApiReqIndex)
         ? globalThis.Number(object.previousApiReqIndex)
         : isSet(object.previous_api_req_index)
@@ -2610,27 +2610,27 @@ export const PreCompactData: MessageFns<PreCompactData> = {
         ? globalThis.String(object.contextJsonPath)
         : isSet(object.context_json_path)
           ? globalThis.String(object.context_json_path)
-          : '',
+          : "",
       contextRawPath: isSet(object.contextRawPath)
         ? globalThis.String(object.contextRawPath)
         : isSet(object.context_raw_path)
           ? globalThis.String(object.context_raw_path)
-          : '',
+          : "",
     };
   },
 
   toJSON(message: PreCompactData): unknown {
     const obj: any = {};
-    if (message.taskId !== '') {
+    if (message.taskId !== "") {
       obj.taskId = message.taskId;
     }
-    if (message.ulid !== '') {
+    if (message.ulid !== "") {
       obj.ulid = message.ulid;
     }
     if (message.contextSize !== 0) {
       obj.contextSize = Math.round(message.contextSize);
     }
-    if (message.compactionStrategy !== '') {
+    if (message.compactionStrategy !== "") {
       obj.compactionStrategy = message.compactionStrategy;
     }
     if (message.previousApiReqIndex !== 0) {
@@ -2654,10 +2654,10 @@ export const PreCompactData: MessageFns<PreCompactData> = {
     if (message.deletedRangeEnd !== 0) {
       obj.deletedRangeEnd = Math.round(message.deletedRangeEnd);
     }
-    if (message.contextJsonPath !== '') {
+    if (message.contextJsonPath !== "") {
       obj.contextJsonPath = message.contextJsonPath;
     }
-    if (message.contextRawPath !== '') {
+    if (message.contextRawPath !== "") {
       obj.contextRawPath = message.contextRawPath;
     }
     return obj;
@@ -2668,10 +2668,10 @@ export const PreCompactData: MessageFns<PreCompactData> = {
   },
   fromPartial<I extends Exact<DeepPartial<PreCompactData>, I>>(object: I): PreCompactData {
     const message = createBasePreCompactData();
-    message.taskId = object.taskId ?? '';
-    message.ulid = object.ulid ?? '';
+    message.taskId = object.taskId ?? "";
+    message.ulid = object.ulid ?? "";
     message.contextSize = object.contextSize ?? 0;
-    message.compactionStrategy = object.compactionStrategy ?? '';
+    message.compactionStrategy = object.compactionStrategy ?? "";
     message.previousApiReqIndex = object.previousApiReqIndex ?? 0;
     message.tokensIn = object.tokensIn ?? 0;
     message.tokensOut = object.tokensOut ?? 0;
@@ -2679,8 +2679,8 @@ export const PreCompactData: MessageFns<PreCompactData> = {
     message.tokensOutCache = object.tokensOutCache ?? 0;
     message.deletedRangeStart = object.deletedRangeStart ?? 0;
     message.deletedRangeEnd = object.deletedRangeEnd ?? 0;
-    message.contextJsonPath = object.contextJsonPath ?? '';
-    message.contextRawPath = object.contextRawPath ?? '';
+    message.contextJsonPath = object.contextJsonPath ?? "";
+    message.contextRawPath = object.contextRawPath ?? "";
     return message;
   },
 };
@@ -2705,16 +2705,16 @@ type Exact<P, I extends P> = P extends Builtin
 function longToNumber(int64: { toString(): string }): number {
   const num = globalThis.Number(int64.toString());
   if (num > globalThis.Number.MAX_SAFE_INTEGER) {
-    throw new globalThis.Error('Value is larger than Number.MAX_SAFE_INTEGER');
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
   }
   if (num < globalThis.Number.MIN_SAFE_INTEGER) {
-    throw new globalThis.Error('Value is smaller than Number.MIN_SAFE_INTEGER');
+    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
   }
   return num;
 }
 
 function isObject(value: any): boolean {
-  return typeof value === 'object' && value !== null;
+  return typeof value === "object" && value !== null;
 }
 
 function isSet(value: any): boolean {

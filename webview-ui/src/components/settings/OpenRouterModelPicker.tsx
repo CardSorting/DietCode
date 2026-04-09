@@ -1,26 +1,26 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { StateServiceClient } from '@/services/grpc-client';
-import { CLAUDE_SONNET_1M_SUFFIX, openRouterDefaultModelId } from '@shared/api.ts';
-import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
-import type { Mode } from '@shared/storage/types';
-import { VSCodeLink, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
-import Fuse from 'fuse.js';
-import type React from 'react';
-import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react';
-import { useMount } from 'react-use';
-import styled from 'styled-components';
-import { highlight } from '../history/HistoryView';
-import ReasoningEffortSelector from './ReasoningEffortSelector';
-import ThinkingBudgetSlider from './ThinkingBudgetSlider';
-import { ContextWindowSwitcher } from './common/ContextWindowSwitcher';
-import { ModelInfoView } from './common/ModelInfoView';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { StateServiceClient } from "@/services/grpc-client";
+import { CLAUDE_SONNET_1M_SUFFIX, openRouterDefaultModelId } from "@shared/api.ts";
+import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
+import type { Mode } from "@shared/storage/types";
+import { VSCodeLink, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import Fuse from "fuse.js";
+import type React from "react";
+import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
+import { useMount } from "react-use";
+import styled from "styled-components";
+import { highlight } from "../history/HistoryView";
+import ReasoningEffortSelector from "./ReasoningEffortSelector";
+import ThinkingBudgetSlider from "./ThinkingBudgetSlider";
+import { ContextWindowSwitcher } from "./common/ContextWindowSwitcher";
+import { ModelInfoView } from "./common/ModelInfoView";
 import {
   filterOpenRouterModelIds,
   getModeSpecificFields,
   normalizeApiConfiguration,
   supportsReasoningEffortForModelId,
-} from './utils/providerUtils';
-import { useApiConfigurationHandlers } from './utils/useApiConfigurationHandlers';
+} from "./utils/providerUtils";
+import { useApiConfigurationHandlers } from "./utils/useApiConfigurationHandlers";
 
 // Star icon for favorites
 const StarIcon = ({
@@ -31,20 +31,20 @@ const StarIcon = ({
     <div
       onClick={onClick}
       style={{
-        cursor: 'pointer',
+        cursor: "pointer",
         color: isFavorite
-          ? 'var(--vscode-terminal-ansiBlue)'
-          : 'var(--vscode-descriptionForeground)',
-        marginLeft: '8px',
-        fontSize: '16px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        userSelect: 'none',
-        WebkitUserSelect: 'none',
+          ? "var(--vscode-terminal-ansiBlue)"
+          : "var(--vscode-descriptionForeground)",
+        marginLeft: "8px",
+        fontSize: "16px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        userSelect: "none",
+        WebkitUserSelect: "none",
       }}
     >
-      {isFavorite ? '★' : '☆'}
+      {isFavorite ? "★" : "☆"}
     </div>
   );
 };
@@ -80,10 +80,10 @@ const OpenRouterModelPicker: React.FC<OpenRouterModelPickerProps> = ({
 
     handleModeFieldsChange(
       {
-        openRouterModelId: { plan: 'planModeOpenRouterModelId', act: 'actModeOpenRouterModelId' },
+        openRouterModelId: { plan: "planModeOpenRouterModelId", act: "actModeOpenRouterModelId" },
         openRouterModelInfo: {
-          plan: 'planModeOpenRouterModelInfo',
-          act: 'actModeOpenRouterModelInfo',
+          plan: "planModeOpenRouterModelInfo",
+          act: "actModeOpenRouterModelInfo",
         },
       },
       {
@@ -116,15 +116,15 @@ const OpenRouterModelPicker: React.FC<OpenRouterModelPickerProps> = ({
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
   const modelIds = useMemo(() => {
     const unfilteredModelIds = Object.keys(openRouterModels).sort((a, b) => a.localeCompare(b));
-    return filterOpenRouterModelIds(unfilteredModelIds, 'openrouter');
+    return filterOpenRouterModelIds(unfilteredModelIds, "openrouter");
   }, [openRouterModels]);
 
   const searchableItems = useMemo(() => {
@@ -136,7 +136,7 @@ const OpenRouterModelPicker: React.FC<OpenRouterModelPickerProps> = ({
 
   const fuse = useMemo(() => {
     return new Fuse(searchableItems, {
-      keys: ['html'], // highlight function will update this
+      keys: ["html"], // highlight function will update this
       threshold: 0.6,
       shouldSort: true,
       isCaseSensitive: false,
@@ -154,7 +154,7 @@ const OpenRouterModelPicker: React.FC<OpenRouterModelPickerProps> = ({
 
     // Then get search results for non-favorited models
     const searchResults = searchTerm
-      ? highlight(fuse.search(searchTerm), 'model-item-highlight').filter(
+      ? highlight(fuse.search(searchTerm), "model-item-highlight").filter(
           (item) => !favoritedModelIds.includes(item.id),
         )
       : searchableItems.filter((item) => !favoritedModelIds.includes(item.id));
@@ -169,15 +169,15 @@ const OpenRouterModelPicker: React.FC<OpenRouterModelPickerProps> = ({
     }
 
     switch (event.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         event.preventDefault();
         setSelectedIndex((prev) => (prev < modelSearchResults.length - 1 ? prev + 1 : prev));
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         event.preventDefault();
         setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
         break;
-      case 'Enter':
+      case "Enter":
         event.preventDefault();
         if (selectedIndex >= 0 && selectedIndex < modelSearchResults.length) {
           handleModelChange(modelSearchResults[selectedIndex].id);
@@ -188,7 +188,7 @@ const OpenRouterModelPicker: React.FC<OpenRouterModelPickerProps> = ({
           setIsDropdownVisible(false);
         }
         break;
-      case 'Escape':
+      case "Escape":
         setIsDropdownVisible(false);
         setSelectedIndex(-1);
         break;
@@ -213,13 +213,13 @@ const OpenRouterModelPicker: React.FC<OpenRouterModelPickerProps> = ({
   useEffect(() => {
     if (selectedIndex >= 0 && itemRefs.current[selectedIndex]) {
       itemRefs.current[selectedIndex]?.scrollIntoView({
-        block: 'nearest',
-        behavior: 'smooth',
+        block: "nearest",
+        behavior: "smooth",
       });
     }
   }, [selectedIndex]);
 
-  const selectedModelIdLower = selectedModelId?.toLowerCase() || '';
+  const selectedModelIdLower = selectedModelId?.toLowerCase() || "";
   const showReasoningEffort = useMemo(
     () => supportsReasoningEffortForModelId(selectedModelId),
     [selectedModelId],
@@ -233,25 +233,25 @@ const OpenRouterModelPicker: React.FC<OpenRouterModelPickerProps> = ({
       Object.entries(openRouterModels)?.some(
         ([id, m]) => id === selectedModelId && m.thinkingConfig,
       ) ||
-      selectedModelIdLower.includes('claude-opus-4.6') ||
-      selectedModelIdLower.includes('claude-haiku-4.5') ||
-      selectedModelIdLower.includes('claude-4.5-haiku') ||
-      selectedModelIdLower.includes('claude-sonnet-4.6') ||
-      selectedModelIdLower.includes('claude-sonnet-4-6') ||
-      selectedModelIdLower.includes('claude-4.6-sonnet') ||
-      selectedModelIdLower.includes('claude-sonnet-4.5') ||
-      selectedModelIdLower.includes('claude-sonnet-4') ||
-      selectedModelIdLower.includes('claude-opus-4.1') ||
-      selectedModelIdLower.includes('claude-opus-4') ||
-      selectedModelIdLower.includes('claude-opus-4.5') ||
-      selectedModelIdLower.includes('claude-3-7-sonnet') ||
-      selectedModelIdLower.includes('claude-3.7-sonnet') ||
-      selectedModelIdLower.includes('claude-3.7-sonnet:thinking')
+      selectedModelIdLower.includes("claude-opus-4.6") ||
+      selectedModelIdLower.includes("claude-haiku-4.5") ||
+      selectedModelIdLower.includes("claude-4.5-haiku") ||
+      selectedModelIdLower.includes("claude-sonnet-4.6") ||
+      selectedModelIdLower.includes("claude-sonnet-4-6") ||
+      selectedModelIdLower.includes("claude-4.6-sonnet") ||
+      selectedModelIdLower.includes("claude-sonnet-4.5") ||
+      selectedModelIdLower.includes("claude-sonnet-4") ||
+      selectedModelIdLower.includes("claude-opus-4.1") ||
+      selectedModelIdLower.includes("claude-opus-4") ||
+      selectedModelIdLower.includes("claude-opus-4.5") ||
+      selectedModelIdLower.includes("claude-3-7-sonnet") ||
+      selectedModelIdLower.includes("claude-3.7-sonnet") ||
+      selectedModelIdLower.includes("claude-3.7-sonnet:thinking")
     );
   }, [openRouterModels, selectedModelId, selectedModelIdLower, showReasoningEffort]);
 
   return (
-    <div style={{ width: '100%', paddingBottom: 2 }}>
+    <div style={{ width: "100%", paddingBottom: 2 }}>
       <style>
         {`
 				.model-item-highlight {
@@ -260,7 +260,7 @@ const OpenRouterModelPicker: React.FC<OpenRouterModelPickerProps> = ({
 				}
 				`}
       </style>
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: "flex", flexDirection: "column" }}>
         <label htmlFor="model-search">
           <span style={{ fontWeight: 500 }}>Model</span>
         </label>
@@ -275,16 +275,16 @@ const OpenRouterModelPicker: React.FC<OpenRouterModelPickerProps> = ({
             }}
             onFocus={() => setIsDropdownVisible(true)}
             onInput={(e) => {
-              setSearchTerm((e.target as HTMLInputElement)?.value.toLowerCase() || '');
+              setSearchTerm((e.target as HTMLInputElement)?.value.toLowerCase() || "");
               setIsDropdownVisible(true);
             }}
             onKeyDown={handleKeyDown}
             placeholder="Search and select a model..."
             role="combobox"
             style={{
-              width: '100%',
+              width: "100%",
               zIndex: OPENROUTER_MODEL_PICKER_Z_INDEX,
-              position: 'relative',
+              position: "relative",
             }}
             value={searchTerm}
           >
@@ -293,15 +293,15 @@ const OpenRouterModelPicker: React.FC<OpenRouterModelPickerProps> = ({
                 aria-label="Clear search"
                 className="input-icon-button codicon codicon-close"
                 onClick={() => {
-                  setSearchTerm('');
+                  setSearchTerm("");
                   setIsDropdownVisible(true);
                 }}
                 slot="end"
                 style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: '100%',
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "100%",
                 }}
               />
             )}
@@ -324,9 +324,9 @@ const OpenRouterModelPicker: React.FC<OpenRouterModelPickerProps> = ({
                   >
                     <div
                       style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
                       }}
                     >
                       <span dangerouslySetInnerHTML={{ __html: item.html }} />
@@ -337,7 +337,7 @@ const OpenRouterModelPicker: React.FC<OpenRouterModelPickerProps> = ({
                           StateServiceClient.toggleFavoriteModel(
                             StringRequest.create({ value: item.id }),
                           ).catch((error) =>
-                            console.error('Failed to toggle favorite model:', error),
+                            console.error("Failed to toggle favorite model:", error),
                           );
                         }}
                       />
@@ -391,7 +391,7 @@ const OpenRouterModelPicker: React.FC<OpenRouterModelPickerProps> = ({
             isPopup={isPopup}
             modelInfo={selectedModelInfo}
             onProviderSortingChange={(value) =>
-              handleFieldChange('openRouterProviderSorting', value)
+              handleFieldChange("openRouterProviderSorting", value)
             }
             providerSorting={apiConfiguration?.openRouterProviderSorting}
             selectedModelId={selectedModelId}
@@ -401,22 +401,22 @@ const OpenRouterModelPicker: React.FC<OpenRouterModelPickerProps> = ({
       ) : (
         <p
           style={{
-            fontSize: '12px',
+            fontSize: "12px",
             marginTop: 0,
-            color: 'var(--vscode-descriptionForeground)',
+            color: "var(--vscode-descriptionForeground)",
           }}
         >
-          The extension automatically fetches the latest list of models available on{' '}
+          The extension automatically fetches the latest list of models available on{" "}
           <VSCodeLink
             href="https://openrouter.ai/models"
-            style={{ display: 'inline', fontSize: 'inherit' }}
+            style={{ display: "inline", fontSize: "inherit" }}
           >
             OpenRouter.
           </VSCodeLink>
-          If you're unsure which model to choose, Cline works best with{' '}
+          If you're unsure which model to choose, Cline works best with{" "}
           <VSCodeLink
-            onClick={() => handleModelChange('anthropic/claude-sonnet-4.6')}
-            style={{ display: 'inline', fontSize: 'inherit' }}
+            onClick={() => handleModelChange("anthropic/claude-sonnet-4.6")}
+            style={{ display: "inline", fontSize: "inherit" }}
           >
             anthropic/claude-sonnet-4.6.
           </VSCodeLink>
@@ -458,7 +458,7 @@ const DropdownItem = styled.div<{ isSelected: boolean }>`
 	word-break: break-all;
 	white-space: normal;
 
-	background-color: ${({ isSelected }) => (isSelected ? 'var(--vscode-list-activeSelectionBackground)' : 'inherit')};
+	background-color: ${({ isSelected }) => (isSelected ? "var(--vscode-list-activeSelectionBackground)" : "inherit")};
 
 	&:hover {
 		background-color: var(--vscode-list-activeSelectionBackground);

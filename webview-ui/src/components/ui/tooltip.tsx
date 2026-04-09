@@ -1,7 +1,7 @@
-import * as TooltipPrimitive from '@radix-ui/react-tooltip';
-import type * as React from 'react';
+import * as TooltipPrimitive from "@radix-ui/react-tooltip";
+import type * as React from "react";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 function TooltipProvider({
   delayDuration = 0,
@@ -41,7 +41,7 @@ function TooltipContent({
     <TooltipPrimitive.Portal>
       <TooltipPrimitive.Content
         className={cn(
-          'flex flex-wrap bg-background animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 origin-(--radix-tooltip-content-transform-origin) rounded-xs text-xs border border-muted-foreground/30 mx-1 max-w-[calc(100vw-2rem)] xs:max-w-md text-wrap shadow-md',
+          "flex flex-wrap bg-background animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 origin-(--radix-tooltip-content-transform-origin) rounded-xs text-xs border border-muted-foreground/30 mx-1 max-w-[calc(100vw-2rem)] xs:max-w-md text-wrap shadow-md",
           className,
         )}
         collisionPadding={8}
@@ -53,10 +53,10 @@ function TooltipContent({
         {showArrow && (
           <TooltipPrimitive.Arrow
             className={cn(
-              'bg-background fill-background z-50 size-2.5 rotate-45 rounded-xs border-b border-r border-muted-foreground/30',
-              side === 'left' || side === 'right'
-                ? 'translate-y-[calc(-50%_-_4px)]' // Horizontal adjustment for side tooltips
-                : 'translate-y-[calc(-50%_-_0px)]', // Vertical adjustment for top/bottom tooltips
+              "bg-background fill-background z-50 size-2.5 rotate-45 rounded-xs border-b border-r border-muted-foreground/30",
+              side === "left" || side === "right"
+                ? "translate-y-[calc(-50%_-_4px)]" // Horizontal adjustment for side tooltips
+                : "translate-y-[calc(-50%_-_0px)]", // Vertical adjustment for top/bottom tooltips
             )}
           />
         )}

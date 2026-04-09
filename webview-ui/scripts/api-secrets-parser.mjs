@@ -20,7 +20,7 @@ export function parseApiHandlerSecrets(content) {
   const interfaceMatch = content.match(/export interface ApiHandlerSecrets \{([\s\S]*?)\}/m);
 
   if (!interfaceMatch) {
-    throw new Error('Could not find ApiHandlerSecrets interface definition');
+    throw new Error("Could not find ApiHandlerSecrets interface definition");
   }
 
   const interfaceContent = interfaceMatch[1];
@@ -38,7 +38,7 @@ export function parseApiHandlerSecrets(content) {
     fields[name] = {
       name,
       type: type.trim(),
-      comment: comment?.trim() || '',
+      comment: comment?.trim() || "",
       isSecret: true, // All fields in ApiHandlerSecrets are secrets
     };
 
@@ -111,80 +111,80 @@ export function extractProviderFromFieldName(fieldName) {
   // SPECIAL CASES FIRST (before pattern matching)
 
   // Special case: "apiKey" alone maps to "anthropic" (primary provider)
-  if (fieldName === 'apiKey') {
-    return 'anthropic';
+  if (fieldName === "apiKey") {
+    return "anthropic";
   }
 
   // Special case: clineAccountId maps to "cline"
-  if (lowerFieldName === 'clineaccountid') {
-    return 'cline';
+  if (lowerFieldName === "clineaccountid") {
+    return "cline";
   }
 
   // Special case: authNonce is not provider-specific
-  if (lowerFieldName === 'authnonce') {
+  if (lowerFieldName === "authnonce") {
     return null;
   }
 
   // Special case: Vertex fields (not in ApiHandlerSecrets but in ApiHandlerOptions)
-  if (lowerFieldName === 'vertexprojectid' || lowerFieldName === 'vertexregion') {
-    return 'vertex';
+  if (lowerFieldName === "vertexprojectid" || lowerFieldName === "vertexregion") {
+    return "vertex";
   }
 
   // Pattern 1: AWS-specific fields (check before generic pattern to avoid false positives)
-  if (lowerFieldName.startsWith('aws')) {
+  if (lowerFieldName.startsWith("aws")) {
     // awsAccessKey, awsSecretKey, awsSessionToken, awsRegion -> bedrock
     if (
-      lowerFieldName.includes('accesskey') ||
-      lowerFieldName.includes('secretkey') ||
-      lowerFieldName.includes('sessiontoken') ||
-      lowerFieldName.includes('region')
+      lowerFieldName.includes("accesskey") ||
+      lowerFieldName.includes("secretkey") ||
+      lowerFieldName.includes("sessiontoken") ||
+      lowerFieldName.includes("region")
     ) {
-      return 'bedrock';
+      return "bedrock";
     }
     // awsBedrockApiKey is explicitly bedrock
-    if (lowerFieldName.includes('bedrock')) {
-      return 'bedrock';
+    if (lowerFieldName.includes("bedrock")) {
+      return "bedrock";
     }
   }
 
   // Pattern 2: Vertex-specific fields
-  if (lowerFieldName.startsWith('vertex')) {
-    return 'vertex';
+  if (lowerFieldName.startsWith("vertex")) {
+    return "vertex";
   }
 
   // Pattern 3: SAP AI Core fields
-  if (lowerFieldName.startsWith('sapaicore') || lowerFieldName.startsWith('sapai')) {
-    return 'sapaicore';
+  if (lowerFieldName.startsWith("sapaicore") || lowerFieldName.startsWith("sapai")) {
+    return "sapaicore";
   }
 
   // Pattern 4: Provider name in the middle (e.g., openAiNativeApiKey) - check before generic pattern
   const providerPatterns = [
-    { pattern: 'openainative', providerId: 'openai-native' },
-    { pattern: 'openrouter', providerId: 'openrouter' },
-    { pattern: 'openai', providerId: 'openai' },
-    { pattern: 'gemini', providerId: 'gemini' },
-    { pattern: 'deepseek', providerId: 'deepseek' },
-    { pattern: 'ollama', providerId: 'ollama' },
-    { pattern: 'lmstudio', providerId: 'lmstudio' },
-    { pattern: 'litellm', providerId: 'litellm' },
-    { pattern: 'qwen', providerId: 'qwen' },
-    { pattern: 'doubao', providerId: 'doubao' },
-    { pattern: 'mistral', providerId: 'mistral' },
-    { pattern: 'fireworks', providerId: 'fireworks' },
-    { pattern: 'asksage', providerId: 'asksage' },
-    { pattern: 'xai', providerId: 'xai' },
-    { pattern: 'moonshot', providerId: 'moonshot' },
-    { pattern: 'sambanova', providerId: 'sambanova' },
-    { pattern: 'cerebras', providerId: 'cerebras' },
-    { pattern: 'groq', providerId: 'groq' },
-    { pattern: 'huggingface', providerId: 'huggingface' },
-    { pattern: 'huawei', providerId: 'huawei-cloud-maas' },
-    { pattern: 'baseten', providerId: 'baseten' },
-    { pattern: 'vercel', providerId: 'vercel-ai-gateway' },
-    { pattern: 'zai', providerId: 'zai' },
-    { pattern: 'requesty', providerId: 'requesty' },
-    { pattern: 'together', providerId: 'together' },
-    { pattern: 'dify', providerId: 'dify' },
+    { pattern: "openainative", providerId: "openai-native" },
+    { pattern: "openrouter", providerId: "openrouter" },
+    { pattern: "openai", providerId: "openai" },
+    { pattern: "gemini", providerId: "gemini" },
+    { pattern: "deepseek", providerId: "deepseek" },
+    { pattern: "ollama", providerId: "ollama" },
+    { pattern: "lmstudio", providerId: "lmstudio" },
+    { pattern: "litellm", providerId: "litellm" },
+    { pattern: "qwen", providerId: "qwen" },
+    { pattern: "doubao", providerId: "doubao" },
+    { pattern: "mistral", providerId: "mistral" },
+    { pattern: "fireworks", providerId: "fireworks" },
+    { pattern: "asksage", providerId: "asksage" },
+    { pattern: "xai", providerId: "xai" },
+    { pattern: "moonshot", providerId: "moonshot" },
+    { pattern: "sambanova", providerId: "sambanova" },
+    { pattern: "cerebras", providerId: "cerebras" },
+    { pattern: "groq", providerId: "groq" },
+    { pattern: "huggingface", providerId: "huggingface" },
+    { pattern: "huawei", providerId: "huawei-cloud-maas" },
+    { pattern: "baseten", providerId: "baseten" },
+    { pattern: "vercel", providerId: "vercel-ai-gateway" },
+    { pattern: "zai", providerId: "zai" },
+    { pattern: "requesty", providerId: "requesty" },
+    { pattern: "together", providerId: "together" },
+    { pattern: "dify", providerId: "dify" },
   ];
 
   for (const { pattern, providerId } of providerPatterns) {
@@ -194,7 +194,7 @@ export function extractProviderFromFieldName(fieldName) {
   }
 
   // Pattern 5: <provider>ApiKey format (most common) - checked LAST to avoid false positives
-  if (lowerFieldName.endsWith('apikey')) {
+  if (lowerFieldName.endsWith("apikey")) {
     // Extract from ORIGINAL fieldName to preserve camelCase for normalization
     const providerPart = fieldName.slice(0, -6); // Remove "ApiKey"
     return normalizeProviderName(providerPart);
@@ -212,22 +212,22 @@ export function extractProviderFromFieldName(fieldName) {
 function normalizeProviderName(providerPart) {
   // Handle camelCase to kebab-case conversion
   const normalized = providerPart
-    .replace(/([A-Z])/g, '-$1')
+    .replace(/([A-Z])/g, "-$1")
     .toLowerCase()
-    .replace(/^-/, '');
+    .replace(/^-/, "");
 
   // Handle special cases
   const specialCases = {
-    'open-router': 'openrouter',
-    'open-ai-native': 'openai-native',
-    'open-ai': 'openai',
-    'lite-llm': 'litellm',
-    'deep-seek': 'deepseek',
-    'ask-sage': 'asksage',
-    'hugging-face': 'huggingface',
-    'huawei-cloud-maas': 'huawei-cloud-maas',
-    'sap-ai-core': 'sapaicore',
-    'vercel-ai-gateway': 'vercel-ai-gateway',
+    "open-router": "openrouter",
+    "open-ai-native": "openai-native",
+    "open-ai": "openai",
+    "lite-llm": "litellm",
+    "deep-seek": "deepseek",
+    "ask-sage": "asksage",
+    "hugging-face": "huggingface",
+    "huawei-cloud-maas": "huawei-cloud-maas",
+    "sap-ai-core": "sapaicore",
+    "vercel-ai-gateway": "vercel-ai-gateway",
   };
 
   return specialCases[normalized] || normalized;
@@ -242,7 +242,7 @@ function normalizeProviderName(providerPart) {
  */
 function applySpecialCaseMappings(providerApiKeyMap, apiSecretsFields, assignedFields) {
   // Special case 1: Bedrock needs AWS fields (if not already assigned)
-  const awsFields = ['awsAccessKey', 'awsSecretKey', 'awsRegion'];
+  const awsFields = ["awsAccessKey", "awsSecretKey", "awsRegion"];
   const bedrockFields = providerApiKeyMap.bedrock || [];
 
   for (const field of awsFields) {
@@ -254,11 +254,11 @@ function applySpecialCaseMappings(providerApiKeyMap, apiSecretsFields, assignedF
 
   // Optional: awsSessionToken for temporary credentials
   if (
-    apiSecretsFields.fieldNames.includes('awsSessionToken') &&
-    !bedrockFields.includes('awsSessionToken')
+    apiSecretsFields.fieldNames.includes("awsSessionToken") &&
+    !bedrockFields.includes("awsSessionToken")
   ) {
-    bedrockFields.push('awsSessionToken');
-    assignedFields.add('awsSessionToken');
+    bedrockFields.push("awsSessionToken");
+    assignedFields.add("awsSessionToken");
   }
 
   if (bedrockFields.length > 0) {
@@ -275,7 +275,7 @@ function applySpecialCaseMappings(providerApiKeyMap, apiSecretsFields, assignedF
   // Special case 3: SAP AI Core multi-key authentication
   if (providerApiKeyMap.sapaicore) {
     const sapFields = providerApiKeyMap.sapaicore;
-    const requiredSapFields = ['sapAiCoreClientId', 'sapAiCoreClientSecret'];
+    const requiredSapFields = ["sapAiCoreClientId", "sapAiCoreClientSecret"];
 
     for (const field of requiredSapFields) {
       if (apiSecretsFields.fieldNames.includes(field) && !sapFields.includes(field)) {
@@ -296,44 +296,44 @@ function applySpecialCaseMappings(providerApiKeyMap, apiSecretsFields, assignedF
 export function generateApiKeyDisplayName(fieldName) {
   // Special cases for known abbreviations
   const specialCases = {
-    apiKey: 'API Key',
-    awsAccessKey: 'AWS Access Key',
-    awsSecretKey: 'AWS Secret Key',
-    awsSessionToken: 'AWS Session Token',
-    awsRegion: 'AWS Region',
-    awsBedrockApiKey: 'AWS Bedrock API Key',
-    openRouterApiKey: 'OpenRouter API Key',
-    openAiApiKey: 'OpenAI API Key',
-    openAiNativeApiKey: 'OpenAI Native API Key',
-    geminiApiKey: 'Gemini API Key',
-    ollamaApiKey: 'Ollama API Key',
-    deepSeekApiKey: 'DeepSeek API Key',
-    liteLlmApiKey: 'LiteLLM API Key',
-    qwenApiKey: 'Qwen API Key',
-    doubaoApiKey: 'Doubao API Key',
-    mistralApiKey: 'Mistral API Key',
-    fireworksApiKey: 'Fireworks API Key',
-    asksageApiKey: 'AskSage API Key',
-    xaiApiKey: 'X AI API Key',
-    moonshotApiKey: 'Moonshot API Key',
-    sambanovaApiKey: 'SambaNova API Key',
-    cerebrasApiKey: 'Cerebras API Key',
-    groqApiKey: 'Groq API Key',
-    huggingFaceApiKey: 'Hugging Face API Key',
-    nebiusApiKey: 'Nebius API Key',
-    basetenApiKey: 'Baseten API Key',
-    vercelAiGatewayApiKey: 'Vercel AI Gateway API Key',
-    zaiApiKey: 'Z AI API Key',
-    requestyApiKey: 'Requesty API Key',
-    togetherApiKey: 'Together AI API Key',
-    difyApiKey: 'Dify API Key',
-    clineAccountId: 'Cline Account ID',
-    vertexProjectId: 'Vertex Project ID',
-    vertexRegion: 'Vertex Region',
-    sapAiCoreClientId: 'SAP AI Core Client ID',
-    sapAiCoreClientSecret: 'SAP AI Core Client Secret',
-    huaweiCloudMaasApiKey: 'Huawei Cloud MaaS API Key',
-    hicapApiKey: 'Hicap API Key',
+    apiKey: "API Key",
+    awsAccessKey: "AWS Access Key",
+    awsSecretKey: "AWS Secret Key",
+    awsSessionToken: "AWS Session Token",
+    awsRegion: "AWS Region",
+    awsBedrockApiKey: "AWS Bedrock API Key",
+    openRouterApiKey: "OpenRouter API Key",
+    openAiApiKey: "OpenAI API Key",
+    openAiNativeApiKey: "OpenAI Native API Key",
+    geminiApiKey: "Gemini API Key",
+    ollamaApiKey: "Ollama API Key",
+    deepSeekApiKey: "DeepSeek API Key",
+    liteLlmApiKey: "LiteLLM API Key",
+    qwenApiKey: "Qwen API Key",
+    doubaoApiKey: "Doubao API Key",
+    mistralApiKey: "Mistral API Key",
+    fireworksApiKey: "Fireworks API Key",
+    asksageApiKey: "AskSage API Key",
+    xaiApiKey: "X AI API Key",
+    moonshotApiKey: "Moonshot API Key",
+    sambanovaApiKey: "SambaNova API Key",
+    cerebrasApiKey: "Cerebras API Key",
+    groqApiKey: "Groq API Key",
+    huggingFaceApiKey: "Hugging Face API Key",
+    nebiusApiKey: "Nebius API Key",
+    basetenApiKey: "Baseten API Key",
+    vercelAiGatewayApiKey: "Vercel AI Gateway API Key",
+    zaiApiKey: "Z AI API Key",
+    requestyApiKey: "Requesty API Key",
+    togetherApiKey: "Together AI API Key",
+    difyApiKey: "Dify API Key",
+    clineAccountId: "Cline Account ID",
+    vertexProjectId: "Vertex Project ID",
+    vertexRegion: "Vertex Region",
+    sapAiCoreClientId: "SAP AI Core Client ID",
+    sapAiCoreClientSecret: "SAP AI Core Client Secret",
+    huaweiCloudMaasApiKey: "Huawei Cloud MaaS API Key",
+    hicapApiKey: "Hicap API Key",
   };
 
   if (specialCases[fieldName]) {
@@ -342,7 +342,7 @@ export function generateApiKeyDisplayName(fieldName) {
 
   // Generic conversion: camelCase -> Title Case
   return fieldName
-    .replace(/([A-Z])/g, ' $1')
+    .replace(/([A-Z])/g, " $1")
     .replace(/^./, (str) => str.toUpperCase())
     .trim();
 }
@@ -362,13 +362,13 @@ export function validateApiKeyMappings(providerIds, providerApiKeyMap) {
     if (!providerApiKeyMap[providerId] || providerApiKeyMap[providerId].length === 0) {
       // Some providers don't require API keys - they use alternative authentication:
       const noKeyProviders = [
-        'vscode-lm',
-        'ollama',
-        'lmstudio',
-        'claude-code',
-        'oca',
-        'vertex',
-        'qwen-code',
+        "vscode-lm",
+        "ollama",
+        "lmstudio",
+        "claude-code",
+        "oca",
+        "vertex",
+        "qwen-code",
       ];
 
       if (!noKeyProviders.includes(providerId)) {

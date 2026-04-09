@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { detectMetaKeyChar, detectOS, unknown } from './platformUtils';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { detectMetaKeyChar, detectOS, unknown } from "./platformUtils";
 
 export const useMetaKeyDetection = (platform: string) => {
   const [metaKeyChar, setMetaKeyChar] = useState(unknown);
@@ -32,7 +32,7 @@ export const useShortcut = (
       const isTextInput =
         event.target instanceof HTMLTextAreaElement ||
         (event.target instanceof HTMLInputElement &&
-          (!event.target.type || event.target.type === 'text')) ||
+          (!event.target.type || event.target.type === "text")) ||
         (event.target as HTMLElement).isContentEditable;
 
       const modifierMap: { [key: string]: boolean } = {
@@ -50,8 +50,8 @@ export const useShortcut = (
         return event.stopPropagation();
       }
 
-      if (shortcut.includes('+')) {
-        const keyArray = shortcut.split('+');
+      if (shortcut.includes("+")) {
+        const keyArray = shortcut.split("+");
 
         if (Object.keys(modifierMap).includes(keyArray[0])) {
           const finalKey = keyArray.pop();
@@ -92,10 +92,10 @@ export const useShortcut = (
   );
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [handleKeyDown]);
 };

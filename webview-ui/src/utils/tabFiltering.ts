@@ -1,4 +1,4 @@
-import { fileExistsAtPath } from './fs';
+import { fileExistsAtPath } from "./fs";
 
 /**
  * Filters file paths to exclude deleted files from disk

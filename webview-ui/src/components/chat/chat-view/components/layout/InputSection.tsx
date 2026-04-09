@@ -1,7 +1,7 @@
-import ChatTextArea from '@/components/chat/ChatTextArea';
-import QuotedMessagePreview from '@/components/chat/QuotedMessagePreview';
-import type React from 'react';
-import type { ChatState, MessageHandlers, ScrollBehavior } from '../../types/chatTypes';
+import ChatTextArea from "@/components/chat/ChatTextArea";
+import QuotedMessagePreview from "@/components/chat/QuotedMessagePreview";
+import type React from "react";
+import type { ChatState, MessageHandlers, ScrollBehavior } from "../../types/chatTypes";
 
 interface InputSectionProps {
   chatState: ChatState;
@@ -43,7 +43,7 @@ export const InputSection: React.FC<InputSectionProps> = ({
   return (
     <>
       {activeQuote && (
-        <div style={{ marginBottom: '-12px', marginTop: '10px' }}>
+        <div style={{ marginBottom: "-12px", marginTop: "10px" }}>
           <QuotedMessagePreview
             isFocused={isTextAreaFocused}
             onDismiss={() => setActiveQuote(null)}

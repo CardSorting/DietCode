@@ -1,7 +1,7 @@
-import { type AnthropicModelId, anthropicModels } from '@/shared/api';
-import type { ApiHandlerModel, ApiProviderInfo } from '@core/api';
+import { type AnthropicModelId, anthropicModels } from "@/shared/api";
+import type { ApiHandlerModel, ApiProviderInfo } from "@core/api";
 
-export { supportsReasoningEffortForModel } from '@shared/utils/reasoning-support';
+export { supportsReasoningEffortForModel } from "@shared/utils/reasoning-support";
 
 const CLAUDE_VERSION_MATCH_REGEX = /[-_ ]([\d](?:\.[05])?)[-_ ]?/;
 export const GEMINI_FLASH_MAX_OUTPUT_TOKENS = 8_192;
@@ -9,21 +9,21 @@ export const GEMINI_FLASH_MAX_OUTPUT_TOKENS = 8_192;
 export function isNextGenModelProvider(providerInfo: ApiProviderInfo): boolean {
   const providerId = normalize(providerInfo.providerId);
   return [
-    'cline',
-    'anthropic',
-    'bedrock',
-    'gemini',
-    'vertex',
-    'openrouter',
-    'openai',
-    'minimax',
-    'openai-native',
-    'openai-compatible',
-    'openai-codex',
-    'baseten',
-    'vercel-ai-gateway',
-    'deepseek',
-    'oca',
+    "cline",
+    "anthropic",
+    "bedrock",
+    "gemini",
+    "vertex",
+    "openrouter",
+    "openai",
+    "minimax",
+    "openai-native",
+    "openai-compatible",
+    "openai-codex",
+    "baseten",
+    "vercel-ai-gateway",
+    "deepseek",
+    "oca",
   ].some((id) => providerId === id);
 }
 
@@ -32,7 +32,7 @@ export function modelDoesntSupportWebp(apiHandlerModel: ApiHandlerModel): boolea
   // Grok doesn't support WebP via its API.
   // GLM and Devstral models running through llama.cpp fail with WebP because
   // llama.cpp's STB image library doesn't support the WebP format.
-  return modelId.includes('grok') || isGLMModelFamily(modelId) || isDevstralModelFamily(modelId);
+  return modelId.includes("grok") || isGLMModelFamily(modelId) || isDevstralModelFamily(modelId);
 }
 
 /**
@@ -45,11 +45,11 @@ export function shouldSkipReasoningForModel(modelId?: string): boolean {
   if (!modelId) {
     return false;
   }
-  return modelId.includes('grok-4') || modelId.includes('devstral') || modelId.includes('glm');
+  return modelId.includes("grok-4") || modelId.includes("devstral") || modelId.includes("glm");
 }
 
 export function isAnthropicModelId(modelId: string): modelId is AnthropicModelId {
-  const CLAUDE_MODELS = ['sonnet', 'opus', 'haiku'];
+  const CLAUDE_MODELS = ["sonnet", "opus", "haiku"];
   return (
     modelId in anthropicModels || CLAUDE_MODELS.some((substring) => modelId.includes(substring))
   );
@@ -60,7 +60,7 @@ export function isClaude4PlusModelFamily(id: string): boolean {
   // Claude Code short aliases are always Claude 4+
   // These are used by ClaudeCodeHandler.getModel() when user selects "sonnet" or "opus"
   // Check before isAnthropicModelId to avoid type guard narrowing issues
-  if (modelId === 'sonnet' || modelId === 'opus') {
+  if (modelId === "sonnet" || modelId === "opus") {
     return true;
   }
   if (!isAnthropicModelId(modelId)) {
@@ -78,103 +78,103 @@ export function isClaude4PlusModelFamily(id: string): boolean {
 
 export function isGemini2dot5ModelFamily(id: string): boolean {
   const modelId = normalize(id);
-  return modelId.includes('gemini-2.5');
+  return modelId.includes("gemini-2.5");
 }
 
 export function isGrok4ModelFamily(id: string): boolean {
   const modelId = normalize(id);
-  return modelId.includes('grok-4');
+  return modelId.includes("grok-4");
 }
 
 export function isGPT5ModelFamily(id: string): boolean {
   const modelId = normalize(id);
-  return modelId.includes('gpt-5') || modelId.includes('gpt5');
+  return modelId.includes("gpt-5") || modelId.includes("gpt5");
 }
 
 export function isGptOssModelFamily(id: string): boolean {
   const modelId = normalize(id);
-  return modelId.includes('gpt-oss') || modelId.includes('gpt_oss');
+  return modelId.includes("gpt-oss") || modelId.includes("gpt_oss");
 }
 
 export function isGPT51Model(id: string): boolean {
   const modelId = normalize(id);
-  return modelId.includes('gpt-5.1') || modelId.includes('gpt-5-1');
+  return modelId.includes("gpt-5.1") || modelId.includes("gpt-5-1");
 }
 
 export function isGPT52Model(id: string): boolean {
   const modelId = normalize(id);
-  return modelId.includes('gpt-5.2') || modelId.includes('gpt-5-2');
+  return modelId.includes("gpt-5.2") || modelId.includes("gpt-5-2");
 }
 
 export function isGLMModelFamily(id: string): boolean {
   const modelId = normalize(id);
   return (
-    modelId.includes('glm-5') ||
-    modelId.includes('glm-4.7') ||
-    modelId.includes('glm-4.6') ||
-    modelId.includes('glm-4.5') ||
+    modelId.includes("glm-5") ||
+    modelId.includes("glm-4.7") ||
+    modelId.includes("glm-4.6") ||
+    modelId.includes("glm-4.5") ||
     // Space-separated variants like "GLM 4.6V" used with openai-compatible local servers
-    modelId.includes('glm 4.') ||
-    modelId.includes('z-ai/glm') ||
-    modelId.includes('zai-org/glm')
+    modelId.includes("glm 4.") ||
+    modelId.includes("z-ai/glm") ||
+    modelId.includes("zai-org/glm")
   );
 }
 
 export function isMinimaxModelFamily(id: string): boolean {
   const modelId = normalize(id);
-  return modelId.includes('minimax');
+  return modelId.includes("minimax");
 }
 
 export function isHermesModelFamily(id: string): boolean {
   const modelId = normalize(id);
   return (
-    modelId.includes('hermes-4') ||
-    modelId.includes('hermes4') ||
-    modelId.includes('nous/hermes-4') ||
-    modelId.includes('nous/hermes4') ||
-    modelId.includes('nous-hermes-4') ||
-    modelId.includes('nous/hermes4') ||
-    modelId.includes('nousresearch/hermes-4') ||
-    modelId.includes('nousresearch/hermes4')
+    modelId.includes("hermes-4") ||
+    modelId.includes("hermes4") ||
+    modelId.includes("nous/hermes-4") ||
+    modelId.includes("nous/hermes4") ||
+    modelId.includes("nous-hermes-4") ||
+    modelId.includes("nous/hermes4") ||
+    modelId.includes("nousresearch/hermes-4") ||
+    modelId.includes("nousresearch/hermes4")
   );
 }
 
 export function isNextGenOpenSourceModelFamily(id: string): boolean {
   const modelId = normalize(id);
-  return ['kimi-k2'].some((substring) => modelId.includes(substring));
+  return ["kimi-k2"].some((substring) => modelId.includes(substring));
 }
 
 export function isDevstralModelFamily(id: string): boolean {
   const modelId = normalize(id);
-  return modelId.includes('devstral');
+  return modelId.includes("devstral");
 }
 
 export function isTrinityModelFamily(id: string): boolean {
   const modelId = normalize(id);
   // OpenRouter: arcee-ai/trinity-large-preview:free and other trinity variants
-  return modelId.includes('arcee-ai/trinity') || modelId.includes('trinity');
+  return modelId.includes("arcee-ai/trinity") || modelId.includes("trinity");
 }
 
 export function isGemini3ModelFamily(id: string): boolean {
   const modelId = normalize(id);
-  return modelId.includes('gemini3') || modelId.includes('gemini-3');
+  return modelId.includes("gemini3") || modelId.includes("gemini-3");
 }
 
 export function isGeminiFlashModel(id: string): boolean {
   const modelId = normalize(id);
-  const isGooglePrefixedGemini = modelId.startsWith('google/gemini');
-  const isDirectGemini = modelId.startsWith('gemini-');
-  return (isGooglePrefixedGemini || isDirectGemini) && modelId.includes('flash');
+  const isGooglePrefixedGemini = modelId.startsWith("google/gemini");
+  const isDirectGemini = modelId.startsWith("gemini-");
+  return (isGooglePrefixedGemini || isDirectGemini) && modelId.includes("flash");
 }
 
 function isDeepSeek32ModelFamily(id: string): boolean {
   const modelId = normalize(id);
-  return modelId.includes('deepseek') && modelId.includes('3.2') && !modelId.includes('speciale');
+  return modelId.includes("deepseek") && modelId.includes("3.2") && !modelId.includes("speciale");
 }
 
 export function isDeepSeekNativeModelFamily(id: string): boolean {
   const modelId = normalize(id);
-  return modelId.includes('deepseek-chat') || modelId.includes('deepseek-reasoner');
+  return modelId.includes("deepseek-chat") || modelId.includes("deepseek-reasoner");
 }
 
 export function isNextGenModelFamily(id: string): boolean {
@@ -194,7 +194,7 @@ export function isNextGenModelFamily(id: string): boolean {
 }
 
 export function isLocalModel(providerInfo: ApiProviderInfo): boolean {
-  const localProviders = ['lmstudio', 'ollama'];
+  const localProviders = ["lmstudio", "ollama"];
   return localProviders.includes(normalize(providerInfo.providerId));
 }
 
@@ -204,7 +204,7 @@ export function isLocalModel(providerInfo: ApiProviderInfo): boolean {
  * @returns The price multiplied by 1,000,000 for per-million-token pricing, or 0 if invalid
  */
 export function parsePrice(priceString: string | undefined): number {
-  if (!priceString || priceString === '' || priceString === '0') {
+  if (!priceString || priceString === "" || priceString === "0") {
     return 0;
   }
   const parsed = Number.parseFloat(priceString);

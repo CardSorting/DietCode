@@ -1,9 +1,9 @@
-import * as childProcess from 'node:child_process';
-import * as path from 'node:path';
-import * as readline from 'node:readline';
-import { Logger } from '@/shared/services/Logger';
-import { getBinaryLocation } from '@/utils/fs';
-import type { ClineIgnoreController } from '@core/ignore/ClineIgnoreController';
+import * as childProcess from "node:child_process";
+import * as path from "node:path";
+import * as readline from "node:readline";
+import { Logger } from "@/shared/services/Logger";
+import { getBinaryLocation } from "@/utils/fs";
+import type { ClineIgnoreController } from "@core/ignore/ClineIgnoreController";
 
 /*
 This file provides functionality to perform regex searches on files using ripgrep.
@@ -58,7 +58,7 @@ interface SearchResult {
 const MAX_RESULTS = 300;
 
 async function execRipgrep(args: string[]): Promise<string> {
-  const binPath: string = await getBinaryLocation('rg');
+  const binPath: string = await getBinaryLocation("rg");
 
   return new Promise((resolve, reject) => {
     const rgProcess = childProcess.spawn(binPath, args);
@@ -68,11 +68,11 @@ async function execRipgrep(args: string[]): Promise<string> {
       crlfDelay: Number.POSITIVE_INFINITY, // treat \r\n as a single line break even if it's split across chunks. This ensures consistent behavior across different operating systems.
     });
 
-    let output = '';
+    let output = "";
     let lineCount = 0;
     const maxLines = MAX_RESULTS * 5; // limiting ripgrep output with max lines since there's no other way to limit results. it's okay that we're outputting as json, since we're parsing it line by line and ignore anything that's not part of a match. This assumes each result is at most 5 lines.
 
-    rl.on('line', (line) => {
+    rl.on("line", (line) => {
       if (lineCount < maxLines) {
         output += `${line}\n`;
         lineCount++;
@@ -82,18 +82,18 @@ async function execRipgrep(args: string[]): Promise<string> {
       }
     });
 
-    let errorOutput = '';
-    rgProcess.stderr.on('data', (data) => {
+    let errorOutput = "";
+    rgProcess.stderr.on("data", (data) => {
       errorOutput += data.toString();
     });
-    rl.on('close', () => {
+    rl.on("close", () => {
       if (errorOutput) {
         reject(new Error(`ripgrep process error: ${errorOutput}`));
       } else {
         resolve(output);
       }
     });
-    rgProcess.on('error', (error) => {
+    rgProcess.on("error", (error) => {
       reject(new Error(`ripgrep process error: ${error.message}`));
     });
   });
@@ -107,13 +107,13 @@ export async function regexSearchFiles(
   clineIgnoreController?: ClineIgnoreController,
 ): Promise<string> {
   const args = [
-    '--json',
-    '-e',
+    "--json",
+    "-e",
     regex,
-    '--glob',
-    filePattern || '*',
-    '--context',
-    '1',
+    "--glob",
+    filePattern || "*",
+    "--context",
+    "1",
     directoryPath,
   ];
 
@@ -121,16 +121,16 @@ export async function regexSearchFiles(
   try {
     output = await execRipgrep(args);
   } catch (error) {
-    throw Error('Error calling ripgrep', { cause: error });
+    throw Error("Error calling ripgrep", { cause: error });
   }
   const results: SearchResult[] = [];
   let currentResult: Partial<SearchResult> | null = null;
 
-  output.split('\n').forEach((line) => {
+  output.split("\n").forEach((line) => {
     if (line) {
       try {
         const parsed = JSON.parse(line);
-        if (parsed.type === 'match') {
+        if (parsed.type === "match") {
           if (currentResult) {
             results.push(currentResult as SearchResult);
           }
@@ -142,7 +142,7 @@ export async function regexSearchFiles(
             beforeContext: [],
             afterContext: [],
           };
-        } else if (parsed.type === 'context' && currentResult) {
+        } else if (parsed.type === "context" && currentResult) {
           if (parsed.data.line_number < currentResult.line!) {
             currentResult.beforeContext?.push(parsed.data.lines.text);
           } else {
@@ -150,7 +150,7 @@ export async function regexSearchFiles(
           }
         }
       } catch (error) {
-        Logger.error('Error parsing ripgrep output:', error);
+        Logger.error("Error parsing ripgrep output:", error);
       }
     }
   });
@@ -173,11 +173,11 @@ const MAX_BYTE_SIZE = MAX_RIPGREP_MB * 1024 * 1024; // 0./25MB in bytes
 function formatResults(results: SearchResult[], cwd: string): string {
   const groupedResults: { [key: string]: SearchResult[] } = {};
 
-  let output = '';
+  let output = "";
   if (results.length >= MAX_RESULTS) {
     output += `Showing first ${MAX_RESULTS} of ${MAX_RESULTS}+ results. Use a more specific search if necessary.\n\n`;
   } else {
-    output += `Found ${results.length === 1 ? '1 result' : `${results.length.toLocaleString()} results`}.\n\n`;
+    output += `Found ${results.length === 1 ? "1 result" : `${results.length.toLocaleString()} results`}.\n\n`;
   }
 
   // Group results by file name
@@ -190,13 +190,13 @@ function formatResults(results: SearchResult[], cwd: string): string {
   });
 
   // Track byte size
-  let byteSize = Buffer.byteLength(output, 'utf8');
+  let byteSize = Buffer.byteLength(output, "utf8");
   let wasLimitReached = false;
 
   for (const [filePath, fileResults] of Object.entries(groupedResults)) {
     // Check if adding this file's path would exceed the byte limit
     const filePathString = `${filePath.toPosix()}\n│----\n`;
-    const filePathBytes = Buffer.byteLength(filePathString, 'utf8');
+    const filePathBytes = Buffer.byteLength(filePathString, "utf8");
 
     if (byteSize + filePathBytes >= MAX_BYTE_SIZE) {
       wasLimitReached = true;
@@ -215,9 +215,9 @@ function formatResults(results: SearchResult[], cwd: string): string {
       const resultLines: string[] = [];
 
       for (const line of allLines) {
-        const trimmedLine = line?.trimEnd() ?? '';
+        const trimmedLine = line?.trimEnd() ?? "";
         const lineString = `│${trimmedLine}\n`;
-        const lineBytes = Buffer.byteLength(lineString, 'utf8');
+        const lineBytes = Buffer.byteLength(lineString, "utf8");
 
         // Check if adding this line would exceed the byte limit
         if (byteSize + resultBytes + lineBytes >= MAX_BYTE_SIZE) {
@@ -242,8 +242,8 @@ function formatResults(results: SearchResult[], cwd: string): string {
 
       // Add separator between results if needed
       if (resultIndex < fileResults.length - 1) {
-        const separatorString = '│----\n';
-        const separatorBytes = Buffer.byteLength(separatorString, 'utf8');
+        const separatorString = "│----\n";
+        const separatorBytes = Buffer.byteLength(separatorString, "utf8");
 
         if (byteSize + separatorBytes >= MAX_BYTE_SIZE) {
           wasLimitReached = true;
@@ -266,8 +266,8 @@ function formatResults(results: SearchResult[], cwd: string): string {
       break;
     }
 
-    const closingString = '│----\n\n';
-    const closingBytes = Buffer.byteLength(closingString, 'utf8');
+    const closingString = "│----\n\n";
+    const closingBytes = Buffer.byteLength(closingString, "utf8");
 
     if (byteSize + closingBytes >= MAX_BYTE_SIZE) {
       wasLimitReached = true;
@@ -282,7 +282,7 @@ function formatResults(results: SearchResult[], cwd: string): string {
   if (wasLimitReached) {
     const truncationMessage = `\n[Results truncated due to exceeding the ${MAX_RIPGREP_MB}MB size limit. Please use a more specific search pattern.]`;
     // Only add the message if it fits within the limit
-    if (byteSize + Buffer.byteLength(truncationMessage, 'utf8') < MAX_BYTE_SIZE) {
+    if (byteSize + Buffer.byteLength(truncationMessage, "utf8") < MAX_BYTE_SIZE) {
       output += truncationMessage;
     }
   }

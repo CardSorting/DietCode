@@ -1,7 +1,7 @@
-import fs from 'node:fs/promises';
-import * as path from 'node:path';
-import { HostProvider } from '@/hosts/host-provider';
-import { workspaceResolver } from '@core/workspace';
+import fs from "node:fs/promises";
+import * as path from "node:path";
+import { HostProvider } from "@/hosts/host-provider";
+import { workspaceResolver } from "@core/workspace";
 
 const IS_WINDOWS = /^win/.test(process.platform);
 
@@ -89,7 +89,7 @@ export async function getFileSizeInKB(filePath: string): Promise<number> {
 export async function writeFile(
   filePath: string,
   content: string | Uint8Array,
-  encoding: BufferEncoding = 'utf8',
+  encoding: BufferEncoding = "utf8",
 ): Promise<void> {
   if (content instanceof Uint8Array) {
     await fs.writeFile(filePath, content);
@@ -100,9 +100,9 @@ export async function writeFile(
 
 // Common OS-generated files that would appear in an otherwise clean directory
 const OS_GENERATED_FILES = [
-  '.DS_Store', // macOS Finder
-  'Thumbs.db', // Windows Explorer thumbnails
-  'desktop.ini', // Windows folder settings
+  ".DS_Store", // macOS Finder
+  "Thumbs.db", // Windows Explorer thumbnails
+  "desktop.ini", // Windows folder settings
 ];
 
 /**
@@ -124,9 +124,9 @@ export const readDirectory = async (directoryPath: string, excludedPaths: string
           const resolvedPath = workspaceResolver.resolveWorkspacePath(
             file.parentPath,
             file.name,
-            'Utils.fs.readDirectory',
+            "Utils.fs.readDirectory",
           );
-          return typeof resolvedPath === 'string' ? resolvedPath : resolvedPath.absolutePath;
+          return typeof resolvedPath === "string" ? resolvedPath : resolvedPath.absolutePath;
         }),
       )
       .then((filePaths) =>

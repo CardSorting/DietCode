@@ -1,4 +1,4 @@
-import type { LanguageModelChatSelector } from '@shared/proto/cline/models';
+import type { LanguageModelChatSelector } from "@shared/proto/cline/models";
 
 /**
  * Represents a VS Code language model in the native VS Code format
@@ -17,9 +17,9 @@ export function convertVsCodeNativeModelsToProtoModels(
   models: VsCodeNativeModel[],
 ): LanguageModelChatSelector[] {
   return (models || []).map((model) => ({
-    vendor: model.vendor || '',
-    family: model.family || '',
-    version: model.version || '',
-    id: model.id || '',
+    vendor: model.vendor || "",
+    family: model.family || "",
+    version: model.version || "",
+    id: model.id || "",
   }));
 }

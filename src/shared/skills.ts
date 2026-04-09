@@ -6,7 +6,7 @@ export interface SkillMetadata {
   name: string;
   description: string;
   path: string;
-  source: 'global' | 'project';
+  source: "global" | "project";
 }
 
 /**

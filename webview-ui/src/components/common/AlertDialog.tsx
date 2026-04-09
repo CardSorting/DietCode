@@ -1,8 +1,8 @@
-import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
-import { AlertTriangle } from 'lucide-react';
-import type React from 'react';
-import type { ReactNode } from 'react';
-import { OPENROUTER_MODEL_PICKER_Z_INDEX } from '../settings/OpenRouterModelPicker';
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { AlertTriangle } from "lucide-react";
+import type React from "react";
+import type { ReactNode } from "react";
+import { OPENROUTER_MODEL_PICKER_Z_INDEX } from "../settings/OpenRouterModelPicker";
 
 interface AlertDialogProps {
   open: boolean;
@@ -24,7 +24,7 @@ export function AlertDialog({ open, onOpenChange, children }: AlertDialogProps) 
 
   return (
     <div
-      className={'fixed inset-0 bg-black/50 flex items-center justify-center'}
+      className={"fixed inset-0 bg-black/50 flex items-center justify-center"}
       onClick={handleBackdropClick}
       style={{ zIndex: OPENROUTER_MODEL_PICKER_Z_INDEX + 50 }}
     >
@@ -103,10 +103,10 @@ export function UnsavedChangesDialog({
   onConfirm,
   onCancel,
   onSave,
-  title = 'Unsaved Changes',
-  description = 'You have unsaved changes. Are you sure you want to discard them?',
-  confirmText = 'Discard Changes',
-  saveText = 'Save & Continue',
+  title = "Unsaved Changes",
+  description = "You have unsaved changes. Are you sure you want to discard them?",
+  confirmText = "Discard Changes",
+  saveText = "Save & Continue",
   showSaveOption = false,
 }: {
   open: boolean;
@@ -136,7 +136,7 @@ export function UnsavedChangesDialog({
             <AlertDialogAction onClick={onSave}>{saveText}</AlertDialogAction>
           )}
           <AlertDialogAction
-            appearance={showSaveOption ? 'secondary' : 'primary'}
+            appearance={showSaveOption ? "secondary" : "primary"}
             onClick={onConfirm}
           >
             {confirmText}

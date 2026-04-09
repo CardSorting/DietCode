@@ -1,7 +1,7 @@
-import type React from 'react';
-import { createContext, useContext } from 'react';
-import type { PlatformConfig } from '../config/platform.config';
-import { PLATFORM_CONFIG } from '../config/platform.config';
+import type React from "react";
+import { createContext, useContext } from "react";
+import type { PlatformConfig } from "../config/platform.config";
+import { PLATFORM_CONFIG } from "../config/platform.config";
 
 const PlatformContext = createContext<PlatformConfig>(PLATFORM_CONFIG);
 

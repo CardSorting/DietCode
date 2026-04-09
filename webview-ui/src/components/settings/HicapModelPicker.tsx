@@ -1,15 +1,15 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { StateServiceClient } from '@/services/grpc-client';
-import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
-import Fuse from 'fuse.js';
-import type React from 'react';
-import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react';
-import { useMount } from 'react-use';
-import { highlight } from '../history/HistoryView';
-import { getModeSpecificFields } from './utils/providerUtils';
-import { useApiConfigurationHandlers } from './utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { StateServiceClient } from "@/services/grpc-client";
+import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import Fuse from "fuse.js";
+import type React from "react";
+import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
+import { useMount } from "react-use";
+import { highlight } from "../history/HistoryView";
+import { getModeSpecificFields } from "./utils/providerUtils";
+import { useApiConfigurationHandlers } from "./utils/useApiConfigurationHandlers";
 
 export const HICAP_MODEL_PICKER_Z_INDEX = 1_000;
 
@@ -19,12 +19,18 @@ const StarIcon = ({
   onClick,
 }: { isFavorite: boolean; onClick: (e: React.MouseEvent) => void }) => {
   return (
-    <div
-      className={`cursor-pointer ${isFavorite ? 'text-[var(--vscode-terminal-ansiBlue)]' : 'text-[var(--vscode-descriptionForeground)]'} ml-[8px] text-[16px] flex items-center justify-center select-none`}
+    <button
+      className={`cursor-pointer border-none bg-transparent ${isFavorite ? "text-(--vscode-terminal-ansiBlue)" : "text-(--vscode-descriptionForeground)"} ml-2 text-[16px] flex items-center justify-center select-none`}
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          onClick(e as any);
+        }
+      }}
+      type="button"
     >
-      {isFavorite ? '★' : '☆'}
-    </div>
+      {isFavorite ? "★" : "☆"}
+    </button>
   );
 };
 
@@ -39,7 +45,7 @@ const HicapModelPicker: React.FC<HicapModelPickerProps> = ({ isPopup, currentMod
     useExtensionState();
 
   const modeFields = getModeSpecificFields(apiConfiguration, currentMode);
-  const [searchTerm, setSearchTerm] = useState(modeFields.hicapModelId || '');
+  const [searchTerm, setSearchTerm] = useState(modeFields.hicapModelId || "");
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -51,8 +57,8 @@ const HicapModelPicker: React.FC<HicapModelPickerProps> = ({ isPopup, currentMod
 
     handleModeFieldsChange(
       {
-        hicapModelId: { plan: 'planModeHicapModelId', act: 'actModeHicapModelId' },
-        hicapModelInfo: { plan: 'planModeHicapModelInfo', act: 'actModeHicapModelInfo' },
+        hicapModelId: { plan: "planModeHicapModelId", act: "actModeHicapModelId" },
+        hicapModelInfo: { plan: "planModeHicapModelInfo", act: "actModeHicapModelInfo" },
       },
       {
         hicapModelId: newModelId,
@@ -66,7 +72,7 @@ const HicapModelPicker: React.FC<HicapModelPickerProps> = ({ isPopup, currentMod
 
   // Sync external changes when the modelId changes
   useEffect(() => {
-    const currentModelId = modeFields.hicapModelId || '';
+    const currentModelId = modeFields.hicapModelId || "";
     setSearchTerm(currentModelId);
   }, [modeFields.hicapModelId]);
 
@@ -77,9 +83,9 @@ const HicapModelPicker: React.FC<HicapModelPickerProps> = ({ isPopup, currentMod
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -98,7 +104,7 @@ const HicapModelPicker: React.FC<HicapModelPickerProps> = ({ isPopup, currentMod
 
   const fuse = useMemo(() => {
     return new Fuse(searchableItems, {
-      keys: ['html'], // highlight function will update this
+      keys: ["html"], // highlight function will update this
       threshold: 0.6,
       shouldSort: true,
       isCaseSensitive: false,
@@ -116,7 +122,7 @@ const HicapModelPicker: React.FC<HicapModelPickerProps> = ({ isPopup, currentMod
 
     // Then get search results for non-favorited models
     const searchResults = searchTerm
-      ? highlight(fuse.search(searchTerm), 'model-item-highlight').filter(
+      ? highlight(fuse.search(searchTerm), "model-item-highlight").filter(
           (item) => !favoritedModelIds.includes(item.id),
         )
       : searchableItems.filter((item) => !favoritedModelIds.includes(item.id));
@@ -127,26 +133,30 @@ const HicapModelPicker: React.FC<HicapModelPickerProps> = ({ isPopup, currentMod
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (!isDropdownVisible) {
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        setIsDropdownVisible(true);
+      }
       return;
     }
 
     switch (event.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         event.preventDefault();
         setSelectedIndex((prev) => (prev < modelSearchResults.length - 1 ? prev + 1 : prev));
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         event.preventDefault();
         setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
         break;
-      case 'Enter':
+      case "Enter":
         event.preventDefault();
         if (selectedIndex >= 0 && selectedIndex < modelSearchResults.length) {
           handleModelChange(modelSearchResults[selectedIndex].id);
           setIsDropdownVisible(false);
         }
         break;
-      case 'Escape':
+      case "Escape":
+        event.preventDefault();
         setIsDropdownVisible(false);
         setSelectedIndex(-1);
         break;
@@ -163,8 +173,8 @@ const HicapModelPicker: React.FC<HicapModelPickerProps> = ({ isPopup, currentMod
   useEffect(() => {
     if (selectedIndex >= 0 && itemRefs.current[selectedIndex]) {
       itemRefs.current[selectedIndex]?.scrollIntoView({
-        block: 'nearest',
-        behavior: 'smooth',
+        block: "nearest",
+        behavior: "smooth",
       });
     }
   }, [selectedIndex]);
@@ -185,56 +195,70 @@ const HicapModelPicker: React.FC<HicapModelPickerProps> = ({ isPopup, currentMod
             id="model-search"
             onFocus={() => setIsDropdownVisible(true)}
             onInput={(e) => {
-              setSearchTerm((e.target as HTMLInputElement)?.value.toLowerCase() || '');
+              setSearchTerm((e.target as HTMLInputElement)?.value.toLowerCase() || "");
               setIsDropdownVisible(true);
             }}
             onKeyDown={handleKeyDown}
             placeholder="Search and select a model..."
+            /* biome-ignore lint/a11y/useSemanticElements: VSCodeTextField is used as a custom combobox. */
             role="combobox"
             style={{ zIndex: HICAP_MODEL_PICKER_Z_INDEX }}
             value={searchTerm}
           >
             {searchTerm && (
-              <div
+              <button
                 aria-label="Clear search"
-                className="flex justify-center items-center h-full input-icon-button codicon codicon-close"
+                className="flex justify-center items-center h-full input-icon-button codicon codicon-close bg-transparent border-none p-0 cursor-pointer"
                 onClick={() => {
-                  setSearchTerm('');
+                  setSearchTerm("");
                   setIsDropdownVisible(true);
                 }}
                 slot="end"
+                type="button"
               />
             )}
           </VSCodeTextField>
           {isDropdownVisible && (
             <div
               className="absolute top-[calc(100%-3px)] left-0 w-[calc(100%-2px)]
-							max-h-[200px] overflow-y-auto bg-[var(--vscode-dropdown-background)]
-							border border-[var(--vscode-list-activeSelectionBackground)]
+							max-h-[200px] overflow-y-auto bg-(--vscode-dropdown-background)
+							border border-(--vscode-list-activeSelectionBackground)
 							rounded-b-[3px]"
               ref={dropdownListRef}
+              /* biome-ignore lint/a11y/useSemanticElements: Custom dropdown implementation. */
               role="listbox"
               style={{ zIndex: HICAP_MODEL_PICKER_Z_INDEX - 1 }}
+              tabIndex={-1}
             >
               {modelSearchResults.map((item, index) => {
                 const isFavorite = (favoritedModelIds || []).includes(item.id);
                 return (
                   <div
+                    aria-selected={index === selectedIndex}
                     className={`p-[5px_10px] cursor-pointer break-all whitespace-normal ${
-                      index === selectedIndex
-                        ? 'bg-[var(--vscode-list-activeSelectionBackground)]'
-                        : ''
-                    } hover:bg-[var(--vscode-list-activeSelectionBackground)]`}
+                      index === selectedIndex ? "bg-(--vscode-list-activeSelectionBackground)" : ""
+                    } hover:bg-(--vscode-list-activeSelectionBackground)`}
                     key={item.id}
                     onClick={() => {
                       handleModelChange(item.id);
                       setIsDropdownVisible(false);
                     }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        handleModelChange(item.id);
+                        setIsDropdownVisible(false);
+                      }
+                    }}
                     onMouseEnter={() => setSelectedIndex(index)}
-                    ref={(el) => (itemRefs.current[index] = el)}
+                    ref={(el) => {
+                      itemRefs.current[index] = el;
+                    }}
+                    /* biome-ignore lint/a11y/useSemanticElements: Custom option implementation. */
                     role="option"
+                    tabIndex={0}
                   >
-                    <div className="flex justify-between items-center [&_.model-item-highlight]:bg-[var(--vscode-editor-findMatchHighlightBackground)] [&_.model-item-highlight]:text-inherit">
+                    <div className="flex justify-between items-center [&_.model-item-highlight]:bg-(--vscode-editor-findMatchHighlightBackground) [&_.model-item-highlight]:text-inherit">
+                      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: Required for search result highlighting; content is controlled by highlight utility. */}
                       <span dangerouslySetInnerHTML={{ __html: item.html }} />
                       <StarIcon
                         isFavorite={isFavorite}
@@ -243,7 +267,7 @@ const HicapModelPicker: React.FC<HicapModelPickerProps> = ({ isPopup, currentMod
                           StateServiceClient.toggleFavoriteModel(
                             StringRequest.create({ value: item.id }),
                           ).catch((error) =>
-                            console.error('Failed to toggle favorite model:', error),
+                            console.error("Failed to toggle favorite model:", error),
                           );
                         }}
                       />

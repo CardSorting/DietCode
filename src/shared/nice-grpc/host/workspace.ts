@@ -5,8 +5,8 @@
 // source: host/workspace.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
-import { FileDiagnostics, Metadata } from '../cline/common';
+import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { FileDiagnostics, Metadata } from "../cline/common";
 
 export interface GetWorkspacePathsRequest {
   /**
@@ -61,10 +61,10 @@ export function searchWorkspaceItemsRequest_SearchItemTypeFromJSON(
 ): SearchWorkspaceItemsRequest_SearchItemType {
   switch (object) {
     case 0:
-    case 'FILE':
+    case "FILE":
       return SearchWorkspaceItemsRequest_SearchItemType.FILE;
     case 1:
-    case 'FOLDER':
+    case "FOLDER":
       return SearchWorkspaceItemsRequest_SearchItemType.FOLDER;
     default:
       return SearchWorkspaceItemsRequest_SearchItemType.UNRECOGNIZED;
@@ -76,11 +76,11 @@ export function searchWorkspaceItemsRequest_SearchItemTypeToJSON(
 ): string {
   switch (object) {
     case SearchWorkspaceItemsRequest_SearchItemType.FILE:
-      return 'FILE';
+      return "FILE";
     case SearchWorkspaceItemsRequest_SearchItemType.FOLDER:
-      return 'FOLDER';
+      return "FOLDER";
     default:
-      return 'UNRECOGNIZED';
+      return "UNRECOGNIZED";
   }
 }
 
@@ -563,7 +563,7 @@ export const GetDiagnosticsResponse: MessageFns<GetDiagnosticsResponse> = {
 };
 
 function createBaseSearchWorkspaceItemsRequest(): SearchWorkspaceItemsRequest {
-  return { query: '', limit: undefined, selectedType: undefined };
+  return { query: "", limit: undefined, selectedType: undefined };
 }
 
 export const SearchWorkspaceItemsRequest: MessageFns<SearchWorkspaceItemsRequest> = {
@@ -571,7 +571,7 @@ export const SearchWorkspaceItemsRequest: MessageFns<SearchWorkspaceItemsRequest
     message: SearchWorkspaceItemsRequest,
     writer: BinaryWriter = new BinaryWriter(),
   ): BinaryWriter {
-    if (message.query !== '') {
+    if (message.query !== "") {
       writer.uint32(10).string(message.query);
     }
     if (message.limit !== undefined) {
@@ -625,7 +625,7 @@ export const SearchWorkspaceItemsRequest: MessageFns<SearchWorkspaceItemsRequest
 
   fromJSON(object: any): SearchWorkspaceItemsRequest {
     return {
-      query: isSet(object.query) ? globalThis.String(object.query) : '',
+      query: isSet(object.query) ? globalThis.String(object.query) : "",
       limit: isSet(object.limit) ? globalThis.Number(object.limit) : undefined,
       selectedType: isSet(object.selectedType)
         ? searchWorkspaceItemsRequest_SearchItemTypeFromJSON(object.selectedType)
@@ -637,7 +637,7 @@ export const SearchWorkspaceItemsRequest: MessageFns<SearchWorkspaceItemsRequest
 
   toJSON(message: SearchWorkspaceItemsRequest): unknown {
     const obj: any = {};
-    if (message.query !== '') {
+    if (message.query !== "") {
       obj.query = message.query;
     }
     if (message.limit !== undefined) {
@@ -658,7 +658,7 @@ export const SearchWorkspaceItemsRequest: MessageFns<SearchWorkspaceItemsRequest
     object: I,
   ): SearchWorkspaceItemsRequest {
     const message = createBaseSearchWorkspaceItemsRequest();
-    message.query = object.query ?? '';
+    message.query = object.query ?? "";
     message.limit = object.limit ?? undefined;
     message.selectedType = object.selectedType ?? undefined;
     return message;
@@ -738,7 +738,7 @@ export const SearchWorkspaceItemsResponse: MessageFns<SearchWorkspaceItemsRespon
 };
 
 function createBaseSearchWorkspaceItemsResponse_SearchItem(): SearchWorkspaceItemsResponse_SearchItem {
-  return { path: '', type: 0, label: undefined };
+  return { path: "", type: 0, label: undefined };
 }
 
 export const SearchWorkspaceItemsResponse_SearchItem: MessageFns<SearchWorkspaceItemsResponse_SearchItem> =
@@ -747,7 +747,7 @@ export const SearchWorkspaceItemsResponse_SearchItem: MessageFns<SearchWorkspace
       message: SearchWorkspaceItemsResponse_SearchItem,
       writer: BinaryWriter = new BinaryWriter(),
     ): BinaryWriter {
-      if (message.path !== '') {
+      if (message.path !== "") {
         writer.uint32(10).string(message.path);
       }
       if (message.type !== 0) {
@@ -804,7 +804,7 @@ export const SearchWorkspaceItemsResponse_SearchItem: MessageFns<SearchWorkspace
 
     fromJSON(object: any): SearchWorkspaceItemsResponse_SearchItem {
       return {
-        path: isSet(object.path) ? globalThis.String(object.path) : '',
+        path: isSet(object.path) ? globalThis.String(object.path) : "",
         type: isSet(object.type)
           ? searchWorkspaceItemsRequest_SearchItemTypeFromJSON(object.type)
           : 0,
@@ -814,7 +814,7 @@ export const SearchWorkspaceItemsResponse_SearchItem: MessageFns<SearchWorkspace
 
     toJSON(message: SearchWorkspaceItemsResponse_SearchItem): unknown {
       const obj: any = {};
-      if (message.path !== '') {
+      if (message.path !== "") {
         obj.path = message.path;
       }
       if (message.type !== 0) {
@@ -835,7 +835,7 @@ export const SearchWorkspaceItemsResponse_SearchItem: MessageFns<SearchWorkspace
       object: I,
     ): SearchWorkspaceItemsResponse_SearchItem {
       const message = createBaseSearchWorkspaceItemsResponse_SearchItem();
-      message.path = object.path ?? '';
+      message.path = object.path ?? "";
       message.type = object.type ?? 0;
       message.label = object.label ?? undefined;
       return message;
@@ -937,7 +937,7 @@ export const OpenProblemsPanelResponse: MessageFns<OpenProblemsPanelResponse> = 
 };
 
 function createBaseOpenInFileExplorerPanelRequest(): OpenInFileExplorerPanelRequest {
-  return { path: '' };
+  return { path: "" };
 }
 
 export const OpenInFileExplorerPanelRequest: MessageFns<OpenInFileExplorerPanelRequest> = {
@@ -945,7 +945,7 @@ export const OpenInFileExplorerPanelRequest: MessageFns<OpenInFileExplorerPanelR
     message: OpenInFileExplorerPanelRequest,
     writer: BinaryWriter = new BinaryWriter(),
   ): BinaryWriter {
-    if (message.path !== '') {
+    if (message.path !== "") {
       writer.uint32(10).string(message.path);
     }
     return writer;
@@ -976,12 +976,12 @@ export const OpenInFileExplorerPanelRequest: MessageFns<OpenInFileExplorerPanelR
   },
 
   fromJSON(object: any): OpenInFileExplorerPanelRequest {
-    return { path: isSet(object.path) ? globalThis.String(object.path) : '' };
+    return { path: isSet(object.path) ? globalThis.String(object.path) : "" };
   },
 
   toJSON(message: OpenInFileExplorerPanelRequest): unknown {
     const obj: any = {};
-    if (message.path !== '') {
+    if (message.path !== "") {
       obj.path = message.path;
     }
     return obj;
@@ -996,7 +996,7 @@ export const OpenInFileExplorerPanelRequest: MessageFns<OpenInFileExplorerPanelR
     object: I,
   ): OpenInFileExplorerPanelRequest {
     const message = createBaseOpenInFileExplorerPanelRequest();
-    message.path = object.path ?? '';
+    message.path = object.path ?? "";
     return message;
   },
 };
@@ -1235,7 +1235,7 @@ export const OpenTerminalResponse: MessageFns<OpenTerminalResponse> = {
 };
 
 function createBaseExecuteCommandInTerminalRequest(): ExecuteCommandInTerminalRequest {
-  return { command: '' };
+  return { command: "" };
 }
 
 export const ExecuteCommandInTerminalRequest: MessageFns<ExecuteCommandInTerminalRequest> = {
@@ -1243,7 +1243,7 @@ export const ExecuteCommandInTerminalRequest: MessageFns<ExecuteCommandInTermina
     message: ExecuteCommandInTerminalRequest,
     writer: BinaryWriter = new BinaryWriter(),
   ): BinaryWriter {
-    if (message.command !== '') {
+    if (message.command !== "") {
       writer.uint32(10).string(message.command);
     }
     return writer;
@@ -1274,12 +1274,12 @@ export const ExecuteCommandInTerminalRequest: MessageFns<ExecuteCommandInTermina
   },
 
   fromJSON(object: any): ExecuteCommandInTerminalRequest {
-    return { command: isSet(object.command) ? globalThis.String(object.command) : '' };
+    return { command: isSet(object.command) ? globalThis.String(object.command) : "" };
   },
 
   toJSON(message: ExecuteCommandInTerminalRequest): unknown {
     const obj: any = {};
-    if (message.command !== '') {
+    if (message.command !== "") {
       obj.command = message.command;
     }
     return obj;
@@ -1294,7 +1294,7 @@ export const ExecuteCommandInTerminalRequest: MessageFns<ExecuteCommandInTermina
     object: I,
   ): ExecuteCommandInTerminalRequest {
     const message = createBaseExecuteCommandInTerminalRequest();
-    message.command = object.command ?? '';
+    message.command = object.command ?? "";
     return message;
   },
 };
@@ -1365,12 +1365,12 @@ export const ExecuteCommandInTerminalResponse: MessageFns<ExecuteCommandInTermin
 };
 
 function createBaseOpenFolderRequest(): OpenFolderRequest {
-  return { path: '', newWindow: false };
+  return { path: "", newWindow: false };
 }
 
 export const OpenFolderRequest: MessageFns<OpenFolderRequest> = {
   encode(message: OpenFolderRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.path !== '') {
+    if (message.path !== "") {
       writer.uint32(10).string(message.path);
     }
     if (message.newWindow !== false) {
@@ -1413,7 +1413,7 @@ export const OpenFolderRequest: MessageFns<OpenFolderRequest> = {
 
   fromJSON(object: any): OpenFolderRequest {
     return {
-      path: isSet(object.path) ? globalThis.String(object.path) : '',
+      path: isSet(object.path) ? globalThis.String(object.path) : "",
       newWindow: isSet(object.newWindow)
         ? globalThis.Boolean(object.newWindow)
         : isSet(object.new_window)
@@ -1424,7 +1424,7 @@ export const OpenFolderRequest: MessageFns<OpenFolderRequest> = {
 
   toJSON(message: OpenFolderRequest): unknown {
     const obj: any = {};
-    if (message.path !== '') {
+    if (message.path !== "") {
       obj.path = message.path;
     }
     if (message.newWindow !== false) {
@@ -1438,7 +1438,7 @@ export const OpenFolderRequest: MessageFns<OpenFolderRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<OpenFolderRequest>, I>>(object: I): OpenFolderRequest {
     const message = createBaseOpenFolderRequest();
-    message.path = object.path ?? '';
+    message.path = object.path ?? "";
     message.newWindow = object.newWindow ?? false;
     return message;
   },
@@ -1505,12 +1505,12 @@ export const OpenFolderResponse: MessageFns<OpenFolderResponse> = {
 /** Provides methods for working with workspaces/projects. */
 export type WorkspaceServiceDefinition = typeof WorkspaceServiceDefinition;
 export const WorkspaceServiceDefinition = {
-  name: 'WorkspaceService',
-  fullName: 'host.WorkspaceService',
+  name: "WorkspaceService",
+  fullName: "host.WorkspaceService",
   methods: {
     /** Returns a list of the top level directories of the workspace. */
     getWorkspacePaths: {
-      name: 'getWorkspacePaths',
+      name: "getWorkspacePaths",
       requestType: GetWorkspacePathsRequest,
       requestStream: false,
       responseType: GetWorkspacePathsResponse,
@@ -1523,7 +1523,7 @@ export const WorkspaceServiceDefinition = {
      * need to be saved.
      */
     saveOpenDocumentIfDirty: {
-      name: 'saveOpenDocumentIfDirty',
+      name: "saveOpenDocumentIfDirty",
       requestType: SaveOpenDocumentIfDirtyRequest,
       requestStream: false,
       responseType: SaveOpenDocumentIfDirtyResponse,
@@ -1532,7 +1532,7 @@ export const WorkspaceServiceDefinition = {
     },
     /** Get diagnostics from the workspace. */
     getDiagnostics: {
-      name: 'getDiagnostics',
+      name: "getDiagnostics",
       requestType: GetDiagnosticsRequest,
       requestStream: false,
       responseType: GetDiagnosticsResponse,
@@ -1541,7 +1541,7 @@ export const WorkspaceServiceDefinition = {
     },
     /** Makes the problems panel/pane visible in the IDE and focuses it. */
     openProblemsPanel: {
-      name: 'openProblemsPanel',
+      name: "openProblemsPanel",
       requestType: OpenProblemsPanelRequest,
       requestStream: false,
       responseType: OpenProblemsPanelResponse,
@@ -1550,7 +1550,7 @@ export const WorkspaceServiceDefinition = {
     },
     /** Opens the IDE file explorer panel and selects a file or directory. */
     openInFileExplorerPanel: {
-      name: 'openInFileExplorerPanel',
+      name: "openInFileExplorerPanel",
       requestType: OpenInFileExplorerPanelRequest,
       requestStream: false,
       responseType: OpenInFileExplorerPanelResponse,
@@ -1559,7 +1559,7 @@ export const WorkspaceServiceDefinition = {
     },
     /** Opens and focuses the Cline sidebar panel in the host IDE. */
     openClineSidebarPanel: {
-      name: 'openClineSidebarPanel',
+      name: "openClineSidebarPanel",
       requestType: OpenClineSidebarPanelRequest,
       requestStream: false,
       responseType: OpenClineSidebarPanelResponse,
@@ -1568,7 +1568,7 @@ export const WorkspaceServiceDefinition = {
     },
     /** Opens and focuses the terminal panel. */
     openTerminalPanel: {
-      name: 'openTerminalPanel',
+      name: "openTerminalPanel",
       requestType: OpenTerminalRequest,
       requestStream: false,
       responseType: OpenTerminalResponse,
@@ -1577,7 +1577,7 @@ export const WorkspaceServiceDefinition = {
     },
     /** Executes a command in a new terminal */
     executeCommandInTerminal: {
-      name: 'executeCommandInTerminal',
+      name: "executeCommandInTerminal",
       requestType: ExecuteCommandInTerminalRequest,
       requestStream: false,
       responseType: ExecuteCommandInTerminalResponse,
@@ -1586,7 +1586,7 @@ export const WorkspaceServiceDefinition = {
     },
     /** Opens a folder/workspace in the IDE */
     openFolder: {
-      name: 'openFolder',
+      name: "openFolder",
       requestType: OpenFolderRequest,
       requestStream: false,
       responseType: OpenFolderResponse,

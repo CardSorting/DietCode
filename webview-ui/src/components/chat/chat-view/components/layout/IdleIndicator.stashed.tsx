@@ -10,8 +10,8 @@
  * 3. Add the indicator to the Virtuoso Footer component
  */
 
-import type { ClineMessage } from '@shared/ExtensionMessage.ts';
-import { useEffect, useRef, useState } from 'react';
+import type { ClineMessage } from "@shared/ExtensionMessage.ts";
+import { useEffect, useRef, useState } from "react";
 
 // Idle timeout in milliseconds before showing indicator
 const IDLE_TIMEOUT_MS = 3000;
@@ -37,9 +37,9 @@ export function useIdleIndicator(
     // Check if task is complete
     const isTaskComplete = clineMessages.some(
       (msg) =>
-        msg.ask === 'completion_result' ||
-        msg.say === 'completion_result' ||
-        msg.ask === 'plan_mode_respond',
+        msg.ask === "completion_result" ||
+        msg.say === "completion_result" ||
+        msg.ask === "plan_mode_respond",
     );
 
     if (isTaskComplete) {
@@ -49,7 +49,7 @@ export function useIdleIndicator(
       return;
     }
 
-    console.log('[IdleIndicator] Setting up MutationObserver');
+    console.log("[IdleIndicator] Setting up MutationObserver");
 
     const resetIdleTimer = () => {
       // Clear existing timer
@@ -75,7 +75,7 @@ export function useIdleIndicator(
 
       // Start new timer for remaining duration
       idleTimerRef.current = setTimeout(() => {
-        console.log('[IdleIndicator] DOM idle for 3s, showing indicator');
+        console.log("[IdleIndicator] DOM idle for 3s, showing indicator");
         setShowIdleIndicator(true);
       }, remaining);
     };
@@ -85,9 +85,9 @@ export function useIdleIndicator(
       // Only reset timer if there are actual content changes
       const hasContentChange = mutations.some((mutation) => {
         return (
-          mutation.type === 'childList' ||
-          mutation.type === 'characterData' ||
-          (mutation.type === 'attributes' && mutation.attributeName !== 'style')
+          mutation.type === "childList" ||
+          mutation.type === "characterData" ||
+          (mutation.type === "attributes" && mutation.attributeName !== "style")
         );
       });
 
@@ -107,7 +107,7 @@ export function useIdleIndicator(
     resetIdleTimer();
 
     return () => {
-      console.log('[IdleIndicator] Cleaning up MutationObserver');
+      console.log("[IdleIndicator] Cleaning up MutationObserver");
       observer.disconnect();
       if (idleTimerRef.current) {
         clearTimeout(idleTimerRef.current);

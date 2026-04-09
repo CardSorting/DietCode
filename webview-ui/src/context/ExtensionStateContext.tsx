@@ -1,8 +1,8 @@
-import { DEFAULT_AUTO_APPROVAL_SETTINGS } from '@shared/AutoApprovalSettings.ts';
-import { DEFAULT_BROWSER_SETTINGS } from '@shared/BrowserSettings.ts';
-import { DEFAULT_PLATFORM, type ExtensionState } from '@shared/ExtensionMessage.ts';
-import { DEFAULT_FOCUS_CHAIN_SETTINGS } from '@shared/FocusChainSettings.ts';
-import { DEFAULT_MCP_DISPLAY_MODE } from '@shared/McpDisplayMode.ts';
+import { DEFAULT_AUTO_APPROVAL_SETTINGS } from "@shared/AutoApprovalSettings.ts";
+import { DEFAULT_BROWSER_SETTINGS } from "@shared/BrowserSettings.ts";
+import { DEFAULT_PLATFORM, type ExtensionState } from "@shared/ExtensionMessage.ts";
+import { DEFAULT_FOCUS_CHAIN_SETTINGS } from "@shared/FocusChainSettings.ts";
+import { DEFAULT_MCP_DISPLAY_MODE } from "@shared/McpDisplayMode.ts";
 import {
   type ModelInfo,
   basetenDefaultModelId,
@@ -13,25 +13,25 @@ import {
   openRouterDefaultModelInfo,
   requestyDefaultModelId,
   requestyDefaultModelInfo,
-} from '@shared/api';
-import { findLastIndex } from '@shared/array.ts';
-import { Environment } from '@shared/config-types.ts';
-import type { McpMarketplaceCatalog, McpServer, McpViewTab } from '@shared/mcp';
-import type { UserInfo } from '@shared/nice-grpc/cline/account';
-import { EmptyRequest } from '@shared/nice-grpc/cline/common.ts';
-import type { OpenRouterCompatibleModelInfo } from '@shared/nice-grpc/cline/models';
-import type { OnboardingModelGroup, TerminalProfile } from '@shared/nice-grpc/cline/state.ts';
-import { convertProtoToClineMessage } from '@shared/proto-conversions/cline-message.ts';
-import { convertProtoMcpServersToMcpServers } from '@shared/proto-conversions/mcp/mcp-server-conversion.ts';
-import { fromProtobufModels } from '@shared/proto-conversions/models/typeConversion.ts';
-import type React from 'react';
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+} from "@shared/api";
+import { findLastIndex } from "@shared/array.ts";
+import { Environment } from "@shared/config-types.ts";
+import type { McpMarketplaceCatalog, McpServer, McpViewTab } from "@shared/mcp";
+import type { UserInfo } from "@shared/nice-grpc/cline/account";
+import { EmptyRequest } from "@shared/nice-grpc/cline/common.ts";
+import type { OpenRouterCompatibleModelInfo } from "@shared/nice-grpc/cline/models";
+import type { OnboardingModelGroup, TerminalProfile } from "@shared/nice-grpc/cline/state.ts";
+import { convertProtoToClineMessage } from "@shared/proto-conversions/cline-message.ts";
+import { convertProtoMcpServersToMcpServers } from "@shared/proto-conversions/mcp/mcp-server-conversion.ts";
+import { fromProtobufModels } from "@shared/proto-conversions/models/typeConversion.ts";
+import type React from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
   McpServiceClient,
   ModelsServiceClient,
   StateServiceClient,
   UiServiceClient,
-} from '../services/grpc-client';
+} from "../services/grpc-client";
 
 export interface ExtensionStateContextType extends ExtensionState {
   didHydrateState: boolean;
@@ -60,7 +60,7 @@ export interface ExtensionStateContextType extends ExtensionState {
   mcpTab?: McpViewTab;
   showSettings: boolean;
   settingsTargetSection?: string;
-  settingsInitialModelTab?: 'recommended' | 'free';
+  settingsInitialModelTab?: "recommended" | "free";
   showHistory: boolean;
   showAccount: boolean;
   showWorktrees: boolean;
@@ -109,7 +109,7 @@ export interface ExtensionStateContextType extends ExtensionState {
   navigateToSettings: (targetSection?: string) => void;
   navigateToSettingsModelPicker: (opts: {
     targetSection?: string;
-    initialModelTab?: 'recommended' | 'free';
+    initialModelTab?: "recommended" | "free";
   }) => void;
   navigateToHistory: () => void;
   navigateToAccount: () => void;
@@ -141,7 +141,7 @@ export const ExtensionStateContextProvider: React.FC<{
   const [showSettings, setShowSettings] = useState(false);
   const [settingsTargetSection, setSettingsTargetSection] = useState<string | undefined>(undefined);
   const [settingsInitialModelTab, setSettingsInitialModelTab] = useState<
-    'recommended' | 'free' | undefined
+    "recommended" | "free" | undefined
   >(undefined);
   const [showHistory, setShowHistory] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
@@ -194,7 +194,7 @@ export const ExtensionStateContextProvider: React.FC<{
   );
 
   const navigateToSettingsModelPicker = useCallback(
-    (opts: { targetSection?: string; initialModelTab?: 'recommended' | 'free' }) => {
+    (opts: { targetSection?: string; initialModelTab?: "recommended" | "free" }) => {
       setShowHistory(false);
       closeMcpView();
       setShowAccount(false);
@@ -239,19 +239,19 @@ export const ExtensionStateContextProvider: React.FC<{
   }, [setShowSettings, closeMcpView, setShowHistory, setShowAccount, setShowWorktrees]);
 
   const [state, setState] = useState<ExtensionState>({
-    version: '',
+    version: "",
     clineMessages: [],
     taskHistory: [],
     shouldShowAnnouncement: false,
     autoApprovalSettings: DEFAULT_AUTO_APPROVAL_SETTINGS,
     browserSettings: DEFAULT_BROWSER_SETTINGS,
     focusChainSettings: DEFAULT_FOCUS_CHAIN_SETTINGS,
-    preferredLanguage: 'English',
-    mode: 'act',
+    preferredLanguage: "English",
+    mode: "act",
     platform: DEFAULT_PLATFORM,
     environment: Environment.production,
-    telemetrySetting: 'unset',
-    distinctId: '',
+    telemetrySetting: "unset",
+    distinctId: "",
     planActSeparateModelsSetting: true,
     enableCheckpointsSetting: true,
     mcpDisplayMode: DEFAULT_MCP_DISPLAY_MODE,
@@ -264,10 +264,10 @@ export const ExtensionStateContextProvider: React.FC<{
     globalWorkflowToggles: {},
     shellIntegrationTimeout: 4000,
     terminalReuseEnabled: true,
-    vscodeTerminalExecutionMode: 'vscodeTerminal',
+    vscodeTerminalExecutionMode: "vscodeTerminal",
     terminalOutputLineLimit: 500,
     maxConsecutiveMistakes: 3,
-    defaultTerminalProfile: 'default',
+    defaultTerminalProfile: "default",
     isNewUser: false,
     welcomeViewCompleted: false,
     onboardingModels: undefined,
@@ -407,17 +407,17 @@ export const ExtensionStateContextProvider: React.FC<{
               return newState;
             });
           } catch (error) {
-            console.error('Error parsing state JSON:', error);
-            console.log('[DEBUG] ERR getting state', error);
+            console.error("Error parsing state JSON:", error);
+            console.log("[DEBUG] ERR getting state", error);
           }
         }
         console.log('[DEBUG] ended "got subscribed state"');
       },
       onError: (error) => {
-        console.error('Error in state subscription:', error);
+        console.error("Error in state subscription:", error);
       },
       onComplete: () => {
-        console.log('State subscription completed');
+        console.log("State subscription completed");
       },
     });
 
@@ -426,14 +426,14 @@ export const ExtensionStateContextProvider: React.FC<{
       {},
       {
         onResponse: () => {
-          console.log('[DEBUG] Received mcpButtonClicked event from gRPC stream');
+          console.log("[DEBUG] Received mcpButtonClicked event from gRPC stream");
           navigateToMcp();
         },
         onError: (error) => {
-          console.error('Error in mcpButtonClicked subscription:', error);
+          console.error("Error in mcpButtonClicked subscription:", error);
         },
         onComplete: () => {
-          console.log('mcpButtonClicked subscription completed');
+          console.log("mcpButtonClicked subscription completed");
         },
       },
     );
@@ -444,14 +444,14 @@ export const ExtensionStateContextProvider: React.FC<{
       {
         onResponse: () => {
           // When history button is clicked, navigate to history view
-          console.log('[DEBUG] Received history button clicked event from gRPC stream');
+          console.log("[DEBUG] Received history button clicked event from gRPC stream");
           navigateToHistory();
         },
         onError: (error) => {
-          console.error('Error in history button clicked subscription:', error);
+          console.error("Error in history button clicked subscription:", error);
         },
         onComplete: () => {
-          console.log('History button clicked subscription completed');
+          console.log("History button clicked subscription completed");
         },
       },
     );
@@ -462,11 +462,11 @@ export const ExtensionStateContextProvider: React.FC<{
       {
         onResponse: () => {
           // When chat button is clicked, navigate to chat
-          console.log('[DEBUG] Received chat button clicked event from gRPC stream');
+          console.log("[DEBUG] Received chat button clicked event from gRPC stream");
           navigateToChat();
         },
         onError: (error) => {
-          console.error('Error in chat button subscription:', error);
+          console.error("Error in chat button subscription:", error);
         },
         onComplete: () => {},
       },
@@ -477,16 +477,16 @@ export const ExtensionStateContextProvider: React.FC<{
       EmptyRequest.create(),
       {
         onResponse: (response) => {
-          console.log('[DEBUG] Received MCP servers update from gRPC stream');
+          console.log("[DEBUG] Received MCP servers update from gRPC stream");
           if (response.mcpServers) {
             setMcpServers(convertProtoMcpServersToMcpServers(response.mcpServers));
           }
         },
         onError: (error) => {
-          console.error('Error in MCP servers subscription:', error);
+          console.error("Error in MCP servers subscription:", error);
         },
         onComplete: () => {
-          console.log('MCP servers subscription completed');
+          console.log("MCP servers subscription completed");
         },
       },
     );
@@ -500,10 +500,10 @@ export const ExtensionStateContextProvider: React.FC<{
           navigateToSettings();
         },
         onError: (error) => {
-          console.error('Error in settings button clicked subscription:', error);
+          console.error("Error in settings button clicked subscription:", error);
         },
         onComplete: () => {
-          console.log('Settings button clicked subscription completed');
+          console.log("Settings button clicked subscription completed");
         },
       },
     );
@@ -516,10 +516,10 @@ export const ExtensionStateContextProvider: React.FC<{
           navigateToWorktrees();
         },
         onError: (error) => {
-          console.error('Error in worktrees button clicked subscription:', error);
+          console.error("Error in worktrees button clicked subscription:", error);
         },
         onComplete: () => {
-          console.log('Worktrees button clicked subscription completed');
+          console.log("Worktrees button clicked subscription completed");
         },
       });
 
@@ -531,7 +531,7 @@ export const ExtensionStateContextProvider: React.FC<{
           try {
             // Validate critical fields
             if (!protoMessage.ts || protoMessage.ts <= 0) {
-              console.error('Invalid timestamp in partial message:', protoMessage);
+              console.error("Invalid timestamp in partial message:", protoMessage);
               return;
             }
 
@@ -550,14 +550,14 @@ export const ExtensionStateContextProvider: React.FC<{
               return prevState;
             });
           } catch (error) {
-            console.error('Failed to process partial message:', error, protoMessage);
+            console.error("Failed to process partial message:", error, protoMessage);
           }
         },
         onError: (error) => {
-          console.error('Error in partialMessage subscription:', error);
+          console.error("Error in partialMessage subscription:", error);
         },
         onComplete: () => {
-          console.log('[DEBUG] partialMessage subscription completed');
+          console.log("[DEBUG] partialMessage subscription completed");
         },
       },
     );
@@ -567,14 +567,14 @@ export const ExtensionStateContextProvider: React.FC<{
       EmptyRequest.create({}),
       {
         onResponse: (catalog) => {
-          console.log('[DEBUG] Received MCP marketplace catalog update from gRPC stream');
+          console.log("[DEBUG] Received MCP marketplace catalog update from gRPC stream");
           setMcpMarketplaceCatalog(catalog);
         },
         onError: (error) => {
-          console.error('Error in MCP marketplace catalog subscription:', error);
+          console.error("Error in MCP marketplace catalog subscription:", error);
         },
         onComplete: () => {
-          console.log('MCP marketplace catalog subscription completed');
+          console.log("MCP marketplace catalog subscription completed");
         },
       },
     );
@@ -591,10 +591,10 @@ export const ExtensionStateContextProvider: React.FC<{
           });
         },
         onError: (error) => {
-          console.error('Error in OpenRouter models subscription:', error);
+          console.error("Error in OpenRouter models subscription:", error);
         },
         onComplete: () => {
-          console.log('OpenRouter models subscription completed');
+          console.log("OpenRouter models subscription completed");
         },
       },
     );
@@ -608,10 +608,10 @@ export const ExtensionStateContextProvider: React.FC<{
           setLiteLlmModels(models);
         },
         onError: (error) => {
-          console.error('Error in LiteLLM models subscription:', error);
+          console.error("Error in LiteLLM models subscription:", error);
         },
         onComplete: () => {
-          console.log('LiteLLM models subscription completed');
+          console.log("LiteLLM models subscription completed");
         },
       },
     );
@@ -619,10 +619,10 @@ export const ExtensionStateContextProvider: React.FC<{
     // Initialize webview using gRPC
     UiServiceClient.initializeWebview(EmptyRequest.create({}))
       .then(() => {
-        console.log('[DEBUG] Webview initialization completed via gRPC');
+        console.log("[DEBUG] Webview initialization completed via gRPC");
       })
       .catch((error) => {
-        console.error('Failed to initialize webview via gRPC:', error);
+        console.error("Failed to initialize webview via gRPC:", error);
       });
 
     // Set up account button clicked subscription
@@ -631,14 +631,14 @@ export const ExtensionStateContextProvider: React.FC<{
       {
         onResponse: () => {
           // When account button is clicked, navigate to account view
-          console.log('[DEBUG] Received account button clicked event from gRPC stream');
+          console.log("[DEBUG] Received account button clicked event from gRPC stream");
           navigateToAccount();
         },
         onError: (error) => {
-          console.error('Error in account button clicked subscription:', error);
+          console.error("Error in account button clicked subscription:", error);
         },
         onComplete: () => {
-          console.log('Account button clicked subscription completed');
+          console.log("Account button clicked subscription completed");
         },
       },
     );
@@ -649,7 +649,7 @@ export const ExtensionStateContextProvider: React.FC<{
         setAvailableTerminalProfiles(response.profiles);
       })
       .catch((error) => {
-        console.error('Failed to fetch available terminal profiles:', error);
+        console.error("Failed to fetch available terminal profiles:", error);
       });
 
     // Subscribe to relinquish control events
@@ -663,7 +663,7 @@ export const ExtensionStateContextProvider: React.FC<{
           });
         },
         onError: (error) => {
-          console.error('Error in relinquishControl subscription:', error);
+          console.error("Error in relinquishControl subscription:", error);
         },
         onComplete: () => {},
       },
@@ -739,7 +739,7 @@ export const ExtensionStateContextProvider: React.FC<{
           ...models,
         });
       })
-      .catch((error: Error) => console.error('Failed to refresh OpenRouter models:', error));
+      .catch((error: Error) => console.error("Failed to refresh OpenRouter models:", error));
   }, []);
 
   const refreshHicapModels = useCallback(() => {
@@ -750,7 +750,7 @@ export const ExtensionStateContextProvider: React.FC<{
           ...models,
         });
       })
-      .catch((error: Error) => console.error('Failed to refresh Hicap models:', error));
+      .catch((error: Error) => console.error("Failed to refresh Hicap models:", error));
   }, []);
 
   const refreshLiteLlmModels = useCallback(() => {
@@ -759,7 +759,7 @@ export const ExtensionStateContextProvider: React.FC<{
         const models = fromProtobufModels(response.models);
         setLiteLlmModels(models);
       })
-      .catch((error: Error) => console.error('Failed to refresh LiteLLM models:', error));
+      .catch((error: Error) => console.error("Failed to refresh LiteLLM models:", error));
   }, []);
 
   const refreshBasetenModels = useCallback(() => {
@@ -770,7 +770,7 @@ export const ExtensionStateContextProvider: React.FC<{
           ...fromProtobufModels(response.models),
         });
       })
-      .catch((err) => console.error('Failed to refresh Baseten models:', err));
+      .catch((err) => console.error("Failed to refresh Baseten models:", err));
   }, []);
 
   const refreshVercelAiGatewayModels = useCallback(() => {
@@ -779,7 +779,7 @@ export const ExtensionStateContextProvider: React.FC<{
         const models = fromProtobufModels(response.models);
         setVercelAiGatewayModels(models);
       })
-      .catch((error: Error) => console.error('Failed to refresh Vercel AI Gateway models:', error));
+      .catch((error: Error) => console.error("Failed to refresh Vercel AI Gateway models:", error));
   }, []);
 
   // Auto-refresh model lists on API key availability
@@ -812,14 +812,14 @@ export const ExtensionStateContextProvider: React.FC<{
         const models = fromProtobufModels(response.models);
         setClineModels((prev) => (Object.keys(models).length > 0 ? models : (prev ?? null)));
       })
-      .catch((error: Error) => console.error('Failed to refresh Cline models:', error));
+      .catch((error: Error) => console.error("Failed to refresh Cline models:", error));
   }, []);
 
   // Auto-refresh Cline models when provider is cline
   useEffect(() => {
     const hasClineProvider =
-      state.apiConfiguration?.actModeApiProvider === 'cline' ||
-      state.apiConfiguration?.planModeApiProvider === 'cline';
+      state.apiConfiguration?.actModeApiProvider === "cline" ||
+      state.apiConfiguration?.planModeApiProvider === "cline";
     if (hasClineProvider && clineModels === null) {
       refreshClineModels();
     }
@@ -977,7 +977,7 @@ export const ExtensionStateContextProvider: React.FC<{
 export const useExtensionState = () => {
   const context = useContext(ExtensionStateContext);
   if (context === undefined) {
-    throw new Error('useExtensionState must be used within an ExtensionStateContextProvider');
+    throw new Error("useExtensionState must be used within an ExtensionStateContextProvider");
   }
   return context;
 };

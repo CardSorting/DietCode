@@ -1,9 +1,9 @@
-import { VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
-import Fuse from 'fuse.js';
-import type React from 'react';
-import { type KeyboardEvent, memo, useEffect, useMemo, useRef, useState } from 'react';
-import styled from 'styled-components';
-import { highlight } from '../history/HistoryView';
+import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import Fuse from "fuse.js";
+import type React from "react";
+import { type KeyboardEvent, memo, useEffect, useMemo, useRef, useState } from "react";
+import styled from "styled-components";
+import { highlight } from "../history/HistoryView";
 
 export const OLLAMA_MODEL_PICKER_Z_INDEX = 1_000;
 
@@ -18,9 +18,9 @@ const OllamaModelPicker: React.FC<OllamaModelPickerProps> = ({
   ollamaModels,
   selectedModelId,
   onModelChange,
-  placeholder = 'Search and select a model...',
+  placeholder = "Search and select a model...",
 }) => {
-  const [searchTerm, setSearchTerm] = useState(selectedModelId || '');
+  const [searchTerm, setSearchTerm] = useState(selectedModelId || "");
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -39,9 +39,9 @@ const OllamaModelPicker: React.FC<OllamaModelPickerProps> = ({
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -54,7 +54,7 @@ const OllamaModelPicker: React.FC<OllamaModelPickerProps> = ({
 
   const fuse = useMemo(() => {
     return new Fuse(searchableItems, {
-      keys: ['html'],
+      keys: ["html"],
       threshold: 0.6,
       shouldSort: true,
       isCaseSensitive: false,
@@ -66,7 +66,7 @@ const OllamaModelPicker: React.FC<OllamaModelPickerProps> = ({
 
   const modelSearchResults = useMemo(() => {
     return searchTerm
-      ? highlight(fuse.search(searchTerm), 'ollama-model-item-highlight')
+      ? highlight(fuse.search(searchTerm), "ollama-model-item-highlight")
       : searchableItems;
   }, [searchableItems, searchTerm, fuse]);
 
@@ -76,22 +76,22 @@ const OllamaModelPicker: React.FC<OllamaModelPickerProps> = ({
     }
 
     switch (event.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         event.preventDefault();
         setSelectedIndex((prev) => (prev < modelSearchResults.length - 1 ? prev + 1 : prev));
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         event.preventDefault();
         setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
         break;
-      case 'Enter':
+      case "Enter":
         event.preventDefault();
         if (selectedIndex >= 0 && selectedIndex < modelSearchResults.length) {
           handleModelChange(modelSearchResults[selectedIndex].id);
           setIsDropdownVisible(false);
         }
         break;
-      case 'Escape':
+      case "Escape":
         setIsDropdownVisible(false);
         setSelectedIndex(-1);
         break;
@@ -108,8 +108,8 @@ const OllamaModelPicker: React.FC<OllamaModelPickerProps> = ({
   useEffect(() => {
     if (selectedIndex >= 0 && itemRefs.current[selectedIndex]) {
       itemRefs.current[selectedIndex]?.scrollIntoView({
-        block: 'nearest',
-        behavior: 'smooth',
+        block: "nearest",
+        behavior: "smooth",
       });
     }
   }, [selectedIndex]);
@@ -117,12 +117,12 @@ const OllamaModelPicker: React.FC<OllamaModelPickerProps> = ({
   // Update search term when selectedModelId changes externally
   useEffect(() => {
     if (selectedModelId !== searchTerm) {
-      setSearchTerm(selectedModelId || '');
+      setSearchTerm(selectedModelId || "");
     }
   }, [selectedModelId]);
 
   return (
-    <div style={{ width: '100%' }}>
+    <div style={{ width: "100%" }}>
       <style>
         {`
 				.ollama-model-item-highlight {
@@ -136,7 +136,7 @@ const OllamaModelPicker: React.FC<OllamaModelPickerProps> = ({
           id="ollama-model-search"
           onFocus={() => setIsDropdownVisible(true)}
           onInput={(e) => {
-            const value = (e.target as HTMLInputElement)?.value || '';
+            const value = (e.target as HTMLInputElement)?.value || "";
             handleModelChange(value);
             setIsDropdownVisible(true);
           }}
@@ -144,9 +144,9 @@ const OllamaModelPicker: React.FC<OllamaModelPickerProps> = ({
           placeholder={placeholder}
           role="combobox"
           style={{
-            width: '100%',
+            width: "100%",
             zIndex: OLLAMA_MODEL_PICKER_Z_INDEX,
-            position: 'relative',
+            position: "relative",
           }}
           value={searchTerm}
         >
@@ -155,15 +155,15 @@ const OllamaModelPicker: React.FC<OllamaModelPickerProps> = ({
               aria-label="Clear search"
               className="input-icon-button codicon codicon-close"
               onClick={() => {
-                handleModelChange('');
+                handleModelChange("");
                 setIsDropdownVisible(true);
               }}
               slot="end"
               style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '100%',
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100%",
               }}
             />
           )}
@@ -221,7 +221,7 @@ const DropdownItem = styled.div<{ isSelected: boolean }>`
 	word-break: break-all;
 	white-space: normal;
 
-	background-color: ${({ isSelected }) => (isSelected ? 'var(--vscode-list-activeSelectionBackground)' : 'inherit')};
+	background-color: ${({ isSelected }) => (isSelected ? "var(--vscode-list-activeSelectionBackground)" : "inherit")};
 
 	&:hover {
 		background-color: var(--vscode-list-activeSelectionBackground);

@@ -1,16 +1,16 @@
-import { TypewriterText } from '@/components/chat/TypewriterText';
-import { cleanPathPrefix } from '@/components/common/CodeAccordian';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { FileServiceClient } from '@/services/grpc-client';
-import type { ClineMessage, ClineSayTool } from '@shared/ExtensionMessage.ts';
-import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
-import { memo, useCallback, useMemo, useState } from 'react';
+import { TypewriterText } from "@/components/chat/TypewriterText";
+import { cleanPathPrefix } from "@/components/common/CodeAccordian";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { FileServiceClient } from "@/services/grpc-client";
+import type { ClineMessage, ClineSayTool } from "@shared/ExtensionMessage.ts";
+import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
+import { memo, useCallback, useMemo, useState } from "react";
 import {
   getIconByToolName,
   getToolsNotInCurrentActivities,
   isLowStakesTool,
-} from '../../utils/messageUtils';
+} from "../../utils/messageUtils";
 
 interface ToolGroupRendererProps {
   messages: ClineMessage[];
@@ -27,46 +27,46 @@ interface ToolWithReasoning {
 }
 
 const EXPANDABLE_TOOLS = new Set([
-  'listFilesTopLevel',
-  'listFilesRecursive',
-  'listCodeDefinitionNames',
-  'searchFiles',
+  "listFilesTopLevel",
+  "listFilesRecursive",
+  "listCodeDefinitionNames",
+  "searchFiles",
 ]);
 
 // Helper to format activity text for active items (from RequestStartRow logic)
 const getActivityText = (tool: ClineSayTool): string | null => {
-  const cleanedPath = cleanPathPrefix(tool.path || '');
+  const cleanedPath = cleanPathPrefix(tool.path || "");
   const formatSearchRegex = (regex: string, path: string, filePattern?: string): string => {
     const cleanedPath = cleanPathPrefix(path);
     const terms = regex
-      .split('|')
-      .map((t) => t.trim().replace(/\\b/g, '').replace(/\\s\?/g, ' '))
+      .split("|")
+      .map((t) => t.trim().replace(/\\b/g, "").replace(/\\s\?/g, " "))
       .filter(Boolean)
-      .join(' | ');
-    return filePattern && filePattern !== '*'
+      .join(" | ");
+    return filePattern && filePattern !== "*"
       ? `"${terms}" in ${cleanedPath}/ (${filePattern})`
       : `"${terms}" in ${cleanedPath}/`;
   };
 
   switch (tool.tool) {
-    case 'readFile': {
+    case "readFile": {
       if (!tool.path) {
         return null;
       }
       const lineHint =
         tool.readLineStart != null && tool.readLineEnd != null
           ? ` (lines ${tool.readLineStart}-${tool.readLineEnd})`
-          : '';
+          : "";
       return `Reading ${cleanedPath}${lineHint}...`;
     }
-    case 'listFilesTopLevel':
-    case 'listFilesRecursive':
+    case "listFilesTopLevel":
+    case "listFilesRecursive":
       return tool.path ? `Exploring ${cleanedPath}/...` : null;
-    case 'searchFiles':
+    case "searchFiles":
       return tool.regex && tool.path
         ? `Searching ${formatSearchRegex(tool.regex, tool.path, tool.filePattern)}...`
         : null;
-    case 'listCodeDefinitionNames':
+    case "listCodeDefinitionNames":
       return tool.path ? `Analyzing ${cleanedPath}/...` : null;
     default:
       return null;
@@ -79,7 +79,7 @@ const getCurrentActivities = (allMessages: ClineMessage[]): ClineMessage[] => {
   let currentApiReqIndex = -1;
   for (let i = allMessages.length - 1; i >= 0; i--) {
     const msg = allMessages[i];
-    if (msg.say === 'api_req_started' && msg.text) {
+    if (msg.say === "api_req_started" && msg.text) {
       try {
         const info = JSON.parse(msg.text);
         const hasCost = info.cost != null;
@@ -103,7 +103,7 @@ const getCurrentActivities = (allMessages: ClineMessage[]): ClineMessage[] => {
     const msg = allMessages[i];
     // Only collect tools that are currently executing (ask === "tool")
     // Skip completed tools (say === "tool") - they should be in the completed list
-    if (msg.say === 'tool' || msg.ask !== 'tool') {
+    if (msg.say === "tool" || msg.ask !== "tool") {
       continue;
     }
     if (isLowStakesTool(msg)) {
@@ -178,7 +178,7 @@ export const ToolGroupRenderer = memo(
 
     const handleOpenFile = useCallback((filePath: string) => {
       FileServiceClient.openFileRelativePath(StringRequest.create({ value: filePath })).catch(
-        (err) => console.error('Failed to open file:', err),
+        (err) => console.error("Failed to open file:", err),
       );
     }, []);
 
@@ -192,7 +192,7 @@ export const ToolGroupRenderer = memo(
     }
 
     return (
-      <div className={cn('px-4 py-2 ml-1 text-description')}>
+      <div className={cn("px-4 py-2 ml-1 text-description")}>
         {/* Header */}
         <div className="text-[13px] text-description font-semibold mb-1">{summary}:</div>
 
@@ -222,7 +222,7 @@ export const ToolGroupRenderer = memo(
                     <info.icon className="opacity-70 shrink-0 size-[12px]" />
                     <span className="flex-1 min-w-0 whitespace-nowrap overflow-hidden text-ellipsis text-left text-[13px]">
                       <TypewriterText speed={15} text={activityText} />
-                    </span>{' '}
+                    </span>{" "}
                   </Button>
                 </div>
               );
@@ -242,9 +242,9 @@ export const ToolGroupRenderer = memo(
                   <info.icon className="opacity-70 shrink-0 size-[12px]" />
                   <span
                     className={cn(
-                      'flex-1 min-w-0 whitespace-nowrap overflow-hidden text-ellipsis text-left [direction:rtl] text-[13px]',
+                      "flex-1 min-w-0 whitespace-nowrap overflow-hidden text-ellipsis text-left [direction:rtl] text-[13px]",
                       {
-                        '[direction:ltr]': !!info.displayText,
+                        "[direction:ltr]": !!info.displayText,
                       },
                     )}
                   >
@@ -253,7 +253,7 @@ export const ToolGroupRenderer = memo(
                 </Button>
                 {/* Expanded content for folders/search/definitions - file lists only */}
                 {isExpandable && isItemExpanded && content && (
-                  <pre className="m-1 ml-4 text-xs opacity-80 whitespace-pre-wrap break-words p-2 max-h-40 overflow-auto rounded-xs">
+                  <pre className="m-1 ml-4 text-xs opacity-80 whitespace-pre-wrap wrap-break-word p-2 max-h-40 overflow-auto rounded-xs">
                     {content}
                   </pre>
                 )}
@@ -275,7 +275,7 @@ export function buildToolsWithReasoning(messages: ClineMessage[]): ToolWithReaso
 
   for (const msg of messages) {
     // Skip reasoning messages - they should not be in file lists
-    if (msg.say === 'reasoning') {
+    if (msg.say === "reasoning") {
       continue;
     }
 
@@ -283,11 +283,11 @@ export function buildToolsWithReasoning(messages: ClineMessage[]): ToolWithReaso
       const parsedTool = parseToolSafe(msg.text);
       const previous = result.at(-1);
       const supersedesPreviousReadAsk =
-        parsedTool.tool === 'readFile' &&
+        parsedTool.tool === "readFile" &&
         parsedTool.path &&
-        msg.say === 'tool' &&
-        previous?.tool.ask === 'tool' &&
-        previous.parsedTool.tool === 'readFile' &&
+        msg.say === "tool" &&
+        previous?.tool.ask === "tool" &&
+        previous.parsedTool.tool === "readFile" &&
         previous.parsedTool.path === parsedTool.path;
 
       if (supersedesPreviousReadAsk) {
@@ -314,7 +314,7 @@ export function buildToolsWithReasoning(messages: ClineMessage[]): ToolWithReaso
  */
 function parseToolSafe(text: string | undefined): ClineSayTool {
   try {
-    return JSON.parse(text || '{}') as ClineSayTool;
+    return JSON.parse(text || "{}") as ClineSayTool;
   } catch {
     return {} as ClineSayTool;
   }
@@ -325,11 +325,11 @@ function parseToolSafe(text: string | undefined): ClineSayTool {
  */
 function getToolDisplayInfo(tool: ClineSayTool) {
   const icon = getIconByToolName(tool.tool);
-  const filePath = tool.path || '';
+  const filePath = tool.path || "";
   const folderPath = `${filePath}/`;
 
   switch (tool.tool) {
-    case 'readFile': {
+    case "readFile": {
       const lineNote =
         tool.readLineStart != null && tool.readLineEnd != null
           ? `lines ${tool.readLineStart}-${tool.readLineEnd}`
@@ -337,22 +337,22 @@ function getToolDisplayInfo(tool: ClineSayTool) {
       return {
         icon,
         path: filePath,
-        label: 'read',
+        label: "read",
         displayText: lineNote ? `${cleanPathPrefix(filePath)} · ${lineNote}` : undefined,
       };
     }
-    case 'listFilesTopLevel':
-      return { icon, path: folderPath, label: 'listed' };
-    case 'listFilesRecursive':
-      return { icon, path: folderPath, label: 'listed recursively' };
-    case 'listCodeDefinitionNames':
-      return { icon, path: folderPath, label: 'definitions' };
-    case 'searchFiles':
+    case "listFilesTopLevel":
+      return { icon, path: folderPath, label: "listed" };
+    case "listFilesRecursive":
+      return { icon, path: folderPath, label: "listed recursively" };
+    case "listCodeDefinitionNames":
+      return { icon, path: folderPath, label: "definitions" };
+    case "searchFiles":
       return {
         icon,
         path: folderPath,
         label: `search: ${tool.regex}`,
-        displayText: formatSearchDisplay(tool.regex || '', filePath, tool.filePattern),
+        displayText: formatSearchDisplay(tool.regex || "", filePath, tool.filePattern),
       };
     default:
       return null;
@@ -365,14 +365,14 @@ function getToolDisplayInfo(tool: ClineSayTool) {
 function formatSearchDisplay(regex: string, path: string, filePattern?: string): string {
   // Split by | and clean up regex syntax
   const terms = regex
-    .split('|')
-    .map((t) => t.trim().replace(/\\b/g, '').replace(/\\s\?/g, ' '))
+    .split("|")
+    .map((t) => t.trim().replace(/\\b/g, "").replace(/\\s\?/g, " "))
     .filter(Boolean);
 
-  const termDisplay = terms.length > 3 ? `${terms.length} patterns` : `"${terms.join(' | ')}"`;
+  const termDisplay = terms.length > 3 ? `${terms.length} patterns` : `"${terms.join(" | ")}"`;
   let result = `${termDisplay} in ${cleanPathPrefix(path)}/`;
 
-  if (filePattern && filePattern !== '*') {
+  if (filePattern && filePattern !== "*") {
     result += ` (${filePattern})`;
   }
 
@@ -387,37 +387,37 @@ export function getToolGroupSummaryFromParsedTools(tools: ClineSayTool[]): strin
 
   for (const tool of tools) {
     switch (tool.tool) {
-      case 'readFile':
+      case "readFile":
         counts.read++;
         break;
-      case 'listFilesTopLevel':
-      case 'listFilesRecursive':
+      case "listFilesTopLevel":
+      case "listFilesRecursive":
         counts.list++;
         break;
-      case 'searchFiles':
+      case "searchFiles":
         counts.search++;
         break;
-      case 'listCodeDefinitionNames':
+      case "listCodeDefinitionNames":
         counts.def++;
         break;
     }
   }
 
   const parts: string[] = [];
-  const action = counts.read > 0 || counts.list > 0 ? ' read ' : ' ';
+  const action = counts.read > 0 || counts.list > 0 ? " read " : " ";
 
   if (counts.read > 0) {
-    parts.push(`${counts.read} file${counts.read > 1 ? 's' : ''}`);
+    parts.push(`${counts.read} file${counts.read > 1 ? "s" : ""}`);
   }
   if (counts.list > 0) {
-    parts.push(`${counts.list} folder${counts.list > 1 ? 's' : ''}`);
+    parts.push(`${counts.list} folder${counts.list > 1 ? "s" : ""}`);
   }
   if (counts.def > 0) {
-    parts.push(`${counts.def} definition${counts.def > 1 ? 's' : ''}`);
+    parts.push(`${counts.def} definition${counts.def > 1 ? "s" : ""}`);
   }
   if (counts.search > 0) {
-    parts.push(`performed ${counts.search} search${counts.search > 1 ? 'es' : ''}`);
+    parts.push(`performed ${counts.search} search${counts.search > 1 ? "es" : ""}`);
   }
 
-  return parts.length === 0 ? 'Context' : `Cline${action}${parts.join(', ')}`;
+  return parts.length === 0 ? "Context" : `Cline${action}${parts.join(", ")}`;
 }

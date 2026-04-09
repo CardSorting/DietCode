@@ -1,25 +1,25 @@
 // type that represents json data that is sent from extension to webview, called ExtensionMessage and has 'type' enum which can be 'plusButtonClicked' or 'settingsButtonClicked' or 'hello'
 
-import type { WorkspaceRoot } from '@shared/multi-root/types';
-import type { RemoteConfigFields } from '@shared/storage/state-keys';
-import type { Environment } from '../config';
-import type { AutoApprovalSettings } from './AutoApprovalSettings';
-import type { BrowserSettings } from './BrowserSettings';
-import type { ClineFeatureSetting } from './ClineFeatureSetting';
-import type { FocusChainSettings } from './FocusChainSettings';
-import type { HistoryItem } from './HistoryItem';
-import type { McpDisplayMode } from './McpDisplayMode';
-import type { TelemetrySetting } from './TelemetrySetting';
-import type { UserInfo } from './UserInfo';
-import type { ApiConfiguration } from './api';
-import type { ClineRulesToggles } from './cline-rules';
-import type { BannerCardData } from './cline/banner';
-import type { ClineMessageModelInfo } from './messages';
-import type { OnboardingModelGroup } from './proto/cline/state';
-import type { Mode } from './storage/types';
+import type { WorkspaceRoot } from "@shared/multi-root/types";
+import type { RemoteConfigFields } from "@shared/storage/state-keys";
+import type { Environment } from "../config";
+import type { AutoApprovalSettings } from "./AutoApprovalSettings";
+import type { BrowserSettings } from "./BrowserSettings";
+import type { ClineFeatureSetting } from "./ClineFeatureSetting";
+import type { FocusChainSettings } from "./FocusChainSettings";
+import type { HistoryItem } from "./HistoryItem";
+import type { McpDisplayMode } from "./McpDisplayMode";
+import type { TelemetrySetting } from "./TelemetrySetting";
+import type { UserInfo } from "./UserInfo";
+import type { ApiConfiguration } from "./api";
+import type { ClineRulesToggles } from "./cline-rules";
+import type { BannerCardData } from "./cline/banner";
+import type { ClineMessageModelInfo } from "./messages";
+import type { OnboardingModelGroup } from "./proto/cline/state";
+import type { Mode } from "./storage/types";
 // webview will hold state
 export interface ExtensionMessage {
-  type: 'grpc_response'; // New type for gRPC responses
+  type: "grpc_response"; // New type for gRPC responses
   grpc_response?: GrpcResponse;
 }
 
@@ -32,18 +32,18 @@ export type GrpcResponse = {
 };
 
 export type Platform =
-  | 'aix'
-  | 'darwin'
-  | 'freebsd'
-  | 'linux'
-  | 'openbsd'
-  | 'sunos'
-  | 'win32'
-  | 'unknown';
+  | "aix"
+  | "darwin"
+  | "freebsd"
+  | "linux"
+  | "openbsd"
+  | "sunos"
+  | "win32"
+  | "unknown";
 
-export const DEFAULT_PLATFORM = 'unknown';
+export const DEFAULT_PLATFORM = "unknown";
 
-export const COMMAND_CANCEL_TOKEN = '__cline_command_cancel__';
+export const COMMAND_CANCEL_TOKEN = "__cline_command_cancel__";
 export interface ExtensionState {
   isNewUser: boolean;
   welcomeViewCompleted: boolean;
@@ -125,7 +125,7 @@ export interface ExtensionState {
 
 export interface ClineMessage {
   ts: number;
-  type: 'ask' | 'say';
+  type: "ask" | "say";
   ask?: ClineAsk;
   say?: ClineSay;
   text?: string;
@@ -143,79 +143,79 @@ export interface ClineMessage {
 }
 
 export type ClineAsk =
-  | 'followup'
-  | 'plan_mode_respond'
-  | 'act_mode_respond'
-  | 'command'
-  | 'command_output'
-  | 'completion_result'
-  | 'tool'
-  | 'api_req_failed'
-  | 'resume_task'
-  | 'resume_completed_task'
-  | 'mistake_limit_reached'
-  | 'browser_action_launch'
-  | 'use_mcp_server'
-  | 'new_task'
-  | 'condense'
-  | 'summarize_task'
-  | 'report_bug'
-  | 'use_subagents';
+  | "followup"
+  | "plan_mode_respond"
+  | "act_mode_respond"
+  | "command"
+  | "command_output"
+  | "completion_result"
+  | "tool"
+  | "api_req_failed"
+  | "resume_task"
+  | "resume_completed_task"
+  | "mistake_limit_reached"
+  | "browser_action_launch"
+  | "use_mcp_server"
+  | "new_task"
+  | "condense"
+  | "summarize_task"
+  | "report_bug"
+  | "use_subagents";
 
 export type ClineSay =
-  | 'task'
-  | 'error'
-  | 'error_retry'
-  | 'api_req_started'
-  | 'api_req_finished'
-  | 'text'
-  | 'reasoning'
-  | 'completion_result'
-  | 'user_feedback'
-  | 'user_feedback_diff'
-  | 'api_req_retried'
-  | 'command'
-  | 'command_output'
-  | 'tool'
-  | 'shell_integration_warning'
-  | 'shell_integration_warning_with_suggestion'
-  | 'browser_action_launch'
-  | 'browser_action'
-  | 'browser_action_result'
-  | 'mcp_server_request_started'
-  | 'mcp_server_response'
-  | 'mcp_notification'
-  | 'use_mcp_server'
-  | 'diff_error'
-  | 'deleted_api_reqs'
-  | 'clineignore_error'
-  | 'command_permission_denied'
-  | 'checkpoint_created'
-  | 'load_mcp_documentation'
-  | 'generate_explanation'
-  | 'info' // Added for general informational messages like retry status
-  | 'task_progress'
-  | 'hook_status'
-  | 'hook_output_stream'
-  | 'subagent'
-  | 'use_subagents'
-  | 'subagent_usage'
-  | 'conditional_rules_applied';
+  | "task"
+  | "error"
+  | "error_retry"
+  | "api_req_started"
+  | "api_req_finished"
+  | "text"
+  | "reasoning"
+  | "completion_result"
+  | "user_feedback"
+  | "user_feedback_diff"
+  | "api_req_retried"
+  | "command"
+  | "command_output"
+  | "tool"
+  | "shell_integration_warning"
+  | "shell_integration_warning_with_suggestion"
+  | "browser_action_launch"
+  | "browser_action"
+  | "browser_action_result"
+  | "mcp_server_request_started"
+  | "mcp_server_response"
+  | "mcp_notification"
+  | "use_mcp_server"
+  | "diff_error"
+  | "deleted_api_reqs"
+  | "clineignore_error"
+  | "command_permission_denied"
+  | "checkpoint_created"
+  | "load_mcp_documentation"
+  | "generate_explanation"
+  | "info" // Added for general informational messages like retry status
+  | "task_progress"
+  | "hook_status"
+  | "hook_output_stream"
+  | "subagent"
+  | "use_subagents"
+  | "subagent_usage"
+  | "conditional_rules_applied";
 
 export interface ClineSayTool {
   tool:
-    | 'editedExistingFile'
-    | 'newFileCreated'
-    | 'fileDeleted'
-    | 'readFile'
-    | 'listFilesTopLevel'
-    | 'listFilesRecursive'
-    | 'listCodeDefinitionNames'
-    | 'searchFiles'
-    | 'webFetch'
-    | 'webSearch'
-    | 'summarizeTask'
-    | 'useSkill';
+    | "editedExistingFile"
+    | "newFileCreated"
+    | "fileDeleted"
+    | "readFile"
+    | "listFilesTopLevel"
+    | "listFilesRecursive"
+    | "listCodeDefinitionNames"
+    | "searchFiles"
+    | "webFetch"
+    | "webSearch"
+    | "summarizeTask"
+    | "useSkill";
   path?: string;
   diff?: string;
   content?: string;
@@ -232,7 +232,7 @@ export interface ClineSayTool {
 export interface ClineSayHook {
   hookName: string; // Name of the hook (e.g., "PreToolUse", "PostToolUse")
   toolName?: string; // Tool name if applicable (for PreToolUse/PostToolUse)
-  status: 'running' | 'completed' | 'failed' | 'cancelled'; // Execution status
+  status: "running" | "completed" | "failed" | "cancelled"; // Execution status
   exitCode?: number; // Exit code when completed
   hasJsonResponse?: boolean; // Whether a JSON response was parsed
   // Pending tool information (only present during PreToolUse "running" status)
@@ -250,7 +250,7 @@ export interface ClineSayHook {
   };
   // Structured error information (only present when status is "failed")
   error?: {
-    type: 'timeout' | 'validation' | 'execution' | 'cancellation'; // Type of error
+    type: "timeout" | "validation" | "execution" | "cancellation"; // Type of error
     message: string; // User-friendly error message
     details?: string; // Technical details for expansion
     scriptPath?: string; // Path to the hook script
@@ -259,19 +259,19 @@ export interface ClineSayHook {
 
 export type HookOutputStreamMeta = {
   /** Which hook configuration the script originated from (global vs workspace). */
-  source: 'global' | 'workspace';
+  source: "global" | "workspace";
   /** Full path to the hook script that emitted the output. */
   scriptPath: string;
 };
 
 // must keep in sync with system prompt
 export const browserActions = [
-  'launch',
-  'click',
-  'type',
-  'scroll_down',
-  'scroll_up',
-  'close',
+  "launch",
+  "click",
+  "type",
+  "scroll_down",
+  "scroll_up",
+  "close",
 ] as const;
 export type BrowserAction = (typeof browserActions)[number];
 
@@ -285,11 +285,11 @@ export interface ClineSayGenerateExplanation {
   title: string;
   fromRef: string;
   toRef: string;
-  status: 'generating' | 'complete' | 'error';
+  status: "generating" | "complete" | "error";
   error?: string;
 }
 
-export type SubagentExecutionStatus = 'pending' | 'running' | 'completed' | 'failed';
+export type SubagentExecutionStatus = "pending" | "running" | "completed" | "failed";
 
 export interface SubagentStatusItem {
   index: number;
@@ -308,7 +308,7 @@ export interface SubagentStatusItem {
 }
 
 export interface ClineSaySubagentStatus {
-  status: 'running' | 'completed' | 'failed';
+  status: "running" | "completed" | "failed";
   total: number;
   completed: number;
   successes: number;
@@ -331,7 +331,7 @@ export type BrowserActionResult = {
 
 export interface ClineAskUseMcpServer {
   serverName: string;
-  type: 'use_mcp_tool' | 'access_mcp_resource';
+  type: "use_mcp_tool" | "access_mcp_resource";
   toolName?: string;
   arguments?: string;
   uri?: string;
@@ -375,7 +375,7 @@ export interface ClineApiReqInfo {
 }
 
 export interface ClineSubagentUsageInfo {
-  source: 'subagents';
+  source: "subagents";
   tokensIn: number;
   tokensOut: number;
   cacheWrites: number;
@@ -383,6 +383,6 @@ export interface ClineSubagentUsageInfo {
   cost: number;
 }
 
-export type ClineApiReqCancelReason = 'streaming_failed' | 'user_cancelled' | 'retries_exhausted';
+export type ClineApiReqCancelReason = "streaming_failed" | "user_cancelled" | "retries_exhausted";
 
-export const COMPLETION_RESULT_CHANGES_FLAG = 'HAS_CHANGES';
+export const COMPLETION_RESULT_CHANGES_FLAG = "HAS_CHANGES";

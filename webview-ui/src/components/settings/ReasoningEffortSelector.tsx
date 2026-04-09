@@ -1,21 +1,21 @@
-import { Label } from '@/components/ui/label';
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { useExtensionState } from '@/context/ExtensionStateContext';
+} from "@/components/ui/select";
+import { useExtensionState } from "@/context/ExtensionStateContext";
 import {
   type Mode,
   OPENAI_REASONING_EFFORT_OPTIONS,
   type OpenaiReasoningEffort,
   isOpenaiReasoningEffort,
-} from '@shared/storage/types.ts';
-import { memo } from 'react';
-import { getModeSpecificFields } from './utils/providerUtils';
-import { useApiConfigurationHandlers } from './utils/useApiConfigurationHandlers';
+} from "@shared/storage/types.ts";
+import { memo } from "react";
+import { getModeSpecificFields } from "./utils/providerUtils";
+import { useApiConfigurationHandlers } from "./utils/useApiConfigurationHandlers";
 
 interface ReasoningEffortSelectorProps {
   currentMode: Mode;
@@ -26,8 +26,8 @@ interface ReasoningEffortSelectorProps {
 
 const ReasoningEffortSelector = ({
   currentMode,
-  label = 'Reasoning Effort',
-  description = 'Higher effort improves depth, but uses more tokens.',
+  label = "Reasoning Effort",
+  description = "Higher effort improves depth, but uses more tokens.",
   allowedEfforts = OPENAI_REASONING_EFFORT_OPTIONS,
 }: ReasoningEffortSelectorProps) => {
   const { apiConfiguration } = useExtensionState();
@@ -37,7 +37,7 @@ const ReasoningEffortSelector = ({
     isOpenaiReasoningEffort(modeFields.reasoningEffort) &&
     allowedEfforts.includes(modeFields.reasoningEffort)
       ? modeFields.reasoningEffort
-      : 'medium';
+      : "medium";
 
   return (
     <div style={{ marginTop: 10, marginBottom: 5 }}>
@@ -45,7 +45,7 @@ const ReasoningEffortSelector = ({
       <Select
         onValueChange={(value) =>
           handleModeFieldChange(
-            { plan: 'planModeReasoningEffort', act: 'actModeReasoningEffort' },
+            { plan: "planModeReasoningEffort", act: "actModeReasoningEffort" },
             value,
             currentMode,
           )
@@ -65,10 +65,10 @@ const ReasoningEffortSelector = ({
       </Select>
       <p
         style={{
-          fontSize: '12px',
+          fontSize: "12px",
           marginTop: 3,
           marginBottom: 0,
-          color: 'var(--vscode-descriptionForeground)',
+          color: "var(--vscode-descriptionForeground)",
         }}
       >
         {description}

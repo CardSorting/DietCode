@@ -1,6 +1,6 @@
-import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
-import VSCodeButtonLink from '../common/VSCodeButtonLink';
-import { StyledCreditDisplay } from './StyledCreditDisplay';
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import VSCodeButtonLink from "../common/VSCodeButtonLink";
+import { StyledCreditDisplay } from "./StyledCreditDisplay";
 
 type CreditBalanceProps = {
   balance: number | null;
@@ -30,7 +30,7 @@ export const CreditBalance = ({
         {balance === null ? <span>----</span> : <StyledCreditDisplay balance={balance} />}
         <VSCodeButton
           appearance="icon"
-          className={`mt-1 ${isLoading ? 'animate-spin' : ''}`}
+          className={`mt-1 ${isLoading ? "animate-spin" : ""}`}
           disabled={isLoading}
           onClick={fetchCreditBalance}
         >

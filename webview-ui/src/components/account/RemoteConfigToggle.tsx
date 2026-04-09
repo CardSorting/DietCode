@@ -1,9 +1,9 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { StateServiceClient } from '@/services/grpc-client';
-import { UpdateSettingsRequest, type UserOrganization } from '@shared/nice-grpc/index.cline.ts';
-import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
-import { useRef } from 'react';
-import { isAdminOrOwner } from './helpers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { StateServiceClient } from "@/services/grpc-client";
+import { UpdateSettingsRequest, type UserOrganization } from "@shared/nice-grpc/index.cline.ts";
+import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
+import { useRef } from "react";
+import { isAdminOrOwner } from "./helpers";
 
 export function RemoteConfigToggle({
   activeOrganization,

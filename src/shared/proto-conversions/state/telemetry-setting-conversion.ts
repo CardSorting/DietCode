@@ -1,5 +1,5 @@
-import { TelemetrySettingEnum } from '@shared/proto/cline/state';
-import type { TelemetrySetting } from '../../TelemetrySetting';
+import { TelemetrySettingEnum } from "@shared/proto/cline/state";
+import type { TelemetrySetting } from "../../TelemetrySetting";
 
 /**
  * Converts a domain TelemetrySetting string to a proto TelemetrySettingEnum
@@ -8,11 +8,11 @@ export function convertDomainTelemetrySettingToProto(
   setting: TelemetrySetting,
 ): TelemetrySettingEnum {
   switch (setting) {
-    case 'unset':
+    case "unset":
       return TelemetrySettingEnum.UNSET;
-    case 'enabled':
+    case "enabled":
       return TelemetrySettingEnum.ENABLED;
-    case 'disabled':
+    case "disabled":
       return TelemetrySettingEnum.DISABLED;
     default:
       return TelemetrySettingEnum.UNSET;
@@ -27,12 +27,12 @@ export function convertProtoTelemetrySettingToDomain(
 ): TelemetrySetting {
   switch (setting) {
     case TelemetrySettingEnum.UNSET:
-      return 'unset';
+      return "unset";
     case TelemetrySettingEnum.ENABLED:
-      return 'enabled';
+      return "enabled";
     case TelemetrySettingEnum.DISABLED:
-      return 'disabled';
+      return "disabled";
     default:
-      return 'unset';
+      return "unset";
   }
 }

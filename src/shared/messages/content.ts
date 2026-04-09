@@ -1,15 +1,15 @@
-import type { Anthropic } from '@anthropic-ai/sdk';
-import type { ClineMessageMetricsInfo, ClineMessageModelInfo } from './metrics';
+import type { Anthropic } from "@anthropic-ai/sdk";
+import type { ClineMessageMetricsInfo, ClineMessageModelInfo } from "./metrics";
 
 export type ClinePromptInputContent = string;
 
-export type ClineMessageRole = 'user' | 'assistant';
+export type ClineMessageRole = "user" | "assistant";
 
 export interface ClineReasoningDetailParam {
-  type: 'reasoning.text' | string;
+  type: "reasoning.text" | string;
   text: string;
   signature: string;
-  format: 'anthropic-claude-v1' | string;
+  format: "anthropic-claude-v1" | string;
   index: number;
 }
 
@@ -18,7 +18,7 @@ interface ClineSharedMessageParam {
   call_id?: string;
 }
 
-export const REASONING_DETAILS_PROVIDERS = ['cline', 'openrouter'];
+export const REASONING_DETAILS_PROVIDERS = ["cline", "openrouter"];
 
 /**
  * An extension of Anthropic.MessageParam that includes Cline-specific fields: reasoning_details.
@@ -124,23 +124,23 @@ export interface ClineStorageMessage extends Anthropic.MessageParam {
  */
 export function convertClineStorageToAnthropicMessage(
   clineMessage: ClineStorageMessage,
-  provider = 'anthropic',
+  provider = "anthropic",
 ): Anthropic.MessageParam {
   const { role, content } = clineMessage;
 
   // Handle string content - fast path
-  if (typeof content === 'string') {
+  if (typeof content === "string") {
     return { role, content };
   }
 
   // Removes thinking block that has no signature (invalid thinking block that's incompatible with Anthropic API)
-  const filteredContent = content.filter((b) => b.type !== 'thinking' || !!b.signature);
+  const filteredContent = content.filter((b) => b.type !== "thinking" || !!b.signature);
 
   // Handle array content - strip Cline-specific fields for non-reasoning_details providers
   const shouldCleanContent = !REASONING_DETAILS_PROVIDERS.includes(provider);
   const cleanedContent = shouldCleanContent
     ? filteredContent.map(cleanContentBlock)
-    : (filteredContent as Anthropic.MessageParam['content']);
+    : (filteredContent as Anthropic.MessageParam["content"]);
 
   return { role, content: cleanedContent };
 }
@@ -151,10 +151,10 @@ export function convertClineStorageToAnthropicMessage(
 export function cleanContentBlock(block: ClineContent): Anthropic.ContentBlock {
   // Fast path: if no Cline-specific fields exist, return as-is
   const hasClineFields =
-    'reasoning_details' in block ||
-    'call_id' in block ||
-    'summary' in block ||
-    (block.type !== 'thinking' && 'signature' in block);
+    "reasoning_details" in block ||
+    "call_id" in block ||
+    "summary" in block ||
+    (block.type !== "thinking" && "signature" in block);
 
   if (!hasClineFields) {
     return block as Anthropic.ContentBlock;
@@ -164,7 +164,7 @@ export function cleanContentBlock(block: ClineContent): Anthropic.ContentBlock {
   const { reasoning_details, call_id, summary, ...rest } = block as any;
 
   // Remove signature from non-thinking blocks that were added for Gemini
-  if (block.type !== 'thinking' && rest.signature) {
+  if (block.type !== "thinking" && rest.signature) {
     rest.signature = undefined;
   }
 

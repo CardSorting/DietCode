@@ -1,8 +1,8 @@
-import { updateAutoApproveSettings } from '@/components/chat/auto-approve-menu/AutoApproveSettingsAPI';
-import type { ActionMetadata } from '@/components/chat/auto-approve-menu/types';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import type { AutoApprovalSettings } from '@shared/AutoApprovalSettings.ts';
-import { useCallback } from 'react';
+import { updateAutoApproveSettings } from "@/components/chat/auto-approve-menu/AutoApproveSettingsAPI";
+import type { ActionMetadata } from "@/components/chat/auto-approve-menu/types";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import type { AutoApprovalSettings } from "@shared/AutoApprovalSettings.ts";
+import { useCallback } from "react";
 
 export function useAutoApproveActions() {
   const { autoApprovalSettings } = useExtensionState();
@@ -11,7 +11,7 @@ export function useAutoApproveActions() {
   const isChecked = useCallback(
     (action: ActionMetadata): boolean => {
       switch (action.id) {
-        case 'enableNotifications':
+        case "enableNotifications":
           return autoApprovalSettings.enableNotifications;
         default:
           return autoApprovalSettings.actions[action.id] ?? false;
@@ -26,7 +26,7 @@ export function useAutoApproveActions() {
       const actionId = action.id;
       const subActionId = action.subAction?.id;
 
-      if (actionId === 'enableNotifications' || subActionId === 'enableNotifications') {
+      if (actionId === "enableNotifications" || subActionId === "enableNotifications") {
         await updateNotifications(action, value);
         return;
       }
@@ -41,7 +41,7 @@ export function useAutoApproveActions() {
       }
 
       if (value === true && action.parentActionId) {
-        newActions[action.parentActionId as keyof AutoApprovalSettings['actions']] = true;
+        newActions[action.parentActionId as keyof AutoApprovalSettings["actions"]] = true;
       }
 
       await updateAutoApproveSettings({
@@ -56,7 +56,7 @@ export function useAutoApproveActions() {
   // Update notifications setting
   const updateNotifications = useCallback(
     async (action: ActionMetadata, checked: boolean) => {
-      if (action.id === 'enableNotifications') {
+      if (action.id === "enableNotifications") {
         await updateAutoApproveSettings({
           ...autoApprovalSettings,
           version: (autoApprovalSettings.version ?? 1) + 1,

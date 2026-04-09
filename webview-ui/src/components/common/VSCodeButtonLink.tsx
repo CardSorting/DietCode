@@ -1,5 +1,5 @@
-import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
-import type React from 'react';
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import type React from "react";
 
 interface VSCodeButtonLinkProps {
   href: string;
@@ -12,8 +12,8 @@ const VSCodeButtonLink: React.FC<VSCodeButtonLinkProps> = ({ href, children, ...
     <a
       href={href}
       style={{
-        textDecoration: 'none',
-        color: 'inherit',
+        textDecoration: "none",
+        color: "inherit",
       }}
     >
       <VSCodeButton {...props}>{children}</VSCodeButton>

@@ -1,11 +1,11 @@
-import type { ClineMessage } from '@shared/ExtensionMessage';
-import type { Mode } from '@shared/storage/types';
-import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
-import type React from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { VirtuosoHandle } from 'react-virtuoso';
-import { type ButtonActionType, getButtonConfig } from '../../shared/buttonConfig';
-import type { ChatState, MessageHandlers } from '../../types/chatTypes';
+import type { ClineMessage } from "@shared/ExtensionMessage";
+import type { Mode } from "@shared/storage/types";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import type React from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { VirtuosoHandle } from "react-virtuoso";
+import { type ButtonActionType, getButtonConfig } from "../../shared/buttonConfig";
+import type { ChatState, MessageHandlers } from "../../types/chatTypes";
 
 interface ActionButtonsProps {
   task?: ClineMessage;
@@ -58,11 +58,11 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
   // This happens when user provides feedback during command execution
   useEffect(() => {
     if (
-      lastMessage?.type === 'say' &&
-      lastMessage.say === 'api_req_started' &&
-      secondLastMessage?.ask === 'command_output'
+      lastMessage?.type === "say" &&
+      lastMessage.say === "api_req_started" &&
+      secondLastMessage?.ask === "command_output"
     ) {
-      chatState.setInputValue('');
+      chatState.setInputValue("");
       chatState.setSelectedImages([]);
       chatState.setSelectedFiles([]);
     }
@@ -86,18 +86,18 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
   // Keyboard event handler
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         event.preventDefault();
         event.stopPropagation();
-        handleActionClick('cancel');
+        handleActionClick("cancel");
       }
     },
     [handleActionClick],
   );
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
 
   if (!task) {
@@ -122,7 +122,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
     const handleScrollToTop = () => {
       scrollBehavior.virtuosoRef.current?.scrollTo({
         top: 0,
-        behavior: 'smooth',
+        behavior: "smooth",
       });
       disableAutoScrollRef.current = true;
       // Virtual rendering may not have all items rendered when at bottom,
@@ -130,7 +130,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
       setTimeout(() => {
         scrollBehavior.virtuosoRef.current?.scrollTo({
           top: 0,
-          behavior: 'smooth',
+          behavior: "smooth",
         });
       }, 300);
     };
@@ -139,11 +139,11 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
       <div className="flex px-3.5">
         <VSCodeButton
           appearance="icon"
-          aria-label={showScrollToBottom ? 'Scroll to bottom' : 'Scroll to top'}
+          aria-label={showScrollToBottom ? "Scroll to bottom" : "Scroll to top"}
           className="text-lg text-(--vscode-primaryButton-foreground) bg-[color-mix(in_srgb,var(--vscode-toolbar-hoverBackground)_55%,transparent)] rounded-[3px] overflow-hidden cursor-pointer flex justify-center items-center flex-1 h-[25px] hover:bg-[color-mix(in_srgb,var(--vscode-toolbar-hoverBackground)_90%,transparent)] active:bg-[color-mix(in_srgb,var(--vscode-toolbar-hoverBackground)_70%,transparent)] border-0"
           onClick={showScrollToBottom ? handleScrollToBottom : handleScrollToTop}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
+            if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
               if (showScrollToBottom) {
                 handleScrollToBottom();
@@ -170,7 +170,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
       {primaryText && primaryAction && (
         <VSCodeButton
           appearance="primary"
-          className={secondaryText ? 'flex-1 mr-[6px]' : 'flex-2'}
+          className={secondaryText ? "flex-1 mr-[6px]" : "flex-2"}
           disabled={!canInteract}
           onClick={() =>
             handleActionClick(primaryAction, inputValue, selectedImages, selectedFiles)
@@ -182,7 +182,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
       {secondaryText && secondaryAction && (
         <VSCodeButton
           appearance="secondary"
-          className={primaryText ? 'flex-1' : 'flex-2'}
+          className={primaryText ? "flex-1" : "flex-2"}
           disabled={!canInteract}
           onClick={() =>
             handleActionClick(secondaryAction, inputValue, selectedImages, selectedFiles)

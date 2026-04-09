@@ -1,17 +1,17 @@
-import * as os from 'node:os';
-import type { ClineAccountUserInfo } from '@/services/auth/AuthService';
-import { Setting } from '@/shared/proto/index.host';
-import { Logger } from '@/shared/services/Logger';
-import type { Mode } from '@/shared/storage/types';
-import { HostProvider } from '@hosts/host-provider';
-import type { BrowserSettings } from '@shared/BrowserSettings';
-import type { TaskFeedbackType } from '@shared/WebviewMessage';
-import { type ApiFormat, apiFormatToJSON } from '@shared/nice-grpc/cline/models.ts';
-import { ShowMessageType } from '@shared/nice-grpc/host/window.ts';
-import { version as extensionVersion } from '../../../package.json';
-import { setDistinctId } from '../logging/distinctId';
-import { TelemetryProviderFactory } from './TelemetryProviderFactory';
-import type { ITelemetryProvider, TelemetryProperties } from './providers/ITelemetryProvider';
+import * as os from "node:os";
+import type { ClineAccountUserInfo } from "@/services/auth/AuthService";
+import { Setting } from "@/shared/proto/index.host";
+import { Logger } from "@/shared/services/Logger";
+import type { Mode } from "@/shared/storage/types";
+import { HostProvider } from "@hosts/host-provider";
+import type { BrowserSettings } from "@shared/BrowserSettings";
+import type { TaskFeedbackType } from "@shared/WebviewMessage";
+import { type ApiFormat, apiFormatToJSON } from "@shared/nice-grpc/cline/models.ts";
+import { ShowMessageType } from "@shared/nice-grpc/host/window.ts";
+import { version as extensionVersion } from "../../../package.json";
+import { setDistinctId } from "../logging/distinctId";
+import { TelemetryProviderFactory } from "./TelemetryProviderFactory";
+import type { ITelemetryProvider, TelemetryProperties } from "./providers/ITelemetryProvider";
 
 /**
  * Represents telemetry event categories that can be individually enabled or disabled
@@ -19,27 +19,27 @@ import type { ITelemetryProvider, TelemetryProperties } from './providers/ITelem
  * Ensure `if (!this.isCategoryEnabled('<category_name>')` is added to the capture method
  */
 type TelemetryCategory =
-  | 'checkpoints'
-  | 'browser'
-  | 'focus_chain'
-  | 'subagents'
-  | 'skills'
-  | 'hooks';
+  | "checkpoints"
+  | "browser"
+  | "focus_chain"
+  | "subagents"
+  | "skills"
+  | "hooks";
 
 /**
  * Terminal type for telemetry differentiation
  */
-export type TerminalType = 'vscode' | 'standalone';
+export type TerminalType = "vscode" | "standalone";
 
 /**
  * VSCode-specific output capture methods
  */
-export type VscodeOutputMethod = 'shell_integration' | 'clipboard' | 'none';
+export type VscodeOutputMethod = "shell_integration" | "clipboard" | "none";
 
 /**
  * Standalone-specific output capture methods
  */
-export type StandaloneOutputMethod = 'child_process' | 'child_process_error';
+export type StandaloneOutputMethod = "child_process" | "child_process_error";
 
 /**
  * Combined type for terminal output methods
@@ -50,27 +50,27 @@ export type TerminalOutputMethod = VscodeOutputMethod | StandaloneOutputMethod;
  * Enum for terminal output failure reasons
  */
 export enum TerminalOutputFailureReason {
-  TIMEOUT = 'timeout',
-  NO_SHELL_INTEGRATION = 'no_shell_integration',
-  CLIPBOARD_FAILED = 'clipboard_failed',
+  TIMEOUT = "timeout",
+  NO_SHELL_INTEGRATION = "no_shell_integration",
+  CLIPBOARD_FAILED = "clipboard_failed",
 }
 
 /**
  * Enum for terminal user intervention actions
  */
 export enum TerminalUserInterventionAction {
-  PROCESS_WHILE_RUNNING = 'process_while_running',
-  MANUAL_PASTE = 'manual_paste',
-  CANCELLED = 'cancelled',
+  PROCESS_WHILE_RUNNING = "process_while_running",
+  MANUAL_PASTE = "manual_paste",
+  CANCELLED = "cancelled",
 }
 
 /**
  * Enum for terminal hang stages
  */
 export enum TerminalHangStage {
-  WAITING_FOR_COMPLETION = 'waiting_for_completion',
-  BUFFER_STUCK = 'buffer_stuck',
-  STREAM_TIMEOUT = 'stream_timeout',
+  WAITING_FOR_COMPLETION = "waiting_for_completion",
+  BUFFER_STUCK = "buffer_stuck",
+  STREAM_TIMEOUT = "stream_timeout",
 }
 
 export type TelemetryMetadata = {
@@ -126,12 +126,12 @@ const MAX_ERROR_MESSAGE_LENGTH = 500;
 export class TelemetryService {
   // Map to control specific telemetry categories (event types)
   private telemetryCategoryEnabled: Map<TelemetryCategory, boolean> = new Map([
-    ['checkpoints', true], // Checkpoints telemetry enabled
-    ['browser', true], // Browser telemetry enabled
-    ['focus_chain', true], // Focus Chain telemetry enabled
-    ['subagents', true], // CLI Subagents telemetry enabled
-    ['skills', true], // Skills telemetry enabled
-    ['hooks', true], // Hooks telemetry enabled
+    ["checkpoints", true], // Checkpoints telemetry enabled
+    ["browser", true], // Browser telemetry enabled
+    ["focus_chain", true], // Focus Chain telemetry enabled
+    ["subagents", true], // CLI Subagents telemetry enabled
+    ["skills", true], // Skills telemetry enabled
+    ["hooks", true], // Hooks telemetry enabled
   ]);
 
   private userId?: string;
@@ -145,59 +145,59 @@ export class TelemetryService {
   private taskErrorCounts = new Map<string, number>();
   public static readonly METRICS = {
     TASK: {
-      TURNS_TOTAL: 'cline.turns.total',
-      TURNS_PER_TASK: 'cline.turns.per_task',
-      TOKENS_INPUT_TOTAL: 'cline.tokens.input.total',
-      TOKENS_INPUT_PER_RESPONSE: 'cline.tokens.input.per_response',
-      TOKENS_OUTPUT_TOTAL: 'cline.tokens.output.total',
-      TOKENS_OUTPUT_PER_RESPONSE: 'cline.tokens.output.per_response',
-      COST_TOTAL: 'cline.cost.total',
-      COST_PER_EVENT: 'cline.cost.per_event',
+      TURNS_TOTAL: "cline.turns.total",
+      TURNS_PER_TASK: "cline.turns.per_task",
+      TOKENS_INPUT_TOTAL: "cline.tokens.input.total",
+      TOKENS_INPUT_PER_RESPONSE: "cline.tokens.input.per_response",
+      TOKENS_OUTPUT_TOTAL: "cline.tokens.output.total",
+      TOKENS_OUTPUT_PER_RESPONSE: "cline.tokens.output.per_response",
+      COST_TOTAL: "cline.cost.total",
+      COST_PER_EVENT: "cline.cost.per_event",
     },
     CACHE: {
-      WRITE_TOTAL: 'cline.cache.write.tokens.total',
-      WRITE_PER_EVENT: 'cline.cache.write.tokens.per_event',
-      READ_TOTAL: 'cline.cache.read.tokens.total',
-      READ_PER_EVENT: 'cline.cache.read.tokens.per_event',
-      HITS_TOTAL: 'cline.cache.hits.total',
+      WRITE_TOTAL: "cline.cache.write.tokens.total",
+      WRITE_PER_EVENT: "cline.cache.write.tokens.per_event",
+      READ_TOTAL: "cline.cache.read.tokens.total",
+      READ_PER_EVENT: "cline.cache.read.tokens.per_event",
+      HITS_TOTAL: "cline.cache.hits.total",
     },
     TOOLS: {
-      CALLS_TOTAL: 'cline.tool.calls.total',
-      CALLS_PER_TASK: 'cline.tool.calls.per_task',
+      CALLS_TOTAL: "cline.tool.calls.total",
+      CALLS_PER_TASK: "cline.tool.calls.per_task",
     },
     ERRORS: {
-      TOTAL: 'cline.errors.total',
-      PER_TASK: 'cline.errors.per_task',
+      TOTAL: "cline.errors.total",
+      PER_TASK: "cline.errors.per_task",
     },
     API: {
-      TTFT_SECONDS: 'cline.api.ttft.seconds',
-      DURATION_SECONDS: 'cline.api.duration.seconds',
-      THROUGHPUT_TOKENS_PER_SECOND: 'cline.api.throughput.tokens_per_second',
+      TTFT_SECONDS: "cline.api.ttft.seconds",
+      DURATION_SECONDS: "cline.api.duration.seconds",
+      THROUGHPUT_TOKENS_PER_SECOND: "cline.api.throughput.tokens_per_second",
     },
     HOOKS: {
-      EXECUTIONS_TOTAL: 'cline.hooks.executions.total',
-      DURATION_SECONDS: 'cline.hooks.duration.seconds',
-      FAILURES_TOTAL: 'cline.hooks.failures.total',
-      CANCELLATIONS_TOTAL: 'cline.hooks.cancellations.total',
-      CONTEXT_MODIFICATIONS_TOTAL: 'cline.hooks.context_modifications.total',
-      CACHE_ACCESSES_TOTAL: 'cline.hooks.cache.accesses.total',
+      EXECUTIONS_TOTAL: "cline.hooks.executions.total",
+      DURATION_SECONDS: "cline.hooks.duration.seconds",
+      FAILURES_TOTAL: "cline.hooks.failures.total",
+      CANCELLATIONS_TOTAL: "cline.hooks.cancellations.total",
+      CONTEXT_MODIFICATIONS_TOTAL: "cline.hooks.context_modifications.total",
+      CACHE_ACCESSES_TOTAL: "cline.hooks.cache.accesses.total",
     },
     AI_OUTPUT: {
-      ACCEPTED_LINES_ADDED: 'cline.ai_output.accepted.lines_added.total',
-      ACCEPTED_LINES_DELETED: 'cline.ai_output.accepted.lines_deleted.total',
-      ACCEPTED_LINES_CHANGED: 'cline.ai_output.accepted.lines_changed.total',
-      ACCEPTED_FILES_CREATED: 'cline.ai_output.accepted.files_created.total',
-      ACCEPTED_FILES_DELETED: 'cline.ai_output.accepted.files_deleted.total',
-      ACCEPTED_FILES_MOVED: 'cline.ai_output.accepted.files_moved.total',
-      REJECTED_LINES_ADDED: 'cline.ai_output.rejected.lines_added.total',
-      REJECTED_LINES_DELETED: 'cline.ai_output.rejected.lines_deleted.total',
-      REJECTED_LINES_CHANGED: 'cline.ai_output.rejected.lines_changed.total',
-      REJECTED_FILES_CREATED: 'cline.ai_output.rejected.files_created.total',
-      REJECTED_FILES_DELETED: 'cline.ai_output.rejected.files_deleted.total',
-      REJECTED_FILES_MOVED: 'cline.ai_output.rejected.files_moved.total',
+      ACCEPTED_LINES_ADDED: "cline.ai_output.accepted.lines_added.total",
+      ACCEPTED_LINES_DELETED: "cline.ai_output.accepted.lines_deleted.total",
+      ACCEPTED_LINES_CHANGED: "cline.ai_output.accepted.lines_changed.total",
+      ACCEPTED_FILES_CREATED: "cline.ai_output.accepted.files_created.total",
+      ACCEPTED_FILES_DELETED: "cline.ai_output.accepted.files_deleted.total",
+      ACCEPTED_FILES_MOVED: "cline.ai_output.accepted.files_moved.total",
+      REJECTED_LINES_ADDED: "cline.ai_output.rejected.lines_added.total",
+      REJECTED_LINES_DELETED: "cline.ai_output.rejected.lines_deleted.total",
+      REJECTED_LINES_CHANGED: "cline.ai_output.rejected.lines_changed.total",
+      REJECTED_FILES_CREATED: "cline.ai_output.rejected.files_created.total",
+      REJECTED_FILES_DELETED: "cline.ai_output.rejected.files_deleted.total",
+      REJECTED_FILES_MOVED: "cline.ai_output.rejected.files_moved.total",
     },
     GRPC: {
-      RESPONSE_SIZE_BYTES: 'cline.grpc.response.size_bytes',
+      RESPONSE_SIZE_BYTES: "cline.grpc.response.size_bytes",
     },
   };
   // Event constants for tracking user interactions and system events
@@ -205,156 +205,156 @@ export class TelemetryService {
     // Task-related events for tracking conversation and execution flow
 
     USER: {
-      OPT_OUT: 'user.opt_out',
-      OPT_IN: 'user.opt_in',
-      TELEMETRY_ENABLED: 'user.telemetry_enabled',
-      EXTENSION_ACTIVATED: 'user.extension_activated',
-      EXTENSION_STORAGE_ERROR: 'user.extension_storage_error',
-      AUTH_STARTED: 'user.auth_started',
-      AUTH_SUCCEEDED: 'user.auth_succeeded',
-      AUTH_FAILED: 'user.auth_failed',
-      AUTH_LOGGED_OUT: 'user.auth_logged_out',
-      ONBOARDING_PROGRESS: 'user.onboarding_progress',
+      OPT_OUT: "user.opt_out",
+      OPT_IN: "user.opt_in",
+      TELEMETRY_ENABLED: "user.telemetry_enabled",
+      EXTENSION_ACTIVATED: "user.extension_activated",
+      EXTENSION_STORAGE_ERROR: "user.extension_storage_error",
+      AUTH_STARTED: "user.auth_started",
+      AUTH_SUCCEEDED: "user.auth_succeeded",
+      AUTH_FAILED: "user.auth_failed",
+      AUTH_LOGGED_OUT: "user.auth_logged_out",
+      ONBOARDING_PROGRESS: "user.onboarding_progress",
     },
     // Workspace-related events for multi-root support
     WORKSPACE: {
       // Track workspace initialization
-      INITIALIZED: 'workspace.initialized',
+      INITIALIZED: "workspace.initialized",
       // Track initialization errors
-      INIT_ERROR: 'workspace.init_error',
+      INIT_ERROR: "workspace.init_error",
       // Track VCS detection
-      VCS_DETECTED: 'workspace.vcs_detected',
+      VCS_DETECTED: "workspace.vcs_detected",
       // Track multi-root checkpoint operations
-      MULTI_ROOT_CHECKPOINT: 'workspace.multi_root_checkpoint',
+      MULTI_ROOT_CHECKPOINT: "workspace.multi_root_checkpoint",
       // Track workspace resolution
-      PATH_RESOLVED: 'workspace.path_resolved',
+      PATH_RESOLVED: "workspace.path_resolved",
     },
     TASK: {
       // Tracks when a new task/conversation is started
-      CREATED: 'task.created',
+      CREATED: "task.created",
       // Tracks when a task is reopened
-      RESTARTED: 'task.restarted',
+      RESTARTED: "task.restarted",
       // Tracks when a task is finished, with acceptance or rejection status
-      COMPLETED: 'task.completed',
+      COMPLETED: "task.completed",
       // Tracks user feedback on completed tasks
-      FEEDBACK: 'task.feedback',
+      FEEDBACK: "task.feedback",
       // Tracks when a message is sent in a conversation
-      CONVERSATION_TURN: 'task.conversation_turn',
+      CONVERSATION_TURN: "task.conversation_turn",
       // Tracks token consumption for cost and usage analysis
-      TOKEN_USAGE: 'task.tokens',
+      TOKEN_USAGE: "task.tokens",
       // Tracks switches between plan and act modes
-      MODE_SWITCH: 'task.mode',
+      MODE_SWITCH: "task.mode",
       // Tracks when users select an option from AI-generated followup questions
-      OPTION_SELECTED: 'task.option_selected',
+      OPTION_SELECTED: "task.option_selected",
       // Tracks when users type a custom response instead of selecting an option from AI-generated followup questions
-      OPTIONS_IGNORED: 'task.options_ignored',
+      OPTIONS_IGNORED: "task.options_ignored",
       // Tracks usage of the git-based checkpoint system (shadow_git_initialized, commit_created, branch_created, branch_deleted_active, branch_deleted_inactive, restored)
-      CHECKPOINT_USED: 'task.checkpoint_used',
+      CHECKPOINT_USED: "task.checkpoint_used",
       // Tracks when tools (like file operations, commands) are used
-      TOOL_USED: 'task.tool_used',
+      TOOL_USED: "task.tool_used",
       // Tracks when MCP tools are used
-      MCP_TOOL_CALLED: 'task.mcp_tool_called',
+      MCP_TOOL_CALLED: "task.mcp_tool_called",
       // Tracks when a historical task is loaded from storage
-      HISTORICAL_LOADED: 'task.historical_loaded',
+      HISTORICAL_LOADED: "task.historical_loaded",
       // Tracks when the retry button is clicked for failed operations
-      RETRY_CLICKED: 'task.retry_clicked',
+      RETRY_CLICKED: "task.retry_clicked",
       // Tracks when a diff edit (replace_in_file) operation fails
-      DIFF_EDIT_FAILED: 'task.diff_edit_failed',
+      DIFF_EDIT_FAILED: "task.diff_edit_failed",
       // Tracks when the browser tool is started
-      BROWSER_TOOL_START: 'task.browser_tool_start',
+      BROWSER_TOOL_START: "task.browser_tool_start",
       // Tracks when the browser tool is completed
-      BROWSER_TOOL_END: 'task.browser_tool_end',
+      BROWSER_TOOL_END: "task.browser_tool_end",
       // Tracks when browser errors occur
-      BROWSER_ERROR: 'task.browser_error',
+      BROWSER_ERROR: "task.browser_error",
       // Tracks Gemini API specific performance metrics
-      GEMINI_API_PERFORMANCE: 'task.gemini_api_performance',
+      GEMINI_API_PERFORMANCE: "task.gemini_api_performance",
       // Tracks when API providers return errors
-      PROVIDER_API_ERROR: 'task.provider_api_error',
+      PROVIDER_API_ERROR: "task.provider_api_error",
       // Tracks when users enable the focus chain feature
-      FOCUS_CHAIN_ENABLED: 'task.focus_chain_enabled',
+      FOCUS_CHAIN_ENABLED: "task.focus_chain_enabled",
       // Tracks when users disable the focus chain feature
-      FOCUS_CHAIN_DISABLED: 'task.focus_chain_disabled',
+      FOCUS_CHAIN_DISABLED: "task.focus_chain_disabled",
       // Tracks when the first focus chain return is returned by the model
-      FOCUS_CHAIN_PROGRESS_FIRST: 'task.focus_chain_progress_first',
+      FOCUS_CHAIN_PROGRESS_FIRST: "task.focus_chain_progress_first",
       // Tracks when subsequent focus chain list returns are returned
-      FOCUS_CHAIN_PROGRESS_UPDATE: 'task.focus_chain_progress_update',
+      FOCUS_CHAIN_PROGRESS_UPDATE: "task.focus_chain_progress_update",
       // Tracks the statusn of the focus chain list when the task reaches a task completion state
-      FOCUS_CHAIN_INCOMPLETE_ON_COMPLETION: 'task.focus_chain_incomplete_on_completion',
+      FOCUS_CHAIN_INCOMPLETE_ON_COMPLETION: "task.focus_chain_incomplete_on_completion",
       // Tracks when users click to open the focus chain markdfown file
-      FOCUS_CHAIN_LIST_OPENED: 'task.focus_chain_list_opened',
+      FOCUS_CHAIN_LIST_OPENED: "task.focus_chain_list_opened",
       // Tracks when users save and write to the focus chain markdown file
-      FOCUS_CHAIN_LIST_WRITTEN: 'task.focus_chain_list_written',
+      FOCUS_CHAIN_LIST_WRITTEN: "task.focus_chain_list_written",
       // Tracks when the context window is auto-condensed with the summarize_task tool call
-      AUTO_COMPACT: 'task.summarize_task',
+      AUTO_COMPACT: "task.summarize_task",
       // Tracks when slash commands or workflows are activated
-      SLASH_COMMAND_USED: 'task.slash_command_used',
+      SLASH_COMMAND_USED: "task.slash_command_used",
       // Tracks when a feature is toggled on/off
-      FEATURE_TOGGLED: 'task.feature_toggled',
+      FEATURE_TOGGLED: "task.feature_toggled",
       // Tracks when individual Cline rules are toggled on/off
-      RULE_TOGGLED: 'task.rule_toggled',
+      RULE_TOGGLED: "task.rule_toggled",
       // Tracks when auto condense setting is toggled on/off
-      AUTO_CONDENSE_TOGGLED: 'task.auto_condense_toggled',
+      AUTO_CONDENSE_TOGGLED: "task.auto_condense_toggled",
       // Tracks when yolo mode setting is toggled on/off
-      YOLO_MODE_TOGGLED: 'task.yolo_mode_toggled',
+      YOLO_MODE_TOGGLED: "task.yolo_mode_toggled",
       // Tracks when Cline web tools setting is toggled on/off
-      CLINE_WEB_TOOLS_TOGGLED: 'task.cline_web_tools_toggled',
+      CLINE_WEB_TOOLS_TOGGLED: "task.cline_web_tools_toggled",
       // Tracks task initialization timing
-      INITIALIZATION: 'task.initialization',
+      INITIALIZATION: "task.initialization",
       // Terminal execution telemetry events
-      TERMINAL_EXECUTION: 'task.terminal_execution',
-      TERMINAL_OUTPUT_FAILURE: 'task.terminal_output_failure',
-      TERMINAL_USER_INTERVENTION: 'task.terminal_user_intervention',
-      TERMINAL_HANG: 'task.terminal_hang',
+      TERMINAL_EXECUTION: "task.terminal_execution",
+      TERMINAL_OUTPUT_FAILURE: "task.terminal_output_failure",
+      TERMINAL_USER_INTERVENTION: "task.terminal_user_intervention",
+      TERMINAL_HANG: "task.terminal_hang",
       // Mention telemetry events
-      MENTION_USED: 'task.mention_used',
-      MENTION_FAILED: 'task.mention_failed',
-      MENTION_SEARCH_RESULTS: 'task.mention_search_results',
+      MENTION_USED: "task.mention_used",
+      MENTION_FAILED: "task.mention_failed",
+      MENTION_SEARCH_RESULTS: "task.mention_search_results",
       // Multi-workspace search pattern tracking
-      WORKSPACE_SEARCH_PATTERN: 'task.workspace_search_pattern',
+      WORKSPACE_SEARCH_PATTERN: "task.workspace_search_pattern",
       // CLI Subagents telemetry events
-      SUBAGENT_ENABLED: 'task.subagent_enabled',
-      SUBAGENT_DISABLED: 'task.subagent_disabled',
-      SUBAGENT_STARTED: 'task.subagent_started',
-      SUBAGENT_COMPLETED: 'task.subagent_completed',
+      SUBAGENT_ENABLED: "task.subagent_enabled",
+      SUBAGENT_DISABLED: "task.subagent_disabled",
+      SUBAGENT_STARTED: "task.subagent_started",
+      SUBAGENT_COMPLETED: "task.subagent_completed",
       // Skills telemetry events
-      SKILL_USED: 'task.skill_used',
+      SKILL_USED: "task.skill_used",
     },
     // UI interaction events for tracking user engagement
     UI: {
       // Tracks when a different model is selected
-      MODEL_SELECTED: 'ui.model_selected',
+      MODEL_SELECTED: "ui.model_selected",
       // Tracks when users use the "favorite" button in the model picker
-      MODEL_FAVORITE_TOGGLED: 'ui.model_favorite_toggled',
+      MODEL_FAVORITE_TOGGLED: "ui.model_favorite_toggled",
       // Tracks when a button is clicked
-      BUTTON_CLICKED: 'ui.button_clicked',
+      BUTTON_CLICKED: "ui.button_clicked",
       // Tracks when the rules menu button is clicked
-      RULES_MENU_OPENED: 'ui.rules_menu_opened',
+      RULES_MENU_OPENED: "ui.rules_menu_opened",
     },
     // Hooks-related events for tracking hook execution
     HOOKS: {
       // Tracks when hooks feature is enabled
-      ENABLED: 'hooks.enabled',
+      ENABLED: "hooks.enabled",
       // Tracks when hooks feature is disabled
-      DISABLED: 'hooks.disabled',
+      DISABLED: "hooks.disabled",
       // Tracks when a hook requests task cancellation
-      CANCEL_REQUESTED: 'hooks.cancel_requested',
+      CANCEL_REQUESTED: "hooks.cancel_requested",
       // Tracks when a hook modifies context
-      CONTEXT_MODIFIED: 'hooks.context_modified',
+      CONTEXT_MODIFIED: "hooks.context_modified",
       // Tracks when hook discovery completes
-      DISCOVERY_COMPLETED: 'hooks.discovery_completed',
+      DISCOVERY_COMPLETED: "hooks.discovery_completed",
     },
     // Worktree-related events for tracking worktree feature usage
     WORKTREE: {
       // Tracks when user opens worktrees view from home page
-      VIEW_OPENED: 'worktree.view_opened',
+      VIEW_OPENED: "worktree.view_opened",
       // Tracks when a worktree is created
-      CREATED: 'worktree.created',
+      CREATED: "worktree.created",
       // Tracks when a worktree merge is attempted
-      MERGE_ATTEMPTED: 'worktree.merge_attempted',
+      MERGE_ATTEMPTED: "worktree.merge_attempted",
     },
     HOST: {
       // Tracks events detected from the host environment
-      DETECTED: 'host.detected',
+      DETECTED: "host.detected",
     },
   };
 
@@ -363,9 +363,9 @@ export class TelemetryService {
     const hostVersion = await HostProvider.env.getHostVersion({});
     const metadata: TelemetryMetadata = {
       extension_version: extensionVersion,
-      platform: hostVersion.platform || 'unknown',
-      platform_version: hostVersion.version || 'unknown',
-      cline_type: hostVersion.clineType || 'unknown',
+      platform: hostVersion.platform || "unknown",
+      platform_version: hostVersion.version || "unknown",
+      cline_type: hostVersion.clineType || "unknown",
       os_type: os.platform(),
       os_version: os.version(),
       // `remoteName` is normalized by the host bridge to `undefined` for local workspaces.
@@ -412,15 +412,15 @@ export class TelemetryService {
           .showMessage({
             type: ShowMessageType.WARNING,
             message:
-              'Anonymous Cline error and usage reporting is enabled, but IDE telemetry is disabled. To enable error and usage reporting for this extension, enable telemetry in IDE settings.',
+              "Anonymous Cline error and usage reporting is enabled, but IDE telemetry is disabled. To enable error and usage reporting for this extension, enable telemetry in IDE settings.",
             options: {
-              items: ['Open Settings'],
+              items: ["Open Settings"],
             },
           })
           .then((response: { selectedOption?: string }) => {
-            if (response.selectedOption === 'Open Settings') {
+            if (response.selectedOption === "Open Settings") {
               void HostProvider.window.openSettings({
-                query: 'telemetry.telemetryLevel',
+                query: "telemetry.telemetryLevel",
               });
             }
           });
@@ -669,7 +669,7 @@ export class TelemetryService {
       try {
         provider.identifyUser(userInfo, propertiesWithMetadata);
       } catch (error) {
-        Logger.error('[TelemetryService] Provider failed for user identification:', error);
+        Logger.error("[TelemetryService] Provider failed for user identification:", error);
       }
     });
 
@@ -761,7 +761,7 @@ export class TelemetryService {
           provider: args?.provider,
           model: args?.modelId,
           apiFormat: apiFormatName,
-          scope: 'task',
+          scope: "task",
           mode: args?.mode,
         },
       );
@@ -783,14 +783,14 @@ export class TelemetryService {
     ulid: string,
     provider,
     model,
-    source: 'user' | 'assistant',
+    source: "user" | "assistant",
     mode: Mode,
     tokenUsage: TokenUsage = {},
     isNativeToolCall?: boolean,
   ) {
     // Ensure required parameters are provided
     if (!ulid || !provider || !model || !source) {
-      Logger.warn('TelemetryService: Missing required parameters for message capture');
+      Logger.warn("TelemetryService: Missing required parameters for message capture");
       return;
     }
 
@@ -848,7 +848,7 @@ export class TelemetryService {
 
     if (Number.isFinite(tokenUsage.totalCost)) {
       const totalCost = tokenUsage.totalCost ?? 0;
-      const costAttributes = { ulid, provider, model, mode, currency: 'USD' };
+      const costAttributes = { ulid, provider, model, mode, currency: "USD" };
       this.recordCounter(TelemetryService.METRICS.TASK.COST_TOTAL, totalCost, costAttributes);
       this.recordHistogram(TelemetryService.METRICS.TASK.COST_PER_EVENT, totalCost, costAttributes);
     }
@@ -926,7 +926,7 @@ export class TelemetryService {
 
     if (Number.isFinite(options?.totalCost)) {
       const totalCost = options?.totalCost ?? 0;
-      const costAttributes = { ...attributes, currency: 'USD' };
+      const costAttributes = { ...attributes, currency: "USD" };
       this.recordCounter(TelemetryService.METRICS.TASK.COST_TOTAL, totalCost, costAttributes);
       this.recordHistogram(TelemetryService.METRICS.TASK.COST_PER_EVENT, totalCost, costAttributes);
     }
@@ -980,7 +980,7 @@ export class TelemetryService {
    * @param feedbackType The type of feedback ("thumbs_up" or "thumbs_down")
    */
   public captureTaskFeedback(ulid: string, feedbackType: TaskFeedbackType) {
-    Logger.info('TelemetryService: Capturing task feedback', {
+    Logger.info("TelemetryService: Capturing task feedback", {
       ulid,
       feedbackType,
     });
@@ -1016,7 +1016,7 @@ export class TelemetryService {
       isMultiRootEnabled: boolean;
       usedWorkspaceHint: boolean;
       resolvedToNonPrimary: boolean;
-      resolutionMethod: 'hint' | 'primary_fallback' | 'path_detection';
+      resolutionMethod: "hint" | "primary_fallback" | "path_detection";
     },
     isNativeToolCall = false,
   ) {
@@ -1059,13 +1059,13 @@ export class TelemetryService {
   public captureSkillUsed(args: {
     ulid: string;
     skillName: string;
-    skillSource: 'global' | 'project';
+    skillSource: "global" | "project";
     skillsAvailableGlobal: number;
     skillsAvailableProject: number;
     provider?: string;
     modelId?: string;
   }): void {
-    if (!this.isCategoryEnabled('skills')) {
+    if (!this.isCategoryEnabled("skills")) {
       return;
     }
 
@@ -1109,7 +1109,7 @@ export class TelemetryService {
     ulid: string,
     serverName: string,
     toolName: string,
-    status: 'started' | 'success' | 'error',
+    status: "started" | "success" | "error",
     errorMessage?: string,
     argumentKeys?: string[],
     isNativeToolCall = false,
@@ -1136,10 +1136,10 @@ export class TelemetryService {
    */
   public captureCheckpointUsage(
     ulid: string,
-    action: 'shadow_git_initialized' | 'commit_created' | 'restored' | 'diff_generated',
+    action: "shadow_git_initialized" | "commit_created" | "restored" | "diff_generated",
     durationMs?: number,
   ) {
-    if (!this.isCategoryEnabled('checkpoints')) {
+    if (!this.isCategoryEnabled("checkpoints")) {
       return;
     }
 
@@ -1203,7 +1203,7 @@ export class TelemetryService {
    * @param browserSettings The browser settings being used
    */
   public captureBrowserToolStart(ulid: string, browserSettings: BrowserSettings) {
-    if (!this.isCategoryEnabled('browser')) {
+    if (!this.isCategoryEnabled("browser")) {
       return;
     }
 
@@ -1232,7 +1232,7 @@ export class TelemetryService {
       actions?: string[];
     },
   ) {
-    if (!this.isCategoryEnabled('browser')) {
+    if (!this.isCategoryEnabled("browser")) {
       return;
     }
 
@@ -1267,7 +1267,7 @@ export class TelemetryService {
       endpoint?: string;
     },
   ) {
-    if (!this.isCategoryEnabled('browser')) {
+    if (!this.isCategoryEnabled("browser")) {
       return;
     }
 
@@ -1348,30 +1348,30 @@ export class TelemetryService {
       },
     });
 
-    if (typeof data.ttftSec === 'number') {
+    if (typeof data.ttftSec === "number") {
       this.recordHistogram(TelemetryService.METRICS.API.TTFT_SECONDS, data.ttftSec, {
         ulid,
         model: modelId,
-        provider: 'gemini',
+        provider: "gemini",
       });
     }
 
-    if (typeof data.totalDurationSec === 'number') {
+    if (typeof data.totalDurationSec === "number") {
       this.recordHistogram(TelemetryService.METRICS.API.DURATION_SECONDS, data.totalDurationSec, {
         ulid,
         model: modelId,
-        provider: 'gemini',
+        provider: "gemini",
       });
     }
 
-    if (typeof data.throughputTokensPerSec === 'number') {
+    if (typeof data.throughputTokensPerSec === "number") {
       this.recordHistogram(
         TelemetryService.METRICS.API.THROUGHPUT_TOKENS_PER_SECOND,
         data.throughputTokensPerSec,
         {
           ulid,
           model: modelId,
-          provider: 'gemini',
+          provider: "gemini",
         },
       );
     }
@@ -1380,7 +1380,7 @@ export class TelemetryService {
       this.recordCounter(TelemetryService.METRICS.CACHE.HITS_TOTAL, 1, {
         ulid,
         model: modelId,
-        provider: 'gemini',
+        provider: "gemini",
       });
     }
   }
@@ -1458,7 +1458,7 @@ export class TelemetryService {
    * @param enabled Whether focus chain was enabled (true) or disabled (false)
    */
   public captureFocusChainToggle(enabled: boolean) {
-    if (!this.isCategoryEnabled('focus_chain')) {
+    if (!this.isCategoryEnabled("focus_chain")) {
       return;
     }
 
@@ -1478,7 +1478,7 @@ export class TelemetryService {
    * @param totalItems Number of items in the initial focus chain list
    */
   public captureFocusChainProgressFirst(ulid: string, totalItems: number) {
-    if (!this.isCategoryEnabled('focus_chain')) {
+    if (!this.isCategoryEnabled("focus_chain")) {
       return;
     }
 
@@ -1498,7 +1498,7 @@ export class TelemetryService {
    * @param completedItems Number of completed items in the focus chain list
    */
   public captureFocusChainProgressUpdate(ulid: string, totalItems: number, completedItems: number) {
-    if (!this.isCategoryEnabled('focus_chain')) {
+    if (!this.isCategoryEnabled("focus_chain")) {
       return;
     }
 
@@ -1530,7 +1530,7 @@ export class TelemetryService {
     modelId: string,
     provider: string,
   ) {
-    if (!this.isCategoryEnabled('focus_chain')) {
+    if (!this.isCategoryEnabled("focus_chain")) {
       return;
     }
 
@@ -1553,7 +1553,7 @@ export class TelemetryService {
    * @param ulid Unique identifier for the task
    */
   public captureFocusChainListOpened(ulid: string) {
-    if (!this.isCategoryEnabled('focus_chain')) {
+    if (!this.isCategoryEnabled("focus_chain")) {
       return;
     }
 
@@ -1570,7 +1570,7 @@ export class TelemetryService {
    * @param ulid Unique identifier for the task
    */
   public captureFocusChainListWritten(ulid: string) {
-    if (!this.isCategoryEnabled('focus_chain')) {
+    if (!this.isCategoryEnabled("focus_chain")) {
       return;
     }
 
@@ -1591,7 +1591,7 @@ export class TelemetryService {
   public captureSlashCommandUsed(
     ulid: string,
     commandName: string,
-    commandType: 'builtin' | 'workflow' | 'mcp_prompt',
+    commandType: "builtin" | "workflow" | "mcp_prompt",
   ) {
     this.capture({
       event: TelemetryService.EVENTS.TASK.SLASH_COMMAND_USED,
@@ -1642,7 +1642,7 @@ export class TelemetryService {
   ) {
     // Sanitize filename to remove any path information for privacy
     const sanitizedFileName =
-      ruleFileName.split('/').pop() || ruleFileName.split('\\').pop() || ruleFileName;
+      ruleFileName.split("/").pop() || ruleFileName.split("\\").pop() || ruleFileName;
 
     this.capture({
       event: TelemetryService.EVENTS.TASK.RULE_TOGGLED,
@@ -1746,7 +1746,7 @@ export class TelemetryService {
    */
   public captureTerminalExecution(
     success: boolean,
-    terminalType: 'vscode',
+    terminalType: "vscode",
     method: VscodeOutputMethod,
   ): void;
   /**
@@ -1758,7 +1758,7 @@ export class TelemetryService {
    */
   public captureTerminalExecution(
     success: boolean,
-    terminalType: 'standalone',
+    terminalType: "standalone",
     method: StandaloneOutputMethod,
     exitCode?: number | null,
   ): void;
@@ -1778,7 +1778,7 @@ export class TelemetryService {
         terminalType,
         method,
         // Only include exitCode for standalone terminals when it's a meaningful value
-        ...(terminalType === 'standalone' &&
+        ...(terminalType === "standalone" &&
           exitCode !== undefined &&
           exitCode !== null && { exitCode }),
       },
@@ -1792,7 +1792,7 @@ export class TelemetryService {
    */
   public captureTerminalOutputFailure(
     reason: TerminalOutputFailureReason,
-    terminalType: TerminalType = 'vscode',
+    terminalType: TerminalType = "vscode",
   ) {
     this.capture({
       event: TelemetryService.EVENTS.TASK.TERMINAL_OUTPUT_FAILURE,
@@ -1810,7 +1810,7 @@ export class TelemetryService {
    */
   public captureTerminalUserIntervention(
     action: TerminalUserInterventionAction,
-    terminalType: TerminalType = 'vscode',
+    terminalType: TerminalType = "vscode",
   ) {
     this.capture({
       event: TelemetryService.EVENTS.TASK.TERMINAL_USER_INTERVENTION,
@@ -1826,7 +1826,7 @@ export class TelemetryService {
    * @param stage Where the hang occurred
    * @param terminalType The type of terminal (defaults to "vscode" for backward compatibility)
    */
-  public captureTerminalHang(stage: TerminalHangStage, terminalType: TerminalType = 'vscode') {
+  public captureTerminalHang(stage: TerminalHangStage, terminalType: TerminalType = "vscode") {
     this.capture({
       event: TelemetryService.EVENTS.TASK.TERMINAL_HANG,
       properties: {
@@ -1857,19 +1857,19 @@ export class TelemetryService {
         root_count: rootCount,
         vcs_types: vcsTypes,
         is_multi_root: rootCount > 1,
-        has_git: vcsTypes.includes('Git'),
-        has_mercurial: vcsTypes.includes('Mercurial'),
+        has_git: vcsTypes.includes("Git"),
+        has_mercurial: vcsTypes.includes("Mercurial"),
         init_duration_ms: initDurationMs,
         feature_flag_enabled: featureFlagEnabled,
       },
     });
 
     const isMultiRoot = rootCount > 1;
-    this.recordGauge('cline.workspace.active_roots', rootCount, {
+    this.recordGauge("cline.workspace.active_roots", rootCount, {
       is_multi_root: isMultiRoot,
     });
     // Retire the previous series to avoid leaking gauge entries when the flag flips.
-    this.recordGauge('cline.workspace.active_roots', null, {
+    this.recordGauge("cline.workspace.active_roots", null, {
       is_multi_root: !isMultiRoot,
     });
   }
@@ -1903,7 +1903,7 @@ export class TelemetryService {
    */
   public captureMultiRootCheckpoint(
     ulid: string,
-    action: 'initialized' | 'committed' | 'restored',
+    action: "initialized" | "committed" | "restored",
     rootCount: number,
     successCount: number,
     failureCount: number,
@@ -1936,8 +1936,8 @@ export class TelemetryService {
   public captureWorkspacePathResolved(
     ulid: string,
     context: string,
-    resolutionType: 'hint_provided' | 'fallback_to_primary' | 'cross_workspace_search',
-    hintType?: 'workspace_name' | 'workspace_path' | 'invalid',
+    resolutionType: "hint_provided" | "fallback_to_primary" | "cross_workspace_search",
+    hintType?: "workspace_name" | "workspace_path" | "invalid",
     resolutionSuccess?: boolean,
     targetWorkspaceIndex?: number,
     isMultiRootEnabled?: boolean,
@@ -1967,7 +1967,7 @@ export class TelemetryService {
    */
   public captureWorkspaceSearchPattern(
     ulid: string,
-    searchType: 'targeted' | 'cross_workspace' | 'primary_only',
+    searchType: "targeted" | "cross_workspace" | "primary_only",
     workspaceCount: number,
     hintProvided: boolean,
     resultsFound: boolean,
@@ -1990,7 +1990,7 @@ export class TelemetryService {
    * Records when user opens the worktrees view
    * @param source Where the user opened the view from (home_page or menu_bar)
    */
-  public captureWorktreeViewOpened(source: 'home_page' | 'menu_bar') {
+  public captureWorktreeViewOpened(source: "home_page" | "menu_bar") {
     this.capture({
       event: TelemetryService.EVENTS.WORKTREE.VIEW_OPENED,
       properties: {
@@ -2070,7 +2070,7 @@ export class TelemetryService {
       ? this.providers[0].getSettings()
       : {
           hostEnabled: false,
-          level: 'off' as const,
+          level: "off" as const,
         };
   }
 
@@ -2080,7 +2080,7 @@ export class TelemetryService {
    * @param contentLength Optional length of content retrieved (for size tracking)
    */
   public captureMentionUsed(
-    mentionType: 'file' | 'folder' | 'url' | 'problems' | 'terminal' | 'git-changes' | 'commit',
+    mentionType: "file" | "folder" | "url" | "problems" | "terminal" | "git-changes" | "commit",
     contentLength?: number,
   ) {
     this.capture({
@@ -2100,8 +2100,8 @@ export class TelemetryService {
    * @param errorMessage Optional error message for debugging (will be truncated)
    */
   public captureMentionFailed(
-    mentionType: 'file' | 'folder' | 'url' | 'problems' | 'terminal' | 'git-changes' | 'commit',
-    errorType: 'not_found' | 'permission_denied' | 'network_error' | 'parse_error' | 'unknown',
+    mentionType: "file" | "folder" | "url" | "problems" | "terminal" | "git-changes" | "commit",
+    errorType: "not_found" | "permission_denied" | "network_error" | "parse_error" | "unknown",
     errorMessage?: string,
   ) {
     this.capture({
@@ -2125,7 +2125,7 @@ export class TelemetryService {
   public captureMentionSearchResults(
     query: string,
     resultCount: number,
-    searchType: 'file' | 'folder' | 'all',
+    searchType: "file" | "folder" | "all",
     isEmpty: boolean,
   ) {
     this.capture({
@@ -2147,7 +2147,7 @@ export class TelemetryService {
    * @param enabled Whether subagents was enabled (true) or disabled (false)
    */
   public captureSubagentToggle(enabled: boolean) {
-    if (!this.isCategoryEnabled('subagents')) {
+    if (!this.isCategoryEnabled("subagents")) {
       return;
     }
 
@@ -2175,7 +2175,7 @@ export class TelemetryService {
     outputLines: number,
     success: boolean,
   ) {
-    if (!this.isCategoryEnabled('subagents')) {
+    if (!this.isCategoryEnabled("subagents")) {
       return;
     }
 
@@ -2215,7 +2215,7 @@ export class TelemetryService {
    * @param cacheHit Whether the cache had the result (true) or miss (false)
    */
   public captureHookCacheAccess(hookName: string, cacheHit: boolean) {
-    if (!this.isCategoryEnabled('hooks')) {
+    if (!this.isCategoryEnabled("hooks")) {
       return;
     }
 
@@ -2241,20 +2241,20 @@ export class TelemetryService {
   public captureHookExecution(
     ulid: string,
     hookName: string,
-    status: 'started' | 'completed' | 'failed' | 'cancelled',
+    status: "started" | "completed" | "failed" | "cancelled",
     metadata?: {
-      source?: 'global' | 'workspace';
+      source?: "global" | "workspace";
       toolName?: string;
       durationMs?: number;
       exitCode?: number;
-      errorType?: 'timeout' | 'execution' | 'validation';
+      errorType?: "timeout" | "execution" | "validation";
       errorMessage?: string;
       cancelRequested?: boolean;
       contextModified?: boolean;
       contextSize?: number;
     },
   ) {
-    if (!this.isCategoryEnabled('hooks')) {
+    if (!this.isCategoryEnabled("hooks")) {
       return;
     }
 
@@ -2278,7 +2278,7 @@ export class TelemetryService {
 
     // Single event for all statuses
     this.capture({
-      event: 'hooks.execution',
+      event: "hooks.execution",
       properties,
     });
 
@@ -2291,9 +2291,9 @@ export class TelemetryService {
       ...(metadata?.toolName && { toolName: metadata.toolName }),
     };
 
-    if (status === 'started') {
+    if (status === "started") {
       this.recordCounter(TelemetryService.METRICS.HOOKS.EXECUTIONS_TOTAL, 1, hookAttributes);
-    } else if (status === 'completed') {
+    } else if (status === "completed") {
       if (metadata?.durationMs !== undefined) {
         this.recordHistogram(
           TelemetryService.METRICS.HOOKS.DURATION_SECONDS,
@@ -2311,12 +2311,12 @@ export class TelemetryService {
           hookAttributes,
         );
       }
-    } else if (status === 'failed') {
+    } else if (status === "failed") {
       this.recordCounter(TelemetryService.METRICS.HOOKS.FAILURES_TOTAL, 1, {
         ...hookAttributes,
-        errorType: metadata?.errorType || 'unknown',
+        errorType: metadata?.errorType || "unknown",
       });
-    } else if (status === 'cancelled') {
+    } else if (status === "cancelled") {
       this.recordCounter(TelemetryService.METRICS.HOOKS.CANCELLATIONS_TOTAL, 1, hookAttributes);
     }
   }
@@ -2329,7 +2329,7 @@ export class TelemetryService {
    * @param workspaceCount Number of workspace-specific hooks found
    */
   public captureHookDiscovery(hookName: string, globalCount: number, workspaceCount: number) {
-    if (!this.isCategoryEnabled('hooks')) {
+    if (!this.isCategoryEnabled("hooks")) {
       return;
     }
 
@@ -2356,7 +2356,7 @@ export class TelemetryService {
     tool: string;
     provider?: string;
     model?: string;
-    source: 'agent' | 'human';
+    source: "agent" | "human";
     linesAdded: number;
     linesDeleted: number;
     linesChanged: number;
@@ -2365,7 +2365,7 @@ export class TelemetryService {
     filesMoved?: number;
   }): void {
     this.capture({
-      event: 'task.ai_output.accepted',
+      event: "task.ai_output.accepted",
       properties: {
         ulid: args.ulid,
         tool: args.tool,
@@ -2437,7 +2437,7 @@ export class TelemetryService {
     tool: string;
     provider?: string;
     model?: string;
-    source: 'agent' | 'human';
+    source: "agent" | "human";
     linesAdded: number;
     linesDeleted: number;
     linesChanged: number;
@@ -2446,7 +2446,7 @@ export class TelemetryService {
     filesMoved?: number;
   }): void {
     this.capture({
-      event: 'task.ai_output.rejected',
+      event: "task.ai_output.rejected",
       properties: {
         ulid: args.ulid,
         tool: args.tool,
@@ -2539,12 +2539,12 @@ export class TelemetryService {
         method,
         ...(requestId && { request_id: requestId }),
       },
-      'Size of gRPC response messages in bytes',
+      "Size of gRPC response messages in bytes",
     );
 
     if (sizeUtf8Bytes > 4 * 1024 * 1024) {
       Logger.warn(
-        `[TelemetryService] Large gRPC response: ${service}.${method} size=${(sizeUtf8Bytes / (1024 * 1024)).toFixed(1)}MB${requestId ? ` request_id=${requestId}` : ''}`,
+        `[TelemetryService] Large gRPC response: ${service}.${method} size=${(sizeUtf8Bytes / (1024 * 1024)).toFixed(1)}MB${requestId ? ` request_id=${requestId}` : ""}`,
       );
     }
   }
@@ -2579,7 +2579,7 @@ export class TelemetryService {
     try {
       telemetryFn();
     } catch (error) {
-      const contextStr = context ? ` [Context: ${context}]` : '';
+      const contextStr = context ? ` [Context: ${context}]` : "";
       Logger.error(`[Telemetry] Failed to capture telemetry${contextStr}:`, error);
     }
   }

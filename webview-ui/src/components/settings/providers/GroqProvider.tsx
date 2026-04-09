@@ -1,8 +1,8 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import type { Mode } from '@shared/storage/types.ts';
-import GroqModelPicker from '../GroqModelPicker';
-import { ApiKeyField } from '../common/ApiKeyField';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import type { Mode } from "@shared/storage/types.ts";
+import GroqModelPicker from "../GroqModelPicker";
+import { ApiKeyField } from "../common/ApiKeyField";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 /**
  * Props for the GroqProvider component
@@ -23,8 +23,8 @@ export const GroqProvider = ({ showModelOptions, isPopup, currentMode }: GroqPro
   return (
     <div>
       <ApiKeyField
-        initialValue={apiConfiguration?.groqApiKey || ''}
-        onChange={(value) => handleFieldChange('groqApiKey', value)}
+        initialValue={apiConfiguration?.groqApiKey || ""}
+        onChange={(value) => handleFieldChange("groqApiKey", value)}
         providerName="Groq"
         signupUrl="https://console.groq.com/keys"
       />

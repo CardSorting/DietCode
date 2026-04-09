@@ -1,14 +1,14 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { ModelsServiceClient } from '@/services/grpc-client';
-import { EmptyRequest } from '@shared/nice-grpc/cline/common.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
-import { useCallback, useEffect, useState } from 'react';
-import { useInterval } from 'react-use';
-import type * as vscodemodels from 'vscode';
-import { DROPDOWN_Z_INDEX, DropdownContainer } from '../ApiOptions';
-import { getModeSpecificFields } from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { ModelsServiceClient } from "@/services/grpc-client";
+import { EmptyRequest } from "@shared/nice-grpc/cline/common.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
+import { useCallback, useEffect, useState } from "react";
+import { useInterval } from "react-use";
+import type * as vscodemodels from "vscode";
+import { DROPDOWN_Z_INDEX, DropdownContainer } from "../ApiOptions";
+import { getModeSpecificFields } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 interface VSCodeLmProviderProps {
   currentMode: Mode;
@@ -31,7 +31,7 @@ export const VSCodeLmProvider = ({ currentMode }: VSCodeLmProviderProps) => {
         setVsCodeLmModels(response.models);
       }
     } catch (error) {
-      console.error('Failed to fetch VS Code LM models:', error);
+      console.error("Failed to fetch VS Code LM models:", error);
       setVsCodeLmModels([]);
     }
   }, []);
@@ -56,19 +56,19 @@ export const VSCodeLmProvider = ({ currentMode }: VSCodeLmProviderProps) => {
               if (!value) {
                 return;
               }
-              const [vendor, family] = value.split('/');
+              const [vendor, family] = value.split("/");
 
               handleModeFieldChange(
-                { plan: 'planModeVsCodeLmModelSelector', act: 'actModeVsCodeLmModelSelector' },
+                { plan: "planModeVsCodeLmModelSelector", act: "actModeVsCodeLmModelSelector" },
                 { vendor, family },
                 currentMode,
               );
             }}
-            style={{ width: '100%' }}
+            style={{ width: "100%" }}
             value={
               vsCodeLmModelSelector
-                ? `${vsCodeLmModelSelector.vendor ?? ''}/${vsCodeLmModelSelector.family ?? ''}`
-                : ''
+                ? `${vsCodeLmModelSelector.vendor ?? ""}/${vsCodeLmModelSelector.family ?? ""}`
+                : ""
             }
           >
             <VSCodeOption value="">Select a model...</VSCodeOption>
@@ -84,15 +84,15 @@ export const VSCodeLmProvider = ({ currentMode }: VSCodeLmProviderProps) => {
         ) : (
           <p
             style={{
-              fontSize: '12px',
-              marginTop: '5px',
-              color: 'var(--vscode-descriptionForeground)',
+              fontSize: "12px",
+              marginTop: "5px",
+              color: "var(--vscode-descriptionForeground)",
             }}
           >
-            Use models from your GitHub Copilot subscription. Install the{' '}
+            Use models from your GitHub Copilot subscription. Install the{" "}
             <a href="https://marketplace.visualstudio.com/items?itemName=GitHub.copilot">
               Copilot extension
-            </a>{' '}
+            </a>{" "}
             and enable Claude models in Copilot settings to get started.
           </p>
         )}

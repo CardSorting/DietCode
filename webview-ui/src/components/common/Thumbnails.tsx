@@ -1,9 +1,9 @@
-import { FileServiceClient } from '@/services/grpc-client';
-import { cn } from '@heroui/react';
-import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
-import type React from 'react';
-import { memo, useLayoutEffect, useRef, useState } from 'react';
-import { useWindowSize } from 'react-use';
+import { FileServiceClient } from "@/services/grpc-client";
+import { cn } from "@heroui/react";
+import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
+import type React from "react";
+import { memo, useLayoutEffect, useRef, useState } from "react";
+import { useWindowSize } from "react-use";
 
 interface ThumbnailsProps {
   images: string[];
@@ -53,19 +53,19 @@ const Thumbnails = ({
 
   const handleImageClick = (image: string) => {
     FileServiceClient.openImage(StringRequest.create({ value: image })).catch((err) =>
-      console.error('Failed to open image:', err),
+      console.error("Failed to open image:", err),
     );
   };
 
   const handleFileClick = (filePath: string) => {
     FileServiceClient.openFile(StringRequest.create({ value: filePath })).catch((err) =>
-      console.error('Failed to open file:', err),
+      console.error("Failed to open file:", err),
     );
   };
 
   return (
     <div
-      className={cn('flex flex-wrap', className)}
+      className={cn("flex flex-wrap", className)}
       ref={containerRef}
       style={{
         gap: 5,
@@ -78,7 +78,7 @@ const Thumbnails = ({
           key={`image-${index}`}
           onMouseEnter={() => setHoveredIndex(`image-${index}`)}
           onMouseLeave={() => setHoveredIndex(null)}
-          style={{ position: 'relative' }}
+          style={{ position: "relative" }}
         >
           <img
             alt={`Thumbnail image-${index + 1}`}
@@ -87,34 +87,34 @@ const Thumbnails = ({
             style={{
               width: 34,
               height: 34,
-              objectFit: 'cover',
+              objectFit: "cover",
               borderRadius: 4,
-              cursor: 'pointer',
+              cursor: "pointer",
             }}
           />
           {isDeletableImages && hoveredIndex === `image-${index}` && (
             <div
               onClick={() => handleDeleteImages(index)}
               style={{
-                position: 'absolute',
+                position: "absolute",
                 top: -4,
                 right: -4,
                 width: 13,
                 height: 13,
-                borderRadius: '50%',
-                backgroundColor: 'var(--vscode-badge-background)',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                cursor: 'pointer',
+                borderRadius: "50%",
+                backgroundColor: "var(--vscode-badge-background)",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                cursor: "pointer",
               }}
             >
               <span
                 className="codicon codicon-close"
                 style={{
-                  color: 'var(--vscode-foreground)',
+                  color: "var(--vscode-foreground)",
                   fontSize: 10,
-                  fontWeight: 'bold',
+                  fontWeight: "bold",
                 }}
               />
             </div>
@@ -130,7 +130,7 @@ const Thumbnails = ({
             key={`file-${index}`}
             onMouseEnter={() => setHoveredIndex(`file-${index}`)}
             onMouseLeave={() => setHoveredIndex(null)}
-            style={{ position: 'relative' }}
+            style={{ position: "relative" }}
           >
             <div
               onClick={() => handleFileClick(filePath)}
@@ -138,31 +138,31 @@ const Thumbnails = ({
                 width: 34,
                 height: 34,
                 borderRadius: 4,
-                cursor: 'pointer',
-                backgroundColor: 'var(--vscode-editor-background)',
-                border: '1px solid var(--vscode-input-border)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
+                cursor: "pointer",
+                backgroundColor: "var(--vscode-editor-background)",
+                border: "1px solid var(--vscode-input-border)",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
               <span
                 className="codicon codicon-file"
                 style={{
                   fontSize: 16,
-                  color: 'var(--vscode-foreground)',
+                  color: "var(--vscode-foreground)",
                 }}
               />
               <span
                 style={{
                   fontSize: 7,
                   marginTop: 1,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  maxWidth: '90%',
-                  whiteSpace: 'nowrap',
-                  textAlign: 'center',
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  maxWidth: "90%",
+                  whiteSpace: "nowrap",
+                  textAlign: "center",
                 }}
                 title={fileName}
               >
@@ -173,25 +173,25 @@ const Thumbnails = ({
               <div
                 onClick={() => handleDeleteFiles(index)}
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   top: -4,
                   right: -4,
                   width: 13,
                   height: 13,
-                  borderRadius: '50%',
-                  backgroundColor: 'var(--vscode-badge-background)',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  cursor: 'pointer',
+                  borderRadius: "50%",
+                  backgroundColor: "var(--vscode-badge-background)",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  cursor: "pointer",
                 }}
               >
                 <span
                   className="codicon codicon-close"
                   style={{
-                    color: 'var(--vscode-foreground)',
+                    color: "var(--vscode-foreground)",
                     fontSize: 10,
-                    fontWeight: 'bold',
+                    fontWeight: "bold",
                   }}
                 />
               </div>

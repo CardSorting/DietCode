@@ -1,5 +1,5 @@
-import ClineLogoWhite from '@/assets/ClineLogoWhite';
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import ClineLogoWhite from "@/assets/ClineLogoWhite";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
   Select,
   SelectContent,
@@ -9,16 +9,16 @@ import {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
-} from './select';
+} from "./select";
 
 const meta: Meta = {
-  title: 'Ui/Select',
+  title: "Ui/Select",
   component: Select,
   parameters: {
     docs: {
       description: {
         component:
-          'A select dropdown component built on Radix UI. Allows users to choose from a list of options with support for grouping, separators, labels, and custom styling. Includes trigger, content, item, and value components for composing select layouts.',
+          "A select dropdown component built on Radix UI. Allows users to choose from a list of options with support for grouping, separators, labels, and custom styling. Includes trigger, content, item, and value components for composing select layouts.",
       },
     },
   },
@@ -28,7 +28,7 @@ export default meta;
 
 type StoryProps = {
   placeholder: string;
-  size: 'sm' | 'default';
+  size: "sm" | "default";
   items: string[];
   defaultValue?: string;
   disabled: boolean;
@@ -39,9 +39,9 @@ type StoryProps = {
 // Interactive story with controls
 export const Interactive: StoryObj<StoryProps> = {
   args: {
-    placeholder: 'Select an option',
-    size: 'default',
-    items: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
+    placeholder: "Select an option",
+    size: "default",
+    items: ["Option 1", "Option 2", "Option 3", "Option 4"],
     defaultValue: undefined,
     disabled: false,
     showGroups: false,
@@ -49,33 +49,33 @@ export const Interactive: StoryObj<StoryProps> = {
   },
   argTypes: {
     placeholder: {
-      control: 'text',
-      description: 'Placeholder text shown when no option is selected',
+      control: "text",
+      description: "Placeholder text shown when no option is selected",
     },
     size: {
-      control: 'select',
-      options: ['sm', 'default'],
-      description: 'Size variant of the select trigger',
+      control: "select",
+      options: ["sm", "default"],
+      description: "Size variant of the select trigger",
     },
     items: {
-      control: 'object',
-      description: 'Array of items to display in the select',
+      control: "object",
+      description: "Array of items to display in the select",
     },
     defaultValue: {
-      control: 'text',
-      description: 'Default selected value',
+      control: "text",
+      description: "Default selected value",
     },
     disabled: {
-      control: 'boolean',
-      description: 'Disable the select component',
+      control: "boolean",
+      description: "Disable the select component",
     },
     showGroups: {
-      control: 'boolean',
-      description: 'Show items organized in groups with labels',
+      control: "boolean",
+      description: "Show items organized in groups with labels",
     },
     showSeparators: {
-      control: 'boolean',
-      description: 'Show separators between items',
+      control: "boolean",
+      description: "Show separators between items",
     },
   },
   render: (args) => (
@@ -137,35 +137,35 @@ export const Interactive: StoryObj<StoryProps> = {
 export const Overview = () => {
   const variants = [
     {
-      label: 'Basic',
-      size: 'default' as const,
-      placeholder: 'Select a fruit',
-      items: ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry'],
+      label: "Basic",
+      size: "default" as const,
+      placeholder: "Select a fruit",
+      items: ["Apple", "Banana", "Cherry", "Date", "Elderberry"],
       hasGroups: false,
       hasSeparators: false,
     },
     {
-      label: 'With Groups',
-      size: 'default' as const,
-      placeholder: 'Select a language',
+      label: "With Groups",
+      size: "default" as const,
+      placeholder: "Select a language",
       groups: [
         {
-          label: 'Frontend',
-          items: ['JavaScript', 'TypeScript', 'HTML', 'CSS'],
+          label: "Frontend",
+          items: ["JavaScript", "TypeScript", "HTML", "CSS"],
         },
         {
-          label: 'Backend',
-          items: ['Python', 'Java', 'Go', 'Rust'],
+          label: "Backend",
+          items: ["Python", "Java", "Go", "Rust"],
         },
       ],
       hasGroups: true,
       hasSeparators: false,
     },
     {
-      label: 'With Separators',
-      size: 'default' as const,
-      placeholder: 'Select a tool',
-      items: ['Git', 'Docker', 'Kubernetes', 'Jenkins'],
+      label: "With Separators",
+      size: "default" as const,
+      placeholder: "Select a tool",
+      items: ["Git", "Docker", "Kubernetes", "Jenkins"],
       hasGroups: false,
       hasSeparators: true,
     },
@@ -182,7 +182,7 @@ export const Overview = () => {
                 <SelectValue placeholder={variant.placeholder} />
               </SelectTrigger>
               <SelectContent position="popper">
-                {variant.hasGroups && 'groups' in variant ? (
+                {variant.hasGroups && "groups" in variant ? (
                   variant?.groups?.map((group, groupIndex) => (
                     <>
                       <SelectGroup key={group.label}>
@@ -198,7 +198,7 @@ export const Overview = () => {
                   ))
                 ) : (
                   <>
-                    {'items' in variant &&
+                    {"items" in variant &&
                       variant?.items?.map((item, index) => (
                         <>
                           <SelectItem key={item} value={item}>

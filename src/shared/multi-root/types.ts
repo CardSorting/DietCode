@@ -3,9 +3,9 @@
  */
 
 export enum VcsType {
-  None = 'none',
-  Git = 'git',
-  Mercurial = 'mercurial',
+  None = "none",
+  Git = "git",
+  Mercurial = "mercurial",
 }
 
 export interface WorkspaceRoot {

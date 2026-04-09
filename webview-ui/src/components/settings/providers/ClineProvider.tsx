@@ -1,6 +1,6 @@
-import type { Mode } from '@shared/storage/types.ts';
-import { ClineAccountInfoCard } from '../ClineAccountInfoCard';
-import ClineModelPicker from '../ClineModelPicker';
+import type { Mode } from "@shared/storage/types.ts";
+import { ClineAccountInfoCard } from "../ClineAccountInfoCard";
+import ClineModelPicker from "../ClineModelPicker";
 
 /**
  * Props for the ClineProvider component
@@ -9,7 +9,7 @@ interface ClineProviderProps {
   showModelOptions: boolean;
   isPopup?: boolean;
   currentMode: Mode;
-  initialModelTab?: 'recommended' | 'free';
+  initialModelTab?: "recommended" | "free";
 }
 
 /**

@@ -1,18 +1,18 @@
-import { ClineEndpoint } from '@/config';
-import { Logger } from '@/shared/services/Logger';
+import { ClineEndpoint } from "@/config";
+import { Logger } from "@/shared/services/Logger";
 import {
   type PostHogClientConfig,
   isPostHogConfigValid,
   posthogConfig,
-} from '@/shared/services/config/posthog-config';
-import type { ClineError } from './ClineError';
-import type { IErrorProvider } from './providers/IErrorProvider';
-import { PostHogErrorProvider } from './providers/PostHogErrorProvider';
+} from "@/shared/services/config/posthog-config";
+import type { ClineError } from "./ClineError";
+import type { IErrorProvider } from "./providers/IErrorProvider";
+import { PostHogErrorProvider } from "./providers/PostHogErrorProvider";
 
 /**
  * Supported error provider types
  */
-export type ErrorProviderType = 'posthog' | 'no-op';
+export type ErrorProviderType = "posthog" | "no-op";
 
 /**
  * Configuration for error providers
@@ -34,7 +34,7 @@ export class ErrorProviderFactory {
    */
   public static async createProvider(config: ErrorProviderConfig): Promise<IErrorProvider> {
     switch (config.type) {
-      case 'posthog': {
+      case "posthog": {
         const hasValidPostHogConfig = isPostHogConfigValid(config.config);
         const errorTrackingApiKey = config.config.errorTrackingApiKey;
         return hasValidPostHogConfig && errorTrackingApiKey
@@ -60,12 +60,12 @@ export class ErrorProviderFactory {
     // Use no-op provider in self-hosted mode to avoid external network calls
     if (ClineEndpoint.isSelfHosted()) {
       return {
-        type: 'no-op',
+        type: "no-op",
         config: posthogConfig,
       };
     }
     return {
-      type: 'posthog',
+      type: "posthog",
       config: posthogConfig,
     };
   }
@@ -80,7 +80,7 @@ class NoOpErrorProvider implements IErrorProvider {
     error: Error | ClineError,
     properties?: Record<string, unknown>,
   ): Promise<void> {
-    Logger.error('[NoOpErrorProvider] captureException called', {
+    Logger.error("[NoOpErrorProvider] captureException called", {
       error: error.message || String(error),
       properties,
     });
@@ -88,15 +88,15 @@ class NoOpErrorProvider implements IErrorProvider {
 
   public logException(error: Error | ClineError, _properties?: Record<string, unknown>): void {
     // Use Logger.error directly to avoid potential infinite recursion through Logger
-    Logger.error('[NoOpErrorProvider]', error.message || String(error));
+    Logger.error("[NoOpErrorProvider]", error.message || String(error));
   }
 
   public logMessage(
     message: string,
-    level?: 'error' | 'warning' | 'log' | 'debug' | 'info',
+    level?: "error" | "warning" | "log" | "debug" | "info",
     properties?: Record<string, unknown>,
   ): void {
-    Logger.log('[NoOpErrorProvider]', { message, level, properties });
+    Logger.log("[NoOpErrorProvider]", { message, level, properties });
   }
 
   public isEnabled(): boolean {
@@ -107,11 +107,11 @@ class NoOpErrorProvider implements IErrorProvider {
     return {
       enabled: true,
       hostEnabled: true,
-      level: 'all' as const,
+      level: "all" as const,
     };
   }
 
   public async dispose(): Promise<void> {
-    Logger.info('[NoOpErrorProvider] Disposing');
+    Logger.info("[NoOpErrorProvider] Disposing");
   }
 }

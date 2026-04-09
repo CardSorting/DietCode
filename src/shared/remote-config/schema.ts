@@ -11,7 +11,7 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
-import { z } from 'zod';
+import { z } from "zod";
 
 // OpenAI Compatible model schema with per-model settings
 export const OpenAiCompatibleModelSchema = z.object({
@@ -163,7 +163,7 @@ export const S3AccessKeySettingsSchema = z.object({
 
 export const PromptUploadingSchema = z.object({
   enabled: z.boolean().optional(),
-  type: z.union([z.literal('s3_access_keys'), z.literal('r2_access_keys')]).optional(),
+  type: z.union([z.literal("s3_access_keys"), z.literal("r2_access_keys")]).optional(),
   s3AccessSettings: S3AccessKeySettingsSchema.optional(),
   r2AccessSettings: S3AccessKeySettingsSchema.optional(),
 });

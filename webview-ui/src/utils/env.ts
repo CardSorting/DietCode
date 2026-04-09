@@ -1,7 +1,7 @@
-import { HostProvider } from '@/hosts/host-provider';
-import { Logger } from '@/shared/services/Logger';
-import { EmptyRequest, StringRequest } from '@shared/nice-grpc/cline/common.ts';
-import { ShowMessageType } from '@shared/nice-grpc/host/window.ts';
+import { HostProvider } from "@/hosts/host-provider";
+import { Logger } from "@/shared/services/Logger";
+import { EmptyRequest, StringRequest } from "@shared/nice-grpc/cline/common.ts";
+import { ShowMessageType } from "@shared/nice-grpc/host/window.ts";
 
 /**
  * Writes text to the system clipboard
@@ -41,14 +41,14 @@ export async function readTextFromClipboard(): Promise<string> {
  * @returns Promise that resolves when the operation is complete
  */
 export async function openExternal(url: string): Promise<void> {
-  Logger.log('Opening browser:', url);
+  Logger.log("Opening browser:", url);
   try {
     await HostProvider.env.openExternal(StringRequest.create({ value: url }));
   } catch (error) {
     // Fallback for hosts that don't implement openExternal (e.g., JetBrains plugin)
     Logger.warn(`Host openExternal RPC failed, falling back to 'open' package: ${error}`);
     try {
-      const open = (await import('open')).default;
+      const open = (await import("open")).default;
       await open(url);
     } catch (fallbackError) {
       Logger.error(`Fallback 'open' also failed: ${fallbackError}`);

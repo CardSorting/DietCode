@@ -1,10 +1,10 @@
-import { PLATFORM_CONFIG, PlatformType } from '@/config/platform.config';
-import type { McpServer } from '@shared/mcp';
+import { PLATFORM_CONFIG, PlatformType } from "@/config/platform.config";
+import type { McpServer } from "@shared/mcp";
 import {
   BASE_SLASH_COMMANDS,
   type SlashCommand,
   VSCODE_ONLY_COMMANDS,
-} from '@shared/slashCommands.ts';
+} from "@shared/slashCommands.ts";
 
 export type { SlashCommand };
 
@@ -25,12 +25,12 @@ export function getWorkflowCommands(
     .filter(([_, enabled]) => enabled)
     .reduce(
       (acc, [filePath, _]) => {
-        const fileName = filePath.replace(/^.*[/\\]/, '');
+        const fileName = filePath.replace(/^.*[/\\]/, "");
 
         // Add to array of workflows
         acc.workflows.push({
           name: fileName,
-          section: 'custom',
+          section: "custom",
         } as SlashCommand);
 
         // Add to set of names
@@ -44,7 +44,7 @@ export function getWorkflowCommands(
   const globalWorkflows = Object.entries(globalWorkflowToggles)
     .filter(([_, enabled]) => enabled)
     .flatMap(([filePath, _]) => {
-      const fileName = filePath.replace(/^.*[/\\]/, '');
+      const fileName = filePath.replace(/^.*[/\\]/, "");
 
       // skip if a local workflow with the same name exists
       if (localWorkflowNames.has(fileName)) {
@@ -54,7 +54,7 @@ export function getWorkflowCommands(
       return [
         {
           name: fileName,
-          section: 'custom',
+          section: "custom",
         },
       ] as SlashCommand[];
     });
@@ -68,7 +68,7 @@ export function getWorkflowCommands(
       if (enabled) {
         remoteWorkflowCommands.push({
           name: workflow.name,
-          section: 'custom',
+          section: "custom",
         });
       }
     }
@@ -86,7 +86,7 @@ export function getMcpPromptCommands(mcpServers: McpServer[] = []): SlashCommand
   const commands: SlashCommand[] = [];
 
   for (const server of mcpServers) {
-    if (server.status !== 'connected' || !server.prompts) {
+    if (server.status !== "connected" || !server.prompts) {
       continue;
     }
 
@@ -94,7 +94,7 @@ export function getMcpPromptCommands(mcpServers: McpServer[] = []): SlashCommand
       commands.push({
         name: `mcp:${server.name}:${prompt.name}`,
         description: prompt.description || prompt.title || `MCP prompt from ${server.name}`,
-        section: 'mcp',
+        section: "mcp",
       });
     }
   }
@@ -107,7 +107,7 @@ export function getMcpPromptCommands(mcpServers: McpServer[] = []): SlashCommand
 // e.g., matches "/newtask" or "text /newtask" but not "http://example.com/newtask"
 // Note: Colons are allowed to support MCP prompt commands like /mcp:server:prompt
 export const slashCommandRegex = /(^|\s)(\/[a-zA-Z0-9_.:@-]+)(?=\s|$)/;
-export const slashCommandRegexGlobal = new RegExp(slashCommandRegex.source, 'g');
+export const slashCommandRegexGlobal = new RegExp(slashCommandRegex.source, "g");
 // Regex for detecting a slash command at the end of text (for deletion)
 // Must be at start OR preceded by whitespace, captures the whole command including slash
 export const slashCommandDeleteRegex = /(^|\s)(\/[a-zA-Z0-9_.:@-]+)$/;
@@ -129,7 +129,7 @@ export function removeSlashCommand(
     // matchEnd[1] is the whitespace or empty string before the slash
     // matchEnd[2] is the slash command (e.g., "/newtask")
     const slashCommand = matchEnd[2];
-    const newText = text.slice(0, position - slashCommand.length) + afterCursor.replace(' ', ''); // removes the first space after the command
+    const newText = text.slice(0, position - slashCommand.length) + afterCursor.replace(" ", ""); // removes the first space after the command
     const newPosition = position - slashCommand.length;
     return { newText, newPosition };
   }
@@ -147,7 +147,7 @@ export function shouldShowSlashCommandsMenu(text: string, cursorPosition: number
   const beforeCursor = text.slice(0, cursorPosition);
 
   // first check if there is a slash before the cursor
-  const slashIndex = beforeCursor.lastIndexOf('/');
+  const slashIndex = beforeCursor.lastIndexOf("/");
 
   if (slashIndex === -1) {
     return false;
@@ -221,7 +221,7 @@ export function insertSlashCommand(
 ): { newValue: string; commandIndex: number } {
   // Find the slash nearest to cursor (before cursor position)
   const beforeCursor = text.slice(0, cursorPosition);
-  const slashIndex = beforeCursor.lastIndexOf('/');
+  const slashIndex = beforeCursor.lastIndexOf("/");
 
   const beforeSlash = text.substring(0, slashIndex + 1);
   const afterPartialCommand = text.substring(slashIndex + 1 + partialCommandLength);
@@ -230,7 +230,7 @@ export function insertSlashCommand(
   const newValue =
     beforeSlash +
     commandName +
-    (afterPartialCommand.startsWith(' ') ? afterPartialCommand : ` ${afterPartialCommand}`);
+    (afterPartialCommand.startsWith(" ") ? afterPartialCommand : ` ${afterPartialCommand}`);
 
   return { newValue, commandIndex: slashIndex };
 }
@@ -246,7 +246,7 @@ export function validateSlashCommand(
   remoteWorkflowToggles?: Record<string, boolean>,
   remoteWorkflows?: any[],
   mcpServers: McpServer[] = [],
-): 'full' | 'partial' | null {
+): "full" | "partial" | null {
   if (!command) {
     return null;
   }
@@ -264,7 +264,7 @@ export function validateSlashCommand(
   const exactMatch = allCommands.some((cmd) => cmd.name.toLowerCase() === command.toLowerCase());
 
   if (exactMatch) {
-    return 'full';
+    return "full";
   }
 
   const partialMatch = allCommands.some((cmd) =>
@@ -272,7 +272,7 @@ export function validateSlashCommand(
   );
 
   if (partialMatch) {
-    return 'partial';
+    return "partial";
   }
 
   return null; // no match

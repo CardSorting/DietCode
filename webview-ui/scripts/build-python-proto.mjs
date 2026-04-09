@@ -1,24 +1,24 @@
 #!/usr/bin/env node
 
-import { execSync } from 'node:child_process';
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import chalk from 'chalk';
-import { globby } from 'globby';
+import { execSync } from "node:child_process";
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
+import { fileURLToPath } from "node:url";
+import chalk from "chalk";
+import { globby } from "globby";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
-const ROOT_DIR = path.resolve(SCRIPT_DIR, '..');
-const PROTO_DIR = path.join(ROOT_DIR, 'proto');
-const PY_OUT_DIR = path.join(ROOT_DIR, 'src', 'generated', 'grpc-python');
-const PY_CLIENT_DIR = path.join(PY_OUT_DIR, 'client');
+const ROOT_DIR = path.resolve(SCRIPT_DIR, "..");
+const PROTO_DIR = path.join(ROOT_DIR, "proto");
+const PY_OUT_DIR = path.join(ROOT_DIR, "src", "generated", "grpc-python");
+const PY_CLIENT_DIR = path.join(PY_OUT_DIR, "client");
 
 function hasCommand(cmd) {
   try {
-    if (process.platform === 'win32') {
-      execSync(`where ${cmd}`, { stdio: 'pipe' });
+    if (process.platform === "win32") {
+      execSync(`where ${cmd}`, { stdio: "pipe" });
     } else {
-      execSync(`which ${cmd}`, { stdio: 'pipe' });
+      execSync(`which ${cmd}`, { stdio: "pipe" });
     }
     return true;
   } catch {
@@ -31,7 +31,7 @@ function resolvePython() {
   const envPy = process.env.PYTHON;
   if (envPy) {
     try {
-      execSync(`"${envPy}" --version`, { stdio: 'pipe' });
+      execSync(`"${envPy}" --version`, { stdio: "pipe" });
       return envPy;
     } catch {
       console.warn(
@@ -41,11 +41,11 @@ function resolvePython() {
       );
     }
   }
-  const candidates = ['python3', 'python'];
+  const candidates = ["python3", "python"];
   for (const c of candidates) {
     if (hasCommand(c)) {
       try {
-        execSync(`${c} --version`, { stdio: 'pipe' });
+        execSync(`${c} --version`, { stdio: "pipe" });
         return c;
       } catch {
         // continue
@@ -57,7 +57,7 @@ function resolvePython() {
 
 function checkGrpcTools(pythonExe) {
   try {
-    execSync(`"${pythonExe}" -c "import grpc_tools"`, { stdio: 'pipe' });
+    execSync(`"${pythonExe}" -c "import grpc_tools"`, { stdio: "pipe" });
     return true;
   } catch {
     return false;
@@ -70,7 +70,7 @@ async function ensureDir(dir) {
 
 async function ensureInitPy(dir) {
   try {
-    await fs.writeFile(path.join(dir, '__init__.py'), '', { flag: 'wx' });
+    await fs.writeFile(path.join(dir, "__init__.py"), "", { flag: "wx" });
   } catch {
     // exists
   }
@@ -85,13 +85,13 @@ async function parseServicesWithFiles(protoDir, protoFiles) {
   const services = [];
   for (const relPath of protoFiles) {
     const full = path.join(protoDir, relPath);
-    const content = await fs.readFile(full, 'utf8');
-    const pkg = relPath.startsWith('host/') ? 'host' : 'cline';
-    const moduleBase = path.basename(relPath, '.proto');
+    const content = await fs.readFile(full, "utf8");
+    const pkg = relPath.startsWith("host/") ? "host" : "cline";
+    const moduleBase = path.basename(relPath, ".proto");
     const serviceRe = /service\s+(\w+Service)\s*\{([\s\S]*?)\}/g;
     for (const m of content.matchAll(serviceRe)) {
       const serviceName = m[1]; // e.g., TaskService
-      const serviceKey = serviceName.replace(/Service$/, '').toLowerCase(); // task
+      const serviceKey = serviceName.replace(/Service$/, "").toLowerCase(); // task
       const body = m[2];
       const methodRe = /rpc\s+(\w+)\s*\((stream\s)?([\w.]+)\)\s*returns\s*\((stream\s)?([\w.]+)\)/g;
       const methods = [];
@@ -148,7 +148,7 @@ class ConnectionManager:
         return self._channel is not None
 `;
   await fs.mkdir(outDir, { recursive: true });
-  await fs.writeFile(path.join(outDir, 'connection.py'), content);
+  await fs.writeFile(path.join(outDir, "connection.py"), content);
   await ensureInitPy(outDir);
 }
 
@@ -158,7 +158,7 @@ async function generateClineClientPy(outDir, services) {
   const seen = new Set();
   for (const s of services) {
     const fileBase = `${s.serviceKey}_client`;
-    const className = `${s.serviceName.replace(/Service$/, '')}Client`;
+    const className = `${s.serviceName.replace(/Service$/, "")}Client`;
     const importKey = `${fileBase}:${className}`;
     if (!seen.has(importKey)) {
       importLines.push(`from .services.${fileBase} import ${className}`);
@@ -168,14 +168,14 @@ async function generateClineClientPy(outDir, services) {
 
   // Build wrapper initializations on connect (like Go New<Service>Client)
   const initLines = services.map((s) => {
-    const shortName = s.serviceName.replace(/Service$/, ''); // Task
+    const shortName = s.serviceName.replace(/Service$/, ""); // Task
     const className = `${shortName}Client`;
     return `        self.${shortName} = ${className}(self._conn.channel)`;
   });
 
   // Build attribute resets on disconnect
   const nilLines = services.map((s) => {
-    const shortName = s.serviceName.replace(/Service$/, '');
+    const shortName = s.serviceName.replace(/Service$/, "");
     return `        self.${shortName} = None`;
   });
 
@@ -186,7 +186,7 @@ from typing import Optional
 
 import grpc
 from .connection import ConnectionManager
-${importLines.join('\n')}
+${importLines.join("\n")}
 
 class ClineClient:
     """
@@ -203,20 +203,20 @@ class ClineClient:
         self._conn = ConnectionManager(address, timeout=timeout)
         self._connected = False
 
-${services.map((s) => `        self.${s.serviceName.replace(/Service$/, '')}: Optional[object] = None`).join('\n')}
+${services.map((s) => `        self.${s.serviceName.replace(/Service$/, "")}: Optional[object] = None`).join("\n")}
 
     def connect(self) -> None:
         if self._connected:
             return
         self._conn.connect()
-${initLines.join('\n')}
+${initLines.join("\n")}
         self._connected = True
 
     def disconnect(self) -> None:
         if not self._connected:
             return
         self._conn.disconnect()
-${nilLines.join('\n')}
+${nilLines.join("\n")}
         self._connected = False
 
     def is_connected(self) -> bool:
@@ -228,7 +228,7 @@ ${nilLines.join('\n')}
 `;
   const clientDir = outDir;
   await fs.mkdir(clientDir, { recursive: true });
-  await fs.writeFile(path.join(clientDir, 'cline_client.py'), content);
+  await fs.writeFile(path.join(clientDir, "cline_client.py"), content);
 }
 
 async function generatePythonClient(protoDir, pyOutDir, clientDir, protoFiles) {
@@ -243,7 +243,7 @@ async function generatePythonClient(protoDir, pyOutDir, clientDir, protoFiles) {
   await generateConnectionPy(clientDir);
 
   // services/ per-service wrappers (mirror Go client/services)
-  const servicesDir = path.join(clientDir, 'services');
+  const servicesDir = path.join(clientDir, "services");
   await fs.mkdir(servicesDir, { recursive: true });
   await ensureInitPy(servicesDir);
   await generateServiceClientsPy(servicesDir, services);
@@ -257,7 +257,7 @@ async function generateServiceClientsPy(outDir, services) {
   await ensureInitPy(outDir);
 
   for (const s of services) {
-    const shortName = s.serviceName.replace(/Service$/, ''); // Task
+    const shortName = s.serviceName.replace(/Service$/, ""); // Task
     const className = `${shortName}Client`;
     const fileName = `${s.serviceKey}_client.py`;
 
@@ -266,8 +266,8 @@ async function generateServiceClientsPy(outDir, services) {
 
     const methodLines = s.methods
       .map((m) => {
-        const reqTypeName = m.requestType.split('.').pop();
-        const respTypeName = m.responseType.split('.').pop();
+        const reqTypeName = m.requestType.split(".").pop();
+        const respTypeName = m.responseType.split(".").pop();
         if (m.isResponseStreaming) {
           return `
     def ${m.name}(self, req):
@@ -287,7 +287,7 @@ async function generateServiceClientsPy(outDir, services) {
         """
         return self._stub.${m.name}(req)`;
       })
-      .join('\n');
+      .join("\n");
 
     const content = `# AUTO-GENERATED FILE - DO NOT MODIFY DIRECTLY
 # Generated by scripts/build-python-proto.mjs
@@ -324,11 +324,11 @@ dependencies = [
 [tool.setuptools.packages.find]
 where = ["."]
 `;
-  await fs.writeFile(path.join(outDir, 'pyproject.toml'), content);
+  await fs.writeFile(path.join(outDir, "pyproject.toml"), content);
 }
 
 async function main() {
-  console.log(chalk.cyan('Starting Python protobuf code generation...'));
+  console.log(chalk.cyan("Starting Python protobuf code generation..."));
 
   // Verify proto dir exists
   try {
@@ -347,7 +347,7 @@ async function main() {
   if (!python) {
     console.error(
       chalk.red(
-        'Python not found on PATH. Please install Python 3 and ensure it is available (python3 or python).',
+        "Python not found on PATH. Please install Python 3 and ensure it is available (python3 or python).",
       ),
     );
     process.exit(1);
@@ -356,19 +356,19 @@ async function main() {
 
   // Check grpcio-tools
   if (!checkGrpcTools(python)) {
-    console.error(chalk.red('Missing dependency: grpcio-tools'));
-    console.log(chalk.yellow('Install with:'));
+    console.error(chalk.red("Missing dependency: grpcio-tools"));
+    console.log(chalk.yellow("Install with:"));
     console.log(
       chalk.yellow(`  ${python} -m pip install grpcio-tools --user --break-system-packages`),
     );
     process.exit(1);
   }
-  console.log(chalk.green('✓ grpcio-tools available'));
+  console.log(chalk.green("✓ grpcio-tools available"));
 
   // Discover proto files
-  const protoFiles = await globby('**/*.proto', { cwd: PROTO_DIR });
+  const protoFiles = await globby("**/*.proto", { cwd: PROTO_DIR });
   if (!protoFiles.length) {
-    console.error(chalk.red('No .proto files found under ./proto'));
+    console.error(chalk.red("No .proto files found under ./proto"));
     process.exit(1);
   }
   console.log(chalk.cyan(`Found ${protoFiles.length} proto files`));
@@ -379,21 +379,21 @@ async function main() {
   // Build and run protoc command via grpc_tools
   const quoted = (s) => `"${s}"`;
   const pythonCmd = quoted(python);
-  const cmd = `${pythonCmd} -m grpc_tools.protoc -I ${quoted(PROTO_DIR)} --python_out=${quoted(PY_OUT_DIR)} --grpc_python_out=${quoted(PY_OUT_DIR)} ${protoFiles.map((f) => quoted(f)).join(' ')}`;
+  const cmd = `${pythonCmd} -m grpc_tools.protoc -I ${quoted(PROTO_DIR)} --python_out=${quoted(PY_OUT_DIR)} --grpc_python_out=${quoted(PY_OUT_DIR)} ${protoFiles.map((f) => quoted(f)).join(" ")}`;
 
   try {
     console.log(chalk.cyan(`Generating Python code into ${PY_OUT_DIR}...`));
-    execSync(cmd, { cwd: ROOT_DIR, stdio: 'inherit', env: process.env });
+    execSync(cmd, { cwd: ROOT_DIR, stdio: "inherit", env: process.env });
   } catch (error) {
-    console.error(chalk.red('Error generating Python code:'), error?.message || error);
+    console.error(chalk.red("Error generating Python code:"), error?.message || error);
     process.exit(1);
   }
 
   // Ensure package structure (__init__.py) for imports
   await ensureInitPy(PY_OUT_DIR);
   try {
-    const clineDir = path.join(PY_OUT_DIR, 'cline');
-    const hostDir = path.join(PY_OUT_DIR, 'host');
+    const clineDir = path.join(PY_OUT_DIR, "cline");
+    const hostDir = path.join(PY_OUT_DIR, "host");
     // These may or may not exist depending on which protos are present
     await fs
       .stat(clineDir)
@@ -413,20 +413,20 @@ async function main() {
   // Generate a minimal pyproject.toml in the generated output so it can be pip-installed if desired
   await generatePyproject(PY_OUT_DIR);
 
-  console.log(chalk.green('✓ Python protobuf and client code generation completed successfully!'));
+  console.log(chalk.green("✓ Python protobuf and client code generation completed successfully!"));
   console.log(chalk.cyan(`Output directory: ${PY_OUT_DIR}`));
   console.log(chalk.cyan(`Client directory: ${PY_CLIENT_DIR}`));
-  console.log(chalk.cyan(`PyProject: ${path.join(PY_OUT_DIR, 'pyproject.toml')}`));
+  console.log(chalk.cyan(`PyProject: ${path.join(PY_OUT_DIR, "pyproject.toml")}`));
   console.log(
     chalk.gray(
-      'Note: To import, add the output dir to your PYTHONPATH or pip install -e src/generated/grpc-python',
+      "Note: To import, add the output dir to your PYTHONPATH or pip install -e src/generated/grpc-python",
     ),
   );
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   main().catch((err) => {
-    console.error(chalk.red('Unexpected error in build-python-proto.mjs:'), err);
+    console.error(chalk.red("Unexpected error in build-python-proto.mjs:"), err);
     process.exit(1);
   });
 }

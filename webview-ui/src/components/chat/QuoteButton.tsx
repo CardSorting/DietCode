@@ -1,7 +1,7 @@
-import { Button } from '@/components/ui/button';
-import { QuoteIcon } from 'lucide-react';
-import type React from 'react';
-import styled from 'styled-components';
+import { Button } from "@/components/ui/button";
+import { QuoteIcon } from "lucide-react";
+import type React from "react";
+import styled from "styled-components";
 
 interface QuoteButtonProps {
   top: number;

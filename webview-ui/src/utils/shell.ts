@@ -1,28 +1,28 @@
-import { userInfo } from 'node:os';
-import * as vscode from 'vscode';
+import { userInfo } from "node:os";
+import * as vscode from "vscode";
 
-export const WINDOWS_POWERSHELL_7_PATH = 'C:\\Program Files\\PowerShell\\7\\pwsh.exe';
+export const WINDOWS_POWERSHELL_7_PATH = "C:\\Program Files\\PowerShell\\7\\pwsh.exe";
 export const WINDOWS_POWERSHELL_LEGACY_PATH =
-  'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe';
+  "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe";
 
 const SHELL_PATHS = {
   // Windows paths
   POWERSHELL_7: WINDOWS_POWERSHELL_7_PATH,
   POWERSHELL_LEGACY: WINDOWS_POWERSHELL_LEGACY_PATH,
-  CMD: 'C:\\Windows\\System32\\cmd.exe',
-  WSL_BASH: '/bin/bash',
-  GIT_BASH: 'C:\\Program Files\\Git\\bin\\bash.exe',
+  CMD: "C:\\Windows\\System32\\cmd.exe",
+  WSL_BASH: "/bin/bash",
+  GIT_BASH: "C:\\Program Files\\Git\\bin\\bash.exe",
   // Unix paths
-  MAC_DEFAULT: '/bin/zsh',
-  LINUX_DEFAULT: '/bin/bash',
-  CSH: '/bin/csh',
-  BASH: '/bin/bash',
-  KSH: '/bin/ksh',
-  SH: '/bin/sh',
-  ZSH: '/bin/zsh',
-  DASH: '/bin/dash',
-  TCSH: '/bin/tcsh',
-  FALLBACK: '/bin/sh',
+  MAC_DEFAULT: "/bin/zsh",
+  LINUX_DEFAULT: "/bin/bash",
+  CSH: "/bin/csh",
+  BASH: "/bin/bash",
+  KSH: "/bin/ksh",
+  SH: "/bin/sh",
+  ZSH: "/bin/zsh",
+  DASH: "/bin/dash",
+  TCSH: "/bin/tcsh",
+  FALLBACK: "/bin/sh",
 } as const;
 
 interface MacTerminalProfile {
@@ -33,7 +33,7 @@ type MacTerminalProfiles = Record<string, MacTerminalProfile>;
 
 interface WindowsTerminalProfile {
   path?: string;
-  source?: 'PowerShell' | 'WSL';
+  source?: "PowerShell" | "WSL";
 }
 
 type WindowsTerminalProfiles = Record<string, WindowsTerminalProfile>;
@@ -50,9 +50,9 @@ type LinuxTerminalProfiles = Record<string, LinuxTerminalProfile>;
 
 function getWindowsTerminalConfig() {
   try {
-    const config = vscode.workspace.getConfiguration('terminal.integrated');
-    const defaultProfileName = config.get<string>('defaultProfile.windows');
-    const profiles = config.get<WindowsTerminalProfiles>('profiles.windows') || {};
+    const config = vscode.workspace.getConfiguration("terminal.integrated");
+    const defaultProfileName = config.get<string>("defaultProfile.windows");
+    const profiles = config.get<WindowsTerminalProfiles>("profiles.windows") || {};
     return { defaultProfileName, profiles };
   } catch {
     return { defaultProfileName: null, profiles: {} as WindowsTerminalProfiles };
@@ -61,9 +61,9 @@ function getWindowsTerminalConfig() {
 
 function getMacTerminalConfig() {
   try {
-    const config = vscode.workspace.getConfiguration('terminal.integrated');
-    const defaultProfileName = config.get<string>('defaultProfile.osx');
-    const profiles = config.get<MacTerminalProfiles>('profiles.osx') || {};
+    const config = vscode.workspace.getConfiguration("terminal.integrated");
+    const defaultProfileName = config.get<string>("defaultProfile.osx");
+    const profiles = config.get<MacTerminalProfiles>("profiles.osx") || {};
     return { defaultProfileName, profiles };
   } catch {
     return { defaultProfileName: null, profiles: {} as MacTerminalProfiles };
@@ -72,9 +72,9 @@ function getMacTerminalConfig() {
 
 function getLinuxTerminalConfig() {
   try {
-    const config = vscode.workspace.getConfiguration('terminal.integrated');
-    const defaultProfileName = config.get<string>('defaultProfile.linux');
-    const profiles = config.get<LinuxTerminalProfiles>('profiles.linux') || {};
+    const config = vscode.workspace.getConfiguration("terminal.integrated");
+    const defaultProfileName = config.get<string>("defaultProfile.linux");
+    const profiles = config.get<LinuxTerminalProfiles>("profiles.linux") || {};
     return { defaultProfileName, profiles };
   } catch {
     return { defaultProfileName: null, profiles: {} as LinuxTerminalProfiles };
@@ -97,12 +97,12 @@ function getWindowsShellFromVSCode(): string | null {
   // If the profile name indicates PowerShell, do version-based detection.
   // In testing it was found these typically do not have a path, and this
   // implementation manages to deductively get the correct version of PowerShell
-  if (defaultProfileName.toLowerCase().includes('powershell')) {
+  if (defaultProfileName.toLowerCase().includes("powershell")) {
     if (profile?.path) {
       // If there's an explicit PowerShell path, return that
       return profile.path;
     }
-    if (profile?.source === 'PowerShell') {
+    if (profile?.source === "PowerShell") {
       // If the profile is sourced from PowerShell, assume the newest
       return SHELL_PATHS.POWERSHELL_7;
     }
@@ -116,7 +116,7 @@ function getWindowsShellFromVSCode(): string | null {
   }
 
   // If the profile indicates WSL
-  if (profile?.source === 'WSL' || defaultProfileName.toLowerCase().includes('wsl')) {
+  if (profile?.source === "WSL" || defaultProfileName.toLowerCase().includes("wsl")) {
     return SHELL_PATHS.WSL_BASH;
   }
 
@@ -167,19 +167,19 @@ function getShellFromUserInfo(): string | null {
 function getShellFromEnv(): string | null {
   const { env } = process;
 
-  if (process.platform === 'win32') {
+  if (process.platform === "win32") {
     // On Windows, COMSPEC typically holds cmd.exe
-    return env.COMSPEC || 'C:\\Windows\\System32\\cmd.exe';
+    return env.COMSPEC || "C:\\Windows\\System32\\cmd.exe";
   }
 
-  if (process.platform === 'darwin') {
+  if (process.platform === "darwin") {
     // On macOS/Linux, SHELL is commonly the environment variable
-    return env.SHELL || '/bin/zsh';
+    return env.SHELL || "/bin/zsh";
   }
 
-  if (process.platform === 'linux') {
+  if (process.platform === "linux") {
     // On Linux, SHELL is commonly the environment variable
-    return env.SHELL || '/bin/bash';
+    return env.SHELL || "/bin/bash";
   }
   return null;
 }
@@ -188,88 +188,88 @@ function getShellFromEnv(): string | null {
 // 4) Terminal Profile Interface and Utilities
 // -----------------------------------------------------
 
-import type { TerminalProfile } from '@shared/nice-grpc/cline/state.ts';
+import type { TerminalProfile } from "@shared/nice-grpc/cline/state.ts";
 
 /** Gets available terminal profiles for the current platform */
 export function getAvailableTerminalProfiles(): TerminalProfile[] {
   const profiles: TerminalProfile[] = [
     {
-      id: 'default',
-      name: 'Default',
+      id: "default",
+      name: "Default",
       description: "Use VSCode's default terminal configuration",
     },
   ];
 
-  if (process.platform === 'win32') {
+  if (process.platform === "win32") {
     // Windows terminal profiles
     profiles.push(
       {
-        id: 'powershell-7',
-        name: 'PowerShell 7',
+        id: "powershell-7",
+        name: "PowerShell 7",
         path: SHELL_PATHS.POWERSHELL_7,
-        description: 'PowerShell 7 (pwsh.exe)',
+        description: "PowerShell 7 (pwsh.exe)",
       },
       {
-        id: 'powershell-legacy',
-        name: 'Windows PowerShell',
+        id: "powershell-legacy",
+        name: "Windows PowerShell",
         path: SHELL_PATHS.POWERSHELL_LEGACY,
-        description: 'Windows PowerShell 5.x',
+        description: "Windows PowerShell 5.x",
       },
       {
-        id: 'cmd',
-        name: 'Command Prompt',
+        id: "cmd",
+        name: "Command Prompt",
         path: SHELL_PATHS.CMD,
-        description: 'Command Prompt (cmd.exe)',
+        description: "Command Prompt (cmd.exe)",
       },
       {
-        id: 'wsl-bash',
-        name: 'WSL Bash',
+        id: "wsl-bash",
+        name: "WSL Bash",
         path: SHELL_PATHS.WSL_BASH,
-        description: 'Windows Subsystem for Linux Bash',
+        description: "Windows Subsystem for Linux Bash",
       },
       {
-        id: 'git-bash',
-        name: 'Git Bash',
+        id: "git-bash",
+        name: "Git Bash",
         path: SHELL_PATHS.GIT_BASH,
-        description: 'Git Bash (bash.exe from Git for Windows)',
+        description: "Git Bash (bash.exe from Git for Windows)",
       },
     );
-  } else if (process.platform === 'darwin') {
+  } else if (process.platform === "darwin") {
     // macOS terminal profiles
     profiles.push(
       {
-        id: 'zsh',
-        name: 'zsh',
+        id: "zsh",
+        name: "zsh",
         path: SHELL_PATHS.ZSH,
-        description: 'Z shell (default on macOS)',
+        description: "Z shell (default on macOS)",
       },
       {
-        id: 'bash',
-        name: 'bash',
+        id: "bash",
+        name: "bash",
         path: SHELL_PATHS.BASH,
-        description: 'Bourne Again Shell',
+        description: "Bourne Again Shell",
       },
     );
-  } else if (process.platform === 'linux') {
+  } else if (process.platform === "linux") {
     // Linux terminal profiles
     profiles.push(
       {
-        id: 'bash',
-        name: 'bash',
+        id: "bash",
+        name: "bash",
         path: SHELL_PATHS.BASH,
-        description: 'Bourne Again Shell (default on most Linux)',
+        description: "Bourne Again Shell (default on most Linux)",
       },
       {
-        id: 'zsh',
-        name: 'zsh',
+        id: "zsh",
+        name: "zsh",
         path: SHELL_PATHS.ZSH,
-        description: 'Z shell',
+        description: "Z shell",
       },
       {
-        id: 'dash',
-        name: 'dash',
+        id: "dash",
+        name: "dash",
         path: SHELL_PATHS.DASH,
-        description: 'Debian Almquist Shell',
+        description: "Debian Almquist Shell",
       },
     );
   }
@@ -280,7 +280,7 @@ export function getAvailableTerminalProfiles(): TerminalProfile[] {
 /** Gets the shell path for a specific terminal profile */
 export function getShellForProfile(profileId: string): string {
   // If it's the default profile, use the existing getShell() logic
-  if (profileId === 'default') {
+  if (profileId === "default") {
     return getShell();
   }
 
@@ -302,19 +302,19 @@ export function getShellForProfile(profileId: string): string {
 
 export function getShell(): string {
   // 1. Check VS Code config first.
-  if (process.platform === 'win32') {
+  if (process.platform === "win32") {
     // Special logic for Windows
     const windowsShell = getWindowsShellFromVSCode();
     if (windowsShell) {
       return windowsShell;
     }
-  } else if (process.platform === 'darwin') {
+  } else if (process.platform === "darwin") {
     // macOS from VS Code
     const macShell = getMacShellFromVSCode();
     if (macShell) {
       return macShell;
     }
-  } else if (process.platform === 'linux') {
+  } else if (process.platform === "linux") {
     // Linux from VS Code
     const linuxShell = getLinuxShellFromVSCode();
     if (linuxShell) {
@@ -335,7 +335,7 @@ export function getShell(): string {
   }
 
   // 4. Finally, fall back to a default
-  if (process.platform === 'win32') {
+  if (process.platform === "win32") {
     // On Windows, if we got here, we have no config, no COMSPEC, and one very messed up operating system.
     // Use CMD as a last resort
     return SHELL_PATHS.CMD;

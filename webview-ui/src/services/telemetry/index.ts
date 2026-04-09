@@ -1,29 +1,29 @@
 export type {
   ITelemetryProvider,
   TelemetrySettings,
-} from './providers/ITelemetryProvider';
-export { PostHogTelemetryProvider } from './providers/posthog/PostHogTelemetryProvider';
+} from "./providers/ITelemetryProvider";
+export { PostHogTelemetryProvider } from "./providers/posthog/PostHogTelemetryProvider";
 export {
   type TelemetryProviderConfig,
   TelemetryProviderFactory,
   type TelemetryProviderType,
-} from './TelemetryProviderFactory';
+} from "./TelemetryProviderFactory";
 // Export terminal type definitions for type-safe telemetry
 export type {
   StandaloneOutputMethod,
   TerminalOutputMethod,
   TerminalType,
   VscodeOutputMethod,
-} from './TelemetryService';
+} from "./TelemetryService";
 // Export the enums and types for terminal telemetry
 export {
   TerminalHangStage,
   TerminalOutputFailureReason,
   TerminalUserInterventionAction,
-} from './TelemetryService';
+} from "./TelemetryService";
 
 // Create a singleton instance for easy access throughout the application
-import { TelemetryService } from './TelemetryService';
+import { TelemetryService } from "./TelemetryService";
 
 let _telemetryServiceInstance: TelemetryService | null = null;
 let _initializationPromise: Promise<TelemetryService> | null = null;
@@ -73,7 +73,7 @@ export const telemetryService = new Proxy({} as TelemetryService, {
     return async (...args: any[]) => {
       const service: TelemetryService = await getTelemetryService();
       const method = Reflect.get(service, prop, service);
-      if (typeof method === 'function') {
+      if (typeof method === "function") {
         return method.apply(service, args);
       }
       return method;

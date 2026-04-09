@@ -1,9 +1,9 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { VSC_TITLEBAR_INACTIVE_FOREGROUND, getAsVar } from '@/utils/vscStyles';
-import { ChevronDownIcon, ChevronRightIcon } from 'lucide-react';
-import { useRef, useState } from 'react';
-import AutoApproveModal from './AutoApproveModal';
-import { ACTION_METADATA } from './constants';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { VSC_TITLEBAR_INACTIVE_FOREGROUND, getAsVar } from "@/utils/vscStyles";
+import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
+import { useRef, useState } from "react";
+import AutoApproveModal from "./AutoApproveModal";
+import { ACTION_METADATA } from "./constants";
 
 interface AutoApproveBarProps {
   style?: React.CSSProperties;
@@ -18,13 +18,13 @@ const AutoApproveBar = ({ style }: AutoApproveBarProps) => {
   const handleNavigateToFeatures = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    navigateToSettings('features');
+    navigateToSettings("features");
   };
 
   const getEnabledActionsText = () => {
     const baseClasses = isModalVisible
-      ? 'text-foreground truncate'
-      : 'text-muted-foreground group-hover:text-foreground truncate';
+      ? "text-foreground truncate"
+      : "text-muted-foreground group-hover:text-foreground truncate";
     const enabledActionsNames = Object.keys(autoApprovalSettings.actions).filter(
       (key) => autoApprovalSettings.actions[key as keyof typeof autoApprovalSettings.actions],
     );
@@ -55,7 +55,7 @@ const AutoApproveBar = ({ style }: AutoApproveBarProps) => {
         {actionsToShow.map((action, index) => (
           <span key={action?.id}>
             {action?.shortName}
-            {index < actionsToShow.length - 1 && ', '}
+            {index < actionsToShow.length - 1 && ", "}
           </span>
         ))}
       </span>
@@ -65,16 +65,16 @@ const AutoApproveBar = ({ style }: AutoApproveBarProps) => {
   const borderColor = `color-mix(in srgb, ${getAsVar(VSC_TITLEBAR_INACTIVE_FOREGROUND)} 20%, transparent)`;
   const borderGradient = `linear-gradient(to bottom, ${borderColor} 0%, transparent 50%)`;
   const bgGradient =
-    'linear-gradient(to bottom, color-mix(in srgb, var(--vscode-sideBar-background) 96%, white) 0%, transparent 80%)';
+    "linear-gradient(to bottom, color-mix(in srgb, var(--vscode-sideBar-background) 96%, white) 0%, transparent 80%)";
 
   // If YOLO mode is enabled, show disabled message
   if (yoloModeToggled) {
     return (
       <div
-        className="mx-3.5 select-none break-words relative"
+        className="mx-3.5 select-none wrap-break-word relative"
         style={{
           borderTop: `0.5px solid ${borderColor}`,
-          borderRadius: '4px 4px 0 0',
+          borderRadius: "4px 4px 0 0",
           background: bgGradient,
           opacity: 0.5,
           ...style,
@@ -86,7 +86,7 @@ const AutoApproveBar = ({ style }: AutoApproveBarProps) => {
           style={{
             width: 0.5,
             top: 3,
-            height: '100%',
+            height: "100%",
             background: borderGradient,
           }}
         />
@@ -96,7 +96,7 @@ const AutoApproveBar = ({ style }: AutoApproveBarProps) => {
           style={{
             width: 0.5,
             top: 3,
-            height: '100%',
+            height: "100%",
             background: borderGradient,
           }}
         />
@@ -104,13 +104,14 @@ const AutoApproveBar = ({ style }: AutoApproveBarProps) => {
         <div className="pt-4 pb-3.5 px-3.5">
           <div className="text-sm mb-1">Auto-approve: YOLO</div>
           <div className="text-muted-foreground text-xs">
-            YOLO mode is enabled.{' '}
-            <span
-              className="underline cursor-pointer hover:text-foreground"
+            YOLO mode is enabled.{" "}
+            <button
+              className="underline cursor-pointer hover:text-foreground bg-transparent border-none p-0 font-inherit inline"
               onClick={handleNavigateToFeatures}
+              type="button"
             >
               Disable it in Settings
-            </span>
+            </button>
             .
           </div>
         </div>
@@ -120,10 +121,10 @@ const AutoApproveBar = ({ style }: AutoApproveBarProps) => {
 
   return (
     <div
-      className="mx-3.5 select-none break-words relative"
+      className="mx-3.5 select-none wrap-break-word relative"
       style={{
         borderTop: `0.5px solid ${borderColor}`,
-        borderRadius: '4px 4px 0 0',
+        borderRadius: "4px 4px 0 0",
         background: bgGradient,
         ...style,
       }}
@@ -134,7 +135,7 @@ const AutoApproveBar = ({ style }: AutoApproveBarProps) => {
         style={{
           width: 0.5,
           top: 3,
-          height: '100%',
+          height: "100%",
           background: borderGradient,
         }}
       />
@@ -144,19 +145,19 @@ const AutoApproveBar = ({ style }: AutoApproveBarProps) => {
         style={{
           width: 0.5,
           top: 3,
-          height: '100%',
+          height: "100%",
           background: borderGradient,
         }}
       />
 
       <div
-        aria-label={isModalVisible ? 'Close auto-approve settings' : 'Open auto-approve settings'}
+        aria-label={isModalVisible ? "Close auto-approve settings" : "Open auto-approve settings"}
         className="group cursor-pointer pt-3 pb-3.5 pr-2 px-3.5 flex items-center justify-between gap-0"
         onClick={() => {
           setIsModalVisible((prev) => !prev);
         }}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
+          if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             e.stopPropagation();
             setIsModalVisible((prev) => !prev);

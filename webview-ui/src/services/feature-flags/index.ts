@@ -2,16 +2,16 @@ export {
   type FeatureFlagsProviderConfig,
   FeatureFlagsProviderFactory,
   type FeatureFlagsProviderType,
-} from './FeatureFlagsProviderFactory';
-export { FeatureFlagsService } from './FeatureFlagsService';
+} from "./FeatureFlagsProviderFactory";
+export { FeatureFlagsService } from "./FeatureFlagsService";
 export type {
   FeatureFlagsSettings,
   IFeatureFlagsProvider,
-} from './providers/IFeatureFlagsProvider';
-export { PostHogFeatureFlagsProvider } from './providers/PostHogFeatureFlagsProvider';
+} from "./providers/IFeatureFlagsProvider";
+export { PostHogFeatureFlagsProvider } from "./providers/PostHogFeatureFlagsProvider";
 
-import { FeatureFlagsProviderFactory } from './FeatureFlagsProviderFactory';
-import { FeatureFlagsService } from './FeatureFlagsService';
+import { FeatureFlagsProviderFactory } from "./FeatureFlagsProviderFactory";
+import { FeatureFlagsService } from "./FeatureFlagsService";
 
 let _featureFlagsServiceInstance: FeatureFlagsService | null = null;
 
@@ -42,7 +42,7 @@ export const featureFlagsService = new Proxy({} as FeatureFlagsService, {
     const service = getFeatureFlagsService();
     const value = Reflect.get(service, prop, service);
     // Bind methods to the service instance to preserve `this` context
-    if (typeof value === 'function') {
+    if (typeof value === "function") {
       return value.bind(service);
     }
     return value;

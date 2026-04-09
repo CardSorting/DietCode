@@ -1,16 +1,16 @@
-import DiscordIcon from '@/assets/DiscordIcon';
-import GitHubIcon from '@/assets/GitHubIcon';
-import LinkedInIcon from '@/assets/LinkedInIcon';
-import RedditIcon from '@/assets/RedditIcon';
-import XIcon from '@/assets/XIcon';
-import WhatsNewItems from '@/components/common/WhatsNewItems';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import type { BannerAction, BannerCardData } from '@shared/cline/banner.ts';
-import type React from 'react';
-import { useCallback } from 'react';
-import { useMount } from 'react-use';
-import { useApiConfigurationHandlers } from '../settings/utils/useApiConfigurationHandlers';
+import DiscordIcon from "@/assets/DiscordIcon";
+import GitHubIcon from "@/assets/GitHubIcon";
+import LinkedInIcon from "@/assets/LinkedInIcon";
+import RedditIcon from "@/assets/RedditIcon";
+import XIcon from "@/assets/XIcon";
+import WhatsNewItems from "@/components/common/WhatsNewItems";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import type { BannerAction, BannerCardData } from "@shared/cline/banner.ts";
+import type React from "react";
+import { useCallback } from "react";
+import { useMount } from "react-use";
+import { useApiConfigurationHandlers } from "../settings/utils/useApiConfigurationHandlers";
 
 interface WhatsNewModalProps {
   open: boolean;
@@ -35,12 +35,12 @@ export const WhatsNewModal: React.FC<WhatsNewModalProps> = ({
   useMount(refreshOpenRouterModels);
 
   const navigateToModelPicker = useCallback(
-    (initialModelTab: 'recommended' | 'free', modelId?: string) => {
+    (initialModelTab: "recommended" | "free", modelId?: string) => {
       // Switch to Cline provider first so the model picker tab works
       // Optionally also set the model if provided
       const updates: Record<string, any> = {
-        planModeApiProvider: 'cline',
-        actModeApiProvider: 'cline',
+        planModeApiProvider: "cline",
+        actModeApiProvider: "cline",
       };
       if (modelId) {
         updates.planModeOpenRouterModelId = modelId;
@@ -50,17 +50,17 @@ export const WhatsNewModal: React.FC<WhatsNewModalProps> = ({
       }
       handleFieldsChange(updates);
       onClose();
-      navigateToSettingsModelPicker({ targetSection: 'api-config', initialModelTab });
+      navigateToSettingsModelPicker({ targetSection: "api-config", initialModelTab });
     },
     [handleFieldsChange, navigateToSettingsModelPicker, onClose, openRouterModels],
   );
 
   const inlineCodeStyle: React.CSSProperties = {
-    backgroundColor: 'var(--vscode-textCodeBlock-background)',
-    padding: '2px 6px',
-    borderRadius: '3px',
-    fontFamily: 'var(--vscode-editor-font-family)',
-    fontSize: '0.9em',
+    backgroundColor: "var(--vscode-textCodeBlock-background)",
+    padding: "2px 6px",
+    borderRadius: "3px",
+    fontFamily: "var(--vscode-editor-font-family)",
+    fontSize: "0.9em",
   };
 
   return (
@@ -74,7 +74,7 @@ export const WhatsNewModal: React.FC<WhatsNewModalProps> = ({
           <h2
             className="text-lg font-semibold mb-3 pr-6"
             id="whats-new-title"
-            style={{ color: 'var(--vscode-editor-foreground)' }}
+            style={{ color: "var(--vscode-editor-foreground)" }}
           >
             🎉 New in v{version}
           </h2>
@@ -88,13 +88,13 @@ export const WhatsNewModal: React.FC<WhatsNewModalProps> = ({
           />
 
           {/* Social Icons Section */}
-          <div className="flex flex-col items-center gap-3 mt-4 pt-4 border-t border-[var(--vscode-widget-border)]">
+          <div className="flex flex-col items-center gap-3 mt-4 pt-4 border-t border-(--vscode-widget-border)">
             {/* Icon Row */}
             <div className="flex items-center gap-4">
               {/* X/Twitter */}
               <a
                 aria-label="Follow us on X"
-                className="text-[var(--vscode-foreground)] hover:text-[var(--vscode-textLink-activeForeground)] transition-colors"
+                className="text-(--vscode-foreground) hover:text-(--vscode-textLink-activeForeground) transition-colors"
                 href="https://x.com/cline"
                 rel="noopener noreferrer"
                 target="_blank"
@@ -105,7 +105,7 @@ export const WhatsNewModal: React.FC<WhatsNewModalProps> = ({
               {/* Discord */}
               <a
                 aria-label="Join our Discord"
-                className="text-[var(--vscode-foreground)] hover:text-[var(--vscode-textLink-activeForeground)] transition-colors"
+                className="text-(--vscode-foreground) hover:text-(--vscode-textLink-activeForeground) transition-colors"
                 href="https://discord.gg/cline"
                 rel="noopener noreferrer"
                 target="_blank"
@@ -116,7 +116,7 @@ export const WhatsNewModal: React.FC<WhatsNewModalProps> = ({
               {/* GitHub */}
               <a
                 aria-label="Star us on GitHub"
-                className="text-[var(--vscode-foreground)] hover:text-[var(--vscode-textLink-activeForeground)] transition-colors"
+                className="text-(--vscode-foreground) hover:text-(--vscode-textLink-activeForeground) transition-colors"
                 href="https://github.com/cline/cline"
                 rel="noopener noreferrer"
                 target="_blank"
@@ -127,7 +127,7 @@ export const WhatsNewModal: React.FC<WhatsNewModalProps> = ({
               {/* Reddit */}
               <a
                 aria-label="Join our subreddit"
-                className="text-[var(--vscode-foreground)] hover:text-[var(--vscode-textLink-activeForeground)] transition-colors"
+                className="text-(--vscode-foreground) hover:text-(--vscode-textLink-activeForeground) transition-colors"
                 href="https://www.reddit.com/r/cline/"
                 rel="noopener noreferrer"
                 target="_blank"
@@ -138,7 +138,7 @@ export const WhatsNewModal: React.FC<WhatsNewModalProps> = ({
               {/* LinkedIn */}
               <a
                 aria-label="Follow us on LinkedIn"
-                className="text-[var(--vscode-foreground)] hover:text-[var(--vscode-textLink-activeForeground)] transition-colors"
+                className="text-(--vscode-foreground) hover:text-(--vscode-textLink-activeForeground) transition-colors"
                 href="https://www.linkedin.com/company/clinebot/"
                 rel="noopener noreferrer"
                 target="_blank"
@@ -150,13 +150,13 @@ export const WhatsNewModal: React.FC<WhatsNewModalProps> = ({
             {/* GitHub Star CTA */}
             <p
               className="text-sm text-center"
-              style={{ color: 'var(--vscode-descriptionForeground)' }}
+              style={{ color: "var(--vscode-descriptionForeground)" }}
             >
-              Please support Cline by{' '}
+              Please support DietCode by{" "}
               <a
                 href="https://github.com/cline/cline"
                 rel="noopener noreferrer"
-                style={{ color: 'var(--vscode-textLink-foreground)' }}
+                style={{ color: "var(--vscode-textLink-foreground)" }}
                 target="_blank"
               >
                 starring us on GitHub

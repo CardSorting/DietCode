@@ -1,17 +1,17 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { ModelsServiceClient } from '@/services/grpc-client';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { ModelsServiceClient } from "@/services/grpc-client";
 import {
   type SapAiCoreModelDeployment,
   SapAiCoreModelsRequest,
-} from '@shared/nice-grpc/index.cline.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { VSCodeCheckbox, VSCodeLink } from '@vscode/webview-ui-toolkit/react';
-import { useCallback, useEffect, useState } from 'react';
-import SapAiCoreModelPicker from '../SapAiCoreModelPicker';
-import { DebouncedTextField } from '../common/DebouncedTextField';
-import { ModelInfoView } from '../common/ModelInfoView';
-import { normalizeApiConfiguration } from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+} from "@shared/nice-grpc/index.cline.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { VSCodeCheckbox, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { useCallback, useEffect, useState } from "react";
+import SapAiCoreModelPicker from "../SapAiCoreModelPicker";
+import { DebouncedTextField } from "../common/DebouncedTextField";
+import { ModelInfoView } from "../common/ModelInfoView";
+import { normalizeApiConfiguration } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 /**
  * Props for the SapAiCoreProvider component
@@ -35,7 +35,7 @@ export const SapAiCoreProvider = ({
 
   // Handle orchestration checkbox change
   const handleOrchestrationChange = async (checked: boolean) => {
-    await handleFieldChange('sapAiCoreUseOrchestrationMode', checked);
+    await handleFieldChange("sapAiCoreUseOrchestrationMode", checked);
   };
 
   const { selectedModelId, selectedModelInfo } = normalizeApiConfiguration(
@@ -92,8 +92,8 @@ export const SapAiCoreProvider = ({
         setHasCheckedOrchestration(true);
       }
     } catch (error) {
-      console.error('Error fetching SAP AI Core models:', error);
-      setModelError('Failed to fetch models. Please check your configuration.');
+      console.error("Error fetching SAP AI Core models:", error);
+      setModelError("Failed to fetch models. Please check your configuration.");
       setSapAiCoreModelDeployments([]);
       setOrchestrationAvailable(false);
       setHasCheckedOrchestration(true);
@@ -122,7 +122,7 @@ export const SapAiCoreProvider = ({
       !orchestrationAvailable &&
       apiConfiguration?.sapAiCoreUseOrchestrationMode
     ) {
-      handleFieldChange('sapAiCoreUseOrchestrationMode', false);
+      handleFieldChange("sapAiCoreUseOrchestrationMode", false);
     }
   }, [
     hasCheckedOrchestration,
@@ -137,10 +137,10 @@ export const SapAiCoreProvider = ({
       // Update both model ID and deployment ID atomically
       handleModeFieldsChange(
         {
-          modelId: { plan: 'planModeApiModelId', act: 'actModeApiModelId' },
+          modelId: { plan: "planModeApiModelId", act: "actModeApiModelId" },
           deploymentId: {
-            plan: 'planModeSapAiCoreDeploymentId',
-            act: 'actModeSapAiCoreDeploymentId',
+            plan: "planModeSapAiCoreDeploymentId",
+            act: "actModeSapAiCoreDeploymentId",
           },
         },
         { modelId, deploymentId },
@@ -153,10 +153,10 @@ export const SapAiCoreProvider = ({
   return (
     <div className="flex flex-col gap-1.5">
       <DebouncedTextField
-        initialValue={apiConfiguration?.sapAiCoreClientId || ''}
-        onChange={(value) => handleFieldChange('sapAiCoreClientId', value)}
+        initialValue={apiConfiguration?.sapAiCoreClientId || ""}
+        onChange={(value) => handleFieldChange("sapAiCoreClientId", value)}
         placeholder="Enter AI Core Client Id..."
-        style={{ width: '100%' }}
+        style={{ width: "100%" }}
         type="password"
       >
         <span className="font-medium">AI Core Client Id</span>
@@ -168,10 +168,10 @@ export const SapAiCoreProvider = ({
       )}
 
       <DebouncedTextField
-        initialValue={apiConfiguration?.sapAiCoreClientSecret || ''}
-        onChange={(value) => handleFieldChange('sapAiCoreClientSecret', value)}
+        initialValue={apiConfiguration?.sapAiCoreClientSecret || ""}
+        onChange={(value) => handleFieldChange("sapAiCoreClientSecret", value)}
         placeholder="Enter AI Core Client Secret..."
-        style={{ width: '100%' }}
+        style={{ width: "100%" }}
         type="password"
       >
         <span className="font-medium">AI Core Client Secret</span>
@@ -183,28 +183,28 @@ export const SapAiCoreProvider = ({
       )}
 
       <DebouncedTextField
-        initialValue={apiConfiguration?.sapAiCoreBaseUrl || ''}
-        onChange={(value) => handleFieldChange('sapAiCoreBaseUrl', value)}
+        initialValue={apiConfiguration?.sapAiCoreBaseUrl || ""}
+        onChange={(value) => handleFieldChange("sapAiCoreBaseUrl", value)}
         placeholder="Enter AI Core Base URL..."
-        style={{ width: '100%' }}
+        style={{ width: "100%" }}
       >
         <span className="font-medium">AI Core Base URL</span>
       </DebouncedTextField>
 
       <DebouncedTextField
-        initialValue={apiConfiguration?.sapAiCoreTokenUrl || ''}
-        onChange={(value) => handleFieldChange('sapAiCoreTokenUrl', value)}
+        initialValue={apiConfiguration?.sapAiCoreTokenUrl || ""}
+        onChange={(value) => handleFieldChange("sapAiCoreTokenUrl", value)}
         placeholder="Enter AI Core Auth URL..."
-        style={{ width: '100%' }}
+        style={{ width: "100%" }}
       >
         <span className="font-medium">AI Core Auth URL</span>
       </DebouncedTextField>
 
       <DebouncedTextField
-        initialValue={apiConfiguration?.sapAiResourceGroup || ''}
-        onChange={(value) => handleFieldChange('sapAiResourceGroup', value)}
+        initialValue={apiConfiguration?.sapAiResourceGroup || ""}
+        onChange={(value) => handleFieldChange("sapAiResourceGroup", value)}
         placeholder="Enter AI Core Resource Group..."
-        style={{ width: '100%' }}
+        style={{ width: "100%" }}
       >
         <span className="font-medium">AI Core Resource Group</span>
       </DebouncedTextField>
@@ -270,12 +270,12 @@ export const SapAiCoreProvider = ({
                   sapAiCoreModelDeployments={sapAiCoreModelDeployments}
                   selectedDeploymentId={
                     apiConfiguration?.[
-                      currentMode === 'plan'
-                        ? 'planModeSapAiCoreDeploymentId'
-                        : 'actModeSapAiCoreDeploymentId'
+                      currentMode === "plan"
+                        ? "planModeSapAiCoreDeploymentId"
+                        : "actModeSapAiCoreDeploymentId"
                     ]
                   }
-                  selectedModelId={selectedModelId || ''}
+                  selectedModelId={selectedModelId || ""}
                   useOrchestrationMode={apiConfiguration?.sapAiCoreUseOrchestrationMode}
                 />
               </>

@@ -1,7 +1,7 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import { Logger } from '../services/Logger';
-import { ClineSyncStorage } from './ClineStorage';
+import * as fs from "node:fs";
+import * as path from "node:path";
+import { Logger } from "../services/Logger";
+import { ClineSyncStorage } from "./ClineStorage";
 
 export interface ClineFileStorageOptions {
   /**
@@ -22,7 +22,7 @@ export class ClineFileStorage<T = any> extends ClineSyncStorage<T> {
   private readonly fsPath: string;
   private readonly fileMode?: number;
 
-  constructor(filePath: string, name = 'ClineFileStorage', options?: ClineFileStorageOptions) {
+  constructor(filePath: string, name = "ClineFileStorage", options?: ClineFileStorageOptions) {
     super();
     this.fsPath = filePath;
     this.name = name;
@@ -77,7 +77,7 @@ export class ClineFileStorage<T = any> extends ClineSyncStorage<T> {
   private readFromDisk(): Record<string, T> {
     try {
       if (fs.existsSync(this.fsPath)) {
-        return JSON.parse(fs.readFileSync(this.fsPath, 'utf-8'));
+        return JSON.parse(fs.readFileSync(this.fsPath, "utf-8"));
       }
     } catch (error) {
       Logger.error(`[${this.name}] failed to read from ${this.fsPath}:`, error);
@@ -104,8 +104,8 @@ function atomicWriteFileSync(filePath: string, data: string, mode?: fs.Mode | un
   const tmpPath = `${filePath}.tmp.${Date.now()}.${Math.random().toString(36).substring(7)}.json`;
   try {
     fs.writeFileSync(tmpPath, data, {
-      flag: 'wx',
-      encoding: 'utf-8',
+      flag: "wx",
+      encoding: "utf-8",
       mode,
     });
     // Rename temp file to target (atomic in most cases)

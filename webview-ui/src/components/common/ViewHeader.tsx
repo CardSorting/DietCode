@@ -1,12 +1,12 @@
-import { Button } from '@/components/ui/button';
-import { getEnvironmentColor } from '@/utils/environmentColors';
-import type { Environment } from '@shared/config-types';
+import { Button } from "@/components/ui/button";
+import { getEnvironmentColor } from "@/utils/environmentColors";
+import type { Environment } from "@shared/config-types";
 
 const ENV_DISPLAY_NAMES: Record<Environment, string> = {
-  production: 'Production',
-  staging: 'Staging',
-  local: 'Local',
-  selfHosted: 'Self-hosted',
+  production: "Production",
+  staging: "Staging",
+  local: "Local",
+  selfHosted: "Self-hosted",
 };
 
 type ViewHeaderProps = {
@@ -17,8 +17,8 @@ type ViewHeaderProps = {
 };
 
 const ViewHeader = ({ title, onDone, showEnvironmentSuffix, environment }: ViewHeaderProps) => {
-  const showSubtext = showEnvironmentSuffix && environment && environment !== 'production';
-  const capitalizedEnv = environment ? ENV_DISPLAY_NAMES[environment] : '';
+  const showSubtext = showEnvironmentSuffix && environment && environment !== "production";
+  const capitalizedEnv = environment ? ENV_DISPLAY_NAMES[environment] : "";
   const titleColor = getEnvironmentColor(environment);
 
   return (

@@ -1,9 +1,9 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { McpServiceClient } from '@/services/grpc-client';
-import type { McpMarketplaceItem, McpServer } from '@shared/mcp.ts';
-import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import styled from 'styled-components';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { McpServiceClient } from "@/services/grpc-client";
+import type { McpMarketplaceItem, McpServer } from "@shared/mcp.ts";
+import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
+import { useEffect, useMemo, useRef, useState } from "react";
+import styled from "styled-components";
 
 interface McpMarketplaceCardProps {
   item: McpMarketplaceItem;
@@ -26,7 +26,7 @@ const McpMarketplaceCard = ({ item, installedServers, setError }: McpMarketplace
 
   const githubAuthorUrl = useMemo(() => {
     const url = new URL(item.githubUrl);
-    const pathParts = url.pathname.split('/');
+    const pathParts = url.pathname.split("/");
     if (pathParts.length >= 2) {
       return `${url.origin}/${pathParts[1]}`;
     }
@@ -53,17 +53,17 @@ const McpMarketplaceCard = ({ item, installedServers, setError }: McpMarketplace
         className="mcp-card"
         href={item.githubUrl}
         style={{
-          padding: '14px 16px',
-          display: 'flex',
-          flexDirection: 'column',
+          padding: "14px 16px",
+          display: "flex",
+          flexDirection: "column",
           gap: 12,
-          cursor: isLoading ? 'wait' : 'pointer',
-          textDecoration: 'none',
-          color: 'inherit',
+          cursor: isLoading ? "wait" : "pointer",
+          textDecoration: "none",
+          color: "inherit",
         }}
       >
         {/* Main container with logo and content */}
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div style={{ display: "flex", gap: "12px" }}>
           {/* Logo */}
           {item.logoUrl && (
             <img
@@ -82,24 +82,24 @@ const McpMarketplaceCard = ({ item, installedServers, setError }: McpMarketplace
             style={{
               flex: 1,
               minWidth: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
             }}
           >
             {/* First row: name and install button */}
             <div
               style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: '16px',
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: "16px",
               }}
             >
               <h3
                 style={{
                   margin: 0,
-                  fontSize: '13px',
+                  fontSize: "13px",
                   fontWeight: 600,
                 }}
               >
@@ -116,15 +116,15 @@ const McpMarketplaceCard = ({ item, installedServers, setError }: McpMarketplace
                         StringRequest.create({ value: item.mcpId }),
                       );
                       if (response.error) {
-                        console.error('MCP download failed:', response.error);
+                        console.error("MCP download failed:", response.error);
                         setError(response.error);
                       } else {
-                        console.log('MCP download successful:', response);
+                        console.log("MCP download successful:", response);
                         // Clear any previous errors on success
                         setError(null);
                       }
                     } catch (error) {
-                      console.error('Failed to download MCP:', error);
+                      console.error("Failed to download MCP:", error);
                     } finally {
                       setIsDownloading(false);
                     }
@@ -136,7 +136,7 @@ const McpMarketplaceCard = ({ item, installedServers, setError }: McpMarketplace
                   $isInstalled={isInstalled}
                   disabled={isInstalled || isDownloading}
                 >
-                  {isInstalled ? 'Installed' : isDownloading ? 'Installing...' : 'Install'}
+                  {isInstalled ? "Installed" : isDownloading ? "Installing..." : "Install"}
                 </StyledInstallButton>
               </div>
             </div>
@@ -144,12 +144,12 @@ const McpMarketplaceCard = ({ item, installedServers, setError }: McpMarketplace
             {/* Second row: metadata */}
             <div
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontSize: '12px',
-                color: 'var(--vscode-descriptionForeground)',
-                flexWrap: 'wrap',
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                fontSize: "12px",
+                color: "var(--vscode-descriptionForeground)",
+                flexWrap: "wrap",
                 minWidth: 0,
                 rowGap: 0,
               }}
@@ -158,33 +158,33 @@ const McpMarketplaceCard = ({ item, installedServers, setError }: McpMarketplace
                 className="github-link"
                 href={githubAuthorUrl}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.opacity = '1';
-                  e.currentTarget.style.color = 'var(--link-active-foreground)';
+                  e.currentTarget.style.opacity = "1";
+                  e.currentTarget.style.color = "var(--link-active-foreground)";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.opacity = '0.7';
-                  e.currentTarget.style.color = 'var(--vscode-foreground)';
+                  e.currentTarget.style.opacity = "0.7";
+                  e.currentTarget.style.color = "var(--vscode-foreground)";
                 }}
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  color: 'var(--vscode-foreground)',
+                  display: "flex",
+                  alignItems: "center",
+                  color: "var(--vscode-foreground)",
                   minWidth: 0,
                   opacity: 0.7,
-                  textDecoration: 'none',
-                  border: 'none !important',
+                  textDecoration: "none",
+                  border: "none !important",
                 }}
               >
                 <div
                   ref={githubLinkRef}
-                  style={{ display: 'flex', gap: '4px', alignItems: 'center' }}
+                  style={{ display: "flex", gap: "4px", alignItems: "center" }}
                 >
-                  <span className="codicon codicon-github" style={{ fontSize: '14px' }} />
+                  <span className="codicon codicon-github" style={{ fontSize: "14px" }} />
                   <span
                     style={{
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      wordBreak: 'break-all',
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      wordBreak: "break-all",
                       minWidth: 0,
                     }}
                   >
@@ -194,29 +194,29 @@ const McpMarketplaceCard = ({ item, installedServers, setError }: McpMarketplace
               </a>
               <div
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
                   minWidth: 0,
                   flexShrink: 0,
                 }}
               >
                 <span className="codicon codicon-star-full" />
-                <span style={{ wordBreak: 'break-all' }}>
+                <span style={{ wordBreak: "break-all" }}>
                   {item.githubStars?.toLocaleString() ?? 0}
                 </span>
               </div>
               <div
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
                   minWidth: 0,
                   flexShrink: 0,
                 }}
               >
                 <span className="codicon codicon-cloud-download" />
-                <span style={{ wordBreak: 'break-all' }}>
+                <span style={{ wordBreak: "break-all" }}>
                   {item.downloadCount?.toLocaleString() ?? 0}
                 </span>
               </div>
@@ -232,7 +232,7 @@ const McpMarketplaceCard = ({ item, installedServers, setError }: McpMarketplace
         </div>
 
         {/* Description and tags */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {/* {!item.isRecommended && (
 						<div
 							style={{
@@ -249,33 +249,33 @@ const McpMarketplaceCard = ({ item, installedServers, setError }: McpMarketplace
 						</div>
 					)} */}
 
-          <p style={{ fontSize: '13px', margin: 0 }}>{item.description}</p>
+          <p style={{ fontSize: "13px", margin: 0 }}>{item.description}</p>
           <div
             onScroll={(e) => {
               const target = e.currentTarget;
-              const gradient = target.querySelector('.tags-gradient') as HTMLElement;
+              const gradient = target.querySelector(".tags-gradient") as HTMLElement;
               if (gradient) {
-                gradient.style.visibility = target.scrollLeft > 0 ? 'hidden' : 'visible';
+                gradient.style.visibility = target.scrollLeft > 0 ? "hidden" : "visible";
               }
             }}
             style={{
-              display: 'flex',
-              gap: '6px',
-              flexWrap: 'nowrap',
-              overflowX: 'auto',
-              scrollbarWidth: 'none',
-              position: 'relative',
+              display: "flex",
+              gap: "6px",
+              flexWrap: "nowrap",
+              overflowX: "auto",
+              scrollbarWidth: "none",
+              position: "relative",
             }}
           >
             <span
               style={{
-                fontSize: '10px',
-                padding: '1px 4px',
-                borderRadius: '3px',
+                fontSize: "10px",
+                padding: "1px 4px",
+                borderRadius: "3px",
                 border:
-                  '1px solid color-mix(in srgb, var(--vscode-descriptionForeground) 50%, transparent)',
-                color: 'var(--vscode-descriptionForeground)',
-                whiteSpace: 'nowrap',
+                  "1px solid color-mix(in srgb, var(--vscode-descriptionForeground) 50%, transparent)",
+                color: "var(--vscode-descriptionForeground)",
+                whiteSpace: "nowrap",
               }}
             >
               {item.category}
@@ -284,31 +284,31 @@ const McpMarketplaceCard = ({ item, installedServers, setError }: McpMarketplace
               <span
                 key={tag}
                 style={{
-                  fontSize: '10px',
-                  padding: '1px 4px',
-                  borderRadius: '3px',
+                  fontSize: "10px",
+                  padding: "1px 4px",
+                  borderRadius: "3px",
                   border:
-                    '1px solid color-mix(in srgb, var(--vscode-descriptionForeground) 50%, transparent)',
-                  color: 'var(--vscode-descriptionForeground)',
-                  whiteSpace: 'nowrap',
-                  display: 'inline-flex',
+                    "1px solid color-mix(in srgb, var(--vscode-descriptionForeground) 50%, transparent)",
+                  color: "var(--vscode-descriptionForeground)",
+                  whiteSpace: "nowrap",
+                  display: "inline-flex",
                 }}
               >
                 {tag}
-                {index === item.tags.length - 1 ? '' : ''}
+                {index === item.tags.length - 1 ? "" : ""}
               </span>
             ))}
             <div
               className="tags-gradient"
               style={{
-                position: 'absolute',
+                position: "absolute",
                 right: 0,
                 top: 0,
                 bottom: 0,
-                width: '32px',
+                width: "32px",
                 background:
-                  'linear-gradient(to right, transparent, var(--vscode-sideBar-background))',
-                pointerEvents: 'none',
+                  "linear-gradient(to right, transparent, var(--vscode-sideBar-background))",
+                pointerEvents: "none",
               }}
             />
           </div>
@@ -327,22 +327,22 @@ const StyledInstallButton = styled.button<{ $isInstalled?: boolean }>`
 	cursor: pointer;
 	background: ${(props) =>
     props.$isInstalled
-      ? 'var(--vscode-button-secondaryBackground)'
-      : 'var(--vscode-button-background)'};
+      ? "var(--vscode-button-secondaryBackground)"
+      : "var(--vscode-button-background)"};
 	color: var(--vscode-button-foreground);
 
 	&:hover:not(:disabled) {
 		background: ${(props) =>
       props.$isInstalled
-        ? 'var(--vscode-button-secondaryHoverBackground)'
-        : 'var(--vscode-button-hoverBackground)'};
+        ? "var(--vscode-button-secondaryHoverBackground)"
+        : "var(--vscode-button-hoverBackground)"};
 	}
 
 	&:active:not(:disabled) {
 		background: ${(props) =>
       props.$isInstalled
-        ? 'var(--vscode-button-secondaryBackground)'
-        : 'var(--vscode-button-background)'};
+        ? "var(--vscode-button-secondaryBackground)"
+        : "var(--vscode-button-background)"};
 		opacity: 0.7;
 	}
 

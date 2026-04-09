@@ -1,6 +1,6 @@
-import * as net from 'node:net';
-import { Logger } from '@/shared/services/Logger';
-import axios from 'axios';
+import * as net from "node:net";
+import { Logger } from "@/shared/services/Logger";
+import axios from "axios";
 
 /**
  * Check if a port is open on a given host
@@ -14,23 +14,23 @@ export async function isPortOpen(host: string, port: number, timeout = 1000): Pr
     socket.setTimeout(timeout);
 
     // Handle successful connection
-    socket.on('connect', () => {
+    socket.on("connect", () => {
       status = true;
       socket.destroy();
     });
 
     // Handle any errors
-    socket.on('error', () => {
+    socket.on("error", () => {
       socket.destroy();
     });
 
     // Handle timeout
-    socket.on('timeout', () => {
+    socket.on("timeout", () => {
       socket.destroy();
     });
 
     // Handle close
-    socket.on('close', () => {
+    socket.on("close", () => {
       resolve(status);
     });
 
@@ -59,7 +59,7 @@ export async function tryConnect(
  */
 export async function discoverChromeInstances(): Promise<string | null> {
   // Only try localhost
-  const ipAddresses = ['localhost', '127.0.0.1'];
+  const ipAddresses = ["localhost", "127.0.0.1"];
 
   // Try connecting to each IP address
   for (const ip of ipAddresses) {
@@ -80,7 +80,7 @@ export async function testBrowserConnection(
 ): Promise<{ success: boolean; message: string; endpoint?: string }> {
   try {
     // Fetch the WebSocket endpoint from the Chrome DevTools Protocol
-    const versionUrl = `${host.replace(/\/$/, '')}/json/version`;
+    const versionUrl = `${host.replace(/\/$/, "")}/json/version`;
 
     const response = await axios.get(versionUrl, { timeout: 3000 });
     const browserWSEndpoint = response.data.webSocketDebuggerUrl;
@@ -88,13 +88,13 @@ export async function testBrowserConnection(
     if (!browserWSEndpoint) {
       return {
         success: false,
-        message: 'Could not find webSocketDebuggerUrl in the response',
+        message: "Could not find webSocketDebuggerUrl in the response",
       };
     }
 
     return {
       success: true,
-      message: 'Successfully connected to Chrome browser',
+      message: "Successfully connected to Chrome browser",
       endpoint: browserWSEndpoint,
     };
   } catch (error) {

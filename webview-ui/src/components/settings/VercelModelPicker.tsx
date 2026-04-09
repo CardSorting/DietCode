@@ -1,18 +1,18 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import type { ModelInfo } from '@shared/api';
-import type { Mode } from '@shared/storage/types';
-import { VSCodeLink, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
-import Fuse from 'fuse.js';
-import type React from 'react';
-import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react';
-import { useMount } from 'react-use';
-import styled from 'styled-components';
-import { highlight } from '../history/HistoryView';
-import ReasoningEffortSelector from './ReasoningEffortSelector';
-import ThinkingBudgetSlider from './ThinkingBudgetSlider';
-import { ModelInfoView } from './common/ModelInfoView';
-import { getModeSpecificFields, supportsReasoningEffortForModelId } from './utils/providerUtils';
-import { useApiConfigurationHandlers } from './utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import type { ModelInfo } from "@shared/api";
+import type { Mode } from "@shared/storage/types";
+import { VSCodeLink, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import Fuse from "fuse.js";
+import type React from "react";
+import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
+import { useMount } from "react-use";
+import styled from "styled-components";
+import { highlight } from "../history/HistoryView";
+import ReasoningEffortSelector from "./ReasoningEffortSelector";
+import ThinkingBudgetSlider from "./ThinkingBudgetSlider";
+import { ModelInfoView } from "./common/ModelInfoView";
+import { getModeSpecificFields, supportsReasoningEffortForModelId } from "./utils/providerUtils";
+import { useApiConfigurationHandlers } from "./utils/useApiConfigurationHandlers";
 
 export interface VercelModelPickerProps {
   isPopup?: boolean;
@@ -25,7 +25,7 @@ const VercelModelPicker: React.FC<VercelModelPickerProps> = ({ isPopup, currentM
     useExtensionState();
   const modeFields = getModeSpecificFields(apiConfiguration, currentMode);
   // Vercel AI Gateway uses its own model fields
-  const [searchTerm, setSearchTerm] = useState(modeFields.vercelAiGatewayModelId || '');
+  const [searchTerm, setSearchTerm] = useState(modeFields.vercelAiGatewayModelId || "");
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -39,12 +39,12 @@ const VercelModelPicker: React.FC<VercelModelPickerProps> = ({ isPopup, currentM
     handleModeFieldsChange(
       {
         vercelAiGatewayModelId: {
-          plan: 'planModeVercelAiGatewayModelId',
-          act: 'actModeVercelAiGatewayModelId',
+          plan: "planModeVercelAiGatewayModelId",
+          act: "actModeVercelAiGatewayModelId",
         },
         vercelAiGatewayModelInfo: {
-          plan: 'planModeVercelAiGatewayModelInfo',
-          act: 'actModeVercelAiGatewayModelInfo',
+          plan: "planModeVercelAiGatewayModelInfo",
+          act: "actModeVercelAiGatewayModelInfo",
         },
       },
       {
@@ -57,7 +57,7 @@ const VercelModelPicker: React.FC<VercelModelPickerProps> = ({ isPopup, currentM
 
   const { selectedModelId, selectedModelInfo } = useMemo(() => {
     return {
-      selectedModelId: modeFields.vercelAiGatewayModelId || '',
+      selectedModelId: modeFields.vercelAiGatewayModelId || "",
       selectedModelInfo: modeFields.vercelAiGatewayModelInfo as ModelInfo | undefined,
     };
   }, [modeFields.vercelAiGatewayModelId, modeFields.vercelAiGatewayModelInfo]);
@@ -66,7 +66,7 @@ const VercelModelPicker: React.FC<VercelModelPickerProps> = ({ isPopup, currentM
 
   // Sync external changes when the modelId changes
   useEffect(() => {
-    const currentModelId = modeFields.vercelAiGatewayModelId || '';
+    const currentModelId = modeFields.vercelAiGatewayModelId || "";
     setSearchTerm(currentModelId);
   }, [modeFields.vercelAiGatewayModelId]);
 
@@ -77,9 +77,9 @@ const VercelModelPicker: React.FC<VercelModelPickerProps> = ({ isPopup, currentM
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -96,7 +96,7 @@ const VercelModelPicker: React.FC<VercelModelPickerProps> = ({ isPopup, currentM
 
   const fuse = useMemo(() => {
     return new Fuse(searchableItems, {
-      keys: ['html'],
+      keys: ["html"],
       threshold: 0.6,
       shouldSort: true,
       isCaseSensitive: false,
@@ -108,7 +108,7 @@ const VercelModelPicker: React.FC<VercelModelPickerProps> = ({ isPopup, currentM
 
   const modelSearchResults = useMemo(() => {
     const searchResults = searchTerm
-      ? highlight(fuse.search(searchTerm), 'model-item-highlight')
+      ? highlight(fuse.search(searchTerm), "model-item-highlight")
       : searchableItems;
 
     return searchResults;
@@ -120,15 +120,15 @@ const VercelModelPicker: React.FC<VercelModelPickerProps> = ({ isPopup, currentM
     }
 
     switch (event.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         event.preventDefault();
         setSelectedIndex((prev) => (prev < modelSearchResults.length - 1 ? prev + 1 : prev));
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         event.preventDefault();
         setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
         break;
-      case 'Enter':
+      case "Enter":
         event.preventDefault();
         if (selectedIndex >= 0 && selectedIndex < modelSearchResults.length) {
           handleModelChange(modelSearchResults[selectedIndex].id);
@@ -138,7 +138,7 @@ const VercelModelPicker: React.FC<VercelModelPickerProps> = ({ isPopup, currentM
           setIsDropdownVisible(false);
         }
         break;
-      case 'Escape':
+      case "Escape":
         setIsDropdownVisible(false);
         setSelectedIndex(-1);
         break;
@@ -163,13 +163,13 @@ const VercelModelPicker: React.FC<VercelModelPickerProps> = ({ isPopup, currentM
   useEffect(() => {
     if (selectedIndex >= 0 && itemRefs.current[selectedIndex]) {
       itemRefs.current[selectedIndex]?.scrollIntoView({
-        block: 'nearest',
-        behavior: 'smooth',
+        block: "nearest",
+        behavior: "smooth",
       });
     }
   }, [selectedIndex]);
 
-  const selectedModelIdLower = selectedModelId?.toLowerCase() || '';
+  const selectedModelIdLower = selectedModelId?.toLowerCase() || "";
   const showReasoningEffort = useMemo(
     () => supportsReasoningEffortForModelId(selectedModelId),
     [selectedModelId],
@@ -180,24 +180,24 @@ const VercelModelPicker: React.FC<VercelModelPickerProps> = ({ isPopup, currentM
       return false;
     }
     return (
-      selectedModelIdLower.includes('claude-opus-4.6') ||
-      selectedModelIdLower.includes('claude-haiku-4.5') ||
-      selectedModelIdLower.includes('claude-4.5-haiku') ||
-      selectedModelIdLower.includes('claude-sonnet-4.6') ||
-      selectedModelIdLower.includes('claude-sonnet-4-6') ||
-      selectedModelIdLower.includes('claude-4.6-sonnet') ||
-      selectedModelIdLower.includes('claude-sonnet-4.5') ||
-      selectedModelIdLower.includes('claude-sonnet-4') ||
-      selectedModelIdLower.includes('claude-opus-4.1') ||
-      selectedModelIdLower.includes('claude-opus-4') ||
-      selectedModelIdLower.includes('claude-opus-4.5') ||
-      selectedModelIdLower.includes('claude-3-7-sonnet') ||
-      selectedModelIdLower.includes('claude-3.7-sonnet')
+      selectedModelIdLower.includes("claude-opus-4.6") ||
+      selectedModelIdLower.includes("claude-haiku-4.5") ||
+      selectedModelIdLower.includes("claude-4.5-haiku") ||
+      selectedModelIdLower.includes("claude-sonnet-4.6") ||
+      selectedModelIdLower.includes("claude-sonnet-4-6") ||
+      selectedModelIdLower.includes("claude-4.6-sonnet") ||
+      selectedModelIdLower.includes("claude-sonnet-4.5") ||
+      selectedModelIdLower.includes("claude-sonnet-4") ||
+      selectedModelIdLower.includes("claude-opus-4.1") ||
+      selectedModelIdLower.includes("claude-opus-4") ||
+      selectedModelIdLower.includes("claude-opus-4.5") ||
+      selectedModelIdLower.includes("claude-3-7-sonnet") ||
+      selectedModelIdLower.includes("claude-3.7-sonnet")
     );
   }, [selectedModelIdLower, showReasoningEffort]);
 
   return (
-    <div style={{ width: '100%', paddingBottom: 2 }}>
+    <div style={{ width: "100%", paddingBottom: 2 }}>
       <style>
         {`
 				.model-item-highlight {
@@ -206,7 +206,7 @@ const VercelModelPicker: React.FC<VercelModelPickerProps> = ({ isPopup, currentM
 				}
 				`}
       </style>
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: "flex", flexDirection: "column" }}>
         <label htmlFor="vercel-model-search">
           <span style={{ fontWeight: 500 }}>Model</span>
         </label>
@@ -221,16 +221,16 @@ const VercelModelPicker: React.FC<VercelModelPickerProps> = ({ isPopup, currentM
             }}
             onFocus={() => setIsDropdownVisible(true)}
             onInput={(e) => {
-              setSearchTerm((e.target as HTMLInputElement)?.value.toLowerCase() || '');
+              setSearchTerm((e.target as HTMLInputElement)?.value.toLowerCase() || "");
               setIsDropdownVisible(true);
             }}
             onKeyDown={handleKeyDown}
             placeholder="Search and select a model..."
             role="combobox"
             style={{
-              width: '100%',
+              width: "100%",
               zIndex: VERCEL_MODEL_PICKER_Z_INDEX,
-              position: 'relative',
+              position: "relative",
             }}
             value={searchTerm}
           >
@@ -239,15 +239,15 @@ const VercelModelPicker: React.FC<VercelModelPickerProps> = ({ isPopup, currentM
                 aria-label="Clear search"
                 className="input-icon-button codicon codicon-close"
                 onClick={() => {
-                  setSearchTerm('');
+                  setSearchTerm("");
                   setIsDropdownVisible(true);
                 }}
                 slot="end"
                 style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: '100%',
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "100%",
                 }}
               />
             )}
@@ -272,10 +272,10 @@ const VercelModelPicker: React.FC<VercelModelPickerProps> = ({ isPopup, currentM
                 ))
               ) : (
                 <DropdownItem isSelected={false}>
-                  <span style={{ color: 'var(--vscode-descriptionForeground)' }}>
+                  <span style={{ color: "var(--vscode-descriptionForeground)" }}>
                     {Object.keys(vercelAiGatewayModels).length === 0
-                      ? 'Loading models...'
-                      : 'No models found'}
+                      ? "Loading models..."
+                      : "No models found"}
                   </span>
                 </DropdownItem>
               )}
@@ -299,18 +299,18 @@ const VercelModelPicker: React.FC<VercelModelPickerProps> = ({ isPopup, currentM
       ) : (
         <p
           style={{
-            fontSize: '12px',
+            fontSize: "12px",
             marginTop: 0,
-            color: 'var(--vscode-descriptionForeground)',
+            color: "var(--vscode-descriptionForeground)",
           }}
         >
           {Object.keys(vercelAiGatewayModels).length === 0 ? (
             <>
               Enter your Vercel AI Gateway API key above to load available models. You can get an
-              API key from{' '}
+              API key from{" "}
               <VSCodeLink
                 href="https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai"
-                style={{ display: 'inline', fontSize: 'inherit' }}
+                style={{ display: "inline", fontSize: "inherit" }}
               >
                 Vercel AI Gateway.
               </VSCodeLink>
@@ -358,7 +358,7 @@ const DropdownItem = styled.div<{ isSelected: boolean }>`
 	word-break: break-all;
 	white-space: normal;
 
-	background-color: ${({ isSelected }) => (isSelected ? 'var(--vscode-list-activeSelectionBackground)' : 'inherit')};
+	background-color: ${({ isSelected }) => (isSelected ? "var(--vscode-list-activeSelectionBackground)" : "inherit")};
 
 	&:hover {
 		background-color: var(--vscode-list-activeSelectionBackground);

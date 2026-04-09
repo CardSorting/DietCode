@@ -1,31 +1,31 @@
-import { ClineEndpoint } from '@/config';
-import { Logger } from '@/shared/services/Logger';
+import { ClineEndpoint } from "@/config";
+import { Logger } from "@/shared/services/Logger";
 import {
   type OpenTelemetryClientValidConfig,
   getValidOpenTelemetryConfig,
   getValidRuntimeOpenTelemetryConfig,
-} from '@/shared/services/config/otel-config';
-import { isPostHogConfigValid, posthogConfig } from '@/shared/services/config/posthog-config';
+} from "@/shared/services/config/otel-config";
+import { isPostHogConfigValid, posthogConfig } from "@/shared/services/config/posthog-config";
 import type {
   ITelemetryProvider,
   TelemetryProperties,
   TelemetrySettings,
-} from './providers/ITelemetryProvider';
-import { OpenTelemetryClientProvider } from './providers/opentelemetry/OpenTelemetryClientProvider';
-import { OpenTelemetryTelemetryProvider } from './providers/opentelemetry/OpenTelemetryTelemetryProvider';
-import { PostHogClientProvider } from './providers/posthog/PostHogClientProvider';
-import { PostHogTelemetryProvider } from './providers/posthog/PostHogTelemetryProvider';
+} from "./providers/ITelemetryProvider";
+import { OpenTelemetryClientProvider } from "./providers/opentelemetry/OpenTelemetryClientProvider";
+import { OpenTelemetryTelemetryProvider } from "./providers/opentelemetry/OpenTelemetryTelemetryProvider";
+import { PostHogClientProvider } from "./providers/posthog/PostHogClientProvider";
+import { PostHogTelemetryProvider } from "./providers/posthog/PostHogTelemetryProvider";
 
 /**
  * Supported telemetry provider types
  */
-export type TelemetryProviderType = 'posthog' | 'no-op' | 'opentelemetry';
+export type TelemetryProviderType = "posthog" | "no-op" | "opentelemetry";
 
 /**
  * Configuration for telemetry providers
  */
 export type TelemetryProviderConfig =
-  | { type: 'posthog'; apiKey?: string; host?: string }
+  | { type: "posthog"; apiKey?: string; host?: string }
   /** OpenTelemetry collector
    * @param config - Config for this specific collector
    * @param bypassUserSettings - When true, telemetry is sent regardless of the user's Cline telemetry opt-in/opt-out settings.
@@ -33,8 +33,8 @@ export type TelemetryProviderConfig =
    * 	- User-controlled collectors configured via environment variables (e.g., CLINE_OTEL_TELEMETRY_ENABLED).
    * 	- Organization-controlled collectors configured via remote config.
    */
-  | { type: 'opentelemetry'; config: OpenTelemetryClientValidConfig; bypassUserSettings: boolean }
-  | { type: 'no-op' };
+  | { type: "opentelemetry"; config: OpenTelemetryClientValidConfig; bypassUserSettings: boolean }
+  | { type: "no-op" };
 
 /**
  * Factory class for creating telemetry providers
@@ -64,7 +64,7 @@ export class TelemetryProviderFactory {
     }
 
     Logger.info(
-      `TelemetryProviderFactory: Created providers - ${providers.map((p) => p.name).join(', ')}`,
+      `TelemetryProviderFactory: Created providers - ${providers.map((p) => p.name).join(", ")}`,
     );
     return providers;
   }
@@ -78,14 +78,14 @@ export class TelemetryProviderFactory {
     config: TelemetryProviderConfig,
   ): Promise<ITelemetryProvider> {
     switch (config.type) {
-      case 'posthog': {
+      case "posthog": {
         const sharedClient = PostHogClientProvider.getClient();
         if (sharedClient) {
           return await new PostHogTelemetryProvider(sharedClient).initialize();
         }
         return new NoOpTelemetryProvider();
       }
-      case 'opentelemetry': {
+      case "opentelemetry": {
         const otelConfig = config.config;
         if (!otelConfig) {
           return new NoOpTelemetryProvider();
@@ -100,14 +100,14 @@ export class TelemetryProviderFactory {
             },
           ).initialize();
         }
-        Logger.info('TelemetryProviderFactory: OpenTelemetry providers not available');
+        Logger.info("TelemetryProviderFactory: OpenTelemetry providers not available");
         return new NoOpTelemetryProvider();
       }
-      case 'no-op':
+      case "no-op":
         return new NoOpTelemetryProvider();
       default:
         Logger.error(
-          `Unsupported telemetry provider type: ${(config as { type?: string }).type ?? 'unknown'}`,
+          `Unsupported telemetry provider type: ${(config as { type?: string }).type ?? "unknown"}`,
         );
         return new NoOpTelemetryProvider();
     }
@@ -122,7 +122,7 @@ export class TelemetryProviderFactory {
 
     // Skip PostHog in selfHosted mode - enterprise customers should not send telemetry to PostHog
     if (!ClineEndpoint.isSelfHosted() && isPostHogConfigValid(posthogConfig)) {
-      configs.push({ type: 'posthog', ...posthogConfig });
+      configs.push({ type: "posthog", ...posthogConfig });
     }
 
     // Skip build-time OTEL in selfHosted mode - enterprise customers should not send telemetry to Cline's collector
@@ -130,7 +130,7 @@ export class TelemetryProviderFactory {
     const otelConfig = getValidOpenTelemetryConfig();
     if (!ClineEndpoint.isSelfHosted() && otelConfig) {
       configs.push({
-        type: 'opentelemetry',
+        type: "opentelemetry",
         config: otelConfig,
         bypassUserSettings: false,
       });
@@ -139,7 +139,7 @@ export class TelemetryProviderFactory {
     const runtimeOtelConfig = getValidRuntimeOpenTelemetryConfig();
     if (runtimeOtelConfig) {
       configs.push({
-        type: 'opentelemetry',
+        type: "opentelemetry",
         config: runtimeOtelConfig,
         // If the user has `CLINE_OTEL_TELEMETRY_ENABLED` in his environment, enable
         // OTEL regardless of his Cline telemetry settings
@@ -147,7 +147,7 @@ export class TelemetryProviderFactory {
       });
     }
 
-    return configs.length > 0 ? configs : [{ type: 'no-op' }];
+    return configs.length > 0 ? configs : [{ type: "no-op" }];
   }
 }
 
@@ -156,7 +156,7 @@ export class TelemetryProviderFactory {
  * or for testing purposes
  */
 export class NoOpTelemetryProvider implements ITelemetryProvider {
-  readonly name = 'NoOpTelemetryProvider';
+  readonly name = "NoOpTelemetryProvider";
   private isOptIn = true;
 
   log(_event: string, _properties?: TelemetryProperties): void {
@@ -176,7 +176,7 @@ export class NoOpTelemetryProvider implements ITelemetryProvider {
   getSettings(): TelemetrySettings {
     return {
       hostEnabled: false,
-      level: 'off',
+      level: "off",
     };
   }
   recordCounter(

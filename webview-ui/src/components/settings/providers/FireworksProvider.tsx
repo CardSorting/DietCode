@@ -1,11 +1,11 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { fireworksModels } from '@shared/api.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { ApiKeyField } from '../common/ApiKeyField';
-import { ModelInfoView } from '../common/ModelInfoView';
-import { ModelSelector } from '../common/ModelSelector';
-import { normalizeApiConfiguration } from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { fireworksModels } from "@shared/api.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { ApiKeyField } from "../common/ApiKeyField";
+import { ModelInfoView } from "../common/ModelInfoView";
+import { ModelSelector } from "../common/ModelSelector";
+import { normalizeApiConfiguration } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 /**
  * Props for the FireworksProvider component
@@ -35,8 +35,8 @@ export const FireworksProvider = ({
   return (
     <div>
       <ApiKeyField
-        initialValue={apiConfiguration?.fireworksApiKey || ''}
-        onChange={(value) => handleFieldChange('fireworksApiKey', value)}
+        initialValue={apiConfiguration?.fireworksApiKey || ""}
+        onChange={(value) => handleFieldChange("fireworksApiKey", value)}
         providerName="Fireworks"
         signupUrl="https://fireworks.ai/"
       />
@@ -46,8 +46,8 @@ export const FireworksProvider = ({
         onChange={(e: any) => {
           handleModeFieldChange(
             {
-              plan: 'planModeFireworksModelId',
-              act: 'actModeFireworksModelId',
+              plan: "planModeFireworksModelId",
+              act: "actModeFireworksModelId",
             },
             e.target.value,
             currentMode,

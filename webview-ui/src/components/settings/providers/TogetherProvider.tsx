@@ -1,9 +1,9 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import type { Mode } from '@shared/storage/types.ts';
-import { ApiKeyField } from '../common/ApiKeyField';
-import { DebouncedTextField } from '../common/DebouncedTextField';
-import { getModeSpecificFields } from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import type { Mode } from "@shared/storage/types.ts";
+import { ApiKeyField } from "../common/ApiKeyField";
+import { DebouncedTextField } from "../common/DebouncedTextField";
+import { getModeSpecificFields } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 /**
  * Props for the TogetherProvider component
@@ -30,32 +30,32 @@ export const TogetherProvider = ({
   return (
     <div>
       <ApiKeyField
-        initialValue={apiConfiguration?.togetherApiKey || ''}
-        onChange={(value) => handleFieldChange('togetherApiKey', value)}
+        initialValue={apiConfiguration?.togetherApiKey || ""}
+        onChange={(value) => handleFieldChange("togetherApiKey", value)}
         providerName="Together"
       />
       <DebouncedTextField
-        initialValue={togetherModelId || ''}
+        initialValue={togetherModelId || ""}
         onChange={(value) =>
           handleModeFieldChange(
-            { plan: 'planModeTogetherModelId', act: 'actModeTogetherModelId' },
+            { plan: "planModeTogetherModelId", act: "actModeTogetherModelId" },
             value,
             currentMode,
           )
         }
-        placeholder={'Enter Model ID...'}
-        style={{ width: '100%' }}
+        placeholder={"Enter Model ID..."}
+        style={{ width: "100%" }}
       >
         <span style={{ fontWeight: 500 }}>Model ID</span>
       </DebouncedTextField>
       <p
         style={{
-          fontSize: '12px',
+          fontSize: "12px",
           marginTop: 3,
-          color: 'var(--vscode-descriptionForeground)',
+          color: "var(--vscode-descriptionForeground)",
         }}
       >
-        <span style={{ color: 'var(--vscode-errorForeground)' }}>
+        <span style={{ color: "var(--vscode-errorForeground)" }}>
           (<span style={{ fontWeight: 500 }}>Note:</span> Cline uses complex prompts and works best
           with Claude models. Less capable models may not work as expected.)
         </span>

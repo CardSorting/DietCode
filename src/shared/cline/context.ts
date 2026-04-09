@@ -3,7 +3,7 @@
  * See https://code.visualstudio.com/api for more information
  */
 
-import type { URI } from 'vscode-uri';
+import type { URI } from "vscode-uri";
 
 enum ExtensionMode {
   /**

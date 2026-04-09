@@ -3,7 +3,7 @@
  * Allows switching between different error tracking providers (PostHog, Sentry, etc.)
  */
 
-import type { ClineError } from '../ClineError';
+import type { ClineError } from "../ClineError";
 
 /**
  * Error settings that control when and how errors are logged
@@ -14,7 +14,7 @@ export interface ErrorSettings {
   /** Whether the host environment's telemetry is enabled */
   hostEnabled: boolean;
   /** The level of errors to log */
-  level?: 'all' | 'off' | 'error' | 'crash';
+  level?: "all" | "off" | "error" | "crash";
 }
 
 /**
@@ -44,7 +44,7 @@ export interface IErrorProvider {
    */
   logMessage(
     message: string,
-    level?: 'error' | 'warning' | 'log' | 'debug' | 'info',
+    level?: "error" | "warning" | "log" | "debug" | "info",
     properties?: Record<string, unknown>,
   ): void;
 

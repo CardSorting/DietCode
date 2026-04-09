@@ -1,9 +1,9 @@
-import { AccountServiceClient } from '@/services/grpc-client';
-import type { UserOrganization } from '@shared/nice-grpc/cline/account';
-import { EmptyRequest } from '@shared/nice-grpc/cline/common.ts';
-import deepEqual from 'fast-deep-equal';
-import type React from 'react';
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { AccountServiceClient } from "@/services/grpc-client";
+import type { UserOrganization } from "@shared/nice-grpc/cline/account";
+import { EmptyRequest } from "@shared/nice-grpc/cline/common.ts";
+import deepEqual from "fast-deep-equal";
+import type React from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 // Define User type (you may need to adjust this based on your actual User type)
 export interface ClineUser {
@@ -37,7 +37,7 @@ export const ClineAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         return old;
       });
     } catch (error) {
-      console.error('Failed to fetch user organizations:', error);
+      console.error("Failed to fetch user organizations:", error);
     }
   }, []);
 
@@ -46,7 +46,7 @@ export const ClineAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [userOrganizations]);
 
   useEffect(() => {
-    console.log('Extension: ClineAuthContext: user updated:', user?.uid);
+    console.log("Extension: ClineAuthContext: user updated:", user?.uid);
   }, [user?.uid]);
 
   // Handle auth status update events
@@ -72,10 +72,10 @@ export const ClineAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           });
         },
         onError: (error: Error) => {
-          console.error('Error in auth callback subscription:', error);
+          console.error("Error in auth callback subscription:", error);
         },
         onComplete: () => {
-          console.log('Auth callback subscription completed');
+          console.log("Auth callback subscription completed");
         },
       },
     );
@@ -102,7 +102,7 @@ export const ClineAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 export const useClineAuth = () => {
   const context = useContext(ClineAuthContext);
   if (context === undefined) {
-    throw new Error('useClineAuth must be used within a ClineAuthProvider');
+    throw new Error("useClineAuth must be used within a ClineAuthProvider");
   }
   return context;
 };
@@ -115,12 +115,12 @@ export const useClineSignIn = () => {
       setIsLoading(true);
 
       AccountServiceClient.accountLoginClicked(EmptyRequest.create())
-        .catch((err) => console.error('Failed to get login URL:', err))
+        .catch((err) => console.error("Failed to get login URL:", err))
         .finally(() => {
           setIsLoading(false);
         });
     } catch (error) {
-      console.error('Error signing in:', error);
+      console.error("Error signing in:", error);
     }
   }, []);
 
@@ -133,10 +133,10 @@ export const useClineSignIn = () => {
 export const handleSignOut = async () => {
   try {
     await AccountServiceClient.accountLogoutClicked(EmptyRequest.create()).catch((err) =>
-      console.error('Failed to logout:', err),
+      console.error("Failed to logout:", err),
     );
   } catch (error) {
-    console.error('Error signing out:', error);
+    console.error("Error signing out:", error);
     throw error;
   }
 };

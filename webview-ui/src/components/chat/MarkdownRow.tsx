@@ -1,5 +1,5 @@
-import { memo } from 'react';
-import MarkdownBlock from '../common/MarkdownBlock';
+import { memo } from "react";
+import MarkdownBlock from "../common/MarkdownBlock";
 
 export const MarkdownRow = memo(
   ({ markdown, showCursor }: { markdown?: string; showCursor?: boolean }) => {
@@ -11,4 +11,4 @@ export const MarkdownRow = memo(
   },
 );
 
-MarkdownRow.displayName = 'MarkdownRow';
+MarkdownRow.displayName = "MarkdownRow";

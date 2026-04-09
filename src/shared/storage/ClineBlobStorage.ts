@@ -1,10 +1,10 @@
-import { Logger } from '../services/Logger';
-import { ClineStorage } from './ClineStorage';
-import { type StorageAdapter, getStorageAdapter } from './adapters';
+import { Logger } from "../services/Logger";
+import { ClineStorage } from "./ClineStorage";
+import { type StorageAdapter, getStorageAdapter } from "./adapters";
 
 export interface BlobStoreSettings {
   bucket: string;
-  adapterType: 's3' | 'r2' | string;
+  adapterType: "s3" | "r2" | string;
   accessKeyId: string;
   secretAccessKey: string;
   region?: string;
@@ -30,7 +30,7 @@ export interface BlobStoreSettings {
  * Uses AWS S3 or Cloudflare R2 as the backend storage.
  */
 export class ClineBlobStorage extends ClineStorage {
-  override name = 'ClineBlobStorage';
+  override name = "ClineBlobStorage";
 
   private static store: ClineBlobStorage | null = null;
   static get instance(): ClineBlobStorage {
@@ -82,7 +82,7 @@ export class ClineBlobStorage extends ClineStorage {
       }
     } catch (error) {
       // Log but don't throw - allow startup to continue
-      Logger.error('[ClineBlobStorage] initialization failed:', error);
+      Logger.error("[ClineBlobStorage] initialization failed:", error);
     }
   }
 
@@ -95,14 +95,14 @@ export class ClineBlobStorage extends ClineStorage {
 
   public static isConfigured(settings: BlobStoreSettings): boolean {
     const adapter = settings.adapterType;
-    if (adapter !== 's3' && adapter !== 'r2') {
+    if (adapter !== "s3" && adapter !== "r2") {
       return false;
     }
 
     const hasRequiredVars =
       !!settings.bucket && !!settings.accessKeyId && !!settings.secretAccessKey;
 
-    if (adapter === 'r2') {
+    if (adapter === "r2") {
       return hasRequiredVars && !!(settings.accountId || settings.endpoint);
     }
 

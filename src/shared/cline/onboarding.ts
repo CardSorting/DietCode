@@ -1,4 +1,4 @@
-import type { OnboardingModel } from '../proto/cline/state';
+import type { OnboardingModel } from "../proto/cline/state";
 
 /**
  * The list of models available to new users during the onboarding flow.
@@ -6,12 +6,12 @@ import type { OnboardingModel } from '../proto/cline/state';
  */
 export const CLINE_ONBOARDING_MODELS: OnboardingModel[] = [
   {
-    group: 'free',
-    id: 'kwaipilot/kat-coder-pro',
-    name: 'KwaiKAT: Kat Coder Pro',
+    group: "free",
+    id: "kwaipilot/kat-coder-pro",
+    name: "KwaiKAT: Kat Coder Pro",
     score: 88,
     latency: 2,
-    badge: 'Best',
+    badge: "Best",
     info: {
       contextWindow: 128_000,
       supportsImages: false,
@@ -22,12 +22,12 @@ export const CLINE_ONBOARDING_MODELS: OnboardingModel[] = [
     },
   },
   {
-    group: 'free',
-    id: 'minimax/minimax-m2.5',
-    name: 'MiniMax: MiniMax M2.5',
+    group: "free",
+    id: "minimax/minimax-m2.5",
+    name: "MiniMax: MiniMax M2.5",
     score: 90,
     latency: 2,
-    badge: 'New',
+    badge: "New",
     info: {
       contextWindow: 192_000,
       supportsImages: false,
@@ -38,12 +38,12 @@ export const CLINE_ONBOARDING_MODELS: OnboardingModel[] = [
     },
   },
   {
-    group: 'free',
-    id: 'arcee-ai/trinity-large-preview:free',
-    name: 'Arcee AI: Trinity Large Preview',
+    group: "free",
+    id: "arcee-ai/trinity-large-preview:free",
+    name: "Arcee AI: Trinity Large Preview",
     score: 88,
     latency: 2,
-    badge: 'New',
+    badge: "New",
     info: {
       contextWindow: 131_000,
       supportsImages: false,
@@ -54,10 +54,10 @@ export const CLINE_ONBOARDING_MODELS: OnboardingModel[] = [
     },
   },
   {
-    group: 'frontier',
-    id: 'anthropic/claude-sonnet-4.5',
-    name: 'Anthropic: Claude Sonnet 4.5',
-    badge: 'Best',
+    group: "frontier",
+    id: "anthropic/claude-sonnet-4.5",
+    name: "Anthropic: Claude Sonnet 4.5",
+    badge: "Best",
     score: 97,
     latency: 3,
     info: {
@@ -70,10 +70,10 @@ export const CLINE_ONBOARDING_MODELS: OnboardingModel[] = [
     },
   },
   {
-    group: 'frontier',
-    id: 'google/gemini-3.1-pro-preview',
-    name: 'Gemini 3.1 Pro',
-    badge: 'Preview',
+    group: "frontier",
+    id: "google/gemini-3.1-pro-preview",
+    name: "Gemini 3.1 Pro",
+    badge: "Preview",
     score: 97,
     latency: 3,
     info: {
@@ -86,10 +86,10 @@ export const CLINE_ONBOARDING_MODELS: OnboardingModel[] = [
     },
   },
   {
-    group: 'frontier',
-    id: 'openai/gpt-5-codex',
-    name: 'OpenAI: GPT-5 Codex',
-    badge: 'Best',
+    group: "frontier",
+    id: "openai/gpt-5-codex",
+    name: "OpenAI: GPT-5 Codex",
+    badge: "Best",
     score: 97,
     latency: 7,
     info: {
@@ -102,10 +102,10 @@ export const CLINE_ONBOARDING_MODELS: OnboardingModel[] = [
     },
   },
   {
-    group: 'frontier',
-    id: 'openai/gpt-5.2',
-    name: 'OpenAI: GPT-5.2',
-    badge: 'New',
+    group: "frontier",
+    id: "openai/gpt-5.2",
+    name: "OpenAI: GPT-5.2",
+    badge: "New",
     score: 97,
     latency: 3,
     info: {
@@ -118,10 +118,10 @@ export const CLINE_ONBOARDING_MODELS: OnboardingModel[] = [
     },
   },
   {
-    group: 'open source',
-    id: 'z-ai/glm-4.6:exacto',
-    name: 'Z.AI: GLM 4.6 (exacto)',
-    badge: 'Trending',
+    group: "open source",
+    id: "z-ai/glm-4.6:exacto",
+    name: "Z.AI: GLM 4.6 (exacto)",
+    badge: "Trending",
     score: 90,
     latency: 2,
     info: {

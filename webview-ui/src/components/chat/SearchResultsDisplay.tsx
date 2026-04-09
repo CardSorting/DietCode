@@ -1,7 +1,7 @@
-import { ChevronDownIcon, ChevronRightIcon } from 'lucide-react';
-import type React from 'react';
-import { useMemo } from 'react';
-import CodeAccordian from '../common/CodeAccordian';
+import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
+import type React from "react";
+import { useMemo } from "react";
+import CodeAccordian from "../common/CodeAccordian";
 
 interface SearchResultsDisplayProps {
   content: string;
@@ -28,7 +28,7 @@ const SearchResultsDisplay: React.FC<SearchResultsDisplayProps> = ({
     }
 
     // Parse multi-workspace results
-    const lines = content.split('\n');
+    const lines = content.split("\n");
     const sections: Array<{ workspace: string; content: string }> = [];
     let currentWorkspace: string | null = null;
     let currentContent: string[] = [];
@@ -37,17 +37,17 @@ const SearchResultsDisplay: React.FC<SearchResultsDisplayProps> = ({
       const line = lines[i];
 
       // Check for workspace header
-      if (line.startsWith('## Workspace: ')) {
+      if (line.startsWith("## Workspace: ")) {
         // Save previous workspace section if exists
         if (currentWorkspace && currentContent.length > 0) {
           sections.push({
             workspace: currentWorkspace,
-            content: currentContent.join('\n'),
+            content: currentContent.join("\n"),
           });
         }
 
         // Start new workspace section
-        currentWorkspace = line.replace('## Workspace: ', '').trim();
+        currentWorkspace = line.replace("## Workspace: ", "").trim();
         currentContent = [];
       } else if (currentWorkspace) {
         // Add line to current workspace content
@@ -59,7 +59,7 @@ const SearchResultsDisplay: React.FC<SearchResultsDisplayProps> = ({
     if (currentWorkspace && currentContent.length > 0) {
       sections.push({
         workspace: currentWorkspace,
-        content: currentContent.join('\n'),
+        content: currentContent.join("\n"),
       });
     }
 
@@ -74,7 +74,7 @@ const SearchResultsDisplay: React.FC<SearchResultsDisplayProps> = ({
         isExpanded={isExpanded}
         language="plaintext"
         onToggleExpand={onToggleExpand}
-        path={path + (filePattern ? `/(${filePattern})` : '')}
+        path={path + (filePattern ? `/(${filePattern})` : "")}
       />
     );
   }
@@ -86,60 +86,60 @@ const SearchResultsDisplay: React.FC<SearchResultsDisplayProps> = ({
     <div
       style={{
         borderRadius: 3,
-        backgroundColor: 'var(--vscode-textCodeBlock-background)',
-        overflow: 'hidden',
-        border: '1px solid var(--vscode-editorGroup-border)',
+        backgroundColor: "var(--vscode-textCodeBlock-background)",
+        overflow: "hidden",
+        border: "1px solid var(--vscode-editorGroup-border)",
       }}
     >
       <div
-        aria-label={isExpanded ? 'Collapse search results' : 'Expand search results'}
+        aria-label={isExpanded ? "Collapse search results" : "Expand search results"}
         onClick={onToggleExpand}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
+          if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             e.stopPropagation();
             onToggleExpand();
           }
         }}
         style={{
-          color: 'var(--vscode-descriptionForeground)',
-          display: 'flex',
-          alignItems: 'center',
-          padding: '9px 10px',
-          cursor: 'pointer',
-          userSelect: 'none',
-          WebkitUserSelect: 'none',
-          MozUserSelect: 'none',
-          msUserSelect: 'none',
+          color: "var(--vscode-descriptionForeground)",
+          display: "flex",
+          alignItems: "center",
+          padding: "9px 10px",
+          cursor: "pointer",
+          userSelect: "none",
+          WebkitUserSelect: "none",
+          MozUserSelect: "none",
+          msUserSelect: "none",
         }}
       >
         <span>/</span>
         <span
           style={{
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            marginRight: '8px',
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            marginRight: "8px",
           }}
         >
-          {path + (filePattern ? `/(${filePattern})` : '')}
+          {path + (filePattern ? `/(${filePattern})` : "")}
         </span>
         <div style={{ flexGrow: 1 }} />
         {isExpanded ? (
-          <ChevronDownIcon size={16} style={{ margin: '1px 0' }} />
+          <ChevronDownIcon size={16} style={{ margin: "1px 0" }} />
         ) : (
-          <ChevronRightIcon size={16} style={{ margin: '1px 0' }} />
+          <ChevronRightIcon size={16} style={{ margin: "1px 0" }} />
         )}
       </div>
 
       {isExpanded && (
-        <div style={{ padding: '10px', borderTop: '1px solid var(--vscode-editorGroup-border)' }}>
+        <div style={{ padding: "10px", borderTop: "1px solid var(--vscode-editorGroup-border)" }}>
           {/* Summary line */}
           <div
             style={{
-              marginBottom: '12px',
-              fontWeight: 'bold',
-              color: 'var(--vscode-foreground)',
+              marginBottom: "12px",
+              fontWeight: "bold",
+              color: "var(--vscode-foreground)",
             }}
           >
             {summaryLine}
@@ -149,31 +149,31 @@ const SearchResultsDisplay: React.FC<SearchResultsDisplayProps> = ({
           {sections?.map((section: any, index: number) => (
             <div
               key={`workspace-${section.workspace}`}
-              style={{ marginBottom: index < sections.length - 1 ? '16px' : 0 }}
+              style={{ marginBottom: index < sections.length - 1 ? "16px" : 0 }}
             >
               <div
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  marginBottom: '8px',
-                  padding: '4px 8px',
-                  backgroundColor: 'var(--vscode-editor-background)',
-                  borderRadius: '3px',
-                  border: '1px solid var(--vscode-editorWidget-border)',
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  marginBottom: "8px",
+                  padding: "4px 8px",
+                  backgroundColor: "var(--vscode-editor-background)",
+                  borderRadius: "3px",
+                  border: "1px solid var(--vscode-editorWidget-border)",
                 }}
               >
                 <span
                   className="codicon codicon-folder"
                   style={{
-                    fontSize: '14px',
-                    color: 'var(--vscode-symbolIcon-folderForeground)',
+                    fontSize: "14px",
+                    color: "var(--vscode-symbolIcon-folderForeground)",
                   }}
                 />
                 <span
                   style={{
-                    fontWeight: '500',
-                    color: 'var(--vscode-foreground)',
+                    fontWeight: "500",
+                    color: "var(--vscode-foreground)",
                   }}
                 >
                   Workspace: {section.workspace}
@@ -183,18 +183,18 @@ const SearchResultsDisplay: React.FC<SearchResultsDisplayProps> = ({
               {/* Results for this workspace */}
               <div
                 style={{
-                  backgroundColor: 'var(--vscode-textCodeBlock-background)',
-                  padding: '8px',
-                  borderRadius: '3px',
-                  fontSize: 'var(--vscode-editor-font-size)',
-                  fontFamily: 'var(--vscode-editor-font-family)',
-                  lineHeight: '1.5',
-                  whiteSpace: 'pre-wrap',
-                  wordBreak: 'break-word',
-                  overflowWrap: 'anywhere',
+                  backgroundColor: "var(--vscode-textCodeBlock-background)",
+                  padding: "8px",
+                  borderRadius: "3px",
+                  fontSize: "var(--vscode-editor-font-size)",
+                  fontFamily: "var(--vscode-editor-font-family)",
+                  lineHeight: "1.5",
+                  whiteSpace: "pre-wrap",
+                  wordBreak: "break-word",
+                  overflowWrap: "anywhere",
                 }}
               >
-                <pre style={{ margin: 0, fontFamily: 'inherit' }}>{section.content.trim()}</pre>
+                <pre style={{ margin: 0, fontFamily: "inherit" }}>{section.content.trim()}</pre>
               </div>
             </div>
           ))}

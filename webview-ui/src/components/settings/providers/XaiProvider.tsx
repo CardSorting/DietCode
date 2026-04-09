@@ -1,14 +1,14 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { xaiModels } from '@shared/api.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
-import { useState } from 'react';
-import { DROPDOWN_Z_INDEX } from '../ApiOptions';
-import { ApiKeyField } from '../common/ApiKeyField';
-import { ModelInfoView } from '../common/ModelInfoView';
-import { DropdownContainer, ModelSelector } from '../common/ModelSelector';
-import { getModeSpecificFields, normalizeApiConfiguration } from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { xaiModels } from "@shared/api.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
+import { useState } from "react";
+import { DROPDOWN_Z_INDEX } from "../ApiOptions";
+import { ApiKeyField } from "../common/ApiKeyField";
+import { ModelInfoView } from "../common/ModelInfoView";
+import { DropdownContainer, ModelSelector } from "../common/ModelSelector";
+import { getModeSpecificFields, normalizeApiConfiguration } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 /**
  * Props for the XaiProvider component
@@ -40,19 +40,19 @@ export const XaiProvider = ({ showModelOptions, isPopup, currentMode }: XaiProvi
     <div>
       <div>
         <ApiKeyField
-          initialValue={apiConfiguration?.xaiApiKey || ''}
-          onChange={(value) => handleFieldChange('xaiApiKey', value)}
+          initialValue={apiConfiguration?.xaiApiKey || ""}
+          onChange={(value) => handleFieldChange("xaiApiKey", value)}
           providerName="X AI"
           signupUrl="https://x.ai"
         />
         <p
           style={{
-            fontSize: '12px',
+            fontSize: "12px",
             marginTop: -10,
-            color: 'var(--vscode-descriptionForeground)',
+            color: "var(--vscode-descriptionForeground)",
           }}
         >
-          <span style={{ color: 'var(--vscode-errorForeground)' }}>
+          <span style={{ color: "var(--vscode-errorForeground)" }}>
             (<span style={{ fontWeight: 500 }}>Note:</span> Cline uses complex prompts and works
             best with Claude models. Less capable models may not work as expected.)
           </span>
@@ -66,7 +66,7 @@ export const XaiProvider = ({ showModelOptions, isPopup, currentMode }: XaiProvi
             models={xaiModels}
             onChange={(e: any) =>
               handleModeFieldChange(
-                { plan: 'planModeApiModelId', act: 'actModeApiModelId' },
+                { plan: "planModeApiModelId", act: "actModeApiModelId" },
                 e.target.value,
                 currentMode,
               )
@@ -74,7 +74,7 @@ export const XaiProvider = ({ showModelOptions, isPopup, currentMode }: XaiProvi
             selectedModelId={selectedModelId}
           />
 
-          {selectedModelId?.includes('3-mini') && (
+          {selectedModelId?.includes("3-mini") && (
             <>
               <VSCodeCheckbox
                 checked={reasoningEffortSelected}
@@ -83,8 +83,8 @@ export const XaiProvider = ({ showModelOptions, isPopup, currentMode }: XaiProvi
                   setReasoningEffortSelected(isChecked);
                   if (!isChecked) {
                     handleModeFieldChange(
-                      { plan: 'planModeReasoningEffort', act: 'actModeReasoningEffort' },
-                      '',
+                      { plan: "planModeReasoningEffort", act: "actModeReasoningEffort" },
+                      "",
                       currentMode,
                     );
                   }
@@ -104,13 +104,13 @@ export const XaiProvider = ({ showModelOptions, isPopup, currentMode }: XaiProvi
                       id="reasoning-effort-dropdown"
                       onChange={(e: any) => {
                         handleModeFieldChange(
-                          { plan: 'planModeReasoningEffort', act: 'actModeReasoningEffort' },
+                          { plan: "planModeReasoningEffort", act: "actModeReasoningEffort" },
                           e.target.value,
                           currentMode,
                         );
                       }}
-                      style={{ width: '100%', marginTop: 3 }}
-                      value={modeFields.reasoningEffort || 'high'}
+                      style={{ width: "100%", marginTop: 3 }}
+                      value={modeFields.reasoningEffort || "high"}
                     >
                       <VSCodeOption value="low">low</VSCodeOption>
                       <VSCodeOption value="high">high</VSCodeOption>
@@ -118,10 +118,10 @@ export const XaiProvider = ({ showModelOptions, isPopup, currentMode }: XaiProvi
                   </DropdownContainer>
                   <p
                     style={{
-                      fontSize: '12px',
+                      fontSize: "12px",
                       marginTop: 3,
                       marginBottom: 0,
-                      color: 'var(--vscode-descriptionForeground)',
+                      color: "var(--vscode-descriptionForeground)",
                     }}
                   >
                     High effort may produce more thorough analysis but takes longer and uses more

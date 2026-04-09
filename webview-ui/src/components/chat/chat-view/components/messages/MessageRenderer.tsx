@@ -1,17 +1,17 @@
-import BrowserSessionRow from '@/components/chat/BrowserSessionRow';
-import ChatRow from '@/components/chat/ChatRow';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { cn } from '@/lib/utils';
-import type { ClineMessage } from '@shared/ExtensionMessage';
-import type React from 'react';
-import { useMemo } from 'react';
-import type { MessageHandlers } from '../../types/chatTypes';
+import BrowserSessionRow from "@/components/chat/BrowserSessionRow";
+import ChatRow from "@/components/chat/ChatRow";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { cn } from "@/lib/utils";
+import type { ClineMessage } from "@shared/ExtensionMessage";
+import type React from "react";
+import { useMemo } from "react";
+import type { MessageHandlers } from "../../types/chatTypes";
 import {
   findReasoningForApiReq,
   isTextMessagePendingToolCall,
   isToolGroup,
-} from '../../utils/messageUtils';
-import { ToolGroupRenderer } from './ToolGroupRenderer';
+} from "../../utils/messageUtils";
+import { ToolGroupRenderer } from "./ToolGroupRenderer";
 
 interface MessageRendererProps {
   index: number;
@@ -53,7 +53,7 @@ export const MessageRenderer: React.FC<MessageRendererProps> = ({
 
   // Get reasoning content and response status for api_req_started messages
   const reasoningData = useMemo(() => {
-    if (!Array.isArray(messageOrGroup) && messageOrGroup.say === 'api_req_started') {
+    if (!Array.isArray(messageOrGroup) && messageOrGroup.say === "api_req_started") {
       // Use the same message source-of-truth that `groupedMessages` is derived from.
       return findReasoningForApiReq(messageOrGroup.ts, modifiedMessages);
     }
@@ -62,7 +62,7 @@ export const MessageRenderer: React.FC<MessageRendererProps> = ({
 
   // Check if a text message is waiting for tool call completion
   const isRequestInProgress = useMemo(() => {
-    if (!Array.isArray(messageOrGroup) && messageOrGroup.say === 'text') {
+    if (!Array.isArray(messageOrGroup) && messageOrGroup.say === "text") {
       // Use modifiedMessages so this stays consistent with the rendered list.
       return isTextMessagePendingToolCall(messageOrGroup.ts, modifiedMessages);
     }
@@ -114,7 +114,7 @@ export const MessageRenderer: React.FC<MessageRendererProps> = ({
   return (
     <div
       className={cn({
-        'pb-2.5': isLastMessage && !footerActive,
+        "pb-2.5": isLastMessage && !footerActive,
       })}
       data-message-ts={messageOrGroup.ts}
     >
@@ -127,7 +127,7 @@ export const MessageRenderer: React.FC<MessageRendererProps> = ({
         lastModifiedMessage={modifiedMessages.at(-1)}
         message={messageOrGroup}
         mode={mode}
-        onCancelCommand={() => messageHandlers.executeButtonAction('cancel')}
+        onCancelCommand={() => messageHandlers.executeButtonAction("cancel")}
         onHeightChange={onHeightChange}
         onSetQuote={onSetQuote}
         onToggleExpand={onToggleExpand}

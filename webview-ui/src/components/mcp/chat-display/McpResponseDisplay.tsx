@@ -1,24 +1,24 @@
-import ChatErrorBoundary from '@/components/chat/ChatErrorBoundary';
-import { CODE_BLOCK_BG_COLOR } from '@/components/common/CodeBlock';
-import MarkdownBlock from '@/components/common/MarkdownBlock';
-import { DropdownContainer } from '@/components/settings/ApiOptions';
-import { updateSetting } from '@/components/settings/utils/settingsHandlers';
-import type { McpDisplayMode } from '@shared/McpDisplayMode.ts';
-import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
-import { ChevronDownIcon, ChevronRightIcon } from 'lucide-react';
-import React, { useCallback, useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { useExtensionState } from '../../../context/ExtensionStateContext';
-import ImagePreview from './ImagePreview';
-import LinkPreview from './LinkPreview';
-import McpDisplayModeDropdown from './McpDisplayModeDropdown';
+import ChatErrorBoundary from "@/components/chat/ChatErrorBoundary";
+import { CODE_BLOCK_BG_COLOR } from "@/components/common/CodeBlock";
+import MarkdownBlock from "@/components/common/MarkdownBlock";
+import { DropdownContainer } from "@/components/settings/ApiOptions";
+import { updateSetting } from "@/components/settings/utils/settingsHandlers";
+import type { McpDisplayMode } from "@shared/McpDisplayMode.ts";
+import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
+import React, { useCallback, useEffect, useState } from "react";
+import styled from "styled-components";
+import { useExtensionState } from "../../../context/ExtensionStateContext";
+import ImagePreview from "./ImagePreview";
+import LinkPreview from "./LinkPreview";
+import McpDisplayModeDropdown from "./McpDisplayModeDropdown";
 import {
   type DisplaySegment,
   type UrlMatch,
   buildDisplaySegments,
   processResponseUrls,
   truncateDataUris,
-} from './utils/mcpRichUtil';
+} from "./utils/mcpRichUtil";
 
 // Maximum number of URLs to process in total, per response
 export const MAX_URLS = 50;
@@ -91,14 +91,14 @@ const McpResponseDisplay: React.FC<McpResponseDisplayProps> = ({ responseText })
   const [error, setError] = useState<string | null>(null);
 
   const handleDisplayModeChange = useCallback((newMode: McpDisplayMode) => {
-    updateSetting('mcpDisplayMode', newMode);
+    updateSetting("mcpDisplayMode", newMode);
   }, []);
 
   const toggleExpand = useCallback(() => {
     setIsExpanded((prev) => {
       const newExpanded = !prev;
       // Save collapsed state so future MCP responses start in the same state
-      updateSetting('mcpResponsesCollapsed', !newExpanded);
+      updateSetting("mcpResponsesCollapsed", !newExpanded);
       return newExpanded;
     });
   }, []);
@@ -106,7 +106,7 @@ const McpResponseDisplay: React.FC<McpResponseDisplayProps> = ({ responseText })
   // Find all URLs in the text and determine if they're images
   useEffect(() => {
     // Skip all processing if in plain mode or markdown mode
-    if (!isExpanded || mcpDisplayMode === 'plain' || mcpDisplayMode === 'markdown') {
+    if (!isExpanded || mcpDisplayMode === "plain" || mcpDisplayMode === "markdown") {
       setIsLoading(false);
       if (urlMatches.length > 0) {
         setUrlMatches([]); // Clear any existing matches when not in rich mode
@@ -114,13 +114,13 @@ const McpResponseDisplay: React.FC<McpResponseDisplayProps> = ({ responseText })
       return;
     }
 
-    console.log('Processing MCP response for URL extraction');
+    console.log("Processing MCP response for URL extraction");
     setIsLoading(true);
     setError(null);
 
     // Use the orchestrator function from mcpRichUtil
     const cleanup = processResponseUrls(
-      responseText || '',
+      responseText || "",
       MAX_URLS,
       (matches) => {
         setUrlMatches(matches);
@@ -141,36 +141,36 @@ const McpResponseDisplay: React.FC<McpResponseDisplayProps> = ({ responseText })
   // Helper function to render a display segment
   const renderSegment = (segment: DisplaySegment): JSX.Element => {
     switch (segment.type) {
-      case 'text':
-      case 'url':
+      case "text":
+      case "url":
         return <UrlText key={segment.key}>{segment.content}</UrlText>;
 
-      case 'image':
+      case "image":
         return (
           <div key={segment.key}>
             <ImagePreview url={segment.url!} />
           </div>
         );
 
-      case 'link':
+      case "link":
         return (
-          <div key={segment.key} style={{ margin: '10px 0' }}>
+          <div key={segment.key} style={{ margin: "10px 0" }}>
             <LinkPreview url={segment.url!} />
           </div>
         );
 
-      case 'error':
+      case "error":
         return (
           <div
             key={segment.key}
             style={{
-              margin: '10px 0',
-              padding: '8px',
-              color: 'var(--vscode-errorForeground)',
-              border: '1px solid var(--vscode-editorError-foreground)',
-              borderRadius: '4px',
-              height: '128px',
-              overflow: 'auto',
+              margin: "10px 0",
+              padding: "8px",
+              color: "var(--vscode-errorForeground)",
+              border: "1px solid var(--vscode-editorError-foreground)",
+              borderRadius: "4px",
+              height: "128px",
+              overflow: "auto",
             }}
           >
             {segment.content}
@@ -188,14 +188,14 @@ const McpResponseDisplay: React.FC<McpResponseDisplayProps> = ({ responseText })
       return null;
     }
 
-    if (isLoading && mcpDisplayMode === 'rich') {
+    if (isLoading && mcpDisplayMode === "rich") {
       return (
         <div
           style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '50px',
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "50px",
           }}
         >
           <VSCodeProgressRing />
@@ -203,18 +203,18 @@ const McpResponseDisplay: React.FC<McpResponseDisplayProps> = ({ responseText })
       );
     }
 
-    if (mcpDisplayMode === 'plain') {
+    if (mcpDisplayMode === "plain") {
       return <UrlText>{truncateDataUris(responseText)}</UrlText>;
     }
 
-    if (mcpDisplayMode === 'markdown') {
+    if (mcpDisplayMode === "markdown") {
       return <MarkdownBlock markdown={truncateDataUris(responseText)} />;
     }
 
     if (error) {
       return (
         <>
-          <div style={{ color: 'var(--vscode-errorForeground)', marginBottom: '10px' }}>
+          <div style={{ color: "var(--vscode-errorForeground)", marginBottom: "10px" }}>
             {error}
           </div>
           <UrlText>{responseText}</UrlText>
@@ -222,7 +222,7 @@ const McpResponseDisplay: React.FC<McpResponseDisplayProps> = ({ responseText })
       );
     }
 
-    if (mcpDisplayMode === 'rich') {
+    if (mcpDisplayMode === "rich") {
       const segments = buildDisplaySegments(responseText, urlMatches);
       return <>{segments.map(renderSegment)}</>;
     }
@@ -236,8 +236,8 @@ const McpResponseDisplay: React.FC<McpResponseDisplayProps> = ({ responseText })
         <ResponseHeader
           onClick={toggleExpand}
           style={{
-            borderBottom: isExpanded ? '1px dashed var(--vscode-editorGroup-border)' : 'none',
-            marginBottom: isExpanded ? '8px' : '0px',
+            borderBottom: isExpanded ? "1px dashed var(--vscode-editorGroup-border)" : "none",
+            marginBottom: isExpanded ? "8px" : "0px",
           }}
         >
           <div className="header-title">
@@ -250,14 +250,14 @@ const McpResponseDisplay: React.FC<McpResponseDisplayProps> = ({ responseText })
           </div>
           <DropdownContainer
             style={{
-              minWidth: isExpanded ? 'auto' : '0',
-              visibility: isExpanded ? 'visible' : 'hidden',
+              minWidth: isExpanded ? "auto" : "0",
+              visibility: isExpanded ? "visible" : "hidden",
             }}
           >
             <McpDisplayModeDropdown
               onChange={handleDisplayModeChange}
               onClick={(e) => e.stopPropagation()}
-              style={{ minWidth: '120px' }}
+              style={{ minWidth: "120px" }}
               value={mcpDisplayMode}
             />
           </DropdownContainer>
@@ -267,7 +267,7 @@ const McpResponseDisplay: React.FC<McpResponseDisplayProps> = ({ responseText })
       </ResponseContainer>
     );
   } catch (_error) {
-    console.log('Error rendering MCP response - falling back to plain text'); // Restored comment
+    console.log("Error rendering MCP response - falling back to plain text"); // Restored comment
     // Fallback for critical rendering errors
     return (
       <ResponseContainer>
@@ -283,7 +283,7 @@ const McpResponseDisplay: React.FC<McpResponseDisplayProps> = ({ responseText })
         </ResponseHeader>
         {isExpanded && (
           <div className="response-content">
-            <div style={{ color: 'var(--vscode-errorForeground)' }}>Error parsing response:</div>
+            <div style={{ color: "var(--vscode-errorForeground)" }}>Error parsing response:</div>
             <UrlText>{responseText}</UrlText>
           </div>
         )}

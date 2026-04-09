@@ -1,14 +1,14 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { AccountServiceClient } from '@/services/grpc-client';
-import { toRequestyServiceUrl } from '@shared/clients/requesty.ts';
-import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { VSCodeButton, VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
-import { useState } from 'react';
-import RequestyModelPicker from '../RequestyModelPicker';
-import { ApiKeyField } from '../common/ApiKeyField';
-import { DebouncedTextField } from '../common/DebouncedTextField';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { AccountServiceClient } from "@/services/grpc-client";
+import { toRequestyServiceUrl } from "@shared/clients/requesty.ts";
+import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { VSCodeButton, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
+import { useState } from "react";
+import RequestyModelPicker from "../RequestyModelPicker";
+import { ApiKeyField } from "../common/ApiKeyField";
+import { DebouncedTextField } from "../common/DebouncedTextField";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 /**
  * Props for the RequestyProvider component
@@ -34,14 +34,14 @@ export const RequestyProvider = ({
     !!apiConfiguration?.requestyBaseUrl,
   );
 
-  const resolvedUrl = toRequestyServiceUrl(apiConfiguration?.requestyBaseUrl, 'app');
-  const apiKeyUrl = resolvedUrl != null ? new URL('api-keys', resolvedUrl).toString() : undefined;
+  const resolvedUrl = toRequestyServiceUrl(apiConfiguration?.requestyBaseUrl, "app");
+  const apiKeyUrl = resolvedUrl != null ? new URL("api-keys", resolvedUrl).toString() : undefined;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
+    <div style={{ display: "flex", flexDirection: "column" }}>
       <ApiKeyField
-        initialValue={apiConfiguration?.requestyApiKey || ''}
-        onChange={(value) => handleFieldChange('requestyApiKey', value)}
+        initialValue={apiConfiguration?.requestyApiKey || ""}
+        onChange={(value) => handleFieldChange("requestyApiKey", value)}
         providerName="Requesty"
         signupUrl={apiKeyUrl}
       />
@@ -52,14 +52,14 @@ export const RequestyProvider = ({
             try {
               await AccountServiceClient.requestyAuthClicked(
                 StringRequest.create({
-                  value: apiConfiguration?.requestyBaseUrl || '',
+                  value: apiConfiguration?.requestyBaseUrl || "",
                 }),
               );
             } catch (error) {
-              console.error('Failed to open Requesty auth:', error);
+              console.error("Failed to open Requesty auth:", error);
             }
           }}
-          style={{ margin: '5px 0 0 0' }}
+          style={{ margin: "5px 0 0 0" }}
         >
           Get Requesty API Key
         </VSCodeButton>
@@ -71,7 +71,7 @@ export const RequestyProvider = ({
           setRequestyEndpointSelected(isChecked);
 
           if (!isChecked) {
-            handleFieldChange('requestyBaseUrl', undefined);
+            handleFieldChange("requestyBaseUrl", undefined);
           }
         }}
       >
@@ -79,16 +79,16 @@ export const RequestyProvider = ({
       </VSCodeCheckbox>
       {requestyEndpointSelected && (
         <DebouncedTextField
-          initialValue={apiConfiguration?.requestyBaseUrl ?? ''}
+          initialValue={apiConfiguration?.requestyBaseUrl ?? ""}
           onChange={(value) => {
             if (value.length === 0) {
-              handleFieldChange('requestyBaseUrl', undefined);
+              handleFieldChange("requestyBaseUrl", undefined);
             } else {
-              handleFieldChange('requestyBaseUrl', value);
+              handleFieldChange("requestyBaseUrl", value);
             }
           }}
           placeholder="Custom base URL"
-          style={{ width: '100%', marginBottom: 5 }}
+          style={{ width: "100%", marginBottom: 5 }}
           type="text"
         />
       )}

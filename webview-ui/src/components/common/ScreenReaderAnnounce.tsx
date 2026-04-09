@@ -1,10 +1,10 @@
-import type React from 'react';
+import type React from "react";
 
 interface ScreenReaderAnnounceProps {
   /** The message to announce to screen readers */
   message: string;
   /** The politeness level of the announcement (default: "assertive") */
-  politeness?: 'polite' | 'assertive';
+  politeness?: "polite" | "assertive";
 }
 
 /**
@@ -13,21 +13,21 @@ interface ScreenReaderAnnounceProps {
  */
 const ScreenReaderAnnounce: React.FC<ScreenReaderAnnounceProps> = ({
   message,
-  politeness = 'assertive',
+  politeness = "assertive",
 }) => {
   return (
     <div
       aria-atomic="true"
       aria-live={politeness}
       style={{
-        position: 'absolute',
-        width: '1px',
-        height: '1px',
+        position: "absolute",
+        width: "1px",
+        height: "1px",
         padding: 0,
-        margin: '-1px',
-        overflow: 'hidden',
-        clip: 'rect(0, 0, 0, 0)',
-        whiteSpace: 'nowrap',
+        margin: "-1px",
+        overflow: "hidden",
+        clip: "rect(0, 0, 0, 0)",
+        whiteSpace: "nowrap",
         border: 0,
       }}
     >

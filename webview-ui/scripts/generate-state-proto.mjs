@@ -12,22 +12,22 @@
  * the rest of the file (services, enums, other messages).
  */
 
-import * as fs from 'node:fs/promises';
-import { Project, SyntaxKind } from 'ts-morph';
+import * as fs from "node:fs/promises";
+import { Project, SyntaxKind } from "ts-morph";
 
-const STATE_KEYS_PATH = 'src/shared/storage/state-keys.ts';
-const STATE_PROTO_PATH = 'proto/cline/state.proto';
+const STATE_KEYS_PATH = "src/shared/storage/state-keys.ts";
+const STATE_PROTO_PATH = "proto/cline/state.proto";
 
 /**
  * Convert field name to valid snake_case proto field name.
  * Handles camelCase (apiKey -> api_key) and hyphens (openai-codex -> openai_codex).
  */
 function toProtoFieldName(str) {
-  return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`).replace(/-/g, '_');
+  return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`).replace(/-/g, "_");
 }
 
 // Fields that should use int64 instead of int32
-const INT64_FIELDS = new Set(['planModeThinkingBudgetTokens', 'actModeThinkingBudgetTokens']);
+const INT64_FIELDS = new Set(["planModeThinkingBudgetTokens", "actModeThinkingBudgetTokens"]);
 
 // Fields that should use double instead of int32
 const DOUBLE_FIELDS = new Set();
@@ -40,31 +40,31 @@ const DOUBLE_FIELDS = new Set();
 function inferProtoType(typeText, fieldName) {
   // Remove 'undefined' from union types
   const cleanType = typeText
-    .replace(/\s*\|\s*undefined/g, '')
-    .replace(/undefined\s*\|\s*/g, '')
+    .replace(/\s*\|\s*undefined/g, "")
+    .replace(/undefined\s*\|\s*/g, "")
     .trim();
 
   // Handle common types
-  if (cleanType === 'string') {
-    return 'string';
+  if (cleanType === "string") {
+    return "string";
   }
-  if (cleanType === 'boolean') {
-    return 'bool';
+  if (cleanType === "boolean") {
+    return "bool";
   }
-  if (cleanType === 'number') {
+  if (cleanType === "number") {
     // Some number fields need specific numeric types
     if (fieldName && INT64_FIELDS.has(fieldName)) {
-      return 'int64';
+      return "int64";
     }
     if (fieldName && DOUBLE_FIELDS.has(fieldName)) {
-      return 'double';
+      return "double";
     }
-    return 'int32';
+    return "int32";
   }
 
   // Handle Record<string, string> as map<string, string>
   if (/Record\s*<\s*string\s*,\s*string\s*>/.test(cleanType)) {
-    return 'map<string, string>';
+    return "map<string, string>";
   }
 
   // Handle specific known types that map to proto messages/enums
@@ -74,19 +74,19 @@ function inferProtoType(typeText, fieldName) {
   // contain quotes but should map to proto enums
   const knownTypes = [
     // Specific model info types first
-    ['OpenAiCompatibleModelInfo', 'OpenAiCompatibleModelInfo'],
-    ['LiteLLMModelInfo', 'LiteLLMModelInfo'],
-    ['OcaModelInfo', 'OcaModelInfo'],
+    ["OpenAiCompatibleModelInfo", "OpenAiCompatibleModelInfo"],
+    ["LiteLLMModelInfo", "LiteLLMModelInfo"],
+    ["OcaModelInfo", "OcaModelInfo"],
     // Generic ModelInfo last (catches OpenRouterModelInfo, etc.)
-    ['ModelInfo', 'OpenRouterModelInfo'],
+    ["ModelInfo", "OpenRouterModelInfo"],
     // Other types - order matters for substring matching
-    ['AutoApprovalSettings', 'AutoApprovalSettings'],
-    ['BrowserSettings', 'BrowserSettings'],
-    ['FocusChainSettings', 'FocusChainSettings'],
-    ['OpenaiReasoningEffort', 'OpenaiReasoningEffort'],
-    ['PlanActMode', 'PlanActMode'],
-    ['ApiProvider', 'ApiProvider'],
-    ['LanguageModelChatSelector', 'LanguageModelChatSelector'], // Must come before "Mode" check
+    ["AutoApprovalSettings", "AutoApprovalSettings"],
+    ["BrowserSettings", "BrowserSettings"],
+    ["FocusChainSettings", "FocusChainSettings"],
+    ["OpenaiReasoningEffort", "OpenaiReasoningEffort"],
+    ["PlanActMode", "PlanActMode"],
+    ["ApiProvider", "ApiProvider"],
+    ["LanguageModelChatSelector", "LanguageModelChatSelector"], // Must come before "Mode" check
   ];
 
   for (const [tsType, protoType] of knownTypes) {
@@ -98,31 +98,31 @@ function inferProtoType(typeText, fieldName) {
   // Check for Mode type separately with word boundary to avoid matching "VsCodeLmModelSelector"
   // This handles TS `Mode` type which maps to proto `PlanActMode`
   if (/\bMode\b/.test(cleanType)) {
-    return 'PlanActMode';
+    return "PlanActMode";
   }
 
   // Handle specific string literal unions (treat as string)
   // This comes after known types check since some types like `"act" as Mode` contain quotes
   if (cleanType.includes('"') || cleanType.includes("'")) {
-    return 'string';
+    return "string";
   }
 
   // Default to string for complex types we can't map
-  return 'string';
+  return "string";
 }
 
 /**
  * Parse the SECRETS_KEYS array from state-keys.ts
  */
 function parseSecretsKeys(sourceFile) {
-  const secretsDecl = sourceFile.getVariableDeclaration('SECRETS_KEYS');
+  const secretsDecl = sourceFile.getVariableDeclaration("SECRETS_KEYS");
   if (!secretsDecl) {
-    throw new Error('Could not find SECRETS_KEYS declaration');
+    throw new Error("Could not find SECRETS_KEYS declaration");
   }
 
   let initializer = secretsDecl.getInitializer();
   if (!initializer) {
-    throw new Error('SECRETS_KEYS has no initializer');
+    throw new Error("SECRETS_KEYS has no initializer");
   }
 
   // Handle 'as const' expression
@@ -140,9 +140,9 @@ function parseSecretsKeys(sourceFile) {
   for (const element of initializer.getElements()) {
     const text = element.getText();
     // Remove quotes and handle special prefixes
-    const key = text.replace(/^['"]|['"]$/g, '');
+    const key = text.replace(/^['"]|['"]$/g, "");
     // Skip prefixed keys like "cline:clineAccountId"
-    if (!key.includes(':')) {
+    if (!key.includes(":")) {
       keys.push(key);
     }
   }
@@ -188,12 +188,12 @@ function parseFieldDefinitions(sourceFile, variableName) {
     }
 
     // Get the 'default' property to infer the type
-    const defaultProp = propInit.getProperty('default');
+    const defaultProp = propInit.getProperty("default");
     if (!defaultProp) {
       continue;
     }
 
-    let typeText = 'string';
+    let typeText = "string";
     const defaultInit = defaultProp.getInitializer();
     if (defaultInit) {
       // Check for 'as' expression to get the type
@@ -205,12 +205,12 @@ function parseFieldDefinitions(sourceFile, variableName) {
       } else {
         // Infer from literal
         const text = defaultInit.getText();
-        if (text === 'true' || text === 'false') {
-          typeText = 'boolean';
+        if (text === "true" || text === "false") {
+          typeText = "boolean";
         } else if (/^\d+$/.test(text)) {
-          typeText = 'number';
+          typeText = "number";
         } else if (/^\d+\.\d+$/.test(text)) {
-          typeText = 'number';
+          typeText = "number";
         }
       }
     }
@@ -260,7 +260,7 @@ function assertNoNormalizedFieldNameCollisions(fields) {
     if (names.size > 1) {
       const sortedNames = [...names].sort();
       throw new Error(
-        `Field-name collision after proto normalization: ${sortedNames.join(', ')} all normalize to "${normalizedName}". Rename one field to keep proto field-number mapping unambiguous.`,
+        `Field-name collision after proto normalization: ${sortedNames.join(", ")} all normalize to "${normalizedName}". Rename one field to keep proto field-number mapping unambiguous.`,
       );
     }
   }
@@ -276,7 +276,7 @@ function parseProtoMessageFieldNumbers(protoContent, messageName) {
   // Match the message block (handles single-level nesting for now)
   const messageRegex = new RegExp(
     `message\\s+${messageName}\\s*\\{([^}]*(?:\\{[^}]*\\}[^}]*)*)\\}`,
-    's',
+    "s",
   );
   const match = protoContent.match(messageRegex);
 
@@ -307,9 +307,9 @@ function parseProtoMessageFieldNumbers(protoContent, messageName) {
  */
 async function loadFieldNumbersFromProto() {
   try {
-    const protoContent = await fs.readFile(STATE_PROTO_PATH, 'utf-8');
-    const secrets = parseProtoMessageFieldNumbers(protoContent, 'Secrets');
-    const settings = parseProtoMessageFieldNumbers(protoContent, 'Settings');
+    const protoContent = await fs.readFile(STATE_PROTO_PATH, "utf-8");
+    const secrets = parseProtoMessageFieldNumbers(protoContent, "Secrets");
+    const settings = parseProtoMessageFieldNumbers(protoContent, "Settings");
 
     console.log(`  Found ${Object.keys(secrets).length} existing Secrets fields`);
     console.log(`  Found ${Object.keys(settings).length} existing Settings fields`);
@@ -384,12 +384,12 @@ function generateProtoMessage(messageName, fields, fieldNumbers) {
     const snakeName = toProtoFieldName(field.name);
     const fieldNum = fieldNumbers[field.name];
     // Map types cannot have the 'optional' modifier in proto3
-    const prefix = field.protoType.startsWith('map<') ? '' : 'optional ';
+    const prefix = field.protoType.startsWith("map<") ? "" : "optional ";
     lines.push(`  ${prefix}${field.protoType} ${snakeName} = ${fieldNum};`);
   }
 
-  lines.push('}');
-  return lines.join('\n');
+  lines.push("}");
+  return lines.join("\n");
 }
 
 /**
@@ -398,10 +398,10 @@ function generateProtoMessage(messageName, fields, fieldNumbers) {
 function generateSecretsMessage(secretsKeys, fieldNumbers) {
   const fields = secretsKeys.map((key) => ({
     name: key,
-    protoType: 'string',
+    protoType: "string",
   }));
 
-  return generateProtoMessage('Secrets', fields, fieldNumbers);
+  return generateProtoMessage("Secrets", fields, fieldNumbers);
 }
 
 /**
@@ -411,7 +411,7 @@ function replaceMessage(protoContent, messageName, newMessageContent) {
   // Match the message definition including nested braces
   const messageRegex = new RegExp(
     `message\\s+${messageName}\\s*\\{[^}]*(?:\\{[^}]*\\}[^}]*)*\\}`,
-    'g',
+    "g",
   );
 
   if (messageRegex.test(protoContent)) {
@@ -423,11 +423,11 @@ function replaceMessage(protoContent, messageName, newMessageContent) {
 }
 
 async function main() {
-  console.log('Generating proto definitions from TypeScript source...');
+  console.log("Generating proto definitions from TypeScript source...");
 
   // Parse TypeScript source
   const project = new Project({
-    tsConfigFilePath: 'tsconfig.json',
+    tsConfigFilePath: "tsconfig.json",
   });
   const sourceFile = project.addSourceFileAtPath(STATE_KEYS_PATH);
 
@@ -435,8 +435,8 @@ async function main() {
   const secretsKeys = parseSecretsKeys(sourceFile);
   console.log(`Found ${secretsKeys.length} secret keys`);
 
-  const apiHandlerFields = parseFieldDefinitions(sourceFile, 'API_HANDLER_SETTINGS_FIELDS');
-  const userSettingsFields = parseFieldDefinitions(sourceFile, 'USER_SETTINGS_FIELDS');
+  const apiHandlerFields = parseFieldDefinitions(sourceFile, "API_HANDLER_SETTINGS_FIELDS");
+  const userSettingsFields = parseFieldDefinitions(sourceFile, "USER_SETTINGS_FIELDS");
   const settingsFields = [...apiHandlerFields, ...userSettingsFields];
   console.log(`Found ${settingsFields.length} settings fields`);
 
@@ -453,14 +453,14 @@ async function main() {
 
   // Generate messages
   const secretsMessage = generateSecretsMessage(secretsKeys, secretsFieldNumbers);
-  const settingsMessage = generateProtoMessage('Settings', settingsFields, settingsFieldNumbers);
+  const settingsMessage = generateProtoMessage("Settings", settingsFields, settingsFieldNumbers);
 
   // Read existing proto file
-  let protoContent = await fs.readFile(STATE_PROTO_PATH, 'utf-8');
+  let protoContent = await fs.readFile(STATE_PROTO_PATH, "utf-8");
 
   // Replace messages
-  protoContent = replaceMessage(protoContent, 'Secrets', secretsMessage);
-  protoContent = replaceMessage(protoContent, 'Settings', settingsMessage);
+  protoContent = replaceMessage(protoContent, "Secrets", secretsMessage);
+  protoContent = replaceMessage(protoContent, "Settings", settingsMessage);
 
   // Write updated proto file
   await fs.writeFile(STATE_PROTO_PATH, protoContent);
@@ -470,6 +470,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('Error:', error);
+  console.error("Error:", error);
   process.exit(1);
 });

@@ -2,13 +2,13 @@ import type {
   ClineAsk as AppClineAsk,
   ClineMessage as AppClineMessage,
   ClineSay as AppClineSay,
-} from '@shared/ExtensionMessage';
+} from "@shared/ExtensionMessage";
 import {
   ClineAsk,
   ClineMessageType,
   ClineSay,
   type ClineMessage as ProtoClineMessage,
-} from '@shared/proto/cline/ui';
+} from "@shared/proto/cline/ui";
 
 // Helper function to convert ClineAsk string to enum
 function convertClineAskToProtoEnum(ask: AppClineAsk | undefined): ClineAsk | undefined {
@@ -50,24 +50,24 @@ function convertProtoEnumToClineAsk(ask: ClineAsk): AppClineAsk | undefined {
   }
 
   const mapping: Record<Exclude<ClineAsk, ClineAsk.UNRECOGNIZED>, AppClineAsk> = {
-    [ClineAsk.FOLLOWUP]: 'followup',
-    [ClineAsk.PLAN_MODE_RESPOND]: 'plan_mode_respond',
-    [ClineAsk.ACT_MODE_RESPOND]: 'act_mode_respond',
-    [ClineAsk.COMMAND]: 'command',
-    [ClineAsk.COMMAND_OUTPUT]: 'command_output',
-    [ClineAsk.COMPLETION_RESULT]: 'completion_result',
-    [ClineAsk.TOOL]: 'tool',
-    [ClineAsk.API_REQ_FAILED]: 'api_req_failed',
-    [ClineAsk.RESUME_TASK]: 'resume_task',
-    [ClineAsk.RESUME_COMPLETED_TASK]: 'resume_completed_task',
-    [ClineAsk.MISTAKE_LIMIT_REACHED]: 'mistake_limit_reached',
-    [ClineAsk.BROWSER_ACTION_LAUNCH]: 'browser_action_launch',
-    [ClineAsk.USE_MCP_SERVER]: 'use_mcp_server',
-    [ClineAsk.NEW_TASK]: 'new_task',
-    [ClineAsk.CONDENSE]: 'condense',
-    [ClineAsk.SUMMARIZE_TASK]: 'summarize_task',
-    [ClineAsk.REPORT_BUG]: 'report_bug',
-    [ClineAsk.USE_SUBAGENTS]: 'use_subagents',
+    [ClineAsk.FOLLOWUP]: "followup",
+    [ClineAsk.PLAN_MODE_RESPOND]: "plan_mode_respond",
+    [ClineAsk.ACT_MODE_RESPOND]: "act_mode_respond",
+    [ClineAsk.COMMAND]: "command",
+    [ClineAsk.COMMAND_OUTPUT]: "command_output",
+    [ClineAsk.COMPLETION_RESULT]: "completion_result",
+    [ClineAsk.TOOL]: "tool",
+    [ClineAsk.API_REQ_FAILED]: "api_req_failed",
+    [ClineAsk.RESUME_TASK]: "resume_task",
+    [ClineAsk.RESUME_COMPLETED_TASK]: "resume_completed_task",
+    [ClineAsk.MISTAKE_LIMIT_REACHED]: "mistake_limit_reached",
+    [ClineAsk.BROWSER_ACTION_LAUNCH]: "browser_action_launch",
+    [ClineAsk.USE_MCP_SERVER]: "use_mcp_server",
+    [ClineAsk.NEW_TASK]: "new_task",
+    [ClineAsk.CONDENSE]: "condense",
+    [ClineAsk.SUMMARIZE_TASK]: "summarize_task",
+    [ClineAsk.REPORT_BUG]: "report_bug",
+    [ClineAsk.USE_SUBAGENTS]: "use_subagents",
   };
 
   return mapping[ask];
@@ -132,43 +132,43 @@ function convertProtoEnumToClineSay(say: ClineSay): AppClineSay | undefined {
   }
 
   const mapping: Record<Exclude<ClineSay, ClineSay.UNRECOGNIZED>, AppClineSay> = {
-    [ClineSay.TASK]: 'task',
-    [ClineSay.ERROR]: 'error',
-    [ClineSay.API_REQ_STARTED]: 'api_req_started',
-    [ClineSay.API_REQ_FINISHED]: 'api_req_finished',
-    [ClineSay.TEXT]: 'text',
-    [ClineSay.REASONING]: 'reasoning',
-    [ClineSay.COMPLETION_RESULT_SAY]: 'completion_result',
-    [ClineSay.USER_FEEDBACK]: 'user_feedback',
-    [ClineSay.USER_FEEDBACK_DIFF]: 'user_feedback_diff',
-    [ClineSay.API_REQ_RETRIED]: 'api_req_retried',
-    [ClineSay.COMMAND_SAY]: 'command',
-    [ClineSay.COMMAND_OUTPUT_SAY]: 'command_output',
-    [ClineSay.TOOL_SAY]: 'tool',
-    [ClineSay.SHELL_INTEGRATION_WARNING]: 'shell_integration_warning',
-    [ClineSay.BROWSER_ACTION_LAUNCH_SAY]: 'browser_action_launch',
-    [ClineSay.BROWSER_ACTION]: 'browser_action',
-    [ClineSay.BROWSER_ACTION_RESULT]: 'browser_action_result',
-    [ClineSay.MCP_SERVER_REQUEST_STARTED]: 'mcp_server_request_started',
-    [ClineSay.MCP_SERVER_RESPONSE]: 'mcp_server_response',
-    [ClineSay.MCP_NOTIFICATION]: 'mcp_notification',
-    [ClineSay.USE_MCP_SERVER_SAY]: 'use_mcp_server',
-    [ClineSay.DIFF_ERROR]: 'diff_error',
-    [ClineSay.DELETED_API_REQS]: 'deleted_api_reqs',
-    [ClineSay.CLINEIGNORE_ERROR]: 'clineignore_error',
-    [ClineSay.COMMAND_PERMISSION_DENIED]: 'command_permission_denied',
-    [ClineSay.CHECKPOINT_CREATED]: 'checkpoint_created',
-    [ClineSay.LOAD_MCP_DOCUMENTATION]: 'load_mcp_documentation',
-    [ClineSay.INFO]: 'info',
-    [ClineSay.TASK_PROGRESS]: 'task_progress',
-    [ClineSay.ERROR_RETRY]: 'error_retry',
-    [ClineSay.GENERATE_EXPLANATION]: 'generate_explanation',
-    [ClineSay.HOOK_STATUS]: 'hook_status',
-    [ClineSay.HOOK_OUTPUT_STREAM]: 'hook_output_stream',
-    [ClineSay.CONDITIONAL_RULES_APPLIED]: 'conditional_rules_applied',
-    [ClineSay.SUBAGENT_STATUS]: 'subagent',
-    [ClineSay.USE_SUBAGENTS_SAY]: 'use_subagents',
-    [ClineSay.SUBAGENT_USAGE]: 'subagent_usage',
+    [ClineSay.TASK]: "task",
+    [ClineSay.ERROR]: "error",
+    [ClineSay.API_REQ_STARTED]: "api_req_started",
+    [ClineSay.API_REQ_FINISHED]: "api_req_finished",
+    [ClineSay.TEXT]: "text",
+    [ClineSay.REASONING]: "reasoning",
+    [ClineSay.COMPLETION_RESULT_SAY]: "completion_result",
+    [ClineSay.USER_FEEDBACK]: "user_feedback",
+    [ClineSay.USER_FEEDBACK_DIFF]: "user_feedback_diff",
+    [ClineSay.API_REQ_RETRIED]: "api_req_retried",
+    [ClineSay.COMMAND_SAY]: "command",
+    [ClineSay.COMMAND_OUTPUT_SAY]: "command_output",
+    [ClineSay.TOOL_SAY]: "tool",
+    [ClineSay.SHELL_INTEGRATION_WARNING]: "shell_integration_warning",
+    [ClineSay.BROWSER_ACTION_LAUNCH_SAY]: "browser_action_launch",
+    [ClineSay.BROWSER_ACTION]: "browser_action",
+    [ClineSay.BROWSER_ACTION_RESULT]: "browser_action_result",
+    [ClineSay.MCP_SERVER_REQUEST_STARTED]: "mcp_server_request_started",
+    [ClineSay.MCP_SERVER_RESPONSE]: "mcp_server_response",
+    [ClineSay.MCP_NOTIFICATION]: "mcp_notification",
+    [ClineSay.USE_MCP_SERVER_SAY]: "use_mcp_server",
+    [ClineSay.DIFF_ERROR]: "diff_error",
+    [ClineSay.DELETED_API_REQS]: "deleted_api_reqs",
+    [ClineSay.CLINEIGNORE_ERROR]: "clineignore_error",
+    [ClineSay.COMMAND_PERMISSION_DENIED]: "command_permission_denied",
+    [ClineSay.CHECKPOINT_CREATED]: "checkpoint_created",
+    [ClineSay.LOAD_MCP_DOCUMENTATION]: "load_mcp_documentation",
+    [ClineSay.INFO]: "info",
+    [ClineSay.TASK_PROGRESS]: "task_progress",
+    [ClineSay.ERROR_RETRY]: "error_retry",
+    [ClineSay.GENERATE_EXPLANATION]: "generate_explanation",
+    [ClineSay.HOOK_STATUS]: "hook_status",
+    [ClineSay.HOOK_OUTPUT_STREAM]: "hook_output_stream",
+    [ClineSay.CONDITIONAL_RULES_APPLIED]: "conditional_rules_applied",
+    [ClineSay.SUBAGENT_STATUS]: "subagent",
+    [ClineSay.USE_SUBAGENTS_SAY]: "use_subagents",
+    [ClineSay.SUBAGENT_USAGE]: "subagent_usage",
   };
 
   return mapping[say];
@@ -186,23 +186,23 @@ export function convertClineMessageToProto(message: AppClineMessage): ProtoCline
   let finalAskEnum: ClineAsk = ClineAsk.FOLLOWUP; // Proto default
   let finalSayEnum: ClineSay = ClineSay.TEXT; // Proto default
 
-  if (message.type === 'ask') {
+  if (message.type === "ask") {
     finalAskEnum = askEnum ?? ClineAsk.FOLLOWUP; // Use FOLLOWUP as default for ask messages
-  } else if (message.type === 'say') {
+  } else if (message.type === "say") {
     finalSayEnum = sayEnum ?? ClineSay.TEXT; // Use TEXT as default for say messages
   }
 
   const protoMessage: ProtoClineMessage = {
     ts: message.ts,
-    type: message.type === 'ask' ? ClineMessageType.ASK : ClineMessageType.SAY,
+    type: message.type === "ask" ? ClineMessageType.ASK : ClineMessageType.SAY,
     ask: finalAskEnum,
     say: finalSayEnum,
-    text: message.text ?? '',
-    reasoning: message.reasoning ?? '',
+    text: message.text ?? "",
+    reasoning: message.reasoning ?? "",
     images: message.images ?? [],
     files: message.files ?? [],
     partial: message.partial ?? false,
-    lastCheckpointHash: message.lastCheckpointHash ?? '',
+    lastCheckpointHash: message.lastCheckpointHash ?? "",
     isCheckpointCheckedOut: message.isCheckpointCheckedOut ?? false,
     isOperationOutsideWorkspace: message.isOperationOutsideWorkspace ?? false,
     conversationHistoryIndex: message.conversationHistoryIndex ?? 0,
@@ -233,7 +233,7 @@ export function convertClineMessageToProto(message: AppClineMessage): ProtoCline
 export function convertProtoToClineMessage(protoMessage: ProtoClineMessage): AppClineMessage {
   const message: AppClineMessage = {
     ts: protoMessage.ts,
-    type: protoMessage.type === ClineMessageType.ASK ? 'ask' : 'say',
+    type: protoMessage.type === ClineMessageType.ASK ? "ask" : "say",
   };
 
   // Convert ask enum to string
@@ -253,10 +253,10 @@ export function convertProtoToClineMessage(protoMessage: ProtoClineMessage): App
   }
 
   // Convert other fields - preserve empty strings as they may be intentional
-  if (protoMessage.text !== '') {
+  if (protoMessage.text !== "") {
     message.text = protoMessage.text;
   }
-  if (protoMessage.reasoning !== '') {
+  if (protoMessage.reasoning !== "") {
     message.reasoning = protoMessage.reasoning;
   }
   if (protoMessage.images.length > 0) {
@@ -268,7 +268,7 @@ export function convertProtoToClineMessage(protoMessage: ProtoClineMessage): App
   if (protoMessage.partial) {
     message.partial = protoMessage.partial;
   }
-  if (protoMessage.lastCheckpointHash !== '') {
+  if (protoMessage.lastCheckpointHash !== "") {
     message.lastCheckpointHash = protoMessage.lastCheckpointHash;
   }
   if (protoMessage.isCheckpointCheckedOut) {

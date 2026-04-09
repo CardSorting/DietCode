@@ -1,15 +1,15 @@
-import { ClineEnv } from '@/config';
-import type { Controller } from '@/core/controller';
-import { StateManager } from '@/core/storage/StateManager';
-import { type HostInfo, HostRegistryInfo } from '@/registry';
-import { fetch } from '@/shared/net';
-import { Logger } from '@/shared/services/Logger';
-import { FeatureFlag } from '@/shared/services/feature-flags/feature-flags';
-import type { Banner, BannerAction, BannerRules, BannersResponse } from '@shared/ClineBanner';
-import { BannerActionType, type BannerCardData } from '@shared/cline/banner.ts';
-import { buildBasicClineHeaders } from '../EnvUtils';
-import { AuthService } from '../auth/AuthService';
-import { featureFlagsService } from '../feature-flags';
+import { ClineEnv } from "@/config";
+import type { Controller } from "@/core/controller";
+import { StateManager } from "@/core/storage/StateManager";
+import { type HostInfo, HostRegistryInfo } from "@/registry";
+import { fetch } from "@/shared/net";
+import { Logger } from "@/shared/services/Logger";
+import { FeatureFlag } from "@/shared/services/feature-flags/feature-flags";
+import type { Banner, BannerAction, BannerRules, BannersResponse } from "@shared/ClineBanner";
+import { BannerActionType, type BannerCardData } from "@shared/cline/banner.ts";
+import { buildBasicClineHeaders } from "../EnvUtils";
+import { AuthService } from "../auth/AuthService";
+import { featureFlagsService } from "../feature-flags";
 
 const DEFAULT_CACHE_DURATION_MS = 24 * 60 * 60 * 1000;
 const CIRCUIT_BREAKER_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour
@@ -19,21 +19,21 @@ const FETCH_TIMEOUT_MS = 10000; // 10 seconds
 const MAX_CONSECUTIVE_FAILURES = 3;
 
 const OS_MAP: Record<string, string> = {
-  win32: 'windows',
-  linux: 'linux',
-  darwin: 'macos',
+  win32: "windows",
+  linux: "linux",
+  darwin: "macos",
 };
 
 const IDE_MAP: Record<string, string> = {
-  vscode: 'vscode',
-  jetbrains: 'jetbrains',
-  cli: 'cli',
+  vscode: "vscode",
+  jetbrains: "jetbrains",
+  cli: "cli",
 };
 
 const PROVIDER_ALIASES: Record<string, string[]> = {
-  anthropic: ['anthropic', 'claude-code'],
-  openai: ['openai', 'openai-native'],
-  qwen: ['qwen', 'qwen-code'],
+  anthropic: ["anthropic", "claude-code"],
+  openai: ["openai", "openai-native"],
+  qwen: ["qwen", "qwen-code"],
 };
 
 /**
@@ -63,7 +63,7 @@ export class BannerService {
     private readonly hostInfo: HostInfo,
   ) {
     this.validActionTypes = new Set(Object.values(BannerActionType));
-    Logger.log('[BannerService] initialized');
+    Logger.log("[BannerService] initialized");
   }
 
   public static initialize(controller: Controller): BannerService {
@@ -73,7 +73,7 @@ export class BannerService {
     const hostInfo = HostRegistryInfo.get();
     if (!hostInfo) {
       throw new Error(
-        '[BannerService] Ensure HostRegistryInfo is initialized before BannerService.',
+        "[BannerService] Ensure HostRegistryInfo is initialized before BannerService.",
       );
     }
     BannerService.instance = new BannerService(controller, hostInfo);
@@ -83,7 +83,7 @@ export class BannerService {
   public static get(): BannerService {
     if (!BannerService.instance) {
       throw new Error(
-        'BannerService not initialized. Call BannerService.initialize(controller) first.',
+        "BannerService not initialized. Call BannerService.initialize(controller) first.",
       );
     }
     return BannerService.instance;
@@ -134,7 +134,7 @@ export class BannerService {
 
         try {
           await instance.doFetch();
-          Logger.info('[BannerService] Fetched');
+          Logger.info("[BannerService] Fetched");
         } finally {
           instance.authFetchPending = false;
           resolve();
@@ -147,7 +147,7 @@ export class BannerService {
     this.ensureFreshCache();
 
     const activeBanners = this.cachedBanners
-      .filter((b) => b.placement !== 'welcome')
+      .filter((b) => b.placement !== "welcome")
       .filter((b) => !this.isBannerDismissed(b.id))
       .map((b) => this.toBannerCardData(b))
       .filter((b): b is BannerCardData => b !== null);
@@ -162,7 +162,7 @@ export class BannerService {
    * so the webview falls back to hardcoded welcome items.
    */
   public getWelcomeBanners(): BannerCardData[] | undefined {
-    const isLocal = process.env.IS_DEV === 'true' || process.env.CLINE_ENVIRONMENT === 'local';
+    const isLocal = process.env.IS_DEV === "true" || process.env.CLINE_ENVIRONMENT === "local";
     const flagEnabled =
       isLocal || featureFlagsService.getBooleanFlagEnabled(FeatureFlag.REMOTE_WELCOME_BANNERS);
 
@@ -170,11 +170,11 @@ export class BannerService {
       return undefined;
     }
     const bypassDismissals =
-      process.env.IS_DEV === 'true' || process.env.CLINE_ENVIRONMENT === 'local';
+      process.env.IS_DEV === "true" || process.env.CLINE_ENVIRONMENT === "local";
 
     this.ensureFreshCache();
 
-    const welcomeCandidates = this.cachedBanners.filter((b) => b.placement === 'welcome');
+    const welcomeCandidates = this.cachedBanners.filter((b) => b.placement === "welcome");
 
     const welcomeBanners = welcomeCandidates
       .filter((b) => bypassDismissals || !this.isBannerDismissed(b.id))
@@ -206,7 +206,7 @@ export class BannerService {
       FeatureFlag.EXTENSION_REMOTE_BANNERS_TTL,
     );
     const ms =
-      typeof flagPayload === 'number' && Number.isFinite(flagPayload)
+      typeof flagPayload === "number" && Number.isFinite(flagPayload)
         ? flagPayload
         : DEFAULT_CACHE_DURATION_MS;
     if (!Number.isFinite(ms) || ms <= 0) return DEFAULT_CACHE_DURATION_MS;
@@ -221,39 +221,39 @@ export class BannerService {
     this.consecutiveFailures = 0;
     this.backoffUntil = 0;
     this.fetchPromise = null;
-    Logger.log('BannerService: Cache cleared and circuit breaker reset');
+    Logger.log("BannerService: Cache cleared and circuit breaker reset");
   }
 
   public async dismissBanner(bannerId: string): Promise<void> {
     try {
-      const dismissed = StateManager.get().getGlobalStateKey('dismissedBanners') || [];
+      const dismissed = StateManager.get().getGlobalStateKey("dismissedBanners") || [];
       if (dismissed.some((b) => b.bannerId === bannerId)) return;
 
-      StateManager.get().setGlobalState('dismissedBanners', [
+      StateManager.get().setGlobalState("dismissedBanners", [
         ...dismissed,
         { bannerId, dismissedAt: Date.now() },
       ]);
 
-      await this.sendBannerEvent(bannerId, 'dismiss');
+      await this.sendBannerEvent(bannerId, "dismiss");
       this.clearCache();
     } catch (error) {
-      Logger.error('[BannerService] Error dismissing banner', error);
+      Logger.error("[BannerService] Error dismissing banner", error);
     }
   }
 
-  public async sendBannerEvent(bannerId: string, eventType: 'dismiss'): Promise<void> {
+  public async sendBannerEvent(bannerId: string, eventType: "dismiss"): Promise<void> {
     try {
-      const url = new URL('/banners/v2/messages', ClineEnv.config().apiBaseUrl).toString();
+      const url = new URL("/banners/v2/messages", ClineEnv.config().apiBaseUrl).toString();
       const ideType = this.getIdeType();
-      const surface = ideType === 'cli' ? 'cli' : ideType === 'jetbrains' ? 'jetbrains' : 'vscode';
+      const surface = ideType === "cli" ? "cli" : ideType === "jetbrains" ? "jetbrains" : "vscode";
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
       await fetch(url, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           ...(await buildBasicClineHeaders()),
         },
         body: JSON.stringify({
@@ -268,16 +268,16 @@ export class BannerService {
       clearTimeout(timeoutId);
       Logger.log(`[BannerService] Sent ${eventType} event for banner ${bannerId}`);
     } catch (error) {
-      Logger.error('[BannerService] Error sending banner event', error);
+      Logger.error("[BannerService] Error sending banner event", error);
     }
   }
 
   public isBannerDismissed(bannerId: string): boolean {
     try {
-      const dismissed = StateManager.get().getGlobalStateKey('dismissedBanners') || [];
+      const dismissed = StateManager.get().getGlobalStateKey("dismissedBanners") || [];
       return dismissed.some((b) => b.bannerId === bannerId);
     } catch (error) {
-      Logger.error('[BannerService] Error checking dismissed banner', error);
+      Logger.error("[BannerService] Error checking dismissed banner", error);
       return false;
     }
   }
@@ -295,7 +295,7 @@ export class BannerService {
     try {
       const url = this.buildFetchUrl();
       const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...(await buildBasicClineHeaders()),
       };
       const authToken = await AuthService.getInstance().getAuthToken();
@@ -303,7 +303,7 @@ export class BannerService {
         headers.Authorization = `Bearer ${authToken}`;
       }
 
-      const response = await fetch(url, { method: 'GET', headers, signal });
+      const response = await fetch(url, { method: "GET", headers, signal });
       clearTimeout(timeoutId);
 
       if (!response.ok) {
@@ -315,7 +315,7 @@ export class BannerService {
 
       const data = (await response.json()) as BannersResponse;
       if (!data?.data?.items || !Array.isArray(data.data.items)) {
-        Logger.log('BannerService: Invalid response format');
+        Logger.log("BannerService: Invalid response format");
         return [];
       }
 
@@ -341,7 +341,7 @@ export class BannerService {
       );
 
       this.controller.postStateToWebview().catch((error) => {
-        Logger.error('Failed to post state to webview after fetching banners:', error);
+        Logger.error("Failed to post state to webview after fetching banners:", error);
       });
 
       Logger.log(
@@ -351,7 +351,7 @@ export class BannerService {
     } catch (error) {
       clearTimeout(timeoutId);
 
-      if (error instanceof Error && error.name === 'AbortError') {
+      if (error instanceof Error && error.name === "AbortError") {
         return this.cachedBanners;
       }
 
@@ -371,7 +371,7 @@ export class BannerService {
     let backoffMs = CIRCUIT_BREAKER_TIMEOUT_MS;
 
     if (status === 429) {
-      const retryAfter = typedError.headers?.get('retry-after');
+      const retryAfter = typedError.headers?.get("retry-after");
       if (retryAfter) {
         const seconds = Number.parseInt(retryAfter, 10);
         if (!Number.isNaN(seconds)) {
@@ -393,8 +393,8 @@ export class BannerService {
       this.backoffUntil = Date.now() + CIRCUIT_BREAKER_TIMEOUT_MS;
       const msg =
         this.consecutiveFailures === MAX_CONSECUTIVE_FAILURES
-          ? 'Circuit breaker tripped'
-          : 'Half-open recovery failed';
+          ? "Circuit breaker tripped"
+          : "Half-open recovery failed";
       Logger.log(`BannerService: ${msg}, will allow recovery attempt after 1 hour`);
     }
 
@@ -406,34 +406,34 @@ export class BannerService {
   }
 
   private buildFetchUrl(): string {
-    const url = new URL('/banners/v2/messages', ClineEnv.config().apiBaseUrl);
-    url.searchParams.set('ide', this.getIdeType());
-    url.searchParams.set('extension_version', this.hostInfo.extensionVersion);
-    url.searchParams.set('os', OS_MAP[this.hostInfo.os] || 'unknown');
+    const url = new URL("/banners/v2/messages", ClineEnv.config().apiBaseUrl);
+    url.searchParams.set("ide", this.getIdeType());
+    url.searchParams.set("extension_version", this.hostInfo.extensionVersion);
+    url.searchParams.set("os", OS_MAP[this.hostInfo.os] || "unknown");
     return url.toString();
   }
 
   private getIdeType(): string {
-    const ide = this.hostInfo.ide?.toLowerCase() ?? '';
+    const ide = this.hostInfo.ide?.toLowerCase() ?? "";
     for (const [key, value] of Object.entries(IDE_MAP)) {
       if (ide.includes(key)) return value;
     }
 
-    const platform = this.hostInfo.platform?.toLowerCase() ?? '';
-    if (platform.includes('visual studio') || platform.includes('vscode')) {
-      return 'vscode';
+    const platform = this.hostInfo.platform?.toLowerCase() ?? "";
+    if (platform.includes("visual studio") || platform.includes("vscode")) {
+      return "vscode";
     }
-    return 'unknown';
+    return "unknown";
   }
 
   private matchesProviderRule(banner: Banner): boolean {
     try {
-      const rules: BannerRules = JSON.parse(banner.rulesJson || '{}');
+      const rules: BannerRules = JSON.parse(banner.rulesJson || "{}");
       if (!rules?.providers?.length) return true;
 
       const config = StateManager.get().getApiConfiguration();
-      const mode = StateManager.get().getGlobalSettingsKey('mode');
-      const provider = mode === 'plan' ? config?.planModeApiProvider : config?.actModeApiProvider;
+      const mode = StateManager.get().getGlobalSettingsKey("mode");
+      const provider = mode === "plan" ? config?.planModeApiProvider : config?.actModeApiProvider;
 
       return rules.providers.some((ruleProvider) => {
         // Check if ruleProvider is an alias for the selected provider
@@ -476,7 +476,7 @@ export class BannerService {
       description: banner.bodyMd,
       icon: banner.icon,
       actions: actions.map((a) => ({
-        title: a.title || '',
+        title: a.title || "",
         action: a.action as BannerActionType,
         arg: a.arg,
       })),

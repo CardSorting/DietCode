@@ -1,15 +1,15 @@
-import ClineLogoWhite from '@/assets/ClineLogoWhite';
-import type { Meta } from '@storybook/react-vite';
-import { Alert, AlertDescription } from './alert';
+import ClineLogoWhite from "@/assets/ClineLogoWhite";
+import type { Meta } from "@storybook/react-vite";
+import { Alert, AlertDescription } from "./alert";
 
 const meta: Meta<typeof Alert> = {
-  title: 'Ui/Alert',
+  title: "Ui/Alert",
   component: Alert,
   parameters: {
     docs: {
       description: {
         component:
-          'Displays alert messages with different severity levels (default, warning, danger). Includes optional dismiss functionality and supports title and description content.',
+          "Displays alert messages with different severity levels (default, warning, danger). Includes optional dismiss functionality and supports title and description content.",
       },
     },
   },

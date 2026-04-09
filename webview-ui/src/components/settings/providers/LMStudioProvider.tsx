@@ -1,20 +1,20 @@
-import UseCustomPromptCheckbox from '@/components/settings/UseCustomPromptCheckbox';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { ModelsServiceClient } from '@/services/grpc-client';
-import type { Mode } from '@shared/storage/types';
+import UseCustomPromptCheckbox from "@/components/settings/UseCustomPromptCheckbox";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { ModelsServiceClient } from "@/services/grpc-client";
+import type { Mode } from "@shared/storage/types";
 import {
   VSCodeDropdown,
   VSCodeLink,
   VSCodeOption,
   VSCodeTextField,
-} from '@vscode/webview-ui-toolkit/react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useInterval } from 'react-use';
-import { BaseUrlField } from '../common/BaseUrlField';
-import { DebouncedTextField } from '../common/DebouncedTextField';
-import { DropdownContainer } from '../common/ModelSelector';
-import { getModeSpecificFields } from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+} from "@vscode/webview-ui-toolkit/react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useInterval } from "react-use";
+import { BaseUrlField } from "../common/BaseUrlField";
+import { DebouncedTextField } from "../common/DebouncedTextField";
+import { DropdownContainer } from "../common/ModelSelector";
+import { getModeSpecificFields } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 /**
  * Props for the LMStudioProvider component
@@ -27,7 +27,7 @@ interface LMStudioProviderProps {
 
 interface LMStudioApiModel {
   id: string;
-  object?: 'model';
+  object?: "model";
   type?: string;
   publisher?: string;
   arch?: string;
@@ -54,7 +54,7 @@ export const LMStudioProvider = ({ currentMode }: LMStudioProviderProps) => {
     [lmStudioModels, lmStudioModelId],
   );
   const endpoint = useMemo(
-    () => apiConfiguration?.lmStudioBaseUrl || 'http://localhost:1234',
+    () => apiConfiguration?.lmStudioBaseUrl || "http://localhost:1234",
     [apiConfiguration?.lmStudioBaseUrl],
   );
 
@@ -70,7 +70,7 @@ export const LMStudioProvider = ({ currentMode }: LMStudioProviderProps) => {
         }
       })
       .catch((error) => {
-        console.error('Failed to parse LM Studio models:', error);
+        console.error("Failed to parse LM Studio models:", error);
       });
   }, [endpoint]);
 
@@ -86,7 +86,7 @@ export const LMStudioProvider = ({ currentMode }: LMStudioProviderProps) => {
     const max = currentLMStudioModel?.max_context_length?.toString();
     const choice = apiConfiguration?.lmStudioMaxTokens ?? max;
     if (curr && curr !== choice) {
-      handleFieldChange('lmStudioMaxTokens', curr);
+      handleFieldChange("lmStudioMaxTokens", curr);
     }
   }, [
     currentLMStudioModel?.loaded_context_length,
@@ -102,7 +102,7 @@ export const LMStudioProvider = ({ currentMode }: LMStudioProviderProps) => {
       <BaseUrlField
         initialValue={apiConfiguration?.lmStudioBaseUrl}
         label="Use custom base URL"
-        onChange={(value) => handleFieldChange('lmStudioBaseUrl', value)}
+        onChange={(value) => handleFieldChange("lmStudioBaseUrl", value)}
         placeholder="Default: http://localhost:1234"
       />
 
@@ -115,8 +115,8 @@ export const LMStudioProvider = ({ currentMode }: LMStudioProviderProps) => {
               const value = e?.target?.value;
               handleModeFieldChange(
                 {
-                  plan: 'planModeLmStudioModelId',
-                  act: 'actModeLmStudioModelId',
+                  plan: "planModeLmStudioModelId",
+                  act: "actModeLmStudioModelId",
                 },
                 value,
                 currentMode,
@@ -133,19 +133,19 @@ export const LMStudioProvider = ({ currentMode }: LMStudioProviderProps) => {
         </DropdownContainer>
       ) : (
         <DebouncedTextField
-          initialValue={lmStudioModelId || ''}
+          initialValue={lmStudioModelId || ""}
           onChange={(value) =>
             handleModeFieldChange(
               {
-                plan: 'planModeLmStudioModelId',
-                act: 'actModeLmStudioModelId',
+                plan: "planModeLmStudioModelId",
+                act: "actModeLmStudioModelId",
               },
               value,
               currentMode,
             )
           }
-          placeholder={'e.g. meta-llama-3.1-8b-instruct'}
-          style={{ width: '100%' }}
+          placeholder={"e.g. meta-llama-3.1-8b-instruct"}
+          style={{ width: "100%" }}
         />
       )}
 
@@ -154,7 +154,7 @@ export const LMStudioProvider = ({ currentMode }: LMStudioProviderProps) => {
         className="w-full pointer-events-none"
         disabled={true}
         title="Not editable - the value is returned by the connected endpoint"
-        value={String(currentLoadedContext ?? lmStudioMaxTokens ?? '0')}
+        value={String(currentLoadedContext ?? lmStudioMaxTokens ?? "0")}
       />
 
       <UseCustomPromptCheckbox providerId="lmstudio" />
@@ -164,15 +164,15 @@ export const LMStudioProvider = ({ currentMode }: LMStudioProviderProps) => {
         started, see their
         <VSCodeLink
           href="https://lmstudio.ai/docs"
-          style={{ display: 'inline', fontSize: 'inherit' }}
+          style={{ display: "inline", fontSize: "inherit" }}
         >
           quickstart guide.
         </VSCodeLink>
-        You will also need to start LM Studio's{' '}
+        You will also need to start LM Studio's{" "}
         <VSCodeLink className="inline" href="https://lmstudio.ai/docs/basics/server">
           local server
-        </VSCodeLink>{' '}
-        feature with <code>lms server start</code> to use it with this extension.{' '}
+        </VSCodeLink>{" "}
+        feature with <code>lms server start</code> to use it with this extension.{" "}
         <div className="text-error">
           <span className="font-semibold">Note:</span> Cline uses complex prompts and works best
           with Claude models. Less capable models may not work as expected.

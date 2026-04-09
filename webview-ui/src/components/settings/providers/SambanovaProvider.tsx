@@ -1,11 +1,11 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { sambanovaModels } from '@shared/api.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { ApiKeyField } from '../common/ApiKeyField';
-import { ModelInfoView } from '../common/ModelInfoView';
-import { ModelSelector } from '../common/ModelSelector';
-import { normalizeApiConfiguration } from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { sambanovaModels } from "@shared/api.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { ApiKeyField } from "../common/ApiKeyField";
+import { ModelInfoView } from "../common/ModelInfoView";
+import { ModelSelector } from "../common/ModelSelector";
+import { normalizeApiConfiguration } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 /**
  * Props for the SambanovaProvider component
@@ -36,8 +36,8 @@ export const SambanovaProvider = ({
   return (
     <div>
       <ApiKeyField
-        initialValue={apiConfiguration?.sambanovaApiKey || ''}
-        onChange={(value) => handleFieldChange('sambanovaApiKey', value)}
+        initialValue={apiConfiguration?.sambanovaApiKey || ""}
+        onChange={(value) => handleFieldChange("sambanovaApiKey", value)}
         providerName="SambaNova"
         signupUrl="https://docs.sambanova.ai/cloud/docs/get-started/overview"
       />
@@ -49,7 +49,7 @@ export const SambanovaProvider = ({
             models={sambanovaModels}
             onChange={(e: any) =>
               handleModeFieldChange(
-                { plan: 'planModeApiModelId', act: 'actModeApiModelId' },
+                { plan: "planModeApiModelId", act: "actModeApiModelId" },
                 e.target.value,
                 currentMode,
               )

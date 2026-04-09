@@ -1,4 +1,4 @@
-const LinkedInIcon = ({ className = 'w-5 h-5' }: { className?: string }) => (
+const LinkedInIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg
     className={className}
     fill="currentColor"

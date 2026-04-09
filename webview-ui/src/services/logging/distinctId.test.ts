@@ -1,25 +1,25 @@
-import { HostProvider } from '@/hosts/host-provider';
+import { HostProvider } from "@/hosts/host-provider";
 import {
   _GENERATED_MACHINE_ID_KEY,
   getDistinctId,
   initializeDistinctId,
   setDistinctId,
-} from '@/services/logging/distinctId';
-import type { StorageContext } from '@/shared/storage';
-import { expect } from 'chai';
-import { afterEach, beforeEach, describe, it } from 'mocha';
-import * as nodeMachineId from 'node-machine-id';
-import * as sinon from 'sinon';
+} from "@/services/logging/distinctId";
+import type { StorageContext } from "@/shared/storage";
+import { expect } from "chai";
+import { afterEach, beforeEach, describe, it } from "mocha";
+import * as nodeMachineId from "node-machine-id";
+import * as sinon from "sinon";
 
-describe('distinctId', () => {
+describe("distinctId", () => {
   let sandbox: sinon.SinonSandbox;
   let mockStorage: StorageContext;
   let mockGlobalState: any;
   let hostProviderInitialized = false;
 
-  const MOCK_GLOBAL_STATE_ID = 'existing-distinct-id-123';
-  const MOCK_MACHINE_ID = 'machine-id-456';
-  const MOCK_UUID = 'mock-uuid-12345678-1234-1234-1234-123456789012';
+  const MOCK_GLOBAL_STATE_ID = "existing-distinct-id-123";
+  const MOCK_MACHINE_ID = "machine-id-456";
+  const MOCK_UUID = "mock-uuid-12345678-1234-1234-1234-123456789012";
   const GENERATED_MACHINE_ID = `cl-${MOCK_UUID}`;
 
   const mockUuidGenerator = () => MOCK_UUID;
@@ -33,9 +33,9 @@ describe('distinctId', () => {
         workspaceClient: {},
         envClient: {
           getHostVersion: sandbox.stub().resolves({
-            clineVersion: '1.0.0',
-            platform: 'darwin',
-            clineType: 'vscode',
+            clineVersion: "1.0.0",
+            platform: "darwin",
+            clineType: "vscode",
           }),
         },
         windowClient: {},
@@ -49,10 +49,10 @@ describe('distinctId', () => {
         () => null as any, // createTerminalManager
         mockHostBridge,
         () => {}, // logToChannel
-        async () => 'http://localhost', // getCallbackUrl
-        async () => '', // getBinaryLocation
-        '/test/extension', // extensionFsPath
-        '/test/storage', // globalStorageFsPath
+        async () => "http://localhost", // getCallbackUrl
+        async () => "", // getBinaryLocation
+        "/test/extension", // extensionFsPath
+        "/test/storage", // globalStorageFsPath
       );
       hostProviderInitialized = true;
     }
@@ -64,7 +64,7 @@ describe('distinctId', () => {
     mockStorage = { globalState: mockGlobalState } as unknown as StorageContext;
 
     // Reset the distinctId module state
-    setDistinctId('');
+    setDistinctId("");
   });
 
   afterEach(() => {
@@ -77,9 +77,9 @@ describe('distinctId', () => {
     }
   });
 
-  it('should use id from extension globalstate if it exists', async () => {
+  it("should use id from extension globalstate if it exists", async () => {
     mockGlobalState.get.withArgs(_GENERATED_MACHINE_ID_KEY).returns(MOCK_GLOBAL_STATE_ID);
-    const machineIdStub = sandbox.stub(nodeMachineId, 'machineId');
+    const machineIdStub = sandbox.stub(nodeMachineId, "machineId");
 
     await initializeDistinctId(mockStorage, mockUuidGenerator);
 
@@ -88,9 +88,9 @@ describe('distinctId', () => {
     expect(mockGlobalState.update.notCalled).to.be.true;
   });
 
-  it('should use the machine ID from node-machine-id', async () => {
+  it("should use the machine ID from node-machine-id", async () => {
     // Mock node-machine-id to return a machine ID
-    const machineIdStub = sandbox.stub(nodeMachineId, 'machineId').resolves(MOCK_MACHINE_ID);
+    const machineIdStub = sandbox.stub(nodeMachineId, "machineId").resolves(MOCK_MACHINE_ID);
 
     await initializeDistinctId(mockStorage, mockUuidGenerator);
 
@@ -99,10 +99,10 @@ describe('distinctId', () => {
     expect(mockGlobalState.update.notCalled).to.be.true;
   });
 
-  it('distinct ID should be stable', async () => {
+  it("distinct ID should be stable", async () => {
     mockGlobalState.get.withArgs(_GENERATED_MACHINE_ID_KEY).returns(undefined);
     // Mock node-machine-id to return a machine ID
-    sandbox.stub(nodeMachineId, 'machineId').resolves(MOCK_MACHINE_ID);
+    sandbox.stub(nodeMachineId, "machineId").resolves(MOCK_MACHINE_ID);
 
     await initializeDistinctId(mockStorage, mockUuidGenerator);
     expect(getDistinctId()).to.equal(MOCK_MACHINE_ID);
@@ -113,10 +113,10 @@ describe('distinctId', () => {
     expect(mockGlobalState.update.notCalled).to.be.true;
   });
 
-  it('should generate and store UUID if node-machine-id returns empty string', async () => {
+  it("should generate and store UUID if node-machine-id returns empty string", async () => {
     mockGlobalState.get.withArgs(_GENERATED_MACHINE_ID_KEY).returns(undefined);
     // Mock node-machine-id to return empty string
-    const machineIdStub = sandbox.stub(nodeMachineId, 'machineId').resolves('');
+    const machineIdStub = sandbox.stub(nodeMachineId, "machineId").resolves("");
 
     await initializeDistinctId(mockStorage, mockUuidGenerator);
 
@@ -126,12 +126,12 @@ describe('distinctId', () => {
       .true;
   });
 
-  it('should handle node-machine-id errors gracefully', async () => {
+  it("should handle node-machine-id errors gracefully", async () => {
     mockGlobalState.get.withArgs(_GENERATED_MACHINE_ID_KEY).returns(undefined);
     // Mock node-machine-id to throw an error
     const machineIdStub = sandbox
-      .stub(nodeMachineId, 'machineId')
-      .rejects(new Error('Failed to get machine ID'));
+      .stub(nodeMachineId, "machineId")
+      .rejects(new Error("Failed to get machine ID"));
 
     await initializeDistinctId(mockStorage, mockUuidGenerator);
 

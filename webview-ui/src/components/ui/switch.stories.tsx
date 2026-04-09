@@ -1,14 +1,14 @@
-import type { Meta } from '@storybook/react-vite';
-import { Switch } from './switch';
+import type { Meta } from "@storybook/react-vite";
+import { Switch } from "./switch";
 
 const meta: Meta<typeof Switch> = {
-  title: 'Ui/Switch',
+  title: "Ui/Switch",
   component: Switch,
   parameters: {
     docs: {
       description: {
         component:
-          'A toggle switch component for binary on/off states. Built on Radix UI with smooth animations and keyboard accessibility support.',
+          "A toggle switch component for binary on/off states. Built on Radix UI with smooth animations and keyboard accessibility support.",
       },
     },
   },

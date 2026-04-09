@@ -1,9 +1,9 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
-import { ThinkingRow } from './ThinkingRow';
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { ThinkingRow } from "./ThinkingRow";
 
-describe('ThinkingRow', () => {
-  it('renders streaming title styling and expanded reasoning content', () => {
+describe("ThinkingRow", () => {
+  it("renders streaming title styling and expanded reasoning content", () => {
     render(
       <ThinkingRow
         isExpanded={true}
@@ -15,13 +15,13 @@ describe('ThinkingRow', () => {
       />,
     );
 
-    const title = screen.getByText('Thinking...');
+    const title = screen.getByText("Thinking...");
     expect(title).toBeInTheDocument();
-    expect(title).toHaveClass('animate-shimmer');
-    expect(screen.getByText('Inspecting files...')).toBeInTheDocument();
+    expect(title).toHaveClass("animate-shimmer");
+    expect(screen.getByText("Inspecting files...")).toBeInTheDocument();
   });
 
-  it('calls onToggle when header is clicked', () => {
+  it("calls onToggle when header is clicked", () => {
     const onToggle = vi.fn();
 
     render(
@@ -34,7 +34,7 @@ describe('ThinkingRow', () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /Thinking/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Thinking/i }));
     expect(onToggle).toHaveBeenCalledTimes(1);
   });
 });

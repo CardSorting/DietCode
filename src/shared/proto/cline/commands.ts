@@ -5,8 +5,8 @@
 // source: cline/commands.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
-import { Diagnostic, Empty } from './common';
+import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { Diagnostic, Empty } from "./common";
 
 export interface CommandContext {
   /** The absolute path of the current file. */
@@ -146,11 +146,11 @@ export const CommandContext: MessageFns<CommandContext> = {
  */
 export type CommandsServiceDefinition = typeof CommandsServiceDefinition;
 export const CommandsServiceDefinition = {
-  name: 'CommandsService',
-  fullName: 'cline.CommandsService',
+  name: "CommandsService",
+  fullName: "cline.CommandsService",
   methods: {
     addToCline: {
-      name: 'addToCline',
+      name: "addToCline",
       requestType: CommandContext,
       requestStream: false,
       responseType: Empty,
@@ -158,7 +158,7 @@ export const CommandsServiceDefinition = {
       options: {},
     },
     fixWithCline: {
-      name: 'fixWithCline',
+      name: "fixWithCline",
       requestType: CommandContext,
       requestStream: false,
       responseType: Empty,
@@ -166,7 +166,7 @@ export const CommandsServiceDefinition = {
       options: {},
     },
     explainWithCline: {
-      name: 'explainWithCline',
+      name: "explainWithCline",
       requestType: CommandContext,
       requestStream: false,
       responseType: Empty,
@@ -174,7 +174,7 @@ export const CommandsServiceDefinition = {
       options: {},
     },
     improveWithCline: {
-      name: 'improveWithCline',
+      name: "improveWithCline",
       requestType: CommandContext,
       requestStream: false,
       responseType: Empty,

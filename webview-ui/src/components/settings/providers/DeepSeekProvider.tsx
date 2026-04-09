@@ -1,11 +1,11 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { deepSeekModels } from '@shared/api.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { ApiKeyField } from '../common/ApiKeyField';
-import { ModelInfoView } from '../common/ModelInfoView';
-import { ModelSelector } from '../common/ModelSelector';
-import { normalizeApiConfiguration } from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { deepSeekModels } from "@shared/api.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { ApiKeyField } from "../common/ApiKeyField";
+import { ModelInfoView } from "../common/ModelInfoView";
+import { ModelSelector } from "../common/ModelSelector";
+import { normalizeApiConfiguration } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 /**
  * Props for the DeepSeekProvider component
@@ -36,8 +36,8 @@ export const DeepSeekProvider = ({
   return (
     <div>
       <ApiKeyField
-        initialValue={apiConfiguration?.deepSeekApiKey || ''}
-        onChange={(value) => handleFieldChange('deepSeekApiKey', value)}
+        initialValue={apiConfiguration?.deepSeekApiKey || ""}
+        onChange={(value) => handleFieldChange("deepSeekApiKey", value)}
         providerName="DeepSeek"
         signupUrl="https://www.deepseek.com/"
       />
@@ -49,7 +49,7 @@ export const DeepSeekProvider = ({
             models={deepSeekModels}
             onChange={(e: any) =>
               handleModeFieldChange(
-                { plan: 'planModeApiModelId', act: 'actModeApiModelId' },
+                { plan: "planModeApiModelId", act: "actModeApiModelId" },
                 e.target.value,
                 currentMode,
               )

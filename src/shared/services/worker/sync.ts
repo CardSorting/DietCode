@@ -9,20 +9,20 @@
  * - No native module dependencies (VS Code compatible)
  * - Atomic file writes for safety
  */
-import * as path from 'node:path';
-import { HostProvider } from '@/hosts/host-provider';
-import { Logger } from '@/shared/services/Logger';
-import { blobStorage } from '../../storage/ClineBlobStorage';
-import { backfillTasks } from './backfill';
-import { SyncQueue } from './queue';
-import type { SyncWorkerOptions } from './worker';
-import { type SyncWorker, disposeSyncWorker, initSyncWorker } from './worker';
+import * as path from "node:path";
+import { HostProvider } from "@/hosts/host-provider";
+import { Logger } from "@/shared/services/Logger";
+import { blobStorage } from "../../storage/ClineBlobStorage";
+import { backfillTasks } from "./backfill";
+import { SyncQueue } from "./queue";
+import type { SyncWorkerOptions } from "./worker";
+import { type SyncWorker, disposeSyncWorker, initSyncWorker } from "./worker";
 
-export type { SyncQueueItem, SyncQueueStatus } from './queue';
+export type { SyncQueueItem, SyncQueueStatus } from "./queue";
 // Re-export types and functions
-export { SyncQueue } from './queue';
-export type { SyncWorkerEvent, SyncWorkerOptions } from './worker';
-export { disposeSyncWorker, SyncWorker } from './worker';
+export { SyncQueue } from "./queue";
+export type { SyncWorkerEvent, SyncWorkerOptions } from "./worker";
+export { disposeSyncWorker, SyncWorker } from "./worker";
 
 let syncQueueInstance: SyncQueue | null = null;
 
@@ -30,7 +30,7 @@ let syncQueueInstance: SyncQueue | null = null;
  * Get the sync queue file path.
  */
 function getSyncQueuePath(): string {
-  return path.join(HostProvider.get().globalStorageFsPath, 'cache', 'sync-queue.json');
+  return path.join(HostProvider.get().globalStorageFsPath, "cache", "sync-queue.json");
 }
 
 /**
@@ -76,7 +76,7 @@ function init(options?: SyncWorkerOptions): SyncWorker | null {
   worker.start();
 
   if (options.backfillEnabled) {
-    backfillTasks().catch((err) => Logger.error('Backfill tasks failed:', err));
+    backfillTasks().catch((err) => Logger.error("Backfill tasks failed:", err));
   }
 
   return worker;

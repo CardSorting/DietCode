@@ -1,16 +1,16 @@
-import type { Meta } from '@storybook/react-vite';
-import { InfoIcon } from 'lucide-react';
-import { Button } from './button';
-import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip';
+import type { Meta } from "@storybook/react-vite";
+import { InfoIcon } from "lucide-react";
+import { Button } from "./button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 const meta: Meta<typeof Tooltip> = {
-  title: 'Ui/Tooltip',
+  title: "Ui/Tooltip",
   component: Tooltip,
   parameters: {
     docs: {
       description: {
         component:
-          'Displays helpful text when hovering over an element. Built on Radix UI with customizable positioning, optional arrow indicator, and smooth animations.',
+          "Displays helpful text when hovering over an element. Built on Radix UI with customizable positioning, optional arrow indicator, and smooth animations.",
       },
     },
   },

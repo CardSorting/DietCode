@@ -2,6 +2,7 @@
   "name": "dietcode",
   "publisher": "dietcode",
   "version": "2.2.2",
+  "icon": "assets/vsix/extension-icon.svg",
   "type": "module",
   "private": true,
   "description": "Sovereign Hive Architecture for DietCode - Zero-Shim AI Orchestration",
@@ -17,7 +18,7 @@
         {
           "id": "dietcode-explorer",
           "title": "DietCode",
-          "icon": "$(zap)"
+          "icon": "assets/vsix/activity-bar.svg"
         }
       ]
     },
@@ -27,7 +28,7 @@
           "type": "webview",
           "id": "dietcode-webview",
           "name": "Sovereign Hive",
-          "icon": "$(zap)",
+          "icon": "assets/vsix/activity-bar.svg",
           "visibility": "visible"
         }
       ]

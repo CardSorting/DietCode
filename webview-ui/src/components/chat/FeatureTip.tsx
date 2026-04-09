@@ -1,6 +1,6 @@
-import { cn } from '@/lib/utils';
-import { LightbulbIcon } from 'lucide-react';
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { cn } from "@/lib/utils";
+import { LightbulbIcon } from "lucide-react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 
 interface FeatureTipItem {
   text: string;
@@ -11,37 +11,37 @@ const FEATURE_TIPS: FeatureTipItem[] = [
     text: 'Enable "Double-Check Completion" in settings to have Cline verify its work before finishing a task.',
   },
   {
-    text: 'Add a .clinerules file to your project root to give Cline project-specific instructions.',
+    text: "Add a .clinerules file to your project root to give Cline project-specific instructions.",
   },
   {
-    text: 'Switch to Plan Mode to discuss and plan an approach before Cline takes action.',
+    text: "Switch to Plan Mode to discuss and plan an approach before Cline takes action.",
   },
   {
-    text: 'Use @ in the chat input to add files, folders, or URLs as context for your task.',
+    text: "Use @ in the chat input to add files, folders, or URLs as context for your task.",
   },
   {
-    text: 'Set up MCP Servers to give Cline access to external tools and APIs.',
+    text: "Set up MCP Servers to give Cline access to external tools and APIs.",
   },
   {
-    text: 'Cline creates checkpoints after changes — you can always restore to a previous state.',
+    text: "Cline creates checkpoints after changes — you can always restore to a previous state.",
   },
   {
-    text: 'Use /compact to condense long conversations and free up context window space.',
+    text: "Use /compact to condense long conversations and free up context window space.",
   },
   {
-    text: 'Enable auto-approve for read-only tools like file reads to speed up exploration.',
+    text: "Enable auto-approve for read-only tools like file reads to speed up exploration.",
   },
   {
     text: "Use the quote button to select text from Cline's response and reference it in your reply.",
   },
   {
-    text: 'You can drag and drop images into the chat to share screenshots with Cline.',
+    text: "You can drag and drop images into the chat to share screenshots with Cline.",
   },
   {
-    text: 'Cline can browse websites — ask it to test your local dev server in the browser.',
+    text: "Cline can browse websites — ask it to test your local dev server in the browser.",
   },
   {
-    text: 'Use /reportbug to quickly file a GitHub issue with diagnostic context included.',
+    text: "Use /reportbug to quickly file a GitHub issue with diagnostic context included.",
   },
   {
     text: 'You can disable these tips in Settings → Features → "Feature Tips".',
@@ -103,8 +103,8 @@ export const FeatureTip = memo(() => {
   return (
     <div
       className={cn(
-        'flex items-start gap-1.5 mt-2 ml-1 transition-opacity duration-300',
-        !hasFadedIn || isFading ? 'opacity-0' : 'opacity-100',
+        "flex items-start gap-1.5 mt-2 ml-1 transition-opacity duration-300",
+        !hasFadedIn || isFading ? "opacity-0" : "opacity-100",
       )}
     >
       <LightbulbIcon className="size-3 text-description shrink-0 mt-[1px]" />
@@ -115,4 +115,4 @@ export const FeatureTip = memo(() => {
   );
 });
 
-FeatureTip.displayName = 'FeatureTip';
+FeatureTip.displayName = "FeatureTip";

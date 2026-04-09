@@ -1,8 +1,8 @@
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { CLAUDE_SONNET_1M_SUFFIX, bedrockDefaultModelId, bedrockModels } from '@shared/api.ts';
-import BedrockData from '@shared/providers/bedrock.json';
-import type { Mode } from '@shared/storage/types';
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { CLAUDE_SONNET_1M_SUFFIX, bedrockDefaultModelId, bedrockModels } from "@shared/api.ts";
+import BedrockData from "@shared/providers/bedrock.json";
+import type { Mode } from "@shared/storage/types";
 import {
   VSCodeCheckbox,
   VSCodeDropdown,
@@ -10,31 +10,31 @@ import {
   VSCodeRadio,
   VSCodeRadioGroup,
   VSCodeTextField,
-} from '@vscode/webview-ui-toolkit/react';
-import Fuse from 'fuse.js';
-import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react';
-import styled from 'styled-components';
-import ThinkingBudgetSlider from '../ThinkingBudgetSlider';
-import { DebouncedTextField } from '../common/DebouncedTextField';
-import { ModelInfoView } from '../common/ModelInfoView';
-import { DropdownContainer } from '../common/ModelSelector';
-import { getModeSpecificFields, normalizeApiConfiguration } from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+} from "@vscode/webview-ui-toolkit/react";
+import Fuse from "fuse.js";
+import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
+import styled from "styled-components";
+import ThinkingBudgetSlider from "../ThinkingBudgetSlider";
+import { DebouncedTextField } from "../common/DebouncedTextField";
+import { ModelInfoView } from "../common/ModelInfoView";
+import { DropdownContainer } from "../common/ModelSelector";
+import { getModeSpecificFields, normalizeApiConfiguration } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 export const SUPPORTED_BEDROCK_THINKING_MODELS = [
-  'anthropic.claude-opus-4-6-v1',
+  "anthropic.claude-opus-4-6-v1",
   `anthropic.claude-opus-4-6-v1${CLAUDE_SONNET_1M_SUFFIX}`,
-  'anthropic.claude-sonnet-4-6',
+  "anthropic.claude-sonnet-4-6",
   `anthropic.claude-sonnet-4-6${CLAUDE_SONNET_1M_SUFFIX}`,
-  'anthropic.claude-3-7-sonnet-20250219-v1:0',
-  'anthropic.claude-sonnet-4-20250514-v1:0',
-  'anthropic.claude-sonnet-4-5-20250929-v1:0',
+  "anthropic.claude-3-7-sonnet-20250219-v1:0",
+  "anthropic.claude-sonnet-4-20250514-v1:0",
+  "anthropic.claude-sonnet-4-5-20250929-v1:0",
   `anthropic.claude-sonnet-4-20250514-v1:0${CLAUDE_SONNET_1M_SUFFIX}`,
   `anthropic.claude-sonnet-4-5-20250929-v1:0${CLAUDE_SONNET_1M_SUFFIX}`,
-  'anthropic.claude-opus-4-5-20251101-v1:0',
-  'anthropic.claude-opus-4-1-20250805-v1:0',
-  'anthropic.claude-opus-4-20250514-v1:0',
-  'anthropic.claude-haiku-4-5-20251001-v1:0',
+  "anthropic.claude-opus-4-5-20251101-v1:0",
+  "anthropic.claude-opus-4-1-20250805-v1:0",
+  "anthropic.claude-opus-4-20250514-v1:0",
+  "anthropic.claude-haiku-4-5-20251001-v1:0",
 ];
 
 const AWS_REGIONS = BedrockData.regions;
@@ -67,8 +67,8 @@ export const BedrockProvider = ({
   );
 
   // Region combobox state
-  const currentRegion = apiConfiguration?.awsRegion || '';
-  const [searchTerm, setSearchTerm] = useState('');
+  const currentRegion = apiConfiguration?.awsRegion || "";
+  const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -100,7 +100,7 @@ export const BedrockProvider = ({
 
   const handleRegionChange = (newRegion: string) => {
     setSearchTerm(newRegion);
-    handleFieldChange('awsRegion', newRegion);
+    handleFieldChange("awsRegion", newRegion);
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -109,15 +109,15 @@ export const BedrockProvider = ({
     }
 
     switch (event.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         event.preventDefault();
         setSelectedIndex((prev) => (prev < regionSearchResults.length - 1 ? prev + 1 : prev));
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         event.preventDefault();
         setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
         break;
-      case 'Enter':
+      case "Enter":
         event.preventDefault();
         if (selectedIndex >= 0 && selectedIndex < regionSearchResults.length) {
           handleRegionChange(regionSearchResults[selectedIndex]);
@@ -128,7 +128,7 @@ export const BedrockProvider = ({
           setIsDropdownVisible(false);
         }
         break;
-      case 'Escape':
+      case "Escape":
         setIsDropdownVisible(false);
         setSelectedIndex(-1);
         break;
@@ -142,9 +142,9 @@ export const BedrockProvider = ({
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -160,8 +160,8 @@ export const BedrockProvider = ({
   useEffect(() => {
     if (selectedIndex >= 0 && itemRefs.current[selectedIndex]) {
       itemRefs.current[selectedIndex]?.scrollIntoView({
-        block: 'nearest',
-        behavior: 'smooth',
+        block: "nearest",
+        behavior: "smooth",
       });
     }
   }, [selectedIndex]);
@@ -171,11 +171,11 @@ export const BedrockProvider = ({
       <VSCodeRadioGroup
         onChange={(e) => {
           const value = (e.target as HTMLInputElement)?.value;
-          handleFieldChange('awsAuthentication', value);
+          handleFieldChange("awsAuthentication", value);
         }}
         value={
           apiConfiguration?.awsAuthentication ??
-          (apiConfiguration?.awsProfile ? 'profile' : 'credentials')
+          (apiConfiguration?.awsProfile ? "profile" : "credentials")
         }
       >
         <VSCodeRadio value="apikey">API Key</VSCodeRadio>
@@ -184,22 +184,22 @@ export const BedrockProvider = ({
       </VSCodeRadioGroup>
 
       {(apiConfiguration?.awsAuthentication === undefined && apiConfiguration?.awsUseProfile) ||
-      apiConfiguration?.awsAuthentication === 'profile' ? (
+      apiConfiguration?.awsAuthentication === "profile" ? (
         <DebouncedTextField
           className="w-full"
-          initialValue={apiConfiguration?.awsProfile ?? ''}
+          initialValue={apiConfiguration?.awsProfile ?? ""}
           key="profile"
-          onChange={(value) => handleFieldChange('awsProfile', value)}
+          onChange={(value) => handleFieldChange("awsProfile", value)}
           placeholder="Enter profile name (default if empty)"
         >
           <span className="font-medium">AWS Profile Name</span>
         </DebouncedTextField>
-      ) : apiConfiguration?.awsAuthentication === 'apikey' ? (
+      ) : apiConfiguration?.awsAuthentication === "apikey" ? (
         <DebouncedTextField
           className="w-full"
-          initialValue={apiConfiguration?.awsBedrockApiKey ?? ''}
+          initialValue={apiConfiguration?.awsBedrockApiKey ?? ""}
           key="apikey"
-          onChange={(value) => handleFieldChange('awsBedrockApiKey', value)}
+          onChange={(value) => handleFieldChange("awsBedrockApiKey", value)}
           placeholder="Enter Bedrock Api Key"
           type="password"
         >
@@ -209,9 +209,9 @@ export const BedrockProvider = ({
         <>
           <DebouncedTextField
             className="w-full"
-            initialValue={apiConfiguration?.awsAccessKey || ''}
+            initialValue={apiConfiguration?.awsAccessKey || ""}
             key="accessKey"
-            onChange={(value) => handleFieldChange('awsAccessKey', value)}
+            onChange={(value) => handleFieldChange("awsAccessKey", value)}
             placeholder="Enter Access Key..."
             type="password"
           >
@@ -219,8 +219,8 @@ export const BedrockProvider = ({
           </DebouncedTextField>
           <DebouncedTextField
             className="w-full"
-            initialValue={apiConfiguration?.awsSecretKey || ''}
-            onChange={(value) => handleFieldChange('awsSecretKey', value)}
+            initialValue={apiConfiguration?.awsSecretKey || ""}
+            onChange={(value) => handleFieldChange("awsSecretKey", value)}
             placeholder="Enter Secret Key..."
             type="password"
           >
@@ -228,8 +228,8 @@ export const BedrockProvider = ({
           </DebouncedTextField>
           <DebouncedTextField
             className="w-full"
-            initialValue={apiConfiguration?.awsSessionToken || ''}
-            onChange={(value) => handleFieldChange('awsSessionToken', value)}
+            initialValue={apiConfiguration?.awsSessionToken || ""}
+            onChange={(value) => handleFieldChange("awsSessionToken", value)}
             placeholder="Enter Session Token..."
             type="password"
           >
@@ -266,19 +266,19 @@ export const BedrockProvider = ({
                 }}
                 onFocus={() => {
                   setIsDropdownVisible(true);
-                  setSearchTerm('');
+                  setSearchTerm("");
                 }}
                 onInput={(e) => {
-                  setSearchTerm((e.target as HTMLInputElement)?.value || '');
+                  setSearchTerm((e.target as HTMLInputElement)?.value || "");
                   setIsDropdownVisible(true);
                 }}
                 onKeyDown={handleKeyDown}
                 placeholder="Search or enter custom region..."
                 role="combobox"
                 style={{
-                  width: '100%',
+                  width: "100%",
                   zIndex: DROPDOWN_Z_INDEX - 1,
-                  position: 'relative',
+                  position: "relative",
                   minWidth: 130,
                 }}
                 value={searchTerm}
@@ -288,15 +288,15 @@ export const BedrockProvider = ({
                     aria-label="Clear search"
                     className="input-icon-button codicon codicon-close"
                     onClick={() => {
-                      setSearchTerm('');
+                      setSearchTerm("");
                       setIsDropdownVisible(true);
                     }}
                     slot="end"
                     style={{
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      height: '100%',
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "100%",
                     }}
                   />
                 )}
@@ -346,7 +346,7 @@ export const BedrockProvider = ({
                   const isChecked = e.target.checked === true;
                   setAwsEndpointSelected(isChecked);
                   if (!isChecked) {
-                    handleFieldChange('awsBedrockEndpoint', '');
+                    handleFieldChange("awsBedrockEndpoint", "");
                   }
                 }}
               >
@@ -361,8 +361,8 @@ export const BedrockProvider = ({
               <DebouncedTextField
                 className="mt-0.5 mb-1 text-sm text-description"
                 disabled={remoteConfigSettings?.awsBedrockEndpoint !== undefined}
-                initialValue={apiConfiguration?.awsBedrockEndpoint || ''}
-                onChange={(value) => handleFieldChange('awsBedrockEndpoint', value)}
+                initialValue={apiConfiguration?.awsBedrockEndpoint || ""}
+                onChange={(value) => handleFieldChange("awsBedrockEndpoint", value)}
                 placeholder="Enter VPC Endpoint URL (optional)"
                 type="text"
               />
@@ -382,7 +382,7 @@ export const BedrockProvider = ({
                 onChange={(e: any) => {
                   const isChecked = e.target.checked === true;
 
-                  handleFieldChange('awsUseCrossRegionInference', isChecked);
+                  handleFieldChange("awsUseCrossRegionInference", isChecked);
                 }}
               >
                 Use cross-region inference
@@ -407,7 +407,7 @@ export const BedrockProvider = ({
                     disabled={remoteConfigSettings?.awsUseGlobalInference !== undefined}
                     onChange={(e: any) => {
                       const isChecked = e.target.checked === true;
-                      handleFieldChange('awsUseGlobalInference', isChecked);
+                      handleFieldChange("awsUseGlobalInference", isChecked);
                     }}
                   >
                     Use global inference profile
@@ -432,7 +432,7 @@ export const BedrockProvider = ({
                   disabled={remoteConfigSettings?.awsBedrockUsePromptCache !== undefined}
                   onChange={(e: any) => {
                     const isChecked = e.target.checked === true;
-                    handleFieldChange('awsBedrockUsePromptCache', isChecked);
+                    handleFieldChange("awsBedrockUsePromptCache", isChecked);
                   }}
                 >
                   Use prompt caching
@@ -448,8 +448,8 @@ export const BedrockProvider = ({
 
       <p className="mt-1 text-sm text-description">
         {apiConfiguration?.awsUseProfile
-          ? 'Using AWS Profile credentials from ~/.aws/credentials. Leave profile name empty to use the default profile. These credentials are only used locally to make API requests from this extension.'
-          : 'Authenticate by either providing the keys above or use the default AWS credential providers, i.e. ~/.aws/credentials or environment variables. These credentials are only used locally to make API requests from this extension.'}
+          ? "Using AWS Profile credentials from ~/.aws/credentials. Leave profile name empty to use the default profile. These credentials are only used locally to make API requests from this extension."
+          : "Authenticate by either providing the keys above or use the default AWS credential providers, i.e. ~/.aws/credentials or environment variables. These credentials are only used locally to make API requests from this extension."}
       </p>
 
       {showModelOptions && (
@@ -462,29 +462,29 @@ export const BedrockProvider = ({
               className="w-full"
               id="bedrock-model-dropdown"
               onChange={(e: any) => {
-                const isCustom = e.target.value === 'custom';
+                const isCustom = e.target.value === "custom";
 
                 handleModeFieldsChange(
                   {
-                    apiModelId: { plan: 'planModeApiModelId', act: 'actModeApiModelId' },
+                    apiModelId: { plan: "planModeApiModelId", act: "actModeApiModelId" },
                     awsBedrockCustomSelected: {
-                      plan: 'planModeAwsBedrockCustomSelected',
-                      act: 'actModeAwsBedrockCustomSelected',
+                      plan: "planModeAwsBedrockCustomSelected",
+                      act: "actModeAwsBedrockCustomSelected",
                     },
                     awsBedrockCustomModelBaseId: {
-                      plan: 'planModeAwsBedrockCustomModelBaseId',
-                      act: 'actModeAwsBedrockCustomModelBaseId',
+                      plan: "planModeAwsBedrockCustomModelBaseId",
+                      act: "actModeAwsBedrockCustomModelBaseId",
                     },
                   },
                   {
-                    apiModelId: isCustom ? '' : e.target.value,
+                    apiModelId: isCustom ? "" : e.target.value,
                     awsBedrockCustomSelected: isCustom,
                     awsBedrockCustomModelBaseId: bedrockDefaultModelId,
                   },
                   currentMode,
                 );
               }}
-              value={modeFields.awsBedrockCustomSelected ? 'custom' : selectedModelId}
+              value={modeFields.awsBedrockCustomSelected ? "custom" : selectedModelId}
             >
               <VSCodeOption value="">Select a model...</VSCodeOption>
               {Object.keys(bedrockModels).map((modelId) => (
@@ -509,10 +509,10 @@ export const BedrockProvider = ({
               <DebouncedTextField
                 className="w-full mt-0.5"
                 id="bedrock-model-input"
-                initialValue={modeFields.apiModelId || ''}
+                initialValue={modeFields.apiModelId || ""}
                 onChange={(value) =>
                   handleModeFieldChange(
-                    { plan: 'planModeApiModelId', act: 'actModeApiModelId' },
+                    { plan: "planModeApiModelId", act: "actModeApiModelId" },
                     value,
                     currentMode,
                   )
@@ -531,8 +531,8 @@ export const BedrockProvider = ({
                   onChange={(e: any) =>
                     handleModeFieldChange(
                       {
-                        plan: 'planModeAwsBedrockCustomModelBaseId',
-                        act: 'actModeAwsBedrockCustomModelBaseId',
+                        plan: "planModeAwsBedrockCustomModelBaseId",
+                        act: "actModeAwsBedrockCustomModelBaseId",
                       },
                       e.target.value,
                       currentMode,
@@ -599,7 +599,7 @@ const RegionDropdownItem = styled.div<{ isSelected: boolean }>`
 	white-space: normal;
 	text-align: left;
 
-	background-color: ${({ isSelected }) => (isSelected ? 'var(--vscode-list-activeSelectionBackground)' : 'inherit')};
+	background-color: ${({ isSelected }) => (isSelected ? "var(--vscode-list-activeSelectionBackground)" : "inherit")};
 
 	&:hover {
 		background-color: var(--vscode-list-activeSelectionBackground);

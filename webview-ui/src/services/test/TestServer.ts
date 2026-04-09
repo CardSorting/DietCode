@@ -1,25 +1,25 @@
-import * as http from 'node:http';
-import * as path from 'node:path';
-import type { Controller } from '@/core/controller';
-import { ExtensionRegistryInfo } from '@/registry';
-import { Logger } from '@/shared/services/Logger';
-import { getCwd } from '@/utils/path';
-import { getSavedApiConversationHistory, getSavedClineMessages } from '@core/storage/disk';
-import { WebviewProvider } from '@core/webview';
+import * as http from "node:http";
+import * as path from "node:path";
+import type { Controller } from "@/core/controller";
+import { ExtensionRegistryInfo } from "@/registry";
+import { Logger } from "@/shared/services/Logger";
+import { getCwd } from "@/utils/path";
+import { getSavedApiConversationHistory, getSavedClineMessages } from "@core/storage/disk";
+import { WebviewProvider } from "@core/webview";
 import {
   type AutoApprovalSettings,
   DEFAULT_AUTO_APPROVAL_SETTINGS,
-} from '@shared/AutoApprovalSettings.ts';
-import type { HistoryItem } from '@shared/HistoryItem.ts';
-import type { ApiProvider } from '@shared/api.ts';
-import { execa } from 'execa';
-import * as vscode from 'vscode';
+} from "@shared/AutoApprovalSettings.ts";
+import type { HistoryItem } from "@shared/HistoryItem.ts";
+import type { ApiProvider } from "@shared/api.ts";
+import { execa } from "execa";
+import * as vscode from "vscode";
 import {
   calculateToolSuccessRate,
   getFileChanges,
   initializeGitRepository,
   validateWorkspacePath,
-} from './GitHelper';
+} from "./GitHelper";
 
 /**
  * Creates a tracker to monitor tool calls and failures during task execution
@@ -58,7 +58,7 @@ let messageCatcherDisposable: vscode.Disposable | undefined;
 async function updateAutoApprovalSettings(controller?: Controller) {
   try {
     const autoApprovalSettings =
-      controller?.stateManager.getGlobalSettingsKey('autoApprovalSettings');
+      controller?.stateManager.getGlobalSettingsKey("autoApprovalSettings");
 
     // Enable all actions
     const updatedSettings: AutoApprovalSettings = {
@@ -75,8 +75,8 @@ async function updateAutoApprovalSettings(controller?: Controller) {
       },
     };
 
-    controller?.stateManager.setGlobalState('autoApprovalSettings', updatedSettings);
-    Logger.log('Auto approval settings updated for test mode');
+    controller?.stateManager.setGlobalState("autoApprovalSettings", updatedSettings);
+    Logger.log("Auto approval settings updated for test mode");
 
     // Update the webview with the new state
     if (controller) {
@@ -94,7 +94,7 @@ async function updateAutoApprovalSettings(controller?: Controller) {
  */
 export async function createTestServer(controller: Controller): Promise<http.Server> {
   // Try to show the Cline sidebar
-  Logger.log('[createTestServer] Opening Cline in sidebar...');
+  Logger.log("[createTestServer] Opening Cline in sidebar...");
   vscode.commands.executeCommand(`workbench.view.${ExtensionRegistryInfo.name}-ActivityBar`);
 
   // Then ensure the webview is focused/loaded
@@ -107,21 +107,21 @@ export async function createTestServer(controller: Controller): Promise<http.Ser
 
   testServer = http.createServer((req, res) => {
     // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
     // Handle preflight requests
-    if (req.method === 'OPTIONS') {
+    if (req.method === "OPTIONS") {
       res.writeHead(204);
       res.end();
       return;
     }
 
     // Handle shutdown request
-    if (req.method === 'POST' && req.url === '/shutdown') {
+    if (req.method === "POST" && req.url === "/shutdown") {
       res.writeHead(200);
-      res.end(JSON.stringify({ success: true, message: 'Server shutting down' }));
+      res.end(JSON.stringify({ success: true, message: "Server shutting down" }));
 
       // Shut down the server after sending the response
       setTimeout(() => {
@@ -132,26 +132,26 @@ export async function createTestServer(controller: Controller): Promise<http.Ser
     }
 
     // Only handle POST requests to /task
-    if (req.method !== 'POST' || req.url !== '/task') {
+    if (req.method !== "POST" || req.url !== "/task") {
       res.writeHead(404);
-      res.end(JSON.stringify({ error: 'Not found' }));
+      res.end(JSON.stringify({ error: "Not found" }));
       return;
     }
 
     // Parse the request body
-    let body = '';
-    req.on('data', (chunk) => {
+    let body = "";
+    req.on("data", (chunk) => {
       body += chunk.toString();
     });
 
-    req.on('end', async () => {
+    req.on("end", async () => {
       try {
         // Parse the JSON body
         const { task, apiKey } = JSON.parse(body);
 
         if (!task) {
           res.writeHead(400);
-          res.end(JSON.stringify({ error: 'Missing task parameter' }));
+          res.end(JSON.stringify({ error: "Missing task parameter" }));
           return;
         }
 
@@ -159,7 +159,7 @@ export async function createTestServer(controller: Controller): Promise<http.Ser
         const visibleWebview = WebviewProvider.getVisibleInstance();
         if (!visibleWebview || !visibleWebview.controller) {
           res.writeHead(500);
-          res.end(JSON.stringify({ error: 'No active Cline instance found' }));
+          res.end(JSON.stringify({ error: "No active Cline instance found" }));
           return;
         }
 
@@ -197,14 +197,14 @@ export async function createTestServer(controller: Controller): Promise<http.Ser
 
             // Log directory contents before task start
             try {
-              const { stdout: lsOutput } = await execa('ls', ['-la', workspacePath]);
+              const { stdout: lsOutput } = await execa("ls", ["-la", workspacePath]);
               Logger.log(`Directory contents before task start:\n${lsOutput}`);
             } catch (lsError) {
               Logger.log(`Warning: Failed to list directory contents: ${lsError.message}`);
             }
           } catch (gitError) {
             Logger.log(`Warning: Git initialization failed: ${gitError.message}`);
-            Logger.log('Continuing without Git initialization');
+            Logger.log("Continuing without Git initialization");
           }
 
           // Clear any existing task
@@ -212,7 +212,7 @@ export async function createTestServer(controller: Controller): Promise<http.Ser
 
           // If API key is provided, update the API configuration
           if (apiKey) {
-            Logger.log('API key provided, updating API configuration');
+            Logger.log("API key provided, updating API configuration");
 
             // Get current API configuration
             const apiConfiguration = visibleWebview.controller.stateManager.getApiConfiguration();
@@ -220,12 +220,12 @@ export async function createTestServer(controller: Controller): Promise<http.Ser
             // Update API configuration with API key
             const updatedConfig = {
               ...apiConfiguration,
-              apiProvider: 'cline' as ApiProvider,
+              apiProvider: "cline" as ApiProvider,
               clineAccountId: apiKey,
             };
 
             // Store the API key securely
-            visibleWebview.controller.stateManager.setSecret('clineAccountId', apiKey);
+            visibleWebview.controller.stateManager.setSecret("clineAccountId", apiKey);
 
             visibleWebview.controller.stateManager.setApiConfiguration(updatedConfig);
 
@@ -233,8 +233,8 @@ export async function createTestServer(controller: Controller): Promise<http.Ser
             const currentConfig = visibleWebview.controller.stateManager.getApiConfiguration();
             visibleWebview.controller.stateManager.setApiConfiguration({
               ...currentConfig,
-              planModeApiProvider: 'cline',
-              actModeApiProvider: 'cline',
+              planModeApiProvider: "cline",
+              actModeApiProvider: "cline",
             });
 
             // Post state to webview to reflect changes
@@ -243,9 +243,9 @@ export async function createTestServer(controller: Controller): Promise<http.Ser
 
           // Ensure we're in Act mode before initiating the task
           const { mode } = await visibleWebview.controller.getStateToPostToWebview();
-          if (mode === 'plan') {
+          if (mode === "plan") {
             // Switch to Act mode if currently in Plan mode
-            await visibleWebview.controller.togglePlanActMode('act');
+            await visibleWebview.controller.togglePlanActMode("act");
           }
 
           // Initialize tool call tracker
@@ -260,7 +260,7 @@ export async function createTestServer(controller: Controller): Promise<http.Ser
           // Try to get the task ID directly from the result or from the state
           let taskId: string | undefined;
 
-          if (typeof result === 'string') {
+          if (typeof result === "string") {
             // If initTask returns the task ID directly
             taskId = result;
           } else {
@@ -285,7 +285,7 @@ export async function createTestServer(controller: Controller): Promise<http.Ser
           }
 
           if (!taskId) {
-            throw new Error('Failed to get task ID after initiating task');
+            throw new Error("Failed to get task ID after initiating task");
           }
 
           Logger.log(`Task initiated with ID: ${taskId}`);
@@ -295,7 +295,7 @@ export async function createTestServer(controller: Controller): Promise<http.Ser
 
           // Wait for the task to complete with a timeout
           const timeoutPromise = new Promise<void>((_, reject) => {
-            setTimeout(() => reject(new Error('Task completion timeout')), 15 * 60 * 1000); // 15 minute timeout
+            setTimeout(() => reject(new Error("Task completion timeout")), 15 * 60 * 1000); // 15 minute timeout
           });
 
           try {
@@ -310,7 +310,7 @@ export async function createTestServer(controller: Controller): Promise<http.Ser
             let messages: any[] = [];
             let apiConversationHistory: any[] = [];
             try {
-              if (typeof taskId === 'string') {
+              if (typeof taskId === "string") {
                 messages = await getSavedClineMessages(taskId);
               }
             } catch (error) {
@@ -318,7 +318,7 @@ export async function createTestServer(controller: Controller): Promise<http.Ser
             }
 
             try {
-              if (typeof taskId === 'string') {
+              if (typeof taskId === "string") {
                 apiConversationHistory = await getSavedApiConversationHistory(taskId);
               }
             } catch (error) {
@@ -334,7 +334,7 @@ export async function createTestServer(controller: Controller): Promise<http.Ser
 
               // Log directory contents for debugging
               try {
-                const { stdout: lsOutput } = await execa('ls', ['-la', workspacePath]);
+                const { stdout: lsOutput } = await execa("ls", ["-la", workspacePath]);
                 Logger.log(`Directory contents after task completion:\n${lsOutput}`);
               } catch (lsError) {
                 Logger.log(`Warning: Failed to list directory contents: ${lsError.message}`);
@@ -349,22 +349,22 @@ export async function createTestServer(controller: Controller): Promise<http.Ser
                 !fileChanges.modified.length &&
                 !fileChanges.deleted.length
               ) {
-                Logger.log('No changes detected by Git, using fallback directory scan');
+                Logger.log("No changes detected by Git, using fallback directory scan");
 
                 // Try to get a list of all files in the directory
                 try {
-                  const { stdout: findOutput } = await execa('find', [
+                  const { stdout: findOutput } = await execa("find", [
                     workspacePath,
-                    '-type',
-                    'f',
-                    '-not',
-                    '-path',
-                    '*/.*',
-                    '-not',
-                    '-path',
-                    '*/node_modules/*',
+                    "-type",
+                    "f",
+                    "-not",
+                    "-path",
+                    "*/.*",
+                    "-not",
+                    "-path",
+                    "*/node_modules/*",
                   ]);
-                  const files = findOutput.split('\n').filter(Boolean);
+                  const files = findOutput.split("\n").filter(Boolean);
 
                   // Add all files as "created" since we can't determine which ones are new
                   fileChanges.created = files.map((file) => path.relative(workspacePath, file));
@@ -394,7 +394,7 @@ export async function createTestServer(controller: Controller): Promise<http.Ser
             const taskDuration = Date.now() - taskStartTime;
 
             // Return comprehensive response with all metrics and data
-            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.writeHead(200, { "Content-Type": "application/json" });
             res.end(
               JSON.stringify({
                 success: true,
@@ -414,7 +414,7 @@ export async function createTestServer(controller: Controller): Promise<http.Ser
             );
           } catch (_timeoutError) {
             // Task didn't complete within the timeout period
-            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.writeHead(200, { "Content-Type": "application/json" });
             res.end(
               JSON.stringify({
                 success: true,
@@ -441,7 +441,7 @@ export async function createTestServer(controller: Controller): Promise<http.Ser
   });
 
   // Handle server errors
-  testServer.on('error', (error) => {
+  testServer.on("error", (error) => {
     Logger.log(`Test server error: ${error}`);
   });
 
@@ -454,7 +454,7 @@ export async function createTestServer(controller: Controller): Promise<http.Ser
 export function shutdownTestServer() {
   if (testServer) {
     testServer.close();
-    Logger.log('Test server shut down');
+    Logger.log("Test server shut down");
     testServer = undefined;
   }
 

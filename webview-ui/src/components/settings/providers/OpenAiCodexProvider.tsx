@@ -1,16 +1,16 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { AccountServiceClient } from '@/services/grpc-client';
-import { openAiCodexModels } from '@shared/api.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
-import ReasoningEffortSelector from '../ReasoningEffortSelector';
-import { ModelInfoView } from '../common/ModelInfoView';
-import { ModelSelector } from '../common/ModelSelector';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { AccountServiceClient } from "@/services/grpc-client";
+import { openAiCodexModels } from "@shared/api.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import ReasoningEffortSelector from "../ReasoningEffortSelector";
+import { ModelInfoView } from "../common/ModelInfoView";
+import { ModelSelector } from "../common/ModelSelector";
 import {
   normalizeApiConfiguration,
   supportsReasoningEffortForModelId,
-} from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+} from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 interface OpenAiCodexProviderProps {
   showModelOptions: boolean;
@@ -40,7 +40,7 @@ export const OpenAiCodexProvider = ({
     try {
       await AccountServiceClient.openAiCodexSignIn({});
     } catch (error) {
-      console.error('Failed to sign in to OpenAI Codex:', error);
+      console.error("Failed to sign in to OpenAI Codex:", error);
     }
   };
 
@@ -48,16 +48,16 @@ export const OpenAiCodexProvider = ({
     try {
       await AccountServiceClient.openAiCodexSignOut({});
     } catch (error) {
-      console.error('Failed to sign out of OpenAI Codex:', error);
+      console.error("Failed to sign out of OpenAI Codex:", error);
     }
   };
 
   return (
     <div>
-      <div style={{ marginBottom: '15px' }}>
+      <div style={{ marginBottom: "15px" }}>
         {openAiCodexIsAuthenticated ? (
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: 'var(--vscode-descriptionForeground)' }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ color: "var(--vscode-descriptionForeground)" }}>
               Signed in to OpenAI Codex
             </span>
             <VSCodeButton appearance="secondary" onClick={handleSignOut}>
@@ -68,9 +68,9 @@ export const OpenAiCodexProvider = ({
           <div>
             <p
               style={{
-                fontSize: '12px',
-                color: 'var(--vscode-descriptionForeground)',
-                marginBottom: '10px',
+                fontSize: "12px",
+                color: "var(--vscode-descriptionForeground)",
+                marginBottom: "10px",
               }}
             >
               Sign in with your ChatGPT Plus or Pro subscription to use GPT-5 models without an API
@@ -88,7 +88,7 @@ export const OpenAiCodexProvider = ({
             models={openAiCodexModels}
             onChange={(e: any) =>
               handleModeFieldChange(
-                { plan: 'planModeApiModelId', act: 'actModeApiModelId' },
+                { plan: "planModeApiModelId", act: "actModeApiModelId" },
                 e.target.value,
                 currentMode,
               )

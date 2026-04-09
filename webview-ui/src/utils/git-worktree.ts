@@ -1,7 +1,7 @@
-import * as path from 'node:path';
-import { Logger } from '@/shared/services/Logger';
-import simpleGit from 'simple-git';
-import { copyWorktreeIncludeFiles } from './worktree-include';
+import * as path from "node:path";
+import { Logger } from "@/shared/services/Logger";
+import simpleGit from "simple-git";
+import { copyWorktreeIncludeFiles } from "./worktree-include";
 
 export interface Worktree {
   path: string;
@@ -56,7 +56,7 @@ async function checkGitRepo(cwd: string): Promise<boolean> {
 async function getCurrentWorktreePath(cwd: string): Promise<string> {
   try {
     const git = simpleGit(cwd);
-    const root = await git.revparse(['--show-toplevel']);
+    const root = await git.revparse(["--show-toplevel"]);
     return root.trim();
   } catch (_error) {
     return cwd;
@@ -79,7 +79,7 @@ export async function getGitRootPath(cwd: string): Promise<string | null> {
     if (!isRepo) {
       return null;
     }
-    const root = await git.revparse(['--show-toplevel']);
+    const root = await git.revparse(["--show-toplevel"]);
     return root.trim();
   } catch (_error) {
     return null;
@@ -94,24 +94,24 @@ export async function listWorktrees(
 ): Promise<{ worktrees: Worktree[]; isGitRepo: boolean; error?: string }> {
   const isInstalled = await checkGitInstalled();
   if (!isInstalled) {
-    return { worktrees: [], isGitRepo: false, error: 'Git is not installed' };
+    return { worktrees: [], isGitRepo: false, error: "Git is not installed" };
   }
 
   const isRepo = await checkGitRepo(cwd);
   if (!isRepo) {
-    return { worktrees: [], isGitRepo: false, error: 'Not a git repository' };
+    return { worktrees: [], isGitRepo: false, error: "Not a git repository" };
   }
 
   try {
     const currentPath = await getCurrentWorktreePath(cwd);
     const git = simpleGit(cwd);
-    const stdout = await git.raw(['worktree', 'list', '--porcelain']);
+    const stdout = await git.raw(["worktree", "list", "--porcelain"]);
 
     const worktrees: Worktree[] = [];
-    const entries = stdout.trim().split('\n\n').filter(Boolean);
+    const entries = stdout.trim().split("\n\n").filter(Boolean);
 
     for (const entry of entries) {
-      const lines = entry.split('\n');
+      const lines = entry.split("\n");
       const worktree: Partial<Worktree> = {
         isLocked: false,
         isDetached: false,
@@ -120,23 +120,23 @@ export async function listWorktrees(
       };
 
       for (const line of lines) {
-        if (line.startsWith('worktree ')) {
+        if (line.startsWith("worktree ")) {
           worktree.path = line.substring(9);
           worktree.isCurrent = worktree.path === currentPath;
-        } else if (line.startsWith('HEAD ')) {
+        } else if (line.startsWith("HEAD ")) {
           worktree.commitHash = line.substring(5);
-        } else if (line.startsWith('branch ')) {
+        } else if (line.startsWith("branch ")) {
           // Branch ref like "refs/heads/main" -> "main"
           const branchRef = line.substring(7);
-          worktree.branch = branchRef.replace('refs/heads/', '');
-        } else if (line === 'bare') {
+          worktree.branch = branchRef.replace("refs/heads/", "");
+        } else if (line === "bare") {
           worktree.isBare = true;
-        } else if (line === 'detached') {
+        } else if (line === "detached") {
           worktree.isDetached = true;
-          worktree.branch = '';
-        } else if (line === 'locked') {
+          worktree.branch = "";
+        } else if (line === "locked") {
           worktree.isLocked = true;
-        } else if (line.startsWith('locked ')) {
+        } else if (line.startsWith("locked ")) {
           worktree.isLocked = true;
           worktree.lockReason = line.substring(7);
         }
@@ -171,21 +171,21 @@ export async function createWorktree(
 ): Promise<WorktreeResult> {
   const isInstalled = await checkGitInstalled();
   if (!isInstalled) {
-    return { success: false, message: 'Git is not installed' };
+    return { success: false, message: "Git is not installed" };
   }
 
   const isRepo = await checkGitRepo(cwd);
   if (!isRepo) {
-    return { success: false, message: 'Not a git repository' };
+    return { success: false, message: "Not a git repository" };
   }
 
   try {
     const git = simpleGit(cwd);
-    const args: string[] = ['worktree', 'add'];
+    const args: string[] = ["worktree", "add"];
 
     if (options.createNewBranch && options.branch) {
       // Create a new branch and worktree
-      args.push('-b', options.branch, worktreePath);
+      args.push("-b", options.branch, worktreePath);
       if (options.baseBranch) {
         args.push(options.baseBranch);
       }
@@ -194,7 +194,7 @@ export async function createWorktree(
       args.push(worktreePath, options.branch);
     } else {
       // Create detached worktree at HEAD
-      args.push('--detach', worktreePath);
+      args.push("--detach", worktreePath);
     }
 
     await git.raw(args);
@@ -216,10 +216,10 @@ export async function createWorktree(
 
     let message = `Worktree created at ${worktreePath}`;
     if (copiedCount > 0) {
-      message += ` (copied ${copiedCount} file${copiedCount === 1 ? '' : 's'} from .worktreeinclude)`;
+      message += ` (copied ${copiedCount} file${copiedCount === 1 ? "" : "s"} from .worktreeinclude)`;
     }
     if (copyErrors.length > 0) {
-      message += `. Some files failed to copy: ${copyErrors.slice(0, 3).join(', ')}`;
+      message += `. Some files failed to copy: ${copyErrors.slice(0, 3).join(", ")}`;
       if (copyErrors.length > 3) {
         message += ` and ${copyErrors.length - 3} more`;
       }
@@ -248,17 +248,17 @@ export async function deleteWorktree(
 ): Promise<WorktreeResult> {
   const isInstalled = await checkGitInstalled();
   if (!isInstalled) {
-    return { success: false, message: 'Git is not installed' };
+    return { success: false, message: "Git is not installed" };
   }
 
   const isRepo = await checkGitRepo(cwd);
   if (!isRepo) {
-    return { success: false, message: 'Not a git repository' };
+    return { success: false, message: "Not a git repository" };
   }
 
   try {
     const git = simpleGit(cwd);
-    const args = force ? ['worktree', 'remove', '--force', path] : ['worktree', 'remove', path];
+    const args = force ? ["worktree", "remove", "--force", path] : ["worktree", "remove", path];
 
     await git.raw(args);
 
@@ -280,29 +280,29 @@ export async function deleteWorktree(
 export async function getAvailableBranches(cwd: string): Promise<BranchInfo> {
   const isInstalled = await checkGitInstalled();
   if (!isInstalled) {
-    return { localBranches: [], remoteBranches: [], currentBranch: '' };
+    return { localBranches: [], remoteBranches: [], currentBranch: "" };
   }
 
   const isRepo = await checkGitRepo(cwd);
   if (!isRepo) {
-    return { localBranches: [], remoteBranches: [], currentBranch: '' };
+    return { localBranches: [], remoteBranches: [], currentBranch: "" };
   }
 
   try {
     const git = simpleGit(cwd);
 
     // Get current branch
-    let currentBranch = '';
+    let currentBranch = "";
     try {
-      currentBranch = await git.revparse(['--abbrev-ref', 'HEAD']);
+      currentBranch = await git.revparse(["--abbrev-ref", "HEAD"]);
       currentBranch = currentBranch.trim();
-      if (currentBranch === 'HEAD') {
+      if (currentBranch === "HEAD") {
         // Detached HEAD state
-        currentBranch = '';
+        currentBranch = "";
       }
     } catch {
       // Detached HEAD state
-      currentBranch = '';
+      currentBranch = "";
     }
 
     // Get all branches using branchLocal and branch -r
@@ -310,8 +310,8 @@ export async function getAvailableBranches(cwd: string): Promise<BranchInfo> {
     const localBranches = branchSummary.all;
 
     // Get remote branches
-    const remoteBranchSummary = await git.branch(['-r']);
-    const remoteBranches = remoteBranchSummary.all.filter((b) => !b.includes('HEAD'));
+    const remoteBranchSummary = await git.branch(["-r"]);
+    const remoteBranches = remoteBranchSummary.all.filter((b) => !b.includes("HEAD"));
 
     // Filter out branches that already have worktrees
     const { worktrees } = await listWorktrees(cwd);
@@ -320,7 +320,7 @@ export async function getAvailableBranches(cwd: string): Promise<BranchInfo> {
     const availableLocalBranches = localBranches.filter((b) => !usedBranches.has(b));
     const availableRemoteBranches = remoteBranches.filter((b) => {
       // Remote branches like "origin/main" -> check if "main" is used
-      const shortName = b.split('/').slice(1).join('/');
+      const shortName = b.split("/").slice(1).join("/");
       return !usedBranches.has(shortName);
     });
 
@@ -330,7 +330,7 @@ export async function getAvailableBranches(cwd: string): Promise<BranchInfo> {
       currentBranch,
     };
   } catch (error) {
-    Logger.error('Error getting available branches:', error);
-    return { localBranches: [], remoteBranches: [], currentBranch: '' };
+    Logger.error("Error getting available branches:", error);
+    return { localBranches: [], remoteBranches: [], currentBranch: "" };
   }
 }

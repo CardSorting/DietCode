@@ -1,15 +1,15 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { openAiNativeModels } from '@shared/api.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import ReasoningEffortSelector from '../ReasoningEffortSelector';
-import { ApiKeyField } from '../common/ApiKeyField';
-import { ModelInfoView } from '../common/ModelInfoView';
-import { ModelSelector } from '../common/ModelSelector';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { openAiNativeModels } from "@shared/api.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import ReasoningEffortSelector from "../ReasoningEffortSelector";
+import { ApiKeyField } from "../common/ApiKeyField";
+import { ModelInfoView } from "../common/ModelInfoView";
+import { ModelSelector } from "../common/ModelSelector";
 import {
   normalizeApiConfiguration,
   supportsReasoningEffortForModelId,
-} from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+} from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 /**
  * Props for the OpenAINativeProvider component
@@ -41,8 +41,8 @@ export const OpenAINativeProvider = ({
   return (
     <div>
       <ApiKeyField
-        initialValue={apiConfiguration?.openAiNativeApiKey || ''}
-        onChange={(value) => handleFieldChange('openAiNativeApiKey', value)}
+        initialValue={apiConfiguration?.openAiNativeApiKey || ""}
+        onChange={(value) => handleFieldChange("openAiNativeApiKey", value)}
         providerName="OpenAI"
         signupUrl="https://platform.openai.com/api-keys"
       />
@@ -54,7 +54,7 @@ export const OpenAINativeProvider = ({
             models={openAiNativeModels}
             onChange={(e: any) =>
               handleModeFieldChange(
-                { plan: 'planModeApiModelId', act: 'actModeApiModelId' },
+                { plan: "planModeApiModelId", act: "actModeApiModelId" },
                 e.target.value,
                 currentMode,
               )

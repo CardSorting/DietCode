@@ -1,10 +1,10 @@
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { TaskServiceClient } from '@/services/grpc-client';
-import { formatLargeNumber, formatSize } from '@/utils/format';
-import type { HistoryItem } from '@shared/HistoryItem.ts';
-import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
-import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { TaskServiceClient } from "@/services/grpc-client";
+import { formatLargeNumber, formatSize } from "@/utils/format";
+import type { HistoryItem } from "@shared/HistoryItem.ts";
+import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
+import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import {
   ArrowDownIcon,
   ArrowLeftIcon,
@@ -15,8 +15,8 @@ import {
   DownloadIcon,
   StarIcon,
   TrashIcon,
-} from 'lucide-react';
-import { memo, useCallback, useMemo, useState } from 'react';
+} from "lucide-react";
+import { memo, useCallback, useMemo, useState } from "react";
 
 type HistoryViewItemProps = {
   item: HistoryItem;
@@ -45,7 +45,7 @@ const HistoryViewItem = ({
 
   const handleShowTaskWithId = useCallback((id: string) => {
     TaskServiceClient.showTaskWithId(StringRequest.create({ value: id })).catch((error) =>
-      console.error('Error showing task:', error),
+      console.error("Error showing task:", error),
     );
   }, []);
 
@@ -56,23 +56,23 @@ const HistoryViewItem = ({
 
     return date
       .toLocaleString(
-        'en-US',
+        "en-US",
         isToday
           ? {
-              hour: 'numeric',
-              minute: '2-digit',
+              hour: "numeric",
+              minute: "2-digit",
               hour12: true,
             }
           : {
-              month: 'long',
-              day: 'numeric',
-              hour: 'numeric',
-              minute: '2-digit',
+              month: "long",
+              day: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
               hour12: true,
             },
       )
-      .replace(', ', ' ')
-      .replace(' at', ',');
+      .replace(", ", " ")
+      .replace(" at", ",");
   }, []);
 
   return (
@@ -92,47 +92,74 @@ const HistoryViewItem = ({
       />
 
       <div
-        className="flex flex-col gap-2 py-2 pl-2 pr-3 relative flex-grow min-w-0"
+        className="flex flex-col gap-2 py-2 pl-2 pr-3 relative grow min-w-0 text-left bg-transparent border-none p-0 font-inherit cursor-pointer"
         onClick={(e) => {
           e.stopPropagation();
           handleShowTaskWithId(item.id);
         }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            e.stopPropagation();
+            handleShowTaskWithId(item.id);
+          }
+        }}
+        /* biome-ignore lint/a11y/useSemanticElements: Nested interactive elements require the outer wrapper to be a div. */
+        role="button"
+        tabIndex={0}
       >
-        <div className="flex items-center gap-2">
-          <div className="line-clamp-1 overflow-hidden break-words whitespace-pre-wrap flex-1 min-w-0">
+        <div className="flex items-center gap-2 w-full">
+          <div className="line-clamp-1 overflow-hidden wrap-break-word whitespace-pre-wrap flex-1 min-w-0">
             <span className="ph-no-capture">{item.task}</span>
           </div>
-          <div className="flex gap-2 flex-shrink-0">
-            <Button
+          <div className="flex gap-2 shrink-0">
+            <button
               aria-label="Delete"
-              className="p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-              disabled={isFavoritedItem}
+              className="p-1 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer flex items-center justify-center hover:bg-black/10 rounded bg-transparent border-none"
               onClick={(e) => {
                 e.stopPropagation();
-                handleDeleteHistoryItem(item.id);
+                if (!isFavoritedItem) {
+                  handleDeleteHistoryItem(item.id);
+                }
               }}
-              variant="ghost"
-            >
-              <span className="flex items-center gap-1 text-xs">
-                <TrashIcon className="stroke-1" />
-              </span>
-            </Button>
-            <Button
-              aria-label={isFavoritedItem ? 'Remove from favorites' : 'Add to favorites'}
-              className="p-0"
-              disabled={pendingFavoriteToggles[item.id] !== undefined}
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleFavorite(item.id, isFavoritedItem);
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.stopPropagation();
+                  if (!isFavoritedItem) handleDeleteHistoryItem(item.id);
+                }
               }}
-              variant="icon"
+              type="button"
             >
-              <StarIcon
-                className={cn('opacity-70', {
-                  'text-button-background  fill-button-background opacity-100': isFavoritedItem,
+              <TrashIcon
+                className={cn("stroke-1 size-4", {
+                  "opacity-50 cursor-not-allowed": isFavoritedItem,
                 })}
               />
-            </Button>
+            </button>
+            <button
+              aria-label={isFavoritedItem ? "Remove from favorites" : "Add to favorites"}
+              className="p-1 cursor-pointer flex items-center justify-center hover:bg-black/10 rounded bg-transparent border-none"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (pendingFavoriteToggles[item.id] === undefined) {
+                  toggleFavorite(item.id, isFavoritedItem);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.stopPropagation();
+                  if (pendingFavoriteToggles[item.id] === undefined)
+                    toggleFavorite(item.id, isFavoritedItem);
+                }
+              }}
+              type="button"
+            >
+              <StarIcon
+                className={cn("opacity-70 size-4", {
+                  "text-button-background fill-button-background opacity-100": isFavoritedItem,
+                })}
+              />
+            </button>
           </div>
         </div>
 
@@ -172,17 +199,17 @@ const HistoryViewItem = ({
                     <span className="font-medium text-description">Tokens:</span>
                     <div className="flex items-center gap-1 text-description text-xs">
                       <span className="flex items-center gap-1 text-description">
-                        <ArrowUpIcon className="text-description !size-1" />
+                        <ArrowUpIcon className="text-description size-1!" />
                         {formatLargeNumber(item.tokensIn || 0)}
                       </span>
                       <span className="flex items-center gap-1 text-description">
-                        <ArrowDownIcon className="text-description !size-1" />
+                        <ArrowDownIcon className="text-description size-1!" />
                         {formatLargeNumber(item.tokensOut || 0)}
                       </span>
                       {item.cacheWrites
                         ? item.cacheWrites > 0 && (
                             <span className="flex items-center gap-1 text-description">
-                              <ArrowRightIcon className="text-description !size-1" />
+                              <ArrowRightIcon className="text-description size-1!" />
                               {formatLargeNumber(item.cacheWrites)}
                             </span>
                           )
@@ -190,7 +217,7 @@ const HistoryViewItem = ({
                       {item.cacheReads
                         ? item.cacheReads > 0 && (
                             <span className="flex items-center gap-1 text-description">
-                              <ArrowLeftIcon className="text-description !size-1" />
+                              <ArrowLeftIcon className="text-description size-1!" />
                               {formatLargeNumber(item.cacheReads)}
                             </span>
                           )
@@ -216,7 +243,7 @@ const HistoryViewItem = ({
                           e.stopPropagation();
                           TaskServiceClient.exportTaskWithId(
                             StringRequest.create({ value: item.id }),
-                          ).catch((err) => console.error('Failed to export task:', err));
+                          ).catch((err) => console.error("Failed to export task:", err));
                         }}
                         variant="ghost"
                       >

@@ -3,15 +3,15 @@ import {
   VSC_BUTTON_FOREGROUND,
   VSC_DESCRIPTION_FOREGROUND,
   VSC_FOREGROUND,
-} from '@/utils/vscStyles';
-import type { ApiConfiguration, OcaModelInfo } from '@shared/api';
-import type { Mode } from '@shared/storage/types.ts';
-import { VSCodeButton, VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
-import React, { useMemo } from 'react';
-import ThinkingBudgetSlider from '../ThinkingBudgetSlider';
-import { ModelInfoView } from '../common/ModelInfoView';
-import { normalizeApiConfiguration } from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+} from "@/utils/vscStyles";
+import type { ApiConfiguration, OcaModelInfo } from "@shared/api";
+import type { Mode } from "@shared/storage/types.ts";
+import { VSCodeButton, VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
+import React, { useMemo } from "react";
+import ThinkingBudgetSlider from "../ThinkingBudgetSlider";
+import { ModelInfoView } from "../common/ModelInfoView";
+import { normalizeApiConfiguration } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 export interface OcaModelPickerProps {
   apiConfiguration: ApiConfiguration | undefined;
@@ -47,11 +47,11 @@ const OcaModelPicker: React.FC<OcaModelPickerProps> = ({
       } else {
         await handleModeFieldsChange(
           {
-            ocaModelId: { plan: 'planModeOcaModelId', act: 'actModeOcaModelId' },
-            ocaModelInfo: { plan: 'planModeOcaModelInfo', act: 'actModeOcaModelInfo' },
+            ocaModelId: { plan: "planModeOcaModelId", act: "actModeOcaModelId" },
+            ocaModelInfo: { plan: "planModeOcaModelInfo", act: "actModeOcaModelInfo" },
             ocaReasoningEffort: {
-              plan: 'planModeOcaReasoningEffort',
-              act: 'actModeOcaReasoningEffort',
+              plan: "planModeOcaReasoningEffort",
+              act: "actModeOcaReasoningEffort",
             },
           },
           {
@@ -72,8 +72,8 @@ const OcaModelPicker: React.FC<OcaModelPickerProps> = ({
     await handleModeFieldsChange(
       {
         ocaReasoningEffort: {
-          plan: 'planModeOcaReasoningEffort',
-          act: 'actModeOcaReasoningEffort',
+          plan: "planModeOcaReasoningEffort",
+          act: "actModeOcaReasoningEffort",
         },
       },
       {
@@ -87,11 +87,11 @@ const OcaModelPicker: React.FC<OcaModelPickerProps> = ({
     if (pendingModelId && ocaModels) {
       await handleModeFieldsChange(
         {
-          ocaModelId: { plan: 'planModeOcaModelId', act: 'actModeOcaModelId' },
-          ocaModelInfo: { plan: 'planModeOcaModelInfo', act: 'actModeOcaModelInfo' },
+          ocaModelId: { plan: "planModeOcaModelId", act: "actModeOcaModelId" },
+          ocaModelInfo: { plan: "planModeOcaModelInfo", act: "actModeOcaModelInfo" },
           ocaReasoningEffort: {
-            plan: 'planModeOcaReasoningEffort',
-            act: 'actModeOcaReasoningEffort',
+            plan: "planModeOcaReasoningEffort",
+            act: "actModeOcaReasoningEffort",
           },
         },
         {
@@ -118,7 +118,7 @@ const OcaModelPicker: React.FC<OcaModelPickerProps> = ({
   }, [apiConfiguration, currentMode]);
 
   const selectedReasoningEffort = useMemo(() => {
-    if (currentMode === 'plan') {
+    if (currentMode === "plan") {
       return apiConfiguration?.planModeOcaReasoningEffort;
     }
     return apiConfiguration?.actModeOcaReasoningEffort;
@@ -139,7 +139,7 @@ const OcaModelPicker: React.FC<OcaModelPickerProps> = ({
   }, [selectedModelId, ocaModels]);
 
   const lastRefreshedText = useMemo(() => {
-    return typeof lastRefreshedAt === 'number'
+    return typeof lastRefreshedAt === "number"
       ? new Date(lastRefreshedAt).toLocaleTimeString()
       : null;
   }, [lastRefreshedAt]);
@@ -169,20 +169,20 @@ const OcaModelPicker: React.FC<OcaModelPickerProps> = ({
           id="model-id"
           onChange={async (event: Event | React.FormEvent<HTMLElement>) => {
             const target = event.target as HTMLSelectElement | null;
-            const value = target?.value ?? '';
+            const value = target?.value ?? "";
             await handleModelChange(value);
           }}
-          style={{ position: 'relative', zIndex: 100 }}
-          value={selectedModelId || ''}
+          style={{ position: "relative", zIndex: 100 }}
+          value={selectedModelId || ""}
         >
           {modelIds?.map((modelId) => (
             <VSCodeOption
               key={modelId}
               style={{
-                padding: '4px 8px',
-                cursor: 'pointer',
-                wordWrap: 'break-word',
-                maxWidth: '100%',
+                padding: "4px 8px",
+                cursor: "pointer",
+                wordWrap: "break-word",
+                maxWidth: "100%",
                 fontSize: 12,
               }}
               value={modelId}
@@ -197,13 +197,13 @@ const OcaModelPicker: React.FC<OcaModelPickerProps> = ({
           style={{
             fontSize: 14,
             fontWeight: 500,
-            background: 'var(--vscode-button-background, #0078d4)',
-            color: 'var(--vscode-button-foreground, #fff)',
+            background: "var(--vscode-button-background, #0078d4)",
+            color: "var(--vscode-button-foreground, #fff)",
             minWidth: 0,
             margin: 0,
           }}
         >
-          {loading ? 'Refreshing…' : 'Refresh'}
+          {loading ? "Refreshing…" : "Refresh"}
         </VSCodeButton>
       </div>
       {lastRefreshedText ? (
@@ -231,10 +231,10 @@ const OcaModelPicker: React.FC<OcaModelPickerProps> = ({
                   <VSCodeOption
                     key={reasoningEffort}
                     style={{
-                      padding: '4px 8px',
-                      cursor: 'pointer',
-                      wordWrap: 'break-word',
-                      maxWidth: '100%',
+                      padding: "4px 8px",
+                      cursor: "pointer",
+                      wordWrap: "break-word",
+                      maxWidth: "100%",
                       fontSize: 12,
                     }}
                     value={reasoningEffort}

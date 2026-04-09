@@ -1,11 +1,11 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { ANTHROPIC_MAX_THINKING_BUDGET, ANTHROPIC_MIN_THINKING_BUDGET } from '@shared/api.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
-import { memo, useCallback, useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { getModeSpecificFields } from './utils/providerUtils';
-import { useApiConfigurationHandlers } from './utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { ANTHROPIC_MAX_THINKING_BUDGET, ANTHROPIC_MIN_THINKING_BUDGET } from "@shared/api.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
+import { memo, useCallback, useEffect, useState } from "react";
+import styled from "styled-components";
+import { getModeSpecificFields } from "./utils/providerUtils";
+import { useApiConfigurationHandlers } from "./utils/useApiConfigurationHandlers";
 
 const THUMB_SIZE = 16;
 
@@ -88,7 +88,7 @@ const ThinkingBudgetSlider = ({
     setLocalValue(newThinkingBudgetValue);
 
     handleModeFieldChange(
-      { plan: 'planModeThinkingBudgetTokens', act: 'actModeThinkingBudgetTokens' },
+      { plan: "planModeThinkingBudgetTokens", act: "actModeThinkingBudgetTokens" },
       newThinkingBudgetValue,
       currentMode,
     );
@@ -126,7 +126,7 @@ const ThinkingBudgetSlider = ({
 
   const handleSliderComplete = () => {
     handleModeFieldChange(
-      { plan: 'planModeThinkingBudgetTokens', act: 'actModeThinkingBudgetTokens' },
+      { plan: "planModeThinkingBudgetTokens", act: "actModeThinkingBudgetTokens" },
       localValue,
       currentMode,
     );
@@ -143,10 +143,10 @@ const ThinkingBudgetSlider = ({
       {showEnableToggle ? (
         <VSCodeCheckbox checked={isEnabled} onClick={handleToggleChange}>
           Enable thinking
-          {localValue && localValue > 0 ? ` (${localValue.toLocaleString()} tokens)` : ''}
+          {localValue && localValue > 0 ? ` (${localValue.toLocaleString()} tokens)` : ""}
         </VSCodeCheckbox>
       ) : (
-        <p className="text-[var(--vscode-descriptionForeground)] text-sm">
+        <p className="text-(--vscode-descriptionForeground) text-sm">
           Thinking is enabled by default for this model. ({localValue.toLocaleString()} tokens)
         </p>
       )}

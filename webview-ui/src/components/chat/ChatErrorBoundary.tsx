@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface ChatErrorBoundaryProps {
   children: React.ReactNode;
@@ -30,8 +30,8 @@ export class ChatErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Error in ChatErrorBoundary:', error.message);
-    console.error('Component stack:', errorInfo.componentStack);
+    console.error("Error in ChatErrorBoundary:", error.message);
+    console.error("Component stack:", errorInfo.componentStack);
   }
 
   render() {
@@ -41,21 +41,21 @@ export class ChatErrorBoundary extends React.Component<
       return (
         <div
           style={{
-            padding: '10px',
-            color: 'var(--vscode-errorForeground)',
-            height: height || 'auto',
-            maxWidth: '512px',
-            overflow: 'auto',
-            border: '1px solid var(--vscode-editorError-foreground)',
-            borderRadius: '4px',
-            backgroundColor: 'var(--vscode-inputValidation-errorBackground, rgba(255, 0, 0, 0.1))',
+            padding: "10px",
+            color: "var(--vscode-errorForeground)",
+            height: height || "auto",
+            maxWidth: "512px",
+            overflow: "auto",
+            border: "1px solid var(--vscode-editorError-foreground)",
+            borderRadius: "4px",
+            backgroundColor: "var(--vscode-inputValidation-errorBackground, rgba(255, 0, 0, 0.1))",
           }}
         >
-          <h3 style={{ margin: '0 0 8px 0' }}>
-            {errorTitle || 'Something went wrong displaying this content'}
+          <h3 style={{ margin: "0 0 8px 0" }}>
+            {errorTitle || "Something went wrong displaying this content"}
           </h3>
-          <p style={{ margin: '0' }}>
-            {errorBody || `Error: ${this.state.error?.message || 'Unknown error'}`}
+          <p style={{ margin: "0" }}>
+            {errorBody || `Error: ${this.state.error?.message || "Unknown error"}`}
           </p>
         </div>
       );
@@ -98,7 +98,7 @@ export class ErrorAfterDelay extends React.Component<ErrorAfterDelayProps, Error
         // Error boundaries don't catch async code :(
         // So this only works by throwing inside of a setState
         this.setState(() => {
-          throw new Error('This is an error for testing the error boundary');
+          throw new Error("This is an error for testing the error boundary");
         });
       } else {
         this.setState({
@@ -119,14 +119,14 @@ export class ErrorAfterDelay extends React.Component<ErrorAfterDelayProps, Error
     return (
       <div
         style={{
-          position: 'absolute',
+          position: "absolute",
           top: 0,
           right: 0,
-          background: 'rgba(255, 0, 0, 0.5)',
-          color: 'var(--vscode-errorForeground)',
-          padding: '2px 5px',
-          fontSize: '12px',
-          borderRadius: '0 0 0 4px',
+          background: "rgba(255, 0, 0, 0.5)",
+          color: "var(--vscode-errorForeground)",
+          padding: "2px 5px",
+          fontSize: "12px",
+          borderRadius: "0 0 0 4px",
           zIndex: 100,
         }}
       >

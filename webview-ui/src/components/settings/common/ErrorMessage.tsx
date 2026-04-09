@@ -1,4 +1,4 @@
-import type React from 'react';
+import type React from "react";
 
 /**
  * Props for the ErrorMessage component
@@ -15,9 +15,9 @@ export const ErrorMessage = ({ message, style }: ErrorMessageProps) => {
   return (
     <p
       style={{
-        margin: '-10px 0 4px 0',
+        margin: "-10px 0 4px 0",
         fontSize: 12,
-        color: 'var(--vscode-errorForeground)',
+        color: "var(--vscode-errorForeground)",
         ...style,
       }}
     >

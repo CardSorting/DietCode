@@ -1,6 +1,6 @@
-import { BUILD_CONSTANTS } from '@/shared/constants';
-import type { RemoteConfigFields } from '@/shared/storage/state-keys';
-import { parseKeyPairsIntoRecord } from '@opentelemetry/core';
+import { BUILD_CONSTANTS } from "@/shared/constants";
+import type { RemoteConfigFields } from "@/shared/storage/state-keys";
+import { parseKeyPairsIntoRecord } from "@opentelemetry/core";
 
 export interface OpenTelemetryClientConfig {
   /**
@@ -95,7 +95,7 @@ export interface OpenTelemetryClientValidConfig extends OpenTelemetryClientConfi
   enabled: true;
 }
 
-const isTestEnv = process.env.E2E_TEST === 'true' || process.env.IS_TEST === 'true';
+const isTestEnv = process.env.E2E_TEST === "true" || process.env.IS_TEST === "true";
 
 export function remoteConfigToOtelConfig(
   settings: Partial<RemoteConfigFields>,
@@ -126,8 +126,8 @@ export function remoteConfigToOtelConfig(
 function getOtelConfig(): OpenTelemetryClientConfig {
   return {
     enabled:
-      BUILD_CONSTANTS.OTEL_TELEMETRY_ENABLED === '1' ||
-      BUILD_CONSTANTS.OTEL_TELEMETRY_ENABLED === 'true',
+      BUILD_CONSTANTS.OTEL_TELEMETRY_ENABLED === "1" ||
+      BUILD_CONSTANTS.OTEL_TELEMETRY_ENABLED === "true",
     metricsExporter: BUILD_CONSTANTS.OTEL_METRICS_EXPORTER,
     logsExporter: BUILD_CONSTANTS.OTEL_LOGS_EXPORTER,
     otlpProtocol: BUILD_CONSTANTS.OTEL_EXPORTER_OTLP_PROTOCOL,
@@ -173,7 +173,7 @@ function getOtelConfig(): OpenTelemetryClientConfig {
  */
 function getRuntimeOtelConfig(): OpenTelemetryClientConfig {
   return {
-    enabled: process.env.CLINE_OTEL_TELEMETRY_ENABLED === 'true',
+    enabled: process.env.CLINE_OTEL_TELEMETRY_ENABLED === "true",
     metricsExporter: process.env.CLINE_OTEL_METRICS_EXPORTER,
     logsExporter: process.env.CLINE_OTEL_LOGS_EXPORTER,
     otlpProtocol: process.env.CLINE_OTEL_EXPORTER_OTLP_PROTOCOL,
@@ -185,7 +185,7 @@ function getRuntimeOtelConfig(): OpenTelemetryClientConfig {
     metricExportInterval: process.env.CLINE_OTEL_METRIC_EXPORT_INTERVAL
       ? Number.parseInt(process.env.CLINE_OTEL_METRIC_EXPORT_INTERVAL, 10)
       : undefined,
-    otlpInsecure: process.env.CLINE_OTEL_EXPORTER_OTLP_INSECURE === 'true',
+    otlpInsecure: process.env.CLINE_OTEL_EXPORTER_OTLP_INSECURE === "true",
     logBatchSize: process.env.CLINE_OTEL_LOG_BATCH_SIZE
       ? Math.max(1, Number.parseInt(process.env.CLINE_OTEL_LOG_BATCH_SIZE, 10))
       : undefined,

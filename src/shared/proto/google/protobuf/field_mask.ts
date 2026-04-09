@@ -5,7 +5,7 @@
 // source: google/protobuf/field_mask.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 /**
  * `FieldMask` represents a set of symbolic field paths, for example:
@@ -251,8 +251,8 @@ export const FieldMask: MessageFns<FieldMask> & FieldMaskWrapperFns = {
   fromJSON(object: any): FieldMask {
     return {
       paths:
-        typeof object === 'string'
-          ? object.split(',').filter(globalThis.Boolean)
+        typeof object === "string"
+          ? object.split(",").filter(globalThis.Boolean)
           : globalThis.Array.isArray(object?.paths)
             ? object.paths.map(globalThis.String)
             : [],
@@ -260,7 +260,7 @@ export const FieldMask: MessageFns<FieldMask> & FieldMaskWrapperFns = {
   },
 
   toJSON(message: FieldMask): string {
-    return message.paths.join(',');
+    return message.paths.join(",");
   },
 
   create<I extends Exact<DeepPartial<FieldMask>, I>>(base?: I): FieldMask {

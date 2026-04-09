@@ -12,25 +12,25 @@
  *   - cd cli && npm run build:production
  */
 
-import { execSync } from 'node:child_process';
-import fs from 'node:fs';
-import { cp } from 'node:fs/promises';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import dotenv from 'dotenv';
+import { execSync } from "node:child_process";
+import fs from "node:fs";
+import { cp } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import dotenv from "dotenv";
 
-const BUILD_DIR = 'dist-standalone';
-const CLI_DIR = 'cli';
-const IS_VERBOSE = process.argv.includes('-v') || process.argv.includes('--verbose');
+const BUILD_DIR = "dist-standalone";
+const CLI_DIR = "cli";
+const IS_VERBOSE = process.argv.includes("-v") || process.argv.includes("--verbose");
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const rootDir = path.resolve(__dirname, '..');
+const rootDir = path.resolve(__dirname, "..");
 // Load .env from repo root
-dotenv.config({ path: path.join(rootDir, '.env') });
+dotenv.config({ path: path.join(rootDir, ".env") });
 
 async function main() {
-  console.log('🚀 Building Cline CLI NPM Package (TypeScript)\n');
+  console.log("🚀 Building Cline CLI NPM Package (TypeScript)\n");
 
   await cleanBuildDir();
   setupEnvironmentVariables();
@@ -41,7 +41,7 @@ async function main() {
   await copyReadme();
   await createNpmIgnoreFile();
 
-  console.log('\n✅ Build complete!');
+  console.log("\n✅ Build complete!");
   console.log(`\n📦 NPM package ready in ${BUILD_DIR}/`);
   console.log(`To publish: cd ${BUILD_DIR} && npm publish`);
 }
@@ -52,8 +52,8 @@ function setupEnvironmentVariables() {
   if (cliErrorTrackingKey) {
     process.env.ERROR_SERVICE_API_KEY = cliErrorTrackingKey;
     // If we're sending to a different project, enable exception autocapture
-    process.env.ENABLE_ERROR_AUTOCAPTURE = 'true';
-    log_verbose('Set ERROR_SERVICE_API_KEY for build');
+    process.env.ENABLE_ERROR_AUTOCAPTURE = "true";
+    log_verbose("Set ERROR_SERVICE_API_KEY for build");
   }
 }
 
@@ -61,7 +61,7 @@ function setupEnvironmentVariables() {
  * Clean the build directory
  */
 async function cleanBuildDir() {
-  console.log('Cleaning build directory...');
+  console.log("Cleaning build directory...");
   await rmrf(BUILD_DIR);
   fs.mkdirSync(BUILD_DIR, { recursive: true });
   console.log(`✓ ${BUILD_DIR}/ cleaned`);
@@ -71,38 +71,38 @@ async function cleanBuildDir() {
  * Build the TypeScript CLI
  */
 async function buildTypeScriptCli() {
-  console.log('Building TypeScript CLI...');
+  console.log("Building TypeScript CLI...");
 
   // Install dependencies if needed
-  if (!fs.existsSync(path.join(CLI_DIR, 'node_modules'))) {
-    console.log('Installing cli dependencies...');
-    execSync('npm install', { stdio: 'inherit', cwd: CLI_DIR });
+  if (!fs.existsSync(path.join(CLI_DIR, "node_modules"))) {
+    console.log("Installing cli dependencies...");
+    execSync("npm install", { stdio: "inherit", cwd: CLI_DIR });
   }
 
   // Build production bundle
-  execSync('npm run build:production', { stdio: 'inherit', cwd: CLI_DIR, env: process.env });
-  console.log('✓ TypeScript CLI built');
+  execSync("npm run build:production", { stdio: "inherit", cwd: CLI_DIR, env: process.env });
+  console.log("✓ TypeScript CLI built");
 }
 
 /**
  * Copy the CLI dist folder to build directory
  */
 async function copyCliDist() {
-  console.log('Copying CLI distribution files...');
+  console.log("Copying CLI distribution files...");
 
-  const distSource = path.join(CLI_DIR, 'dist');
-  const distDest = path.join(BUILD_DIR, 'dist');
+  const distSource = path.join(CLI_DIR, "dist");
+  const distDest = path.join(BUILD_DIR, "dist");
 
   if (!fs.existsSync(distSource)) {
     console.error(`Error: CLI dist not found at ${distSource}`);
-    console.error('Please run: cd cli && npm run build:production');
+    console.error("Please run: cd cli && npm run build:production");
     process.exit(1);
   }
 
   await cpr(distSource, distDest);
 
   // Make the CLI executable
-  const cliPath = path.join(distDest, 'cli.mjs');
+  const cliPath = path.join(distDest, "cli.mjs");
   if (fs.existsSync(cliPath)) {
     fs.chmodSync(cliPath, 0o755);
   }
@@ -114,32 +114,32 @@ async function copyCliDist() {
  * Copy package.json from cli/ directory
  */
 async function copyPackageJson() {
-  console.log('Copying package.json...');
-  const source = path.join(CLI_DIR, 'package.json');
-  const dest = path.join(BUILD_DIR, 'package.json');
+  console.log("Copying package.json...");
+  const source = path.join(CLI_DIR, "package.json");
+  const dest = path.join(BUILD_DIR, "package.json");
   await cpr(source, dest);
-  console.log('✓ package.json copied');
+  console.log("✓ package.json copied");
 }
 
 /**
  * Copy README.md from cli/ directory
  */
 async function copyReadme() {
-  console.log('Copying README...');
+  console.log("Copying README...");
 
   // Try cli README first, fall back to cli/ README
-  let readmeSource = path.join(CLI_DIR, 'README.md');
+  let readmeSource = path.join(CLI_DIR, "README.md");
 
   if (!fs.existsSync(readmeSource)) {
-    readmeSource = path.join('cli', 'README.md');
+    readmeSource = path.join("cli", "README.md");
   }
 
   if (!fs.existsSync(readmeSource)) {
-    console.warn('Warning: No README.md found, skipping');
+    console.warn("Warning: No README.md found, skipping");
     return;
   }
 
-  const readmeDest = path.join(BUILD_DIR, 'README.md');
+  const readmeDest = path.join(BUILD_DIR, "README.md");
   await cpr(readmeSource, readmeDest);
   console.log(`✓ README.md copied from ${readmeSource}`);
 }
@@ -148,7 +148,7 @@ async function copyReadme() {
  * Create .npmignore file to exclude unnecessary files
  */
 async function createNpmIgnoreFile() {
-  console.log('Creating .npmignore file...');
+  console.log("Creating .npmignore file...");
 
   const npmignoreContent = `# Exclude build artifacts and unnecessary files
 *.map
@@ -159,10 +159,10 @@ tsconfig.json
 .prettierrc*
 `;
 
-  const npmignorePath = path.join(BUILD_DIR, '.npmignore');
+  const npmignorePath = path.join(BUILD_DIR, ".npmignore");
   fs.writeFileSync(npmignorePath, npmignoreContent);
 
-  console.log('✓ .npmignore created');
+  console.log("✓ .npmignore created");
 }
 
 /* cp -r */

@@ -1,23 +1,23 @@
-import '../../../node_modules/@vscode/codicons/dist/codicon.css';
-import '../../../node_modules/@vscode/codicons/dist/codicon.ttf';
-import '../../src/index.css';
+import "../../../node_modules/@vscode/codicons/dist/codicon.css";
+import "../../../node_modules/@vscode/codicons/dist/codicon.ttf";
+import "../../src/index.css";
 
 import {
   ClineAuthContext,
   type ClineAuthContextType,
   ClineAuthProvider,
   useClineAuth,
-} from '@/context/ClineAuthContext';
+} from "@/context/ClineAuthContext";
 import {
   ExtensionStateContext,
   ExtensionStateContextProvider,
   type ExtensionStateContextType,
   useExtensionState,
-} from '@/context/ExtensionStateContext';
-import { cn } from '@heroui/react';
-import type { Decorator } from '@storybook/react-vite';
-import React from 'react';
-import { StorybookThemes } from '../../.storybook/themes';
+} from "@/context/ExtensionStateContext";
+import { cn } from "@heroui/react";
+import type { Decorator } from "@storybook/react-vite";
+import React from "react";
+import { StorybookThemes } from "../../.storybook/themes";
 
 // Component that handles theme switching
 const ThemeHandler: React.FC<{ children: React.ReactNode; theme?: string }> = ({
@@ -25,7 +25,7 @@ const ThemeHandler: React.FC<{ children: React.ReactNode; theme?: string }> = ({
   theme,
 }) => {
   React.useEffect(() => {
-    const styles = theme?.includes('light') ? StorybookThemes.light : StorybookThemes.dark;
+    const styles = theme?.includes("light") ? StorybookThemes.light : StorybookThemes.dark;
 
     // Apply CSS variables to the document root
     const root = document.documentElement;
@@ -33,10 +33,10 @@ const ThemeHandler: React.FC<{ children: React.ReactNode; theme?: string }> = ({
       root.style.setProperty(property, value);
     });
 
-    document.body.style.backgroundColor = styles['--vscode-editor-background'];
-    document.body.style.color = styles['--vscode-editor-foreground'];
-    document.body.style.fontFamily = styles['--vscode-font-family'];
-    document.body.style.fontSize = styles['--vscode-font-size'];
+    document.body.style.backgroundColor = styles["--vscode-editor-background"];
+    document.body.style.color = styles["--vscode-editor-foreground"];
+    document.body.style.fontFamily = styles["--vscode-font-family"];
+    document.body.style.fontSize = styles["--vscode-font-size"];
 
     return () => {
       // Cleanup on unmount
@@ -48,7 +48,7 @@ const ThemeHandler: React.FC<{ children: React.ReactNode; theme?: string }> = ({
 
   return <>{children}</>;
 };
-function StorybookDecoratorProvider(className = 'relative'): Decorator {
+function StorybookDecoratorProvider(className = "relative"): Decorator {
   return (story, parameters) => {
     return (
       <div className={className}>
@@ -98,7 +98,7 @@ export const createStorybookDecorator =
   (Story: any) => (
     <ExtensionStateProviderWithOverrides overrides={overrideStates}>
       <ClineAuthProviderWithOverrides overrides={authOverrides}>
-        <div className={cn('max-w-lg mx-auto', classNames)}>
+        <div className={cn("max-w-lg mx-auto", classNames)}>
           <Story />
         </div>
       </ClineAuthProviderWithOverrides>

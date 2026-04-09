@@ -1,4 +1,4 @@
-import type { ModelInfo } from '@shared/api.ts';
+import type { ModelInfo } from "@shared/api.ts";
 
 function calculateApiCostInternal(
   modelInfo: ModelInfo,

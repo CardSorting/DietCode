@@ -1,7 +1,7 @@
-import type { Meta } from '@storybook/react-vite';
-import { BellIcon, SettingsIcon, UserIcon } from 'lucide-react';
-import { Badge } from './badge';
-import { Button } from './button';
+import type { Meta } from "@storybook/react-vite";
+import { BellIcon, SettingsIcon, UserIcon } from "lucide-react";
+import { Badge } from "./badge";
+import { Button } from "./button";
 import {
   Item,
   ItemActions,
@@ -13,16 +13,16 @@ import {
   ItemMedia,
   ItemSeparator,
   ItemTitle,
-} from './item';
+} from "./item";
 
 const meta: Meta<typeof Item> = {
-  title: 'Ui/Item',
+  title: "Ui/Item",
   component: Item,
   parameters: {
     docs: {
       description: {
         component:
-          'A flexible item component for building lists with media, content, actions, and separators. Supports multiple variants (default, outline, select, muted) and sizes.',
+          "A flexible item component for building lists with media, content, actions, and separators. Supports multiple variants (default, outline, select, muted) and sizes.",
       },
     },
   },

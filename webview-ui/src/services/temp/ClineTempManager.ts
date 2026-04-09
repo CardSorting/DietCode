@@ -8,10 +8,10 @@
  * - Cross-platform (macOS, Windows, Linux)
  */
 
-import * as fs from 'node:fs';
-import * as os from 'node:os';
-import * as path from 'node:path';
-import { Logger } from '@/shared/services/Logger';
+import * as fs from "node:fs";
+import * as os from "node:os";
+import * as path from "node:path";
+import { Logger } from "@/shared/services/Logger";
 
 // Configuration constants
 const MAX_TOTAL_SIZE_BYTES = 2 * 1024 * 1024 * 1024; // 2GB
@@ -37,7 +37,7 @@ class ClineTempManagerImpl {
     // Windows: C:\Users\{user}\AppData\Local\Temp\cline
     // Linux: /tmp/cline
     const baseTempDir = os.tmpdir();
-    const clineTempDir = path.join(baseTempDir, 'cline');
+    const clineTempDir = path.join(baseTempDir, "cline");
 
     try {
       fs.mkdirSync(clineTempDir, { recursive: true });
@@ -159,7 +159,7 @@ class ClineTempManagerImpl {
         );
       }
     } catch (error) {
-      Logger.error('Error during Cline temp cleanup', error);
+      Logger.error("Error during Cline temp cleanup", error);
     }
 
     return { deletedCount, freedBytes };
@@ -174,7 +174,7 @@ class ClineTempManagerImpl {
     try {
       await fs.promises.unlink(filePath);
     } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
         Logger.error(`Failed to delete temp file: ${filePath}`, error);
       }
     }
@@ -191,12 +191,12 @@ class ClineTempManagerImpl {
     }
 
     this.cleanup().catch((error) => {
-      Logger.error('Failed to clean up temp files', error);
+      Logger.error("Failed to clean up temp files", error);
     });
 
     this.cleanupIntervalId = setInterval(() => {
       this.cleanup().catch((error) => {
-        Logger.error('Periodic temp cleanup failed', error);
+        Logger.error("Periodic temp cleanup failed", error);
       });
     }, CLEANUP_INTERVAL_MS);
 

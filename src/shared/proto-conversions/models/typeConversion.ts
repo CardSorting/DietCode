@@ -3,14 +3,14 @@ import type {
   ModelInfo,
   OcaModelInfo,
   OpenAiCompatibleModelInfo,
-} from '@shared/api';
+} from "@shared/api";
 import {
   OpenRouterModelInfo,
   type LiteLLMModelInfo as ProtoLiteLLMModelInfo,
   type OcaModelInfo as ProtoOcaModelInfo,
   type OpenAiCompatibleModelInfo as ProtoOpenAiCompatibleModelInfo,
   ThinkingConfig,
-} from '@shared/proto/cline/models';
+} from "@shared/proto/cline/models";
 
 /**
  * Convert protobuf ThinkingConfig to application ThinkingConfig
@@ -18,7 +18,7 @@ import {
  */
 function convertThinkingConfig(
   protoConfig: ThinkingConfig | undefined,
-): ModelInfo['thinkingConfig'] | undefined {
+): ModelInfo["thinkingConfig"] | undefined {
   if (!protoConfig) {
     return undefined;
   }
@@ -36,7 +36,7 @@ function convertThinkingConfig(
  * Converts undefined to empty arrays for proto fields
  */
 function toProtobufThinkingConfig(
-  appConfig: ModelInfo['thinkingConfig'] | undefined,
+  appConfig: ModelInfo["thinkingConfig"] | undefined,
 ): ThinkingConfig | undefined {
   if (!appConfig) {
     return undefined;

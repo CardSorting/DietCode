@@ -1,4 +1,4 @@
-import { Logger } from '@/shared/services/Logger';
+import { Logger } from "@/shared/services/Logger";
 
 /**
  * Result of resolving an OAuth redirect URL for an MCP server.
@@ -65,7 +65,7 @@ export class McpOAuthRedirectResolver {
   static isLoopbackUrl(url: string): boolean {
     try {
       const parsed = new URL(url);
-      return parsed.protocol === 'http:' && parsed.hostname === '127.0.0.1';
+      return parsed.protocol === "http:" && parsed.hostname === "127.0.0.1";
     } catch {
       return false;
     }

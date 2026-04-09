@@ -1,5 +1,5 @@
-import { WebServiceClient } from '@/services/grpc-client';
-import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
+import { WebServiceClient } from "@/services/grpc-client";
+import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
 
 // Represents a URL found in the text with its position and metadata
 export interface UrlMatch {
@@ -12,7 +12,7 @@ export interface UrlMatch {
 
 // Display segment interface
 export interface DisplaySegment {
-  type: 'text' | 'url' | 'image' | 'link' | 'error';
+  type: "text" | "url" | "image" | "link" | "error";
   content: string;
   url?: string;
   key: string; // Pre-computed key for React
@@ -23,7 +23,7 @@ export interface DisplaySegment {
  * e.g. "data:image/png;base64,iVBORw0KGgo..." becomes "[IMAGE] data:image/png;base64,iVBORw0KGgoAAAANS..."
  */
 export const truncateSingleDataUri = (dataUri: string): string => {
-  const commaIndex = dataUri.indexOf(',');
+  const commaIndex = dataUri.indexOf(",");
   if (commaIndex === -1) {
     return dataUri;
   }
@@ -47,14 +47,14 @@ export const truncateDataUris = (text: string): string => {
 export const safeCreateUrl = (url: string): URL | null => {
   try {
     // Convert HTTP to HTTPS for security
-    if (url.startsWith('http://')) {
-      url = url.replace('http://', 'https://');
+    if (url.startsWith("http://")) {
+      url = url.replace("http://", "https://");
     }
 
     return new URL(url);
   } catch (_e) {
     // If the URL doesn't have a protocol, add https://
-    if (!url.startsWith('https://')) {
+    if (!url.startsWith("https://")) {
       try {
         return new URL(`https://${url}`);
       } catch (_e) {
@@ -76,9 +76,9 @@ export const isUrl = (str: string): boolean => {
 export const getSafeHostname = (url: string): string => {
   try {
     const urlObj = safeCreateUrl(url);
-    return urlObj ? urlObj.hostname : 'unknown-host';
+    return urlObj ? urlObj.hostname : "unknown-host";
   } catch (_e) {
-    return 'unknown-host';
+    return "unknown-host";
   }
 };
 
@@ -87,12 +87,12 @@ export const isLocalhostUrl = (url: string): boolean => {
   try {
     const hostname = getSafeHostname(url);
     return (
-      hostname === 'localhost' ||
-      hostname === '127.0.0.1' ||
-      hostname === '0.0.0.0' ||
-      hostname.startsWith('192.168.') ||
-      hostname.startsWith('10.') ||
-      hostname.endsWith('.local')
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname === "0.0.0.0" ||
+      hostname.startsWith("192.168.") ||
+      hostname.startsWith("10.") ||
+      hostname.endsWith(".local")
     );
   } catch (_e) {
     // If we can't parse the URL, assume it's not localhost
@@ -104,9 +104,9 @@ export const isLocalhostUrl = (url: string): boolean => {
 export const normalizeRelativeUrl = (relativeUrl: string, baseUrl: string): string => {
   // If it's already an absolute URL or a data URL, return as is
   if (
-    relativeUrl.startsWith('http://') ||
-    relativeUrl.startsWith('https://') ||
-    relativeUrl.startsWith('data:')
+    relativeUrl.startsWith("http://") ||
+    relativeUrl.startsWith("https://") ||
+    relativeUrl.startsWith("data:")
   ) {
     return relativeUrl;
   }
@@ -119,20 +119,20 @@ export const normalizeRelativeUrl = (relativeUrl: string, baseUrl: string): stri
     }
 
     // Handle different types of relative paths
-    if (relativeUrl.startsWith('//')) {
+    if (relativeUrl.startsWith("//")) {
       // Protocol-relative URL
       return `${baseUrlObj.protocol}${relativeUrl}`;
     }
-    if (relativeUrl.startsWith('/')) {
+    if (relativeUrl.startsWith("/")) {
       // Root-relative URL
       return `${baseUrlObj.protocol}//${baseUrlObj.host}${relativeUrl}`;
     }
     // Path-relative URL
     // Get the directory part of the URL
     let basePath = baseUrlObj.pathname;
-    if (!basePath.endsWith('/')) {
+    if (!basePath.endsWith("/")) {
       // If the path doesn't end with a slash, remove the file part
-      basePath = basePath.substring(0, basePath.lastIndexOf('/') + 1);
+      basePath = basePath.substring(0, basePath.lastIndexOf("/") + 1);
     }
     return `${baseUrlObj.protocol}//${baseUrlObj.host}${basePath}${relativeUrl}`;
   } catch (error) {
@@ -144,7 +144,7 @@ export const normalizeRelativeUrl = (relativeUrl: string, baseUrl: string): stri
 // Helper to ensure URL is in a format that can be opened
 export const formatUrlForOpening = (url: string): string => {
   // If it's a data URI, return as is
-  if (url.startsWith('data:image/')) {
+  if (url.startsWith("data:image/")) {
     return url;
   }
 
@@ -156,37 +156,37 @@ export const formatUrlForOpening = (url: string): string => {
 
   console.log(`Invalid URL format: ${url}`);
   // Return a safe fallback that won't crash
-  return 'about:blank';
+  return "about:blank";
 };
 
 // Function to check if a URL is an image using HEAD request
 export const checkIfImageUrl = async (url: string): Promise<boolean> => {
   // For data URLs, we can check synchronously
-  if (url.startsWith('data:image/')) {
+  if (url.startsWith("data:image/")) {
     return true;
   }
 
   // Create a secure URL for the check but don't modify the original URL
   let secureUrl = url;
   // Convert HTTP to HTTPS for security in the network request only
-  if (secureUrl.startsWith('http://')) {
-    secureUrl = secureUrl.replace('http://', 'https://');
+  if (secureUrl.startsWith("http://")) {
+    secureUrl = secureUrl.replace("http://", "https://");
     console.log(`Using HTTPS version for image check: ${secureUrl}`);
   }
 
   // Validate URL before proceeding
   if (!isUrl(url)) {
-    console.log('Invalid URL format:', url);
+    console.log("Invalid URL format:", url);
     return false;
   }
 
   // For https URLs, we need to use the gRPC FileService
-  if (url.startsWith('https')) {
+  if (url.startsWith("https")) {
     try {
       // Use the gRPC client with timeout
       const timeoutPromise = new Promise<boolean>((resolve) => {
         setTimeout(() => {
-          console.log('Hit timeout waiting for checkIsImageUrl');
+          console.log("Hit timeout waiting for checkIsImageUrl");
           resolve(false);
         }, 3000);
       });
@@ -195,14 +195,14 @@ export const checkIfImageUrl = async (url: string): Promise<boolean> => {
       const servicePromise = WebServiceClient.checkIsImageUrl(StringRequest.create({ value: url }))
         .then((result) => result.isImage)
         .catch((error) => {
-          console.error('Error checking if URL is an image via gRPC:', error);
+          console.error("Error checking if URL is an image via gRPC:", error);
           return false;
         });
 
       // Race between the service call and the timeout
       return Promise.race([servicePromise, timeoutPromise]);
     } catch (_error) {
-      console.log('Error checking if URL is an image:', url);
+      console.log("Error checking if URL is an image:", url);
       // Return false to indicate it's not an image
       return false;
     }
@@ -232,13 +232,13 @@ export const extractUrlsFromText = (text: string, maxUrls = 50): UrlMatch[] => {
 
     // Skip invalid URLs
     if (!isUrl(url)) {
-      console.log('Skipping invalid URL:', url);
+      console.log("Skipping invalid URL:", url);
       continue;
     }
 
     // Skip localhost URLs to prevent security issues
     if (isLocalhostUrl(url)) {
-      console.log('Skipping localhost URL:', url);
+      console.log("Skipping localhost URL:", url);
       continue;
     }
 
@@ -280,7 +280,7 @@ export const processUrlTypes = async (
 
     // Check if processing has been canceled
     if (cancellationToken.cancelled) {
-      console.log('URL processing canceled');
+      console.log("URL processing canceled");
       return;
     }
 
@@ -352,7 +352,7 @@ export const processResponseUrls = (
       // Process URLs in the background
       await processUrlTypes(matches, onMatchesUpdated, cancellationToken);
     } catch (_error) {
-      onError('Failed to process response content. Switch to plain text mode to view safely.');
+      onError("Failed to process response content. Switch to plain text mode to view safely.");
     }
   };
 
@@ -362,7 +362,7 @@ export const processResponseUrls = (
   // Return cleanup function
   return () => {
     cancellationToken.cancelled = true;
-    console.log('Cleaning up URL processing');
+    console.log("Cleaning up URL processing");
   };
 };
 
@@ -384,9 +384,9 @@ export const buildDisplaySegments = (
   if (urlMatches.length === 0) {
     return [
       {
-        type: 'text',
+        type: "text",
         content: responseText,
-        key: 'segment-0',
+        key: "segment-0",
       },
     ];
   }
@@ -399,17 +399,17 @@ export const buildDisplaySegments = (
     // Add text segment before this URL
     if (index > lastIndex) {
       segments.push({
-        type: 'text',
+        type: "text",
         content: responseText.substring(lastIndex, index),
         key: `segment-${segmentIndex++}`,
       });
     }
 
     // Add the URL text itself (truncate data URIs since they're very long)
-    const isDataUri = url.startsWith('data:');
+    const isDataUri = url.startsWith("data:");
     const urlContent = isDataUri ? truncateSingleDataUri(fullMatch) : fullMatch;
     segments.push({
-      type: 'url',
+      type: "url",
       content: urlContent,
       key: `url-${segmentIndex++}`,
     });
@@ -417,14 +417,14 @@ export const buildDisplaySegments = (
     // Add embedded content after the URL
     if (match.isImage) {
       segments.push({
-        type: 'image',
+        type: "image",
         content: url,
         url: formatUrlForOpening(url),
         key: `embed-image-${url}-${segmentIndex++}`,
       });
     } else if (match.isProcessed && !isLocalhostUrl(url)) {
       segments.push({
-        type: 'link',
+        type: "link",
         content: url,
         url: formatUrlForOpening(url),
         key: `embed-${url}-${segmentIndex++}`,
@@ -438,7 +438,7 @@ export const buildDisplaySegments = (
   // Add any remaining text after the last URL
   if (lastIndex < responseText.length) {
     segments.push({
-      type: 'text',
+      type: "text",
       content: responseText.substring(lastIndex),
       key: `segment-${segmentIndex++}`,
     });

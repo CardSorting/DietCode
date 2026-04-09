@@ -1,22 +1,22 @@
-import Thumbnails from '@/components/common/Thumbnails';
+import Thumbnails from "@/components/common/Thumbnails";
 import {
   getModeSpecificFields,
   normalizeApiConfiguration,
-} from '@/components/settings/utils/providerUtils';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { cn } from '@/lib/utils';
-import { getEnvironmentColor } from '@/utils/environmentColors';
-import type { ClineMessage } from '@shared/ExtensionMessage.ts';
-import { ChevronDownIcon, ChevronRightIcon } from 'lucide-react';
-import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
-import { CheckpointError } from './CheckpointError';
-import ContextWindow from './ContextWindow';
-import { FocusChain } from './FocusChain';
-import { highlightText } from './Highlights';
-import CopyTaskButton from './buttons/CopyTaskButton';
-import DeleteTaskButton from './buttons/DeleteTaskButton';
-import NewTaskButton from './buttons/NewTaskButton';
-import OpenDiskConversationHistoryButton from './buttons/OpenDiskConversationHistoryButton';
+} from "@/components/settings/utils/providerUtils";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { cn } from "@/lib/utils";
+import { getEnvironmentColor } from "@/utils/environmentColors";
+import type { ClineMessage } from "@shared/ExtensionMessage.ts";
+import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
+import React, { useCallback, useLayoutEffect, useMemo, useState } from "react";
+import { CheckpointError } from "./CheckpointError";
+import ContextWindow from "./ContextWindow";
+import { FocusChain } from "./FocusChain";
+import { highlightText } from "./Highlights";
+import CopyTaskButton from "./buttons/CopyTaskButton";
+import DeleteTaskButton from "./buttons/DeleteTaskButton";
+import NewTaskButton from "./buttons/NewTaskButton";
+import OpenDiskConversationHistoryButton from "./buttons/OpenDiskConversationHistoryButton";
 
 const IS_DEV = process.env.IS_DEV === '"true"';
 interface TaskHeaderProps {
@@ -34,7 +34,7 @@ interface TaskHeaderProps {
   onSendMessage?: (command: string, files: string[], images: string[]) => void;
 }
 
-const BUTTON_CLASS = 'max-h-3 border-0 font-bold bg-transparent hover:opacity-100 text-foreground';
+const BUTTON_CLASS = "max-h-3 border-0 font-bold bg-transparent hover:opacity-100 text-foreground";
 
 const TaskHeader: React.FC<TaskHeaderProps> = ({
   task,
@@ -91,8 +91,8 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isHighlightedTextExpanded]);
 
   // Simplified computed values
@@ -101,13 +101,13 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
 
   const isCostAvailable =
     (totalCost &&
-      modeFields.apiProvider === 'openai' &&
+      modeFields.apiProvider === "openai" &&
       modeFields.openAiModelInfo?.inputPrice &&
       modeFields.openAiModelInfo?.outputPrice) ||
-    (modeFields.apiProvider !== 'vscode-lm' &&
-      modeFields.apiProvider !== 'ollama' &&
-      modeFields.apiProvider !== 'lmstudio' &&
-      modeFields.apiProvider !== 'openai-codex'); // Subscription-based, no per-token costs
+    (modeFields.apiProvider !== "vscode-lm" &&
+      modeFields.apiProvider !== "ollama" &&
+      modeFields.apiProvider !== "lmstudio" &&
+      modeFields.apiProvider !== "openai-codex"); // Subscription-based, no per-token costs
 
   // Event handlers
   const toggleTaskExpanded = useCallback(
@@ -116,10 +116,10 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
   );
 
   const handleCheckpointSettingsClick = useCallback(() => {
-    navigateToSettings('features');
+    navigateToSettings("features");
   }, [navigateToSettings]);
 
-  const environmentBorderColor = getEnvironmentColor(environment, 'border');
+  const environmentBorderColor = getEnvironmentColor(environment, "border");
 
   return (
     <div className="py-2 px-4 flex flex-col gap-2">
@@ -131,10 +131,10 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
       {/* Task Header */}
       <div
         className={cn(
-          'relative overflow-hidden cursor-pointer rounded-sm flex flex-col gap-1.5 z-10 pt-2 pb-2 px-2 hover:opacity-100 bg-(--vscode-toolbar-hoverBackground)/65',
+          "relative overflow-hidden cursor-pointer rounded-sm flex flex-col gap-1.5 z-10 pt-2 pb-2 px-2 hover:opacity-100 bg-(--vscode-toolbar-hoverBackground)/65",
           {
-            'opacity-100 border-1': isTaskExpanded, // No hover effects when expanded, add border
-            'hover:bg-toolbar-hover border-1': !isTaskExpanded, // Hover effects only when collapsed
+            "opacity-100 border": isTaskExpanded, // No hover effects when expanded, add border
+            "hover:bg-toolbar-hover border": !isTaskExpanded, // Hover effects only when collapsed
           },
         )}
         style={{
@@ -143,11 +143,11 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
       >
         {/* Task Title */}
         <div
-          aria-label={isTaskExpanded ? 'Collapse task header' : 'Expand task header'}
+          aria-label={isTaskExpanded ? "Collapse task header" : "Expand task header"}
           className="flex justify-between items-center cursor-pointer"
           onClick={toggleTaskExpanded}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
+            if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
               e.stopPropagation();
               toggleTaskExpanded();
@@ -196,23 +196,34 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
 
         {/* Expand/Collapse Task Details */}
         {isTaskExpanded && (
-          <div className="flex flex-col break-words" key={`task-details-${currentTaskItem?.id}`}>
+          <div
+            className="flex flex-col wrap-break-word"
+            key={`task-details-${currentTaskItem?.id}`}
+          >
             <div
               className={cn(
-                'ph-no-capture whitespace-pre-wrap break-words px-0.5 text-sm mt-1 relative',
-                'max-h-[4.5rem] overflow-hidden',
+                "ph-no-capture whitespace-pre-wrap wrap-break-word px-0.5 text-sm mt-1 relative",
+                "max-h-18 overflow-hidden",
                 {
-                  'max-h-[25vh] overflow-y-auto scroll-smooth': isHighlightedTextExpanded,
-                  'cursor-pointer': isTextOverflowing,
+                  "max-h-[25vh] overflow-y-auto scroll-smooth": isHighlightedTextExpanded,
+                  "cursor-pointer": isTextOverflowing,
                 },
               )}
               onClick={() => isTextOverflowing && setIsHighlightedTextExpanded(true)}
+              onKeyDown={(e) => {
+                if (isTextOverflowing && (e.key === "Enter" || e.key === " ")) {
+                  e.preventDefault();
+                  setIsHighlightedTextExpanded(true);
+                }
+              }}
               ref={highlightedTextRef}
+              role={isTextOverflowing ? "button" : undefined}
+              tabIndex={isTextOverflowing ? 0 : -1}
               style={
                 !isHighlightedTextExpanded && isTextOverflowing
                   ? {
-                      WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
-                      maskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
+                      WebkitMaskImage: "linear-gradient(to bottom, black 60%, transparent 100%)",
+                      maskImage: "linear-gradient(to bottom, black 60%, transparent 100%)",
                     }
                   : undefined
               }

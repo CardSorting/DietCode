@@ -1,22 +1,22 @@
-import * as fs from 'node:fs/promises';
-import { setTimeout as setTimeoutPromise } from 'node:timers/promises';
-import { HostProvider } from '@/hosts/host-provider';
-import { fetch } from '@/shared/net';
-import { ShowMessageType } from '@/shared/proto/host/window';
-import { Logger } from '@/shared/services/Logger';
-import { expandEnvironmentVariables } from '@/utils/envExpansion';
-import { getServerAuthHash } from '@/utils/mcpAuth';
-import { sendMcpServersUpdate } from '@core/controller/mcp/subscribeToMcpServers';
-import { StateManager } from '@core/storage/StateManager';
-import { getMcpSettingsFilePath as getMcpSettingsFilePathHelper } from '@core/storage/disk';
-import { UnauthorizedError } from '@modelcontextprotocol/sdk/client/auth.js';
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
+import * as fs from "node:fs/promises";
+import { setTimeout as setTimeoutPromise } from "node:timers/promises";
+import { HostProvider } from "@/hosts/host-provider";
+import { fetch } from "@/shared/net";
+import { ShowMessageType } from "@/shared/proto/host/window";
+import { Logger } from "@/shared/services/Logger";
+import { expandEnvironmentVariables } from "@/utils/envExpansion";
+import { getServerAuthHash } from "@/utils/mcpAuth";
+import { sendMcpServersUpdate } from "@core/controller/mcp/subscribeToMcpServers";
+import { StateManager } from "@core/storage/StateManager";
+import { getMcpSettingsFilePath as getMcpSettingsFilePathHelper } from "@core/storage/disk";
+import { UnauthorizedError } from "@modelcontextprotocol/sdk/client/auth.js";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 import {
   StdioClientTransport,
   getDefaultEnvironment,
-} from '@modelcontextprotocol/sdk/client/stdio.js';
-import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+} from "@modelcontextprotocol/sdk/client/stdio.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import {
   CallToolResultSchema,
   GetPromptResultSchema,
@@ -25,7 +25,7 @@ import {
   ListResourcesResultSchema,
   ListToolsResultSchema,
   ReadResourceResultSchema,
-} from '@modelcontextprotocol/sdk/types.js';
+} from "@modelcontextprotocol/sdk/types.js";
 import {
   DEFAULT_MCP_TIMEOUT_SECONDS,
   MIN_MCP_TIMEOUT_SECONDS,
@@ -37,20 +37,20 @@ import {
   type McpServer,
   type McpTool,
   type McpToolCallResponse,
-} from '@shared/mcp';
-import { convertMcpServersToProtoMcpServers } from '@shared/proto-conversions/mcp/mcp-server-conversion.ts';
-import { secondsToMs } from '@utils/time';
-import chokidar, { type FSWatcher } from 'chokidar';
-import deepEqual from 'fast-deep-equal';
-import { nanoid } from 'nanoid';
-import ReconnectingEventSource from 'reconnecting-eventsource';
-import { z } from 'zod';
-import type { TelemetryService } from '../telemetry/TelemetryService';
-import { McpOAuthManager } from './McpOAuthManager';
-import { StreamableHttpReconnectHandler } from './StreamableHttpReconnectHandler';
-import { DEFAULT_REQUEST_TIMEOUT_MS } from './constants';
-import { BaseConfigSchema, McpSettingsSchema, ServerConfigSchema } from './schemas';
-import type { McpConnection, McpServerConfig, Transport } from './types';
+} from "@shared/mcp";
+import { convertMcpServersToProtoMcpServers } from "@shared/proto-conversions/mcp/mcp-server-conversion.ts";
+import { secondsToMs } from "@utils/time";
+import chokidar, { type FSWatcher } from "chokidar";
+import deepEqual from "fast-deep-equal";
+import { nanoid } from "nanoid";
+import ReconnectingEventSource from "reconnecting-eventsource";
+import { z } from "zod";
+import type { TelemetryService } from "../telemetry/TelemetryService";
+import { McpOAuthManager } from "./McpOAuthManager";
+import { StreamableHttpReconnectHandler } from "./StreamableHttpReconnectHandler";
+import { DEFAULT_REQUEST_TIMEOUT_MS } from "./constants";
+import { BaseConfigSchema, McpSettingsSchema, ServerConfigSchema } from "./schemas";
+import type { McpConnection, McpServerConfig, Transport } from "./types";
 export class McpHub {
   getMcpServersPath: () => Promise<string>;
   private getSettingsDirectoryPath: () => Promise<string>;
@@ -175,13 +175,13 @@ export class McpHub {
       const settingsPath = await getMcpSettingsFilePathHelper(
         await this.getSettingsDirectoryPath(),
       );
-      const content = await fs.readFile(settingsPath, 'utf-8');
+      const content = await fs.readFile(settingsPath, "utf-8");
 
       let config: any;
 
       // Handle empty or minimal files silently - this is a valid state meaning "no MCP servers"
       const trimmedContent = content.trim();
-      if (!trimmedContent || trimmedContent === '{}' || trimmedContent === '{"mcpServers":{}}') {
+      if (!trimmedContent || trimmedContent === "{}" || trimmedContent === '{"mcpServers":{}}') {
         return { mcpServers: {} };
       }
 
@@ -192,7 +192,7 @@ export class McpHub {
         HostProvider.window.showMessage({
           type: ShowMessageType.ERROR,
           message:
-            'Invalid MCP settings format. Please ensure your settings follow the correct JSON format.',
+            "Invalid MCP settings format. Please ensure your settings follow the correct JSON format.",
         });
         return undefined;
       }
@@ -206,14 +206,14 @@ export class McpHub {
       if (!result.success) {
         HostProvider.window.showMessage({
           type: ShowMessageType.ERROR,
-          message: 'Invalid MCP settings schema.',
+          message: "Invalid MCP settings schema.",
         });
         return undefined;
       }
 
       return result.data;
     } catch (error) {
-      Logger.error('Failed to read MCP settings:', error);
+      Logger.error("Failed to read MCP settings:", error);
       return undefined;
     }
   }
@@ -232,7 +232,7 @@ export class McpHub {
       atomic: true, // Handle atomic writes where editors write to a temp file then rename (prevents duplicate events)
     });
 
-    this.settingsWatcher.on('change', async () => {
+    this.settingsWatcher.on("change", async () => {
       // Skip if remote config is currently updating to prevent unnecessary reconnections
       if (this.isUpdatingFromRemoteConfig) {
         return;
@@ -253,7 +253,7 @@ export class McpHub {
               if (!settings.mcpServers[rs.name]) {
                 (settings.mcpServers as Record<string, any>)[rs.name] = {
                   url: rs.url,
-                  type: 'streamableHttp',
+                  type: "streamableHttp",
                   disabled: false,
                   autoApprove: [],
                   remoteConfigured: true,
@@ -275,13 +275,13 @@ export class McpHub {
           }
           await this.updateServerConnections(settings.mcpServers);
         } catch (error) {
-          Logger.error('Failed to process MCP settings change:', error);
+          Logger.error("Failed to process MCP settings change:", error);
         }
       }
     });
 
-    this.settingsWatcher.on('error', (error) => {
-      Logger.error('Error watching MCP settings file:', error);
+    this.settingsWatcher.on("error", (error) => {
+      Logger.error("Error watching MCP settings file:", error);
     });
   }
 
@@ -292,20 +292,20 @@ export class McpHub {
     }
   }
 
-  private findConnection(name: string, _source: 'rpc' | 'internal'): McpConnection | undefined {
+  private findConnection(name: string, _source: "rpc" | "internal"): McpConnection | undefined {
     return this.connections.find((conn) => conn.server.name === name);
   }
 
   private async connectToServer(
     name: string,
     config: z.infer<typeof ServerConfigSchema>,
-    source: 'rpc' | 'internal',
+    source: "rpc" | "internal",
   ): Promise<void> {
     // Remove existing connection if it exists (should never happen, the connection should be deleted beforehand)
     this.connections = this.connections.filter((conn) => conn.server.name !== name);
 
     // Validate remote MCP server URL against remote config if blockPersonalRemoteMCPServers is enabled
-    if (config.type !== 'stdio' && 'url' in config && config.url) {
+    if (config.type !== "stdio" && "url" in config && config.url) {
       const stateManager = StateManager.get();
       const remoteConfig = stateManager.getRemoteConfigSettings();
 
@@ -320,7 +320,7 @@ export class McpHub {
     }
 
     // Validate local MCP servers based on remote config (enterprise feature)
-    if (config.type === 'stdio') {
+    if (config.type === "stdio") {
       const stateManager = StateManager.get();
       const remoteConfig = stateManager.getRemoteConfigSettings();
 
@@ -359,7 +359,7 @@ export class McpHub {
         server: {
           name,
           config: JSON.stringify(config),
-          status: 'disconnected',
+          status: "disconnected",
           disabled: true,
         },
         client: null as unknown as Client,
@@ -379,7 +379,7 @@ export class McpHub {
       // Each MCP server requires its own transport connection and has unique capabilities, configurations, and error handling. Having separate clients also allows proper scoping of resources/tools and independent server management like reconnection.
       const client = new Client(
         {
-          name: 'Cline',
+          name: "Cline",
           version: this.clientVersion,
         },
         {
@@ -391,12 +391,12 @@ export class McpHub {
 
       // Create OAuth provider for remote transports (SSE and HTTP)
       const authProvider =
-        expandedConfig.type === 'sse' || expandedConfig.type === 'streamableHttp'
+        expandedConfig.type === "sse" || expandedConfig.type === "streamableHttp"
           ? await this.mcpOAuthManager.getOrCreateProvider(name, expandedConfig.url)
           : undefined;
 
       switch (expandedConfig.type) {
-        case 'stdio': {
+        case "stdio": {
           transport = new StdioClientTransport({
             command: expandedConfig.command,
             args: expandedConfig.args,
@@ -405,14 +405,14 @@ export class McpHub {
               ...getDefaultEnvironment(),
               ...(expandedConfig.env || {}), // Now has expanded environment variables
             },
-            stderr: 'pipe',
+            stderr: "pipe",
           });
 
           transport.onerror = async (error) => {
             Logger.error(`Transport error for "${name}":`, error);
             const connection = this.findConnection(name, source);
             if (connection) {
-              connection.server.status = 'disconnected';
+              connection.server.status = "disconnected";
               McpHub.mcpServerKeys.delete(connection.server.uid || name);
               this.appendErrorMessage(
                 connection,
@@ -425,7 +425,7 @@ export class McpHub {
           transport.onclose = async () => {
             const connection = this.findConnection(name, source);
             if (connection) {
-              connection.server.status = 'disconnected';
+              connection.server.status = "disconnected";
               McpHub.mcpServerKeys.delete(connection.server.uid || name);
             }
             await this.notifyWebviewOfServerChanges();
@@ -434,7 +434,7 @@ export class McpHub {
           await transport.start();
           const stderrStream = transport.stderr;
           if (stderrStream) {
-            stderrStream.on('data', async (data: Buffer) => {
+            stderrStream.on("data", async (data: Buffer) => {
               const output = data.toString();
               const isInfoLog = !/\berror\b/i.test(output);
 
@@ -445,7 +445,7 @@ export class McpHub {
                 const connection = this.findConnection(name, source);
                 if (connection) {
                   this.appendErrorMessage(connection, output);
-                  if (connection.server.status === 'disconnected') {
+                  if (connection.server.status === "disconnected") {
                     await this.notifyWebviewOfServerChanges();
                   }
                 }
@@ -457,7 +457,7 @@ export class McpHub {
           transport.start = async () => {};
           break;
         }
-        case 'sse': {
+        case "sse": {
           const sseOptions = {
             authProvider,
             requestInit: {
@@ -480,7 +480,7 @@ export class McpHub {
                   const tokens = await authProvider.tokens(); // Dynamic - gets fresh tokens
                   const headers = new Headers(init?.headers);
                   if (tokens?.access_token) {
-                    headers.set('Authorization', `Bearer ${tokens.access_token}`);
+                    headers.set("Authorization", `Bearer ${tokens.access_token}`);
                   }
                   return fetch(url.toString(), { ...init, headers });
                 }
@@ -497,7 +497,7 @@ export class McpHub {
             Logger.error(`Transport error for "${name}":`, error);
             const connection = this.findConnection(name, source);
             if (connection) {
-              connection.server.status = 'disconnected';
+              connection.server.status = "disconnected";
               McpHub.mcpServerKeys.delete(connection.server.uid || name);
               this.appendErrorMessage(
                 connection,
@@ -508,7 +508,7 @@ export class McpHub {
           };
           break;
         }
-        case 'streamableHttp': {
+        case "streamableHttp": {
           // Use ReconnectingEventSource for auto-reconnection on connection drops
           global.EventSource = ReconnectingEventSource;
 
@@ -520,10 +520,10 @@ export class McpHub {
           // See: https://github.com/modelcontextprotocol/typescript-sdk/issues/1150
           const streamableHttpFetch: typeof fetch = async (url, init) => {
             const response = await fetch(url, init);
-            if (init?.method === 'GET' && response.status === 404) {
+            if (init?.method === "GET" && response.status === 404) {
               return new Response(response.body, {
                 status: 405,
-                statusText: 'Method Not Allowed',
+                statusText: "Method Not Allowed",
                 headers: response.headers,
               });
             }
@@ -559,11 +559,11 @@ export class McpHub {
         server: {
           name,
           config: configForStorage,
-          status: 'connecting',
+          status: "connecting",
           disabled: config.disabled,
           uid: this.getMcpServerKey(name),
           oauthRequired: false,
-          oauthAuthStatus: 'authenticated',
+          oauthAuthStatus: "authenticated",
         },
         client,
         transport,
@@ -582,11 +582,11 @@ export class McpHub {
             server: {
               name,
               config: JSON.stringify(config),
-              status: 'disconnected',
+              status: "disconnected",
               disabled: false,
               oauthRequired: true,
-              oauthAuthStatus: 'unauthenticated',
-              error: 'This MCP server requires authentication to get started.',
+              oauthAuthStatus: "unauthenticated",
+              error: "This MCP server requires authentication to get started.",
               uid: this.getMcpServerKey(name),
             },
             client,
@@ -603,8 +603,8 @@ export class McpHub {
         throw error;
       }
 
-      connection.server.status = 'connected';
-      connection.server.error = '';
+      connection.server.status = "connected";
+      connection.server.error = "";
 
       // Register notification handler for real-time messages
       //Logger.log(`[MCP Debug] Setting up notification handlers for server: ${name}`)
@@ -614,14 +614,14 @@ export class McpHub {
       // Try to set notification handler using the client's method
       try {
         // Import the notification schema from MCP SDK
-        const { z } = await import('zod');
+        const { z } = await import("zod");
 
         // Define the notification schema for notifications/message
         const NotificationMessageSchema = z.object({
-          method: z.literal('notifications/message'),
+          method: z.literal("notifications/message"),
           params: z
             .object({
-              level: z.enum(['debug', 'info', 'warning', 'error']).optional(),
+              level: z.enum(["debug", "info", "warning", "error"]).optional(),
               logger: z.string().optional(),
               data: z.string().optional(),
               message: z.string().optional(),
@@ -636,9 +636,9 @@ export class McpHub {
             //Logger.log(`[MCP Notification] ${name}:`, JSON.stringify(notification, null, 2))
 
             const params = notification.params || {};
-            const level = params.level || 'info';
-            const data = params.data || params.message || '';
-            const logger = params.logger || '';
+            const level = params.level || "info";
+            const data = params.data || params.message || "";
+            const logger = params.logger || "";
 
             //Logger.log(`[MCP Message Notification] ${name}: level=${level}, data=${data}, logger=${logger}`)
 
@@ -670,7 +670,7 @@ export class McpHub {
           // Show in VS Code for visibility
           HostProvider.window.showMessage({
             type: ShowMessageType.INFORMATION,
-            message: `MCP ${name}: ${notification.method || 'unknown'} - ${JSON.stringify(notification.params || {})}`,
+            message: `MCP ${name}: ${notification.method || "unknown"} - ${JSON.stringify(notification.params || {})}`,
           });
         };
         //Logger.log(`[MCP Debug] Successfully set fallback notification handler for ${name}`)
@@ -687,7 +687,7 @@ export class McpHub {
       // Update status with error
       const connection = this.findConnection(name, source);
       if (connection) {
-        connection.server.status = 'disconnected';
+        connection.server.status = "disconnected";
         this.appendErrorMessage(connection, error instanceof Error ? error.message : String(error));
       }
       throw error;
@@ -713,7 +713,7 @@ export class McpHub {
       }
 
       const response = await connection.client.request(
-        { method: 'tools/list' },
+        { method: "tools/list" },
         ListToolsResultSchema,
         {
           timeout: DEFAULT_REQUEST_TIMEOUT_MS,
@@ -724,7 +724,7 @@ export class McpHub {
       const settingsPath = await getMcpSettingsFilePathHelper(
         await this.getSettingsDirectoryPath(),
       );
-      const content = await fs.readFile(settingsPath, 'utf-8');
+      const content = await fs.readFile(settingsPath, "utf-8");
       const config = JSON.parse(content);
       const autoApproveConfig = config.mcpServers[serverName]?.autoApprove || [];
 
@@ -751,7 +751,7 @@ export class McpHub {
       }
 
       const response = await connection.client.request(
-        { method: 'resources/list' },
+        { method: "resources/list" },
         ListResourcesResultSchema,
         {
           timeout: DEFAULT_REQUEST_TIMEOUT_MS,
@@ -774,7 +774,7 @@ export class McpHub {
       }
 
       const response = await connection.client.request(
-        { method: 'resources/templates/list' },
+        { method: "resources/templates/list" },
         ListResourceTemplatesResultSchema,
         {
           timeout: DEFAULT_REQUEST_TIMEOUT_MS,
@@ -798,7 +798,7 @@ export class McpHub {
       }
 
       const response = await connection.client.request(
-        { method: 'prompts/list' },
+        { method: "prompts/list" },
         ListPromptsResultSchema,
         {
           timeout: DEFAULT_REQUEST_TIMEOUT_MS,
@@ -873,21 +873,21 @@ export class McpHub {
       if (!currentConnection) {
         // New server
         try {
-          if (config.type === 'stdio') {
+          if (config.type === "stdio") {
             this.setupFileWatcher(name, config);
           }
-          await this.connectToServer(name, config, 'rpc');
+          await this.connectToServer(name, config, "rpc");
         } catch (error) {
           Logger.error(`Failed to connect to new MCP server ${name}:`, error);
         }
       } else if (this.configsRequireRestart(JSON.parse(currentConnection.server.config), config)) {
         // Existing server with changed connection config (excludes Cline-specific settings)
         try {
-          if (config.type === 'stdio') {
+          if (config.type === "stdio") {
             this.setupFileWatcher(name, config);
           }
           await this.deleteConnection(name); // Don't clear OAuth - just reconnecting with new config
-          await this.connectToServer(name, config, 'rpc');
+          await this.connectToServer(name, config, "rpc");
           Logger.log(`Reconnected MCP server with updated config: ${name}`);
         } catch (error) {
           Logger.error(`Failed to reconnect MCP server ${name}:`, error);
@@ -941,10 +941,10 @@ export class McpHub {
       if (!currentConnection) {
         // New server
         try {
-          if (config.type === 'stdio') {
+          if (config.type === "stdio") {
             this.setupFileWatcher(name, config);
           }
-          await this.connectToServer(name, config, 'internal');
+          await this.connectToServer(name, config, "internal");
           connectionChangesOccurred = true;
         } catch (error) {
           Logger.error(`Failed to connect to new MCP server ${name}:`, error);
@@ -953,15 +953,15 @@ export class McpHub {
         // Existing server with changed connection config (excludes Cline-specific settings)
         try {
           // Set status to "connecting" and notify webview before restart (same pattern as restartConnection)
-          currentConnection.server.status = 'connecting';
-          currentConnection.server.error = '';
+          currentConnection.server.status = "connecting";
+          currentConnection.server.error = "";
           await this.notifyWebviewOfServerChanges();
 
-          if (config.type === 'stdio') {
+          if (config.type === "stdio") {
             this.setupFileWatcher(name, config);
           }
           await this.deleteConnection(name);
-          await this.connectToServer(name, config, 'internal');
+          await this.connectToServer(name, config, "internal");
           Logger.log(`Reconnected MCP server with updated config: ${name}`);
           connectionChangesOccurred = true;
         } catch (error) {
@@ -1029,8 +1029,8 @@ export class McpHub {
     return !deepEqual(oldConnectionConfig, newConnectionConfig);
   }
 
-  private setupFileWatcher(name: string, config: Extract<McpServerConfig, { type: 'stdio' }>) {
-    const filePath = config.args?.find((arg: string) => arg.includes('build/index.js'));
+  private setupFileWatcher(name: string, config: Extract<McpServerConfig, { type: "stdio" }>) {
+    const filePath = config.args?.find((arg: string) => arg.includes("build/index.js"));
     if (filePath) {
       // we use chokidar instead of onDidSaveTextDocument because it doesn't require the file to be open in the editor. The settings config is better suited for onDidSave since that will be manually updated by the user or Cline (and we want to detect save events, not every file change)
       const watcher = chokidar.watch(filePath, {
@@ -1039,7 +1039,7 @@ export class McpHub {
         // awaitWriteFinish: true, // This helps with atomic writes
       });
 
-      watcher.on('change', () => {
+      watcher.on("change", () => {
         Logger.log(`Detected change in ${filePath}. Restarting server ${name}...`);
         this.restartConnection(name);
       });
@@ -1060,13 +1060,13 @@ export class McpHub {
     const connection = this.connections.find((conn) => conn.server.name === serverName);
     const inMemoryConfig = connection?.server.config;
     if (inMemoryConfig) {
-      connection.server.status = 'connecting';
-      connection.server.error = '';
+      connection.server.status = "connecting";
+      connection.server.error = "";
       await setTimeoutPromise(500); // artificial delay to show user that server is restarting
       try {
         await this.deleteConnection(serverName);
         // Try to connect again using existing config
-        await this.connectToServer(serverName, JSON.parse(inMemoryConfig), 'rpc');
+        await this.connectToServer(serverName, JSON.parse(inMemoryConfig), "rpc");
       } catch (error) {
         Logger.error(`Failed to restart connection for ${serverName}:`, error);
       }
@@ -1076,7 +1076,7 @@ export class McpHub {
 
     const config = await this.readAndValidateMcpSettingsFile();
     if (!config) {
-      throw new Error('Failed to read or validate MCP settings');
+      throw new Error("Failed to read or validate MCP settings");
     }
 
     const serverOrder = Object.keys(config.mcpServers || {});
@@ -1094,14 +1094,14 @@ export class McpHub {
         type: ShowMessageType.INFORMATION,
         message: `Restarting ${serverName} MCP server...`,
       });
-      connection.server.status = 'connecting';
-      connection.server.error = '';
+      connection.server.status = "connecting";
+      connection.server.error = "";
       await this.notifyWebviewOfServerChanges();
       await setTimeoutPromise(500); // artificial delay to show user that server is restarting
       try {
         await this.deleteConnection(serverName);
         // Try to connect again using existing config
-        await this.connectToServer(serverName, JSON.parse(config), 'internal');
+        await this.connectToServer(serverName, JSON.parse(config), "internal");
         HostProvider.window.showMessage({
           type: ShowMessageType.INFORMATION,
           message: `${serverName} MCP server connected`,
@@ -1137,7 +1137,7 @@ export class McpHub {
   private async notifyWebviewOfServerChanges(): Promise<void> {
     // servers should always be sorted in the order they are defined in the settings file
     const settingsPath = await getMcpSettingsFilePathHelper(await this.getSettingsDirectoryPath());
-    const content = await fs.readFile(settingsPath, 'utf-8');
+    const content = await fs.readFile(settingsPath, "utf-8");
     const config = JSON.parse(content);
     const serverOrder = Object.keys(config.mcpServers || {});
 
@@ -1176,7 +1176,7 @@ export class McpHub {
     try {
       const config = await this.readAndValidateMcpSettingsFile();
       if (!config) {
-        throw new Error('Failed to read or validate MCP settings');
+        throw new Error("Failed to read or validate MCP settings");
       }
 
       if (config.mcpServers[serverName]) {
@@ -1192,8 +1192,8 @@ export class McpHub {
           connection.server.disabled = disabled;
           // When enabling a server, set status to "connecting" so UI shows yellow indicator
           if (!disabled) {
-            connection.server.status = 'connecting';
-            connection.server.error = '';
+            connection.server.status = "connecting";
+            connection.server.error = "";
           }
         }
 
@@ -1203,9 +1203,9 @@ export class McpHub {
       Logger.error(`Server "${serverName}" not found in MCP configuration`);
       throw new Error(`Server "${serverName}" not found in MCP configuration`);
     } catch (error) {
-      Logger.error('Failed to update server disabled state:', error);
+      Logger.error("Failed to update server disabled state:", error);
       if (error instanceof Error) {
-        Logger.error('Error details:', error.message, error.stack);
+        Logger.error("Error details:", error.message, error.stack);
       }
       HostProvider.window.showMessage({
         type: ShowMessageType.ERROR,
@@ -1226,7 +1226,7 @@ export class McpHub {
 
     return await connection.client.request(
       {
-        method: 'resources/read',
+        method: "resources/read",
         params: {
           uri,
         },
@@ -1253,7 +1253,7 @@ export class McpHub {
 
     const response = await connection.client.request(
       {
-        method: 'prompts/get',
+        method: "prompts/get",
         params: {
           name: promptName,
           arguments: promptArguments,
@@ -1269,7 +1269,7 @@ export class McpHub {
       description: response.description,
       messages: response.messages.map((msg) => ({
         role: msg.role,
-        content: msg.content as McpPromptResponse['messages'][0]['content'],
+        content: msg.content as McpPromptResponse["messages"][0]["content"],
       })),
     };
   }
@@ -1305,7 +1305,7 @@ export class McpHub {
       ulid,
       serverName,
       toolName,
-      'started',
+      "started",
       undefined,
       toolArguments ? Object.keys(toolArguments) : undefined,
     );
@@ -1313,7 +1313,7 @@ export class McpHub {
     try {
       const result = await connection.client.request(
         {
-          method: 'tools/call',
+          method: "tools/call",
           params: {
             name: toolName,
             arguments: toolArguments,
@@ -1329,7 +1329,7 @@ export class McpHub {
         ulid,
         serverName,
         toolName,
-        'success',
+        "success",
         undefined,
         toolArguments ? Object.keys(toolArguments) : undefined,
       );
@@ -1343,7 +1343,7 @@ export class McpHub {
         ulid,
         serverName,
         toolName,
-        'error',
+        "error",
         error instanceof Error ? error.message : String(error),
         toolArguments ? Object.keys(toolArguments) : undefined,
       );
@@ -1369,7 +1369,7 @@ export class McpHub {
       const settingsPath = await getMcpSettingsFilePathHelper(
         await this.getSettingsDirectoryPath(),
       );
-      const content = await fs.readFile(settingsPath, 'utf-8');
+      const content = await fs.readFile(settingsPath, "utf-8");
       const config = JSON.parse(content);
 
       // Initialize autoApprove if it doesn't exist
@@ -1406,7 +1406,7 @@ export class McpHub {
       const serverOrder = Object.keys(config.mcpServers || {});
       return this.getSortedMcpServers(serverOrder);
     } catch (error) {
-      Logger.error('Failed to update autoApprove settings:', error);
+      Logger.error("Failed to update autoApprove settings:", error);
       throw error; // Re-throw to ensure the error is properly handled
     } finally {
       // Clear flag after a delay to ensure file watcher event has been processed
@@ -1428,7 +1428,7 @@ export class McpHub {
       const settingsPath = await getMcpSettingsFilePathHelper(
         await this.getSettingsDirectoryPath(),
       );
-      const content = await fs.readFile(settingsPath, 'utf-8');
+      const content = await fs.readFile(settingsPath, "utf-8");
       const config = JSON.parse(content);
 
       // Initialize autoApprove if it doesn't exist
@@ -1462,10 +1462,10 @@ export class McpHub {
         await this.notifyWebviewOfServerChanges();
       }
     } catch (error) {
-      Logger.error('Failed to update autoApprove settings:', error);
+      Logger.error("Failed to update autoApprove settings:", error);
       HostProvider.window.showMessage({
         type: ShowMessageType.ERROR,
-        message: 'Failed to update autoApprove settings',
+        message: "Failed to update autoApprove settings",
       });
       throw error; // Re-throw to ensure the error is properly handled
     } finally {
@@ -1479,12 +1479,12 @@ export class McpHub {
   public async addRemoteServer(
     serverName: string,
     serverUrl: string,
-    transportType = 'streamableHttp',
+    transportType = "streamableHttp",
   ): Promise<McpServer[]> {
     try {
       const settings = await this.readAndValidateMcpSettingsFile();
       if (!settings) {
-        throw new Error('Failed to read MCP settings');
+        throw new Error("Failed to read MCP settings");
       }
 
       if (settings.mcpServers[serverName]) {
@@ -1532,7 +1532,7 @@ export class McpHub {
       const serverOrder = Object.keys(settings.mcpServers || {});
       return this.getSortedMcpServers(serverOrder);
     } catch (error) {
-      Logger.error('Failed to add remote MCP server:', error);
+      Logger.error("Failed to add remote MCP server:", error);
       throw error;
     }
   }
@@ -1550,9 +1550,9 @@ export class McpHub {
       const settingsPath = await getMcpSettingsFilePathHelper(
         await this.getSettingsDirectoryPath(),
       );
-      const content = await fs.readFile(settingsPath, 'utf-8');
+      const content = await fs.readFile(settingsPath, "utf-8");
       const config = JSON.parse(content);
-      if (!config.mcpServers || typeof config.mcpServers !== 'object') {
+      if (!config.mcpServers || typeof config.mcpServers !== "object") {
         config.mcpServers = {};
       }
 
@@ -1592,7 +1592,7 @@ export class McpHub {
       const settingsPath = await getMcpSettingsFilePathHelper(
         await this.getSettingsDirectoryPath(),
       );
-      const content = await fs.readFile(settingsPath, 'utf-8');
+      const content = await fs.readFile(settingsPath, "utf-8");
       const config = JSON.parse(content);
 
       if (!config.mcpServers?.[serverName]) {
@@ -1617,9 +1617,9 @@ export class McpHub {
       const serverOrder = Object.keys(config.mcpServers || {});
       return this.getSortedMcpServers(serverOrder);
     } catch (error) {
-      Logger.error('Failed to update server timeout:', error);
+      Logger.error("Failed to update server timeout:", error);
       if (error instanceof Error) {
-        Logger.error('Error details:', error.message, error.stack);
+        Logger.error("Error details:", error.message, error.stack);
       }
       HostProvider.window.showMessage({
         type: ShowMessageType.ERROR,
@@ -1710,7 +1710,7 @@ export class McpHub {
 
     // Validate state for CSRF protection (if provided)
     if (state && !this.mcpOAuthManager.validateAndClearState(serverHash, state)) {
-      throw new Error('Invalid OAuth state - possible CSRF attack');
+      throw new Error("Invalid OAuth state - possible CSRF attack");
     }
 
     // Call finishAuth on the transport - SDK handles token exchange
@@ -1721,15 +1721,15 @@ export class McpHub {
     ) {
       await connection.transport.finishAuth(code);
     } else {
-      throw new Error('OAuth is only supported for SSE and HTTP transports');
+      throw new Error("OAuth is only supported for SSE and HTTP transports");
     }
 
     Logger.log(`[McpOAuth] Authentication completed for ${connection.server.name}`);
 
     // Update server status
-    connection.server.oauthAuthStatus = 'authenticated';
+    connection.server.oauthAuthStatus = "authenticated";
     connection.server.oauthRequired = true;
-    connection.server.error = '';
+    connection.server.error = "";
 
     // Restart connection to complete setup with authenticated transport
     await this.restartConnection(connection.server.name);

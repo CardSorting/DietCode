@@ -1,15 +1,15 @@
-import type { Meta } from '@storybook/react-vite';
-import { Button } from './button';
-import { Popover, PopoverContent, PopoverTrigger } from './popover';
+import type { Meta } from "@storybook/react-vite";
+import { Button } from "./button";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 
 const meta: Meta<typeof Popover> = {
-  title: 'Ui/Popover',
+  title: "Ui/Popover",
   component: Popover,
   parameters: {
     docs: {
       description: {
         component:
-          'Displays rich content in a floating panel when clicking a trigger element. Built on Radix UI with customizable alignment, side positioning, and an arrow indicator.',
+          "Displays rich content in a floating panel when clicking a trigger element. Built on Radix UI with customizable alignment, side positioning, and an arrow indicator.",
       },
     },
   },

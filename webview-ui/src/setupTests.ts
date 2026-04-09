@@ -1,10 +1,10 @@
-import '@testing-library/jest-dom';
-import { vi } from 'vitest';
+import "@testing-library/jest-dom";
+import { vi } from "vitest";
 
 // "Official" jest workaround for mocking window.matchMedia()
 // https://jestjs.io/docs/manual-mocks#mocking-methods-which-are-not-implemented-in-jsdom
 
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: vi.fn().mockImplementation((query) => ({
     matches: false,
@@ -19,7 +19,7 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Mock VSCode API for webview tests
-vi.stubGlobal('acquireVsCodeApi', () => ({
+vi.stubGlobal("acquireVsCodeApi", () => ({
   postMessage: vi.fn(),
   getState: vi.fn(),
   setState: vi.fn(),

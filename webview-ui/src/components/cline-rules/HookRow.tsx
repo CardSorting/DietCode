@@ -1,9 +1,9 @@
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { FileServiceClient } from '@/services/grpc-client';
-import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
-import { DeleteHookRequest, type HooksToggles } from '@shared/nice-grpc/cline/file.ts';
-import { PenIcon, Trash2Icon } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { FileServiceClient } from "@/services/grpc-client";
+import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
+import { DeleteHookRequest, type HooksToggles } from "@shared/nice-grpc/cline/file.ts";
+import { PenIcon, Trash2Icon } from "lucide-react";
 
 interface HookRowProps {
   hookName: string;
@@ -28,7 +28,7 @@ const HookRow: React.FC<HookRowProps> = ({
 }) => {
   const handleEditClick = () => {
     FileServiceClient.openFile(StringRequest.create({ value: absolutePath })).catch((err) =>
-      console.error('Failed to open file:', err),
+      console.error("Failed to open file:", err),
     );
   };
 
@@ -45,7 +45,7 @@ const HookRow: React.FC<HookRowProps> = ({
           onDelete(response.hooksToggles);
         }
       })
-      .catch((err) => console.error('Failed to delete hook:', err));
+      .catch((err) => console.error("Failed to delete hook:", err));
   };
 
   return (
@@ -60,7 +60,7 @@ const HookRow: React.FC<HookRowProps> = ({
           <div
             title={
               isWindows
-                ? 'Hook toggling is not yet supported on Windows in this foundation PR. Hooks execute when the hook file exists.'
+                ? "Hook toggling is not yet supported on Windows in this foundation PR. Hooks execute when the hook file exists."
                 : undefined
             }
           >
@@ -70,7 +70,7 @@ const HookRow: React.FC<HookRowProps> = ({
               disabled={isWindows}
               key={hookName}
               onClick={() => onToggle(hookName, !enabled)}
-              style={isWindows ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
+              style={isWindows ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
             />
           </div>
           <Button

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 
 interface UseMenuAnnouncementOptions<T> {
   /** The list of items in the menu */
@@ -27,7 +27,7 @@ export function useMenuAnnouncement<T>({
   getItemLabel,
   isItemSelectable = () => true,
 }: UseMenuAnnouncementOptions<T>): UseMenuAnnouncementResult {
-  const [announcement, setAnnouncement] = useState('');
+  const [announcement, setAnnouncement] = useState("");
   const clearTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hasNavigatedRef = useRef(false);
   const previousIndexRef = useRef(selectedIndex);
@@ -61,7 +61,7 @@ export function useMenuAnnouncement<T>({
 
         // Clear announcement after screen reader has time to read it
         clearTimeoutRef.current = setTimeout(() => {
-          setAnnouncement('');
+          setAnnouncement("");
         }, 1000);
       }
     }

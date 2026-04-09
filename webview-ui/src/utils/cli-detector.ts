@@ -1,5 +1,5 @@
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
 
 const execAsync = promisify(exec);
 
@@ -11,13 +11,13 @@ export async function isClineCliInstalled(): Promise<boolean> {
   try {
     // Try to get the version of the cline CLI tool
     // This will fail if the tool is not installed
-    const { stdout } = await execAsync('cline version', {
+    const { stdout } = await execAsync("cline version", {
       timeout: 5000, // 5 second timeout
     });
 
     // If we get here, the CLI is installed
     // We could also validate the version if needed
-    return stdout.includes('Cline CLI Version') || stdout.includes('Cline Core Version');
+    return stdout.includes("Cline CLI Version") || stdout.includes("Cline Core Version");
   } catch (error) {
     // Command failed, which likely means CLI is not installed
     // or not in PATH

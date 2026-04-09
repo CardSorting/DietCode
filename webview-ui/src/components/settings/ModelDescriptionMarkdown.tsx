@@ -1,7 +1,7 @@
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { memo, useEffect, useRef, useState } from 'react';
-import { useRemark } from 'react-remark';
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { memo, useEffect, useRef, useState } from "react";
+import { useRemark } from "react-remark";
 
 interface ModelDescriptionMarkdownProps {
   markdown?: string;
@@ -36,9 +36,9 @@ export const ModelDescriptionMarkdown = memo(
       <div className="inline-block mb-2 description line-clamp-3" key={key}>
         <div className="relative wrap-anywhere overflow-y-hidden">
           <div
-            className={cn('overflow-hidden text-sm line-clamp-3', {
-              'line-clamp-none': isExpanded,
-              'max-h-19': !isExpanded,
+            className={cn("overflow-hidden text-sm line-clamp-3", {
+              "line-clamp-none": isExpanded,
+              "max-h-19": !isExpanded,
             })}
             ref={contentRef}
           >
@@ -48,13 +48,13 @@ export const ModelDescriptionMarkdown = memo(
             <div className="absolute bottom-0 right-0 flex items-center">
               <div className="w-10 h-5 bg-linear-to-r from-transparent to-sidebar-background" />
               <Button
-                className={cn('bg-sidebar-background p-0 m-0 text-sm cursor-pointer', {
-                  'bg-code-block-background': isPopup,
+                className={cn("bg-sidebar-background p-0 m-0 text-sm cursor-pointer", {
+                  "bg-code-block-background": isPopup,
                 })}
                 onClick={() => setIsExpanded(!isExpanded)}
                 variant="link"
               >
-                {isExpanded ? 'See less' : 'See more'}
+                {isExpanded ? "See less" : "See more"}
               </Button>
             </div>
           )}
@@ -63,4 +63,4 @@ export const ModelDescriptionMarkdown = memo(
     );
   },
 );
-ModelDescriptionMarkdown.displayName = 'ModelDescriptionMarkdown';
+ModelDescriptionMarkdown.displayName = "ModelDescriptionMarkdown";

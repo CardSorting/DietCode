@@ -1,6 +1,6 @@
-import { AwsClient } from 'aws4fetch';
-import { Logger } from '../services/Logger';
-import type { BlobStoreSettings } from './ClineBlobStorage';
+import { AwsClient } from "aws4fetch";
+import { Logger } from "../services/Logger";
+import type { BlobStoreSettings } from "./ClineBlobStorage";
 
 export interface StorageAdapter {
   read(path: string): Promise<string | undefined>;
@@ -24,10 +24,10 @@ function createAdapter(client: AwsClient, endpoint: string, bucket: string): Sto
 
     async write(path: string, value: string): Promise<void> {
       const response = await client.fetch(`${base}/${path}`, {
-        method: 'PUT',
+        method: "PUT",
         body: value,
         headers: {
-          'Content-Type': 'text/plain',
+          "Content-Type": "text/plain",
         },
       });
       if (!response.ok) {
@@ -37,7 +37,7 @@ function createAdapter(client: AwsClient, endpoint: string, bucket: string): Sto
 
     async remove(path: string): Promise<void> {
       const response = await client.fetch(`${base}/${path}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
       // S3 returns 204 for successful deletes, but also returns 204 for non-existent keys
       if (!response.ok && response.status !== 204) {
@@ -51,11 +51,11 @@ function createS3Adapter(settings: BlobStoreSettings): StorageAdapter | undefine
   const { bucket, accessKeyId, secretAccessKey } = settings;
 
   if (!bucket || !accessKeyId || !secretAccessKey) {
-    Logger.error('[StorageAdapter] Missing required S3 settings');
+    Logger.error("[StorageAdapter] Missing required S3 settings");
     return undefined;
   }
 
-  const region = settings.region || 'us-east-1';
+  const region = settings.region || "us-east-1";
   const endpoint = settings.endpoint || `https://s3.${region}.amazonaws.com`;
   try {
     const client = new AwsClient({
@@ -65,7 +65,7 @@ function createS3Adapter(settings: BlobStoreSettings): StorageAdapter | undefine
     });
     return createAdapter(client, endpoint, bucket);
   } catch (error) {
-    Logger.error('[StorageAdapter] Failed to create S3 adapter:', error);
+    Logger.error("[StorageAdapter] Failed to create S3 adapter:", error);
     return undefined;
   }
 }
@@ -74,7 +74,7 @@ function createR2Adapter(settings: BlobStoreSettings): StorageAdapter | undefine
   const { accountId, endpoint, bucket, accessKeyId, secretAccessKey } = settings;
 
   if ((!endpoint && !accountId) || !bucket || !accessKeyId || !secretAccessKey) {
-    Logger.error('[StorageAdapter] Missing required R2 settings');
+    Logger.error("[StorageAdapter] Missing required R2 settings");
     return undefined;
   }
 
@@ -86,7 +86,7 @@ function createR2Adapter(settings: BlobStoreSettings): StorageAdapter | undefine
     const endpoint = settings.endpoint ?? `https://${accountId}.r2.cloudflarestorage.com`;
     return createAdapter(client, endpoint, bucket);
   } catch (error) {
-    Logger.error('[StorageAdapter] Failed to create R2 adapter:', error);
+    Logger.error("[StorageAdapter] Failed to create R2 adapter:", error);
     return undefined;
   }
 }
@@ -94,16 +94,16 @@ function createR2Adapter(settings: BlobStoreSettings): StorageAdapter | undefine
 export function getStorageAdapter(settings: BlobStoreSettings): StorageAdapter | undefined {
   try {
     const adapterType = settings.adapterType;
-    if (adapterType === 'r2') {
+    if (adapterType === "r2") {
       return createR2Adapter(settings);
     }
-    if (adapterType === 's3') {
+    if (adapterType === "s3") {
       return createS3Adapter(settings);
     }
     Logger.error(`[StorageAdapter] Invalid adapterType: ${adapterType}. Must be "s3" or "r2".`);
     return undefined;
   } catch (error) {
-    Logger.error('[StorageAdapter] Unexpected error creating adapter:', error);
+    Logger.error("[StorageAdapter] Unexpected error creating adapter:", error);
     return undefined;
   }
 }

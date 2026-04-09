@@ -1,9 +1,9 @@
-import { WorktreeServiceClient } from '@/services/grpc-client';
-import { EmptyRequest } from '@shared/nice-grpc/cline/common.ts';
-import { CreateWorktreeRequest, SwitchWorktreeRequest } from '@shared/nice-grpc/cline/worktree.ts';
-import { VSCodeButton, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
-import { AlertCircle, AlertTriangle, Loader2, X } from 'lucide-react';
-import { memo, useCallback, useEffect, useState } from 'react';
+import { WorktreeServiceClient } from "@/services/grpc-client";
+import { EmptyRequest } from "@shared/nice-grpc/cline/common.ts";
+import { CreateWorktreeRequest, SwitchWorktreeRequest } from "@shared/nice-grpc/cline/worktree.ts";
+import { VSCodeButton, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import { AlertCircle, AlertTriangle, Loader2, X } from "lucide-react";
+import { memo, useCallback, useEffect, useState } from "react";
 
 interface CreateWorktreeModalProps {
   open: boolean;
@@ -20,8 +20,8 @@ const CreateWorktreeModal = ({
   openAfterCreate = false,
   onSuccess,
 }: CreateWorktreeModalProps) => {
-  const [newWorktreePath, setNewWorktreePath] = useState('');
-  const [newBranchName, setNewBranchName] = useState('');
+  const [newWorktreePath, setNewWorktreePath] = useState("");
+  const [newBranchName, setNewBranchName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [isLoadingDefaults, setIsLoadingDefaults] = useState(false);
@@ -39,7 +39,7 @@ const CreateWorktreeModal = ({
       setNewWorktreePath(defaults.suggestedPath);
       setHasWorktreeInclude(includeStatus.exists);
     } catch (err) {
-      console.error('Failed to load worktree defaults:', err);
+      console.error("Failed to load worktree defaults:", err);
     } finally {
       setIsLoadingDefaults(false);
     }
@@ -54,8 +54,8 @@ const CreateWorktreeModal = ({
   // Reset form state when modal closes
   useEffect(() => {
     if (!open) {
-      setNewWorktreePath('');
-      setNewBranchName('');
+      setNewWorktreePath("");
+      setNewBranchName("");
       setCreateError(null);
       setHasWorktreeInclude(null);
     }
@@ -93,7 +93,7 @@ const CreateWorktreeModal = ({
         onClose();
       }
     } catch (err) {
-      setCreateError(err instanceof Error ? err.message : 'Failed to create worktree');
+      setCreateError(err instanceof Error ? err.message : "Failed to create worktree");
     } finally {
       setIsCreating(false);
     }
@@ -103,12 +103,12 @@ const CreateWorktreeModal = ({
     return null;
   }
 
-  const title = openAfterCreate ? 'New Worktree' : 'Create New Worktree';
-  const buttonText = openAfterCreate ? 'Create & Open' : 'Create Worktree';
-  const creatingText = openAfterCreate ? 'Creating & Opening...' : 'Creating...';
+  const title = openAfterCreate ? "New Worktree" : "Create New Worktree";
+  const buttonText = openAfterCreate ? "Create & Open" : "Create Worktree";
+  const creatingText = openAfterCreate ? "Creating & Opening..." : "Creating...";
   const description = openAfterCreate
-    ? 'This will create a copy of your project on a new branch and open in a separate window.'
-    : 'This will create a copy of your project on a new branch.';
+    ? "This will create a copy of your project on a new branch and open in a separate window."
+    : "This will create a copy of your project on a new branch.";
 
   return (
     <div
@@ -118,33 +118,37 @@ const CreateWorktreeModal = ({
           onClose();
         }
       }}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") {
+          onClose();
+        }
+      }}
+      tabIndex={-1}
     >
-      <div className="bg-[var(--vscode-editor-background)] border border-[var(--vscode-panel-border)] rounded-lg p-5 w-[450px] max-w-[90vw] relative">
+      <div className="bg-(--vscode-editor-background) border border-(--vscode-panel-border) rounded-lg p-5 w-[450px] max-w-[90vw] relative">
         {/* Close button */}
         <button
-          className="absolute top-3 right-3 p-1 rounded hover:bg-[var(--vscode-toolbar-hoverBackground)] text-[var(--vscode-descriptionForeground)] hover:text-[var(--vscode-foreground)] cursor-pointer"
+          className="absolute top-3 right-3 p-1 rounded hover:bg-(--vscode-toolbar-hoverBackground) text-(--vscode-descriptionForeground) hover:text-(--vscode-foreground) cursor-pointer"
           onClick={onClose}
           type="button"
         >
           <X className="w-4 h-4" />
         </button>
         <h4 className="mt-0 mb-2 pr-6">{title}</h4>
-        <p className="text-sm text-[var(--vscode-descriptionForeground)] mt-0 mb-4">
-          {description}
-        </p>
+        <p className="text-sm text-(--vscode-descriptionForeground) mt-0 mb-4">{description}</p>
         {hasWorktreeInclude === false && (
           <div
             className="flex items-start gap-2 p-2 rounded mb-3"
-            style={{ backgroundColor: 'var(--vscode-inputValidation-warningBackground)' }}
+            style={{ backgroundColor: "var(--vscode-inputValidation-warningBackground)" }}
           >
-            <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5 text-[var(--vscode-editorWarning-foreground)]" />
-            <p className="text-xs text-[var(--vscode-foreground)] m-0">
-              No .worktreeinclude detected.{' '}
+            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-(--vscode-editorWarning-foreground)" />
+            <p className="text-xs text-(--vscode-foreground) m-0">
+              No .worktreeinclude detected.{" "}
               <a
-                className="text-[var(--vscode-textLink-foreground)] hover:text-[var(--vscode-textLink-activeForeground)]"
+                className="text-(--vscode-textLink-foreground) hover:text-(--vscode-textLink-activeForeground)"
                 href="https://docs.cline.bot/features/worktrees#worktreeinclude"
                 rel="noopener noreferrer"
-                style={{ fontSize: 'inherit' }}
+                style={{ fontSize: "inherit" }}
                 target="_blank"
               >
                 Learn more
@@ -154,9 +158,12 @@ const CreateWorktreeModal = ({
         )}
         <div className="flex flex-col">
           <div>
-            <label className="block text-sm font-medium mb-1">Branch Name *</label>
+            <label className="block text-sm font-medium mb-1" htmlFor="branch-name">
+              Branch Name *
+            </label>
             <VSCodeTextField
               className="w-full"
+              id="branch-name"
               onInput={(e) => setNewBranchName((e.target as HTMLInputElement).value)}
               placeholder="feature/my-feature"
               value={newBranchName}
@@ -165,25 +172,35 @@ const CreateWorktreeModal = ({
                 <div
                   aria-label="Clear"
                   className="input-icon-button codicon codicon-close"
-                  onClick={() => setNewBranchName('')}
+                  onClick={() => setNewBranchName("")}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      setNewBranchName("");
+                    }
+                  }}
+                  role="button"
                   slot="end"
                   style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '100%',
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "100%",
                   }}
+                  tabIndex={0}
                 />
               )}
             </VSCodeTextField>
-            <p className="text-xs text-[var(--vscode-descriptionForeground)] mt-1">
+            <p className="text-xs text-(--vscode-descriptionForeground) mt-1">
               Your new copy will be checked out to this branch.
             </p>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Folder Path *</label>
+            <label className="block text-sm font-medium mb-1" htmlFor="folder-path">
+              Folder Path *
+            </label>
             <VSCodeTextField
               className="w-full"
+              id="folder-path"
               onInput={(e) => setNewWorktreePath((e.target as HTMLInputElement).value)}
               placeholder="../my-feature-worktree"
               value={newWorktreePath}
@@ -192,25 +209,32 @@ const CreateWorktreeModal = ({
                 <div
                   aria-label="Clear"
                   className="input-icon-button codicon codicon-close"
-                  onClick={() => setNewWorktreePath('')}
+                  onClick={() => setNewWorktreePath("")}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      setNewWorktreePath("");
+                    }
+                  }}
+                  role="button"
                   slot="end"
                   style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '100%',
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "100%",
                   }}
+                  tabIndex={0}
                 />
               )}
             </VSCodeTextField>
-            <p className="text-xs text-[var(--vscode-descriptionForeground)] mt-1">
+            <p className="text-xs text-(--vscode-descriptionForeground) mt-1">
               Where the project will be copied for the worktree.
             </p>
           </div>
           {createError && (
-            <div className="flex items-start gap-2 p-3 rounded bg-[var(--vscode-inputValidation-errorBackground)] border border-[var(--vscode-inputValidation-errorBorder)]">
-              <AlertCircle className="w-4 h-4 flex-shrink-0 text-[var(--vscode-errorForeground)] mt-0.5" />
-              <p className="text-sm text-[var(--vscode-errorForeground)] m-0">{createError}</p>
+            <div className="flex items-start gap-2 p-3 rounded bg-(--vscode-inputValidation-errorBackground) border border-(--vscode-inputValidation-errorBorder)">
+              <AlertCircle className="w-4 h-4 shrink-0 text-(--vscode-errorForeground) mt-0.5" />
+              <p className="text-sm text-(--vscode-errorForeground) m-0">{createError}</p>
             </div>
           )}
           <div className="flex justify-end gap-2">

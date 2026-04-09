@@ -1,5 +1,5 @@
-import { VSCodeLink, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
-import { useDebouncedInput } from '../utils/useDebouncedInput';
+import { VSCodeLink, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import { useDebouncedInput } from "../utils/useDebouncedInput";
 
 /**
  * Props for the ApiKeyField component
@@ -21,7 +21,7 @@ export const ApiKeyField = ({
   onChange,
   providerName,
   signupUrl,
-  placeholder = 'Enter API Key...',
+  placeholder = "Enter API Key...",
   helpText,
 }: ApiKeyFieldProps) => {
   const [localValue, setLocalValue] = useDebouncedInput(initialValue, onChange);
@@ -32,7 +32,7 @@ export const ApiKeyField = ({
         onInput={(e: any) => setLocalValue(e.target.value)}
         placeholder={placeholder}
         required={true}
-        style={{ width: '100%' }}
+        style={{ width: "100%" }}
         type="password"
         value={localValue}
       >
@@ -40,22 +40,22 @@ export const ApiKeyField = ({
       </VSCodeTextField>
       <p
         style={{
-          fontSize: '12px',
+          fontSize: "12px",
           marginTop: 3,
-          color: 'var(--vscode-descriptionForeground)',
+          color: "var(--vscode-descriptionForeground)",
         }}
       >
         {helpText ||
-          'This key is stored locally and only used to make API requests from this extension.'}
+          "This key is stored locally and only used to make API requests from this extension."}
         {!localValue && signupUrl && (
           <VSCodeLink
             href={signupUrl}
             style={{
-              display: 'inline',
-              fontSize: 'inherit',
+              display: "inline",
+              fontSize: "inherit",
             }}
           >
-            You can get a{/^[aeiou]/i.test(providerName) ? 'n' : ''} {providerName} API key by
+            You can get a{/^[aeiou]/i.test(providerName) ? "n" : ""} {providerName} API key by
             signing up here.
           </VSCodeLink>
         )}

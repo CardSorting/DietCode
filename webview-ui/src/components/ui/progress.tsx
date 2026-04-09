@@ -1,7 +1,7 @@
-import * as ProgressPrimitive from '@radix-ui/react-progress';
-import * as React from 'react';
+import * as ProgressPrimitive from "@radix-ui/react-progress";
+import * as React from "react";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 const Progress = React.forwardRef<
   React.ElementRef<typeof ProgressPrimitive.Root>,
@@ -9,7 +9,7 @@ const Progress = React.forwardRef<
 >(({ className, value, ...props }, ref) => (
   <ProgressPrimitive.Root
     className={cn(
-      'relative h-3 w-full overflow-hidden rounded-full bg-code-foreground/20',
+      "relative h-3 w-full overflow-hidden rounded-full bg-code-foreground/20",
       className,
     )}
     ref={ref}

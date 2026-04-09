@@ -1,93 +1,93 @@
 /// <reference types="vitest/config" />
 
-import { writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import tailwindcss from '@tailwindcss/vite';
-import react from '@vitejs/plugin-react-swc';
-import { type Plugin, type ViteDevServer, defineConfig } from 'vite';
+import { writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react-swc";
+import { type Plugin, type ViteDevServer, defineConfig } from "vite";
 
 // Custom plugin to write the server port to a file
 const writePortToFile = (): Plugin => {
   return {
-    name: 'write-port-to-file',
+    name: "write-port-to-file",
     configureServer(server: ViteDevServer) {
-      server.httpServer?.once('listening', () => {
+      server.httpServer?.once("listening", () => {
         const address = server.httpServer?.address();
-        const port = typeof address === 'object' && address ? address.port : null;
+        const port = typeof address === "object" && address ? address.port : null;
 
         if (port) {
-          const portFilePath = resolve(__dirname, '.vite-port');
+          const portFilePath = resolve(__dirname, ".vite-port");
           writeFileSync(portFilePath, port.toString());
         } else {
-          console.warn('[writePortToFile] Could not determine server port');
+          console.warn("[writePortToFile] Could not determine server port");
         }
       });
     },
   };
 };
 
-const isDevBuild = process.argv.includes('--dev-build');
+const isDevBuild = process.argv.includes("--dev-build");
 
 // Valid platforms, these should the keys in platform-configs.json
-const VALID_PLATFORMS = ['vscode', 'standalone'];
-const platform = process.env.PLATFORM || 'vscode'; // Default to vscode
+const VALID_PLATFORMS = ["vscode", "standalone"];
+const platform = process.env.PLATFORM || "vscode"; // Default to vscode
 
 if (!VALID_PLATFORMS.includes(platform)) {
-  throw new Error(`Invalid PLATFORM "${platform}". Must be one of: ${VALID_PLATFORMS.join(', ')}`);
+  throw new Error(`Invalid PLATFORM "${platform}". Must be one of: ${VALID_PLATFORMS.join(", ")}`);
 }
-console.log('Building webview for', platform);
+console.log("Building webview for", platform);
 
 export default defineConfig({
-  base: './',
+  base: "./",
   optimizeDeps: {
     force: true, // Forces re-optimization
   },
   plugins: [react(), tailwindcss(), writePortToFile()],
   test: {
-    environment: 'jsdom',
+    environment: "jsdom",
     globals: true,
-    setupFiles: ['./src/setupTests.ts'],
+    setupFiles: ["./src/setupTests.ts"],
     coverage: {
-      provider: 'v8',
+      provider: "v8",
       reportOnFailure: true,
-      reporter: ['html', 'lcov', 'text'],
-      reportsDirectory: './coverage',
+      reporter: ["html", "lcov", "text"],
+      reportsDirectory: "./coverage",
       exclude: [
-        '**/*.{spec,test}.{js,jsx,ts,tsx,mjs,cjs}',
+        "**/*.{spec,test}.{js,jsx,ts,tsx,mjs,cjs}",
 
-        '**/*.d.ts',
-        '**/vite-env.d.ts',
-        '**/*.{config,setup}.{js,ts,mjs,cjs}',
+        "**/*.d.ts",
+        "**/vite-env.d.ts",
+        "**/*.{config,setup}.{js,ts,mjs,cjs}",
 
-        '**/*.{css,scss,sass,less,styl}',
-        '**/*.{svg,png,jpg,jpeg,gif,ico}',
+        "**/*.{css,scss,sass,less,styl}",
+        "**/*.{svg,png,jpg,jpeg,gif,ico}",
 
-        '**/*.{json,yaml,yml}',
+        "**/*.{json,yaml,yml}",
 
-        '**/__mocks__/**',
-        'node_modules/**',
-        'build/**',
-        'coverage/**',
-        'dist/**',
-        'public/**',
+        "**/__mocks__/**",
+        "node_modules/**",
+        "build/**",
+        "coverage/**",
+        "dist/**",
+        "public/**",
 
-        'src/services/grpc-client.ts',
+        "src/services/grpc-client.ts",
       ],
     },
   },
   build: {
-    outDir: 'build',
+    outDir: "build",
     reportCompressedSize: false,
     // Only minify in production build
     minify: !isDevBuild,
     // Enable inline source maps for dev build
-    sourcemap: isDevBuild ? 'inline' : false,
+    sourcemap: isDevBuild ? "inline" : false,
     rollupOptions: {
       output: {
         inlineDynamicImports: true,
-        entryFileNames: 'assets/[name].js',
-        chunkFileNames: 'assets/[name].js',
-        assetFileNames: 'assets/[name].[ext]',
+        entryFileNames: "assets/[name].js",
+        chunkFileNames: "assets/[name].js",
+        assetFileNames: "assets/[name].[ext]",
         // Disable compact output for dev build
         compact: !isDevBuild,
         // Add generous formatting for dev build
@@ -105,13 +105,13 @@ export default defineConfig({
   server: {
     port: 25463,
     hmr: {
-      host: 'localhost',
-      protocol: 'ws',
+      host: "localhost",
+      protocol: "ws",
     },
     cors: {
-      origin: '*',
-      methods: '*',
-      allowedHeaders: '*',
+      origin: "*",
+      methods: "*",
+      allowedHeaders: "*",
     },
   },
   define: {
@@ -119,8 +119,8 @@ export default defineConfig({
     process: JSON.stringify({
       platform: JSON.stringify(process?.platform),
       env: {
-        NODE_ENV: JSON.stringify(process?.env?.IS_DEV ? 'development' : 'production'),
-        CLINE_ENVIRONMENT: JSON.stringify(process?.env?.CLINE_ENVIRONMENT ?? 'production'),
+        NODE_ENV: JSON.stringify(process?.env?.IS_DEV ? "development" : "production"),
+        CLINE_ENVIRONMENT: JSON.stringify(process?.env?.CLINE_ENVIRONMENT ?? "production"),
         IS_DEV: JSON.stringify(process?.env?.IS_DEV),
         IS_TEST: JSON.stringify(process?.env?.IS_TEST),
         CI: JSON.stringify(process?.env?.CI),
@@ -132,17 +132,17 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, './src'),
-      '@components': resolve(__dirname, './src/components'),
-      '@context': resolve(__dirname, './src/context'),
-      '@shared': resolve(__dirname, './src/shared'),
-      '@core': resolve(__dirname, './src/core'),
-      '@integrations': resolve(__dirname, './src/integrations'),
-      '@hosts': resolve(__dirname, './src/hosts'),
-      '@utils': resolve(__dirname, './src/utils'),
-      '@services': resolve(__dirname, './src/services'),
-      '@registry': resolve(__dirname, './src/registry'),
+      "@": resolve(__dirname, "./src"),
+      "@components": resolve(__dirname, "./src/components"),
+      "@context": resolve(__dirname, "./src/context"),
+      "@shared": resolve(__dirname, "./src/shared"),
+      "@core": resolve(__dirname, "./src/core"),
+      "@integrations": resolve(__dirname, "./src/integrations"),
+      "@hosts": resolve(__dirname, "./src/hosts"),
+      "@utils": resolve(__dirname, "./src/utils"),
+      "@services": resolve(__dirname, "./src/services"),
+      "@registry": resolve(__dirname, "./src/registry"),
     },
-    extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json'],
+    extensions: [".mjs", ".js", ".mts", ".ts", ".jsx", ".tsx", ".json"],
   },
 });

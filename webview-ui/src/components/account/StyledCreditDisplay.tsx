@@ -1,5 +1,5 @@
-import { formatCreditsBalance } from '@/utils/format';
-import { useEffect, useRef, useState } from 'react';
+import { formatCreditsBalance } from "@/utils/format";
+import { useEffect, useRef, useState } from "react";
 
 // Custom hook for animated credit display with styled decimals
 const useAnimatedCredits = (targetValue: number, duration = 660) => {
@@ -45,9 +45,9 @@ const useAnimatedCredits = (targetValue: number, duration = 660) => {
 export const StyledCreditDisplay = ({ balance }: { balance: number }) => {
   const animatedValue = useAnimatedCredits(formatCreditsBalance(balance));
   const formatted = animatedValue.toFixed(4);
-  const parts = formatted.split('.');
+  const parts = formatted.split(".");
   const wholePart = parts[0];
-  const decimalPart = parts[1] || '0000';
+  const decimalPart = parts[1] || "0000";
   const firstTwoDecimals = decimalPart.slice(0, 2);
   const lastTwoDecimals = decimalPart.slice(2);
 

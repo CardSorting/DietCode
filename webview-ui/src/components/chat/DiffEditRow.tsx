@@ -1,8 +1,8 @@
-import { cn } from '@/lib/utils';
-import { FileServiceClient } from '@/services/grpc-client';
-import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
-import { FilePlus, FileText, FileX, SquareArrowOutUpRightIcon } from 'lucide-react';
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { cn } from "@/lib/utils";
+import { FileServiceClient } from "@/services/grpc-client";
+import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
+import { FilePlus, FileText, FileX, SquareArrowOutUpRightIcon } from "lucide-react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 
 interface Patch {
   action: string;
@@ -14,19 +14,19 @@ interface Patch {
 
 // Constants for format markers
 const MARKERS = {
-  SEARCH_BLOCK: '------- SEARCH',
-  SEARCH_SEPARATOR: '=======',
-  REPLACE_BLOCK: '+++++++ REPLACE',
-  NEW_BEGIN: '*** Begin Patch',
-  NEW_END: '*** End Patch',
+  SEARCH_BLOCK: "------- SEARCH",
+  SEARCH_SEPARATOR: "=======",
+  REPLACE_BLOCK: "+++++++ REPLACE",
+  NEW_BEGIN: "*** Begin Patch",
+  NEW_END: "*** End Patch",
   FILE_PATTERN: /^\*\*\* (Add|Update|Delete) File: (.+)$/m,
 } as const;
 
 // Style mappings for actions
 const ACTION_STYLES = {
-  Add: { icon: FilePlus, iconClass: 'text-success', borderClass: 'border-l-success' },
-  Delete: { icon: FileX, iconClass: 'text-error', borderClass: 'border-l-error' },
-  default: { icon: FileText, iconClass: 'text-info', borderClass: 'border-l-background' },
+  Add: { icon: FilePlus, iconClass: "text-success", borderClass: "border-l-success" },
+  Delete: { icon: FileX, iconClass: "text-error", borderClass: "border-l-error" },
+  default: { icon: FileText, iconClass: "text-info", borderClass: "border-l-background" },
 } as const;
 
 interface DiffEditRowProps {
@@ -102,7 +102,7 @@ const FileBlock = memo<{ file: Patch; isStreaming: boolean; startLineNumber?: nu
 
       if (file.path) {
         FileServiceClient.openFileRelativePath(StringRequest.create({ value: file.path })).catch(
-          (err) => console.error('Failed to open file:', err),
+          (err) => console.error("Failed to open file:", err),
         );
       }
     };
@@ -120,8 +120,8 @@ const FileBlock = memo<{ file: Patch; isStreaming: boolean; startLineNumber?: nu
       let newLine = startLineNumber;
 
       return file.lines.map((line) => {
-        const isAddition = line.startsWith('+');
-        const isDeletion = line.startsWith('-');
+        const isAddition = line.startsWith("+");
+        const isDeletion = line.startsWith("-");
         const isContext = !isAddition && !isDeletion;
 
         if (isDeletion) {
@@ -147,8 +147,8 @@ const FileBlock = memo<{ file: Patch; isStreaming: boolean; startLineNumber?: nu
           type="button"
         >
           <div className="flex items-center gap-3 flex-1 w-full overflow-hidden">
-            <div className={cn('flex items-center gap-2 w-full', actionStyle.borderClass)}>
-              <ActionIcon className={cn('w-5 h-5', actionStyle.iconClass)} />
+            <div className={cn("flex items-center gap-2 w-full", actionStyle.borderClass)}>
+              <ActionIcon className={cn("w-5 h-5", actionStyle.iconClass)} />
               <span
                 className="font-medium truncate hover:underline hover:text-link"
                 onClick={handleOpenFile}
@@ -211,47 +211,47 @@ const DiffStats = memo<{ additions: number; deletions: number }>(({ additions, d
 // Diff line component with Tailwind styling - indicator bar, line number, prefix, code
 const DiffLine = memo<{ line: string; lineNumber?: number; showLineNumberColumn?: boolean }>(
   ({ line, lineNumber, showLineNumberColumn = true }) => {
-    const isAddition = line.startsWith('+');
-    const isDeletion = line.startsWith('-');
-    const hasSpacePrefix = line.startsWith('+ ') || line.startsWith('- ');
+    const isAddition = line.startsWith("+");
+    const isDeletion = line.startsWith("-");
+    const hasSpacePrefix = line.startsWith("+ ") || line.startsWith("- ");
     // Extract just the code content (without +/- prefix)
     const code = isAddition || isDeletion ? line.slice(hasSpacePrefix ? 2 : 1) : line;
     // Get the prefix character to display
-    const prefix = isAddition ? '+' : isDeletion ? '-' : ' ';
+    const prefix = isAddition ? "+" : isDeletion ? "-" : " ";
 
     return (
       <div
         className={cn(
-          'flex text-xs font-mono',
+          "flex text-xs font-mono",
           // Row background tint
-          isAddition && 'bg-green-500/10',
-          isDeletion && 'bg-red-500/10',
+          isAddition && "bg-green-500/10",
+          isDeletion && "bg-red-500/10",
           // Left indicator bar (the colored stripe)
-          isAddition && 'border-l-4 border-l-green-500',
-          isDeletion && 'border-l-4 border-l-red-500',
-          !isAddition && !isDeletion && 'border-l-4 border-l-transparent',
+          isAddition && "border-l-4 border-l-green-500",
+          isDeletion && "border-l-4 border-l-red-500",
+          !isAddition && !isDeletion && "border-l-4 border-l-transparent",
         )}
       >
         {/* Line number column - always reserve space to prevent layout shift during streaming */}
         {showLineNumberColumn && (
           <span
             className={cn(
-              'w-10 min-w-10 text-right pr-2 py-0.5 select-none border-r border-code-block-background/50',
-              isAddition && 'text-green-400/60',
-              isDeletion && 'text-red-400/60',
-              !isAddition && !isDeletion && 'text-description/50',
+              "w-10 min-w-10 text-right pr-2 py-0.5 select-none border-r border-code-block-background/50",
+              isAddition && "text-green-400/60",
+              isDeletion && "text-red-400/60",
+              !isAddition && !isDeletion && "text-description/50",
             )}
           >
-            {lineNumber ?? ''}
+            {lineNumber ?? ""}
           </span>
         )}
         {/* Prefix character (+/-) for backwards compatibility with traditional diff views */}
         <span
           className={cn(
-            'w-4 min-w-4 text-center py-0.5 select-none',
-            isAddition && 'text-green-400',
-            isDeletion && 'text-red-400',
-            !isAddition && !isDeletion && 'text-description/50',
+            "w-4 min-w-4 text-center py-0.5 select-none",
+            isAddition && "text-green-400",
+            isDeletion && "text-red-400",
+            !isAddition && !isDeletion && "text-description/50",
           )}
         >
           {prefix}
@@ -259,10 +259,10 @@ const DiffLine = memo<{ line: string; lineNumber?: number; showLineNumberColumn?
         {/* Code content */}
         <span
           className={cn(
-            'flex-1 pr-2 py-0.5 whitespace-nowrap',
-            isAddition && 'text-green-400',
-            isDeletion && 'text-red-400',
-            !isAddition && !isDeletion && 'text-editor-foreground',
+            "flex-1 pr-2 py-0.5 whitespace-nowrap",
+            isAddition && "text-green-400",
+            isDeletion && "text-red-400",
+            !isAddition && !isDeletion && "text-editor-foreground",
           )}
         >
           {code}
@@ -317,11 +317,11 @@ function parsePatch(patch: string, path: string): ParseResult {
 
   // Fallback: treat entire patch as a new file addition
   if (path && patch) {
-    const lines = patch.split('\n');
+    const lines = patch.split("\n");
     return {
       parsedFiles: [
         {
-          action: 'Add',
+          action: "Add",
           path,
           lines: lines.map((line) => `+ ${line}`),
           additions: lines.length,
@@ -341,7 +341,7 @@ function parsePatch(patch: string, path: string): ParseResult {
  */
 function parseNewFormat(content: string): Patch[] {
   const files: Patch[] = [];
-  const lines = content.split('\n');
+  const lines = content.split("\n");
 
   let currentFile: { action: string; path: string } | null = null;
   let currentChunk: Patch | null = null;
@@ -375,7 +375,7 @@ function parseNewFormat(content: string): Patch[] {
         path: fileMatch[2].trim(),
       };
       currentChunk = null; // Will be created when we see content or @@
-    } else if (line.trim() === '@@') {
+    } else if (line.trim() === "@@") {
       // @@ marker means start of a new chunk - split here
       startNewChunk();
     } else if (currentFile && line.trim()) {
@@ -390,9 +390,9 @@ function parseNewFormat(content: string): Patch[] {
         };
       }
       currentChunk.lines.push(line);
-      if (line[0] === '+') {
+      if (line[0] === "+") {
         currentChunk.additions++;
-      } else if (line[0] === '-') {
+      } else if (line[0] === "-") {
         currentChunk.deletions++;
       }
     }
@@ -449,8 +449,8 @@ function parseSearchReplaceFormat(patch: string, path: string): Patch | undefine
   const fileMatch = patch.match(MARKERS.FILE_PATTERN);
 
   const result: Patch = {
-    action: fileMatch?.[1] ?? 'Update',
-    path: fileMatch?.[2]?.trim() ?? path ?? '',
+    action: fileMatch?.[1] ?? "Update",
+    path: fileMatch?.[2]?.trim() ?? path ?? "",
     lines: [],
     additions: 0,
     deletions: 0,
@@ -459,33 +459,33 @@ function parseSearchReplaceFormat(patch: string, path: string): Patch | undefine
   // Extract content after SEARCH marker
   const afterSearch = patch
     .substring(searchIndex + MARKERS.SEARCH_BLOCK.length)
-    .replace(/^\r?\n/, '');
+    .replace(/^\r?\n/, "");
 
   const separatorIndex = afterSearch.indexOf(MARKERS.SEARCH_SEPARATOR);
 
   if (separatorIndex === -1) {
     // Still streaming - only SEARCH block available
     const searchContent = afterSearch.trimEnd();
-    addLinesToPatch(result, searchContent, '-');
+    addLinesToPatch(result, searchContent, "-");
     return result;
   }
 
   // Extract SEARCH block (deletions)
-  const searchContent = afterSearch.substring(0, separatorIndex).replace(/\r?\n$/, '');
-  addLinesToPatch(result, searchContent, '-');
+  const searchContent = afterSearch.substring(0, separatorIndex).replace(/\r?\n$/, "");
+  addLinesToPatch(result, searchContent, "-");
 
   // Extract REPLACE block (additions)
   const afterSeparator = afterSearch
     .substring(separatorIndex + MARKERS.SEARCH_SEPARATOR.length)
-    .replace(/^\r?\n/, '');
+    .replace(/^\r?\n/, "");
   const replaceEndIndex = afterSeparator.indexOf(MARKERS.REPLACE_BLOCK);
 
   const replaceContent =
     replaceEndIndex !== -1
-      ? afterSeparator.substring(0, replaceEndIndex).replace(/\r?\n$/, '')
+      ? afterSeparator.substring(0, replaceEndIndex).replace(/\r?\n$/, "")
       : afterSeparator.trimEnd();
 
-  addLinesToPatch(result, replaceContent, '+');
+  addLinesToPatch(result, replaceContent, "+");
 
   return result;
 }
@@ -493,11 +493,11 @@ function parseSearchReplaceFormat(patch: string, path: string): Patch | undefine
 /**
  * Helper to add lines to a patch with the specified prefix
  */
-function addLinesToPatch(patch: Patch, content: string, prefix: '+' | '-'): void {
-  const lines = content.split('\n');
+function addLinesToPatch(patch: Patch, content: string, prefix: "+" | "-"): void {
+  const lines = content.split("\n");
   for (const line of lines) {
     patch.lines.push(`${prefix} ${line}`);
-    if (prefix === '+') {
+    if (prefix === "+") {
       patch.additions++;
     } else {
       patch.deletions++;

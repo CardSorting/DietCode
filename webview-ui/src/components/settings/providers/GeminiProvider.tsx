@@ -1,16 +1,16 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { geminiModels } from '@shared/api.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import ReasoningEffortSelector from '../ReasoningEffortSelector';
-import { ApiKeyField } from '../common/ApiKeyField';
-import { BaseUrlField } from '../common/BaseUrlField';
-import { ModelInfoView } from '../common/ModelInfoView';
-import { ModelSelector } from '../common/ModelSelector';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { geminiModels } from "@shared/api.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import ReasoningEffortSelector from "../ReasoningEffortSelector";
+import { ApiKeyField } from "../common/ApiKeyField";
+import { BaseUrlField } from "../common/BaseUrlField";
+import { ModelInfoView } from "../common/ModelInfoView";
+import { ModelSelector } from "../common/ModelSelector";
 import {
   normalizeApiConfiguration,
   supportsReasoningEffortForModelId,
-} from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+} from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 /**
  * Props for the GeminiProvider component
@@ -38,8 +38,8 @@ export const GeminiProvider = ({ showModelOptions, isPopup, currentMode }: Gemin
   return (
     <div>
       <ApiKeyField
-        initialValue={apiConfiguration?.geminiApiKey || ''}
-        onChange={(value) => handleFieldChange('geminiApiKey', value)}
+        initialValue={apiConfiguration?.geminiApiKey || ""}
+        onChange={(value) => handleFieldChange("geminiApiKey", value)}
         providerName="Gemini"
         signupUrl="https://aistudio.google.com/apikey"
       />
@@ -47,7 +47,7 @@ export const GeminiProvider = ({ showModelOptions, isPopup, currentMode }: Gemin
       <BaseUrlField
         initialValue={apiConfiguration?.geminiBaseUrl}
         label="Use custom base URL"
-        onChange={(value) => handleFieldChange('geminiBaseUrl', value)}
+        onChange={(value) => handleFieldChange("geminiBaseUrl", value)}
         placeholder="Default: https://generativelanguage.googleapis.com"
       />
 
@@ -58,7 +58,7 @@ export const GeminiProvider = ({ showModelOptions, isPopup, currentMode }: Gemin
             models={geminiModels}
             onChange={(e: any) =>
               handleModeFieldChange(
-                { plan: 'planModeApiModelId', act: 'actModeApiModelId' },
+                { plan: "planModeApiModelId", act: "actModeApiModelId" },
                 e.target.value,
                 currentMode,
               )

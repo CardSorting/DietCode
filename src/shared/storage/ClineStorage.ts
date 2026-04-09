@@ -1,4 +1,4 @@
-import { Logger } from '../services/Logger';
+import { Logger } from "../services/Logger";
 
 export interface ClineStorageChangeEvent {
   readonly key: string;
@@ -35,7 +35,7 @@ export abstract class ClineStorage {
   /**
    * The name of the storage, used for logging purposes.
    */
-  protected name = 'ClineStorage';
+  protected name = "ClineStorage";
   /**
    * List of subscribers to storage change events.
    */

@@ -13,13 +13,13 @@
  * fields containing special characters.
  */
 
-import * as cp from 'node:child_process';
-import * as os from 'node:os';
-import * as util from 'node:util';
-import { Logger } from '@/shared/services/Logger';
-import { openExternal, writeTextToClipboard } from '@/utils/env';
-import { HostProvider } from '@hosts/host-provider';
-import { ShowMessageType } from '@shared/nice-grpc/host/window.ts';
+import * as cp from "node:child_process";
+import * as os from "node:os";
+import * as util from "node:util";
+import { Logger } from "@/shared/services/Logger";
+import { openExternal, writeTextToClipboard } from "@/utils/env";
+import { HostProvider } from "@hosts/host-provider";
+import { ShowMessageType } from "@shared/nice-grpc/host/window.ts";
 
 /**
  * Creates a properly encoded GitHub issue URL.
@@ -50,10 +50,10 @@ export function createGitHubIssueUrl(baseUrl: string, params: Map<string, string
   }
 
   // Determine the proper separator (? or &) based on whether baseUrl already has parameters
-  const separator = baseUrl.includes('?') ? '&' : '?';
+  const separator = baseUrl.includes("?") ? "&" : "?";
 
   // Join all parts to create the final URL
-  const queryString = queryParts.join('&');
+  const queryString = queryParts.join("&");
   return `${baseUrl}${separator}${queryString}`;
 }
 
@@ -85,7 +85,7 @@ export async function openUrlInBrowser(url: string): Promise<void> {
   // Always copy to clipboard as a fallback
   try {
     await writeTextToClipboard(url);
-    Logger.log('URL copied to clipboard as backup');
+    Logger.log("URL copied to clipboard as backup");
   } catch (error) {
     Logger.error(`Failed to copy URL to clipboard: ${error}`);
   }
@@ -99,7 +99,7 @@ export async function openUrlInBrowser(url: string): Promise<void> {
     const execPromise = util.promisify(cp.exec);
 
     // Use platform-specific commands
-    if (platform === 'win32') {
+    if (platform === "win32") {
       // Windows - try multiple approaches
       try {
         await execPromise(`start "" "${url}"`);
@@ -110,21 +110,21 @@ export async function openUrlInBrowser(url: string): Promise<void> {
 
         try {
           await execPromise(`powershell.exe -Command "Start-Process '${url}'"`);
-          Logger.log('Opened URL with PowerShell command');
+          Logger.log("Opened URL with PowerShell command");
           return;
         } catch (psError) {
           Logger.error(`Error with PowerShell command: ${psError}`);
           // Fall through to the fallbacks
         }
       }
-    } else if (platform === 'darwin') {
+    } else if (platform === "darwin") {
       // macOS
       await execPromise(`open "${url}"`);
       Logger.log("Opened URL with macOS 'open' command");
       return;
     } else {
       // Linux and others - try multiple commands
-      const linuxCommands = ['xdg-open', 'gnome-open', 'kde-open', 'wslview'];
+      const linuxCommands = ["xdg-open", "gnome-open", "kde-open", "wslview"];
 
       for (const cmd of linuxCommands) {
         try {
@@ -139,7 +139,7 @@ export async function openUrlInBrowser(url: string): Promise<void> {
     }
 
     // If we got here, none of the OS commands worked
-    throw new Error('All OS commands failed');
+    throw new Error("All OS commands failed");
   } catch (error) {
     Logger.error(`OS commands failed: ${error}`);
 
@@ -148,7 +148,7 @@ export async function openUrlInBrowser(url: string): Promise<void> {
     // but we include it as a fallback in case OS commands completely fail
     try {
       await openExternal(url);
-      Logger.log('Opened URL with openExternal utility (note: URL encoding may be affected)');
+      Logger.log("Opened URL with openExternal utility (note: URL encoding may be affected)");
       return;
     } catch (openExternalError) {
       Logger.error(`Error with openExternal utility: ${openExternalError}`);
@@ -159,11 +159,11 @@ export async function openUrlInBrowser(url: string): Promise<void> {
           type: ShowMessageType.INFORMATION,
           message: "Couldn't open the URL automatically. It has been copied to your clipboard.",
           options: {
-            items: ['Copy URL Again'],
+            items: ["Copy URL Again"],
           },
         })
         .then((response) => {
-          if (response.selectedOption === 'Copy URL Again') {
+          if (response.selectedOption === "Copy URL Again") {
             writeTextToClipboard(url);
           }
         });
@@ -204,7 +204,7 @@ export async function createAndOpenGitHubIssue(
 
   // Add template parameter if provided
   if (issueTemplate) {
-    params.set('template', issueTemplate);
+    params.set("template", issueTemplate);
   }
 
   // Create the URL and open it

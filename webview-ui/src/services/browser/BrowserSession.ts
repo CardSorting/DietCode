@@ -1,21 +1,21 @@
-import { spawn } from 'node:child_process';
-import os from 'node:os';
-import * as path from 'node:path';
-import { setTimeout as setTimeoutPromise } from 'node:timers/promises';
-import type { StateManager } from '@/core/storage/StateManager';
-import { telemetryService } from '@/services/telemetry';
-import { Logger } from '@/shared/services/Logger';
-import type { Controller } from '@core/controller';
-import type { BrowserActionResult } from '@shared/ExtensionMessage.ts';
-import { fileExistsAtPath } from '@utils/fs';
-import axios from 'axios';
-import * as chromeLauncher from 'chrome-launcher';
-import pWaitFor from 'p-wait-for';
+import { spawn } from "node:child_process";
+import os from "node:os";
+import * as path from "node:path";
+import { setTimeout as setTimeoutPromise } from "node:timers/promises";
+import type { StateManager } from "@/core/storage/StateManager";
+import { telemetryService } from "@/services/telemetry";
+import { Logger } from "@/shared/services/Logger";
+import type { Controller } from "@core/controller";
+import type { BrowserActionResult } from "@shared/ExtensionMessage.ts";
+import { fileExistsAtPath } from "@utils/fs";
+import axios from "axios";
+import * as chromeLauncher from "chrome-launcher";
+import pWaitFor from "p-wait-for";
 // @ts-ignore
-import type { LoggerMessage, ScreenshotOptions } from 'puppeteer-core';
-import { type Browser, type Page, TimeoutError, connect, launch } from 'puppeteer-core';
-import { discoverChromeInstances, isPortOpen, testBrowserConnection } from './BrowserDiscovery';
-import { ensureChromiumExists } from './utils';
+import type { LoggerMessage, ScreenshotOptions } from "puppeteer-core";
+import { type Browser, type Page, TimeoutError, connect, launch } from "puppeteer-core";
+import { discoverChromeInstances, isPortOpen, testBrowserConnection } from "./BrowserDiscovery";
+import { ensureChromiumExists } from "./utils";
 
 // Define browser connection info interface
 export interface BrowserConnectionInfo {
@@ -32,7 +32,7 @@ function splitArgs(str?: string | null): string[] {
     return [];
   }
   // split on spaces but keep quoted chunks; strip quotes
-  return (str.match(/"[^"]+"|\S+/g) || []).map((s) => s.replace(/^"(.*)"$/, '$1'));
+  return (str.match(/"[^"]+"|\S+/g) || []).map((s) => s.replace(/^"(.*)"$/, "$1"));
 }
 
 export class BrowserSession {
@@ -70,14 +70,14 @@ export class BrowserSession {
       isConnected: !!this.browser,
       isRemote: this.isConnectedToRemote,
       host: this.isConnectedToRemote
-        ? this.stateManager.getGlobalSettingsKey('browserSettings').remoteBrowserHost
+        ? this.stateManager.getGlobalSettingsKey("browserSettings").remoteBrowserHost
         : undefined,
     };
   }
 
   async getDetectedChromePath(): Promise<{ path: string; isBundled: boolean }> {
     // First check browserSettings (from UI, stored in global state)
-    const browserSettings = this.stateManager.getGlobalSettingsKey('browserSettings');
+    const browserSettings = this.stateManager.getGlobalSettingsKey("browserSettings");
     if (
       browserSettings.chromeExecutablePath &&
       (await fileExistsAtPath(browserSettings.chromeExecutablePath))
@@ -92,11 +92,11 @@ export class BrowserSession {
     try {
       const systemPath = chromeLauncher.Launcher.getFirstInstallation();
       // Add validation to ensure path is not in Trash - This can happen on Mac OS due to the way the chrome-launcher library works
-      if (systemPath && !systemPath.includes('.Trash') && (await fileExistsAtPath(systemPath))) {
+      if (systemPath && !systemPath.includes(".Trash") && (await fileExistsAtPath(systemPath))) {
         return { path: systemPath, isBundled: false };
       }
     } catch (error) {
-      Logger.info('Could not find system Chrome:', error);
+      Logger.info("Could not find system Chrome:", error);
     }
 
     // Finally fall back to PCR's bundled version
@@ -106,29 +106,29 @@ export class BrowserSession {
 
   async relaunchChromeDebugMode(_controller: Controller): Promise<string> {
     try {
-      const userDataDir = path.join(os.tmpdir(), 'chrome-debug-profile');
+      const userDataDir = path.join(os.tmpdir(), "chrome-debug-profile");
       const installation = chromeLauncher.Launcher.getFirstInstallation();
       if (!installation) {
-        throw new Error('Could not find Chrome installation on this system');
+        throw new Error("Could not find Chrome installation on this system");
       }
-      Logger.info('chrome installation', installation);
+      Logger.info("chrome installation", installation);
 
       const userArgs = splitArgs(
-        this.stateManager.getGlobalSettingsKey('browserSettings').customArgs,
+        this.stateManager.getGlobalSettingsKey("browserSettings").customArgs,
       );
 
       const args = [
         `--remote-debugging-port=${DEBUG_PORT}`,
         `--user-data-dir=${userDataDir}`,
-        '--disable-notifications',
+        "--disable-notifications",
         ...userArgs,
-        'chrome://newtab',
+        "chrome://newtab",
       ];
 
       // Spawn Chrome as a detached process
       const chromeProcess = spawn(installation, args, {
         detached: true, // This is key - makes the process independent of parent
-        stdio: 'ignore', // Detach stdio to prevent hanging
+        stdio: "ignore", // Detach stdio to prevent hanging
         shell: false, // Don't run in a shell
       });
 
@@ -139,10 +139,10 @@ export class BrowserSession {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Test if Chrome is actually running with debug port
-      const isRunning = await isPortOpen('localhost', DEBUG_PORT, 2000);
+      const isRunning = await isPortOpen("localhost", DEBUG_PORT, 2000);
 
       if (!isRunning) {
-        throw new Error('Chrome was launched but debug port is not responding');
+        throw new Error("Chrome was launched but debug port is not responding");
       }
 
       return `Browser successfully launched with debug mode\nUsing: ${installation}`;
@@ -173,10 +173,10 @@ export class BrowserSession {
     // Reset remote connection status
     this.isConnectedToRemote = false;
 
-    const browserSettings = this.stateManager.getGlobalSettingsKey('browserSettings');
+    const browserSettings = this.stateManager.getGlobalSettingsKey("browserSettings");
 
     if (browserSettings.remoteBrowserEnabled) {
-      Logger.log('launch browser called -- remote host mode (non-headless)');
+      Logger.log("launch browser called -- remote host mode (non-headless)");
       try {
         await this.launchRemoteBrowser();
         // Don't create a new page here, as we'll create it in launchRemoteBrowser
@@ -188,13 +188,13 @@ export class BrowserSession {
 
         return;
       } catch (error) {
-        Logger.error('Failed to launch remote browser, falling back to local mode:', error);
+        Logger.error("Failed to launch remote browser, falling back to local mode:", error);
 
         // Capture error telemetry
         if (this.ulid) {
           telemetryService.captureBrowserError(
             this.ulid,
-            'remote_browser_launch_error',
+            "remote_browser_launch_error",
             error instanceof Error ? error.message : String(error),
             {
               isRemote: true,
@@ -206,7 +206,7 @@ export class BrowserSession {
         await this.launchLocalBrowser();
       }
     } else {
-      Logger.log('launch browser called -- local mode (headless)');
+      Logger.log("launch browser called -- local mode (headless)");
       await this.launchLocalBrowser();
     }
 
@@ -219,23 +219,23 @@ export class BrowserSession {
   }
 
   async launchLocalBrowser() {
-    const browserSettings = this.stateManager.getGlobalSettingsKey('browserSettings');
+    const browserSettings = this.stateManager.getGlobalSettingsKey("browserSettings");
     const { path } = await this.getDetectedChromePath();
     const userArgs = splitArgs(browserSettings.customArgs);
     this.browser = await launch({
       args: [
-        '--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+        "--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
         ...userArgs,
       ],
       executablePath: path,
       defaultViewport: browserSettings.viewport,
-      headless: 'shell', // Always use headless mode for local connections
+      headless: "shell", // Always use headless mode for local connections
     });
     this.isConnectedToRemote = false;
   }
 
   async launchRemoteBrowser() {
-    const browserSettings = this.stateManager.getGlobalSettingsKey('browserSettings');
+    const browserSettings = this.stateManager.getGlobalSettingsKey("browserSettings");
     let remoteBrowserHost = browserSettings.remoteBrowserHost;
     let browserWSEndpoint: string | undefined = this.cachedWebSocketEndpoint;
     let _reconnectionAttempted = false;
@@ -247,7 +247,7 @@ export class BrowserSession {
     // First try auto-discovery if no host is provided
     if (!remoteBrowserHost) {
       try {
-        Logger.info('No remote browser host provided, trying auto-discovery');
+        Logger.info("No remote browser host provided, trying auto-discovery");
         const discoveredHost = await discoverChromeInstances();
 
         if (discoveredHost) {
@@ -277,7 +277,7 @@ export class BrowserSession {
         if (this.ulid) {
           telemetryService.captureBrowserError(
             this.ulid,
-            'cached_endpoint_connection_error',
+            "cached_endpoint_connection_error",
             error instanceof Error ? error.message : String(error),
             {
               isRemote: true,
@@ -299,14 +299,14 @@ export class BrowserSession {
     if (remoteBrowserHost) {
       try {
         // Fetch the WebSocket endpoint from the Chrome DevTools Protocol
-        const versionUrl = `${remoteBrowserHost.replace(/\/$/, '')}/json/version`;
+        const versionUrl = `${remoteBrowserHost.replace(/\/$/, "")}/json/version`;
         Logger.info(`Fetching WebSocket endpoint from ${versionUrl}`);
 
         const response = await axios.get(versionUrl);
         browserWSEndpoint = response.data.webSocketDebuggerUrl;
 
         if (!browserWSEndpoint) {
-          throw new Error('Could not find webSocketDebuggerUrl in the response');
+          throw new Error("Could not find webSocketDebuggerUrl in the response");
         }
 
         Logger.info(`Found WebSocket browser endpoint: ${browserWSEndpoint}`);
@@ -329,7 +329,7 @@ export class BrowserSession {
         if (this.ulid) {
           telemetryService.captureBrowserError(
             this.ulid,
-            'remote_host_connection_error',
+            "remote_host_connection_error",
             error instanceof Error ? error.message : String(error),
             {
               isRemote: true,
@@ -342,7 +342,7 @@ export class BrowserSession {
 
     // If we get here, all connection attempts failed
     throw new Error(
-      'Failed to connect to remote browser. Make sure Chrome is running with remote debugging enabled (--remote-debugging-port=9222).',
+      "Failed to connect to remote browser. Make sure Chrome is running with remote debugging enabled (--remote-debugging-port=9222).",
     );
   }
 
@@ -362,14 +362,14 @@ export class BrowserSession {
         // Close the page/tab first if it exists
         if (this.page) {
           await this.page.close().catch(() => {});
-          Logger.info('closed remote browser tab...');
+          Logger.info("closed remote browser tab...");
         }
         await this.browser.disconnect().catch(() => {});
-        Logger.info('disconnected from remote browser...');
+        Logger.info("disconnected from remote browser...");
         // do not close the browser
       } else if (this.isConnectedToRemote === false) {
         await this.browser?.close().catch(() => {});
-        Logger.info('closed local browser...');
+        Logger.info("closed local browser...");
       }
 
       this.browser = undefined;
@@ -387,7 +387,7 @@ export class BrowserSession {
   async doAction(action: (page: Page) => Promise<void>): Promise<BrowserActionResult> {
     if (!this.page) {
       throw new Error(
-        'Browser is not launched. This may occur if the browser was automatically closed by a non-`browser_action` tool.',
+        "Browser is not launched. This may occur if the browser was automatically closed by a non-`browser_action` tool.",
       );
     }
 
@@ -395,7 +395,7 @@ export class BrowserSession {
     let lastLogTs = Date.now();
 
     const LoggerListener = (msg: LoggerMessage) => {
-      if (msg.type() === 'log') {
+      if (msg.type() === "log") {
         logs.push(msg.text());
       } else {
         logs.push(`[${msg.type()}] ${msg.text()}`);
@@ -409,8 +409,8 @@ export class BrowserSession {
     };
 
     // Add the listeners
-    this.page.on('Logger', LoggerListener);
-    this.page.on('pageerror', errorListener);
+    this.page.on("Logger", LoggerListener);
+    this.page.on("pageerror", errorListener);
 
     try {
       await action(this.page);
@@ -422,7 +422,7 @@ export class BrowserSession {
 
         // Capture error telemetry
         if (this.ulid) {
-          telemetryService.captureBrowserError(this.ulid, 'browser_action_error', errorMessage, {
+          telemetryService.captureBrowserError(this.ulid, "browser_action_error", errorMessage, {
             isRemote: this.isConnectedToRemote,
             action: this.browserActions[this.browserActions.length - 1],
           });
@@ -437,7 +437,7 @@ export class BrowserSession {
     }).catch(() => {});
 
     const options: ScreenshotOptions = {
-      encoding: 'base64',
+      encoding: "base64",
 
       // clip: {
       // 	x: 0,
@@ -447,7 +447,7 @@ export class BrowserSession {
       // },
     };
 
-    const screenshotType = this.useWebp ? 'webp' : 'png';
+    const screenshotType = this.useWebp ? "webp" : "png";
     let screenshotBase64 = await this.page.screenshot({
       ...options,
       type: screenshotType,
@@ -459,7 +459,7 @@ export class BrowserSession {
       Logger.info(`${screenshotType} screenshot failed, trying png`);
       screenshotBase64 = await this.page.screenshot({
         ...options,
-        type: 'png',
+        type: "png",
       });
       screenshot = `data:image/png;base64,${screenshotBase64}`;
     }
@@ -469,37 +469,37 @@ export class BrowserSession {
       if (this.ulid) {
         telemetryService.captureBrowserError(
           this.ulid,
-          'screenshot_error',
-          'Failed to take screenshot',
+          "screenshot_error",
+          "Failed to take screenshot",
           {
             isRemote: this.isConnectedToRemote,
             action: this.browserActions[this.browserActions.length - 1],
           },
         );
       }
-      throw new Error('Failed to take screenshot.');
+      throw new Error("Failed to take screenshot.");
     }
 
     // this.page.removeAllListeners() <- causes the page to crash!
-    this.page.off('Logger', LoggerListener);
-    this.page.off('pageerror', errorListener);
+    this.page.off("Logger", LoggerListener);
+    this.page.off("pageerror", errorListener);
 
     return {
       screenshot,
-      logs: logs.join('\n'),
+      logs: logs.join("\n"),
       currentUrl: this.page.url(),
       currentMousePosition: this.currentMousePosition,
     };
   }
 
   async navigateToUrl(url: string): Promise<BrowserActionResult> {
-    this.browserActions.push('navigate: url');
+    this.browserActions.push("navigate: url");
 
     return this.doAction(async (page) => {
       // networkidle2 isn't good enough since page may take some time to load. we can assume locally running dev sites will reach networkidle0 in a reasonable amount of time
       await page.goto(url, {
         timeout: 7_000,
-        waitUntil: ['domcontentloaded', 'networkidle2'],
+        waitUntil: ["domcontentloaded", "networkidle2"],
       });
       // await page.goto(url, { timeout: 10_000, waitUntil: "load" })
       await this.waitTillHTMLStable(page); // in case the page is loading more resources
@@ -521,7 +521,7 @@ export class BrowserSession {
       const currentHTMLSize = html.length;
 
       // let bodyHTMLSize = await page.evaluate(() => document.body.innerHTML.length)
-      Logger.info('last: ', lastHTMLSize, ' <> curr: ', currentHTMLSize);
+      Logger.info("last: ", lastHTMLSize, " <> curr: ", currentHTMLSize);
 
       if (lastHTMLSize !== 0 && currentHTMLSize === lastHTMLSize) {
         countStableSizeIterations++;
@@ -530,7 +530,7 @@ export class BrowserSession {
       }
 
       if (countStableSizeIterations >= minStableSizeIterations) {
-        Logger.info('Page rendered fully...');
+        Logger.info("Page rendered fully...");
         break;
       }
 
@@ -540,16 +540,16 @@ export class BrowserSession {
   }
 
   async click(coordinate: string): Promise<BrowserActionResult> {
-    this.browserActions.push('click: coordinate');
+    this.browserActions.push("click: coordinate");
 
-    const [x, y] = coordinate.split(',').map(Number);
+    const [x, y] = coordinate.split(",").map(Number);
     return this.doAction(async (page) => {
       // Set up network request monitoring
       let hasNetworkActivity = false;
       const requestListener = () => {
         hasNetworkActivity = true;
       };
-      page.on('request', requestListener);
+      page.on("request", requestListener);
 
       // Perform the click
       await page.mouse.click(x, y);
@@ -562,7 +562,7 @@ export class BrowserSession {
         // If we detected network activity, wait for navigation/loading
         await page
           .waitForNavigation({
-            waitUntil: ['domcontentloaded', 'networkidle2'],
+            waitUntil: ["domcontentloaded", "networkidle2"],
             timeout: 7000,
           })
           .catch(() => {});
@@ -570,7 +570,7 @@ export class BrowserSession {
       }
 
       // Clean up listener
-      page.off('request', requestListener);
+      page.off("request", requestListener);
     });
   }
 
@@ -583,13 +583,13 @@ export class BrowserSession {
   }
 
   async scrollDown(): Promise<BrowserActionResult> {
-    this.browserActions.push('scrollDown');
+    this.browserActions.push("scrollDown");
 
     return this.doAction(async (page) => {
       await page.evaluate(() => {
         window.scrollBy({
           top: 600,
-          behavior: 'auto',
+          behavior: "auto",
         });
       });
       await setTimeoutPromise(300);
@@ -597,13 +597,13 @@ export class BrowserSession {
   }
 
   async scrollUp(): Promise<BrowserActionResult> {
-    this.browserActions.push('scrollUp');
+    this.browserActions.push("scrollUp");
 
     return this.doAction(async (page) => {
       await page.evaluate(() => {
         window.scrollBy({
           top: -600,
-          behavior: 'auto',
+          behavior: "auto",
         });
       });
       await setTimeoutPromise(300);

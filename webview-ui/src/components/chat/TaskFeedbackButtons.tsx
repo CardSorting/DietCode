@@ -1,11 +1,11 @@
-import { cn } from '@/lib/utils';
-import { TaskServiceClient } from '@/services/grpc-client';
-import type { TaskFeedbackType } from '@shared/WebviewMessage.ts';
-import { StringRequest } from '@shared/nice-grpc/cline/common.ts';
-import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
-import type React from 'react';
-import { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import { cn } from "@/lib/utils";
+import { TaskServiceClient } from "@/services/grpc-client";
+import type { TaskFeedbackType } from "@shared/WebviewMessage.ts";
+import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import type React from "react";
+import { useEffect, useState } from "react";
+import styled from "styled-components";
 
 interface TaskFeedbackButtonsProps {
   messageTs: number;
@@ -32,14 +32,14 @@ const TaskFeedbackButtons: React.FC<TaskFeedbackButtonsProps> = ({
   // Check localStorage on mount to see if feedback was already given for this message
   useEffect(() => {
     try {
-      const feedbackHistory = localStorage.getItem('taskFeedbackHistory') || '{}';
+      const feedbackHistory = localStorage.getItem("taskFeedbackHistory") || "{}";
       const history = JSON.parse(feedbackHistory);
       // Check if this specific message timestamp has received feedback
       if (history[messageTs]) {
         setShouldShow(false);
       }
     } catch (e) {
-      console.error('Error checking feedback history:', e);
+      console.error("Error checking feedback history:", e);
     }
   }, [messageTs]);
 
@@ -64,32 +64,32 @@ const TaskFeedbackButtons: React.FC<TaskFeedbackButtonsProps> = ({
 
       // Store in localStorage that feedback was provided for this message
       try {
-        const feedbackHistory = localStorage.getItem('taskFeedbackHistory') || '{}';
+        const feedbackHistory = localStorage.getItem("taskFeedbackHistory") || "{}";
         const history = JSON.parse(feedbackHistory);
         history[messageTs] = true;
-        localStorage.setItem('taskFeedbackHistory', JSON.stringify(history));
+        localStorage.setItem("taskFeedbackHistory", JSON.stringify(history));
       } catch (e) {
-        console.error('Error updating feedback history:', e);
+        console.error("Error updating feedback history:", e);
       }
     } catch (error) {
-      console.error('Error sending task feedback:', error);
+      console.error("Error sending task feedback:", error);
     }
   };
 
   return (
-    <div className={cn('flex items-center justify-end shrink-0', classNames)}>
+    <div className={cn("flex items-center justify-end shrink-0", classNames)}>
       <ButtonsContainer>
         <ButtonWrapper>
           <VSCodeButton
             appearance="icon"
             aria-label="This was helpful"
             disabled={feedback !== null}
-            onClick={() => handleFeedback('thumbs_up')}
+            onClick={() => handleFeedback("thumbs_up")}
             title="This was helpful"
           >
             <IconWrapper>
               <span
-                className={`codicon ${feedback === 'thumbs_up' ? 'codicon-thumbsup-filled' : 'codicon-thumbsup'}`}
+                className={`codicon ${feedback === "thumbs_up" ? "codicon-thumbsup-filled" : "codicon-thumbsup"}`}
               />
             </IconWrapper>
           </VSCodeButton>
@@ -98,13 +98,13 @@ const TaskFeedbackButtons: React.FC<TaskFeedbackButtonsProps> = ({
           <VSCodeButton
             appearance="icon"
             aria-label="This wasn't helpful"
-            disabled={feedback !== null && feedback !== 'thumbs_down'}
-            onClick={() => handleFeedback('thumbs_down')}
+            disabled={feedback !== null && feedback !== "thumbs_down"}
+            onClick={() => handleFeedback("thumbs_down")}
             title="This wasn't helpful"
           >
             <IconWrapper>
               <span
-                className={`codicon ${feedback === 'thumbs_down' ? 'codicon-thumbsdown-filled' : 'codicon-thumbsdown'}`}
+                className={`codicon ${feedback === "thumbs_down" ? "codicon-thumbsdown-filled" : "codicon-thumbsdown"}`}
               />
             </IconWrapper>
           </VSCodeButton>

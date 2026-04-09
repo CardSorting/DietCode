@@ -1,7 +1,7 @@
-import { Logger } from '@/shared/services/Logger';
-import { type BlobStoreSettings, blobStorage } from '../../storage/ClineBlobStorage';
+import { Logger } from "@/shared/services/Logger";
+import { type BlobStoreSettings, blobStorage } from "../../storage/ClineBlobStorage";
 
-import type { SyncQueue, SyncQueueItem } from './queue';
+import type { SyncQueue, SyncQueueItem } from "./queue";
 
 export const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -30,10 +30,10 @@ function parseIntEnv(value: string | undefined, fallback: number): number {
  */
 export function getBlobStoreSettingsFromEnv(): BlobStoreSettings {
   return {
-    adapterType: process?.env?.CLINE_STORAGE_ADAPTER || 'unknown',
-    bucket: process?.env?.CLINE_STORAGE_BUCKET || 'cline',
-    accessKeyId: process?.env?.CLINE_STORAGE_ACCESS_KEY_ID || '',
-    secretAccessKey: process?.env?.CLINE_STORAGE_SECRET_ACCESS_KEY || '',
+    adapterType: process?.env?.CLINE_STORAGE_ADAPTER || "unknown",
+    bucket: process?.env?.CLINE_STORAGE_BUCKET || "cline",
+    accessKeyId: process?.env?.CLINE_STORAGE_ACCESS_KEY_ID || "",
+    secretAccessKey: process?.env?.CLINE_STORAGE_SECRET_ACCESS_KEY || "",
     region: process?.env?.CLINE_STORAGE_REGION,
     endpoint: process?.env?.CLINE_STORAGE_ENDPOINT,
     accountId: process?.env?.CLINE_STORAGE_ACCOUNT_ID,
@@ -43,17 +43,17 @@ export function getBlobStoreSettingsFromEnv(): BlobStoreSettings {
     batchSize: parseIntEnv(process.env.CLINE_STORAGE_SYNC_BATCH_SIZE, 10),
     maxQueueSize: parseIntEnv(process.env.CLINE_STORAGE_SYNC_MAX_QUEUE_SIZE, 1000),
     maxFailedAgeMs: parseIntEnv(process.env.CLINE_STORAGE_SYNC_MAX_FAILED_AGE_MS, SEVEN_DAYS_MS),
-    backfillEnabled: process.env.CLINE_STORAGE_SYNC_BACKFILL_ENABLED === 'true',
+    backfillEnabled: process.env.CLINE_STORAGE_SYNC_BACKFILL_ENABLED === "true",
   };
 }
 
 enum WorkerEvent {
-  WorkerSyncStarted = 'sync_started',
-  WorkerSyncCompleted = 'sync_completed',
-  WorkerItemSynced = 'item_synced',
-  WorkerItemFailed = 'item_failed',
-  WorkerStarted = 'worker_started',
-  WorkerStopped = 'worker_stopped',
+  WorkerSyncStarted = "sync_started",
+  WorkerSyncCompleted = "sync_completed",
+  WorkerItemSynced = "item_synced",
+  WorkerItemFailed = "item_failed",
+  WorkerStarted = "worker_started",
+  WorkerStopped = "worker_stopped",
 }
 
 /**
@@ -94,12 +94,12 @@ type ResolvedSyncWorkerOptions = SyncWorkerOptions &
   Required<
     Pick<
       BlobStoreSettings,
-      | 'intervalMs'
-      | 'maxRetries'
-      | 'batchSize'
-      | 'maxQueueSize'
-      | 'maxFailedAgeMs'
-      | 'backfillEnabled'
+      | "intervalMs"
+      | "maxRetries"
+      | "batchSize"
+      | "maxQueueSize"
+      | "maxFailedAgeMs"
+      | "backfillEnabled"
     >
   >;
 
@@ -145,7 +145,7 @@ export class SyncWorker {
       try {
         listener(event);
       } catch (err) {
-        Logger.error('SyncWorker event listener error:', err);
+        Logger.error("SyncWorker event listener error:", err);
       }
     }
   }
@@ -163,7 +163,7 @@ export class SyncWorker {
 
     // Run immediately but don't await
     this.processQueue().catch((err) => {
-      Logger.error('SyncWorker initial process error:', err);
+      Logger.error("SyncWorker initial process error:", err);
     });
   }
 

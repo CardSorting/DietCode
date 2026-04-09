@@ -1,4 +1,4 @@
-import { BUILD_CONSTANTS } from '../../constants';
+import { BUILD_CONSTANTS } from "../../constants";
 
 export interface PostHogClientConfig {
   /**
@@ -28,7 +28,7 @@ export interface PostHogClientValidConfig extends PostHogClientConfig {
  * process.env.CI will always be true in the CI environment, during both testing and publishing step,
  * so it is not a reliable indicator of the environment.
  */
-const useDevEnv = process.env.IS_DEV === 'true' || process.env.CLINE_ENVIRONMENT === 'local';
+const useDevEnv = process.env.IS_DEV === "true" || process.env.CLINE_ENVIRONMENT === "local";
 
 /**
  * PostHog configuration for Production Environment.
@@ -40,12 +40,12 @@ const useDevEnv = process.env.IS_DEV === 'true' || process.env.CLINE_ENVIRONMENT
 export const posthogConfig: PostHogClientConfig = {
   apiKey: BUILD_CONSTANTS.TELEMETRY_SERVICE_API_KEY,
   errorTrackingApiKey: BUILD_CONSTANTS.ERROR_SERVICE_API_KEY,
-  host: 'https://data.cline.bot',
-  uiHost: useDevEnv ? 'https://us.i.posthog.com' : 'https://us.posthog.com',
-  enableErrorAutocapture: BUILD_CONSTANTS.ENABLE_ERROR_AUTOCAPTURE === 'true',
+  host: "https://data.cline.bot",
+  uiHost: useDevEnv ? "https://us.i.posthog.com" : "https://us.posthog.com",
+  enableErrorAutocapture: BUILD_CONSTANTS.ENABLE_ERROR_AUTOCAPTURE === "true",
 };
 
-const isTestEnv = process.env.E2E_TEST === 'true' || process.env.IS_TEST === 'true';
+const isTestEnv = process.env.E2E_TEST === "true" || process.env.IS_TEST === "true";
 
 export function isPostHogConfigValid(
   config: PostHogClientConfig,
@@ -55,9 +55,9 @@ export function isPostHogConfigValid(
     return false;
   }
   return (
-    typeof config.apiKey === 'string' &&
-    typeof config.errorTrackingApiKey === 'string' &&
-    typeof config.host === 'string' &&
-    typeof config.uiHost === 'string'
+    typeof config.apiKey === "string" &&
+    typeof config.errorTrackingApiKey === "string" &&
+    typeof config.host === "string" &&
+    typeof config.uiHost === "string"
   );
 }

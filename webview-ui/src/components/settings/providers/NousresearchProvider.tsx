@@ -1,11 +1,11 @@
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { nousResearchModels } from '@shared/api.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { ApiKeyField } from '../common/ApiKeyField';
-import { ModelInfoView } from '../common/ModelInfoView';
-import { ModelSelector } from '../common/ModelSelector';
-import { normalizeApiConfiguration } from '../utils/providerUtils';
-import { useApiConfigurationHandlers } from '../utils/useApiConfigurationHandlers';
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { nousResearchModels } from "@shared/api.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { ApiKeyField } from "../common/ApiKeyField";
+import { ModelInfoView } from "../common/ModelInfoView";
+import { ModelSelector } from "../common/ModelSelector";
+import { normalizeApiConfiguration } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 /**
  * Props for the NousResearchProvider component
@@ -36,8 +36,8 @@ export const NousResearchProvider = ({
   return (
     <div>
       <ApiKeyField
-        initialValue={apiConfiguration?.nousResearchApiKey || ''}
-        onChange={(value) => handleFieldChange('nousResearchApiKey', value)}
+        initialValue={apiConfiguration?.nousResearchApiKey || ""}
+        onChange={(value) => handleFieldChange("nousResearchApiKey", value)}
         providerName="NousResearch"
       />
 
@@ -48,7 +48,7 @@ export const NousResearchProvider = ({
             models={nousResearchModels}
             onChange={(e: any) =>
               handleModeFieldChange(
-                { plan: 'planModeNousResearchModelId', act: 'actModeNousResearchModelId' },
+                { plan: "planModeNousResearchModelId", act: "actModeNousResearchModelId" },
                 e.target.value,
                 currentMode,
               )
@@ -64,12 +64,12 @@ export const NousResearchProvider = ({
 
           <p
             style={{
-              fontSize: '12px',
+              fontSize: "12px",
               marginTop: 3,
-              color: 'var(--vscode-descriptionForeground)',
+              color: "var(--vscode-descriptionForeground)",
             }}
           >
-            <span style={{ color: 'var(--vscode-errorForeground)' }}>
+            <span style={{ color: "var(--vscode-errorForeground)" }}>
               (<span style={{ fontWeight: 500 }}>Note:</span> Cline uses complex prompts and works
               best with Claude models. Less capable models may not work as expected.)
             </span>

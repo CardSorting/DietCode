@@ -1,13 +1,13 @@
-import { StickyUserMessage } from '@/components/chat/task-header/StickyUserMessage';
-import { useExtensionState } from '@/context/ExtensionStateContext';
-import { cn } from '@/lib/utils';
-import type { ClineMessage } from '@shared/ExtensionMessage';
-import type React from 'react';
-import { useCallback, useMemo } from 'react';
-import { Virtuoso } from 'react-virtuoso';
-import type { ChatState, MessageHandlers, ScrollBehavior } from '../../types/chatTypes';
-import { isToolGroup } from '../../utils/messageUtils';
-import { createMessageRenderer } from '../messages/MessageRenderer';
+import { StickyUserMessage } from "@/components/chat/task-header/StickyUserMessage";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { cn } from "@/lib/utils";
+import type { ClineMessage } from "@shared/ExtensionMessage";
+import type React from "react";
+import { useCallback, useMemo } from "react";
+import { Virtuoso } from "react-virtuoso";
+import type { ChatState, MessageHandlers, ScrollBehavior } from "../../types/chatTypes";
+import { isToolGroup } from "../../utils/messageUtils";
+import { createMessageRenderer } from "../messages/MessageRenderer";
 
 interface MessagesAreaProps {
   task: ClineMessage;
@@ -80,18 +80,18 @@ export const MessagesArea: React.FC<MessagesAreaProps> = ({
 
     // Never show thinking while waiting on user input (any ask state).
     // This includes completion_result, tool approvals, followups, and resume asks.
-    if (lastRawMessage?.type === 'ask') {
+    if (lastRawMessage?.type === "ask") {
       return false;
     }
     // attempt_completion emits a final say("completion_result") before ask("completion_result").
     // Treat that final completion message as non-waiting to avoid a brief footer flicker.
-    if (lastRawMessage?.type === 'say' && lastRawMessage.say === 'completion_result') {
+    if (lastRawMessage?.type === "say" && lastRawMessage.say === "completion_result") {
       return false;
     }
-    if (lastRawMessage?.type === 'say' && lastRawMessage.say === 'api_req_started') {
+    if (lastRawMessage?.type === "say" && lastRawMessage.say === "api_req_started") {
       try {
-        const info = JSON.parse(lastRawMessage.text || '{}');
-        if (info.cancelReason === 'user_cancelled') {
+        const info = JSON.parse(lastRawMessage.text || "{}");
+        if (info.cancelReason === "user_cancelled") {
           return false;
         }
       } catch {
@@ -126,10 +126,10 @@ export const MessagesArea: React.FC<MessagesAreaProps> = ({
       // No messages after the initial task message - new task just started
       return true;
     }
-    if (lastMsg.say === 'user_feedback' || lastMsg.say === 'user_feedback_diff') return true;
-    if (lastMsg.say === 'api_req_started') {
+    if (lastMsg.say === "user_feedback" || lastMsg.say === "user_feedback_diff") return true;
+    if (lastMsg.say === "api_req_started") {
       try {
-        const info = JSON.parse(lastMsg.text || '{}');
+        const info = JSON.parse(lastMsg.text || "{}");
         // Still in progress (no cost) and nothing has streamed after it yet
         return info.cost == null;
       } catch {
@@ -149,10 +149,10 @@ export const MessagesArea: React.FC<MessagesAreaProps> = ({
   // keep the loader mounted until a real reasoning row is visible.
   const showThinkingLoaderRow = useMemo(() => {
     const handoffToReasoningPending =
-      lastRawMessage?.type === 'say' &&
-      lastRawMessage.say === 'reasoning' &&
+      lastRawMessage?.type === "say" &&
+      lastRawMessage.say === "reasoning" &&
       lastRawMessage.partial === true &&
-      lastVisibleMessage?.say !== 'reasoning';
+      lastVisibleMessage?.say !== "reasoning";
 
     // Mirror the old footer behavior exactly: show whenever waiting logic says so.
     // Plus a brief handoff guard while grouped rows catch up to raw reasoning stream.
@@ -165,10 +165,10 @@ export const MessagesArea: React.FC<MessagesAreaProps> = ({
     }
     const waitingRow: ClineMessage = {
       ts: Number.MIN_SAFE_INTEGER,
-      type: 'say',
-      say: 'reasoning',
+      type: "say",
+      say: "reasoning",
       partial: true,
-      text: '',
+      text: "",
     };
     return [...groupedMessages, waitingRow];
   }, [groupedMessages, showThinkingLoaderRow]);
@@ -211,8 +211,8 @@ export const MessagesArea: React.FC<MessagesAreaProps> = ({
       {/* Sticky User Message - positioned absolutely to avoid layout shifts */}
       <div
         className={cn(
-          'absolute top-0 left-0 right-0 z-10 pl-[15px] pr-[14px] bg-background',
-          scrolledPastUserMessage && 'pb-2',
+          "absolute top-0 left-0 right-0 z-10 pl-[15px] pr-[14px] bg-background",
+          scrolledPastUserMessage && "pb-2",
         )}
       >
         <StickyUserMessage
@@ -246,9 +246,9 @@ export const MessagesArea: React.FC<MessagesAreaProps> = ({
           rangeChanged={handleRangeChanged}
           ref={virtuosoRef} // anything lower causes issues with followOutput
           style={{
-            scrollbarWidth: 'none', // Firefox
-            msOverflowStyle: 'none', // IE/Edge
-            overflowAnchor: 'none', // prevent scroll jump when content expands
+            scrollbarWidth: "none", // Firefox
+            msOverflowStyle: "none", // IE/Edge
+            overflowAnchor: "none", // prevent scroll jump when content expands
           }}
         />
       </div>

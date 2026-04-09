@@ -1,4 +1,4 @@
-import { ExtensionRegistryInfo } from '@/registry';
+import { ExtensionRegistryInfo } from "@/registry";
 
 /**
  * Gets the latest announcement ID based on the extension version
@@ -9,5 +9,5 @@ import { ExtensionRegistryInfo } from '@/registry';
  */
 export function getLatestAnnouncementId(): string {
   const version = ExtensionRegistryInfo.version;
-  return version.split('.').slice(0, 2).join('.');
+  return version.split(".").slice(0, 2).join(".");
 }

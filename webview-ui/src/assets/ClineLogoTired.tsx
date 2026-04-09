@@ -1,6 +1,6 @@
-import type { Environment } from '@shared/config-types';
-import type { SVGProps } from 'react';
-import { getEnvironmentColor } from '../utils/environmentColors';
+import type { Environment } from "@shared/config-types";
+import type { SVGProps } from "react";
+import { getEnvironmentColor } from "../utils/environmentColors";
 
 /**
  * ClineLogoTired component renders the sleepy Cline logo for "Lazy Teammate Mode".
@@ -17,7 +17,7 @@ const ClineLogoTired = (props: SVGProps<SVGSVGElement> & { environment?: Environ
   // Determine fill color based on environment
   const fillColor = environment
     ? getEnvironmentColor(environment)
-    : 'var(--vscode-icon-foreground)';
+    : "var(--vscode-icon-foreground)";
 
   return (
     <svg

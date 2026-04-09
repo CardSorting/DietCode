@@ -1,10 +1,10 @@
-import type { ApiProvider } from '@shared/api';
+import type { ApiProvider } from "@shared/api";
 
 function normalizeModelId(modelId: string): string {
   return modelId.trim().toLowerCase();
 }
 
-const CLINE_FREE_MODEL_EXCEPTIONS = ['minimax-m2', 'devstral-2512', 'arcee-ai/trinity-large'];
+const CLINE_FREE_MODEL_EXCEPTIONS = ["minimax-m2", "devstral-2512", "arcee-ai/trinity-large"];
 
 export function isClineFreeModelException(modelId: string): boolean {
   const normalizedModelId = normalizeModelId(modelId);
@@ -25,7 +25,7 @@ export function filterOpenRouterModelIds(
   provider: ApiProvider,
   allowedFreeModelIds: string[] = [],
 ): string[] {
-  if (provider === 'cline') {
+  if (provider === "cline") {
     const allowedFreeIdSet = new Set(allowedFreeModelIds.map((id) => normalizeModelId(id)));
     // For Cline provider: exclude :free models, but keep known exception models
     return modelIds.filter((id) => {
@@ -37,10 +37,10 @@ export function filterOpenRouterModelIds(
         return true;
       }
       // Filter out other :free models
-      return !normalizedModelId.includes(':free');
+      return !normalizedModelId.includes(":free");
     });
   }
 
   // For OpenRouter and Vercel AI Gateway providers: exclude Cline-specific models
-  return modelIds.filter((id) => !id.startsWith('cline/'));
+  return modelIds.filter((id) => !id.startsWith("cline/"));
 }

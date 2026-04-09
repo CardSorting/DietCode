@@ -1,6 +1,6 @@
-import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
-import styled from 'styled-components';
-import type { ActionMetadata } from './types';
+import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
+import styled from "styled-components";
+import type { ActionMetadata } from "./types";
 
 interface AutoApproveMenuItemProps {
   action: ActionMetadata;
@@ -12,11 +12,11 @@ interface AutoApproveMenuItemProps {
 
 const SubOptionAnimateIn = styled.div<{ show: boolean; inert?: string }>`
   position: relative;
-  transform: ${(props) => (props.show ? 'scaleY(1)' : 'scaleY(0)')};
+  transform: ${(props) => (props.show ? "scaleY(1)" : "scaleY(0)")};
   transform-origin: top;
   padding-left: 24px;
-  opacity: ${(props) => (props.show ? '1' : '0')};
-  height: ${(props) => (props.show ? 'auto' : '0')}; /* Manage height for layout */
+  opacity: ${(props) => (props.show ? "1" : "0")};
+  height: ${(props) => (props.show ? "auto" : "0")}; /* Manage height for layout */
   overflow: visible; /* Allow tooltips to escape */
   transition: transform 0.2s ease-in-out;
 `;
@@ -25,7 +25,7 @@ const CheckboxWrapper = styled.div<{ $disabled: boolean }>`
   padding: 2px 0.125rem;
   margin: 0;
   width: 100%;
-  cursor: ${(props) => (props.$disabled ? 'not-allowed' : 'pointer')};
+  cursor: ${(props) => (props.$disabled ? "not-allowed" : "pointer")};
 `;
 
 const AutoApproveMenuItem = ({
@@ -56,7 +56,7 @@ const AutoApproveMenuItem = ({
         </VSCodeCheckbox>
       </CheckboxWrapper>
       {action.subAction && (
-        <SubOptionAnimateIn inert={!checked ? '' : undefined} show={checked}>
+        <SubOptionAnimateIn inert={!checked ? "" : undefined} show={checked}>
           <AutoApproveMenuItem
             action={action.subAction}
             isChecked={isChecked}

@@ -1,7 +1,7 @@
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils';
-import { FoldVerticalIcon } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import { FoldVerticalIcon } from "lucide-react";
 
 const CompactTaskButton: React.FC<{
   className?: string;
@@ -10,7 +10,7 @@ const CompactTaskButton: React.FC<{
   return (
     <Tooltip>
       <TooltipContent side="left">Compact Task</TooltipContent>
-      <TooltipTrigger className={cn('flex items-center', className)}>
+      <TooltipTrigger className={cn("flex items-center", className)}>
         <Button
           aria-label="Compact Task"
           className="[&_svg]:size-3"

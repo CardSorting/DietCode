@@ -1,17 +1,17 @@
-import { huggingFaceDefaultModelId, huggingFaceModels } from '@shared/api.ts';
-import { EmptyRequest } from '@shared/nice-grpc/cline/common.ts';
-import type { Mode } from '@shared/storage/types.ts';
-import { VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
-import Fuse from 'fuse.js';
-import type React from 'react';
-import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react';
-import { useMount } from 'react-use';
-import { useExtensionState } from '../../context/ExtensionStateContext';
-import { ModelsServiceClient } from '../../services/grpc-client';
-import { highlight } from '../history/HistoryView';
-import { ModelInfoView } from './common/ModelInfoView';
-import { getModeSpecificFields, normalizeApiConfiguration } from './utils/providerUtils';
-import { useApiConfigurationHandlers } from './utils/useApiConfigurationHandlers';
+import { huggingFaceDefaultModelId, huggingFaceModels } from "@shared/api.ts";
+import { EmptyRequest } from "@shared/nice-grpc/cline/common.ts";
+import type { Mode } from "@shared/storage/types.ts";
+import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import Fuse from "fuse.js";
+import type React from "react";
+import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
+import { useMount } from "react-use";
+import { useExtensionState } from "../../context/ExtensionStateContext";
+import { ModelsServiceClient } from "../../services/grpc-client";
+import { highlight } from "../history/HistoryView";
+import { ModelInfoView } from "./common/ModelInfoView";
+import { getModeSpecificFields, normalizeApiConfiguration } from "./utils/providerUtils";
+import { useApiConfigurationHandlers } from "./utils/useApiConfigurationHandlers";
 
 export interface HuggingFaceModelPickerProps {
   isPopup?: boolean;
@@ -45,12 +45,12 @@ const HuggingFaceModelPicker: React.FC<HuggingFaceModelPickerProps> = ({
     handleModeFieldsChange(
       {
         huggingFaceModelId: {
-          plan: 'planModeHuggingFaceModelId',
-          act: 'actModeHuggingFaceModelId',
+          plan: "planModeHuggingFaceModelId",
+          act: "actModeHuggingFaceModelId",
         },
         huggingFaceModelInfo: {
-          plan: 'planModeHuggingFaceModelInfo',
-          act: 'actModeHuggingFaceModelInfo',
+          plan: "planModeHuggingFaceModelInfo",
+          act: "actModeHuggingFaceModelInfo",
         },
       },
       {
@@ -75,7 +75,7 @@ const HuggingFaceModelPicker: React.FC<HuggingFaceModelPickerProps> = ({
         });
       })
       .catch((err) => {
-        console.error('Failed to refresh Hugging Face models:', err);
+        console.error("Failed to refresh Hugging Face models:", err);
       });
   });
 
@@ -92,9 +92,9 @@ const HuggingFaceModelPicker: React.FC<HuggingFaceModelPickerProps> = ({
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -115,7 +115,7 @@ const HuggingFaceModelPicker: React.FC<HuggingFaceModelPickerProps> = ({
 
   const fuse = useMemo(() => {
     return new Fuse(searchableItems, {
-      keys: ['html'],
+      keys: ["html"],
       threshold: 0.6,
       shouldSort: true,
       isCaseSensitive: false,
@@ -127,7 +127,7 @@ const HuggingFaceModelPicker: React.FC<HuggingFaceModelPickerProps> = ({
 
   const modelSearchResults = useMemo(() => {
     const results: { id: string; html: string }[] = searchTerm
-      ? highlight(fuse.search(searchTerm), 'model-item-highlight')
+      ? highlight(fuse.search(searchTerm), "model-item-highlight")
       : searchableItems;
     return results;
   }, [searchTerm, fuse, searchableItems]);
@@ -138,15 +138,15 @@ const HuggingFaceModelPicker: React.FC<HuggingFaceModelPickerProps> = ({
     }
 
     switch (e.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         e.preventDefault();
         setSelectedIndex((prev) => (prev < modelSearchResults.length - 1 ? prev + 1 : 0));
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         e.preventDefault();
         setSelectedIndex((prev) => (prev > 0 ? prev - 1 : modelSearchResults.length - 1));
         break;
-      case 'Enter':
+      case "Enter":
         e.preventDefault();
         if (selectedIndex >= 0 && selectedIndex < modelSearchResults.length) {
           const selectedModelId = modelSearchResults[selectedIndex].id;
@@ -154,7 +154,7 @@ const HuggingFaceModelPicker: React.FC<HuggingFaceModelPickerProps> = ({
           setIsDropdownVisible(false);
         }
         break;
-      case 'Escape':
+      case "Escape":
         e.preventDefault();
         setIsDropdownVisible(false);
         break;
@@ -205,15 +205,15 @@ const HuggingFaceModelPicker: React.FC<HuggingFaceModelPickerProps> = ({
                 aria-label="Clear search"
                 className="input-icon-button codicon codicon-close"
                 onClick={() => {
-                  setSearchTerm('');
+                  setSearchTerm("");
                   setIsDropdownVisible(true);
                 }}
                 slot="end"
                 style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: '100%',
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "100%",
                 }}
               />
             )}
@@ -221,7 +221,7 @@ const HuggingFaceModelPicker: React.FC<HuggingFaceModelPickerProps> = ({
           {isDropdownVisible && (
             <div
               className={`absolute top-[calc(100%-3px)] left-0 w-[calc(100%-2px)] ${
-                isPopup ? 'max-h-[90px]' : 'max-h-[200px]'
+                isPopup ? "max-h-[90px]" : "max-h-[200px]"
               } overflow-y-auto bg-(--vscode-dropdown-background) border border-(--vscode-list-activeSelectionBackground) z-999 rounded-b-[3px]`}
               ref={dropdownListRef}
               role="listbox"
@@ -229,7 +229,7 @@ const HuggingFaceModelPicker: React.FC<HuggingFaceModelPickerProps> = ({
               {modelSearchResults.map((result, index) => (
                 <div
                   className={`p-[5px_10px] cursor-pointer break-all whitespace-normal ${
-                    index === selectedIndex ? 'bg-(--vscode-list-activeSelectionBackground)' : ''
+                    index === selectedIndex ? "bg-(--vscode-list-activeSelectionBackground)" : ""
                   } hover:bg-(--vscode-list-activeSelectionBackground)`}
                   key={result.id}
                   onClick={() => {

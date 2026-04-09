@@ -1,13 +1,13 @@
-import { getDistinctId } from '@/services/logging/distinctId';
-import { fetch } from '@/shared/net';
-import { Logger } from '@/shared/services/Logger';
-import { PostHog } from 'posthog-node';
-import { posthogConfig } from '../../../shared/services/config/posthog-config';
+import { getDistinctId } from "@/services/logging/distinctId";
+import { fetch } from "@/shared/net";
+import { Logger } from "@/shared/services/Logger";
+import { PostHog } from "posthog-node";
+import { posthogConfig } from "../../../shared/services/config/posthog-config";
 import type {
   FeatureFlagsAndPayloads,
   FeatureFlagsSettings,
   IFeatureFlagsProvider,
-} from './IFeatureFlagsProvider';
+} from "./IFeatureFlagsProvider";
 
 /**
  * PostHog implementation of the feature flags provider interface
@@ -27,7 +27,7 @@ export class PostHogFeatureFlagsProvider implements IFeatureFlagsProvider {
     } else {
       // Only create a new client if we have an API key
       if (!posthogConfig.apiKey) {
-        throw new Error('PostHog API key is required to create a new client');
+        throw new Error("PostHog API key is required to create a new client");
       }
       this.client = new PostHog(posthogConfig.apiKey, {
         host: posthogConfig.host,
@@ -56,7 +56,7 @@ export class PostHogFeatureFlagsProvider implements IFeatureFlagsProvider {
     try {
       return await this.client.getAllFlagsAndPayloads(this.distinctId, options);
     } catch (error) {
-      Logger.error('Error getting feature flags', error);
+      Logger.error("Error getting feature flags", error);
       return {};
     }
   }
@@ -75,7 +75,7 @@ export class PostHogFeatureFlagsProvider implements IFeatureFlagsProvider {
       try {
         await this.client.shutdown();
       } catch (error) {
-        Logger.error('Error shutting down PostHog client:', error);
+        Logger.error("Error shutting down PostHog client:", error);
       }
     }
   }

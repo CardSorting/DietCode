@@ -1,10 +1,10 @@
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
-import { Logger } from '@/shared/services/Logger';
-import type { ClineIgnoreController } from '@core/ignore/ClineIgnoreController';
-import { listFiles } from '@services/glob/list-files';
-import { fileExistsAtPath, isDirectory } from '@utils/fs';
-import { type LanguageParser, loadRequiredLanguageParsers } from './languageParser';
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
+import { Logger } from "@/shared/services/Logger";
+import type { ClineIgnoreController } from "@core/ignore/ClineIgnoreController";
+import { listFiles } from "@services/glob/list-files";
+import { fileExistsAtPath, isDirectory } from "@utils/fs";
+import { type LanguageParser, loadRequiredLanguageParsers } from "./languageParser";
 
 // TODO: implement caching behavior to avoid having to keep analyzing project for new tasks.
 export async function parseSourceCodeForDefinitionsTopLevel(
@@ -15,15 +15,15 @@ export async function parseSourceCodeForDefinitionsTopLevel(
   const resolvedPath = path.resolve(dirPath);
   if (!(await isDirectory(resolvedPath))) {
     if (await fileExistsAtPath(resolvedPath)) {
-      return 'The provided path is a file, not a directory. To view this file use read_file instead, or pass the parent directory to list_code_definition_names.';
+      return "The provided path is a file, not a directory. To view this file use read_file instead, or pass the parent directory to list_code_definition_names.";
     }
-    return 'This directory does not exist or you do not have permission to access it.';
+    return "This directory does not exist or you do not have permission to access it.";
   }
 
   // Get all files at top level (not gitignored)
   const [allFiles, _] = await listFiles(dirPath, false, 200);
 
-  let result = '';
+  let result = "";
 
   // Separate files to parse and remaining files
   const { filesToParse, remainingFiles } = separateFiles(allFiles);
@@ -61,7 +61,7 @@ export async function parseSourceCodeForDefinitionsTopLevel(
   // 		result += `${path.relative(dirPath, file)}\n`
   // 	})
 
-  return result ? result : 'No source code definitions found.';
+  return result ? result : "No source code definitions found.";
 }
 
 function separateFiles(allFiles: string[]): {
@@ -69,29 +69,29 @@ function separateFiles(allFiles: string[]): {
   remainingFiles: string[];
 } {
   const extensions = [
-    'js',
-    'jsx',
-    'ts',
-    'tsx',
-    'py',
+    "js",
+    "jsx",
+    "ts",
+    "tsx",
+    "py",
     // Rust
-    'rs',
-    'go',
+    "rs",
+    "go",
     // C
-    'c',
-    'h',
+    "c",
+    "h",
     // C++
-    'cpp',
-    'hpp',
+    "cpp",
+    "hpp",
     // C#
-    'cs',
+    "cs",
     // Ruby
-    'rb',
-    'java',
-    'php',
-    'swift',
+    "rb",
+    "java",
+    "php",
+    "swift",
     // Kotlin
-    'kt',
+    "kt",
   ].map((e) => `.${e}`);
   const filesToParse = allFiles
     .filter((file) => extensions.includes(path.extname(file)))
@@ -124,7 +124,7 @@ async function parseFile(
   if (clineIgnoreController && !clineIgnoreController.validateAccess(filePath)) {
     return null;
   }
-  const fileContent = await fs.readFile(filePath, 'utf8');
+  const fileContent = await fs.readFile(filePath, "utf8");
   const ext = path.extname(filePath).toLowerCase().slice(1);
 
   const { parser, query } = languageParsers[ext] || {};
@@ -132,7 +132,7 @@ async function parseFile(
     return `Unsupported file type: ${filePath}`;
   }
 
-  let formattedOutput = '';
+  let formattedOutput = "";
 
   try {
     // Parse the file content into an Abstract Syntax Tree (AST), a tree-like representation of the code
@@ -149,7 +149,7 @@ async function parseFile(
     captures.sort((a, b) => a.node.startPosition.row - b.node.startPosition.row);
 
     // Split the file content into individual lines
-    const lines = fileContent.split('\n');
+    const lines = fileContent.split("\n");
 
     // Keep track of the last line we've processed
     let lastLine = -1;
@@ -165,11 +165,11 @@ async function parseFile(
 
       // Add separator if there's a gap between captures
       if (lastLine !== -1 && startLine > lastLine + 1) {
-        formattedOutput += '|----\n';
+        formattedOutput += "|----\n";
       }
       // Only add the first line of the definition
       // query captures includes the definition name and the definition implementation, but we only want the name (I found discrepancies in the naming structure for various languages, i.e. javascript names would be 'name' and typescript names would be 'name.definition)
-      if (name.includes('name') && lines[startLine]) {
+      if (name.includes("name") && lines[startLine]) {
         formattedOutput += `│${lines[startLine]}\n`;
       }
       // Adds all the captured lines

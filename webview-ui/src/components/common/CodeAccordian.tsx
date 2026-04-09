@@ -1,9 +1,9 @@
-import CodeBlock from '@/components/common/CodeBlock';
-import { cn } from '@/lib/utils';
-import { getLanguageFromPath } from '@/utils/getLanguageFromPath';
-import { ChevronDownIcon, ChevronRightIcon } from 'lucide-react';
-import { memo, useMemo } from 'react';
-import { Button } from '../ui/button';
+import CodeBlock from "@/components/common/CodeBlock";
+import { cn } from "@/lib/utils";
+import { getLanguageFromPath } from "@/utils/getLanguageFromPath";
+import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
+import { memo, useMemo } from "react";
+import { Button } from "../ui/button";
 
 interface CodeAccordianProps {
   code?: string;
@@ -24,7 +24,7 @@ We need to remove leading non-alphanumeric characters from the path in order for
 The replace method removes these matched characters, effectively trimming the string up to the first alphanumeric character.
 */
 export const cleanPathPrefix = (path: string): string =>
-  path.replace(/^[^\u4e00-\u9fa5a-zA-Z0-9]+/, '');
+  path.replace(/^[^\u4e00-\u9fa5a-zA-Z0-9]+/, "");
 
 const CodeAccordian = ({
   code,
@@ -53,18 +53,18 @@ const CodeAccordian = ({
     <div className="bg-code overflow-hidden rounded-xs border border-editor-group-border">
       {(path || isFeedback || isConsoleLogs) && (
         <Button
-          aria-label={isExpanded ? 'Collapse code block' : 'Expand code block'}
+          aria-label={isExpanded ? "Collapse code block" : "Expand code block"}
           className={cn(
-            'text-description flex items-center cursor-pointer select-none w-full py-[9px] px-2.5',
+            "text-description flex items-center cursor-pointer select-none w-full py-[9px] px-2.5",
             {
-              'cursor-wait opacity-70': isLoading,
+              "cursor-wait opacity-70": isLoading,
             },
           )}
           onClick={isLoading ? undefined : onToggleExpand}
           onKeyDown={(e) => {
             if (!isLoading) {
               e.preventDefault();
-              if (e.key === 'Enter' || e.key === ' ') {
+              if (e.key === "Enter" || e.key === " ") {
                 e.stopPropagation();
                 onToggleExpand();
               }
@@ -75,16 +75,16 @@ const CodeAccordian = ({
         >
           {isFeedback || isConsoleLogs ? (
             <div className="flex items-center">
-              <span className={`mr-1.5 codicon codicon-${isFeedback ? 'feedback' : 'output'}`} />
+              <span className={`mr-1.5 codicon codicon-${isFeedback ? "feedback" : "output"}`} />
               <span className="whitespace-nowrap overflow-hidden text-ellipsis mr-2">
-                {isFeedback ? 'User Edits' : 'Console Logs'}
+                {isFeedback ? "User Edits" : "Console Logs"}
               </span>
             </div>
           ) : (
             <span className="whitespace-nowrap overflow-hidden text-ellipsis mr-2 [direction: rtl] text-left">
-              {path?.startsWith('.') && <span>.</span>}
-              {path && !path.startsWith('.') && <span>/</span>}
-              {`${cleanPathPrefix(path ?? '')}\u200E`}
+              {path?.startsWith(".") && <span>.</span>}
+              {path && !path.startsWith(".") && <span>/</span>}
+              {`${cleanPathPrefix(path ?? "")}\u200E`}
             </span>
           )}
           <div className="grow" />
@@ -104,9 +104,9 @@ const CodeAccordian = ({
       {(!(path || isFeedback || isConsoleLogs) || isExpanded) && (
         <div className="overflow-x-auto overflow-y-hidden max-w-full">
           <CodeBlock
-            source={`${'```'}${diff !== undefined ? 'diff' : inferredLanguage}\n${(
-              code ?? diff ?? ''
-            ).trim()}\n${'```'}`}
+            source={`${"```"}${diff !== undefined ? "diff" : inferredLanguage}\n${(
+              code ?? diff ?? ""
+            ).trim()}\n${"```"}`}
           />
         </div>
       )}
