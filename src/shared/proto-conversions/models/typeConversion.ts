@@ -170,7 +170,7 @@ export function fromProtobufModels(
   protoModels: Record<string, OpenRouterModelInfo>,
 ): Record<string, ModelInfo> {
   const result: Record<string, ModelInfo> = {};
-  for (const [key, value] of Object.entries(protoModels)) {
+  for (const [key, value] of Object.entries(protoModels || {})) {
     result[key] = fromProtobufModelInfo(value);
   }
   return result;

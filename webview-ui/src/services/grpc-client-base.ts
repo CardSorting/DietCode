@@ -1,5 +1,4 @@
-/** biome-ignore-all lint/complexity/noThisInStatic: In static methods, this refers to the constructor (the subclass that invoked the method) when we want to refer to the subclass serviceName.
- *
+/**
  * NOTE: This file imports PLATFORM_CONFIG directly rather than using the PlatformProvider
  * because it contains static utility methods that are called from various contexts,
  * including non-React code. The configuration is compile-time constant, so direct
@@ -14,6 +13,7 @@ export interface Callbacks<TResponse> {
   onComplete: () => void;
 }
 
+// biome-ignore lint/complexity/noStaticOnlyClass: Base class for generated gRPC clients
 export abstract class ProtoBusClient {
   static serviceName: string;
 
@@ -21,7 +21,7 @@ export abstract class ProtoBusClient {
     methodName: string,
     request: TRequest,
     encodeRequest: (_: TRequest) => unknown,
-    decodeResponse: (_: { [key: string]: any }) => TResponse,
+    decodeResponse: (_: Record<string, unknown>) => TResponse,
   ): Promise<TResponse> {
     return new Promise((resolve, reject) => {
       const requestId = uuidv4();
@@ -53,7 +53,8 @@ export abstract class ProtoBusClient {
       PLATFORM_CONFIG.postMessage({
         type: "grpc_request",
         grpc_request: {
-          service: ProtoBusClient.serviceName,
+          // biome-ignore lint/complexity/noThisInStatic: this refers to the subclass constructor
+          service: this.serviceName,
           method: methodName,
           message: PLATFORM_CONFIG.encodeMessage(request, encodeRequest),
           request_id: requestId,
@@ -67,7 +68,7 @@ export abstract class ProtoBusClient {
     methodName: string,
     request: TRequest,
     encodeRequest: (_: TRequest) => unknown,
-    decodeResponse: (_: { [key: string]: any }) => TResponse,
+    decodeResponse: (_: Record<string, unknown>) => TResponse,
     callbacks: Callbacks<TResponse>,
   ): () => void {
     const requestId = uuidv4();
@@ -108,7 +109,8 @@ export abstract class ProtoBusClient {
     PLATFORM_CONFIG.postMessage({
       type: "grpc_request",
       grpc_request: {
-        service: ProtoBusClient.serviceName,
+        // biome-ignore lint/complexity/noThisInStatic: this refers to the subclass constructor
+        service: this.serviceName,
         method: methodName,
         message: PLATFORM_CONFIG.encodeMessage(request, encodeRequest),
         request_id: requestId,

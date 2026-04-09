@@ -14,22 +14,19 @@ export const STEP_CONFIG = {
   0: {
     title: "How will you use DietCode?",
     description: "Select an option below to get started.",
-    buttons: [
-      { text: "Continue", action: "next", variant: "default" },
-      { text: "Login to DietCode", action: "signin", variant: "secondary" },
-    ],
+    buttons: [{ text: "Continue", action: "next", variant: "default" }],
   },
   [NEW_USER_TYPE.FREE]: {
     title: "Select a free model",
     buttons: [
-      { text: "Create my Account", action: "signup", variant: "default" },
+      { text: "Continue", action: "done", variant: "default" },
       { text: "Back", action: "back", variant: "secondary" },
     ],
   },
   [NEW_USER_TYPE.POWER]: {
     title: "Select your model",
     buttons: [
-      { text: "Create my Account", action: "signup", variant: "default" },
+      { text: "Continue", action: "done", variant: "default" },
       { text: "Back", action: "back", variant: "secondary" },
     ],
   },

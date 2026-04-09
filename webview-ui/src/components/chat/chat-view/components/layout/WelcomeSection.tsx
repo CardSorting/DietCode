@@ -252,7 +252,7 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
       <div className="overflow-y-auto flex flex-col pb-2.5">
         <HomeHeader shouldShowQuickWins={shouldShowQuickWins} />
         <>
-          <BannerCarousel banners={activeBanners} />
+          {/* BannerCarousel hidden as per request */}
           {!shouldShowQuickWins && taskHistory.length > 0 && (
             <HistoryPreview showHistoryView={showHistoryView} />
           )}
