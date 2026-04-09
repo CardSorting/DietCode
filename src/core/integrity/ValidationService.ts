@@ -11,11 +11,12 @@
 
 import { EventType } from '../../domain/Event';
 import type { ValidationRepository, ValidationResult } from '../../domain/Validation';
+import { HardenedValidationRepository } from '../../infrastructure/validation/HardenedValidationRepository';
 import type { EventBus } from '../orchestration/EventBus';
 
 export class ValidationService {
   constructor(
-    private repository: ValidationRepository,
+    private repository: ValidationRepository = new HardenedValidationRepository(),
     private eventBus?: EventBus,
   ) {}
 
@@ -39,9 +40,7 @@ export class ValidationService {
    * Validates a decision code (domain-specific validation)
    */
   async validateDecisionCode(code: string): Promise<ValidationResult> {
-    return {
-      isValid: code.length > 0,
-      errors: code.length === 0 ? [{ line: 1, column: 1, message: 'Empty code provided' }] : [],
-    };
+    // PRODUCTION HARDENING: Delegating to the actual repository logic
+    return this.repository.validate('decision.ts', code);
   }
 }

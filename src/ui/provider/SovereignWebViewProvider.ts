@@ -24,6 +24,8 @@ import { StateOrchestrator } from '../../core/manager/StateOrchestrator';
 import { LLMProviderRegistry } from '../../core/manager/LLMProviderRegistry';
 import { VsCodeStateRepository } from '../../infrastructure/storage/VsCodeStateRepository';
 import { StateSyncService } from '../../core/manager/StateSyncService';
+import { convertProtoToApiConfiguration } from '../../shared/proto-conversions/models/api-configuration-conversion';
+import { UpdateApiConfigurationRequest } from '../../shared/nice-grpc/cline/models';
 import { StateChangePhase } from '../../domain/state/StateChangeProtocol';
 import type { ApiConfiguration } from '../../shared/api';
 import type { GlobalState } from '../../domain/LLMProvider';
@@ -398,11 +400,22 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
         break;
       }
       case 'getAvailableTerminalProfiles': {
-        // Production Hardening: Real profile detection fallback
-        const profiles = [
-          { name: 'zsh', path: '/bin/zsh', isDefault: true },
-          { name: 'bash', path: '/bin/bash', isDefault: false },
+        // PRODUCTION HARDENING: Real profile detection
+        const shellPaths = [
+          { name: 'zsh', path: '/bin/zsh' },
+          { name: 'bash', path: '/bin/bash' },
+          { name: 'fish', path: '/usr/local/bin/fish' },
+          { name: 'sh', path: '/bin/sh' },
         ];
+        
+        const profiles = shellPaths
+          .filter(shell => fs.existsSync(shell.path))
+          .map((shell, index) => ({
+            name: shell.name,
+            path: shell.path,
+            isDefault: index === 0
+          }));
+
         this._sendGrpcSuccess(request.request_id, { profiles });
         break;
       }
@@ -500,12 +513,74 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
       case 'subscribeToLiteLlmModels':
         this._sendGrpcSuccess(request.request_id, { models: {} }, true);
         break;
-      case 'refreshClineRecommendedModelsRpc':
+      case 'updateApiConfigurationProto': {
+        const protoConfig = (request as any).apiConfiguration;
+        if (protoConfig) {
+          const apiConfig = convertProtoToApiConfiguration(protoConfig);
+          // Apply changes to individual keys in StateOrchestrator to ensure reactive synchronization
+          const orchestrator = StateOrchestrator.getInstance();
+          
+          // Map of proto fields to state keys
+          const fieldToKeyMap: Record<string, string> = {
+            planModeApiProvider: 'planModeApiProvider',
+            actModeApiProvider: 'actModeApiProvider',
+            planModeApiModelId: 'planModeApiModelId',
+            actModeApiModelId: 'actModeApiModelId',
+            apiKey: 'apiKey',
+            openRouterApiKey: 'openRouterApiKey',
+            geminiApiKey: 'geminiApiKey',
+            // Add more as needed, but these are the critical ones for provider selection
+          };
+
+          await Promise.all(
+            Object.entries(fieldToKeyMap).map(async ([field, key]) => {
+              const val = (apiConfig as any)[field];
+              if (val !== undefined) {
+                await orchestrator.applyChange({
+                  key,
+                  newValue: val,
+                  phase: StateChangePhase.COMMITTED
+                });
+              }
+            })
+          );
+          
+          // Also save the legacy selectedProvider for backward compatibility
+          if (apiConfig.planModeApiProvider) {
+            await this._context.globalState.update('selectedProvider', apiConfig.planModeApiProvider);
+          }
+        }
+        this._sendGrpcSuccess(request.request_id, {});
+        break;
+      }
+      case 'refreshClineRecommendedModelsRpc': {
+        const registry = LLMProviderRegistry.getInstance();
+        const providers = registry.getAllProviders();
+        const recommended: string[] = [];
+        
+        // Dynamically build recommended list from registered providers
+        for (const [id, adapter] of providers.entries()) {
+          try {
+            const info = adapter.getModelInfo();
+            if (info && !recommended.includes(info.id)) {
+              recommended.push(info.id);
+            }
+          } catch (e) {
+            // Skip adapters that fail to provide info
+          }
+        }
+
+        // Add standard fallbacks if none detected
+        if (recommended.length === 0) {
+          recommended.push('claude-3-7-sonnet-20250219', 'gpt-4o');
+        }
+
         this._sendGrpcSuccess(request.request_id, {
-          recommended: ['claude-3-7-sonnet-20250219', 'gpt-4o'],
+          recommended,
           free: [],
         });
         break;
+      }
       default:
         this._sendGrpcSuccess(request.request_id, { models: {} });
     }
@@ -757,8 +832,8 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
       lastDismissedCliBannerVersion: orchestrated.lastDismissedCliBannerVersion || 0,
       focusChainSettings: orchestrated.focusChainSettings || { enabled: false, remindClineInterval: 5 },
       apiConfiguration: {
-        actModeApiProvider: settings.selectedProvider,
-        planModeApiProvider: settings.selectedProvider,
+        actModeApiProvider: orchestrated.actModeApiProvider || settings.selectedProvider,
+        planModeApiProvider: orchestrated.planModeApiProvider || settings.selectedProvider,
       },
       userInfo: null,
       availableProviderModels: orchestrated.availableProviderModels || settings.availableProviderModels || {},

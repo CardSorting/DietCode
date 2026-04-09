@@ -12,6 +12,7 @@
 import type { ContextCompressionStrategy } from '../../domain/prompts/ContextCompressionStrategy';
 import type { CompressionOptions } from '../../domain/prompts/ContextCompressionStrategy';
 import type { SessionContext } from '../../domain/prompts/ContextTypes';
+import { LLMProviderRegistry } from '../../core/manager/LLMProviderRegistry';
 
 export class ContextCompressorAdapter implements ContextCompressionStrategy {
   private settings: CompressionOptions;
@@ -70,47 +71,68 @@ export class ContextCompressorAdapter implements ContextCompressionStrategy {
     let filesIdx = 0;
 
     for (const msg of allMessages) {
+      const contentLower = msg.content.toLowerCase();
+      
       if (
-        msg.content.toLowerCase().includes('intent') ||
-        (msg.role === 'user' && msg.content.length < 200)
+        contentLower.includes('intent') || 
+        contentLower.includes('goal') ||
+        (msg.role === 'user' && msg.content.length < 300 && intentIdx < 1)
       ) {
         if (fields.intent && intentIdx < 1) {
-          intent.push(msg.content.slice(0, 500));
+          intent.push(msg.content.slice(0, 1000));
           intentIdx++;
         }
       }
+      
       if (
-        msg.content.toLowerCase().includes('decision') ||
-        msg.content.toLowerCase().includes('i will')
+        contentLower.includes('decision') || 
+        contentLower.includes('decided') ||
+        contentLower.includes('i will') ||
+        contentLower.includes('we will')
       ) {
-        if (fields.decisions && decisionsIdx < 1) {
+        if (fields.decisions && decisionsIdx < 5) {
           keyDecisions.push(msg.content.slice(0, 500));
           decisionsIdx++;
         }
       }
-      if (msg.content.includes('next step') || msg.content.includes('to continue')) {
-        if (fields.next && nextIdx < 1) {
+      
+      if (
+        contentLower.includes('next step') || 
+        contentLower.includes('to continue') ||
+        contentLower.includes('todo')
+      ) {
+        if (fields.next && nextIdx < 5) {
           nextSteps.push(msg.content.slice(0, 500));
           nextIdx++;
         }
       }
+      
       if (
-        msg.content.toLowerCase().includes('error') ||
-        msg.content.toLowerCase().includes('exception')
+        contentLower.includes('error') || 
+        contentLower.includes('exception') ||
+        contentLower.includes('failed') ||
+        contentLower.includes('issue')
       ) {
-        if (fields.errors && errorsIdx < 1) {
+        if (fields.errors && errorsIdx < 5) {
           errorTriage.push(msg.content.slice(0, 500));
           errorsIdx++;
         }
       }
-      if (msg.content.includes('pattern') || msg.content.includes('we keep seeing')) {
-        if (fields.patterns && patternsIdx < 1) {
+      
+      if (contentLower.includes('pattern') || contentLower.includes('best practice')) {
+        if (fields.patterns && patternsIdx < 3) {
           patterns.push(msg.content.slice(0, 500));
           patternsIdx++;
         }
       }
-      if (msg.content.includes('file') || msg.content.includes('modif')) {
-        if (fields.files && filesIdx < 1) {
+      
+      if (
+        contentLower.includes('file') || 
+        contentLower.includes('modified') ||
+        contentLower.includes('updated') ||
+        contentLower.includes('changed')
+      ) {
+        if (fields.files && filesIdx < 10) {
           fileChanges.push(msg.content.slice(0, 500));
           filesIdx++;
         }
