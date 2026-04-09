@@ -353,6 +353,8 @@ export interface DatabaseSchema {
     id: string;
     type: string;
     status: string;
+    worker_id: string | null;
+    claimed_at: number | null;
     total_shards: number;
     completed_shards: number | null;
     metadata: string | null;
@@ -367,6 +369,12 @@ export interface DatabaseSchema {
     payload: string | null;
     error: string | null;
     priority: number | null;
+    timestamp: number;
+  };
+  hive_scoring_cache: {
+    id: string;
+    hash: string;
+    result: string;
     timestamp: number;
   };
 }

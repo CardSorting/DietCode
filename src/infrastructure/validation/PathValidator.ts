@@ -11,6 +11,7 @@
  */
 
 import path from 'node:path';
+import * as fs from 'node:fs';
 
 export class PathValidator {
   private workspaceRoot: string;
@@ -25,8 +26,15 @@ export class PathValidator {
   private readonly shellInjectionPatterns = /[&|;$`<>]/;
 
   constructor(workspaceRoot?: string) {
-    // Ensure workspaceRoot is absolute and normalized
-    this.workspaceRoot = path.normalize(path.resolve(workspaceRoot || process.cwd()));
+    // Ensure workspaceRoot is absolute, normalized, and resolved to its real path
+    const resolvedRoot = path.normalize(path.resolve(workspaceRoot || process.cwd()));
+    try {
+      this.workspaceRoot = fs.existsSync(resolvedRoot) 
+        ? fs.realpathSync(resolvedRoot) 
+        : resolvedRoot;
+    } catch (e) {
+      this.workspaceRoot = resolvedRoot;
+    }
   }
 
   /**
@@ -42,10 +50,36 @@ export class PathValidator {
     }
 
     // 2. Resolve and normalize
-    const absolutePath = path.normalize(path.resolve(this.workspaceRoot, targetPath));
+    let absolutePath = path.normalize(path.resolve(this.workspaceRoot, targetPath));
+    
+    // Pass 19: Symlink Escape Hardening
+    // Resolve the real physical path to prevent symlink traps
+    try {
+      if (fs.existsSync(absolutePath)) {
+        absolutePath = fs.realpathSync(absolutePath);
+      } else {
+        // For new files, ensure the parent directory is safe
+        const parentDir = path.dirname(absolutePath);
+        if (fs.existsSync(parentDir)) {
+          const realParent = fs.realpathSync(parentDir);
+          absolutePath = path.join(realParent, path.basename(absolutePath));
+        }
+      }
+    } catch (e) {
+      // If resolution fails, we fall back to normalized path (risk-averse)
+    }
 
-    // 3. Boundary check
-    if (!absolutePath.startsWith(this.workspaceRoot)) {
+    // 3. Boundary check (Harden Pass 19)
+    // We use relative path checking to prevent "sibling directory" escapes
+    // e.g. /workspace and /workspace_secret would both pass a .startsWith check.
+    const relative = path.relative(this.workspaceRoot, absolutePath);
+    
+    // Normalize for case-insensitivity comparison on Mac/Windows
+    const isMacOrWin = process.platform === 'darwin' || process.platform === 'win32';
+    const relativeCheck = isMacOrWin ? relative.toLowerCase() : relative;
+    const isOutside = relativeCheck.startsWith('..') || path.isAbsolute(relative);
+    
+    if (isOutside) {
       const errorMsg = `🛑 [SECURITY] Path traversal attempt blocked: ${targetPath} is outside workspace ${this.workspaceRoot}`;
       console.error(errorMsg);
       throw new Error(errorMsg);

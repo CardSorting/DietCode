@@ -106,7 +106,31 @@ export class FileSystemAdapter implements Filesystem {
       // Ignore for telemetry
     }
 
-    fs.writeFileSync(validatedPath, content, { encoding: 'utf8', mode: options?.mode });
+    // Pass 19: Shadow Write Atomicity
+    const tmpDir = path.join(this.validator.getWorkspaceRoot(), '.dietcode', 'tmp');
+    if (!fs.existsSync(tmpDir)) {
+      fs.mkdirSync(tmpDir, { recursive: true });
+    }
+
+    const tmpPath = path.join(tmpDir, `shadow_${crypto.randomUUID()}.tmp`);
+    
+    try {
+      // 1. Write to shadow file
+      const fd = fs.openSync(tmpPath, 'w', options?.mode);
+      fs.writeSync(fd, content, 0, 'utf8');
+      
+      // 2. Physical sync to media
+      fs.fsyncSync(fd);
+      fs.closeSync(fd);
+
+      // 3. Atomic rename (Standard POSIX behavior)
+      fs.renameSync(tmpPath, validatedPath);
+    } catch (err) {
+      if (fs.existsSync(tmpPath)) {
+        try { fs.unlinkSync(tmpPath); } catch {}
+      }
+      throw err;
+    }
 
     // Pass 18: Record Sovereign Signature
     const signature = crypto.createHash('sha256').update(content).digest('hex');

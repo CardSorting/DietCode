@@ -21,6 +21,9 @@ import type { JobDefinition } from '../../domain/system/QueueProvider';
 import { Core } from '../database/sovereign/Core';
 
 export class BroccoliQueueAdapter implements QueueProvider {
+  private workerId = `worker-${crypto.randomUUID()}`;
+  private isProcessing = false;
+
   /**
    * Enqueues a typed job into the Sovereign Swarm Queue (v2.0)
    * Modern Architecture: Schema hardening is handled at the Core/Schema level.
@@ -38,6 +41,8 @@ export class BroccoliQueueAdapter implements QueueProvider {
         id,
         type: jobTypeStr,
         status: 'pending',
+        worker_id: null,
+        claimed_at: null,
         total_shards: 1,
         completed_shards: 0,
         metadata: JSON.stringify(job.payload),
@@ -50,60 +55,82 @@ export class BroccoliQueueAdapter implements QueueProvider {
   }
 
   /**
-   * Processes jobs from the queue via polling (Production Hardening)
+   * Processes jobs from the queue via polling (Atomic Claiming Pass 19)
    */
   process<T>(callback: (job: any) => Promise<void>): void {
+    if (this.isProcessing) return;
+    this.isProcessing = true;
+
     const poll = async () => {
-      if (!Core.isAvailable()) return;
+      if (!Core.isAvailable()) {
+        setTimeout(poll, 15000);
+        return;
+      }
 
       try {
-        const jobs = await Core.selectWhere('hive_queue', { status: 'pending' }, undefined, {
-          limit: 5,
-        });
+        const db = (await Core.db()) as KyselyDatabase;
+
+        // Pass 19: Atomic Claiming Pattern
+        // 1. Identify pending jobs
+        const jobs = await db
+          .selectFrom('hive_queue')
+          .select(['id', 'type', 'metadata'])
+          .where('status', '=', 'pending')
+          .orderBy('created_at', 'asc')
+          .limit(5)
+          .execute();
+
         for (const job of jobs) {
-          // Mark as processing
-          await Core.push({
-            type: 'update',
-            table: 'hive_queue',
-            where: { column: 'id', value: job.id },
-            values: { status: 'processing', updated_at: Date.now() },
-          });
+          // 2. Atomic Claim: Try to mark as processing with OUR workerId
+          const result = await db
+            .updateTable('hive_queue')
+            .set({ 
+              status: 'processing', 
+              worker_id: this.workerId,
+              claimed_at: Date.now(),
+              updated_at: Date.now() 
+            })
+            .where('id', '=', job.id)
+            .where('status', '=', 'pending') // Double check atomicity
+            .executeTakeFirst();
 
-          try {
-            await callback({
-              id: job.id,
-              type: job.type,
-              payload: JSON.parse(job.metadata || '{}'),
-            });
+          // Only proceed if WE were the ones to update it
+          if (Number(result.numUpdatedRows) > 0) {
+            try {
+              await callback({
+                id: job.id,
+                type: job.type,
+                payload: JSON.parse(job.metadata || '{}'),
+              });
 
-            // Mark as done
-            await Core.push({
-              type: 'update',
-              table: 'hive_queue',
-              where: { column: 'id', value: job.id },
-              values: { status: 'done', updated_at: Date.now() },
-            });
-          } catch (err) {
-            console.error(`[QUEUE] Job ${job.id} failed`, err);
-            await Core.push({
-              type: 'update',
-              table: 'hive_queue',
-              where: { column: 'id', value: job.id },
-              values: {
-                status: 'failed',
-                metadata: JSON.stringify({ error: String(err) }),
-                updated_at: Date.now(),
-              },
-            });
+              // Mark as done
+              await db
+                .updateTable('hive_queue')
+                .set({ status: 'done', updated_at: Date.now() })
+                .where('id', '=', job.id)
+                .execute();
+            } catch (err) {
+              console.error(`[QUEUE] Job ${job.id} failed`, err);
+              // Mark as failed but PRESERVE metadata payload
+              await db
+                .updateTable('hive_queue')
+                .set({
+                  status: 'failed',
+                  error: String(err), // Use dedicated error field if available or metadata
+                  updated_at: Date.now(),
+                })
+                .where('id', '=', job.id)
+                .execute();
+            }
           }
         }
       } catch (e) {
         // Background loop errors should not crash the host
       }
+
+      setTimeout(poll, 15000); // 15s poll
     };
 
-    // Start polling loop
-    setInterval(poll, 15000); // 15s poll
-    poll(); // Initial run
+    poll(); 
   }
 }

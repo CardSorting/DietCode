@@ -1,4 +1,4 @@
-[2026-04-09T15:55:10.760Z] [INFO] [SWARM] BufferedDbPool initialized with sharded architecture.
+[2026-04-09T16:04:37.492Z] [INFO] [SWARM] BufferedDbPool initialized with sharded architecture.
 --- DIETCODE ADVANCED INFRASTRUCTURE VERIFICATION ---
 [CORE] Initializing Sovereign Hive at: /Users/bozoegg/Downloads/DietCode/.dietcode/verify_test.db
 [DbPool] 🏛️ Sovereign Hive Schema baseline established and hardened.
@@ -15,23 +15,23 @@
 
 [PHASE 7] Testing LockOrchestrator (Ownership)...
 🔒 Lock acquisition: test-task_test-op (Owner: agent-007)
-✅ Lock acquired: 0d99c5a8-c500-46e2-a442-e2226206d571
+✅ Lock acquired: f2439bbe-84e8-419b-9c2e-64f62a532a11
 ✅ PASS: Lock acquired with ownerId: agent-007
 🔓 Lock release: test-op (soft)
 ✅ Lock released: test-op
 
 [PHASE 8] Testing TransactionManager (Atomicity)...
-2026-04-09T15:55:11.903Z [main] INFO [TRANSACTION] Started tx-7d213e48-bb50-4c13-b147-191a13692afa | Data: {}
-🔒 Lock acquisition: tx-7d213e48-bb50-4c13-b147-191a13692afa_file_write:/Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt (Owner: agent-58840)
-✅ Lock acquired: 19104afb-9115-407b-b04e-b6f5dacfb4b3
-2026-04-09T15:55:11.903Z [main] INFO [TRANSACTION] Committing 1 changes... | Data: {"count":1}
-2026-04-09T15:55:11.907Z [main] INFO [TRANSACTION] tx-7d213e48-bb50-4c13-b147-191a13692afa Committed successfully | Data: {}
+2026-04-09T16:04:38.588Z [main] INFO [TRANSACTION] Started tx-515d570c-81a1-41f8-baf7-91af70f47d32 | Data: {}
+🔒 Lock acquisition: tx-515d570c-81a1-41f8-baf7-91af70f47d32_file_write:/Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt (Owner: agent-59820)
+✅ Lock acquired: c93f5e44-5c90-4fd6-a50a-91220b880743
+2026-04-09T16:04:38.589Z [main] INFO [TRANSACTION] Committing 1 changes... | Data: {"count":1}
+2026-04-09T16:04:38.590Z [main] INFO [TRANSACTION] tx-515d570c-81a1-41f8-baf7-91af70f47d32 Committed successfully | Data: {}
 🔓 Lock release: file_write:/Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt (soft)
 ✅ Lock released: file_write:/Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt
-2026-04-09T15:55:11.908Z [main] INFO [TRANSACTION] Started tx-f0eb4f32-51e2-4eea-8075-d12c661a09b2 | Data: {}
-🔒 Lock acquisition: tx-f0eb4f32-51e2-4eea-8075-d12c661a09b2_file_write:/Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt (Owner: agent-58840)
-✅ Lock acquired: 0d4d5902-936a-4cda-b490-29c522e9dddd
-2026-04-09T15:55:11.908Z [main] INFO [TRANSACTION] tx-f0eb4f32-51e2-4eea-8075-d12c661a09b2 Rolling back... | Data: {}
+2026-04-09T16:04:38.591Z [main] INFO [TRANSACTION] Started tx-7e43b012-d46e-48d0-addf-97e2ef0caee5 | Data: {}
+🔒 Lock acquisition: tx-7e43b012-d46e-48d0-addf-97e2ef0caee5_file_write:/Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt (Owner: agent-59820)
+✅ Lock acquired: d96dc706-9f31-40c7-82e5-e21dc9ea5065
+2026-04-09T16:04:38.592Z [main] INFO [TRANSACTION] tx-7e43b012-d46e-48d0-addf-97e2ef0caee5 Rolling back... | Data: {}
 ✅ File /Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt restored to state before action
 🔄 Full rollback completed. Cleansed 1 backup record(s).
 🔓 Lock release: file_write:/Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt (soft)
@@ -39,10 +39,10 @@
 ✅ PASS: Transaction rolled back to initial state (Restore)
 
 [PHASE 9] Testing TransactionManager (Orphan Cleanup)...
-2026-04-09T15:55:11.909Z [main] INFO [TRANSACTION] Started tx-1cfa6358-0c3e-4f69-911f-8bcfeb68ff6b | Data: {}
-🔒 Lock acquisition: tx-1cfa6358-0c3e-4f69-911f-8bcfeb68ff6b_file_write:/Users/bozoegg/Downloads/DietCode/tmp_new_tx.txt (Owner: agent-58840)
-✅ Lock acquired: e9517cc9-545c-4f02-a33e-2f90003495fd
-2026-04-09T15:55:11.909Z [main] INFO [TRANSACTION] tx-1cfa6358-0c3e-4f69-911f-8bcfeb68ff6b Rolling back... | Data: {}
+2026-04-09T16:04:38.592Z [main] INFO [TRANSACTION] Started tx-38bd9954-4f64-4f97-bc78-faa19f2586ac | Data: {}
+🔒 Lock acquisition: tx-38bd9954-4f64-4f97-bc78-faa19f2586ac_file_write:/Users/bozoegg/Downloads/DietCode/tmp_new_tx.txt (Owner: agent-59820)
+✅ Lock acquired: 595b887a-d71d-4381-a5d6-c0b375f4a0ec
+2026-04-09T16:04:38.593Z [main] INFO [TRANSACTION] tx-38bd9954-4f64-4f97-bc78-faa19f2586ac Rolling back... | Data: {}
 ✅ File /Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt restored to state before action
 🔄 Full rollback completed. Cleansed 2 backup record(s).
 🔓 Lock release: file_write:/Users/bozoegg/Downloads/DietCode/tmp_new_tx.txt (soft)
@@ -50,15 +50,29 @@
 ✅ PASS: Orphan file purged on rollback
 
 [PHASE 10] Testing Infrastructure (Concurrency Guard)...
-2026-04-09T15:55:11.909Z [main] INFO [TRANSACTION] Started tx-6bc45b4e-39f3-4ee8-aed2-9328417d5065 | Data: {}
-🔒 Lock acquisition: tx-6bc45b4e-39f3-4ee8-aed2-9328417d5065_file_write:/Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt (Owner: agent-58840)
-✅ Lock acquired: e55ad18f-f49e-4a13-a168-171c0c47374a
+2026-04-09T16:04:38.593Z [main] INFO [TRANSACTION] Started tx-f6ef0518-83f5-411b-9aac-965330659902 | Data: {}
+🔒 Lock acquisition: tx-f6ef0518-83f5-411b-9aac-965330659902_file_write:/Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt (Owner: agent-59820)
+✅ Lock acquired: 2458a5e4-7bb7-4172-9961-734b3b430b7e
 ✅ PASS: Distributed lock correctly prevents concurrent write
-2026-04-09T15:55:11.909Z [main] INFO [TRANSACTION] tx-6bc45b4e-39f3-4ee8-aed2-9328417d5065 Rolling back... | Data: {}
+2026-04-09T16:04:38.593Z [main] INFO [TRANSACTION] tx-f6ef0518-83f5-411b-9aac-965330659902 Rolling back... | Data: {}
 ✅ File /Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt restored to state before action
 ✅ File /Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt restored to state before action
 🔄 Full rollback completed. Cleansed 3 backup record(s).
 🔓 Lock release: file_write:/Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt (soft)
 ✅ Lock released: file_write:/Users/bozoegg/Downloads/DietCode/tmp_tx_test.txt
+
+[PHASE 11] Testing Sovereign Queue (Atomic Claiming)...
+✅ PASS: Atomic claiming prevented double-processing
+
+[PHASE 12] Testing PathValidator (Boundary Hardening)...
+🛑 [SECURITY] Path traversal attempt blocked: /Users/bozoegg/Downloads/DietCode_secret is outside workspace /Users/bozoegg/Downloads/DietCode
+✅ PASS: Sibling directory escape blocked by PathValidator
+
+[PHASE 13] Testing Sovereign Reaper (Self-Healing)...
+✅ PASS: Sovereign Reaper purged the zombie lock
+
+[PHASE 14] Testing PathValidator (Symlink Trap)...
+🛑 [SECURITY] Path traversal attempt blocked: /Users/bozoegg/Downloads/DietCode/trap_symlink is outside workspace /Users/bozoegg/Downloads/DietCode
+✅ PASS: Symlink Trap detected and blocked
 
 ✨ ALL ADVANCED INFRASTRUCTURE VERIFICATIONS PASSED! ✨

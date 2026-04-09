@@ -106,10 +106,13 @@ export class Schema {
       await execute(
         'CREATE TABLE IF NOT EXISTS hive_locks (id TEXT PRIMARY KEY, resource TEXT NOT NULL, owner_id TEXT NOT NULL, lock_code TEXT NOT NULL, expires_at INTEGER NOT NULL, acquired_at INTEGER NOT NULL)',
       );
+      await execute(
+        'CREATE TABLE IF NOT EXISTS hive_scoring_cache (id TEXT PRIMARY KEY, hash TEXT NOT NULL UNIQUE, result TEXT NOT NULL, timestamp INTEGER NOT NULL)',
+      );
 
       // HIVE ORCHESTRATION
       await execute(
-        'CREATE TABLE IF NOT EXISTS hive_queue (id TEXT PRIMARY KEY, type TEXT NOT NULL, status TEXT NOT NULL, total_shards INTEGER NOT NULL, completed_shards INTEGER DEFAULT 0, metadata TEXT, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)',
+        'CREATE TABLE IF NOT EXISTS hive_queue (id TEXT PRIMARY KEY, type TEXT NOT NULL, status TEXT NOT NULL, worker_id TEXT, claimed_at INTEGER, total_shards INTEGER NOT NULL, completed_shards INTEGER DEFAULT 0, metadata TEXT, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)',
       );
       await execute(
         'CREATE TABLE IF NOT EXISTS hive_job_results (id TEXT PRIMARY KEY, task_id TEXT NOT NULL, shard_id INTEGER NOT NULL, status TEXT NOT NULL, payload TEXT, error TEXT, priority INTEGER DEFAULT 0, timestamp INTEGER NOT NULL)',
@@ -133,7 +136,10 @@ export class Schema {
       await Schema.ensureColumn(db, 'hive_joy_bypasses', 'id', 'TEXT');
       await Schema.ensureColumn(db, 'hive_locks', 'id', 'TEXT');
       await Schema.ensureColumn(db, 'hive_queue', 'id', 'TEXT');
+      await Schema.ensureColumn(db, 'hive_queue', 'worker_id', 'TEXT');
+      await Schema.ensureColumn(db, 'hive_queue', 'claimed_at', 'INTEGER');
       await Schema.ensureColumn(db, 'hive_job_results', 'id', 'TEXT');
+      await Schema.ensureColumn(db, 'hive_scoring_cache', 'id', 'TEXT');
 
       // INDICES
       await execute(
@@ -143,6 +149,13 @@ export class Schema {
         'CREATE INDEX IF NOT EXISTS idx_hive_metabolic_task ON hive_metabolic_telemetry (task_id)',
       );
       await execute('CREATE INDEX IF NOT EXISTS idx_hive_kb_key ON hive_kb (knowledge_key)');
+      await execute(
+        'CREATE INDEX IF NOT EXISTS idx_hive_queue_claim ON hive_queue (status, claimed_at)',
+      );
+      await execute(
+        'CREATE INDEX IF NOT EXISTS idx_hive_scoring_hash ON hive_scoring_cache (hash)',
+      );
+      await execute('CREATE INDEX IF NOT EXISTS idx_hive_lock_expiry ON hive_locks (expires_at)');
     }
 
     const totalElapsed = ((Date.now() - startTime) / 1000).toFixed(2);

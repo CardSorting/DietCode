@@ -14,6 +14,7 @@
  *   - Dependency Flow: ✅ Uses Core.db() instead of non-existent getQueue()
  */
 
+import * as crypto from 'node:crypto';
 import type { AgentRegistry } from '../../core/capabilities/AgentRegistry';
 import type { SelfHealingService } from '../../core/integrity/SelfHealingService';
 import type { MemoryService } from '../../core/memory/MemoryService';
@@ -25,6 +26,7 @@ import { IntegrityPolicy } from '../../domain/memory/IntegrityPolicy';
 import { IntegrityAdapter } from '../IntegrityAdapter';
 import { SemanticIntegrityAdapter } from '../SemanticIntegrityAdapter';
 import { Core } from '../database/sovereign/Core';
+import type { KyselyDatabase } from '../database/sovereign/DatabaseSchema';
 
 export interface DietCodeJob {
   id: string;
@@ -34,6 +36,7 @@ export interface DietCodeJob {
 
 export class QueueWorker {
   private isProcessing = false;
+  private workerId = `worker-${crypto.randomUUID()}`;
 
   constructor(
     private decisions: DecisionRepository,
@@ -49,71 +52,76 @@ export class QueueWorker {
    */
   async start() {
     if (this.isProcessing) return;
-    const queue = await Core.db();
+    const db = (await Core.db()) as KyselyDatabase;
 
-    this.logService.info('Sovereign Queue Worker started', {}, { component: 'QueueWorker' });
+    this.logService.info(`Sovereign Queue Worker ${this.workerId} started`, {}, { component: 'QueueWorker' });
 
     // V2.0 processing loop: Process jobs directly from the database
     this.isProcessing = true;
-    await this.processJobs(queue);
+    await this.processJobs(db);
   }
 
   /**
-   * Process jobs from the database queue
+   * Process jobs from the database queue (Atomic Claiming Pass 19)
    */
-  private async processJobs(queue: any) {
+  private async processJobs(db: KyselyDatabase) {
     while (this.isProcessing) {
       try {
-        // Get pending jobs from swarm_queue or hive_queue
-        const jobs = await Core.selectWhere('hive_queue', {
-          column: 'status',
-          operator: '=',
-          value: 'pending',
-        });
+        // 1. Identify pending jobs
+        const jobs = await db
+          .selectFrom('hive_queue')
+          .select(['id', 'type', 'metadata'])
+          .where('status', '=', 'pending')
+          .orderBy('created_at', 'asc')
+          .limit(10)
+          .execute();
 
         if (jobs && jobs.length > 0) {
           for (const job of jobs) {
+            // 2. Atomic Claim
+            const claimResult = await db
+              .updateTable('hive_queue')
+              .set({
+                status: 'processing',
+                worker_id: this.workerId,
+                claimed_at: Date.now(),
+                updated_at: Date.now(),
+              })
+              .where('id', '=', job.id)
+              .where('status', '=', 'pending')
+              .executeTakeFirst();
+
+            if (Number(claimResult.numUpdatedRows) === 0) continue; // Claimed by someone else
+
             const jobData = JSON.parse(job.metadata || '{}');
             const jobType = job.type;
             const jobId = job.id;
 
             try {
-              // Update job to processing
-              await Core.push({
-                type: 'update',
-                table: 'hive_queue',
-                where: { column: 'id', operator: '=', value: jobId },
-                values: {
-                  status: 'processing',
-                  updated_at: Date.now(),
-                },
-              });
-
               // Process the job based on type
-              await this.processJob(jobType, jobData, jobId, queue);
+              await this.processJob(jobType, jobData, jobId, db);
 
               // Update job to completed
-              await Core.push({
-                type: 'update',
-                table: 'hive_queue',
-                where: { column: 'id', operator: '=', value: jobId },
-                values: {
+              await db
+                .updateTable('hive_queue')
+                .set({
                   status: 'completed',
                   updated_at: Date.now(),
-                },
-              });
+                })
+                .where('id', '=', jobId)
+                .execute();
             } catch (error) {
+              this.logService.error(`Job ${jobId} failed: ${(error as Error).message}`, {}, { component: 'QueueWorker' });
               // Update job to failed
-              await Core.push({
-                type: 'update',
-                table: 'hive_queue',
-                where: { column: 'id', operator: '=', value: jobId },
-                values: {
+              await db
+                .updateTable('hive_queue')
+                .set({
                   status: 'failed',
                   error: (error as Error).message,
                   updated_at: Date.now(),
-                },
-              });
+                })
+                .where('id', '=', jobId)
+                .execute();
             }
           }
         }
@@ -121,7 +129,7 @@ export class QueueWorker {
         // Wait before next check
         await new Promise((resolve) => setTimeout(resolve, 1000));
       } catch (error) {
-        this.logService.error('Error processing jobs', {}, { component: 'QueueWorker' });
+        this.logService.error('Error in QueueWorker loop', error, { component: 'QueueWorker' });
         await new Promise((resolve) => setTimeout(resolve, 5000));
       }
     }
@@ -312,18 +320,18 @@ Please propose a refactor to fix this architectural violation.`;
     try {
       const report = await scanner.scanFiles(files, projectRoot);
 
-      await Core.push({
-        type: 'insert',
-        table: 'integrity_shard_results',
-        values: {
+      const db = (await Core.db()) as KyselyDatabase;
+      await db
+        .insertInto('hive_job_results')
+        .values({
           id: crypto.randomUUID(),
-          correlationId,
-          shardId,
+          task_id: correlationId,
+          shard_id: shardId,
           status: 'completed',
-          result: JSON.stringify(report),
+          payload: JSON.stringify(report),
           timestamp: Date.now(),
-        },
-      });
+        })
+        .execute();
 
       this.logService.info(
         'Shard completed',
@@ -338,18 +346,18 @@ Please propose a refactor to fix this architectural violation.`;
         { component: 'QueueWorker' },
       );
 
-      await Core.push({
-        type: 'insert',
-        table: 'integrity_shard_results',
-        values: {
+      const db = (await Core.db()) as KyselyDatabase;
+      await db
+        .insertInto('hive_job_results')
+        .values({
           id: crypto.randomUUID(),
-          correlationId,
-          shardId,
+          task_id: correlationId,
+          shard_id: shardId,
           status: 'failed',
           error: errorMsg,
           timestamp: Date.now(),
-        },
-      });
+        })
+        .execute();
     }
   }
 
@@ -391,21 +399,18 @@ Please propose a refactor to fix this architectural violation.`;
     payload?: any,
     error?: string,
   ) {
-    // Hive Pattern: Zero-Latency result reporting
-    await Core.push({
-      type: 'insert',
-      table: 'job_results',
-      values: {
+    const db = (await Core.db()) as KyselyDatabase;
+    await db
+      .insertInto('hive_job_results')
+      .values({
         id: crypto.randomUUID(),
-        taskId,
-        shardId,
+        task_id: taskId,
+        shard_id: shardId,
         status,
         payload: payload ? JSON.stringify(payload) : null,
         error: error || null,
         timestamp: Date.now(),
-      },
-    });
-
-    // Ignore sovereign_tasks update for now - not a blocking issue
+      })
+      .execute();
   }
 }

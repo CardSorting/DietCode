@@ -29,6 +29,7 @@ export class Core {
   private static heartbeatInterval: NodeJS.Timeout | null = null;
   private static currentTaskId: string | null = null;
   private static currentHeartbeatId: string | null = null;
+  private static reaperInterval: NodeJS.Timeout | null = null;
 
   static async init(dbPath: string, ensureSchemaFn?: (db: any) => Promise<void>) {
     const resolvedPath = path.resolve(dbPath);
@@ -45,6 +46,10 @@ export class Core {
 
       Core.appQueue = new BroccoliQueueAdapter();
       Core.isInitialized = true;
+      
+      // Pass 19: Start architectural self-healing
+      Core.startReaper();
+
       if (ensureSchemaFn) {
         await ensureSchemaFn(dbPool);
       }
@@ -139,6 +144,54 @@ export class Core {
     }
   }
 
+  /**
+   * Sovereign Reaper: Background self-healing loop
+   */
+  static startReaper() {
+    const runReaper = async () => {
+      if (!Core.isInitialized) return;
+      try {
+        const db = await Core.db();
+        const now = Date.now();
+
+        // 1. Reap Expired Locks
+        const locksReaped = await db
+          .deleteFrom('hive_locks')
+          .where('expires_at', '<', now)
+          .executeTakeFirst();
+        
+        if (Number(locksReaped.numDeletedRows) > 0) {
+          console.log(`[REAPER] 💀 Purged ${locksReaped.numDeletedRows} expired distributed locks.`);
+        }
+
+        // 2. Mark Zombie Tasks (No heartbeat for 5 minutes)
+        const zombiesMarked = await db
+          .updateTable('hive_tasks')
+          .set({ state: 'ZOMBIE', updated_at: now })
+          .where('state', '=', 'PROCESSING')
+          .where('updated_at', '<', now - 300000)
+          .executeTakeFirst();
+
+        if (Number(zombiesMarked.numUpdatedRows) > 0) {
+          console.log(`[REAPER] 🧟 Flagged ${zombiesMarked.numUpdatedRows} abandoned tasks as ZOMBIE.`);
+        }
+      } catch (err) {
+        // Reaper errors are logged but non-blocking
+      }
+      Core.reaperInterval = setTimeout(runReaper, 60000); // Pulse every 60s
+    };
+
+    if (Core.reaperInterval) clearTimeout(Core.reaperInterval);
+    Core.reaperInterval = setTimeout(runReaper, 60000);
+  }
+
+  static stopReaper() {
+    if (Core.reaperInterval) {
+      clearTimeout(Core.reaperInterval);
+      Core.reaperInterval = null;
+    }
+  }
+
   private static async recordHeartbeat() {
     if (!Core.currentTaskId || !Core.currentHeartbeatId) return;
     try {
@@ -166,6 +219,7 @@ export class Core {
 
   static async flush() {
     Core.stopHeartbeat();
+    Core.stopReaper();
     if (Core.isInitialized) {
       await dbPool.stop();
       Core.isInitialized = false;
