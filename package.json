@@ -1,7 +1,7 @@
 {
   "name": "dietcode",
   "publisher": "dietcode",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "icon": "assets/vsix/extension-icon.png",
   "type": "module",
   "private": true,
@@ -56,7 +56,7 @@
     "format": "biome format . --write",
     "check": "biome check --apply .",
     "verify": "npx tsx verify_advanced_infrastructure.ts",
-    "package:vsix": "vsce package"
+    "package:vsix": "./node_modules/.bin/vsce package"
   },
   "bin": {
     "dietcode": "./dist/index.js"
@@ -78,6 +78,7 @@
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^25.5.2",
     "@types/vscode": "^1.90.0",
+    "@vscode/vsce": "^3.7.1",
     "chalk": "^5.6.2",
     "chokidar": "^5.0.0",
     "eslint": "^9.10.0",
