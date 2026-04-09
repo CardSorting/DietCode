@@ -32,8 +32,64 @@ export class ProviderStateManager implements StateObserver<ApiConfiguration> {
    */
   initialize(): void {
     const orchestrator = StateOrchestrator.getInstance();
+    const registry = LLMProviderRegistry.getInstance();
+    
     orchestrator.registerObserver('apiConfiguration', this);
-    Logger.info('[STATE] ProviderStateManager initialized and observing apiConfiguration');
+    
+    // Bridge registry updates back to orchestrated state
+    registry.onModelsUpdated((providerId, models) => {
+      this._syncModelsToState(providerId, models);
+    });
+    
+    registry.onHealthUpdated((providerId, health) => {
+      this._syncHealthToState(providerId, health);
+    });
+
+    Logger.info('[STATE] ProviderStateManager initialized with dynamic sync bridge');
+  }
+
+  /**
+   * Syncs discovered models to the global state.
+   */
+  private async _syncModelsToState(providerId: string, models: any[]): Promise<void> {
+    const orchestrator = StateOrchestrator.getInstance();
+    const currentModels = (await orchestrator.getState('availableProviderModels')) || {};
+    
+    const updatedModels = {
+      ...currentModels,
+      [providerId]: models
+    };
+
+    await orchestrator.applyChange({
+      key: 'availableProviderModels',
+      newValue: updatedModels,
+      stateSet: {} as any,
+      validate: () => true,
+      sanitize: () => updatedModels,
+      getCorrelationId: () => `registry-update-models-${providerId}-${Date.now()}`
+    }, 100); // Small debounce for batch updates
+  }
+
+  /**
+   * Syncs provider health status to the global state.
+   */
+  private async _syncHealthToState(providerId: string, health: string): Promise<void> {
+    const orchestrator = StateOrchestrator.getInstance();
+    const currentHealth = (await orchestrator.getState('providerHealth')) || {};
+    
+    const updatedHealth = {
+      ...currentHealth,
+      [providerId]: health
+    };
+
+    await orchestrator.applyChange({
+      key: 'providerHealth',
+      newValue: updatedHealth,
+      stateSet: {} as any,
+      validate: () => true,
+      sanitize: () => updatedHealth,
+      getCorrelationId: () => `registry-update-health-${providerId}-${Date.now()}`
+    }, 0); // Immediate health update
   }
 
   /**

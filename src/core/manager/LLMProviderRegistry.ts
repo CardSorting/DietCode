@@ -73,6 +73,8 @@ export class LLMProviderRegistry {
   private models = new Map<string, ModelCacheEntry>();
   private providerInfos = new Map<string, ProviderInfo>();
   private isLoadingModels = new Set<string>();
+  private modelUpdateListeners: ((providerId: string, models: ModelInfo[]) => void)[] = [];
+  private healthUpdateListeners: ((providerId: string, status: any) => void)[] = [];
 
   private constructor() {}
 
@@ -84,6 +86,20 @@ export class LLMProviderRegistry {
       LLMProviderRegistry.instance = new LLMProviderRegistry();
     }
     return LLMProviderRegistry.instance;
+  }
+
+  /**
+   * Listen for model updates
+   */
+  public onModelsUpdated(callback: (providerId: string, models: ModelInfo[]) => void): void {
+    this.modelUpdateListeners.push(callback);
+  }
+
+  /**
+   * Listen for health updates
+   */
+  public onHealthUpdated(callback: (providerId: string, status: any) => void): void {
+    this.healthUpdateListeners.push(callback);
   }
 
   /**
@@ -178,6 +194,9 @@ export class LLMProviderRegistry {
         });
 
         console.log(`✅ Provider models loaded: ${providerId} (${modelInfo.name})`);
+        
+        // Notify listeners
+        this.modelUpdateListeners.forEach(cb => cb(providerId, [modelInfo]));
       }
 
       return modelInfo;
@@ -362,6 +381,11 @@ export class LLMProviderRegistry {
 
     this.clearModelCaches();
     console.log('🔄 Registry synchronized with new configuration');
+    
+    // Notify health update (optimistic success if we reached here)
+    for (const providerId of providersToSync) {
+      this.healthUpdateListeners.forEach(cb => cb(providerId, 'online'));
+    }
   }
 
   /**

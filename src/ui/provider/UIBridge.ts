@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { EventEmitter } from 'node:events';
+import { StateOrchestrator } from '../../core/manager/StateOrchestrator';
+import type { GlobalState } from '../../domain/LLMProvider';
 
 /**
  * [LAYER: INFRASTRUCTURE / UI]
@@ -32,13 +34,37 @@ export class UIBridge extends EventEmitter {
    * Blocks until the user clicks Approve/Reject in the sidebar.
    */
   public async requestUserApproval(id: string, detail: any): Promise<boolean> {
+    const orchestrator = StateOrchestrator.getInstance();
+    
+    // 1. Get current pending approvals
+    const pending = (await orchestrator.getValue<any[]>('pendingToolApprovals')) || [];
+    
+    // 2. Add new request to state
+    const updated = [...pending, { id, toolName: detail.actionType, detail }];
+    
+    await orchestrator.applyChange({
+      key: 'pendingToolApprovals',
+      newValue: updated,
+      stateSet: {} as GlobalState,
+      validate: () => true,
+      sanitize: () => updated,
+      getCorrelationId: () => `approval-req-${id}`
+    }, 0);
+
+    // 3. Update execution status
+    await orchestrator.applyChange({
+      key: 'executionStatus',
+      newValue: 'waiting_approval',
+      stateSet: {} as GlobalState,
+      validate: () => true,
+      sanitize: () => 'waiting_approval',
+      getCorrelationId: () => `approval-status-${id}`
+    }, 0);
+
     return new Promise((resolve) => {
       this.pendingApprovals.set(id, resolve);
 
-      // Emit to SovereignWebViewProvider (which will post to Webview)
-      this.emit('request_approval', { id, detail });
-
-      // Timeout after 10 minutes to prevent hanging
+      // Timeout after 10 minutes
       setTimeout(
         () => {
           if (this.pendingApprovals.has(id)) {
@@ -53,12 +79,36 @@ export class UIBridge extends EventEmitter {
   /**
    * Called by SovereignWebViewProvider when the user responds.
    */
-  public resolveApproval(id: string, approved: boolean) {
+  public async resolveApproval(id: string, approved: boolean) {
     const resolver = this.pendingApprovals.get(id);
     if (resolver) {
       resolver(approved);
       this.pendingApprovals.delete(id);
     }
+    
+    // Cleanup state
+    const orchestrator = StateOrchestrator.getInstance();
+    const pending = (await orchestrator.getValue<any[]>('pendingToolApprovals')) || [];
+    const updated = pending.filter(p => p.id !== id);
+    
+    await orchestrator.applyChange({
+      key: 'pendingToolApprovals',
+      newValue: updated,
+      stateSet: {} as GlobalState,
+      validate: () => true,
+      sanitize: () => updated,
+      getCorrelationId: () => `approval-resolve-${id}`
+    }, 0);
+    
+    // Return status to executing
+    await orchestrator.applyChange({
+      key: 'executionStatus',
+      newValue: 'executing',
+      stateSet: {} as GlobalState,
+      validate: () => true,
+      sanitize: () => 'executing',
+      getCorrelationId: () => `approval-status-resolved-${id}`
+    }, 0);
   }
 
   /**

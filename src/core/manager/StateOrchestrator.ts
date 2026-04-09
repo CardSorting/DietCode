@@ -71,6 +71,7 @@ export interface StateOrchestratorConfig {
 export class StateOrchestrator<T = unknown> {
   private static instance: StateOrchestrator<any> | null = null;
   private observers = new Map<string, Set<StateObserver<unknown>>>();
+  private globalObservers = new Set<StateObserver<unknown>>();
   private changesQueue = new Map<string, { change: StateChange<unknown>; newValue: unknown }>();
   private debounceTimeout: NodeJS.Timeout | null = null;
 
@@ -143,6 +144,24 @@ export class StateOrchestrator<T = unknown> {
   }
 
   /**
+   * Register a global observer that listens to ALL state changes
+   */
+  registerGlobalObserver(observer: StateObserver): void {
+    if (this.globalObservers.size >= this.config.maxObservers) {
+      throw new Error("Maximum global observer count reached");
+    }
+    this.globalObservers.add(observer);
+    Logger.info("[STATE] Global observer registered");
+  }
+
+  /**
+   * Remove a global observer
+   */
+  unregisterGlobalObserver(observer: StateObserver): void {
+    this.globalObservers.delete(observer);
+  }
+
+  /**
    * Remove observer for a state key
    */
   unregisterObserver(key: string, observer: StateObserver): void {
@@ -201,6 +220,21 @@ export class StateOrchestrator<T = unknown> {
         } catch (error: any) {
           Logger.error(`[STATE] Observer trigger error:`, error);
         }
+      }
+    }
+
+    // Notify global observers onBeforeChange
+    for (const observer of this.globalObservers) {
+      try {
+        if (observer.onBeforeChange) {
+          const canProceed = observer.onBeforeChange(change);
+          if (!canProceed) {
+            validationErrors.push(`Global observer rejected change for key '${change.key}'`);
+            Logger.warn(`[STATE] Global observer rejected state change for key: ${change.key}`);
+          }
+        }
+      } catch (error: any) {
+        Logger.error(`[STATE] Global observer trigger error:`, error);
       }
     }
 
@@ -346,6 +380,17 @@ export class StateOrchestrator<T = unknown> {
         }
       }
     }
+
+    // Notify global observers onChange
+    for (const observer of this.globalObservers) {
+      try {
+        if (observer.onChange) {
+          await observer.onChange(result as any);
+        }
+      } catch (error: any) {
+        Logger.error(`[STATE] Global observer onChange error for key '${change.key}':`, error);
+      }
+    }
   }
 
   /**
@@ -374,6 +419,26 @@ export class StateOrchestrator<T = unknown> {
   async getValue<T>(key: string, defaultValue?: T): Promise<T | undefined> {
     const repo = VsCodeStateRepository.getInstance();
     return await repo.get(key, defaultValue);
+  }
+
+  /**
+   * Get an aggregated snapshot of all settings and global state
+   */
+  async getStateSnapshot(): Promise<Record<string, any>> {
+    const { GlobalStateAndSettingKeys } = await import("../../shared/storage/state-keys");
+    const repo = VsCodeStateRepository.getInstance();
+    const snapshot: Record<string, any> = {};
+
+    await Promise.all(
+      GlobalStateAndSettingKeys.map(async (key) => {
+        const val = await repo.get(key);
+        if (val !== undefined) {
+          snapshot[key] = val;
+        }
+      }),
+    );
+
+    return snapshot;
   }
 
   /**

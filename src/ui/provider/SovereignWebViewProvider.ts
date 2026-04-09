@@ -23,6 +23,7 @@ import { UIBridge } from './UIBridge';
 import { StateOrchestrator } from '../../core/manager/StateOrchestrator';
 import { LLMProviderRegistry } from '../../core/manager/LLMProviderRegistry';
 import { VsCodeStateRepository } from '../../infrastructure/storage/VsCodeStateRepository';
+import { StateSyncService } from '../../core/manager/StateSyncService';
 import { StateChangePhase } from '../../domain/state/StateChangeProtocol';
 import type { ApiConfiguration } from '../../shared/api';
 import type { GlobalState } from '../../domain/LLMProvider';
@@ -48,20 +49,6 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
   }
 
   private _initBridgeListeners() {
-    // Listen for approval requests from core services
-    this._bridge.on('request_approval', ({ id, detail }) => {
-      this._sendMessage({
-        id,
-        type: WebViewMessageType.TOOL,
-        timestamp: Date.now(),
-        payload: {
-          toolName: detail.actionType,
-          status: 'pending',
-          result: detail.requirements,
-        },
-        version: '2.2.0',
-      });
-    });
 
     // Listen for general notifications
     this._bridge.on('notify', ({ type, payload }) => {
@@ -256,6 +243,10 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
       providers: enrichedProviders,
       neuralDepth: (await repo.get('neuralDepth')) || 'standard',
       theme: (await repo.get('theme')) || 'sovereign-hive',
+
+      // Dynamic synchronization fields
+      availableProviderModels: (await repo.get('availableProviderModels')) || {},
+      providerHealth: (await repo.get('providerHealth')) || {},
     };
   }
 
@@ -473,6 +464,8 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
             planModeApiProvider: settings.selectedProvider,
           },
           userInfo: null, // Production Hardening: Strict null to disable account integration
+          availableProviderModels: settings.availableProviderModels || {},
+          providerHealth: settings.providerHealth || {},
           ...settings,
         };
 
@@ -484,19 +477,19 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
           request.is_streaming,
         );
 
-        // If it's a subscription, set up a listener for settings changes
+        // gRPC State Subscription: Bridged via reactive StateSyncService
         if (request.is_streaming) {
-          const disposable = vscode.workspace.onDidChangeConfiguration(async (e) => {
-            const updatedState = await this._getSettings();
-            this._sendGrpcSuccess(
-              request.request_id,
-              {
-                stateJson: JSON.stringify({ ...state, ...updatedState }),
-              },
-              true,
-            );
-          });
-          this._context.subscriptions.push(disposable);
+          const unsubscribe = StateSyncService.getInstance().subscribe(
+            request.request_id,
+            (stateJson) => {
+              this._sendGrpcSuccess(
+                request.request_id,
+                { stateJson },
+                true
+              );
+            }
+          );
+          this._context.subscriptions.push({ dispose: unsubscribe });
         }
         break;
       }

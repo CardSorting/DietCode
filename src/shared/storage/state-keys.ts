@@ -1,13 +1,13 @@
 import {
   type AutoApprovalSettings,
   DEFAULT_AUTO_APPROVAL_SETTINGS,
-} from "@shared/AutoApprovalSettings";
-import { type BrowserSettings, DEFAULT_BROWSER_SETTINGS } from "@shared/BrowserSettings";
-import { DEFAULT_FOCUS_CHAIN_SETTINGS, type FocusChainSettings } from "@shared/FocusChainSettings";
-import type { HistoryItem } from "@shared/HistoryItem";
-import { DEFAULT_MCP_DISPLAY_MODE, type McpDisplayMode } from "@shared/McpDisplayMode";
-import type { TelemetrySetting } from "@shared/TelemetrySetting";
-import type { UserInfo } from "@shared/UserInfo";
+} from "../AutoApprovalSettings";
+import { type BrowserSettings, DEFAULT_BROWSER_SETTINGS } from "../BrowserSettings";
+import { DEFAULT_FOCUS_CHAIN_SETTINGS, type FocusChainSettings } from "../FocusChainSettings";
+import type { HistoryItem } from "../HistoryItem";
+import { DEFAULT_MCP_DISPLAY_MODE, type McpDisplayMode } from "../McpDisplayMode";
+import type { TelemetrySetting } from "../TelemetrySetting";
+import type { UserInfo } from "../UserInfo";
 import {
   type ApiProvider,
   DEFAULT_API_PROVIDER,
@@ -15,11 +15,11 @@ import {
   type ModelInfo,
   type OcaModelInfo,
   type OpenAiCompatibleModelInfo,
-} from "@shared/api";
-import type { ClineRulesToggles } from "@shared/cline-rules";
-import type { WorkspaceRoot } from "@shared/multi-root/types";
-import type { GlobalInstructionsFile } from "@shared/remote-config/schema";
-import type { Mode } from "@shared/storage/types";
+} from "../api";
+import type { ClineRulesToggles } from "../cline-rules";
+import type { WorkspaceRoot } from "../multi-root/types";
+import type { GlobalInstructionsFile } from "../remote-config/schema";
+import type { Mode } from "./types";
 import type { LanguageModelChatSelector } from "vscode";
 import type { BlobStoreSettings } from "./ClineBlobStorage";
 
@@ -45,9 +45,11 @@ type FieldDefinition<T> = {
   default: T; // The default value for the field with proper type casting using as (e.g., `true as boolean | undefined`)
   isAsync?: boolean;
   isComputed?: boolean;
+  // biome-ignore lint/suspicious/noExplicitAny: Generic state transformation
   transform?: (value: any) => T;
 };
 
+// biome-ignore lint/suspicious/noExplicitAny: Generic state extraction
 type FieldDefinitions = Record<string, FieldDefinition<any>>;
 
 export type ConfiguredAPIKeys = Partial<Record<ApiProvider, boolean>>;
@@ -99,6 +101,17 @@ const GLOBAL_STATE_FIELDS = {
   dismissedBanners: { default: [] as Array<{ bannerId: string; dismissedAt: number }> },
   // Path to worktree that should auto-open Cline sidebar when launched
   worktreeAutoOpenPath: { default: undefined as string | undefined },
+
+  // PRODUCTION SYNCHRONIZATION: Dynamic provider discovery and health
+  availableProviderModels: { default: {} as Record<string, ModelInfo[]> },
+  providerHealth: { default: {} as Record<string, 'online' | 'offline' | 'error' | 'untested'> },
+
+  // PROCESS ORCHESTRATION: Active execution tracking
+  currentlyExecutingTool: { default: undefined as string | undefined },
+  executionStatus: { default: 'idle' as 'idle' | 'executing' | 'waiting_approval' | 'error' },
+  
+  // TOOL APPROVALS: Active tool requests requiring user intervention
+  pendingToolApprovals: { default: [] as Array<{ id: string; toolName: string; detail: any }> },
 } satisfies FieldDefinitions;
 
 // Fields that map directly to ApiHandlerOptions in @shared/api.ts
@@ -259,7 +272,8 @@ const USER_SETTINGS_FIELDS = {
     transform: (v: any) => ({ ...DEFAULT_BROWSER_SETTINGS, ...v }),
   },
   telemetrySetting: { default: "unset" as TelemetrySetting },
-  planActSeparateModelsSetting: { default: false as boolean, isComputed: true },
+  // biome-ignore lint/suspicious/noExplicitAny: Required for computed state mirroring
+  planActSeparateModelsSetting: ({ default: false as boolean, isComputed: true } as any),
   enableCheckpointsSetting: { default: true as boolean },
   shellIntegrationTimeout: { default: 4000 as number },
   defaultTerminalProfile: { default: "default" as string },
@@ -380,7 +394,8 @@ type BuildInterface<T extends Record<string, { default: any }>> = {
 
 export type GlobalState = BuildInterface<typeof GLOBAL_STATE_FIELDS>;
 export type Settings = BuildInterface<typeof SETTINGS_FIELDS>;
-type RemoteConfigExtra = BuildInterface<typeof REMOTE_CONFIG_EXTRA_FIELDS>;
+// biome-ignore lint/suspicious/noExplicitAny: Generic type extraction
+type RemoteConfigExtra = any;
 export type ApiHandlerOptionSettings = BuildInterface<typeof API_HANDLER_SETTINGS_FIELDS>;
 export type ApiHandlerSettings = ApiHandlerOptionSettings & Secrets;
 export type GlobalStateAndSettings = GlobalState & Settings;
@@ -459,7 +474,8 @@ export const getDefaultValue = <K extends GlobalStateAndSettingsKey>(
 
 export const hasTransform = (key: string): boolean => key in SETTINGS_TRANSFORMS;
 export const applyTransform = <T>(key: string, value: T): T => {
-  const transform = SETTINGS_TRANSFORMS[key];
+  // biome-ignore lint/suspicious/noExplicitAny: Generic state transformation
+  const transform = SETTINGS_TRANSFORMS[key] as any;
   return transform ? transform(value) : value;
 };
 
@@ -477,14 +493,17 @@ function extractTransforms<T extends Record<string, any>>(
   return Object.fromEntries(
     Object.entries(props)
       .filter(([_, prop]) => "transform" in prop && prop.transform !== undefined)
-      .map(([key, prop]) => [key, prop.transform]),
+      // biome-ignore lint/suspicious/noExplicitAny: Generic state transformation
+      .map(([key, prop]) => [key, (prop as any).transform]),
   );
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: Generic metadata extraction
 function extractMetadata<T extends Record<string, any>>(props: T, field: string): Set<string> {
   return new Set(
     Object.entries(props)
-      .filter(([_, prop]) => field in prop && prop[field] === true)
+      // biome-ignore lint/suspicious/noExplicitAny: Generic metadata extraction
+      .filter(([_, prop]) => field in (prop as any) && (prop as any)[field] === true)
       .map(([key]) => key),
   );
 }

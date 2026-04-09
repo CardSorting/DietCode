@@ -24,6 +24,8 @@ import type { ToolManager } from '../capabilities/ToolManager';
 import type { SnapshotService } from '../memory/SnapshotService';
 import type { ContextOptimizationServiceOrchestrator } from './ContextOptimizationService';
 import { EventBus } from './EventBus';
+import { StateOrchestrator } from '../manager/StateOrchestrator';
+import type { GlobalState } from '../../domain/LLMProvider';
 
 /**
  * Safe tool execution options
@@ -239,6 +241,26 @@ export class ExecutionService {
       },
       { correlationId, sessionId: this.eventData?.sessionId },
     );
+    
+    // Update state to reflecting execution start
+    const orchestrator = StateOrchestrator.getInstance();
+    await orchestrator.applyChange({
+      key: 'currentlyExecutingTool',
+      newValue: toolName || 'default-tool',
+      stateSet: {} as GlobalState,
+      validate: () => true,
+      sanitize: () => toolName || 'default-tool',
+      getCorrelationId: () => `exec-start-${correlationId}`
+    }, 0);
+    
+    await orchestrator.applyChange({
+      key: 'executionStatus',
+      newValue: 'executing',
+      stateSet: {} as GlobalState,
+      validate: () => true,
+      sanitize: () => 'executing',
+      getCorrelationId: () => `exec-status-${correlationId}`
+    }, 0);
 
     if (!this.safetyGuard || !this.toolManager) {
       throw new Error(
@@ -288,7 +310,29 @@ export class ExecutionService {
         { correlationId, sessionId: this.eventData?.sessionId },
       );
 
-      return this.buildUnifiedResult(toolResult, toolRouteInfo, startTime);
+
+      const result = this.buildUnifiedResult(toolResult, toolRouteInfo, startTime);
+      
+      // Update state to reflecting completion
+      await orchestrator.applyChange({
+        key: 'executionStatus',
+        newValue: 'idle',
+        stateSet: {} as GlobalState,
+        validate: () => true,
+        sanitize: () => 'idle',
+        getCorrelationId: () => `exec-complete-${correlationId}`
+      }, 0);
+      
+      await orchestrator.applyChange({
+        key: 'currentlyExecutingTool',
+        newValue: undefined,
+        stateSet: {} as GlobalState,
+        validate: () => true,
+        sanitize: () => undefined,
+        getCorrelationId: () => `exec-cleanup-${correlationId}`
+      }, 0);
+
+      return result;
     } catch (toolExecutionError: any) {
       const executionTime = Date.now() - startTime;
 
@@ -339,6 +383,18 @@ export class ExecutionService {
         toolRouteInfo,
         startTime,
       );
+
+      // Reset state on error
+      await orchestrator.applyChange({
+        key: 'executionStatus',
+        newValue: 'error',
+        stateSet: {} as GlobalState,
+        validate: () => true,
+        sanitize: () => 'error',
+        getCorrelationId: () => `exec-error-${correlationId}`
+      }, 0);
+
+      return finalResult;
     }
   }
 
