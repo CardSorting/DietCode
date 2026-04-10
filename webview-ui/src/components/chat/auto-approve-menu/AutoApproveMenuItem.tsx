@@ -1,6 +1,6 @@
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import styled from "styled-components";
 import type { ActionMetadata } from "./types";
+import { cn } from "@/lib/utils";
 
 interface AutoApproveMenuItemProps {
   action: ActionMetadata;
@@ -9,24 +9,6 @@ interface AutoApproveMenuItemProps {
   showIcon?: boolean;
   disabled?: boolean;
 }
-
-const SubOptionAnimateIn = styled.div<{ show: boolean; inert?: string }>`
-  position: relative;
-  transform: ${(props) => (props.show ? "scaleY(1)" : "scaleY(0)")};
-  transform-origin: top;
-  padding-left: 24px;
-  opacity: ${(props) => (props.show ? "1" : "0")};
-  height: ${(props) => (props.show ? "auto" : "0")}; /* Manage height for layout */
-  overflow: visible; /* Allow tooltips to escape */
-  transition: transform 0.2s ease-in-out;
-`;
-
-const CheckboxWrapper = styled.div<{ $disabled: boolean }>`
-  padding: 2px 0.125rem;
-  margin: 0;
-  width: 100%;
-  cursor: ${(props) => (props.$disabled ? "not-allowed" : "pointer")};
-`;
 
 const AutoApproveMenuItem = ({
   action,
@@ -38,36 +20,41 @@ const AutoApproveMenuItem = ({
   const checked = isChecked(action);
 
   const onChange = async (e: React.MouseEvent) => {
-    if (disabled) {
-      return;
-    }
+    if (disabled) return;
     e.stopPropagation();
     await onToggle(action, !checked);
   };
 
-  const content = (
+  return (
     <div className="w-full" style={{ opacity: disabled ? 0.5 : 1 }}>
-      <CheckboxWrapper $disabled={disabled} className="w-full" onClick={onChange}>
+      <div 
+        className={cn("w-full py-[2px] px-[0.125rem] m-0", disabled ? "cursor-not-allowed" : "cursor-pointer")}
+        onClick={onChange}
+      >
         <VSCodeCheckbox checked={checked} disabled={disabled}>
           <div className="w-full flex text-sm items-center justify-start text-foreground gap-2">
             {showIcon && <span className={`codicon ${action.icon} icon`} />}
-            <span className="label">{action.label}</span>
+            <span className="label text-ellipsis overflow-hidden whitespace-nowrap">{action.label}</span>
           </div>
         </VSCodeCheckbox>
-      </CheckboxWrapper>
+      </div>
       {action.subAction && (
-        <SubOptionAnimateIn inert={!checked ? "" : undefined} show={checked}>
+        <div 
+          className={cn(
+            "relative pl-6 origin-top transition-all duration-200 ease-in-out",
+            checked ? "scale-y-100 opacity-100 h-auto overflow-visible" : "scale-y-0 opacity-0 h-0 overflow-hidden"
+          )}
+          {...(!checked ? { inert: "" } : {})}
+        >
           <AutoApproveMenuItem
             action={action.subAction}
             isChecked={isChecked}
             onToggle={onToggle}
           />
-        </SubOptionAnimateIn>
+        </div>
       )}
     </div>
   );
-
-  return content;
 };
 
 export default AutoApproveMenuItem;

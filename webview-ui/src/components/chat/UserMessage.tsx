@@ -3,223 +3,73 @@ import { useExtensionState } from "@/context/ExtensionStateContext";
 import { CheckpointsServiceClient } from "@/services/grpc-client";
 import type { ClineCheckpointRestore } from "@shared/WebviewMessage.ts";
 import { CheckpointRestoreRequest } from "@shared/nice-grpc/cline/checkpoints.ts";
-import React, { forwardRef, useMemo, useRef, useState } from "react";
+import React, { forwardRef, useMemo, useRef, useState, useEffect } from "react";
 import DynamicTextArea from "react-textarea-autosize";
 import { highlightText } from "./task-header/Highlights";
+import { cn } from "@/lib/utils";
 
 interface UserMessageProps {
   text?: string;
   files?: string[];
   images?: string[];
-  messageTs?: number; // Timestamp for the message, needed for checkpoint restore
+  messageTs?: number;
   sendMessageFromChatRow?: (text: string, images: string[], files: string[]) => void;
 }
 
-const UserMessage: React.FC<UserMessageProps> = ({
-  text,
-  images,
-  files,
-  messageTs,
-  sendMessageFromChatRow,
-}) => {
+const UserMessage: React.FC<UserMessageProps> = ({ text, images, files, messageTs, sendMessageFromChatRow }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedText, setEditedText] = useState(text || "");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const { checkpointManagerErrorMessage } = useExtensionState();
-
   const highlightedText = useMemo(() => highlightText(editedText || text), [editedText, text]);
 
-  // Create refs for the buttons to check in the blur handler
-  const restoreAllButtonRef = useRef<HTMLButtonElement>(null);
-  const restoreChatButtonRef = useRef<HTMLButtonElement>(null);
+  const btnRefs = { all: useRef<HTMLButtonElement>(null), chat: useRef<HTMLButtonElement>(null) };
 
-  const handleClick = () => {
-    if (!isEditing) {
-      setIsEditing(true);
-    }
-  };
+  useEffect(() => { if (isEditing) textAreaRef.current?.select(); }, [isEditing]);
 
-  // Select all text when entering edit mode
-  React.useEffect(() => {
-    if (isEditing && textAreaRef.current) {
-      textAreaRef.current.select();
-    }
-  }, [isEditing]);
-
-  const handleRestoreWorkspace = async (type: ClineCheckpointRestore) => {
-    const delay = type === "task" ? 500 : 1000; // Delay for task and workspace restore
+  const handleRestore = async (type: ClineCheckpointRestore) => {
     setIsEditing(false);
-
-    if (text === editedText) {
-      return;
-    }
-
+    if (text === editedText) return;
     try {
-      await CheckpointsServiceClient.checkpointRestore(
-        CheckpointRestoreRequest.create({
-          number: messageTs,
-          restoreType: type,
-          offset: 1,
-        }),
-      );
-
-      setTimeout(() => {
-        sendMessageFromChatRow?.(editedText, images || [], files || []);
-      }, delay);
-    } catch (err) {
-      console.error("Checkpoint restore error:", err);
-    }
-  };
-
-  const handleBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
-    // Check if focus is moving to one of our button elements
-    if (
-      e.relatedTarget === restoreAllButtonRef.current ||
-      e.relatedTarget === restoreChatButtonRef.current
-    ) {
-      // Don't close edit mode if focus is moving to one of our buttons
-      return;
-    }
-
-    // Otherwise, close edit mode
-    setIsEditing(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Escape") {
-      setIsEditing(false);
-    } else if (e.key === "Enter" && e.metaKey && !checkpointManagerErrorMessage) {
-      handleRestoreWorkspace("taskAndWorkspace");
-    } else if (
-      e.key === "Enter" &&
-      !e.shiftKey &&
-      !e.nativeEvent.isComposing &&
-      e.keyCode !== 229
-    ) {
-      e.preventDefault();
-      handleRestoreWorkspace("task");
-    }
+      await CheckpointsServiceClient.checkpointRestore(CheckpointRestoreRequest.create({ number: messageTs, restoreType: type, offset: 1 }));
+      setTimeout(() => sendMessageFromChatRow?.(editedText, images || [], files || []), type === "task" ? 500 : 1000);
+    } catch (err) { console.error(err); }
   };
 
   return (
-    <div
-      className="p-2.5 pr-1 my-1 text-badge-foreground rounded-xs"
-      onClick={handleClick}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          handleClick();
-        }
-      }}
-      role="button"
-      style={{
-        backgroundColor: isEditing ? "unset" : "var(--vscode-badge-background)",
-        whiteSpace: "pre-line",
-        wordWrap: "break-word",
-      }}
-      tabIndex={isEditing ? -1 : 0}
-    >
+    <div className={cn("p-2.5 my-1 rounded-sm transition-all", isEditing ? "bg-code border border-panel-border shadow-lg" : "bg-badge border border-transparent shadow-sm")} onClick={() => !isEditing && setIsEditing(true)}>
       {isEditing ? (
-        <>
-          <DynamicTextArea
-            autoFocus
-            onBlur={(e) => handleBlur(e)}
-            onChange={(e) => setEditedText(e.target.value)}
-            onKeyDown={handleKeyDown}
-            ref={textAreaRef}
-            style={{
-              width: "100%",
-              backgroundColor: "var(--vscode-input-background)",
-              color: "var(--vscode-input-foreground)",
-              borderColor: "var(--vscode-input-border)",
-              border: "1px solid",
-              borderRadius: "2px",
-              padding: "6px",
-              fontFamily: "inherit",
-              fontSize: "inherit",
-              lineHeight: "inherit",
-              boxSizing: "border-box",
-              resize: "none",
-              overflowX: "hidden",
-              overflowY: "scroll",
-              scrollbarWidth: "none",
+        <div className="space-y-2">
+          <DynamicTextArea 
+            autoFocus 
+            onBlur={e => { if (e.relatedTarget !== btnRefs.all.current && e.relatedTarget !== btnRefs.chat.current) setIsEditing(false); }}
+            onChange={e => setEditedText(e.target.value)}
+            onKeyDown={e => {
+                if (e.key === "Escape") setIsEditing(false);
+                else if (e.key === "Enter" && e.metaKey && !checkpointManagerErrorMessage) handleRestore("taskAndWorkspace");
+                else if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleRestore("task"); }
             }}
+            ref={textAreaRef}
+            className="w-full bg-input-background text-foreground border border-input-border rounded-xs p-2 text-sm font-sans resize-none outline-none focus:ring-1 focus:ring-focus"
             value={editedText}
           />
-          <div
-            style={{ display: "flex", gap: "8px", marginTop: "8px", justifyContent: "flex-end" }}
-          >
-            {!checkpointManagerErrorMessage && (
-              <RestoreButton
-                isPrimary={false}
-                label="Restore All"
-                onClick={handleRestoreWorkspace}
-                ref={restoreAllButtonRef}
-                title="Restore both the chat and workspace files to this checkpoint and send your edited message"
-                type="taskAndWorkspace"
-              />
-            )}
-            <RestoreButton
-              isPrimary={true}
-              label="Restore Chat"
-              onClick={handleRestoreWorkspace}
-              ref={restoreChatButtonRef}
-              title="Restore just the chat to this checkpoint and send your edited message"
-              type="task"
-            />
+          <div className="flex justify-end gap-1.5">
+            {!checkpointManagerErrorMessage && <RestoreButton label="Restore All" onClick={() => handleRestore("taskAndWorkspace")} ref={btnRefs.all} secondary />}
+            <RestoreButton label="Restore Chat" onClick={() => handleRestore("task")} ref={btnRefs.chat} />
           </div>
-        </>
+        </div>
       ) : (
-        <span className="ph-no-capture text-sm" style={{ display: "block" }}>
-          {highlightedText}
-        </span>
+        <div className="text-badge-foreground text-[13px] leading-relaxed whitespace-pre-wrap break-words">{highlightedText}</div>
       )}
-      {((images && images.length > 0) || (files && files.length > 0)) && (
-        <Thumbnails files={files ?? []} images={images ?? []} style={{ marginTop: "8px" }} />
-      )}
+      {(images?.length! > 0 || files?.length! > 0) && <Thumbnails files={files ?? []} images={images ?? []} className="mt-2 opacity-90" />}
     </div>
   );
 };
 
-// Reusable button component for restore actions
-interface RestoreButtonProps {
-  type: ClineCheckpointRestore;
-  label: string;
-  isPrimary: boolean;
-  onClick: (type: ClineCheckpointRestore) => void;
-  title?: string;
-}
-
-const RestoreButton = forwardRef<HTMLButtonElement, RestoreButtonProps>(
-  ({ type, label, isPrimary, onClick, title }, ref) => {
-    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-      e.stopPropagation();
-      onClick(type);
-    };
-
-    return (
-      <button
-        onClick={handleClick}
-        ref={ref}
-        style={{
-          backgroundColor: isPrimary
-            ? "var(--vscode-button-background)"
-            : "var(--vscode-button-secondaryBackground, var(--vscode-descriptionForeground))",
-          color: isPrimary
-            ? "var(--vscode-button-foreground)"
-            : "var(--vscode-button-secondaryForeground, var(--vscode-foreground))",
-          border: "none",
-          padding: "4px 8px",
-          borderRadius: "2px",
-          fontSize: "9px",
-          cursor: "pointer",
-        }}
-        title={title}
-      >
-        {label}
-      </button>
-    );
-  },
-);
+const RestoreButton = forwardRef<HTMLButtonElement, { label: string; onClick: () => void; secondary?: boolean }>(({ label, onClick, secondary }, ref) => (
+  <button onClick={e => { e.stopPropagation(); onClick(); }} ref={ref} className={cn("px-2 py-1 rounded-sm text-[10px] font-bold uppercase tracking-wide transition-all", secondary ? "bg-button-secondary-background text-button-secondary-foreground hover:bg-button-secondary-hover" : "bg-button-background text-button-foreground hover:bg-button-hover")}>
+    {label}
+  </button>
+));
 
 export default UserMessage;

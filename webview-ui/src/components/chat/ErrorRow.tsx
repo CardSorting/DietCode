@@ -1,164 +1,65 @@
-import CreditLimitError from "@/components/chat/CreditLimitError";
-import { Button } from "@/components/ui/button";
+import { memo } from "react";
+import type { ClineMessage } from "@shared/ExtensionMessage.ts";
 import { useClineAuth, useClineSignIn } from "@/context/ClineAuthContext";
 import { ClineError, ClineErrorType } from "@services/error/ClineError";
-import type { ClineMessage } from "@shared/ExtensionMessage.ts";
-import { memo } from "react";
-
-const _errorColor = "var(--vscode-errorForeground)";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import VSCodeButtonLink from "@/components/common/VSCodeButtonLink";
 
 interface ErrorRowProps {
   message: ClineMessage;
-  errorType: "error" | "mistake_limit_reached" | "diff_error" | "clineignore_error";
   apiRequestFailedMessage?: string;
   apiReqStreamingFailedMessage?: string;
 }
 
-const ErrorRow = memo(
-  ({
-    message,
-    errorType,
-    apiRequestFailedMessage,
-    apiReqStreamingFailedMessage,
-  }: ErrorRowProps) => {
-    const { clineUser } = useClineAuth();
-    const rawApiError = apiRequestFailedMessage || apiReqStreamingFailedMessage;
+const ErrorRow = memo(({ message, apiRequestFailedMessage, apiReqStreamingFailedMessage }: ErrorRowProps) => {
+  const { clineUser } = useClineAuth();
+  const { isLoginLoading, handleSignIn } = useClineSignIn();
+  const rawApiError = apiRequestFailedMessage || apiReqStreamingFailedMessage;
 
-    const { isLoginLoading, handleSignIn } = useClineSignIn();
+  if (rawApiError) {
+    const error = ClineError.parse(rawApiError);
+    const msg = error?._error?.message || error?.message || rawApiError;
+    const providerId = error?.providerId || error?._error?.providerId;
 
-    const renderErrorContent = () => {
-      switch (errorType) {
-        case "error":
-        case "mistake_limit_reached":
-          // Handle API request errors with special error parsing
-          if (rawApiError) {
-            // FIXME: ClineError parsing should not be applied to non-Cline providers, but it seems we're using clineErrorMessage below in the default error display
-            const clineError = ClineError.parse(rawApiError);
-            const errorMessage = clineError?._error?.message || clineError?.message || rawApiError;
-            const requestId = clineError?._error?.request_id;
-            const providerId = clineError?.providerId || clineError?._error?.providerId;
-            const isClineProvider = providerId === "cline";
-            const errorCode = clineError?._error?.code;
-
-            if (clineError?.isErrorType(ClineErrorType.Balance)) {
-              const errorDetails = clineError._error?.details;
-              return (
-                <CreditLimitError
-                  buyCreditsUrl={errorDetails?.buy_credits_url}
-                  currentBalance={errorDetails?.current_balance}
-                  message={errorDetails?.message}
-                  totalPromotions={errorDetails?.total_promotions}
-                  totalSpent={errorDetails?.total_spent}
-                />
-              );
-            }
-
-            if (clineError?.isErrorType(ClineErrorType.RateLimit)) {
-              return (
-                <p className="m-0 whitespace-pre-wrap text-error wrap-anywhere">
-                  {errorMessage}
-                  {requestId && <div>Request ID: {requestId}</div>}
-                </p>
-              );
-            }
-
-            if (clineError?.isErrorType(ClineErrorType.Auth) && isClineProvider) {
-              return !clineUser ? (
-                // User is using Cline provider and is not logged in
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-center justify-center rounded border border-neutral-500/30 bg-vscode-editor-background p-6 text-center text-vscode-foreground">
-                    Whoops looks like you're logged out – click below to sign in
-                  </div>
-                  <Button className="w-full" disabled={isLoginLoading} onClick={handleSignIn}>
-                    Sign in to DietCode
-                    {isLoginLoading && (
-                      <span className="ml-1 animate-spin">
-                        <span className="codicon codicon-refresh" />
-                      </span>
-                    )}
-                  </Button>
-                </div>
-              ) : (
-                // Don't show sign in button after the user has logged in, just ask them to retry
-                <div className="mt-4">
-                  <span className="text-description">(Click "Retry" below)</span>
-                </div>
-              );
-            }
-
-            return (
-              <p className="m-0 whitespace-pre-wrap text-error wrap-anywhere flex flex-col gap-3">
-                {/* Display the well-formatted error extracted from the ClineError instance */}
-
-                <header>
-                  {providerId && <span className="uppercase">[{providerId}] </span>}
-                  {errorCode && <span>{errorCode}</span>}
-                  {errorMessage}
-                  {requestId && <div>Request ID: {requestId}</div>}
-                </header>
-
-                {/* Windows Powershell Issue */}
-                {errorMessage?.toLowerCase()?.includes("powershell") && (
-                  <div>
-                    It seems like you're having Windows PowerShell issues, please see this{" "}
-                    <a
-                      className="underline text-inherit"
-                      href="https://github.com/cline/cline/wiki/TroubleShooting-%E2%80%90-%22PowerShell-is-not-recognized-as-an-internal-or-external-command%22"
-                    >
-                      troubleshooting guide
-                    </a>
-                    .
-                  </div>
-                )}
-
-                {/* Display raw API error if different from parsed error message */}
-                {errorMessage !== rawApiError && <div>{rawApiError}</div>}
-
-                <div className="mt-4">
-                  <span className="text-description">(Click "Retry" below)</span>
-                </div>
-              </p>
-            );
-          }
-
-          // Regular error message
-          return (
-            <p className="m-0 mt-0 whitespace-pre-wrap text-error wrap-anywhere">{message.text}</p>
-          );
-
-        case "diff_error":
-          return (
-            <div className="flex flex-col p-2 rounded text-xs opacity-80 bg-quote text-foreground">
-              <div>
-                The model used search patterns that don't match anything in the file. Retrying...
-              </div>
+    if (error?.isErrorType(ClineErrorType.Balance)) {
+        const d = error._error?.details;
+        return (
+            <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md space-y-3 font-mono text-xs">
+                <div className="text-destructive font-bold">{d?.message || "Out of credits"}</div>
+                {d?.current_balance != null && <div>Balance: <b>{d.current_balance.toFixed(2)}</b></div>}
+                <VSCodeButtonLink className="w-full h-8" href={d?.buy_credits_url || "https://app.cline.bot"}>Buy Credits</VSCodeButtonLink>
             </div>
-          );
-
-        case "clineignore_error":
-          return (
-            <div className="flex flex-col p-2 rounded text-xs opacity-80 bg-quote text-foreground">
-              <div>
-                DietCode tried to access <code>{message.text}</code> which is blocked by the{" "}
-                <code>.clineignore</code>
-                file.
-              </div>
-            </div>
-          );
-
-        default:
-          return null;
-      }
-    };
-
-    // For diff_error and clineignore_error, we don't show the header separately
-    if (errorType === "diff_error" || errorType === "clineignore_error") {
-      return renderErrorContent();
+        );
     }
 
-    // For other error types, show header + content
-    return renderErrorContent();
-  },
-);
+    if (error?.isErrorType(ClineErrorType.Auth) && providerId === "cline" && !clineUser) {
+        return (
+            <div className="flex flex-col gap-2 p-4 bg-code border border-editor-group-border rounded-md text-center">
+                <p className="text-sm opacity-80">You're logged out of DietCode</p>
+                <VSCodeButton className="w-full" disabled={isLoginLoading} onClick={handleSignIn}>
+                    Sign In {isLoginLoading && "..."}
+                </VSCodeButton>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex flex-col gap-2 p-3 bg-destructive/5 border border-destructive/20 rounded-md text-sm text-destructive">
+            <header className="font-bold flex items-center gap-1">
+                {providerId && <span className="opacity-50 text-[10px] uppercase">[{providerId}]</span>}
+                {msg}
+            </header>
+            {msg !== rawApiError && <div className="text-xs opacity-70 break-all">{rawApiError}</div>}
+            <div className="text-[10px] opacity-50 mt-1 italic">Click "Retry" below to try again</div>
+        </div>
+    );
+  }
+
+  return (
+    <div className="p-3 bg-destructive/5 border border-destructive/20 rounded-md text-sm text-destructive font-medium italic">
+        {message.text || "An unknown error occurred"}
+    </div>
+  );
+});
 
 export default ErrorRow;

@@ -1,27 +1,7 @@
 import { CODE_BLOCK_BG_COLOR } from "@/components/common/CodeBlock";
 import { TaskServiceClient } from "@/services/grpc-client";
 import { AskResponseRequest } from "@shared/nice-grpc/cline/task.ts";
-import styled from "styled-components";
-
-const OptionButton = styled.button<{ isSelected?: boolean; isNotSelectable?: boolean }>`
-	padding: 8px 12px;
-	background: ${(props) => (props.isSelected ? "var(--vscode-focusBorder)" : CODE_BLOCK_BG_COLOR)};
-	color: ${(props) => (props.isSelected ? "white" : "var(--vscode-input-foreground)")};
-	border: 1px solid var(--vscode-editorGroup-border);
-	border-radius: 2px;
-	cursor: ${(props) => (props.isNotSelectable ? "default" : "pointer")};
-	text-align: left;
-	font-size: 12px;
-
-	${(props) =>
-    !props.isNotSelectable &&
-    `
-		&:hover {
-			background: var(--vscode-focusBorder);
-			color: white;
-		}
-	`}
-`;
+import { cn } from "@/lib/utils";
 
 export const OptionsButtons = ({
   options,
@@ -34,34 +14,19 @@ export const OptionsButtons = ({
   isActive?: boolean;
   inputValue?: string;
 }) => {
-  if (!options?.length) {
-    return null;
-  }
+  if (!options?.length) return null;
 
   const hasSelected = selected !== undefined && options.includes(selected);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "8px",
-      }}
-    >
-      {/* <div style={{ color: "var(--vscode-descriptionForeground)", fontSize: "11px", textTransform: "uppercase" }}>
-				SELECT ONE:
-			</div> */}
+    <div className="flex flex-col gap-2">
       {options.map((option, index) => (
-        <OptionButton
-          className="options-button"
-          id={`options-button-${index}`}
-          isNotSelectable={hasSelected || !isActive}
-          isSelected={option === selected}
+        <button
           key={index}
+          id={`options-button-${index}`}
+          disabled={hasSelected || !isActive}
           onClick={async () => {
-            if (hasSelected || !isActive) {
-              return;
-            }
+            if (hasSelected || !isActive) return;
             try {
               await TaskServiceClient.askResponse(
                 AskResponseRequest.create({
@@ -74,9 +39,17 @@ export const OptionsButtons = ({
               console.error("Error sending option response:", error);
             }
           }}
+          className={cn(
+            "options-button p-[8px_12px] border border-vscode-editorGroup-border rounded-xs text-left text-xs transition-colors",
+            option === selected 
+              ? "bg-focus text-white" 
+              : "bg-code-block-bg text-input-foreground",
+            !(hasSelected || !isActive) && "cursor-pointer hover:bg-focus hover:text-white"
+          )}
+          style={{ backgroundColor: option === selected ? undefined : CODE_BLOCK_BG_COLOR }}
         >
           <span className="ph-no-capture">{option}</span>
-        </OptionButton>
+        </button>
       ))}
     </div>
   );

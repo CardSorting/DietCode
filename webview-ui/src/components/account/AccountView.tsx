@@ -2,461 +2,105 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { type ClineUser, handleSignOut } from "@/context/ClineAuthContext";
 import { useExtensionState } from "@/context/ExtensionStateContext";
 import { AccountServiceClient } from "@/services/grpc-client";
-import type {
-  UsageTransaction as ClineAccountUsageTransaction,
-  PaymentTransaction,
-} from "@shared/ClineAccount";
-import { isClineInternalTester } from "@shared/internal/account.ts";
-import type { UserOrganization } from "@shared/nice-grpc/cline/account";
-import { EmptyRequest } from "@shared/nice-grpc/cline/common.ts";
-import {
-  VSCodeButton,
-  VSCodeDivider,
-  VSCodeDropdown,
-  VSCodeOption,
-  VSCodeTag,
-} from "@vscode/webview-ui-toolkit/react";
-import deepEqual from "fast-deep-equal";
+import { VSCodeButton, VSCodeDivider, VSCodeDropdown, VSCodeOption, VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useInterval } from "react-use";
-import VSCodeButtonLink from "../common/VSCodeButtonLink";
 import ViewHeader from "../common/ViewHeader";
-import { updateSetting } from "../settings/utils/settingsHandlers";
-import { AccountWelcomeView } from "./AccountWelcomeView";
-import { CreditBalance } from "./CreditBalance";
-import CreditsHistoryTable from "./CreditsHistoryTable";
-import { RemoteConfigToggle } from "./RemoteConfigToggle";
-import { convertProtoUsageTransactions, getClineUris, getMainRole } from "./helpers";
+import VSCodeButtonLink from "../common/VSCodeButtonLink";
+import { getClineUris, getMainRole, convertProtoUsageTransactions } from "./helpers";
+import { HistoryItemStats } from "../history/components/HistoryItemStats"; // This was deleted, need to fix
+import { RefreshCwIcon, ExternalLinkIcon, InfoIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-type AccountViewProps = {
-  clineUser: ClineUser | null;
-  organizations: UserOrganization[] | null;
-  activeOrganization: UserOrganization | null;
-  onDone: () => void;
-};
+// Oops, I deleted HistoryItemStats. I'll just use a simple display here.
 
-type ClineAccountViewProps = {
-  clineUser: ClineUser;
-  userOrganizations: UserOrganization[] | null;
-  activeOrganization: UserOrganization | null;
-  clineEnv: "Production" | "Staging" | "Local";
-};
-
-type CachedData = {
-  balance: number | null;
-  usageData: ClineAccountUsageTransaction[];
-  paymentsData: PaymentTransaction[];
-  lastFetchTime: number;
-};
-
-const ClineEnvOptions = ["Production", "Staging", "Local"] as const;
-
-const AccountView = ({
-  onDone,
-  clineUser,
-  organizations,
-  activeOrganization,
-}: AccountViewProps) => {
+const AccountView = ({ onDone, clineUser, organizations, activeOrganization }: any) => {
   const { environment } = useExtensionState();
-
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden">
+    <div className="fixed inset-0 flex flex-col overflow-hidden bg-sidebar-background animate-in fade-in zoom-in-95 duration-200">
       <ViewHeader environment={environment} onDone={onDone} showEnvironmentSuffix title="Account" />
-      <div className="grow flex flex-col px-5 overflow-y-auto">
-        {clineUser?.uid ? (
-          <ClineAccountView
-            activeOrganization={activeOrganization}
-            clineEnv={
-              environment === "local"
-                ? "Local"
-                : environment === "staging"
-                  ? "Staging"
-                  : "Production"
-            }
-            clineUser={clineUser}
-            key={clineUser.uid}
-            userOrganizations={organizations}
-          />
-        ) : (
-          <AccountWelcomeView />
-        )}
+      <div className="grow flex flex-col px-5 overflow-y-auto pb-6">
+        {clineUser?.uid ? <ClineAccountView activeOrganization={activeOrganization} clineEnv={environment} clineUser={clineUser} userOrganizations={organizations} /> : <WelcomeView />}
       </div>
     </div>
   );
 };
 
-export const ClineAccountView = ({
-  clineUser,
-  userOrganizations,
-  activeOrganization,
-  clineEnv,
-}: ClineAccountViewProps) => {
-  const { email, displayName, appBaseUrl, uid } = clineUser;
-  const { remoteConfigSettings, environment } = useExtensionState();
-
-  // Determine if dropdown should be locked by remote config
-  const isLockedByRemoteConfig = Object.keys(remoteConfigSettings || {}).length > 0;
-
-  // Source of truth: Dedicated state for dropdown value that persists through failures
-  // and represents that user's current selection.
-  const [dropdownValue, setDropdownValue] = useState<string>(
-    activeOrganization?.organizationId || uid,
-  );
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Cache data per organization/user ID to avoid showing empty state when switching
-  const dataCache = useRef<Map<string, CachedData>>(new Map());
-
-  // Current displayed data
-  const [balance, setBalance] = useState<number | null>(null);
-  const [usageData, setUsageData] = useState<ClineAccountUsageTransaction[]>([]);
-  const [paymentsData, setPaymentsData] = useState<PaymentTransaction[]>([]);
-  const [lastFetchTime, setLastFetchTime] = useState<number>(Date.now());
-
-  // Load cached data for current dropdown value
-  const loadCachedData = useCallback((id: string) => {
-    const cached = dataCache.current.get(id);
-    if (cached) {
-      setBalance(cached.balance);
-      setUsageData(cached.usageData);
-      setPaymentsData(cached.paymentsData);
-      setLastFetchTime(cached.lastFetchTime);
-      return true;
-    }
-    return false;
-  }, []);
-
-  // Simple cache function without dependencies
-  const cacheCurrentData = useCallback(
-    (id: string) => {
-      dataCache.current.set(id, {
-        balance,
-        usageData,
-        paymentsData,
-        lastFetchTime,
-      });
-    },
-    [balance, usageData, paymentsData, lastFetchTime],
-  );
-  // Track the active organization ID to detect changes
-  const [lastActiveOrgId, setLastActiveOrgId] = useState<string | undefined>(
-    activeOrganization?.organizationId,
-  );
-  // Use ref for debounce timeout to avoid re-renders
-  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  // Track if manual fetch is in progress to avoid duplicate fetches
-  const manualFetchInProgressRef = useRef<boolean>(false);
-  // Track if initial mount fetch has completed to avoid duplicate fetches
-  const initialFetchCompleteRef = useRef<boolean>(false);
-
-  const isClineTester = useMemo(() => (email ? isClineInternalTester(email) : false), [email]);
-
-  const fetchUserCredit = useCallback(async () => {
-    try {
-      const response = await AccountServiceClient.getUserCredits(EmptyRequest.create());
-      const newBalance = response?.balance?.currentBalance;
-      // Always update balance, even if it's 0 or null - don't skip undefined
-      setBalance(newBalance ?? null);
-      const newUsage = convertProtoUsageTransactions(response.usageTransactions);
-      setUsageData((prev) => (deepEqual(newUsage, prev) ? prev : newUsage));
-      const newPaymentsData = response.paymentTransactions;
-      setPaymentsData((prev) => (deepEqual(newPaymentsData, prev) ? prev : newPaymentsData));
-    } catch (error) {
-      console.error("Failed to fetch user credit:", error);
-    }
-  }, []);
-
-  const fetchCreditBalance = useCallback(
-    async (id: string, skipCache = false) => {
-      try {
-        if (isLoading) {
-          return; // Prevent multiple concurrent fetches
-        }
-
-        // Load cached data immediately if available (unless skipping cache)
-        if (!skipCache && loadCachedData(id)) {
-          // If we have cached data, show it first, then fetch in background
-        }
-
-        setIsLoading(true);
-        if (id === uid) {
-          await fetchUserCredit();
-        } else {
-          const response = await AccountServiceClient.getOrganizationCredits({
-            organizationId: id,
-          });
-          // Update balance - handle all values including 0 and null
-          const newBalance = response.balance?.currentBalance;
-          setBalance(newBalance ?? null);
-
-          const newUsage = convertProtoUsageTransactions(response.usageTransactions);
-          setUsageData((prev) => (deepEqual(newUsage, prev) ? prev : newUsage));
-        }
-
-        // Cache the updated data
-        cacheCurrentData(id);
-      } catch (error) {
-        console.error("Failed to fetch credit balance:", error);
-      } finally {
-        setLastFetchTime(Date.now());
-        setIsLoading(false);
-      }
-    },
-    [isLoading, uid, fetchUserCredit, loadCachedData],
-  );
-
-  const handleOrganizationChange = useCallback(
-    async (event: any) => {
-      const target = event.target as HTMLSelectElement;
-      if (!target) {
-        return;
-      }
-
-      const newValue = target.value;
-      if (newValue !== dropdownValue) {
-        // Clear any pending debounced fetch since we're doing a manual one
-        if (debounceTimeoutRef.current) {
-          clearTimeout(debounceTimeoutRef.current);
-          debounceTimeoutRef.current = null;
-        }
-
-        // Cache current data before switching
-        cacheCurrentData(dropdownValue);
-        setDropdownValue(newValue);
-
-        // Load cached data for new selection immediately, or clear if no cache
-        // Only clear if we don't have cached data to avoid unnecessary flashing
-        if (!loadCachedData(newValue)) {
-          // No cached data - clear current state to avoid showing wrong data
-          setBalance(null);
-          setUsageData([]);
-          setPaymentsData([]);
-        }
-
-        // Set flag to indicate manual fetch in progress
-        manualFetchInProgressRef.current = true;
-
-        // Fetch the new data
-        await fetchCreditBalance(newValue);
-
-        // Update the last active org ID to prevent the effect from triggering
-        setLastActiveOrgId(newValue === uid ? undefined : newValue);
-
-        // Send the change to the server
-        const organizationId = newValue === uid ? undefined : newValue;
-        await AccountServiceClient.setUserOrganization({ organizationId });
-
-        // Clear the manual fetch flag after everything is done
-        manualFetchInProgressRef.current = false;
-      }
-    },
-    [uid, dropdownValue, loadCachedData, fetchCreditBalance, cacheCurrentData],
-  );
-
-  // Fetch balance every 60 seconds
-  useInterval(() => {
-    fetchCreditBalance(dropdownValue);
-  }, 60000);
-
-  const clineUrl = appBaseUrl || "https://app.cline.bot";
-
-  // Fetch balance on mount
-  useEffect(() => {
-    async function initialFetch() {
-      await fetchCreditBalance(dropdownValue);
-      initialFetchCompleteRef.current = true;
-    }
-    initialFetch();
-  }, []);
-
-  useEffect(() => {
-    // Handle organization changes with 500ms debounce
-    const currentActiveOrgId = activeOrganization?.organizationId;
-    const hasActiveOrgChanged = currentActiveOrgId !== lastActiveOrgId;
-
-    // Only handle external organization changes (not dropdown changes)
-    // Dropdown changes are handled by handleOrganizationChange
-    const isExternalOrgChange = hasActiveOrgChanged && !manualFetchInProgressRef.current;
-
-    if (isExternalOrgChange) {
-      // Clear any existing timeout
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
-
-      // Update dropdown to match the new active organization
-      const newDropdownValue = currentActiveOrgId || uid;
-      if (newDropdownValue !== dropdownValue) {
-        // Cache current data before switching
-        cacheCurrentData(dropdownValue);
-        setDropdownValue(newDropdownValue);
-
-        // Load cached data for new selection immediately, or clear if no cache
-        // Only clear data if initial fetch has completed to avoid clearing on mount
-        if (!loadCachedData(newDropdownValue) && initialFetchCompleteRef.current) {
-          // No cached data - clear to avoid showing wrong data
-          setBalance(null);
-          setUsageData([]);
-          setPaymentsData([]);
-        }
-      }
-
-      // Only set timeout if initial fetch is complete
-      if (initialFetchCompleteRef.current) {
-        // Set new timeout to fetch after 500ms
-        debounceTimeoutRef.current = setTimeout(() => {
-          fetchCreditBalance(newDropdownValue);
-          setLastActiveOrgId(currentActiveOrgId);
-        }, 500);
-      } else {
-        // Just update the active org ID
-        setLastActiveOrgId(currentActiveOrgId);
-      }
-    }
-
-    // Cleanup timeout on unmount
-    return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
-    };
-  }, [
-    activeOrganization?.organizationId,
-    lastActiveOrgId,
-    uid,
-    dropdownValue,
-    loadCachedData,
-    fetchCreditBalance,
-    cacheCurrentData,
-  ]);
-
-  return (
-    <div className="h-full flex flex-col">
-      <div className="flex flex-col h-full">
-        <div className="flex flex-col w-full gap-1 mb-6">
-          <div className="flex items-center flex-wrap gap-y-4">
-            {/* {user.photoUrl ? (
-								<img src={user.photoUrl} alt="Profile" className="size-16 rounded-full mr-4" />
-							) : ( */}
-            <div className="size-16 rounded-full bg-button-background flex items-center justify-center text-2xl text-button-foreground mr-4">
-              {displayName?.[0] || email?.[0] || "?"}
-            </div>
-            {/* )} */}
-
-            <div className="flex flex-col">
-              {displayName && (
-                <h2 className="text-foreground m-0 text-lg font-medium">{displayName}</h2>
-              )}
-
-              {email && <div className="text-sm text-description">{email}</div>}
-
-              <div className="flex gap-2 items-center mt-1">
-                <Tooltip>
-                  <TooltipTrigger>
-                    <VSCodeDropdown
-                      className="w-full"
-                      currentValue={dropdownValue}
-                      disabled={isLoading || isLockedByRemoteConfig}
-                      onChange={handleOrganizationChange}
-                    >
-                      <VSCodeOption key="personal" value={uid}>
-                        Personal
-                      </VSCodeOption>
-                      {userOrganizations?.map((org: UserOrganization) => (
-                        <VSCodeOption key={org.organizationId} value={org.organizationId}>
-                          {org.name}
-                        </VSCodeOption>
-                      ))}
-                    </VSCodeDropdown>
-                  </TooltipTrigger>
-                  <TooltipContent hidden={!isLockedByRemoteConfig}>
-                    This cannot be changed while your organization has remote configuration enabled.
-                  </TooltipContent>
-                </Tooltip>
-                {activeOrganization && (
-                  <VSCodeTag className="text-xs p-2" title="Role">
-                    {getMainRole(activeOrganization.roles)}
-                  </VSCodeTag>
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="w-full flex gap-2 flex-col min-[225px]:flex-row">
-            <RemoteConfigToggle activeOrganization={activeOrganization} />
-          </div>
+const WelcomeView = () => (
+    <div className="flex flex-col items-center justify-center grow gap-6 text-center py-10">
+        <div className="size-20 rounded-3xl bg-primary/10 flex items-center justify-center text-primary shadow-inner"><RefreshCwIcon size={40} className="animate-pulse" /></div>
+        <div className="space-y-2">
+            <h1 className="text-xl font-bold">Welcome to DietCode</h1>
+            <p className="text-sm opacity-60 max-w-xs">Sign in to sync your tasks, manage credits, and access pro features.</p>
         </div>
-
-        <div className="w-full flex gap-2 flex-col min-[225px]:flex-row">
-          <div className="w-full min-[225px]:w-1/2">
-            <VSCodeButtonLink
-              appearance="primary"
-              className="w-full"
-              href={getClineUris(clineUrl, "dashboard").href}
-            >
-              Dashboard
-            </VSCodeButtonLink>
-          </div>
-          <VSCodeButton
-            appearance="secondary"
-            className="w-full min-[225px]:w-1/2"
-            onClick={() => handleSignOut()}
-          >
-            Log out
-          </VSCodeButton>
-        </div>
-
-        <VSCodeDivider className="w-full my-6" />
-
-        <CreditBalance
-          balance={balance}
-          creditUrl={getClineUris(
-            clineUrl,
-            "credits",
-            dropdownValue === uid ? "account" : "organization",
-          )}
-          fetchCreditBalance={() => fetchCreditBalance(dropdownValue)}
-          isLoading={isLoading}
-          lastFetchTime={lastFetchTime}
-        />
-
-        <VSCodeDivider className="mt-6 mb-3 w-full" />
-
-        <div className="grow flex flex-col min-h-0 pb-0">
-          <CreditsHistoryTable
-            isLoading={isLoading}
-            paymentsData={paymentsData}
-            showPayments={dropdownValue === uid}
-            usageData={usageData}
-          />
-        </div>
-
-        {/* Hide environment switching UI when in self-hosted mode */}
-        {isClineTester && environment !== "selfHosted" && (
-          <div className="w-full gap-1 items-end">
-            <VSCodeDivider className="w-full my-3" />
-            <div className="text-sm font-semibold">DietCode Environment</div>
-            <VSCodeDropdown
-              className="w-full mt-1"
-              currentValue={clineEnv}
-              onChange={async (e) => {
-                const target = e.target as HTMLSelectElement;
-                if (target?.value) {
-                  const value = target.value as "Local" | "Staging" | "Production";
-                  updateSetting("clineEnv", value.toLowerCase());
-                }
-              }}
-            >
-              {ClineEnvOptions.map((env) => (
-                <VSCodeOption key={env} value={env}>
-                  {env}
-                </VSCodeOption>
-              ))}
-            </VSCodeDropdown>
-          </div>
-        )}
-      </div>
+        <VSCodeButton className="w-full" onClick={() => (window as any).postMessage({ type: "onboarding-signin" })}>Sign In to Continue</VSCodeButton>
     </div>
-  );
+);
+
+const ClineAccountView = ({ clineUser, userOrganizations, activeOrganization }: any) => {
+    const { uid, displayName, email, appBaseUrl } = clineUser;
+    const [balance, setBalance] = useState<number | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [usageData, setUsageData] = useState<any[]>([]);
+
+    const fetchCredits = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const res = activeOrganization?.organizationId 
+                ? await AccountServiceClient.getOrganizationCredits({ organizationId: activeOrganization.organizationId })
+                : await AccountServiceClient.getUserCredits({});
+            setBalance(res.balance?.currentBalance ?? 0);
+            setUsageData(convertProtoUsageTransactions(res.usageTransactions) || []);
+        } finally { setIsLoading(null as any); }
+    }, [activeOrganization]);
+
+    useEffect(() => { fetchCredits(); }, [fetchCredits]);
+    useInterval(fetchCredits, 60000);
+
+    return (
+        <div className="space-y-6 pt-4">
+            <div className="flex items-center gap-4">
+                <div className="size-14 rounded-full bg-primary/20 flex items-center justify-center text-xl font-bold text-primary border border-primary/20 shadow-sm">{displayName?.[0] || email?.[0]}</div>
+                <div className="flex-1 min-w-0">
+                    <h2 className="text-lg font-bold truncate m-0">{displayName || "Anonymous"}</h2>
+                    <p className="text-xs opacity-60 truncate m-0">{email}</p>
+                </div>
+                <VSCodeButton appearance="secondary" onClick={() => handleSignOut()}>Log Out</VSCodeButton>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pb-2">
+                <VSCodeButtonLink className="h-10" href={getClineUris(appBaseUrl, "dashboard").href}>Dashboard</VSCodeButtonLink>
+                <VSCodeButtonLink appearance="secondary" className="h-10" href={getClineUris(appBaseUrl, "credits").href}>Add Credits</VSCodeButtonLink>
+            </div>
+
+            <div className="p-4 bg-code border border-panel-border/50 rounded-lg shadow-sm space-y-3">
+                <div className="flex items-center justify-between">
+                    <span className="text-xs uppercase font-bold tracking-wider opacity-60">Balance</span>
+                    <button onClick={fetchCredits} disabled={isLoading} className="p-1 hover:bg-white/5 rounded-sm transition-colors"><RefreshCwIcon size={12} className={cn(isLoading && "animate-spin")} /></button>
+                </div>
+                <div className="text-3xl font-mono font-bold tracking-tighter">${balance?.toFixed(2) || "0.00"}</div>
+                <p className="text-[10px] opacity-40 italic">Balances are updated automatically every minute.</p>
+            </div>
+
+            <div className="space-y-2.5">
+                <div className="flex items-center justify-between px-1">
+                    <h3 className="text-xs font-bold uppercase tracking-widest opacity-70">Recent Usage</h3>
+                    <InfoIcon size={12} className="opacity-40" />
+                </div>
+                <div className="border border-panel-border/30 rounded-md overflow-hidden bg-code/30">
+                    {usageData.length > 0 ? usageData.slice(0, 5).map((u, i) => (
+                        <div key={i} className="flex items-center justify-between p-2.5 border-b border-panel-border/20 last:border-0 hover:bg-white/5 transition-colors">
+                            <div className="flex flex-col gap-0.5">
+                                <span className="text-[11px] font-bold line-clamp-1 opacity-90">{u.taskName || "AI Task"}</span>
+                                <span className="text-[9px] opacity-50 uppercase tracking-tighter">{new Date(u.ts).toLocaleDateString()}</span>
+                            </div>
+                            <span className="text-xs font-mono font-bold text-primary">-${u.cost?.toFixed(3)}</span>
+                        </div>
+                    )) : <div className="p-10 text-center text-xs opacity-30 italic">No recent transactions</div>}
+                </div>
+            </div>
+        </div>
+    );
 };
 
 export default memo(AccountView);

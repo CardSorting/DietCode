@@ -53,6 +53,8 @@ export interface ChatState {
   handleFocusChange: (isFocused: boolean) => void;
   clearExpandedRows: () => void;
   resetState: () => void;
+  selectFilesAndImages: (supportsImages: boolean) => Promise<void>;
+  shouldDisableFilesAndImages: boolean;
 
   // Scroll-related state (will be moved to scroll hook)
   showScrollToBottom?: boolean;

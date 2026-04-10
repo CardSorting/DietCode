@@ -6,12 +6,10 @@ import { ModelsServiceClient } from "@/services/grpc-client";
 import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
 import PROVIDERS from "@shared/providers/providers.json";
 import type { Mode } from "@shared/storage/types.ts";
-import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
-import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeLink, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
 import Fuse from "fuse.js";
 import { type KeyboardEvent, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useInterval } from "react-use";
-import styled from "styled-components";
 import { StandardProviderLayout } from "./common/StandardProviderLayout";
 import { OllamaProvider } from "./providers/OllamaProvider";
 import { OpenAICompatibleProvider } from "./providers/OpenAICompatible";
@@ -27,6 +25,7 @@ import {
   useApiConfigurationHandlers,
 } from "./utils/providerUtils";
 import FuzzyModelPicker from "./common/FuzzyModelPicker";
+import { cn } from "@/lib/utils";
 
 interface ApiOptionsProps {
   showModelOptions: boolean;
@@ -36,22 +35,6 @@ interface ApiOptionsProps {
   currentMode: Mode;
   initialModelTab?: "recommended" | "free";
 }
-
-// This is necessary to ensure dropdown opens downward, important for when this is used in popup
-export const OPENROUTER_MODEL_PICKER_Z_INDEX = 1000;
-export const DROPDOWN_Z_INDEX = OPENROUTER_MODEL_PICKER_Z_INDEX + 2; // Higher than the OpenRouterModelPicker's and ModelSelectorTooltip's z-index
-
-export const DropdownContainer = styled.div<{ zIndex?: number }>`
-	position: relative;
-	z-index: ${(props) => props.zIndex || DROPDOWN_Z_INDEX};
-
-	// Force dropdowns to open downward
-	& vscode-dropdown::part(listbox) {
-		position: absolute !important;
-		top: 100% !important;
-		bottom: auto !important;
-	}
-`;
 
 const ApiOptions = memo(({
   showModelOptions,
@@ -92,7 +75,6 @@ const ApiOptions = memo(({
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const dropdownListRef = useRef<HTMLDivElement>(null);
 
   const providerOptions = useMemo(() => {
     let providers = PROVIDERS.list;
@@ -114,9 +96,9 @@ const ApiOptions = memo(({
     if (!isDropdownVisible) setSearchTerm(currentProviderLabel);
   }, [currentProviderLabel, isDropdownVisible]);
 
-  const searchableItems = useMemo(() => providerOptions.map((option) => ({ value: option.value, html: option.label })), [providerOptions]);
-  const fuse = useMemo(() => new Fuse(searchableItems, { keys: ["html"], threshold: 0.3, shouldSort: true }), [searchableItems]);
-  const providerSearchResults = useMemo(() => searchTerm && searchTerm !== currentProviderLabel ? fuse.search(searchTerm)?.map((r) => r.item) : searchableItems, [searchableItems, searchTerm, fuse, currentProviderLabel]);
+  const searchableItems = useMemo(() => providerOptions.map((option) => ({ value: option.value, label: option.label })), [providerOptions]);
+  const fuse = useMemo(() => new Fuse(searchableItems, { keys: ["label"], threshold: 0.3 }), [searchableItems]);
+  const providerSearchResults = useMemo(() => searchTerm && searchTerm !== currentProviderLabel ? fuse.search(searchTerm).map((r) => r.item) : searchableItems, [searchableItems, searchTerm, fuse, currentProviderLabel]);
 
   const handleProviderChange = (newProvider: string) => {
     handleModeFieldChange({ plan: "planModeApiProvider", act: "actModeApiProvider" }, newProvider as any, currentMode);
@@ -159,11 +141,6 @@ const ApiOptions = memo(({
   }, [currentProviderLabel]);
 
   useEffect(() => {
-    setSelectedIndex(-1);
-    if (dropdownListRef.current) dropdownListRef.current.scrollTop = 0;
-  }, [searchTerm]);
-
-  useEffect(() => {
     if (selectedIndex >= 0 && itemRefs.current[selectedIndex]) {
       itemRefs.current[selectedIndex]?.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
@@ -198,43 +175,52 @@ const ApiOptions = memo(({
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: isPopup ? -10 : 0 }}>
+    <div className={cn("flex flex-col gap-1", isPopup && "-mb-2.5")}>
       {/* Provider Selector */}
-      <DropdownContainer className="dropdown-container">
-        <label htmlFor="api-provider">
-          <span style={{ fontWeight: 500 }}>API Provider</span>
+      <div className="relative z-50">
+        <label className="flex items-center gap-1 mb-1">
+          <span className="text-xs font-semibold opacity-80">API Provider</span>
           {remoteConfigSettings?.remoteConfiguredProviders && remoteConfigSettings.remoteConfiguredProviders.length > 0 && (
             <Tooltip>
-              <TooltipTrigger><i className="codicon codicon-lock text-description text-sm ml-1" /></TooltipTrigger>
-              <TooltipContent>Managed by organization's remote configuration</TooltipContent>
+              <TooltipTrigger><i className="codicon codicon-lock text-[10px] opacity-50" /></TooltipTrigger>
+              <TooltipContent>Managed by organization</TooltipContent>
             </Tooltip>
           )}
         </label>
-        <ProviderDropdownWrapper ref={dropdownRef}>
+        
+        <div ref={dropdownRef} className="relative">
           <VSCodeTextField
-            id="api-provider"
             onFocus={() => { setIsDropdownVisible(true); setSearchTerm(""); }}
             onInput={(e) => { setSearchTerm((e.target as HTMLInputElement)?.value || ""); setIsDropdownVisible(true); }}
             onKeyDown={handleKeyDown}
             placeholder="Search provider..."
-            style={{ width: "100%", zIndex: DROPDOWN_Z_INDEX, position: "relative", minWidth: 130 }}
+            className="w-full"
             value={searchTerm}
           />
           {isDropdownVisible && (
-            <ProviderDropdownList ref={dropdownListRef} role="listbox">
+            <div className="absolute top-[calc(100%+2px)] left-0 w-full max-h-48 overflow-y-auto bg-dropdown-background border border-list-active animate-in fade-in slide-in-from-top-1 duration-200 rounded-md shadow-lg scrollbar-thin">
               {providerSearchResults.map((item, index) => (
-                <ProviderDropdownItem key={item.value} isSelected={index === selectedIndex} onClick={() => handleProviderChange(item.value)} onMouseEnter={() => setSelectedIndex(index)} ref={(el) => { itemRefs.current[index] = el; }} role="option">
-                  <span>{item.html}</span>
-                </ProviderDropdownItem>
+                <div
+                  key={item.value}
+                  ref={(el) => { itemRefs.current[index] = el; }}
+                  onClick={() => handleProviderChange(item.value)}
+                  onMouseEnter={() => setSelectedIndex(index)}
+                  className={cn(
+                    "px-3 py-1.5 cursor-pointer text-sm transition-colors break-all",
+                    index === selectedIndex ? "bg-list-active text-foreground" : "text-description hover:bg-list-hover"
+                  )}
+                >
+                  {item.label}
+                </div>
               ))}
-            </ProviderDropdownList>
+            </div>
           )}
-        </ProviderDropdownWrapper>
-      </DropdownContainer>
+        </div>
+      </div>
 
       {/* Provider Settings */}
       {apiConfiguration && (
-        <>
+        <div className="space-y-4 mt-2">
           {selectedProvider === "cline" && (
             <StandardProviderLayout
               {...commonProps}
@@ -294,9 +280,9 @@ const ApiOptions = memo(({
                 onModelChange={handleOpenRouterModelChange}
                 selectedModelId={selectedModelId}
               />
-              <p style={{ fontSize: "12px", marginTop: 10, color: "var(--vscode-descriptionForeground)" }}>
-                Latest models on <VSCodeLink href="https://openrouter.ai/models" style={{ display: "inline", fontSize: "inherit" }}>OpenRouter.</VSCodeLink>
-                Try <VSCodeLink onClick={() => handleOpenRouterModelChange("anthropic/claude-sonnet-4.6")} style={{ display: "inline", fontSize: "inherit" }}>anthropic/claude-sonnet-4.6.</VSCodeLink>
+              <p className="text-[11px] mt-2 text-description leading-normal">
+                Latest models on <VSCodeLink href="https://openrouter.ai/models" className="inline text-inherit">OpenRouter.</VSCodeLink>
+                Try <VSCodeLink onClick={() => handleOpenRouterModelChange("anthropic/claude-sonnet-4.6")} className="inline text-inherit">anthropic/claude-sonnet-4.6.</VSCodeLink>
               </p>
             </StandardProviderLayout>
           )}
@@ -319,36 +305,13 @@ const ApiOptions = memo(({
 
           {selectedProvider === "vscode-lm" && <VSCodeLmProvider currentMode={currentMode} />}
           {selectedProvider === "ollama" && <OllamaProvider currentMode={currentMode} isPopup={isPopup} showModelOptions={showModelOptions} />}
-        </>
+        </div>
       )}
 
-      {apiErrorMessage && <p style={{ margin: "-10px 0 4px 0", fontSize: 12, color: "var(--vscode-errorForeground)" }}>{apiErrorMessage}</p>}
-      {modelIdErrorMessage && <p style={{ margin: "-10px 0 4px 0", fontSize: 12, color: "var(--vscode-errorForeground)" }}>{modelIdErrorMessage}</p>}
+      {apiErrorMessage && <p className="mt-1 text-xs text-error animate-in shake-1">{apiErrorMessage}</p>}
+      {modelIdErrorMessage && <p className="mt-1 text-xs text-error animate-in shake-1">{modelIdErrorMessage}</p>}
     </div>
   );
 });
 
 export default ApiOptions;
-
-const ProviderDropdownWrapper = styled.div` position: relative; width: 100%; `;
-const ProviderDropdownList = styled.div`
-	position: absolute;
-	top: calc(100% - 3px);
-	left: 0;
-	width: calc(100% - 2px);
-	max-height: 200px;
-	overflow-y: auto;
-	background-color: var(--vscode-dropdown-background);
-	border: 1px solid var(--vscode-list-activeSelectionBackground);
-	z-index: ${DROPDOWN_Z_INDEX - 1};
-	border-bottom-left-radius: 3px;
-	border-bottom-right-radius: 3px;
-`;
-const ProviderDropdownItem = styled.div<{ isSelected: boolean }>`
-	padding: 5px 10px;
-	cursor: pointer;
-	word-break: break-all;
-	white-space: normal;
-	background-color: ${({ isSelected }) => (isSelected ? "var(--vscode-list-activeSelectionBackground)" : "inherit")};
-	&:hover { background-color: var(--vscode-list-activeSelectionBackground); }
-`;

@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { QuoteIcon } from "lucide-react";
 import type React from "react";
-import styled from "styled-components";
 
 interface QuoteButtonProps {
   top: number;
@@ -9,26 +8,17 @@ interface QuoteButtonProps {
   onClick: () => void;
 }
 
-// Define props specifically for the styled component using transient props
-interface ButtonContainerProps {
-  $top: number;
-  $left: number;
-}
-
-const ButtonContainer = styled.div<ButtonContainerProps>`
-	top: ${(props) => props.$top}px; // Use transient prop $top
-	left: ${(props) => props.$left}px; // Use transient prop $left
-`;
-
 const QuoteButton: React.FC<QuoteButtonProps> = ({ top, left, onClick }) => {
   return (
-    // Pass transient props to the styled component
-    <ButtonContainer $left={left} $top={top} className="quote-button-class absolute">
+    <div 
+      className="absolute z-10" 
+      style={{ top: `${top}px`, left: `${left}px` }}
+    >
       <Button
         aria-label="Quote selection"
-        className="p-3 h-auto min-w-auto rounded-md shadow-sm transition-transform hover:scale-105 z-10"
+        className="p-3 h-auto min-w-auto rounded-md shadow-sm transition-transform hover:scale-105"
         onClick={(e) => {
-          e.stopPropagation(); // Prevent triggering mouseup on the parent
+          e.stopPropagation();
           onClick();
         }}
         size="sm"
@@ -36,7 +26,7 @@ const QuoteButton: React.FC<QuoteButtonProps> = ({ top, left, onClick }) => {
       >
         <QuoteIcon className="size-2 fill-button-foreground rotate-180 stroke-1" />
       </Button>
-    </ButtonContainer>
+    </div>
   );
 };
 

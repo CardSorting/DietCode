@@ -1,39 +1,19 @@
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { memo } from "react";
 import { useExtensionState } from "@/context/ExtensionStateContext";
-import {
-  FileServiceClient,
-  TaskServiceClient,
-  WorktreeServiceClient,
-} from "@/services/grpc-client";
 import { getEnvironmentColor } from "@/utils/environmentColors";
-import { EmptyRequest } from "@shared/nice-grpc/cline/common.ts";
-import { NewTaskRequest } from "@shared/nice-grpc/cline/task.ts";
-import type {
-  MergeWorktreeResult,
-  Worktree as WorktreeProto,
-} from "@shared/nice-grpc/cline/worktree";
-import {
-  CreateWorktreeIncludeRequest,
-  DeleteWorktreeRequest,
-  MergeWorktreeRequest,
-  SwitchWorktreeRequest,
-} from "@shared/nice-grpc/cline/worktree";
-import { VSCodeButton, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import {
-  AlertCircle,
-  Check,
-  ExternalLink,
-  FolderOpen,
-  GitBranch,
-  GitMerge,
-  Loader2,
-  Plus,
-  Trash2,
-  X,
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { 
+  AlertCircle, 
+  Check, 
+  GitBranch, 
+  Loader2, 
+  Plus 
 } from "lucide-react";
-import { memo, useCallback, useEffect, useState } from "react";
+import { useWorktrees } from "./hooks/useWorktrees";
+import WorktreeItem from "./WorktreeItem";
 import CreateWorktreeModal from "./CreateWorktreeModal";
 import DeleteWorktreeModal from "./DeleteWorktreeModal";
+import MergeWorktreeModal from "./MergeWorktreeModal";
 
 type WorktreesViewProps = {
   onDone: () => void;
@@ -41,493 +21,117 @@ type WorktreesViewProps = {
 
 const WorktreesView = ({ onDone }: WorktreesViewProps) => {
   const { environment } = useExtensionState();
-  const [worktrees, setWorktrees] = useState<WorktreeProto[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isGitRepo, setIsGitRepo] = useState(true);
-  const [isMultiRoot, setIsMultiRoot] = useState(false);
-  const [isSubfolder, setIsSubfolder] = useState(false);
-  const [gitRootPath, setGitRootPath] = useState("");
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [deleteWorktree, setDeleteWorktree] = useState<WorktreeProto | null>(null);
+  const wt = useWorktrees(onDone);
 
-  // Merge worktree state
-  const [mergeWorktree, setMergeWorktree] = useState<WorktreeProto | null>(null);
-  const [isMerging, setIsMerging] = useState(false);
-  const [mergeError, setMergeError] = useState<string | null>(null);
-  const [mergeResult, setMergeResult] = useState<MergeWorktreeResult | null>(null);
-  const [deleteAfterMerge, setDeleteAfterMerge] = useState(true);
-
-  // .worktreeinclude status
-  const [hasWorktreeInclude, setHasWorktreeInclude] = useState(false);
-  const [hasGitignore, setHasGitignore] = useState(false);
-  const [gitignoreContent, setGitignoreContent] = useState("");
-  const [isCreatingWorktreeInclude, setIsCreatingWorktreeInclude] = useState(false);
-
-  // Check if a worktree is the main/primary worktree (first one, typically the original clone)
-  const isMainWorktree = useCallback(
-    (worktree: WorktreeProto) => {
-      // The main worktree is typically the first one listed and is where .git directory lives
-      // It's also usually the one that's marked as "bare" or is the original clone location
-      if (worktrees.length === 0) return false;
-      return worktree.path === worktrees[0]?.path || worktree.isBare;
-    },
-    [worktrees],
-  );
-
-  // Load worktrees - only updates state if data changed to prevent flickering
-  const loadWorktrees = useCallback(async () => {
-    try {
-      const response = await WorktreeServiceClient.listWorktrees(EmptyRequest.create({}));
-      // Only update state if data actually changed (prevents flickering)
-      setWorktrees((prev) => {
-        const newData = JSON.stringify(response.worktrees);
-        const oldData = JSON.stringify(prev);
-        return newData === oldData ? prev : response.worktrees;
-      });
-      setIsGitRepo((prev) => (prev === response.isGitRepo ? prev : response.isGitRepo));
-      setIsMultiRoot((prev) => (prev === response.isMultiRoot ? prev : response.isMultiRoot));
-      setIsSubfolder((prev) => (prev === response.isSubfolder ? prev : response.isSubfolder));
-      setGitRootPath((prev) => (prev === response.gitRootPath ? prev : response.gitRootPath));
-      setError((prev) => (response.error ? response.error : prev === null ? null : prev));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load worktrees");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Load .worktreeinclude status
-  const loadWorktreeIncludeStatus = useCallback(async () => {
-    try {
-      const status = await WorktreeServiceClient.getWorktreeIncludeStatus(EmptyRequest.create({}));
-      setHasWorktreeInclude(status.exists);
-      setHasGitignore(status.hasGitignore);
-      setGitignoreContent(status.gitignoreContent);
-    } catch (err) {
-      console.error("Failed to load worktree include status:", err);
-    }
-  }, []);
-
-  // Create .worktreeinclude file and open it in editor
-  const handleCreateWorktreeInclude = useCallback(async () => {
-    setIsCreatingWorktreeInclude(true);
-    try {
-      const result = await WorktreeServiceClient.createWorktreeInclude(
-        CreateWorktreeIncludeRequest.create({
-          content: gitignoreContent,
-        }),
-      );
-      if (result.success) {
-        setHasWorktreeInclude(true);
-        // Open the file in the editor
-        await FileServiceClient.openFileRelativePath({ value: ".worktreeinclude" });
-      } else {
-        setError(result.message);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create .worktreeinclude");
-    } finally {
-      setIsCreatingWorktreeInclude(false);
-    }
-  }, [gitignoreContent]);
-
-  // Initial load
-  useEffect(() => {
-    loadWorktrees();
-    loadWorktreeIncludeStatus();
-  }, [loadWorktrees, loadWorktreeIncludeStatus]);
-
-  // Poll for updates every 3 seconds while the view is open
-  useEffect(() => {
-    const interval = setInterval(loadWorktrees, 3000);
-    return () => clearInterval(interval);
-  }, [loadWorktrees]);
-
-  const handleDeleteWorktree = useCallback(
-    async (path: string, deleteBranch: boolean, branchName: string) => {
-      try {
-        const result = await WorktreeServiceClient.deleteWorktree(
-          DeleteWorktreeRequest.create({
-            path,
-            force: false,
-            deleteBranch,
-            branchName,
-          }),
-        );
-
-        if (!result.success) {
-          setError(result.message);
-        } else {
-          await loadWorktrees();
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to delete worktree");
-      }
-    },
-    [loadWorktrees],
-  );
-
-  const handleSwitchWorktree = useCallback(async (path: string, newWindow: boolean) => {
-    try {
-      await WorktreeServiceClient.switchWorktree(
-        SwitchWorktreeRequest.create({
-          path,
-          newWindow,
-        }),
-      );
-    } catch (err) {
-      console.error("Failed to switch worktree:", err);
-    }
-  }, []);
-
-  // Get the main branch name (first worktree's branch, usually main/master)
-  const getMainBranch = useCallback(() => {
-    if (worktrees.length === 0) return "main";
-    return worktrees[0]?.branch || "main";
-  }, [worktrees]);
-
-  // Open merge modal for a worktree
-  const openMergeModal = useCallback((worktree: WorktreeProto) => {
-    setMergeWorktree(worktree);
-    setMergeError(null);
-    setMergeResult(null);
-    setDeleteAfterMerge(true);
-  }, []);
-
-  // Close merge modal
-  const closeMergeModal = useCallback(() => {
-    setMergeWorktree(null);
-    setMergeError(null);
-    setMergeResult(null);
-  }, []);
-
-  // Handle merge
-  const handleMergeWorktree = useCallback(async () => {
-    if (!mergeWorktree) return;
-
-    setIsMerging(true);
-    setMergeError(null);
-    setMergeResult(null);
-
-    try {
-      const result = await WorktreeServiceClient.mergeWorktree(
-        MergeWorktreeRequest.create({
-          worktreePath: mergeWorktree.path,
-          targetBranch: getMainBranch(),
-          deleteAfterMerge,
-        }),
-      );
-
-      setMergeResult(result);
-
-      if (result.success) {
-        // Reload worktrees to reflect changes
-        await loadWorktrees();
-      } else if (!result.hasConflicts) {
-        setMergeError(result.message);
-      }
-    } catch (err) {
-      setMergeError(err instanceof Error ? err.message : "Failed to merge worktree");
-    } finally {
-      setIsMerging(false);
-    }
-  }, [mergeWorktree, getMainBranch, deleteAfterMerge, loadWorktrees]);
-
-  // Ask Cline to resolve conflicts
-  const handleAskClineToResolve = useCallback(async () => {
-    if (!mergeResult || !mergeResult.hasConflicts) return;
-
-    const conflictList = mergeResult.conflictingFiles.join(", ");
-    const prompt = `I tried to merge branch '${mergeResult.sourceBranch}' into '${mergeResult.targetBranch}' but there are merge conflicts in the following files: ${conflictList}
-
-Please help me resolve these merge conflicts, then complete the merge, and delete the worktree at: ${mergeWorktree?.path}`;
-
-    try {
-      // Create a new task with this prompt
-      await TaskServiceClient.newTask(NewTaskRequest.create({ text: prompt }));
-      closeMergeModal();
-      // Close worktrees view to show the chat with the new task
-      onDone();
-    } catch (err) {
-      setMergeError(err instanceof Error ? err.message : "Failed to create task for DietCode");
-    }
-  }, [mergeResult, mergeWorktree, closeMergeModal, onDone]);
+  const isMainWorktree = (path: string, isBare: boolean) => {
+    if (wt.worktrees.length === 0) return false;
+    return path === wt.worktrees[0]?.path || isBare;
+  };
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden">
-      {/* Sticky Header with title and Done button */}
-      <div className="flex-none flex justify-between items-center px-5 py-3 border-b border-(--vscode-panel-border)">
-        <h3 className="m-0" style={{ color: getEnvironmentColor(environment) }}>
+    <div className="fixed inset-0 flex flex-col overflow-hidden bg-sidebar-background">
+      {/* Header */}
+      <div className="flex-none flex justify-between items-center px-5 py-3 border-b border-panel-border bg-sidebar-background/80 backdrop-blur-sm z-20">
+        <h3 className="m-0 text-lg font-bold" style={{ color: getEnvironmentColor(environment) }}>
           Worktrees
         </h3>
         <VSCodeButton onClick={onDone}>Done</VSCodeButton>
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto p-5">
+      <div className="flex-1 overflow-y-auto p-5 space-y-6">
         {/* Description */}
-        <p className="text-sm text-(--vscode-descriptionForeground) m-0 mb-4">
-          Git worktrees let you work on multiple branches at the same time, each in its own folder.
-          Open worktrees in their own windows so DietCode can work on multiple tasks in parallel.{" "}
-          <a
-            className="text-(--vscode-textLink-foreground) hover:text-(--vscode-textLink-activeForeground)"
-            href="https://docs.cline.bot/features/worktrees"
-            rel="noopener noreferrer"
-            style={{ fontSize: "inherit" }}
-            target="_blank"
-          >
-            Learn more
-          </a>
-        </p>
+        <div className="space-y-2">
+          <p className="text-sm text-description leading-relaxed">
+            Git worktrees let you work on multiple branches at the same time, each in its own folder.
+            Open worktrees in their own windows so DietCode can work on multiple tasks in parallel.{" "}
+            <a
+              className="text-link-foreground hover:text-link-active transition-colors"
+              href="https://docs.cline.bot/features/worktrees"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Learn more
+            </a>
+          </p>
 
-        {/* .worktreeinclude status */}
-        {isGitRepo && !isMultiRoot && !isSubfolder && (
-          <div
-            className="p-3 rounded-md"
-            style={{
-              border: "1px solid var(--vscode-widget-border)",
-              backgroundColor: "var(--vscode-list-hoverBackground)",
-            }}
-          >
-            {hasWorktreeInclude ? (
-              <p className="text-sm text-(--vscode-testing-iconPassed) m-0">
-                <Check className="w-4 h-4 inline-block align-text-bottom mr-1" />
-                .worktreeinclude detected.{" "}
-                <a
-                  className="text-(--vscode-textLink-foreground) hover:text-(--vscode-textLink-activeForeground)"
-                  href="https://docs.cline.bot/features/worktrees#worktreeinclude"
-                  rel="noopener noreferrer"
-                  style={{ fontSize: "inherit" }}
-                  target="_blank"
-                >
-                  Learn more
-                </a>
-              </p>
-            ) : (
-              <div className="flex flex-col gap-2">
-                <p className="text-sm text-(--vscode-descriptionForeground) m-0">
-                  <code className="bg-(--vscode-textCodeBlock-background) px-1 rounded">
-                    .worktreeinclude
-                  </code>{" "}
-                  file to automatically copy files like{" "}
-                  <code className="bg-(--vscode-textCodeBlock-background) px-1 rounded">
-                    node_modules/
-                  </code>{" "}
-                  to new worktrees, so you don't have to reinstall dependencies.{" "}
-                  <a
-                    className="text-(--vscode-textLink-foreground) hover:text-(--vscode-textLink-activeForeground)"
-                    href="https://docs.cline.bot/features/worktrees#worktreeinclude"
-                    rel="noopener noreferrer"
-                    style={{ fontSize: "inherit" }}
-                    target="_blank"
-                  >
-                    Learn more
-                  </a>
+          {/* .worktreeinclude Status */}
+          {wt.isGitRepo && !wt.isMultiRoot && !wt.isSubfolder && (
+            <div className="p-3 rounded-md border border-widget-border bg-list-hover transition-all">
+              {wt.hasWorktreeInclude ? (
+                <p className="text-sm text-testing-passed flex items-center gap-1.5 font-medium">
+                  <Check className="w-4 h-4" />
+                  .worktreeinclude detected
                 </p>
-                {hasGitignore && (
-                  <VSCodeButton
-                    appearance="secondary"
-                    disabled={isCreatingWorktreeInclude}
-                    onClick={handleCreateWorktreeInclude}
-                  >
-                    {isCreatingWorktreeInclude ? (
-                      <>
-                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                        Creating...
-                      </>
-                    ) : (
-                      "Create from .gitignore"
-                    )}
-                  </VSCodeButton>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Loading/Error States */}
-        {isLoading ? (
-          <div className="flex items-center justify-center min-h-32 py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-(--vscode-descriptionForeground)" />
-            <span className="ml-2 text-(--vscode-descriptionForeground)">Loading...</span>
-          </div>
-        ) : isMultiRoot ? (
-          <div className="flex flex-col items-center justify-center min-h-32 py-8 text-center">
-            <p className="text-(--vscode-foreground) font-medium mb-1">
-              Multi-folder workspace detected
-            </p>
-            <p className="text-(--vscode-descriptionForeground) text-sm">
-              Worktrees are not supported when multiple folders are open in the same workspace.
-              Please open a single repository folder to use this feature.
-            </p>
-          </div>
-        ) : isSubfolder ? (
-          <div className="flex flex-col items-center justify-center min-h-32 py-8 text-center">
-            <p className="text-(--vscode-foreground) font-medium mb-1">
-              Subfolder of a git repository
-            </p>
-            <p className="text-(--vscode-descriptionForeground) text-sm">
-              You have a subfolder open instead of the repository root. Please open the root folder
-              to use worktrees:
-            </p>
-            <code className="mt-2 px-2 py-1 bg-(--vscode-textCodeBlock-background) rounded text-sm break-all">
-              {gitRootPath}
-            </code>
-          </div>
-        ) : !isGitRepo ? (
-          <div className="flex flex-col items-center justify-center min-h-32 py-8 text-center">
-            <AlertCircle className="w-8 h-8 text-(--vscode-descriptionForeground) mb-2 shrink-0" />
-            <p className="text-(--vscode-descriptionForeground)">
-              Worktrees require a git repository. Please initialize git to use worktrees.
-            </p>
-          </div>
-        ) : error ? (
-          <div className="flex flex-col items-center justify-center min-h-32 py-8 text-center">
-            <AlertCircle className="w-8 h-8 text-(--vscode-errorForeground) mb-2 shrink-0" />
-            <p className="text-(--vscode-errorForeground)">{error}</p>
-            <VSCodeButton appearance="secondary" className="mt-3" onClick={loadWorktrees}>
-              Retry
-            </VSCodeButton>
-          </div>
-        ) : worktrees.length === 0 ? (
-          <div className="flex flex-col items-center justify-center min-h-32 py-8 text-center">
-            <GitBranch className="w-8 h-8 text-(--vscode-descriptionForeground) mb-2 shrink-0" />
-            <p className="text-(--vscode-descriptionForeground)">No worktrees found.</p>
-          </div>
-        ) : (
-          <>
-            {/* Worktrees List - current worktree first, then others */}
-            <div className="mt-4 flex flex-col gap-2">
-              {worktrees.map((worktree) => (
-                <div
-                  className={`p-4 rounded border ${
-                    worktree.isCurrent
-                      ? "border-(--vscode-focusBorder) bg-(--vscode-list-activeSelectionBackground)"
-                      : "border-(--vscode-panel-border)"
-                  }`}
-                  key={worktree.path}
-                >
-                  {/* Branch name, badges, and action buttons - wraps on small screens */}
-                  <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
-                    {/* Left side: branch name and badges */}
-                    <div className="flex flex-wrap items-center gap-2">
-                      <div className="flex items-center gap-2">
-                        <GitBranch className="w-4 h-4 shrink-0 text-(--vscode-button-background)" />
-                        <span className="font-medium break-all">
-                          {worktree.branch || (worktree.isDetached ? "HEAD (detached)" : "unknown")}
-                        </span>
-                      </div>
-                      {isMainWorktree(worktree) && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="text-xs px-1.5 py-0.5 rounded bg-(--vscode-badge-background) text-(--vscode-badge-foreground) cursor-help">
-                              Primary
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom">
-                            The original worktree where your .git directory lives.
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
-                      {worktree.isCurrent && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="text-xs px-1.5 py-0.5 rounded bg-(--vscode-button-background) text-(--vscode-button-foreground) cursor-help">
-                              Current
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom">
-                            This is the worktree currently open in this window.
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
-                      {worktree.isLocked && (
-                        <span className="text-xs px-1.5 py-0.5 rounded bg-(--vscode-inputValidation-warningBackground) text-(--vscode-inputValidation-warningForeground)">
-                          Locked
-                        </span>
-                      )}
-                    </div>
-                    {/* Right side: action buttons */}
-                    <div className="flex items-center gap-1">
-                      {!worktree.isCurrent && (
-                        <>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <VSCodeButton
-                                appearance="icon"
-                                onClick={() => handleSwitchWorktree(worktree.path, false)}
-                              >
-                                <FolderOpen className="w-4 h-4" />
-                              </VSCodeButton>
-                            </TooltipTrigger>
-                            <TooltipContent side="bottom">Open in current window</TooltipContent>
-                          </Tooltip>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <VSCodeButton
-                                appearance="icon"
-                                onClick={() => handleSwitchWorktree(worktree.path, true)}
-                              >
-                                <ExternalLink className="w-4 h-4" />
-                              </VSCodeButton>
-                            </TooltipTrigger>
-                            <TooltipContent side="bottom">Open in new window</TooltipContent>
-                          </Tooltip>
-                        </>
-                      )}
-                      {!worktree.isCurrent && !isMainWorktree(worktree) && (
-                        <>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <VSCodeButton
-                                appearance="icon"
-                                onClick={() => openMergeModal(worktree)}
-                              >
-                                <GitMerge className="w-4 h-4 text-(--vscode-testing-iconPassed)" />
-                              </VSCodeButton>
-                            </TooltipTrigger>
-                            <TooltipContent side="bottom">
-                              Merge into {getMainBranch()}
-                            </TooltipContent>
-                          </Tooltip>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <VSCodeButton
-                                appearance="icon"
-                                onClick={() => setDeleteWorktree(worktree)}
-                              >
-                                <Trash2 className="w-4 h-4 text-(--vscode-errorForeground)" />
-                              </VSCodeButton>
-                            </TooltipTrigger>
-                            <TooltipContent side="bottom">Delete this worktree</TooltipContent>
-                          </Tooltip>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  {/* Path */}
-                  <p className="text-sm text-(--vscode-descriptionForeground) m-0 break-all">
-                    {worktree.path}
+              ) : (
+                <div className="flex flex-col gap-3">
+                  <p className="text-xs text-description opacity-90 leading-relaxed">
+                    Use a <code className="bg-code-block-bg px-1 rounded font-mono">.worktreeinclude</code> file to automatically copy dependencies like <code className="bg-code-block-bg px-1 rounded font-mono">node_modules/</code> to new worktrees.
                   </p>
+                  {wt.hasGitignore && (
+                    <VSCodeButton
+                      appearance="secondary"
+                      disabled={wt.isCreatingWorktreeInclude}
+                      onClick={wt.createWorktreeInclude}
+                    >
+                      {wt.isCreatingWorktreeInclude ? (
+                        <span className="flex items-center gap-1.5"><Loader2 className="w-3" /> Creating...</span>
+                      ) : (
+                        "Create from .gitignore"
+                      )}
+                    </VSCodeButton>
+                  )}
                 </div>
-              ))}
+              )}
             </div>
-          </>
+          )}
+        </div>
+
+        {/* State Indicators */}
+        {wt.isLoading ? (
+          <div className="flex flex-col items-center justify-center py-12 gap-3">
+            <Loader2 className="w-8 h-8 animate-spin text-description opacity-50" />
+            <span className="text-sm text-description">Syncing worktrees...</span>
+          </div>
+        ) : wt.isMultiRoot ? (
+          <StateMessage title="Multi-folder workspace" description="Worktrees are not supported when multiple folders are open. Please open a single repository root." />
+        ) : wt.isSubfolder ? (
+          <StateMessage title="Subfolder detected" description="You have a subfolder open. Please open the repository root to use worktrees.">
+             <code className="mt-3 block px-2 py-1.5 bg-code-block-bg rounded text-[10px] font-mono whitespace-normal break-all opacity-80">
+              {wt.gitRootPath}
+            </code>
+          </StateMessage>
+        ) : !wt.isGitRepo ? (
+          <StateMessage icon={<AlertCircle />} title="No Git Repository" description="Worktrees require a git repository. Please initialize git to use worktrees." />
+        ) : wt.error ? (
+          <StateMessage icon={<AlertCircle className="text-destructive" />} title="Connection Error" description={wt.error}>
+            <VSCodeButton appearance="secondary" className="mt-4" onClick={wt.loadWorktrees}>Retry</VSCodeButton>
+          </StateMessage>
+        ) : wt.worktrees.length === 0 ? (
+          <StateMessage icon={<GitBranch />} title="No Worktrees" description="Create a new worktree to start working on multiple branches in parallel." />
+        ) : (
+          <div className="flex flex-col gap-3 pb-8">
+            {wt.worktrees.map((worktree) => (
+              <WorktreeItem
+                key={worktree.path}
+                worktree={worktree}
+                isMain={isMainWorktree(worktree.path, worktree.isBare)}
+                mainBranch={wt.getMainBranch()}
+                onSwitch={wt.handleSwitchWorktree}
+                onMerge={wt.openMergeModal}
+                onDelete={wt.setDeleteWorktree}
+              />
+            ))}
+          </div>
         )}
       </div>
 
-      {/* Fixed Bottom - New Worktree Button */}
-      {isGitRepo && !isMultiRoot && !isSubfolder && (
-        <div
-          className="flex-none px-5 py-3"
-          style={{
-            borderTop: "1px solid var(--vscode-panel-border)",
-          }}
-        >
+      {/* Footer Actions */}
+      {wt.isGitRepo && !wt.isMultiRoot && !wt.isSubfolder && (
+        <div className="flex-none px-5 py-3 border-t border-panel-border bg-sidebar-background/50">
           <VSCodeButton
-            disabled={isLoading}
-            onClick={() => setShowCreateForm(true)}
+            disabled={wt.isLoading}
+            onClick={() => wt.setShowCreateForm(true)}
             style={{ width: "100%" }}
           >
             <Plus className="w-4 h-4 mr-1" />
@@ -536,166 +140,50 @@ Please help me resolve these merge conflicts, then complete the merge, and delet
         </div>
       )}
 
-      {/* Create Worktree Modal */}
+      {/* Modals */}
       <CreateWorktreeModal
-        onClose={() => setShowCreateForm(false)}
-        onSuccess={loadWorktrees}
-        open={showCreateForm}
+        onClose={() => wt.setShowCreateForm(false)}
+        onSuccess={wt.loadWorktrees}
+        open={wt.showCreateForm}
       />
 
-      {/* Delete Worktree Modal */}
       <DeleteWorktreeModal
-        branchName={deleteWorktree?.branch || ""}
-        onClose={() => setDeleteWorktree(null)}
-        onConfirm={(deleteBranch) =>
-          handleDeleteWorktree(deleteWorktree?.path, deleteBranch, deleteWorktree?.branch)
-        }
-        open={!!deleteWorktree}
-        worktreePath={deleteWorktree?.path || ""}
+        branchName={wt.deleteWorktree?.branch || ""}
+        onClose={() => wt.setDeleteWorktree(null)}
+        onConfirm={(del) => wt.handleDeleteWorktree(wt.deleteWorktree!.path, del, wt.deleteWorktree!.branch)}
+        open={!!wt.deleteWorktree}
+        worktreePath={wt.deleteWorktree?.path || ""}
       />
 
-      {/* Merge Worktree Modal */}
-      {mergeWorktree && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-          onClick={(e) => {
-            if (e.target === e.currentTarget && !isMerging) {
-              closeMergeModal();
-            }
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Escape" && !isMerging) {
-              closeMergeModal();
-            }
-          }}
-          role="presentation"
-        >
-          <div className="bg-(--vscode-editor-background) border border-(--vscode-panel-border) rounded-lg p-5 w-[450px] max-w-[90vw] relative">
-            {/* Close button */}
-            <button
-              className="absolute top-3 right-3 p-1 rounded hover:bg-(--vscode-toolbar-hoverBackground) text-(--vscode-descriptionForeground) hover:text-(--vscode-foreground) cursor-pointer"
-              disabled={isMerging}
-              onClick={closeMergeModal}
-              type="button"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <div className="flex items-center gap-2 mb-2">
-              <GitMerge className="w-5 h-5 text-(--vscode-testing-iconPassed)" />
-              <h4 className="m-0 pr-6">Merge Worktree</h4>
-            </div>
-
-            {/* Success state */}
-            {mergeResult?.success ? (
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-2 p-3 rounded bg-(--vscode-testing-iconPassed)/10 border border-(--vscode-testing-iconPassed)">
-                  <Check className="w-5 h-5 text-(--vscode-testing-iconPassed)" />
-                  <p className="text-sm m-0">{mergeResult.message}</p>
-                </div>
-                <div className="flex justify-end">
-                  <VSCodeButton onClick={closeMergeModal}>Done</VSCodeButton>
-                </div>
-              </div>
-            ) : mergeResult?.hasConflicts ? (
-              /* Conflict state */
-              <div className="flex flex-col gap-4">
-                <div className="flex items-start gap-2 p-3 rounded bg-(--vscode-inputValidation-warningBackground) border border-(--vscode-inputValidation-warningBorder)">
-                  <AlertCircle className="w-5 h-5 shrink-0 text-(--vscode-inputValidation-warningForeground) mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium m-0 mb-1">Merge conflicts detected</p>
-                    <p className="text-sm text-(--vscode-descriptionForeground) m-0 mb-2">
-                      The following files have conflicts:
-                    </p>
-                    <ul className="m-0 pl-4 text-sm font-mono text-(--vscode-descriptionForeground)">
-                      {mergeResult.conflictingFiles.slice(0, 3).map((file) => (
-                        <li key={file}>{file}</li>
-                      ))}
-                      {mergeResult.conflictingFiles.length > 3 && (
-                        <li className="text-(--vscode-descriptionForeground)">
-                          ...and {mergeResult.conflictingFiles.length - 3} more
-                        </li>
-                      )}
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <VSCodeButton onClick={handleAskClineToResolve} style={{ width: "100%" }}>
-                    Ask DietCode to Resolve
-                  </VSCodeButton>
-                  <VSCodeButton
-                    appearance="secondary"
-                    onClick={closeMergeModal}
-                    style={{ width: "100%" }}
-                  >
-                    I'll Resolve Manually
-                  </VSCodeButton>
-                </div>
-              </div>
-            ) : (
-              /* Default state - confirm merge */
-              <div className="flex flex-col gap-4">
-                <p className="text-sm text-(--vscode-descriptionForeground) m-0">
-                  This will merge branch{" "}
-                  <code className="bg-(--vscode-textCodeBlock-background) px-1 rounded">
-                    {mergeWorktree.branch}
-                  </code>{" "}
-                  into{" "}
-                  <code className="bg-(--vscode-textCodeBlock-background) px-1 rounded">
-                    {getMainBranch()}
-                  </code>
-                  .
-                </p>
-
-                <label
-                  className="flex items-center gap-2 cursor-pointer"
-                  htmlFor="delete-after-merge"
-                >
-                  <VSCodeCheckbox
-                    checked={deleteAfterMerge}
-                    id="delete-after-merge"
-                    onChange={(e) => setDeleteAfterMerge((e.target as HTMLInputElement).checked)}
-                  />
-                  <span className="text-sm">Delete worktree after successful merge</span>
-                </label>
-
-                {mergeError && (
-                  <div className="flex items-start gap-2 p-3 rounded bg-(--vscode-inputValidation-errorBackground) border border-(--vscode-inputValidation-errorBorder)">
-                    <AlertCircle className="w-4 h-4 shrink-0 text-(--vscode-errorForeground) mt-0.5" />
-                    <p className="text-sm text-(--vscode-errorForeground) m-0">{mergeError}</p>
-                  </div>
-                )}
-
-                <div className="flex justify-end gap-2">
-                  <VSCodeButton
-                    appearance="secondary"
-                    disabled={isMerging}
-                    onClick={closeMergeModal}
-                  >
-                    Cancel
-                  </VSCodeButton>
-                  <VSCodeButton disabled={isMerging} onClick={handleMergeWorktree}>
-                    {isMerging ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                        Merging...
-                      </>
-                    ) : (
-                      <>
-                        <GitMerge className="w-4 h-4 mr-1" />
-                        Merge
-                      </>
-                    )}
-                  </VSCodeButton>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+      {wt.mergeWorktree && (
+        <MergeWorktreeModal
+          worktree={wt.mergeWorktree}
+          isMerging={wt.isMerging}
+          mergeError={wt.mergeError}
+          mergeResult={wt.mergeResult}
+          deleteAfterMerge={wt.deleteAfterMerge}
+          setDeleteAfterMerge={wt.setDeleteAfterMerge}
+          onClose={() => wt.setMergeWorktree(null)}
+          onMerge={wt.handleMergeWorktree}
+          onResolve={wt.handleAskClineToResolve}
+          mainBranch={wt.getMainBranch()}
+        />
       )}
     </div>
   );
 };
+
+const StateMessage = ({ icon, title, description, children }: { icon?: React.ReactNode, title: string, description: string, children?: React.ReactNode }) => (
+  <div className="flex flex-col items-center justify-center py-12 text-center max-w-[280px] mx-auto space-y-3 transition-all animate-in fade-in slide-in-from-bottom-2">
+    {icon && <div className="text-description opacity-40 size-10">{icon}</div>}
+    <div className="space-y-1">
+      <h4 className="text-sm font-semibold opacity-90">{title}</h4>
+      <p className="text-xs text-description leading-relaxed">{description}</p>
+    </div>
+    {children}
+  </div>
+);
+
+export default memo(WorktreesView);
 
 export default memo(WorktreesView);

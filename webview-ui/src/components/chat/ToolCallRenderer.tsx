@@ -1,9 +1,10 @@
 import type React from "react";
 import type { ClineSayTool, ClineMessage } from "@shared/ExtensionMessage";
-import FileEditToolRenderer from "./tool-renderers/FileEditToolRenderer";
-import FileReadToolRenderer from "./tool-renderers/FileReadToolRenderer";
-import WebToolRenderer from "./tool-renderers/WebToolRenderer";
-import GenericToolRenderer from "./tool-renderers/GenericToolRenderer";
+import { DiffEditRow } from "./DiffEditRow";
+import { ToolRowWrapper } from "./ToolRowWrapper";
+import { ExpandableCodeSection } from "./ExpandableCodeSection";
+import MarkdownBlock from "./common/MarkdownBlock";
+import { cn } from "@/lib/utils";
 
 interface ToolCallRendererProps {
   tool: ClineSayTool;
@@ -13,56 +14,78 @@ interface ToolCallRendererProps {
   backgroundEditEnabled: boolean;
 }
 
-/**
- * Dispatches tool calls to specialized renderers.
- * Now a thin coordinator using standardized tool logic.
- */
 export const ToolCallRenderer: React.FC<ToolCallRendererProps> = ({
-  tool,
-  message,
-  isExpanded,
-  onToggleExpand,
-  backgroundEditEnabled,
+  tool, message, isExpanded, onToggleExpand, backgroundEditEnabled
 }) => {
-  const commonProps = {
-    tool,
-    isExpanded,
-    onToggleExpand,
-    messageType: message.type,
+  const isPartial = message.partial;
+
+  const renderToolBody = () => {
+    switch (tool.tool) {
+      case "editedExistingFile":
+      case "newFileCreated":
+      case "fileDeleted":
+        if (backgroundEditEnabled && tool.path && tool.content) {
+          return (
+            <DiffEditRow
+              isLoading={isPartial}
+              patch={tool.content}
+              path={tool.path}
+              startLineNumbers={tool.startLineNumbers}
+            />
+          );
+        }
+        return (
+          <ExpandableCodeSection
+            content={tool.content ?? ""}
+            isExpanded={isExpanded}
+            onToggleExpand={onToggleExpand}
+            path={tool.path ?? ""}
+          />
+        );
+
+      case "readFile":
+      case "listFilesTopLevel":
+      case "listFilesRecursive":
+      case "listCodeDefinitionNames":
+      case "searchFiles":
+        return (
+          <ExpandableCodeSection
+            content={tool.content ?? ""}
+            isExpanded={isExpanded}
+            onToggleExpand={onToggleExpand}
+            path={tool.path ?? ""}
+          />
+        );
+
+      case "webFetch":
+      case "webSearch":
+        return (
+          <ExpandableCodeSection
+            content={tool.content ?? ""}
+            isExpanded={isExpanded}
+            onToggleExpand={onToggleExpand}
+            language="markdown"
+          />
+        );
+
+      case "summarizeTask":
+      case "useSkill":
+        return (
+          <div className="p-3 bg-code border border-editor-group-border rounded-xs text-[13px] opacity-90 leading-relaxed">
+            <MarkdownBlock markdown={tool.content || ""} />
+          </div>
+        );
+
+      default:
+        return null;
+    }
   };
 
-  switch (tool.tool) {
-    case "editedExistingFile":
-    case "newFileCreated":
-    case "fileDeleted":
-      return (
-        <FileEditToolRenderer
-          {...commonProps}
-          backgroundEditEnabled={backgroundEditEnabled}
-          isPartial={message.partial}
-        />
-      );
-
-    case "readFile":
-    case "listFilesTopLevel":
-    case "listFilesRecursive":
-    case "listCodeDefinitionNames":
-    case "searchFiles":
-      return <FileReadToolRenderer {...commonProps} />;
-
-    case "webFetch":
-    case "webSearch":
-      return <WebToolRenderer {...commonProps} />;
-
-    case "summarizeTask":
-    case "useSkill":
-      return <GenericToolRenderer {...commonProps} />;
-
-    default:
-      return null;
-  }
+  return (
+    <ToolRowWrapper tool={tool}>
+      {renderToolBody()}
+    </ToolRowWrapper>
+  );
 };
-
-export default ToolCallRenderer;
 
 export default ToolCallRenderer;
