@@ -29,8 +29,10 @@ import { RemoteConfigSection } from "./sections/RemoteConfigSection";
 import TerminalSettingsSection from "./sections/TerminalSettingsSection";
 import { useSettingsNavigation } from "./hooks/useSettingsNavigation";
 import { isAdminOrOwner } from "../account/helpers";
+import { isDev } from "@/utils/env";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
 
-const IS_DEV = process.env.IS_DEV;
+const IS_DEV = isDev();
 
 type SettingsTabID = "api-config"| "features"| "browser"| "terminal"| "general"| "about"| "debug"| "remote-config";
 
@@ -118,7 +120,11 @@ const SettingsView = ({ onDone, targetSection }: { onDone: () => void; targetSec
             </TabTrigger>
           ))}
         </TabList>
-        <TabContent value={activeTab}>{ActiveContent}</TabContent>
+        <div className="flex-1 overflow-auto p-6 bg-background">
+          <ErrorBoundary name={`Settings:${activeTab}`} title="Section Render Failure">
+            <TabContent value={activeTab}>{ActiveContent}</TabContent>
+          </ErrorBoundary>
+        </div>
       </div>
     </Tab>
   );

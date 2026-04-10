@@ -1,3 +1,4 @@
+import { useEffect, useState, useMemo } from "react";
 import { useClineAuth } from "./context/ClineAuthContext";
 import { useExtensionState } from "./context/ExtensionStateContext";
 import { Providers } from "./Providers";
@@ -7,12 +8,24 @@ import HistoryView from "./components/history/HistoryView";
 import McpView from "./components/mcp/configuration/McpConfigurationView";
 import SettingsView from "./components/settings/SettingsView";
 import WorktreesView from "./components/worktrees/WorktreesView";
+import ErrorBoundary from "./components/common/ErrorBoundary";
+import DiagnosticErrorView from "./components/common/DiagnosticErrorView";
 
 const AppContent = () => {
-  const { didHydrateState, activeView, mcpTab, settingsTarget, navigate, navigateToHistory } = useExtensionState();
+  const { didHydrateState, activeView, mcpTab, settingsTarget, navigate, navigateToHistory, environment } = useExtensionState();
   const { clineUser, organizations, activeOrganization } = useClineAuth();
+  const [hydrationTimedOut, setHydrationTimedOut] = useState(false);
 
-  if (!didHydrateState) return null;
+  // Set up a timeout for state hydration to prevent permanent blank screen
+  useEffect(() => {
+    if (!didHydrateState) {
+      const timer = setTimeout(() => {
+        setHydrationTimedOut(true);
+      }, 5000); // 5 seconds timeout
+      return () => clearTimeout(timer);
+    }
+    setHydrationTimedOut(false);
+  }, [didHydrateState]);
 
   const renderView = () => {
     switch (activeView) {
@@ -25,13 +38,43 @@ const AppContent = () => {
     }
   };
 
+  if (!didHydrateState) {
+    if (hydrationTimedOut) {
+      return (
+        <DiagnosticErrorView 
+          title="Connection Alert: State Hydration Timeout"
+          error={new Error("The webview has not received state from the extension host within the expected time window.")}
+          onReset={() => {
+            setHydrationTimedOut(false);
+            window.location.reload();
+          }}
+        />
+      );
+    }
+    return (
+      <div className="flex flex-col items-center justify-center h-screen space-y-4 bg-background">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        <p className="text-sm font-medium animate-pulse">Initializing extension state...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen w-full flex-col font-sans antialiased overflow-hidden">
-      {renderView()}
+      <ErrorBoundary name="MainViewContent" title="View Render Failure">
+        {renderView()}
+      </ErrorBoundary>
       <ChatView isHidden={activeView !== "chat"} showHistoryView={navigateToHistory} />
     </div>
   );
 };
 
-const App = () => <Providers><AppContent /></Providers>;
+const App = () => (
+  <ErrorBoundary name="GlobalApp" title="Fatal Infrastructure Error">
+    <Providers>
+      <AppContent />
+    </Providers>
+  </ErrorBoundary>
+);
+
 export default App;

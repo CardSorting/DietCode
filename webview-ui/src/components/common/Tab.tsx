@@ -1,8 +1,23 @@
-import * as React from "react";
+import { createContext, useContext, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
+interface TabContextType {
+  activeValue: string;
+  onValueChange: (value: string) => void;
+}
+
+const TabContext = createContext<TabContextType | undefined>(undefined);
+
+const useTabContext = () => {
+  const context = useContext(TabContext);
+  if (!context) {
+    throw new Error("Tab sub-components must be used within a Tab component");
+  }
+  return context;
+};
+
 interface TabProps {
-  children: React.ReactNode;
+  children: ReactNode;
   value: string;
   onValueChange: (value: string) => void;
   className?: string;
@@ -10,52 +25,40 @@ interface TabProps {
 
 export const Tab = ({ children, value, onValueChange, className }: TabProps) => {
   return (
-    <div className={cn("flex flex-col h-full overflow-hidden", className)}>
-      {React.Children.map(children, (child) => {
-        if (React.isValidElement(child)) {
-          // biome-ignore lint/suspicious/noExplicitAny: Expected to receive component props for VSCode tabs
-          return React.cloneElement(child as any, { activeValue: value, onValueChange });
-        }
-        return child;
-      })}
-    </div>
+    <TabContext.Provider value={{ activeValue: value, onValueChange }}>
+      <div className={cn("flex flex-col h-full overflow-hidden", className)}>
+        {children}
+      </div>
+    </TabContext.Provider>
   );
 };
 
 interface TabListProps {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
-  activeValue?: string;
-  onValueChange?: (value: string) => void;
 }
 
-export const TabList = ({ children, activeValue, onValueChange, className }: TabListProps) => {
+export const TabList = ({ children, className }: TabListProps) => {
   return (
     <div className={cn("flex items-center gap-1 p-1 bg-secondary/50 rounded-lg", className)}>
-      {React.Children.map(children, (child) => {
-        if (React.isValidElement(child)) {
-          // biome-ignore lint/suspicious/noExplicitAny: Expected to receive component props for VSCode tabs
-          return React.cloneElement(child as any, { activeValue, onValueChange });
-        }
-        return child;
-      })}
+      {children}
     </div>
   );
 };
 
 interface TabTriggerProps {
-  children: React.ReactNode;
+  children: ReactNode;
   value: string;
   className?: string;
-  activeValue?: string;
-  onValueChange?: (value: string) => void;
 }
 
-export const TabTrigger = ({ children, value, activeValue, onValueChange, className }: TabTriggerProps) => {
+export const TabTrigger = ({ children, value, className }: TabTriggerProps) => {
+  const { activeValue, onValueChange } = useTabContext();
   const isActive = activeValue === value;
+  
   return (
     <button
-      onClick={() => onValueChange?.(value)}
+      onClick={() => onValueChange(value)}
       className={cn(
         "px-3 py-1.5 text-xs font-medium rounded-md transition-all outline-none",
         isActive ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
@@ -69,14 +72,16 @@ export const TabTrigger = ({ children, value, activeValue, onValueChange, classN
 };
 
 interface TabContentProps {
-  children: React.ReactNode;
+  children: ReactNode;
   value: string;
-  activeValue?: string;
   className?: string;
 }
 
-export const TabContent = ({ children, value, activeValue, className }: TabContentProps) => {
+export const TabContent = ({ children, value, className }: TabContentProps) => {
+  const { activeValue } = useTabContext();
+  
   if (activeValue !== value) return null;
+  
   return (
     <div
       className={cn("flex-1 overflow-auto animate-in fade-in slide-in-from-bottom-1", className)}

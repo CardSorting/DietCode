@@ -14,6 +14,7 @@ import type { ChatState, MessageHandlers } from "../types/chatTypes";
 export function useMessageHandlers(
   messages: ClineMessage[],
   chatState: ChatState,
+  disableAutoScrollRef?: React.MutableRefObject<boolean>,
 ): MessageHandlers {
   const { backgroundCommandRunning } = useExtensionState();
   const {
@@ -26,8 +27,21 @@ export function useMessageHandlers(
     setEnableButtons,
     clineAsk,
     lastMessage,
+    resetState,
   } = chatState;
   const cancelInFlightRef = useRef(false);
+
+  // New task handler
+  const startNewTask = useCallback(async () => {
+    await TaskServiceClient.clearTask(EmptyRequest.create({})).catch(console.error);
+  }, []);
+
+  // Clear input UI state
+  const clearInputState = useCallback(() => {
+    resetState();
+    setSendingDisabled(true);
+    setEnableButtons(false);
+  }, [resetState, setSendingDisabled, setEnableButtons]);
 
   // Unified responder helper to reduce duplication in service calls
   const respond = useCallback(
@@ -82,18 +96,13 @@ export function useMessageHandlers(
       }
 
       if (messageSent) {
-        setInputValue("");
-        setActiveQuote(null);
-        setSendingDisabled(true);
-        setSelectedImages([]);
-        setSelectedFiles([]);
-        setEnableButtons(false);
-        if ("disableAutoScrollRef" in chatState) {
-          (chatState as any).disableAutoScrollRef.current = false;
+        clearInputState();
+        if (disableAutoScrollRef) {
+          disableAutoScrollRef.current = false;
         }
       }
     },
-    [messages, clineAsk, activeQuote, respond, chatState, setInputValue, setActiveQuote, setSendingDisabled, setSelectedImages, setSelectedFiles, setEnableButtons],
+    [messages, clineAsk, activeQuote, respond, clearInputState, disableAutoScrollRef],
   );
 
   // Execute button action based on type
@@ -137,19 +146,20 @@ export function useMessageHandlers(
             setEnableButtons(true);
           }
           break;
-        case "utility":
+        case "utility": {
           const utilMethod = clineAsk === "condense" ? SlashServiceClient.condense : SlashServiceClient.reportBug;
           if (clineAsk === "condense" || clineAsk === "report_bug") {
              await utilMethod.call(SlashServiceClient, StringRequest.create({ value: lastMessage?.text })).catch(console.error);
           }
           break;
+        }
       }
 
-      if ("disableAutoScrollRef" in chatState) {
-        (chatState as any).disableAutoScrollRef.current = false;
+      if (disableAutoScrollRef) {
+        disableAutoScrollRef.current = false;
       }
     },
-    [clineAsk, lastMessage, messages, clearInputState, respond, startNewTask, chatState, backgroundCommandRunning, setSendingDisabled, setEnableButtons],
+    [clineAsk, lastMessage, clearInputState, respond, startNewTask, backgroundCommandRunning, setSendingDisabled, setEnableButtons, disableAutoScrollRef],
   );
 
   const handleTaskCloseButtonClick = useCallback(() => startNewTask(), [startNewTask]);

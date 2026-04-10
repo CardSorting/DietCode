@@ -1,61 +1,76 @@
-import { HostProvider } from "@/hosts/host-provider";
-import { Logger } from "@/shared/services/Logger";
-import { EmptyRequest, StringRequest } from "@shared/nice-grpc/cline/common.ts";
-import { ShowMessageType } from "@shared/nice-grpc/host/window.ts";
-
 /**
- * Writes text to the system clipboard
- * @param text The text to write to the clipboard
- * @returns Promise that resolves when the operation is complete
- * @throws Error if the operation fails
+ * Safe utility to access environment variables in the webview.
+ * Replaces direct process.env access to prevent ReferenceErrors if process is not defined.
  */
-export async function writeTextToClipboard(text: string): Promise<void> {
-  try {
-    await HostProvider.env.clipboardWriteText(StringRequest.create({ value: text }));
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to write to clipboard: ${errorMessage}`);
-  }
+
+interface Env {
+  NODE_ENV: string;
+  IS_DEV: boolean;
+  CLINE_ENVIRONMENT: string;
+  IS_TEST: boolean;
+  CI: boolean;
+  TELEMETRY_SERVICE_API_KEY?: string;
+  ERROR_SERVICE_API_KEY?: string;
 }
 
-/**
- * Reads text from the system clipboard
- * @returns Promise that resolves to the clipboard text
- * @throws Error if the operation fails
- */
-export async function readTextFromClipboard(): Promise<string> {
+// Safely get process.env
+// Note: Vite's 'define' should replace 'process.env' with a literal value,
+// but we add safety checks here just in case of dynamic access or build issues.
+const getProcessEnv = (): any => {
   try {
-    const response = await HostProvider.env.clipboardReadText(EmptyRequest.create({}));
-    return response.value;
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to read from clipboard: ${errorMessage}`);
+    return typeof process !== "undefined" && process.env ? process.env : {};
+  } catch {
+    return {};
   }
+};
+
+const _env = getProcessEnv();
+
+export enum Environment {
+  production = "production",
+  staging = "staging",
+  local = "local",
+  selfHosted = "selfHosted",
 }
 
+export const ENV: Env = {
+  NODE_ENV: _env.NODE_ENV || "production",
+  IS_DEV: String(_env.IS_DEV) === "true",
+  CLINE_ENVIRONMENT: (_env.CLINE_ENVIRONMENT || "production") as Environment,
+  IS_TEST: String(_env.IS_TEST) === "true",
+  CI: String(_env.CI) === "true",
+  TELEMETRY_SERVICE_API_KEY: _env.TELEMETRY_SERVICE_API_KEY,
+  ERROR_SERVICE_API_KEY: _env.ERROR_SERVICE_API_KEY,
+};
+
 /**
- * Opens an external URL in the default browser.
- * Uses the host bridge RPC first (VS Code's openExternal which handles remote environments).
- * Falls back to the `open` npm package if the host doesn't implement the RPC (e.g., JetBrains).
- * @param url The URL to open
- * @returns Promise that resolves when the operation is complete
+ * Gets the API base URL for the current environment.
+ * Replaces the Node.js dependent ClineEnv logic.
  */
-export async function openExternal(url: string): Promise<void> {
-  Logger.log("Opening browser:", url);
-  try {
-    await HostProvider.env.openExternal(StringRequest.create({ value: url }));
-  } catch (error) {
-    // Fallback for hosts that don't implement openExternal (e.g., JetBrains plugin)
-    Logger.warn(`Host openExternal RPC failed, falling back to 'open' package: ${error}`);
-    try {
-      const open = (await import("open")).default;
-      await open(url);
-    } catch (fallbackError) {
-      Logger.error(`Fallback 'open' also failed: ${fallbackError}`);
-      HostProvider.window.showMessage({
-        type: ShowMessageType.ERROR,
-        message: `Failed to open URL: ${url}`,
-      });
-    }
+export const getApiBaseUrl = (): string => {
+  switch (ENV.CLINE_ENVIRONMENT) {
+    case Environment.staging:
+      return "https://core-api.staging.int.cline.bot";
+    case Environment.local:
+      return "http://localhost:7777";
+    default:
+      return "https://api.cline.bot";
   }
-}
+};
+
+/**
+ * Gets an environment variable by key with a fallback value.
+ */
+export const getEnvVar = (key: string, fallback = ""): string => {
+  return _env[key] || fallback;
+};
+
+/**
+ * Returns true if the app is running in development mode.
+ */
+export const isDev = (): boolean => ENV.IS_DEV;
+
+/**
+ * Returns true if the app is running in a test environment.
+ */
+export const isTest = (): boolean => ENV.IS_TEST;

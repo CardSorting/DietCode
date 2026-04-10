@@ -65,15 +65,15 @@ const ChatView = ({ isHidden, showHistoryView }: { isHidden: boolean; showHistor
     textAreaRef,
   });
 
-  const messageHandlers = useMessageHandlers(messages, chatState);
-  const { selectedModelInfo } = useMemo(() => normalizeApiConfiguration(apiConfiguration, mode), [apiConfiguration, mode]);
-
   const visibleMessages = useMemo(() => filterVisibleMessages(messages), [messages]);
   const lastProgressMessageText = useMemo(() => focusChainSettings.enabled ? currentFocusChainChecklist : undefined, [focusChainSettings.enabled, currentFocusChainChecklist]);
   const showFocusChainPlaceholder = useMemo(() => focusChainSettings.enabled && !lastProgressMessageText, [focusChainSettings.enabled, lastProgressMessageText]);
   const groupedMessages = useMemo(() => groupLowStakesTools(groupMessages(visibleMessages)), [visibleMessages]);
 
   const scrollBehavior = useScrollBehavior(messages, visibleMessages, groupedMessages, expandedRows, setExpandedRows);
+  const messageHandlers = useMessageHandlers(messages, chatState, scrollBehavior.disableAutoScrollRef);
+
+  const { selectedModelInfo } = useMemo(() => normalizeApiConfiguration(apiConfiguration, mode), [apiConfiguration, mode]);
 
   const chatContextValue = useMemo(() => ({
     task,

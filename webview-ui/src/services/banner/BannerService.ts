@@ -1,4 +1,4 @@
-import { ClineEnv } from "@/config";
+import { ENV, Environment, getApiBaseUrl, isDev } from "@/utils/env";
 import type { Controller } from "@/core/controller";
 import { StateManager } from "@/core/storage/StateManager";
 import { type HostInfo, HostRegistryInfo } from "@/registry";
@@ -162,15 +162,14 @@ export class BannerService {
    * so the webview falls back to hardcoded welcome items.
    */
   public getWelcomeBanners(): BannerCardData[] | undefined {
-    const isLocal = process.env.IS_DEV === "true" || process.env.CLINE_ENVIRONMENT === "local";
+    const isLocal = isDev() || ENV.CLINE_ENVIRONMENT === Environment.local;
     const flagEnabled =
       isLocal || featureFlagsService.getBooleanFlagEnabled(FeatureFlag.REMOTE_WELCOME_BANNERS);
 
     if (!flagEnabled) {
       return undefined;
     }
-    const bypassDismissals =
-      process.env.IS_DEV === "true" || process.env.CLINE_ENVIRONMENT === "local";
+    const bypassDismissals = isDev() || ENV.CLINE_ENVIRONMENT === Environment.local;
 
     this.ensureFreshCache();
 
@@ -243,7 +242,7 @@ export class BannerService {
 
   public async sendBannerEvent(bannerId: string, eventType: "dismiss"): Promise<void> {
     try {
-      const url = new URL("/banners/v2/messages", ClineEnv.config().apiBaseUrl).toString();
+      const url = new URL("/banners/v2/messages", getApiBaseUrl()).toString();
       const ideType = this.getIdeType();
       const surface = ideType === "cli" ? "cli" : ideType === "jetbrains" ? "jetbrains" : "vscode";
 
@@ -406,7 +405,7 @@ export class BannerService {
   }
 
   private buildFetchUrl(): string {
-    const url = new URL("/banners/v2/messages", ClineEnv.config().apiBaseUrl);
+    const url = new URL("/banners/v2/messages", getApiBaseUrl());
     url.searchParams.set("ide", this.getIdeType());
     url.searchParams.set("extension_version", this.hostInfo.extensionVersion);
     url.searchParams.set("os", OS_MAP[this.hostInfo.os] || "unknown");
