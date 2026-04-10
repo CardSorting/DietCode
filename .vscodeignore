@@ -63,3 +63,9 @@ webview-ui/eslint.config.js
 !assets/
 .env
 !build/Release/*.node
+*log.txt
+*report.txt
+*.log
+*.db*
+build_output.txt
+*.vsix
