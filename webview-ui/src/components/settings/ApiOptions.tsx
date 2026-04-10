@@ -18,6 +18,7 @@ import {
   anthropicModels,
   geminiModels,
   openAiNativeModels,
+  type ModelInfo,
 } from "@shared/api.ts";
 import ClineModelPicker from "./ClineModelPicker";
 import {
@@ -78,15 +79,16 @@ const ApiOptions = memo(({
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const isInternalChangeRef = useRef(false);
 
   const providerOptions = useMemo(() => {
     let providers = PROVIDERS.list;
     if (PLATFORM_CONFIG.type !== PlatformType.VSCODE) {
       providers = providers.filter((option) => option.value !== "vscode-lm");
     }
-    const remoteProviders = remoteConfigSettings?.remoteConfiguredProviders || [];
+    const remoteProviders = (remoteConfigSettings?.remoteConfiguredProviders as ApiProvider[] | undefined) || [];
     if (remoteProviders.length > 0) {
-      providers = providers.filter((option) => remoteProviders.includes(option.value));
+      providers = providers.filter((option) => remoteProviders.includes(option.value as ApiProvider));
     }
     return providers;
   }, [remoteConfigSettings]);
@@ -96,7 +98,13 @@ const ApiOptions = memo(({
   }, [providerOptions, selectedProvider]);
 
   useEffect(() => {
-    if (!isDropdownVisible) setSearchTerm(currentProviderLabel);
+    if (!isDropdownVisible) {
+      if (isInternalChangeRef.current) {
+        isInternalChangeRef.current = false;
+        return;
+      }
+      setSearchTerm(currentProviderLabel);
+    }
   }, [currentProviderLabel, isDropdownVisible]);
 
   const searchableItems = useMemo(() => providerOptions.map((option) => ({ value: option.value, label: option.label })), [providerOptions]);
@@ -104,6 +112,9 @@ const ApiOptions = memo(({
   const providerSearchResults = useMemo(() => searchTerm && searchTerm !== currentProviderLabel ? fuse.search(searchTerm).map((r) => r.item) : searchableItems, [searchableItems, searchTerm, fuse, currentProviderLabel]);
 
   const handleProviderChange = (newProvider: string) => {
+    isInternalChangeRef.current = true;
+    const newLabel = providerOptions.find((o) => o.value === newProvider)?.label || newProvider;
+    setSearchTerm(newLabel);
     handleModeFieldChange({ plan: "planModeApiProvider", act: "actModeApiProvider" }, newProvider as ApiProvider, currentMode);
     setIsDropdownVisible(false);
     setSelectedIndex(-1);
@@ -171,7 +182,7 @@ const ApiOptions = memo(({
       },
       {
         openRouterModelId: newModelId,
-        openRouterModelInfo: (openRouterModels as unknown)[newModelId],
+        openRouterModelInfo: (openRouterModels as Record<string, ModelInfo>)[newModelId],
       },
       currentMode,
     );
@@ -183,7 +194,7 @@ const ApiOptions = memo(({
       <div className="relative z-50">
         <label htmlFor="api-provider-search" className="flex items-center gap-1 mb-1">
           <span className="text-xs font-semibold opacity-80">API Provider</span>
-          {remoteConfigSettings?.remoteConfiguredProviders && remoteConfigSettings.remoteConfiguredProviders.length > 0 && (
+          {Array.isArray(remoteConfigSettings?.remoteConfiguredProviders) && remoteConfigSettings.remoteConfiguredProviders.length > 0 && (
             <Tooltip>
               <TooltipTrigger><i className="codicon codicon-lock text-[10px] opacity-50" /></TooltipTrigger>
               <TooltipContent>Managed by organization</TooltipContent>
@@ -202,7 +213,11 @@ const ApiOptions = memo(({
             value={searchTerm}
           />
           {isDropdownVisible && (
-            <div className="absolute top-[calc(100%+2px)] left-0 w-full max-h-48 overflow-y-auto bg-dropdown-background border border-list-active animate-in fade-in slide-in-from-top-1 duration-200 rounded-md shadow-lg scrollbar-thin">
+            <div
+              role="listbox"
+              tabIndex={-1}
+              className="absolute top-[calc(100%+2px)] left-0 w-full max-h-48 overflow-y-auto bg-menu border border-menu-border animate-in fade-in slide-in-from-top-1 duration-200 rounded-md shadow-lg scrollbar-thin"
+            >
               {providerSearchResults.map((item, index) => (
                 <div
                   key={item.value}
@@ -215,7 +230,7 @@ const ApiOptions = memo(({
                   aria-selected={index === selectedIndex}
                   className={cn(
                     "px-3 py-1.5 cursor-pointer text-sm transition-colors break-all outline-none",
-                    index === selectedIndex ? "bg-list-active text-foreground" : "text-description hover:bg-list-hover"
+                    index === selectedIndex ? "bg-selection text-selection-foreground" : "text-description hover:bg-list-hover"
                   )}
                 >
                   {item.label}
@@ -235,7 +250,7 @@ const ApiOptions = memo(({
               apiKey={apiConfiguration.apiKey || ""}
               baseUrl={apiConfiguration.openAiBaseUrl}
               baseUrlPlaceholder="Default: https://api.openai.com/v1"
-              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeApiKey", act: "actModeApiKey" } as unknown as {}, v as unknown as string, currentMode)}
+              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeApiKey", act: "actModeApiKey" }, v as string, currentMode)}
               onBaseUrlChange={(v) => handleModeFieldChange({ plan: "planModeOpenAiBaseUrl", act: "actModeOpenAiBaseUrl" }, v as unknown as string, currentMode)}
               providerName="Cline"
             >
@@ -250,8 +265,8 @@ const ApiOptions = memo(({
               baseUrl={apiConfiguration.anthropicBaseUrl}
               baseUrlPlaceholder="Default: https://api.anthropic.com"
               models={anthropicModels}
-              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeApiKey", act: "actModeApiKey" } as any, /* biome-ignore lint/suspicious/noExplicitAny: Type assertion for API key change handler */ v as any, currentMode)}
-              onBaseUrlChange={(v) => handleModeFieldChange({ plan: "planModeAnthropicBaseUrl", act: "actModeAnthropicBaseUrl" }, v as any, currentMode)}
+              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeApiKey", act: "actModeApiKey" }, v as string, currentMode)}
+              onBaseUrlChange={(v) => handleModeFieldChange({ plan: "planModeAnthropicBaseUrl", act: "actModeAnthropicBaseUrl" }, v as string, currentMode)}
               providerName="Anthropic"
               remoteBaseUrl={remoteConfigSettings?.anthropicBaseUrl}
               signupUrl="https://console.anthropic.com/settings/keys"
@@ -263,7 +278,7 @@ const ApiOptions = memo(({
               {...commonProps}
               apiKey={apiConfiguration.openAiNativeApiKey || ""}
               models={openAiNativeModels}
-              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeOpenAiNativeApiKey", act: "actModeOpenAiNativeApiKey" }, v as any, currentMode)}
+              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeOpenAiNativeApiKey", act: "actModeOpenAiNativeApiKey" }, v as string, currentMode)}
               providerName="OpenAI"
               signupUrl="https://platform.openai.com/api-keys"
             />
@@ -275,8 +290,8 @@ const ApiOptions = memo(({
               apiKey={apiConfiguration.openRouterApiKey || ""}
               baseUrl={apiConfiguration.openRouterBaseUrl}
               baseUrlPlaceholder="Default: https://openrouter.ai/api/v1"
-              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeOpenRouterApiKey", act: "actModeOpenRouterApiKey" }, v as any, currentMode)}
-              onBaseUrlChange={(v) => handleModeFieldChange({ plan: "planModeOpenRouterBaseUrl", act: "actModeOpenRouterBaseUrl" }, v as any, currentMode)}
+              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeOpenRouterApiKey", act: "actModeOpenRouterApiKey" }, v as string, currentMode)}
+              onBaseUrlChange={(v) => handleModeFieldChange({ plan: "planModeOpenRouterBaseUrl", act: "actModeOpenRouterBaseUrl" }, v as string, currentMode)}
               providerName="OpenRouter"
               signupUrl="https://openrouter.ai/keys"
               onProviderSortingChange={(v) => handleFieldChange("openRouterProviderSorting", v)}
@@ -304,8 +319,8 @@ const ApiOptions = memo(({
               baseUrl={apiConfiguration.geminiBaseUrl}
               baseUrlPlaceholder="Default: https://generativelanguage.googleapis.com"
               models={geminiModels}
-              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeGeminiApiKey", act: "actModeGeminiApiKey" }, v as any, currentMode)}
-              onBaseUrlChange={(v) => handleModeFieldChange({ plan: "planModeGeminiBaseUrl", act: "actModeGeminiBaseUrl" }, v as any, currentMode)}
+              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeGeminiApiKey", act: "actModeGeminiApiKey" }, v as string, currentMode)}
+              onBaseUrlChange={(v) => handleModeFieldChange({ plan: "planModeGeminiBaseUrl", act: "actModeGeminiBaseUrl" }, v as string, currentMode)}
               providerName="Gemini"
               signupUrl="https://aistudio.google.com/apikey"
             />
