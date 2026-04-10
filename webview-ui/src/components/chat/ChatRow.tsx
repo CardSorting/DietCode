@@ -47,14 +47,18 @@ const ChatRow = memo((props: ChatRowProps) => {
       }
       prevHeightRef.current = height;
     }
-  }, [height, isLast, onHeightChange, message.ts]);
+  }, [height, isLast, onHeightChange]);
 
   return chatrow;
 }, deepEqual);
 
 export default ChatRow;
 
-const ChatRowContent = memo((props: ChatRowProps) => {
+export const ProgressIndicator = () => (
+  <span className="codicon codicon-loading codicon-modifier-spin shrink-0 size-2" />
+);
+
+export const ChatRowContent = memo((props: ChatRowProps) => {
   const { mcpServers, mcpMarketplaceCatalog } = useExtensionState();
 
   return (

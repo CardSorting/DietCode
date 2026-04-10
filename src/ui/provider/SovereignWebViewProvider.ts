@@ -14,6 +14,8 @@ import {
   type WebViewRequest,
   WebViewRequestType,
   type WebViewResponse,
+  type SovereignSettings,
+  type LLMProviderConfig,
 } from '../../domain/ui/WebViewMessageProtocol';
 import { McpDiscoveryService } from '../../infrastructure/capabilities/McpDiscoveryService';
 import { VsCodeLmProvider } from '../../infrastructure/llm/providers/VsCodeLmProvider';
@@ -31,6 +33,19 @@ import { StateChangePhase } from '../../domain/state/StateChangeProtocol';
 import type { ApiConfiguration } from '../../shared/api';
 import type { GlobalState } from '../../domain/LLMProvider';
 import { ApiHandlerSettingsKeys } from '../../shared/storage/state-keys';
+import type { ApiProvider } from '../../shared/api';
+import type { ExtensionMessage, ExtensionState } from '../../shared/ExtensionMessage';
+
+interface GrpcRequest {
+  service: string;
+  method: string;
+  request_id: string;
+  is_streaming?: boolean;
+  request_json?: string;
+  apiConfiguration?: unknown;
+  payload?: unknown;
+  [key: string]: unknown;
+}
 
 /**
  * [LAYER: UI / PROVIDER]
@@ -80,21 +95,25 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
 
     webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
-    webviewView.webview.onDidReceiveMessage(async (data: any) => {
+    webviewView.webview.onDidReceiveMessage(async (data: unknown) => {
       try {
-        if (data.type === 'grpc_request') {
-          await this._handleGrpcRequest(data.grpc_request);
-        } else if (data.type === 'grpc_request_cancel') {
+        if (typeof data !== 'object' || data === null) return;
+        const msg = data as { type: string; grpc_request?: GrpcRequest; id?: string };
+
+        if (msg.type === WebViewRequestType.GRPC_REQUEST && msg.grpc_request) {
+          await this._handleGrpcRequest(msg.grpc_request);
+        } else if (msg.type === WebViewRequestType.GRPC_REQUEST_CANCEL) {
           // Handle cancellation if needed
         } else {
-          await this._handleMessage(data);
+          await this._handleMessage(msg as unknown as WebViewRequest);
         }
       } catch (err) {
         console.error(`[WebView:Error] ${err}`);
-        if (data.grpc_request) {
-          this._sendGrpcResponse(data.grpc_request.request_id, undefined, String(err));
-        } else {
-          this._sendResponse(data.id, 'error', undefined, String(err));
+        const msg = data as { grpc_request?: GrpcRequest; id?: string };
+        if (msg.grpc_request) {
+          this._sendGrpcResponse(msg.grpc_request.request_id, undefined, String(err));
+        } else if (msg.id) {
+          this._sendResponse(msg.id, 'error', undefined, String(err));
         }
       }
     });
@@ -137,7 +156,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
         break;
       }
       case WebViewRequestType.SAVE_SETTINGS: {
-        const settings = request.payload as any;
+        const settings = request.payload as SovereignSettings;
         await this._saveSettings(settings);
         this._sendResponse(request.id, 'success', { saved: true });
         break;
@@ -152,7 +171,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
           limit: 30,
           orderBy: { column: 'timestamp', direction: 'desc' },
         });
-        const checkpoints = results.map((r: any) => ({
+        const checkpoints = results.map((r: { id: string; timestamp: number; path?: string }) => ({
           id: r.id,
           timestamp: r.timestamp,
           summary: `Snapshot: ${path.basename(r.path || 'unknown')}`,
@@ -168,7 +187,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
         break;
       }
       case WebViewRequestType.SEND_MESSAGE: {
-        const payload = request.payload as any;
+        const payload = request.payload as { text: string };
         this._sendMessage({
           id: `agent-${Date.now()}`,
           type: WebViewMessageType.STREAM,
@@ -181,19 +200,19 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
         break;
       }
       case WebViewRequestType.TOOL_APPROVAL: {
-        const payload = request.payload as any;
+        const payload = request.payload as { approved: boolean };
         // Solve the pending approval in UIBridge
         this._bridge.resolveApproval(request.id, payload.approved);
         this._sendResponse(request.id, 'success', { handled: true });
         break;
       }
       case WebViewRequestType.TEST_CONNECTION: {
-        const payload = request.payload as any;
+        const payload = request.payload as { providerId: string; config: ApiConfiguration };
         const providerId = payload.providerId;
         const config = payload.config as ApiConfiguration;
 
         const success = await LLMProviderRegistry.getInstance().testConnection(
-          providerId,
+          providerId as ApiProvider,
           config
         );
 
@@ -209,7 +228,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
     const repo = VsCodeStateRepository.getInstance();
 
     // Load stored provider configs or use defaults
-    const providers: any[] = [
+    const providers: LLMProviderConfig[] = [
       { id: 'anthropic', name: 'Anthropic', type: 'chat', enabled: true },
       { id: 'openai-native', name: 'OpenAI', type: 'chat', enabled: true },
       { id: 'gemini', name: 'Google Gemini', type: 'chat', enabled: true },
@@ -230,11 +249,11 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
 
     // Migration: Check if we have an old global apiKey and migrate to anthropic (Hardened migration to SecretStorage)
     const oldApiKey = (await repo.get('apiKey')) as string;
-    if (oldApiKey && !enrichedProviders.find((p) => (p as any).id === 'anthropic')?.apiKey) {
+    if (oldApiKey && !enrichedProviders.find((p) => p.id === 'anthropic')?.apiKey) {
       if (oldApiKey.startsWith('sk-ant')) {
         await repo.set('apiKey_anthropic', oldApiKey);
-        const anthropic = enrichedProviders.find((p) => (p as any).id === 'anthropic');
-        if (anthropic) (anthropic as any).apiKey = oldApiKey;
+        const anthropic = enrichedProviders.find((p) => p.id === 'anthropic');
+        if (anthropic) anthropic.apiKey = oldApiKey;
         // Clear old key to prevent re-migration
         await repo.delete('apiKey');
         Logger.info('[PROVIDER] Migrated legacy Anthropic key to hardened storage');
@@ -254,14 +273,14 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
     };
   }
 
-  private async _saveSettings(settings: any) {
+  private async _saveSettings(settings: SovereignSettings) {
     const orchestrator = StateOrchestrator.getInstance();
 
     // Map the incoming UI settings to a partial ApiConfiguration
     const apiConfig: Partial<ApiConfiguration> = {
       apiModelId: settings.apiModelId,
       apiKey: settings.apiKey,
-      selectedProvider: settings.selectedProvider,
+      apiProvider: settings.selectedProvider,
     };
 
     // If providers list is included, extract them
@@ -310,7 +329,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  private _sendMessage(message: WebViewMessage) {
+  private _sendMessage(message: WebViewMessage | ExtensionMessage) {
     if (this._view) {
       this._view.webview.postMessage(message);
     }
@@ -319,7 +338,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
   private _sendResponse(
     requestId: string,
     status: 'success' | 'error',
-    data?: any,
+    data?: unknown,
     error?: string,
   ) {
     if (this._view) {
@@ -333,7 +352,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  private async _handleGrpcRequest(request: any) {
+  private async _handleGrpcRequest(request: GrpcRequest) {
     const { service, method, request_id, is_streaming } = request;
     console.log(`[gRPC:Request] ${service}.${method} (${request_id})`);
 
@@ -372,7 +391,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  private async _handleStateService(method: string, request: any) {
+  private async _handleStateService(method: string, request: GrpcRequest) {
     switch (method) {
       case 'subscribeToState':
       case 'getLatestState': {
@@ -430,7 +449,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  private async _handleUiService(method: string, request: any) {
+  private async _handleUiService(method: string, request: GrpcRequest) {
     switch (method) {
       case 'initializeWebview':
         this._sendGrpcSuccess(request.request_id, {});
@@ -457,7 +476,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  private async _handleAccountService(method: string, request: any) {
+  private async _handleAccountService(method: string, request: GrpcRequest) {
     switch (method) {
       case 'subscribeToAuthStatusUpdate': {
         // Production Hardening: Local-First Sovereign Identity
@@ -480,7 +499,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  private async _handleMcpService(method: string, request: any) {
+  private async _handleMcpService(method: string, request: GrpcRequest) {
     const mcpService = McpDiscoveryService.getInstance();
     switch (method) {
       case 'toggleMcpServer': {
@@ -503,7 +522,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  private async _handleModelsService(method: string, request: any) {
+  private async _handleModelsService(method: string, request: GrpcRequest) {
     switch (method) {
       case 'getVsCodeLmModels': {
         const models = await vscode.lm.selectChatModels({});
@@ -523,20 +542,24 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
         this._sendGrpcSuccess(request.request_id, { models: {} }, true);
         break;
       case 'updateApiConfigurationProto': {
-        const protoConfig = (request as any).apiConfiguration;
+        const protoConfig = request.apiConfiguration as UpdateApiConfigurationRequest['apiConfiguration'];
         if (protoConfig) {
+          // Hardening: Ensure required openAiHeaders is present for conversion
+          if (!protoConfig.openAiHeaders) {
+            protoConfig.openAiHeaders = {};
+          }
           const apiConfig = convertProtoToApiConfiguration(protoConfig);
           // Apply changes to individual keys in StateOrchestrator to ensure reactive synchronization
           const orchestrator = StateOrchestrator.getInstance();
           
           // Dynamically map all incoming ApiConfiguration fields to StateKeys
-          const changes: StateChange<any>[] = Object.entries(apiConfig)
+          const changes = Object.entries(apiConfig)
             .filter(([field, val]) => val !== undefined && (ApiHandlerSettingsKeys as string[]).includes(field))
             .map(([field, val]) => {
                 return {
                   key: field,
                   newValue: val,
-                  stateSet: {} as any,
+                  stateSet: {} as GlobalState,
                   validate: () => true,
                   sanitize: () => val,
                   getCorrelationId: () => `ui-proto-batch-${Date.now()}`
@@ -588,7 +611,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  private async _handleTaskService(method: string, request: any) {
+  private async _handleTaskService(method: string, request: GrpcRequest) {
     const historyManager = TaskHistoryManager.getInstance();
     switch (method) {
       case 'getTaskHistory': {
@@ -615,11 +638,11 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  private async _handleUniversalService(service: string, method: string, request: any) {
+  private async _handleUniversalService(service: string, method: string, request: GrpcRequest) {
     switch (method) {
       case 'getCheckpoints': {
         const persistence = new CheckpointPersistenceAdapter();
-        const taskId = request.payload.task_id;
+        const taskId = (request.payload as any)?.task_id;
         const checkpoints = persistence.getLastCheckpoints(taskId, 50);
         this._sendGrpcSuccess(request.request_id, {
           checkpoints: checkpoints.map((c) => ({
@@ -673,7 +696,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
     );
   }
 
-  private _sendGrpcSuccess(request_id: string, message: any = {}, is_streaming = false) {
+  private _sendGrpcSuccess(request_id: string, message: unknown = {}, is_streaming = false) {
     this._sendGrpcResponse(request_id, message, undefined, is_streaming);
   }
 
@@ -683,7 +706,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
 
   private _sendGrpcResponse(
     request_id: string,
-    message?: any,
+    message?: unknown,
     error?: string,
     is_streaming?: boolean,
   ) {
@@ -744,9 +767,9 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
    * This ensures the webview always has a "True" view of the extension's status.  /**
    * Get the current state snapshot for the webview
    */
-  private async _getStateSnapshot(): Promise<any> {
+  private async _getStateSnapshot(): Promise<ExtensionState> {
     // PRODUCTION HARDENING: Use the unified assembler to ensure consistency
-    return await StateAssembler.getInstance().assemble();
+    return await StateAssembler.getInstance().assemble() as ExtensionState;
   }
 }
 

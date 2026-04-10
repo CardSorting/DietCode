@@ -16,8 +16,8 @@ import {
   Wrench,
 } from "lucide-react";
 import { useCallback, useMemo } from "react";
-import { Tab, TabContent, TabList, TabTrigger } from "../common/Tab";
-import ViewHeader from "../common/ViewHeader";
+import { Tab, TabContent, TabList, TabTrigger } from "@/components/common/Tab";
+import ViewHeader from "@/components/common/ViewHeader";
 import SectionHeader from "./SectionHeader";
 import AboutSection from "./sections/AboutSection";
 import ApiConfigurationSection from "./sections/ApiConfigurationSection";
@@ -40,7 +40,7 @@ interface SettingsTab {
   tooltipText: string;
   headerText: string;
   icon: LucideIcon;
-  hidden?: (params?: any) => boolean;
+  hidden?: (params: { activeOrganization?: any }) => boolean;
 }
 
 export const SETTINGS_TABS: SettingsTab[] = [
@@ -77,15 +77,20 @@ const SettingsView = ({ onDone, targetSection }: { onDone: () => void; targetSec
   }, []);
 
   const ActiveContent = useMemo(() => {
-    const ComponentMap: any = {
-      "api-config": ApiConfigurationSection, general: GeneralSettingsSection, features: FeatureSettingsSection,
-      browser: BrowserSettingsSection, terminal: TerminalSettingsSection, "remote-config": RemoteConfigSection,
-      about: AboutSection, debug: DebugSection
+    const ComponentMap: Record<string, React.ComponentType<any>> = {
+      "api-config": ApiConfigurationSection,
+      general: GeneralSettingsSection,
+      features: FeatureSettingsSection,
+      browser: BrowserSettingsSection,
+      terminal: TerminalSettingsSection,
+      "remote-config": RemoteConfigSection,
+      about: AboutSection,
+      debug: DebugSection
     };
     const Component = ComponentMap[activeTab];
     if (!Component) return null;
 
-    const props: any = { renderSectionHeader };
+    const props: Record<string, any> = { renderSectionHeader };
     if (activeTab === "debug") props.onResetState = handleResetState;
     else if (activeTab === "about") props.version = version;
     else if (activeTab === "api-config") props.initialModelTab = settingsInitialModelTab;
@@ -94,10 +99,10 @@ const SettingsView = ({ onDone, targetSection }: { onDone: () => void; targetSec
   }, [activeTab, handleResetState, settingsInitialModelTab, version]);
 
   return (
-    <Tab>
+    <Tab value={activeTab} onValueChange={setActiveTab}>
       <ViewHeader environment={environment} onDone={onDone} title="Settings" />
       <div className="flex flex-1 overflow-hidden">
-        <TabList className="shrink-0 flex flex-col overflow-y-auto border-r border-accent/5" onValueChange={setActiveTab} value={activeTab}>
+        <TabList className="shrink-0 flex flex-col overflow-y-auto border-r border-accent/5">
           {SETTINGS_TABS.filter(t => !t.hidden?.({ activeOrganization })).map(tab => (
             <TabTrigger key={tab.id} value={tab.id}>
               <Tooltip>
@@ -113,7 +118,7 @@ const SettingsView = ({ onDone, targetSection }: { onDone: () => void; targetSec
             </TabTrigger>
           ))}
         </TabList>
-        <TabContent className="flex-1 overflow-auto bg-sidebar-background/50">{ActiveContent}</TabContent>
+        <TabContent value={activeTab}>{ActiveContent}</TabContent>
       </div>
     </Tab>
   );

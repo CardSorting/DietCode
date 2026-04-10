@@ -60,7 +60,6 @@ export function validateApiConfiguration(
         }
         break;
     }
-    }
   }
   return undefined;
 }

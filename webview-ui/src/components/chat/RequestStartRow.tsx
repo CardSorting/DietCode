@@ -6,7 +6,7 @@ import { TypewriterText } from "./TypewriterText";
 import { getIconByToolName } from "./chat-view";
 import { isApiReqAbsorbable } from "./chat-view/utils/messageUtils";
 import { cn } from "@/lib/utils";
-import { ChevronDownIcon, ChevronHighIcon, ChevronRightIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
 
 interface RequestStartRowProps {
   message: ClineMessage;
@@ -33,7 +33,7 @@ export const RequestStartRow: React.FC<RequestStartRowProps> = ({
   
   const currentActivities = useMemo(() => {
     if (cost != null) return [];
-    const activities: { icon: any; text: string }[] = [];
+    const activities: { icon: React.ComponentType<{ className?: string }>; text: string }[] = [];
     const startIdx = clineMessages.findIndex(m => m.ts === message.ts) + 1;
     
     for (let i = startIdx; i < clineMessages.length; i++) {
@@ -59,8 +59,8 @@ export const RequestStartRow: React.FC<RequestStartRowProps> = ({
     <div className="space-y-1">
       {cost == null && currentActivities.length > 0 && (
         <div className="flex flex-col gap-0.5 ml-1">
-          {currentActivities.map((a, i) => (
-            <div key={i} className="flex items-center gap-2 text-xs opacity-70">
+          {currentActivities.map((a) => (
+            <div key={a.text} className="flex items-center gap-2 text-xs opacity-70">
               <a.icon className="size-2 shrink-0" />
               <TypewriterText speed={15} text={a.text} />
             </div>
@@ -71,6 +71,7 @@ export const RequestStartRow: React.FC<RequestStartRowProps> = ({
       {reasoningContent && (
         <div className="ml-1">
           <button 
+            type="button"
             onClick={handleToggle}
             className="flex items-center gap-1 text-description hover:text-foreground transition-colors text-[13px] font-medium py-0.5"
           >

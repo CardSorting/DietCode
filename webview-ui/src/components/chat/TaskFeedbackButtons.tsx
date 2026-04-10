@@ -82,5 +82,3 @@ const TaskFeedbackButtons: React.FC<TaskFeedbackButtonsProps> = ({
 };
 
 export default TaskFeedbackButtons;
-
-export default TaskFeedbackButtons;

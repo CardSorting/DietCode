@@ -14,6 +14,7 @@ import {
   type ModelInfo,
   type OpenAiCompatibleModelInfo,
 } from "../api";
+import type { McpServer } from "../mcp";
 import type { ClineRulesToggles } from "../cline-rules";
 import type { WorkspaceRoot } from "../multi-root/types";
 import type { GlobalInstructionsFile } from "../remote-config/schema";
@@ -48,7 +49,7 @@ type FieldDefinition<T> = {
 };
 
 // biome-ignore lint/suspicious/noExplicitAny: Generic state extraction
-type FieldDefinitions = Record<string, FieldDefinition<any>>;
+type FieldDefinitions = Record<string, FieldDefinition<any> | any>;
 
 export type ConfiguredAPIKeys = Partial<Record<ApiProvider, boolean>>;
 const REMOTE_CONFIG_EXTRA_FIELDS = {
@@ -103,23 +104,27 @@ const GLOBAL_STATE_FIELDS = {
   // PRODUCTION SYNCHRONIZATION: Dynamic provider discovery and health
   availableProviderModels: { default: {} as Record<string, ModelInfo[]> },
   providerHealth: { default: {} as Record<string, 'online' | 'offline' | 'error' | 'untested'> },
+  remoteGlobalSkillsToggles: { default: {} as Record<string, boolean> },
 
   // PROCESS ORCHESTRATION: Active execution tracking
   currentlyExecutingTool: { default: undefined as string | undefined },
   executionStatus: { default: 'idle' as 'idle' | 'executing' | 'waiting_approval' | 'error' },
   
   // TOOL APPROVALS: Active tool requests requiring user intervention
-  pendingToolApprovals: { default: [] as Array<{ id: string; toolName: string; detail: any }> },
+  pendingToolApprovals: { default: [] as Array<{ id: string; toolName: string; detail: unknown }> },
 
   // COMPONENT STATE: Sub-service status mirroring
-  mcpServers: { default: [] as any[] },
-  taskHistorySummary: { default: [] as any[] },
+  mcpServers: { default: [] as McpServer[] },
+  taskHistorySummary: { default: [] as unknown[] },
 } satisfies FieldDefinitions;
 
 // Fields that map directly to ApiHandlerOptions in @shared/api.ts
 const API_HANDLER_SETTINGS_FIELDS = {
   // Global configuration (not mode-specific)
   enableParallelToolCalling: { default: true as boolean },
+  openAiHeaders: { default: {} as Record<string, string> },
+  azureIdentity: { default: undefined as boolean | undefined },
+  azureApiVersion: { default: undefined as string | undefined },
 
   // Plan mode configurations
   planModeApiModelId: { default: undefined as string | undefined },
@@ -134,7 +139,12 @@ const API_HANDLER_SETTINGS_FIELDS = {
   planModeOpenAiModelId: { default: undefined as string | undefined },
   planModeOpenAiModelInfo: { default: undefined as OpenAiCompatibleModelInfo | undefined },
   planModeOllamaModelId: { default: undefined as string | undefined },
-
+  planModeOpenRouterModelId: { default: undefined as string | undefined },
+  actModeOpenRouterModelId: { default: undefined as string | undefined },
+  openRouterBaseUrl: { default: undefined as string | undefined },
+  anthropicBaseUrl: { default: undefined as string | undefined },
+  geminiBaseUrl: { default: undefined as string | undefined },
+  openAiNativeApiKey: { default: undefined as string | undefined },
 
   // Act mode configurations
   actModeApiModelId: { default: undefined as string | undefined },
@@ -149,15 +159,33 @@ const API_HANDLER_SETTINGS_FIELDS = {
   actModeOpenAiModelId: { default: undefined as string | undefined },
   actModeOpenAiModelInfo: { default: undefined as OpenAiCompatibleModelInfo | undefined },
   actModeOllamaModelId: { default: undefined as string | undefined },
-
+  openRouterProviderSorting: { default: undefined as string | undefined },
 
   // Model-specific settings
-  planModeApiProvider: { default: DEFAULT_API_PROVIDER as ApiProvider },
-  actModeApiProvider: { default: DEFAULT_API_PROVIDER as ApiProvider },
+  planModeApiProvider: { default: DEFAULT_API_PROVIDER as ApiProvider | string },
+  actModeApiProvider: { default: DEFAULT_API_PROVIDER as ApiProvider | string },
 
-  // Deprecated model settings
-  hicapModelId: { default: undefined as string | undefined },
+  // Mode-specific API keys and URLs
+  planModeApiKey: { default: undefined as string | undefined },
+  actModeApiKey: { default: undefined as string | undefined },
+  planModeOpenAiBaseUrl: { default: undefined as string | undefined },
+  actModeOpenAiBaseUrl: { default: undefined as string | undefined },
+  planModeAnthropicBaseUrl: { default: undefined as string | undefined },
+  actModeAnthropicBaseUrl: { default: undefined as string | undefined },
+  planModeOpenAiNativeApiKey: { default: undefined as string | undefined },
+  actModeOpenAiNativeApiKey: { default: undefined as string | undefined },
+  planModeOpenRouterApiKey: { default: undefined as string | undefined },
+  actModeOpenRouterApiKey: { default: undefined as string | undefined },
+  planModeOpenRouterBaseUrl: { default: undefined as string | undefined },
+  actModeOpenRouterBaseUrl: { default: undefined as string | undefined },
+  planModeGeminiApiKey: { default: undefined as string | undefined },
+  actModeGeminiApiKey: { default: undefined as string | undefined },
+  planModeGeminiBaseUrl: { default: undefined as string | undefined },
+  actModeGeminiBaseUrl: { default: undefined as string | undefined },
+  requestyModelId: { default: undefined as string | undefined },
+  togetherModelId: { default: undefined as string | undefined },
   lmStudioModelId: { default: undefined as string | undefined },
+  hicapModelId: { default: undefined as string | undefined },
 } satisfies FieldDefinitions;
 
 const USER_SETTINGS_FIELDS = {
@@ -170,11 +198,11 @@ const USER_SETTINGS_FIELDS = {
   globalSkillsToggles: { default: {} as Record<string, boolean> },
   browserSettings: {
     default: DEFAULT_BROWSER_SETTINGS as BrowserSettings,
-    transform: (v: any) => ({ ...DEFAULT_BROWSER_SETTINGS, ...v }),
+    transform: (v: unknown) => ({ ...DEFAULT_BROWSER_SETTINGS, ...(v as Partial<BrowserSettings>) }),
   },
   telemetrySetting: { default: "unset" as TelemetrySetting },
   // biome-ignore lint/suspicious/noExplicitAny: Required for computed state mirroring
-  planActSeparateModelsSetting: ({ default: false as boolean, isComputed: true } as any),
+  planActSeparateModelsSetting: { default: false as boolean, isComputed: true },
   enableCheckpointsSetting: { default: true as boolean },
   shellIntegrationTimeout: { default: 4000 as number },
   defaultTerminalProfile: { default: "default" as string },
@@ -248,14 +276,14 @@ export const LocalStateKeys = [
 // ============================================================================
 
 type ExtractDefault<T> = T extends { default: infer U } ? U : never;
-type BuildInterface<T extends Record<string, { default: any }>> = {
+type BuildInterface<T extends Record<string, { default: unknown }>> = {
   [K in keyof T]: ExtractDefault<T[K]>;
 };
 
 export type GlobalState = BuildInterface<typeof GLOBAL_STATE_FIELDS>;
 export type Settings = BuildInterface<typeof SETTINGS_FIELDS>;
 // biome-ignore lint/suspicious/noExplicitAny: Generic type extraction
-type RemoteConfigExtra = any;
+type RemoteConfigExtra = Record<string, unknown>;
 export type ApiHandlerOptionSettings = BuildInterface<typeof API_HANDLER_SETTINGS_FIELDS>;
 export type ApiHandlerSettings = ApiHandlerOptionSettings & Secrets;
 export type GlobalStateAndSettings = GlobalState & Settings;
@@ -327,7 +355,7 @@ export const isComputedProperty = (key: string): boolean => COMPUTED_PROPERTIES.
 export const getDefaultValue = <K extends GlobalStateAndSettingsKey>(
   key: K,
 ): GlobalStateAndSettings[K] | undefined => {
-  return ((GLOBAL_STATE_DEFAULTS as any)[key] ?? (SETTINGS_DEFAULTS as any)[key]) as
+  return ((GLOBAL_STATE_DEFAULTS as Record<string, unknown>)[key] ?? (SETTINGS_DEFAULTS as Record<string, unknown>)[key]) as
     | GlobalStateAndSettings[K]
     | undefined;
 };
@@ -339,6 +367,7 @@ export const applyTransform = <T>(key: string, value: T): T => {
   return transform ? transform(value) : value;
 };
 
+// biome-ignore lint/suspicious/noExplicitAny: Generic state extraction
 function extractDefaults<T extends Record<string, any>>(props: T): Partial<BuildInterface<T>> {
   return Object.fromEntries(
     Object.entries(props)
@@ -347,14 +376,15 @@ function extractDefaults<T extends Record<string, any>>(props: T): Partial<Build
   ) as Partial<BuildInterface<T>>;
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: Generic state transformation
 function extractTransforms<T extends Record<string, any>>(
   props: T,
-): Record<string, (value: any) => any> {
+): Record<string, (value: unknown) => unknown> {
   return Object.fromEntries(
     Object.entries(props)
       .filter(([_, prop]) => "transform" in prop && prop.transform !== undefined)
       // biome-ignore lint/suspicious/noExplicitAny: Generic state transformation
-      .map(([key, prop]) => [key, (prop as any).transform]),
+      .map(([key, prop]) => [key, (prop as { transform: (v: unknown) => unknown }).transform]),
   );
 }
 

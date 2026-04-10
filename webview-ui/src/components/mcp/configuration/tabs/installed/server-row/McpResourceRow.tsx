@@ -2,9 +2,10 @@ import type { McpResource, McpResourceTemplate } from "@shared/mcp.ts";
 
 type McpResourceRowProps = {
   item: McpResource | McpResourceTemplate;
+  server?: McpServer;
 };
 
-const McpResourceRow = ({ item }: McpResourceRowProps) => {
+const McpResourceRow = ({ item, server }: McpResourceRowProps) => {
   const hasUri = "uri" in item;
   const uri = hasUri ? item.uri : item.uriTemplate;
 

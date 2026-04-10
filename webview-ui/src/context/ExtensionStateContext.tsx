@@ -11,20 +11,41 @@ import { EmptyRequest } from "@shared/nice-grpc/cline/common.ts";
 import type { TerminalProfile } from "@shared/nice-grpc/cline/state.ts";
 import { StateServiceClient, UiServiceClient } from "../services/grpc-client";
 
+import type { ApiConfiguration, ModelInfo } from "@shared/api";
+import type { ClineRulesToggles } from "@shared/cline-rules";
+
 export type View = "chat" | "mcp" | "settings" | "history" | "account" | "worktrees";
 
 export interface ExtensionStateContextType extends ExtensionState {
   didHydrateState: boolean;
   mcpServers: McpServer[];
+  setMcpServers: (servers: McpServer[]) => void;
   mcpMarketplaceCatalog: McpMarketplaceCatalog;
   totalTasksSize: number | null;
   availableTerminalProfiles: TerminalProfile[];
+  openRouterModels: Record<string, ModelInfo>;
+  setOpenRouterModels: (models: Record<string, ModelInfo>) => void;
   
   // Navigation
   activeView: View;
   mcpTab?: McpViewTab;
-  settingsTarget?: { section?: string; tab?: "recommended" | "free" };
-  navigate: (view: View, opts?: any) => void;
+  settingsTarget?: { section?: string; tab?: string; targetProvider?: string };
+  navigate: (view: View, opts?: { section?: string; tab?: string; targetProvider?: string }) => void;
+  navigateToChat: () => void;
+  navigateToHistory: () => void;
+  navigateToSettings: (section?: string) => void;
+  navigateToMcp: (tab?: McpViewTab) => void;
+  navigateToAccount: () => void;
+  navigateToWorktrees: () => void;
+  navigateToSettingsModelPicker: (opts?: { targetProvider?: string }) => void;
+  settingsInitialModelTab?: "recommended" | "free";
+  
+  // Compat View Flags
+  showSettings: boolean;
+  showHistory: boolean;
+  showMcp: boolean;
+  showAccount: boolean;
+  showWorktrees: boolean;
   
   // State Updates
   updateToggles: (key: keyof ExtensionState, toggles: Record<string, boolean>) => void;
@@ -44,6 +65,8 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
   const [totalTasksSize, setTotalTasksSize] = useState<number | null>(null);
   const [availableTerminalProfiles, setAvailableTerminalProfiles] = useState<TerminalProfile[]>([]);
   const [mcpMarketplaceCatalog, setMcpMarketplaceCatalog] = useState<McpMarketplaceCatalog>({ items: [] });
+  const [mcpServers, setMcpServers] = useState<McpServer[]>([]);
+  const [openRouterModels, setOpenRouterModels] = useState<Record<string, ModelInfo>>({});
 
   const [state, setState] = useState<ExtensionState>({
     version: "", clineMessages: [], taskHistory: [], shouldShowAnnouncement: false,
@@ -54,11 +77,22 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
     mcpDisplayMode: DEFAULT_MCP_DISPLAY_MODE, vscodeTerminalExecutionMode: "vscodeTerminal",
     terminalReuseEnabled: true, terminalOutputLineLimit: 500, maxConsecutiveMistakes: 3,
     welcomeViewCompleted: true, lastDismissedInfoBannerVersion: 0, lastDismissedModelBannerVersion: 0,
+    lastDismissedCliBannerVersion: 0,
     remoteConfigSettings: {}, backgroundCommandRunning: false, backgroundEditEnabled: false,
     doubleCheckCompletionEnabled: false, lazyTeammateModeEnabled: false, showFeatureTips: true,
     workspaceRoots: [], primaryRootIndex: 0, isMultiRootWorkspace: false,
     multiRootSetting: { user: false, featureFlag: false }, hooksEnabled: false,
     nativeToolCallSetting: false, enableParallelToolCalling: false,
+    isNewUser: false, onboardingModels: undefined, shellIntegrationTimeout: 4000,
+    globalClineRulesToggles: {}, localClineRulesToggles: {}, 
+    localWorkflowToggles: {}, globalWorkflowToggles: {},
+    localCursorRulesToggles: {}, localWindsurfRulesToggles: {},
+    localAgentsRulesToggles: {}, favoritedModelIds: [],
+    remoteRulesToggles: {}, remoteWorkflowToggles: {},
+    globalSkillsToggles: {},
+    localSkillsToggles: {}, banners: [], welcomeBanners: [],
+    openRouterModels: {},
+    settingsInitialModelTab: "recommended",
   });
 
   const navigate = useCallback((view: View, opts?: any) => {
@@ -86,14 +120,21 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
               if (stateData.currentTaskItem?.id === prev.currentTaskItem?.id) {
                   stateData.clineMessages = stateData.clineMessages?.length ? stateData.clineMessages : prev.clineMessages;
               }
+              if (stateData.mcpServers) setMcpServers(stateData.mcpServers);
               setDidHydrateState(true);
               return { ...prev, ...stateData };
           });
         }
-      }
+      },
+      onError: (err) => console.error("[ExtensionStateContext] State subscription error:", err),
+      onComplete: () => console.log("[ExtensionStateContext] State subscription closed")
     });
 
-    const setupUiSub = (method: string, view: View) => UiServiceClient[method]({}, { onResponse: () => navigate(view) });
+    const setupUiSub = (method: string, view: View) => UiServiceClient[method]({}, { 
+        onResponse: () => navigate(view),
+        onError: (err: any) => console.error(`[ExtensionStateContext] UI sub error (${method}):`, err),
+        onComplete: () => {}
+    });
     const subs = [
         setupUiSub("subscribeToMcpButtonClicked", "mcp"),
         setupUiSub("subscribeToHistoryButtonClicked", "history"),
@@ -101,7 +142,15 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
         setupUiSub("subscribeToAccountButtonClicked", "account"),
         setupUiSub("subscribeToSettingsButtonClicked", "settings"),
         setupUiSub("subscribeToWorktreesButtonClicked", "worktrees"),
-        UiServiceClient.subscribeToRelinquishControl({}, { onResponse: () => relinquishControlCallbacks.current.forEach(cb => cb()) })
+        UiServiceClient.subscribeToRelinquishControl({}, { 
+            onResponse: () => {
+                for (const cb of relinquishControlCallbacks.current) {
+                    cb();
+                }
+            },
+            onError: (err) => console.error("[ExtensionStateContext] Relinquish error:", err),
+            onComplete: () => {}
+        })
     ];
 
     UiServiceClient.initializeWebview({}).catch(console.error);
@@ -109,7 +158,9 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
   }, [navigate]);
 
   const contextValue: ExtensionStateContextType = {
-    ...state, didHydrateState, mcpMarketplaceCatalog, totalTasksSize, availableTerminalProfiles,
+    ...state, didHydrateState, mcpMarketplaceCatalog, totalTasksSize, availableTerminalProfiles, mcpServers, setMcpServers,
+    openRouterModels, setOpenRouterModels,
+    settingsInitialModelTab: state.settingsInitialModelTab,
     activeView, mcpTab, settingsTarget, navigate, updateToggles, expandTaskHeader, setExpandTaskHeader,
     onRelinquishControl,
     // Compat shims for old code

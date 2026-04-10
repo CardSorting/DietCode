@@ -1,5 +1,12 @@
 import type React from "react";
-import type { ClineMessage, ClineAskQuestion, ClineSayGenerateExplanation } from "@shared/ExtensionMessage";
+import type {
+  ClineMessage,
+  ClineAskQuestion,
+  ClineSayGenerateExplanation,
+  McpMarketplaceCatalog,
+} from "@shared/ExtensionMessage";
+import type { McpServer } from "@shared/mcp";
+import Modality from "@shared/mcp.types";
 import type { Mode } from "@shared/storage/types.ts";
 import { getMessageHeaderMetadata } from "../row-utils";
 import { useQuoteSelection } from "../hooks/useQuoteSelection";
@@ -41,8 +48,8 @@ interface MessageRendererDispatcherProps {
 	reasoningContent?: string;
 	responseStarted?: boolean;
 	isRequestInProgress?: boolean;
-	mcpServers: any[];
-	mcpMarketplaceCatalog: any;
+	mcpServers: McpServer[];
+	mcpMarketplaceCatalog: McpMarketplaceCatalog;
 	clineMessages?: ClineMessage[];
 }
 
@@ -73,7 +80,10 @@ export const MessageRendererDispatcher: React.FC<MessageRendererDispatcherProps>
 			case "mistake_limit_reached":
 			case "followup":
 			case "ask_question": {
-				const text = type === "ask_question" ? (JSON.parse(message.text || "{}") as ClineAskQuestion).text : message.text;
+				const text =
+					type === "ask_question"
+						? (JSON.parse(message.text || "{}") as ClineAskQuestion).question
+						: message.text;
 				return <ChatBox text={text} />;
 			}
 
@@ -83,13 +93,20 @@ export const MessageRendererDispatcher: React.FC<MessageRendererDispatcherProps>
 			case "use_mcp_server": {
 				const mcpServerUse = JSON.parse(message.text || "{}");
 				const server = mcpServers.find((s) => s.name === mcpServerUse.serverName);
+				const tool = server?.tools?.find((t) => t.name === mcpServerUse.toolName);
+				const resource = findMatchingResourceOrTemplate(
+					server?.resources ?? [],
+					server?.resourceTemplates ?? [],
+					mcpServerUse.uri || "",
+				);
+
 				return (
 					<div className="bg-code border border-editor-group-border rounded-xs flex flex-col gap-2 p-2 mt-[-4px]">
 						{mcpServerUse.type === "use_mcp_tool" ? (
-							<McpToolRow alwaysExpanded mcpMarketplaceCatalog={mcpMarketplaceCatalog} mcpServers={mcpServers} server={server} toolName={mcpServerUse.toolName!} />
-						) : (
-							<McpResourceRow alwaysExpanded mcpMarketplaceCatalog={mcpMarketplaceCatalog} mcpServers={mcpServers} resource={findMatchingResourceOrTemplate(server?.resources ?? [], server?.resourceTemplates ?? [], mcpServerUse.uri!)} server={server} />
-						)}
+							tool && <McpToolRow tool={tool} serverName={mcpServerUse.serverName} />
+        ) : (
+            resource && server && <McpResourceRow resource={resource} server={server} />
+        )}
 					</div>
 				);
 			}
@@ -98,19 +115,19 @@ export const MessageRendererDispatcher: React.FC<MessageRendererDispatcherProps>
 				return <CompletionResult text={message.text || ""} messageTs={message.ts} />;
 
 			case "mcp_server_response":
-				return <McpResponseDisplay message={message} />;
+				return <McpResponseDisplay responseText={message.text || ""} />;
 
 			case "mcp_notification":
 				return <div className="flex items-center gap-2 text-description py-1 px-4"><BellIcon className="size-3" /><MarkdownRenderer content={message.text || ""} compact /></div>;
 
 			case "api_req_started":
-				return <RequestStartRow isRequestInProgress={isRequestInProgress} message={message} reasoningContent={reasoningContent} responseStarted={responseStarted} isExpanded={isExpanded} handleToggle={() => onToggleExpand(message.ts)} clineMessages={clineMessages} />;
+				return <RequestStartRow message={message} reasoningContent={reasoningContent} isExpanded={isExpanded} handleToggle={() => onToggleExpand(message.ts)} clineMessages={clineMessages} />;
 
 			case "user_feedback":
 				return <UserMessage messageTs={message.ts} text={message.text} images={message.images} files={message.files} sendMessageFromChatRow={sendMessageFromChatRow} />;
 
 			case "subagent":
-				return <SubagentStatusRow message={message} onHeightChange={onHeightChange} onToggleExpand={() => onToggleExpand(message.ts)} />;
+				return <SubagentStatusRow message={message} isLast={isLast} lastModifiedMessage={lastModifiedMessage} />;
 
 			case "checkpoint_created":
 				return <HookMessageRenderer message={message} />;
@@ -120,7 +137,7 @@ export const MessageRendererDispatcher: React.FC<MessageRendererDispatcherProps>
 				return (
 					<div className="flex flex-col gap-2.5 px-4 py-2 border border-editor-group-border rounded-sm bg-code mx-4 mb-2">
 						<div className="flex items-center gap-2 text-description"><RefreshCwIcon className="size-3" /><span className="font-semibold text-[11px]">Explanation Needed</span></div>
-						<p className="text-[13px] leading-normal">{value.explanation}</p>
+						<p className="text-[13px] leading-normal">{value.title}</p>
 					</div>
 				);
 			}
@@ -129,8 +146,14 @@ export const MessageRendererDispatcher: React.FC<MessageRendererDispatcherProps>
 				return <div className="px-4 py-1 [&_p]:mb-0"><MarkdownRenderer content={message.text || ""} /></div>;
 
 			case "conditional_rules_applied": {
-				const names = JSON.parse(message.text || "{}").rules?.map((r: any) => r.name).join(", ");
-				return <div className="ph-no-capture wrap-break-word whitespace-pre-wrap font-bold bg-code/50 p-2 rounded-xs border border-editor-group-border/30">Conditional rules applied: <span className="font-normal opacity-70">{names}</span></div>;
+				const names = JSON.parse(message.text || "{}")
+					.rules?.map((r: { name: string }) => r.name)
+					.join(", ");
+				return (
+					<div className="ph-no-capture wrap-break-word whitespace-pre-wrap font-bold bg-code/50 p-2 rounded-xs border border-editor-group-border/30">
+						Conditional rules applied: <span className="font-normal opacity-70">{names}</span>
+					</div>
+				);
 			}
 
 			case "plan_mode_response":
@@ -154,12 +177,9 @@ export const MessageRendererDispatcher: React.FC<MessageRendererDispatcherProps>
 
 			case "feature_tip":
 				return (
-					<div className="p-4 border border-button-background/20 bg-button-background/5 rounded-md flex items-start gap-3">
-						<GiftIcon className="text-button-background shrink-0 mt-0.5" size={18} />
-						<div className="space-y-1">
-							<span className="font-bold text-sm block">Pro Tip</span>
-							<p className="text-sm opacity-80">{message.text}</p>
-						</div>
+					<div className="rounded-sm border border-primary/20 bg-primary/5 p-3 flex gap-3">
+						<GiftIcon className="size-4 text-primary shrink-0" />
+						<div className="text-[11px] leading-relaxed opacity-90">{message.text}</div>
 					</div>
 				);
 
@@ -195,7 +215,15 @@ const ChatBox = ({ text }: { text?: string }) => (
 	</div>
 );
 
-const CommandOutput = memo(({ message, isExpanded, onToggleExpand, onCancel, isLast }: any) => {
+interface CommandOutputProps {
+	message: ClineMessage;
+	isExpanded: boolean;
+	onToggleExpand: () => void;
+	onCancel?: () => void;
+	isLast: boolean;
+}
+
+const CommandOutput = memo(({ message, isExpanded, onToggleExpand, onCancel, isLast }: CommandOutputProps) => {
 	const { command, output, requestsApproval } = useMemo(() => {
 		const text = message.text || "";
 		const outputIndex = text.indexOf(COMMAND_OUTPUT_STRING);
@@ -225,7 +253,7 @@ const CommandOutput = memo(({ message, isExpanded, onToggleExpand, onCancel, isL
 				<div className="p-2 font-mono text-xs opacity-80 break-all"><span className="text-primary mr-1.5">$</span>{command}</div>
 				{output.length > 0 && (
 					<div className="border-t border-editor-group-border">
-						<button onClick={onToggleExpand} className="w-full flex items-center justify-between px-2 py-1 bg-black/5 hover:bg-black/10 transition-colors">
+						<button type="button" onClick={onToggleExpand} className="w-full flex items-center justify-between px-2 py-1 bg-black/5 hover:bg-black/10 transition-colors">
 							<span className="text-[10px] uppercase font-bold opacity-40">Output</span>
 							{isExpanded ? <ChevronUpIcon size={12}/> : <ChevronDownIcon size={12}/>}
 						</button>

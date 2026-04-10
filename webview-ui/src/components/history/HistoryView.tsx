@@ -3,9 +3,10 @@ import { useExtensionState } from "@/context/ExtensionStateContext";
 import { formatSize, formatCost } from "@/utils/format";
 import { BooleanRequest, StringRequest } from "@shared/nice-grpc/cline/common.ts";
 import { TaskServiceClient } from "@/services/grpc-client";
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
+import type { HistoryItem } from "@shared/HistoryItem.ts";
 import { GroupedVirtuoso } from "react-virtuoso";
-import ViewHeader from "../common/ViewHeader";
+import ViewHeader from "@/components/common/ViewHeader";
 import { useHistoryState, SortOption } from "./hooks/useHistoryState";
 import { VSCodeTextField, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
@@ -48,7 +49,7 @@ const HistoryView = ({ onDone }: { onDone: () => void }) => {
         </div>
       </div>
 
-      <div className="flex-grow overflow-hidden mt-3 border-t border-accent/5">
+      <div className="grow overflow-hidden mt-3 border-t border-accent/5">
         {h.groupedTasks.length > 0 ? (
             <GroupedVirtuoso
                 className="h-full"
@@ -80,26 +81,35 @@ const HistoryView = ({ onDone }: { onDone: () => void }) => {
   );
 };
 
-const HistoryItemRow = ({ item, isSelected, onSelect, onToggleFavorite, onDelete, isPendingFavorite }: any) => {
+interface HistoryItemRowProps {
+    item: HistoryItem;
+    isSelected: boolean;
+    onSelect: (checked: boolean) => void;
+    onToggleFavorite: () => void;
+    onDelete: () => void;
+    isPendingFavorite: boolean;
+}
+
+const HistoryItemRow = ({ item, isSelected, onSelect, onToggleFavorite, onDelete, isPendingFavorite }: HistoryItemRowProps) => {
     const [expanded, setExpanded] = useState(false);
     return (
         <div className="group flex border-b border-accent/5 hover:bg-white/5 transition-colors">
             <VSCodeCheckbox checked={isSelected} className="p-2 self-start mt-1.5" onClick={e => { e.preventDefault(); onSelect(!(e.target as any).checked); }} />
-            <div className="flex-1 py-3 pr-4 space-y-1.5 min-w-0" onClick={() => TaskServiceClient.showTaskWithId(StringRequest.create({ value: item.id }))} role="button">
+            <div className="flex-1 py-3 pr-4 space-y-1.5 min-w-0 cursor-pointer" onClick={() => TaskServiceClient.showTaskWithId(StringRequest.create({ value: item.id }))} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { TaskServiceClient.showTaskWithId(StringRequest.create({ value: item.id })); } }} tabIndex={0} role="button">
                 <div className="flex items-center justify-between gap-2">
-                    <span className="line-clamp-1 text-sm font-medium flex-1 truncate">{JSON.parse(`"${item.task}"`)}</span>
+                    <span className="line-clamp-1 text-sm font-medium flex-1 truncate">{item.task}</span>
                     <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={e => { e.stopPropagation(); onToggleFavorite(); }} className={cn("p-1.5 rounded-sm hover:bg-accent hover:text-accent-foreground", (item.isFavorited || isPendingFavorite) && "text-warning opacity-100")}>
+                        <button type="button" onClick={e => { e.stopPropagation(); onToggleFavorite(); }} className={cn("p-1.5 rounded-sm hover:bg-accent hover:text-accent-foreground", (item.isFavorited || isPendingFavorite) && "text-warning opacity-100")} aria-label="Toggle favorite">
                             <StarIcon size={12} fill={(item.isFavorited || isPendingFavorite) ? "currentColor" : "none"}/>
                         </button>
-                        <button onClick={e => { e.stopPropagation(); onDelete(); }} className="p-1.5 rounded-sm hover:bg-destructive hover:text-destructive-foreground">
+                        <button type="button" onClick={e => { e.stopPropagation(); onDelete(); }} className="p-1.5 rounded-sm hover:bg-destructive hover:text-destructive-foreground" aria-label="Delete task">
                             <Trash2Icon size={12}/>
                         </button>
                     </div>
                 </div>
                 <div className="flex items-center justify-between text-[10px] text-description font-mono tracking-tight uppercase">
                     <span>{new Date(item.ts).toLocaleDateString()} · {formatCost(item.totalCost)}</span>
-                    <button onClick={e => { e.stopPropagation(); setExpanded(!expanded); }} className="hover:text-foreground">
+                    <button type="button" onClick={e => { e.stopPropagation(); setExpanded(!expanded); }} className="hover:text-foreground p-1" aria-label="Show details">
                         {expanded ? <ChevronsDownUpIcon size={12}/> : <ChevronsUpDownIcon size={12}/>}
                     </button>
                 </div>

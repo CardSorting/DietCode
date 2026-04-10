@@ -2,13 +2,16 @@
 
 import type { WorkspaceRoot } from "@shared/multi-root/types";
 import type { RemoteConfigFields } from "@shared/storage/state-keys";
-import type { Environment } from "../config";
+import type { Environment } from "./config-types";
 import type { AutoApprovalSettings } from "./AutoApprovalSettings";
 import type { BrowserSettings } from "./BrowserSettings";
 import type { ClineFeatureSetting } from "./ClineFeatureSetting";
 import type { FocusChainSettings } from "./FocusChainSettings";
 import type { HistoryItem } from "./HistoryItem";
-import type { McpDisplayMode, McpServer } from "./McpDisplayMode";
+import type { McpDisplayMode } from "./McpDisplayMode";
+import type { McpServer, McpMarketplaceCatalog, McpTool, McpResource, McpResourceTemplate } from "./mcp";
+export type { McpServer, McpMarketplaceCatalog, McpTool, McpResource, McpResourceTemplate };
+export type { RemoteConfigFields } from "./storage/state-keys";
 import type { TelemetrySetting } from "./TelemetrySetting";
 import type { UserInfo } from "./UserInfo";
 import type { ApiConfiguration, ModelInfo } from "./api";
@@ -24,7 +27,7 @@ export interface ExtensionMessage {
 }
 
 export type GrpcResponse = {
-  message?: any; // JSON serialized protobuf message
+  message?: unknown; // JSON serialized protobuf message
   request_id: string; // Same ID as the request
   error?: string; // Optional error message
   is_streaming?: boolean; // Whether this is part of a streaming response
@@ -97,8 +100,6 @@ export interface ExtensionState {
   worktreesEnabled?: ClineFeatureSetting;
   focusChainSettings: FocusChainSettings;
   customPrompt?: string;
-  favoritedModelIds: string[];
-  // NEW: Add workspace information
   workspaceRoots: WorkspaceRoot[];
   primaryRootIndex: number;
   isMultiRootWorkspace: boolean;
@@ -110,6 +111,7 @@ export interface ExtensionState {
   hooksEnabled?: boolean;
   remoteConfigSettings?: Partial<RemoteConfigFields>;
   globalSkillsToggles?: Record<string, boolean>;
+  remoteGlobalSkillsToggles?: Record<string, boolean>;
   localSkillsToggles?: Record<string, boolean>;
   nativeToolCallSetting?: boolean;
   enableParallelToolCalling?: boolean;
@@ -124,7 +126,11 @@ export interface ExtensionState {
   mcpServers?: McpServer[];
   availableProviderModels?: Record<string, Record<string, ModelInfo>>;
   providerHealth?: Record<string, { status: "healthy" | "unhealthy" | "degraded"; message?: string }>;
-  taskHistorySummary?: any[];
+  openRouterModels?: Record<string, ModelInfo>;
+  favoritedModelIds?: string[];
+  taskHistorySummary?: unknown[];
+  settingsInitialModelTab?: "recommended" | "free";
+  globalSkillsToggles?: Record<string, boolean>;
 }
 
 export interface ClineMessage {
@@ -144,6 +150,17 @@ export interface ClineMessage {
   conversationHistoryIndex?: number;
   conversationHistoryDeletedRange?: [number, number]; // for when conversation history is truncated for API requests
   modelInfo?: ClineMessageModelInfo;
+  askQuestion?: ClineAskQuestion;
+  askNewTask?: ClineAskNewTask;
+  askUseMcpServer?: ClineAskUseMcpServer;
+  askUseSubagents?: ClineAskUseSubagents;
+  sayTool?: ClineSayTool;
+  sayBrowserAction?: ClineSayBrowserAction;
+  sayGenerateExplanation?: ClineSayGenerateExplanation;
+  sayHook?: ClineSayHook;
+  mcpServer?: McpServer;
+  mcpTool?: McpTool;
+  mcpResource?: McpResource | McpResourceTemplate;
 }
 
 export type ClineAsk =
@@ -164,7 +181,10 @@ export type ClineAsk =
   | "condense"
   | "summarize_task"
   | "report_bug"
-  | "use_subagents";
+  | "use_subagents"
+  | "ask_question"
+  | "plan_mode_response"
+  | "feature_tip";
 
 export type ClineSay =
   | "task"

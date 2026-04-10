@@ -8,6 +8,20 @@ export const DEFAULT_MCP_TIMEOUT_SECONDS = 60; // matches Anthropic's default ti
 export const MIN_MCP_TIMEOUT_SECONDS = 1;
 export type McpMode = "full" | "server-use-only" | "off";
 
+export type RemoteConfig = {
+  enabled: boolean;
+  // Additional remote configuration fields as needed
+};
+
+export type Modality =
+  | "code"
+  | "image"
+  | "audio"
+  | "file"
+  | "resource"
+  | "suggestion"
+  | "security";
+
 export type McpServer = {
   name: string;
   config: string;

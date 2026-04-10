@@ -35,5 +35,6 @@
       "@domain/*": ["./src/domain/*"],
       "@ui/*": ["./src/ui/*"]
     }
-  }
+  },
+  "exclude": ["webview-ui", "dist", "node_modules"]
 }

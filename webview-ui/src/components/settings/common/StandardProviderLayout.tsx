@@ -24,6 +24,8 @@ export interface StandardProviderLayoutProps {
 	models?: Record<string, ModelInfo>;
 	children?: React.ReactNode;
 	currentMode?: Mode; // Optional mode for advanced picker features
+	onProviderSortingChange?: (value: string) => void;
+	providerSorting?: string;
 }
 
 /**
@@ -47,6 +49,8 @@ export const StandardProviderLayout: React.FC<StandardProviderLayoutProps> = ({
 	models,
 	children,
 	currentMode,
+	onProviderSortingChange,
+	providerSorting,
 }) => {
 	return (
 		<div>
@@ -76,6 +80,8 @@ export const StandardProviderLayout: React.FC<StandardProviderLayoutProps> = ({
 							onModelChange={onModelChange}
 							selectedModelId={selectedModelId}
 							selectedModelInfo={selectedModelInfo}
+							onProviderSortingChange={onProviderSortingChange}
+							providerSorting={providerSorting}
 							modelPicker={
 								models ? (
 									<ModelSelector

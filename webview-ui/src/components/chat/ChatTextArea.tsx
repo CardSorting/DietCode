@@ -2,9 +2,9 @@ import { CHAT_CONSTANTS } from "@/components/chat/chat-view/constants";
 import Thumbnails from "@/components/common/Thumbnails";
 import { useExtensionState } from "@/context/ExtensionStateContext";
 import { cn } from "@/lib/utils";
-import { forwardRef, useCallback, useEffect, useState, useMemo } from "react";
+import { forwardRef, useCallback, useEffect, useState, useMemo, memo } from "react";
 import DynamicTextArea from "react-textarea-autosize";
-import { useMentionInput } from "./ChatInput/hooks/useMentionInput";
+import { useMentionInput } from "./hooks/useMentionInput";
 import SlashCommandMenu from "@/components/chat/SlashCommandMenu";
 import ContextMenu from "@/components/chat/ContextMenu";
 import { useChatHighlights } from "./hooks/useChatHighlights";
@@ -48,10 +48,20 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
     const [textAreaBaseHeight, setTextAreaBaseHeight] = useState<number | undefined>(undefined);
 
     const mentionInput = useMentionInput({
-      inputValue, setInputValue, onSend, sendingDisabled,
-      localWorkflowToggles, globalWorkflowToggles, remoteWorkflowToggles,
-      remoteConfigSettings, mcpServers, selectedImages, setSelectedImages,
-      selectedFiles, setSelectedFiles, onFocusChange,
+      inputValue,
+      setInputValue,
+      onSend,
+      sendingDisabled,
+      localWorkflowToggles,
+      globalWorkflowToggles,
+      remoteWorkflowToggles,
+      remoteConfigSettings,
+      mcpServers: mcpServers || [],
+      selectedImages,
+      setSelectedImages,
+      selectedFiles,
+      setSelectedFiles,
+      onFocusChange,
     });
 
     const {
@@ -83,40 +93,62 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
       };
       if (showContextMenu || showSlashCommandsMenu) document.addEventListener("mousedown", clickOutside);
       return () => document.removeEventListener("mousedown", clickOutside);
-    }, [showContextMenu, showSlashCommandsMenu]);
+    }, [showContextMenu, showSlashCommandsMenu, setShowContextMenu, setShowSlashCommandsMenu, contextMenuContainerRef, slashCommandsMenuContainerRef, setIsMouseDownOnMenu]);
 
     const handleBlur = useCallback(() => {
       if (!isMouseDownOnMenu) { setShowContextMenu(false); setShowSlashCommandsMenu(false); }
       setIsTextAreaFocused(false);
       onFocusChange?.(false);
-    }, [isMouseDownOnMenu, onFocusChange]);
+    }, [isMouseDownOnMenu, onFocusChange, setShowContextMenu, setShowSlashCommandsMenu, setIsTextAreaFocused]);
 
-    const handlePaste = useCallback(async (e: React.ClipboardEvent) => {
-      const text = e.clipboardData.getData("text");
-      if (/^\S+:\/\/\S+$/.test(text.trim())) {
-        e.preventDefault();
-        const trimmed = text.trim();
-        const newVal = `${inputValue.slice(0, cursorPosition) + trimmed} ${inputValue.slice(cursorPosition)}`;
-        setInputValue(newVal);
-        setTimeout(() => textAreaRef.current?.focus(), 0);
-        return;
-      }
-      const files = Array.from(e.clipboardData.items).filter(i => i.type.startsWith("image/")).map(i => i.getAsFile()).filter((f): f is File => f !== null);
-      if (!shouldDisableFilesAndImages && files.length > 0) {
-        e.preventDefault();
-        // Simple paste handling
-        const reader = new FileReader();
-        reader.onloadend = () => {
-             const res = reader.result as string;
-             if (selectedImages.length < MAX_IMAGES_AND_FILES_PER_MESSAGE) setSelectedImages(prev => [...prev, res]);
-        };
-        reader.readAsDataURL(files[0]);
-      }
-    }, [shouldDisableFilesAndImages, selectedImages, cursorPosition, inputValue]);
+    const handlePaste = useCallback(
+      async (e: React.ClipboardEvent) => {
+        const text = e.clipboardData.getData("text");
+        if (/^\S+:\/\/\S+$/.test(text.trim())) {
+          e.preventDefault();
+          const trimmed = text.trim();
+          const newVal = `${inputValue.slice(0, cursorPosition) + trimmed} ${inputValue.slice(cursorPosition)}`;
+          setInputValue(newVal);
+          setTimeout(() => textAreaRef.current?.focus(), 0);
+          return;
+        }
+        const files = Array.from(e.clipboardData.items)
+          .filter((i) => i.type.startsWith("image/"))
+          .map((i) => i.getAsFile())
+          .filter((f): f is File => f !== null);
+        if (!shouldDisableFilesAndImages && files.length > 0) {
+          e.preventDefault();
+          // Simple paste handling
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const res = reader.result as string;
+            if (selectedImages.length < MAX_IMAGES_AND_FILES_PER_MESSAGE) {
+              setSelectedImages((prev) => [...prev, res]);
+            }
+          };
+          reader.readAsDataURL(files[0]);
+        }
+      },
+      [
+        shouldDisableFilesAndImages,
+        selectedImages,
+        cursorPosition,
+        inputValue,
+        setInputValue,
+        setSelectedImages,
+        textAreaRef,
+      ],
+    );
 
     return (
-      <div className="relative flex flex-col px-3.5 py-2.5 bg-sidebar-background border-t border-panel-border" onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={e => e.preventDefault()} onDrop={handleDrop}>
-        {showDimensionError && <div className="absolute inset-2.5 bg-error/10 border border-error rounded-xs flex items-center justify-center z-50 text-error font-bold text-xs">Image too large (>7500px)</div>}
+      <div
+        className="relative flex flex-col px-3.5 py-2.5 bg-sidebar-background border-t border-panel-border"
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={handleDrop}
+      >
+        {showDimensionError && <div className="absolute inset-2.5 bg-error/10 border border-error rounded-xs flex items-center justify-center z-50 text-error font-bold text-xs">Image too large (&gt;7500px)</div>}
         
         {showSlashCommandsMenu && <div ref={slashCommandsMenuContainerRef} className="z-50"><SlashCommandMenu globalWorkflowToggles={globalWorkflowToggles} localWorkflowToggles={localWorkflowToggles} mcpServers={mcpServers} onMouseDown={() => setIsMouseDownOnMenu(true)} onSelect={handleSlashCommandsSelect} query={slashCommandsQuery} remoteWorkflows={remoteConfigSettings?.remoteGlobalWorkflows} remoteWorkflowToggles={remoteWorkflowToggles} selectedIndex={selectedSlashCommandsIndex} setSelectedIndex={setSelectedSlashCommandsIndex} /></div>}
         {showContextMenu && <div ref={contextMenuContainerRef} className="z-50"><ContextMenu dynamicSearchResults={fileSearchResults} isLoading={searchLoading} onMouseDown={() => setIsMouseDownOnMenu(true)} onSelect={handleMentionSelect} queryItems={queryItems} searchQuery={searchQuery} selectedIndex={selectedMenuIndex} selectedType={selectedType} setSelectedIndex={setSelectedMenuIndex} /></div>}
@@ -129,16 +161,34 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
               maxRows={10}
               minRows={3}
               onBlur={handleBlur}
-              onChange={e => { handleInputChange(e); updateHighlights(); }}
-              onFocus={() => { setIsTextAreaFocused(true); onFocusChange?.(true); }}
-              onHeightChange={h => { if (textAreaBaseHeight === undefined || h < textAreaBaseHeight) setTextAreaBaseHeight(h); onHeightChange?.(h); }}
+              onChange={(e) => {
+                handleInputChange(e);
+                updateHighlights();
+              }}
+              onFocus={() => {
+                setIsTextAreaFocused(true);
+                onFocusChange?.(true);
+              }}
+              onHeightChange={(h) => {
+                if (textAreaBaseHeight === undefined || h < textAreaBaseHeight) {
+                  setTextAreaBaseHeight(h);
+                }
+                onHeightChange?.(h);
+              }}
               onKeyDown={handleKeyDown}
               onMouseUp={() => setCursorPosition(textAreaRef.current?.selectionStart ?? 0)}
               onPaste={handlePaste}
               onScroll={() => updateHighlights()}
               onSelect={() => setCursorPosition(textAreaRef.current?.selectionStart ?? 0)}
               placeholder={placeholderText}
-              ref={el => { if (typeof ref === "function") ref(el); else if (ref) ref.current = el; textAreaRef.current = el; }}
+              ref={(el) => {
+                if (typeof ref === "function") {
+                  ref(el);
+                } else if (ref) {
+                  ref.current = el;
+                }
+                textAreaRef.current = el;
+              }}
               className="w-full box-border bg-transparent text-foreground rounded-md resize-none overflow-auto scrollbar-none border-none cursor-text z-10 outline-none p-3 pb-8 text-sm"
               style={{ paddingBottom: thumbnailsHeight + 35 }}
               value={inputValue}
@@ -146,25 +196,25 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 
             <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between z-20">
                 <div className="flex items-center gap-1.5 font-sans">
-                    <button onClick={onModeToggle} className={cn("flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all border shadow-sm", mode === "plan" ? "bg-warning/10 text-warning border-warning/30" : "bg-primary/10 text-primary border-primary/30")}>
+                    <button type="button" onClick={onModeToggle} className={cn("flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all border shadow-sm", mode === "plan" ? "bg-warning/10 text-warning border-warning/30" : "bg-primary/10 text-primary border-primary/30")}>
                         {mode === "plan" ? <SparklesIcon size={10} /> : <ZapIcon size={10} />}
                         {mode} mode
                     </button>
-                    <VSCodeLink onClick={navigateToSettingsModelPicker} className="text-[10px] opacity-60 hover:opacity-100 transition-opacity truncate max-w-24">
+                    <VSCodeLink onClick={navigateToSettingsModelPicker} className="text-[10px] opacity-60 hover:opacity-100 transition-opacity truncate max-w-24" data-test-id="model-link">
                         {apiConfiguration?.apiProvider || "Model"}
                     </VSCodeLink>
                 </div>
 
                 <div className="flex items-center gap-1">
-                    <button onClick={() => { textAreaRef.current?.focus(); setInputValue(inputValue + "@"); updateHighlights(); }} className="p-1 text-description hover:bg-code rounded-sm transition-colors" title="Add context (@)">
+                    <button type="button" onClick={() => { textAreaRef.current?.focus(); setInputValue(`${inputValue}@`); updateHighlights(); }} className="p-1 text-description hover:bg-code rounded-sm transition-colors" title="Add context (@)">
                         <AtSignIcon size={14} />
                     </button>
                     {!shouldDisableFilesAndImages && (
-                        <button onClick={onSelectFilesAndImages} className="p-1 text-description hover:bg-code rounded-sm transition-colors" title="Attach image">
+                        <button type="button" onClick={onSelectFilesAndImages} className="p-1 text-description hover:bg-code rounded-sm transition-colors" title="Attach image">
                             <ImagePlusIcon size={14} />
                         </button>
                     )}
-                    <button disabled={sendingDisabled || !inputValue.trim()} onClick={onSend} className={cn("ml-1 p-1.5 rounded-md transition-all shadow-sm", sendingDisabled || !inputValue.trim() ? "opacity-30 cursor-not-allowed bg-description/10 text-description" : "bg-primary text-primary-foreground hover:scale-105 active:scale-95")}>
+                    <button type="button" disabled={sendingDisabled || !inputValue.trim()} onClick={onSend} className={cn("ml-1 p-1.5 rounded-md transition-all shadow-sm", sendingDisabled || !inputValue.trim() ? "opacity-30 cursor-not-allowed bg-description/10 text-description" : "bg-primary text-primary-foreground hover:scale-105 active:scale-95")}>
                         <SendIcon size={14} />
                     </button>
                 </div>

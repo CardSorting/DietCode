@@ -1,6 +1,6 @@
-import { BrowserSettingsMenu } from "@/components/browser/BrowserSettingsMenu";
-import { ChatRowContent, ProgressIndicator } from "@/components/chat/ChatRow";
-import CodeBlock, { CODE_BLOCK_BG_COLOR } from "@/components/common/CodeBlock";
+import { BrowserSettingsMenu } from "../browser/BrowserSettingsMenu";
+import { ChatRowContent, ProgressIndicator } from "./ChatRow";
+import CodeBlock, { CODE_BLOCK_BG_COLOR } from "../common/CodeBlock";
 import { useExtensionState } from "@/context/ExtensionStateContext";
 import { cn } from "@/lib/utils";
 import { FileServiceClient } from "@/services/grpc-client";
@@ -32,6 +32,7 @@ interface BrowserSessionRowProps {
 const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
   const { messages, isLast, onHeightChange, lastModifiedMessage, onSetQuote } = props;
   const { browserSettings } = useExtensionState();
+  const browserSettingsOrDefault = browserSettings || BROWSER_VIEWPORT_PRESETS["Chrome"];
   const prevHeightRef = useRef(0);
   const [maxActionHeight, setMaxActionHeight] = useState(0);
   const [consoleLogsExpanded, setConsoleLogsExpanded] = useState(false);
@@ -107,7 +108,7 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
         {isBrowsing && !isLastMessageResume ? (
           <ProgressIndicator />
         ) : (
-          <span className="codicon codicon-inspect text-foreground -mb-[1.5px]" />
+          <span className="codicon codicon-inspect text-foreground mb-[-1.5px]" />
         )}
         <span className="font-bold">
           {isAutoApproved ? "DietCode is using the browser:" : "DietCode wants to use the browser:"}
@@ -127,7 +128,7 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
 
         <div 
           className="w-full relative bg-input-background"
-          style={{ paddingBottom: `${(browserSettings.viewport.height / browserSettings.viewport.width) * 100}%` }}
+          style={{ paddingBottom: `${(browserSettingsOrDefault.viewport.height / browserSettingsOrDefault.viewport.width) * 100}%` }}
         >
           {displayState.screenshot ? (
             <button
@@ -139,15 +140,15 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
             </button>
           ) : (
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-              <span className="codicon codicon-globe text-[80px] text-description" />
+              <span className="codicon codicon-globe text-8xl text-description" />
             </div>
           )}
           {displayState.mousePosition && (
             <BrowserCursor
               className="absolute transition-all duration-300 pointer-events-none z-10"
               style={{
-                top: `${(Number.parseInt(mousePosition.split(",")[1]) / browserSettings.viewport.height) * 100}%`,
-                left: `${(Number.parseInt(mousePosition.split(",")[0]) / browserSettings.viewport.width) * 100}%`,
+                top: `${(Number.parseInt(mousePosition.split(",")[1]) / browserSettingsOrDefault.viewport.height) * 100}%`,
+                left: `${(Number.parseInt(mousePosition.split(",")[0]) / browserSettingsOrDefault.viewport.width) * 100}%`,
               }}
             />
           )}
@@ -161,7 +162,7 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
             type="button"
           >
             {consoleLogsExpanded ? <ChevronDownIcon size={16} /> : <ChevronRightIcon size={16} />}
-            <span className="text-[0.8em]">Console Logs</span>
+            <span className="text-xs opacity-80">Console Logs</span>
           </button>
           {consoleLogsExpanded && (
             <CodeBlock source={`${"```"}shell\n${displayState.consoleLogs || "(No new logs)"}\n${"```"}`} />
@@ -193,11 +194,21 @@ const BrowserSessionRow = memo((props: BrowserSessionRowProps) => {
   return browserSessionRow;
 }, deepEqual);
 
-const BrowserSessionRowContent = memo(({ message, expandedRows, onToggleExpand, lastModifiedMessage, isLast, setMaxActionHeight, onSetQuote }: any) => {
+interface BrowserSessionRowContentProps {
+  message: ClineMessage;
+  expandedRows: Record<number, boolean>;
+  onToggleExpand: (messageTs: number) => void;
+  lastModifiedMessage?: ClineMessage;
+  isLast: boolean;
+  setMaxActionHeight: (h: number) => void;
+  onSetQuote: (text: string) => void;
+}
+
+const BrowserSessionRowContent = memo(({ message, expandedRows, onToggleExpand, lastModifiedMessage, isLast, setMaxActionHeight, onSetQuote }: BrowserSessionRowContentProps) => {
   const handleToggle = useCallback(() => {
     if (message.say === "api_req_started") setMaxActionHeight(0);
     onToggleExpand(message.ts);
-  }, [onToggleExpand, message.ts, setMaxActionHeight]);
+  }, [onToggleExpand, message.ts, message.say, setMaxActionHeight]);
 
   if (message.ask === "browser_action_launch" || message.say === "browser_action_launch") {
     return (
@@ -223,6 +234,7 @@ const BrowserSessionRowContent = memo(({ message, expandedRows, onToggleExpand, 
             message={message}
             onSetQuote={onSetQuote}
             onToggleExpand={handleToggle}
+            onHeightChange={() => {}}
           />
         </div>
       );

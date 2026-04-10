@@ -16,7 +16,67 @@ export const DEFAULT_API_PROVIDER = "openrouter" as ApiProvider;
 
 export interface ApiHandlerOptions extends Partial<ApiHandlerSettings> {
   ulid?: string; // Used to identify the task in API requests
-  onRetryAttempt?: (attempt: number, maxRetries: number, delay: number, error: any) => void; // Callback function
+  apiProvider?: ApiProvider | string;
+  apiModelId?: string;
+  apiKey?: string;
+  openRouterApiKey?: string;
+  openRouterModelId?: string;
+  openAiApiKey?: string;
+  openAiModelId?: string;
+  openAiBaseUrl?: string;
+  geminiApiKey?: string;
+  geminiModelId?: string;
+  ollamaModelId?: string;
+  ollamaBaseUrl?: string;
+  vscodeLmModelSelector?: unknown;
+  modelInfo?: ModelInfo;
+  planModeApiKey?: string;
+  actModeApiKey?: string;
+  planModeOpenAiBaseUrl?: string;
+  actModeOpenAiBaseUrl?: string;
+  planModeAnthropicBaseUrl?: string;
+  actModeAnthropicBaseUrl?: string;
+  planModeOpenAiNativeApiKey?: string;
+  actModeOpenAiNativeApiKey?: string;
+  planModeOpenRouterApiKey?: string;
+  actModeOpenRouterApiKey?: string;
+  planModeOpenRouterBaseUrl?: string;
+  actModeOpenRouterBaseUrl?: string;
+  planModeGeminiApiKey?: string;
+  actModeGeminiApiKey?: string;
+  planModeGeminiBaseUrl?: string;
+  actModeGeminiBaseUrl?: string;
+  planModeAnthropicApiKey?: string;
+  actModeAnthropicApiKey?: string;
+  planModeOpenAiApiKey?: string;
+  actModeOpenAiApiKey?: string;
+  planModeAzureOpenAiApiKey?: string;
+  actModeAzureOpenAiApiKey?: string;
+  requestyModelId?: string;
+  togetherModelId?: string;
+  lmStudioModelId?: string;
+  openAiHeaders?: Record<string, string>;
+  azureIdentity?: boolean;
+  azureApiVersion?: string;
+  openRouterBaseUrl?: string;
+  anthropicBaseUrl?: string;
+  geminiBaseUrl?: string;
+  openAiNativeApiKey?: string;
+  anthropicApiKey?: string;
+  azureOpenAiApiKey?: string;
+  planModeOpenRouterModelId?: string;
+  actModeOpenRouterModelId?: string;
+  planModeOpenRouterModelInfo?: ModelInfo;
+  actModeOpenRouterModelInfo?: ModelInfo;
+  planModeClineModelId?: string;
+  actModeClineModelId?: string;
+  planModeClineModelInfo?: ModelInfo;
+  actModeClineModelInfo?: ModelInfo;
+  planModeApiProvider?: ApiProvider | string;
+  actModeApiProvider?: ApiProvider | string;
+  planModeApiModelId?: string;
+  actModeApiModelId?: string;
+  onRetryAttempt?: (attempt: number, maxRetries: number, delay: number, error: unknown) => void;
 }
 
 export type ApiConfiguration = ApiHandlerOptions;

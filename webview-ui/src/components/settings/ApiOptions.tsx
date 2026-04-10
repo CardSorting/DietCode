@@ -22,8 +22,9 @@ import {
 import ClineModelPicker from "./ClineModelPicker";
 import {
   filterOpenRouterModelIds,
-  useApiConfigurationHandlers,
 } from "./utils/providerUtils";
+import { type ApiProvider } from "@shared/api.ts";
+import { useApiConfigurationHandlers } from "./utils/useApiConfigurationHandlers";
 import FuzzyModelPicker from "./common/FuzzyModelPicker";
 import { cn } from "@/lib/utils";
 
@@ -45,8 +46,9 @@ const ApiOptions = memo(({
   initialModelTab,
 }: ApiOptionsProps) => {
   const { apiConfiguration, remoteConfigSettings, openRouterModels, favoritedModelIds } = useExtensionState();
-  const { selectedProvider, selectedModelId, selectedModelInfo } = normalizeApiConfiguration(apiConfiguration, currentMode);
-  const { handleModeFieldChange, handleFieldChange } = useApiConfigurationHandlers();
+  const normalized = normalizeApiConfiguration(apiConfiguration, currentMode);
+  const { selectedProvider, selectedModelId, selectedModelInfo } = normalized;
+  const { handleModeFieldChange, handleFieldChange, handleModeFieldsChange } = useApiConfigurationHandlers();
 
   // Polling for Ollama models
   const [_ollamaModels, setOllamaModels] = useState<string[]>([]);
@@ -101,7 +103,7 @@ const ApiOptions = memo(({
   const providerSearchResults = useMemo(() => searchTerm && searchTerm !== currentProviderLabel ? fuse.search(searchTerm).map((r) => r.item) : searchableItems, [searchableItems, searchTerm, fuse, currentProviderLabel]);
 
   const handleProviderChange = (newProvider: string) => {
-    handleModeFieldChange({ plan: "planModeApiProvider", act: "actModeApiProvider" }, newProvider as any, currentMode);
+    handleModeFieldChange({ plan: "planModeApiProvider", act: "actModeApiProvider" }, newProvider as ApiProvider, currentMode);
     setIsDropdownVisible(false);
     setSelectedIndex(-1);
   };
@@ -161,14 +163,14 @@ const ApiOptions = memo(({
   }, [openRouterModels]);
 
   const handleOpenRouterModelChange = (newModelId: string) => {
-    handleModeFieldChange(
+    handleModeFieldsChange(
       {
         openRouterModelId: { plan: "planModeOpenRouterModelId", act: "actModeOpenRouterModelId" },
         openRouterModelInfo: { plan: "planModeOpenRouterModelInfo", act: "actModeOpenRouterModelInfo" },
       },
       {
         openRouterModelId: newModelId,
-        openRouterModelInfo: openRouterModels[newModelId],
+        openRouterModelInfo: (openRouterModels as any)?.[newModelId],
       },
       currentMode,
     );
@@ -178,7 +180,7 @@ const ApiOptions = memo(({
     <div className={cn("flex flex-col gap-1", isPopup && "-mb-2.5")}>
       {/* Provider Selector */}
       <div className="relative z-50">
-        <label className="flex items-center gap-1 mb-1">
+        <label htmlFor="api-provider-search" className="flex items-center gap-1 mb-1">
           <span className="text-xs font-semibold opacity-80">API Provider</span>
           {remoteConfigSettings?.remoteConfiguredProviders && remoteConfigSettings.remoteConfiguredProviders.length > 0 && (
             <Tooltip>
@@ -190,6 +192,7 @@ const ApiOptions = memo(({
         
         <div ref={dropdownRef} className="relative">
           <VSCodeTextField
+            id="api-provider-search"
             onFocus={() => { setIsDropdownVisible(true); setSearchTerm(""); }}
             onInput={(e) => { setSearchTerm((e.target as HTMLInputElement)?.value || ""); setIsDropdownVisible(true); }}
             onKeyDown={handleKeyDown}
@@ -204,9 +207,13 @@ const ApiOptions = memo(({
                   key={item.value}
                   ref={(el) => { itemRefs.current[index] = el; }}
                   onClick={() => handleProviderChange(item.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleProviderChange(item.value); }}
                   onMouseEnter={() => setSelectedIndex(index)}
+                  tabIndex={0}
+                  role="option"
+                  aria-selected={index === selectedIndex}
                   className={cn(
-                    "px-3 py-1.5 cursor-pointer text-sm transition-colors break-all",
+                    "px-3 py-1.5 cursor-pointer text-sm transition-colors break-all outline-none",
                     index === selectedIndex ? "bg-list-active text-foreground" : "text-description hover:bg-list-hover"
                   )}
                 >
@@ -227,8 +234,8 @@ const ApiOptions = memo(({
               apiKey={apiConfiguration.apiKey || ""}
               baseUrl={apiConfiguration.openAiBaseUrl}
               baseUrlPlaceholder="Default: https://api.openai.com/v1"
-              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeApiKey", act: "actModeApiKey" } as any, v, currentMode)}
-              onBaseUrlChange={(v) => handleModeFieldChange({ plan: "planModeOpenAiBaseUrl", act: "actModeOpenAiBaseUrl" } as any, v, currentMode)}
+              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeApiKey", act: "actModeApiKey" } as any, v as any, currentMode)}
+              onBaseUrlChange={(v) => handleModeFieldChange({ plan: "planModeOpenAiBaseUrl", act: "actModeOpenAiBaseUrl" }, v as any, currentMode)}
               providerName="Cline"
             >
               <ClineModelPicker currentMode={currentMode} initialTab={initialModelTab} isPopup={isPopup} />
@@ -242,8 +249,8 @@ const ApiOptions = memo(({
               baseUrl={apiConfiguration.anthropicBaseUrl}
               baseUrlPlaceholder="Default: https://api.anthropic.com"
               models={anthropicModels}
-              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeApiKey", act: "actModeApiKey" } as any, v, currentMode)}
-              onBaseUrlChange={(v) => handleModeFieldChange({ plan: "planModeAnthropicBaseUrl", act: "actModeAnthropicBaseUrl" } as any, v, currentMode)}
+              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeApiKey", act: "actModeApiKey" } as any, v as any, currentMode)}
+              onBaseUrlChange={(v) => handleModeFieldChange({ plan: "planModeAnthropicBaseUrl", act: "actModeAnthropicBaseUrl" }, v as any, currentMode)}
               providerName="Anthropic"
               remoteBaseUrl={remoteConfigSettings?.anthropicBaseUrl}
               signupUrl="https://console.anthropic.com/settings/keys"
@@ -255,7 +262,7 @@ const ApiOptions = memo(({
               {...commonProps}
               apiKey={apiConfiguration.openAiNativeApiKey || ""}
               models={openAiNativeModels}
-              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeOpenAiNativeApiKey", act: "actModeOpenAiNativeApiKey" } as any, v, currentMode)}
+              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeOpenAiNativeApiKey", act: "actModeOpenAiNativeApiKey" }, v as any, currentMode)}
               providerName="OpenAI"
               signupUrl="https://platform.openai.com/api-keys"
             />
@@ -267,8 +274,8 @@ const ApiOptions = memo(({
               apiKey={apiConfiguration.openRouterApiKey || ""}
               baseUrl={apiConfiguration.openRouterBaseUrl}
               baseUrlPlaceholder="Default: https://openrouter.ai/api/v1"
-              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeOpenRouterApiKey", act: "actModeOpenRouterApiKey" } as any, v, currentMode)}
-              onBaseUrlChange={(v) => handleModeFieldChange({ plan: "planModeOpenRouterBaseUrl", act: "actModeOpenRouterBaseUrl" } as any, v, currentMode)}
+              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeOpenRouterApiKey", act: "actModeOpenRouterApiKey" }, v as any, currentMode)}
+              onBaseUrlChange={(v) => handleModeFieldChange({ plan: "planModeOpenRouterBaseUrl", act: "actModeOpenRouterBaseUrl" }, v as any, currentMode)}
               providerName="OpenRouter"
               signupUrl="https://openrouter.ai/keys"
               onProviderSortingChange={(v) => handleFieldChange("openRouterProviderSorting", v)}
@@ -296,8 +303,8 @@ const ApiOptions = memo(({
               baseUrl={apiConfiguration.geminiBaseUrl}
               baseUrlPlaceholder="Default: https://generativelanguage.googleapis.com"
               models={geminiModels}
-              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeGeminiApiKey", act: "actModeGeminiApiKey" } as any, v, currentMode)}
-              onBaseUrlChange={(v) => handleModeFieldChange({ plan: "planModeGeminiBaseUrl", act: "actModeGeminiBaseUrl" } as any, v, currentMode)}
+              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeGeminiApiKey", act: "actModeGeminiApiKey" }, v as any, currentMode)}
+              onBaseUrlChange={(v) => handleModeFieldChange({ plan: "planModeGeminiBaseUrl", act: "actModeGeminiBaseUrl" }, v as any, currentMode)}
               providerName="Gemini"
               signupUrl="https://aistudio.google.com/apikey"
             />

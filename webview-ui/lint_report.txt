@@ -1,5 +1,1 @@
-
-> webview-ui@0.3.0 lint
-> biome lint --changed --no-errors-on-unmatched --format json
-
-Error: `--format` is not expected in this context
+env: node: No such file or directory

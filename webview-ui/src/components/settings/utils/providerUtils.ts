@@ -86,12 +86,18 @@ export function normalizeApiConfiguration(
   };
 
   switch (provider) {
-    case "anthropic":
-      return getProviderData(anthropicModels, anthropicDefaultModelId);
-    case "gemini":
-      return getProviderData(geminiModels, geminiDefaultModelId);
-    case "openai-native":
-      return getProviderData(openAiNativeModels, openAiNativeDefaultModelId);
+    case "anthropic": {
+      const data = getProviderData(anthropicModels, anthropicDefaultModelId);
+      return { selectedProvider: "anthropic" as ApiProvider, ...data };
+    }
+    case "gemini": {
+      const data = getProviderData(geminiModels, geminiDefaultModelId);
+      return { selectedProvider: "gemini" as ApiProvider, ...data };
+    }
+    case "openai-native": {
+      const data = getProviderData(openAiNativeModels, openAiNativeDefaultModelId);
+      return { selectedProvider: "openai-native" as ApiProvider, ...data };
+    }
     case "openrouter": {
       const openRouterModelId =
         currentMode === "plan"
@@ -102,7 +108,7 @@ export function normalizeApiConfiguration(
           ? apiConfiguration?.planModeOpenRouterModelInfo
           : apiConfiguration?.actModeOpenRouterModelInfo;
       return {
-        selectedProvider: provider,
+        selectedProvider: "openrouter" as ApiProvider,
         selectedModelId: openRouterModelId || openRouterDefaultModelId,
         selectedModelInfo: openRouterModelInfo || openRouterDefaultModelInfo,
       };
@@ -129,7 +135,7 @@ export function normalizeApiConfiguration(
         fallbackOpenRouterModelInfo ||
         openRouterDefaultModelInfo;
       return {
-        selectedProvider: provider,
+        selectedProvider: "cline" as ApiProvider,
         selectedModelId: clineModelId,
         selectedModelInfo: clineModelInfo,
       };
@@ -155,7 +161,7 @@ export function normalizeApiConfiguration(
           ? apiConfiguration?.planModeOllamaModelId
           : apiConfiguration?.actModeOllamaModelId;
       return {
-        selectedProvider: provider,
+        selectedProvider: "ollama" as ApiProvider,
         selectedModelId: ollamaModelId || "",
         selectedModelInfo: {
           ...openAiModelInfoSaneDefaults,
@@ -169,7 +175,7 @@ export function normalizeApiConfiguration(
           ? apiConfiguration?.planModeVsCodeLmModelSelector
           : apiConfiguration?.actModeVsCodeLmModelSelector;
       return {
-        selectedProvider: provider,
+        selectedProvider: "vscode-lm" as ApiProvider,
         selectedModelId: vsCodeLmModelSelector
           ? `${vsCodeLmModelSelector.vendor}/${vsCodeLmModelSelector.family}`
           : "",
@@ -202,6 +208,10 @@ export function getModeSpecificFields(apiConfiguration: ApiConfiguration | undef
       openAiModelId: undefined,
       openRouterModelId: undefined,
       clineModelId: undefined,
+      requestyModelId: undefined,
+      togetherModelId: undefined,
+      lmStudioModelId: undefined,
+      hicapModelId: undefined,
 
       // Model info objects
       openAiModelInfo: undefined,
@@ -237,7 +247,9 @@ export function getModeSpecificFields(apiConfiguration: ApiConfiguration | undef
   return {
     // Core fields
     apiProvider:
-      mode === "plan" ? apiConfiguration.planModeApiProvider : apiConfiguration.actModeApiProvider,
+      mode === "plan"
+        ? (apiConfiguration.planModeApiProvider as ApiProvider)
+        : (apiConfiguration.actModeApiProvider as ApiProvider),
     apiModelId:
       mode === "plan" ? apiConfiguration.planModeApiModelId : apiConfiguration.actModeApiModelId,
 
@@ -252,6 +264,10 @@ export function getModeSpecificFields(apiConfiguration: ApiConfiguration | undef
         : apiConfiguration.actModeOpenAiModelId,
     openRouterModelId,
     clineModelId,
+    requestyModelId: apiConfiguration.requestyModelId,
+    togetherModelId: apiConfiguration.togetherModelId,
+    lmStudioModelId: apiConfiguration.lmStudioModelId,
+    hicapModelId: apiConfiguration.hicapModelId,
 
     // Model info objects
     openAiModelInfo:
@@ -300,8 +316,8 @@ export async function syncModeConfigurations(
   // Build the complete update object with both plan and act mode fields
   const updates: Partial<ApiConfiguration> = {
     // Always sync common fields
-    planModeApiProvider: sourceFields.apiProvider,
-    actModeApiProvider: sourceFields.apiProvider,
+    planModeApiProvider: sourceFields.apiProvider || "anthropic" as ApiProvider,
+    actModeApiProvider: sourceFields.apiProvider || "anthropic" as ApiProvider,
     planModeThinkingBudgetTokens: sourceFields.thinkingBudgetTokens,
     actModeThinkingBudgetTokens: sourceFields.thinkingBudgetTokens,
     planModeReasoningEffort: sourceFields.reasoningEffort,
@@ -311,6 +327,8 @@ export async function syncModeConfigurations(
   // Handle provider-specific fields
   switch (apiProvider) {
     case "openrouter":
+      updates.planModeApiProvider = sourceFields.apiProvider || "openrouter" as ApiProvider;
+      updates.actModeApiProvider = sourceFields.apiProvider || "openrouter" as ApiProvider;
       updates.planModeOpenRouterModelId = sourceFields.openRouterModelId;
       updates.actModeOpenRouterModelId = sourceFields.openRouterModelId;
       updates.planModeOpenRouterModelInfo = sourceFields.openRouterModelInfo;
@@ -318,6 +336,8 @@ export async function syncModeConfigurations(
       break;
 
     case "cline":
+      updates.planModeApiProvider = sourceFields.apiProvider || "cline" as ApiProvider;
+      updates.actModeApiProvider = sourceFields.apiProvider || "cline" as ApiProvider;
       updates.planModeClineModelId = sourceFields.clineModelId;
       updates.actModeClineModelId = sourceFields.clineModelId;
       updates.planModeClineModelInfo = sourceFields.clineModelInfo;
@@ -325,6 +345,8 @@ export async function syncModeConfigurations(
       break;
 
     case "openai":
+      updates.planModeApiProvider = sourceFields.apiProvider || "openai" as ApiProvider;
+      updates.actModeApiProvider = sourceFields.apiProvider || "openai" as ApiProvider;
       updates.planModeOpenAiModelId = sourceFields.openAiModelId;
       updates.actModeOpenAiModelId = sourceFields.openAiModelId;
       updates.planModeOpenAiModelInfo = sourceFields.openAiModelInfo;
@@ -332,11 +354,15 @@ export async function syncModeConfigurations(
       break;
 
     case "ollama":
+      updates.planModeApiProvider = sourceFields.apiProvider || "ollama" as ApiProvider;
+      updates.actModeApiProvider = sourceFields.apiProvider || "ollama" as ApiProvider;
       updates.planModeOllamaModelId = sourceFields.ollamaModelId;
       updates.actModeOllamaModelId = sourceFields.ollamaModelId;
       break;
 
     case "vscode-lm":
+      updates.planModeApiProvider = sourceFields.apiProvider || "vscode-lm" as ApiProvider;
+      updates.actModeApiProvider = sourceFields.apiProvider || "vscode-lm" as ApiProvider;
       updates.planModeVsCodeLmModelSelector = sourceFields.vsCodeLmModelSelector;
       updates.actModeVsCodeLmModelSelector = sourceFields.vsCodeLmModelSelector;
       break;

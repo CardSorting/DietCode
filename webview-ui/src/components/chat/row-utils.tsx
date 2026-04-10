@@ -8,6 +8,9 @@ import type { ClineMessage } from "@shared/ExtensionMessage";
 export interface RowHeaderMetadata {
 	icon?: React.ReactNode;
 	title: React.ReactNode;
+	className?: string;
+	isLoading?: boolean;
+	isOutsideWorkspace?: boolean;
 }
 
 /**

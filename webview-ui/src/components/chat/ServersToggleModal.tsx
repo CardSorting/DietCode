@@ -1,9 +1,9 @@
-import PopoverButton from "@/components/common/PopoverButton";
+import PopoverButton from "@/components/common/PopoverButton.tsx";
 import ServersToggleList from "@/components/mcp/configuration/tabs/installed/ServersToggleList";
 import { useExtensionState } from "@/context/ExtensionStateContext";
 import { McpServiceClient } from "@/services/grpc-client";
-import { EmptyRequest } from "@shared/nice-grpc/cline/common.ts";
-import { convertProtoMcpServersToMcpServers } from "@shared/proto-conversions/mcp/mcp-server-conversion.ts";
+import { EmptyRequest } from "@shared/nice-grpc/cline/common";
+import { convertProtoMcpServersToMcpServers } from "@shared/proto-conversions/mcp/mcp-server-conversion";
 import type React from "react";
 import { useCallback } from "react";
 
@@ -32,7 +32,3 @@ const ServersToggleModal: React.FC = () => {
     </PopoverButton>
   );
 };
-
-export default ServersToggleModal;
-
-export default ServersToggleModal;

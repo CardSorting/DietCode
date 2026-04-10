@@ -7,6 +7,13 @@
 import { EventEmitter } from 'node:events';
 import { StateOrchestrator } from '../../core/manager/StateOrchestrator';
 import type { GlobalState } from '../../domain/LLMProvider';
+import type { ExtensionMessage } from '../../shared/ExtensionMessage';
+
+interface PendingApproval {
+  id: string;
+  toolName: string;
+  detail: Record<string, unknown>;
+}
 
 /**
  * [LAYER: INFRASTRUCTURE / UI]
@@ -33,11 +40,11 @@ export class UIBridge extends EventEmitter {
    * Request approval from the user via the Webview.
    * Blocks until the user clicks Approve/Reject in the sidebar.
    */
-  public async requestUserApproval(id: string, detail: any): Promise<boolean> {
+  public async requestUserApproval(id: string, detail: Record<string, unknown>): Promise<boolean> {
     const orchestrator = StateOrchestrator.getInstance();
     
     // 1. Get current pending approvals
-    const pending = (await orchestrator.getValue<any[]>('pendingToolApprovals')) || [];
+    const pending = (await orchestrator.getValue<PendingApproval[]>('pendingToolApprovals')) || [];
     
     // 2. Add new request to state
     const updated = [...pending, { id, toolName: detail.actionType, detail }];
@@ -88,8 +95,8 @@ export class UIBridge extends EventEmitter {
     
     // Cleanup state
     const orchestrator = StateOrchestrator.getInstance();
-    const pending = (await orchestrator.getValue<any[]>('pendingToolApprovals')) || [];
-    const updated = pending.filter(p => p.id !== id);
+    const pending = (await orchestrator.getValue<PendingApproval[]>('pendingToolApprovals')) || [];
+    const updated = pending.filter((p: PendingApproval) => p.id !== id);
     
     await orchestrator.applyChange({
       key: 'pendingToolApprovals',
@@ -112,9 +119,16 @@ export class UIBridge extends EventEmitter {
   }
 
   /**
+   * Post a message directly to the webview via the bridge.
+   */
+  public async postMessage(message: ExtensionMessage) {
+    this.emit('postMessage', message);
+  }
+
+  /**
    * Send a generic message to the Webview (logs, state, etc.)
    */
-  public notify(type: string, payload: any) {
+  public notify(type: string, payload: unknown) {
     this.emit('notify', { type, payload });
   }
 }

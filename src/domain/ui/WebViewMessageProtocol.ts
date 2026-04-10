@@ -148,6 +148,8 @@ export interface LLMProviderConfig {
   id: string;
   name: string;
   apiKey?: string;
+  baseUrl?: string;
+  modelId?: string;
   enabled: boolean;
   type: 'chat' | 'embedding';
 }
@@ -155,9 +157,13 @@ export interface LLMProviderConfig {
 export interface SovereignSettings {
   autoApprove: boolean;
   selectedProvider: string;
+  apiModelId?: string;
+  apiKey?: string;
   providers: LLMProviderConfig[];
   neuralDepth?: 'shallow' | 'standard' | 'deep';
   theme?: string;
+  availableProviderModels?: Record<string, unknown[]>;
+  providerHealth?: Record<string, string>;
 }
 
 /**
@@ -210,6 +216,8 @@ export enum WebViewRequestType {
   TOOL_APPROVAL = 'tool_approval',
   TEST_CONNECTION = 'test_connection',
   RESTORE_CHECKPOINT = 'restore_checkpoint',
+  GRPC_REQUEST = 'grpc_request',
+  GRPC_REQUEST_CANCEL = 'grpc_request_cancel',
 }
 
 /**
