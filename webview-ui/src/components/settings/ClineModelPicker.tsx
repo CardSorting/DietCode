@@ -110,7 +110,7 @@ const ClineModelPicker: React.FC<ClineModelPickerProps> = ({
   initialTab,
 }) => {
   const { handleModeFieldsChange, handleFieldChange } = useApiConfigurationHandlers();
-  const { apiConfiguration, favoritedModelIds, clineModels, refreshClineModels } =
+  const { apiConfiguration, favoritedModelIds, clineModels } =
     useExtensionState();
   const modeFields = getModeSpecificFields(apiConfiguration, currentMode);
   const [searchTerm, setSearchTerm] = useState(modeFields.clineModelId || openRouterDefaultModelId);
@@ -258,9 +258,7 @@ const ClineModelPicker: React.FC<ClineModelPickerProps> = ({
     return selected;
   }, [apiConfiguration, currentMode, freeClineModelIdSet]);
 
-  useMount(() => {
-    refreshClineModels();
-  });
+
 
   useEffect(() => {
     void fetchClineRecommendedModels();

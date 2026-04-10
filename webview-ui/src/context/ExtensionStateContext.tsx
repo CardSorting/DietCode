@@ -5,14 +5,8 @@ import { DEFAULT_FOCUS_CHAIN_SETTINGS } from "@shared/FocusChainSettings.ts";
 import { DEFAULT_MCP_DISPLAY_MODE } from "@shared/McpDisplayMode.ts";
 import {
   type ModelInfo,
-  basetenDefaultModelId,
-  basetenModels,
-  groqDefaultModelId,
-  groqModels,
   openRouterDefaultModelId,
   openRouterDefaultModelInfo,
-  requestyDefaultModelId,
-  requestyDefaultModelInfo,
 } from "@shared/api";
 import { findLastIndex } from "@shared/array.ts";
 import { Environment } from "@shared/config-types.ts";
@@ -37,16 +31,6 @@ export interface ExtensionStateContextType extends ExtensionState {
   didHydrateState: boolean;
   showWelcome: boolean;
   onboardingModels: OnboardingModelGroup | undefined;
-  clineModels: Record<string, ModelInfo> | null;
-  openRouterModels: Record<string, ModelInfo>;
-  vercelAiGatewayModels: Record<string, ModelInfo>;
-  hicapModels: Record<string, ModelInfo>;
-  liteLlmModels: Record<string, ModelInfo>;
-  openAiModels: string[];
-  requestyModels: Record<string, ModelInfo>;
-  groqModels: Record<string, ModelInfo>;
-  basetenModels: Record<string, ModelInfo>;
-  huggingFaceModels: Record<string, ModelInfo>;
   mcpServers: McpServer[];
   mcpMarketplaceCatalog: McpMarketplaceCatalog;
   totalTasksSize: number | null;
@@ -70,11 +54,6 @@ export interface ExtensionStateContextType extends ExtensionState {
   // Setters
   setShowAnnouncement: (value: boolean) => void;
   setShouldShowAnnouncement: (value: boolean) => void;
-  setMcpServers: (value: McpServer[]) => void;
-  setRequestyModels: (value: Record<string, ModelInfo>) => void;
-  setGroqModels: (value: Record<string, ModelInfo>) => void;
-  setBasetenModels: (value: Record<string, ModelInfo>) => void;
-  setHuggingFaceModels: (value: Record<string, ModelInfo>) => void;
   setGlobalClineRulesToggles: (toggles: Record<string, boolean>) => void;
   setLocalClineRulesToggles: (toggles: Record<string, boolean>) => void;
   setLocalCursorRulesToggles: (toggles: Record<string, boolean>) => void;
@@ -92,12 +71,7 @@ export interface ExtensionStateContextType extends ExtensionState {
   setShowWelcome: (value: boolean) => void;
   setOnboardingModels: (value: OnboardingModelGroup | undefined) => void;
 
-  // Refresh functions
-  refreshClineModels: () => void;
-  refreshOpenRouterModels: () => void;
-  refreshVercelAiGatewayModels: () => void;
-  refreshHicapModels: () => void;
-  refreshLiteLlmModels: () => Promise<void>;
+
   setUserInfo: (userInfo?: UserInfo) => void;
 
   // Navigation state setters
@@ -326,8 +300,6 @@ export const ExtensionStateContextProvider: React.FC<{
   const worktreesButtonClickedSubscriptionRef = useRef<(() => void) | null>(null);
   const partialMessageUnsubscribeRef = useRef<(() => void) | null>(null);
   const mcpMarketplaceUnsubscribeRef = useRef<(() => void) | null>(null);
-  const openRouterModelsUnsubscribeRef = useRef<(() => void) | null>(null);
-  const liteLlmModelsUnsubscribeRef = useRef<(() => void) | null>(null);
   const workspaceUpdatesUnsubscribeRef = useRef<(() => void) | null>(null);
   const relinquishControlUnsubscribeRef = useRef<(() => void) | null>(null);
 
@@ -416,122 +388,11 @@ export const ExtensionStateContextProvider: React.FC<{
     };
   }, []);
 
-  const refreshOpenRouterModels = useCallback(() => {
-    ModelsServiceClient.refreshOpenRouterModelsRpc(EmptyRequest.create({}))
-      .then((response: OpenRouterCompatibleModelInfo) => {
-        const models = fromProtobufModels(response.models);
-        setOpenRouterModels({
-          [openRouterDefaultModelId]: openRouterDefaultModelInfo, // in case the extension sent a model list without the default model
-          ...models,
-        });
-      })
-      .catch((error: Error) => console.error("Failed to refresh OpenRouter models:", error));
-  }, []);
-
-  const refreshHicapModels = useCallback(() => {
-    ModelsServiceClient.refreshHicapModels(EmptyRequest.create({}))
-      .then((response: OpenRouterCompatibleModelInfo) => {
-        const models = response.models;
-        setHicapModels({
-          ...models,
-        });
-      })
-      .catch((error: Error) => console.error("Failed to refresh Hicap models:", error));
-  }, []);
-
-  const refreshLiteLlmModels = useCallback(() => {
-    return ModelsServiceClient.refreshLiteLlmModelsRpc(EmptyRequest.create({}))
-      .then((response: OpenRouterCompatibleModelInfo) => {
-        const models = fromProtobufModels(response.models);
-        setLiteLlmModels(models);
-      })
-      .catch((error: Error) => console.error("Failed to refresh LiteLLM models:", error));
-  }, []);
-
-  const refreshBasetenModels = useCallback(() => {
-    ModelsServiceClient.refreshBasetenModelsRpc(EmptyRequest.create({}))
-      .then((response) => {
-        setBasetenModels({
-          [basetenDefaultModelId]: basetenModels[basetenDefaultModelId],
-          ...fromProtobufModels(response.models),
-        });
-      })
-      .catch((err) => console.error("Failed to refresh Baseten models:", err));
-  }, []);
-
-  const refreshVercelAiGatewayModels = useCallback(() => {
-    ModelsServiceClient.refreshVercelAiGatewayModelsRpc(EmptyRequest.create({}))
-      .then((response: OpenRouterCompatibleModelInfo) => {
-        const models = fromProtobufModels(response.models);
-        setVercelAiGatewayModels(models);
-      })
-      .catch((error: Error) => console.error("Failed to refresh Vercel AI Gateway models:", error));
-  }, []);
-
-  // Auto-refresh model lists on API key availability
-  useEffect(() => {
-    if (!openRouterModels || Object.keys(openRouterModels).length <= 1) {
-      refreshOpenRouterModels();
-    }
-    if (!vercelAiGatewayModels || Object.keys(vercelAiGatewayModels).length === 0) {
-      refreshVercelAiGatewayModels();
-    }
-    if (state.apiConfiguration?.basetenApiKey) {
-      refreshBasetenModels();
-    }
-    if (state.apiConfiguration?.liteLlmApiKey) {
-      refreshLiteLlmModels();
-    }
-  }, [
-    refreshOpenRouterModels,
-    refreshVercelAiGatewayModels,
-    state?.apiConfiguration?.basetenApiKey,
-    refreshBasetenModels,
-    state?.apiConfiguration?.liteLlmApiKey,
-    refreshLiteLlmModels,
-  ]);
-
-  // Refresh Cline models function
-  const refreshClineModels = useCallback(() => {
-    ModelsServiceClient.refreshClineModelsRpc(EmptyRequest.create({}))
-      .then((response: OpenRouterCompatibleModelInfo) => {
-        const models = fromProtobufModels(response.models);
-        setClineModels((prev) => (Object.keys(models).length > 0 ? models : (prev ?? null)));
-      })
-      .catch((error: Error) => console.error("Failed to refresh Cline models:", error));
-  }, []);
-
-  // Auto-refresh Cline models when provider is cline
-  useEffect(() => {
-    const hasClineProvider =
-      state.apiConfiguration?.actModeApiProvider === "cline" ||
-      state.apiConfiguration?.planModeApiProvider === "cline";
-    if (hasClineProvider && clineModels === null) {
-      refreshClineModels();
-    }
-  }, [
-    state.apiConfiguration?.actModeApiProvider,
-    state.apiConfiguration?.planModeApiProvider,
-    clineModels,
-    refreshClineModels,
-  ]);
 
   const contextValue: ExtensionStateContextType = {
     ...state,
     didHydrateState,
     showWelcome,
-    onboardingModels: state.onboardingModels,
-    clineModels: (state as any).availableProviderModels?.cline || null,
-    openRouterModels: (state as any).availableProviderModels?.openRouter || { [openRouterDefaultModelId]: openRouterDefaultModelInfo },
-    vercelAiGatewayModels: (state as any).availableProviderModels?.vercelAiGateway || {},
-    hicapModels: (state as any).availableProviderModels?.hicap || {},
-    liteLlmModels: (state as any).availableProviderModels?.liteLlm || {},
-    openAiModels: (state as any).availableProviderModels?.openAi || [],
-    requestyModels: (state as any).availableProviderModels?.requesty || { [requestyDefaultModelId]: requestyDefaultModelInfo },
-    groqModels: (state as any).availableProviderModels?.groq || {},
-    basetenModels: (state as any).availableProviderModels?.baseten || {},
-    huggingFaceModels: (state as any).availableProviderModels?.huggingFace || {},
-    mcpServers: state.mcpServers || [],
     mcpMarketplaceCatalog,
     totalTasksSize,
     availableTerminalProfiles,
@@ -574,12 +435,6 @@ export const ExtensionStateContextProvider: React.FC<{
     hideAnnouncement,
     setShowAnnouncement,
     setShowWelcome,
-    setUserInfo: (userInfo?: UserInfo) => setState((prevState) => ({ ...prevState, userInfo })),
-    setMcpServers: (mcpServers: McpServer[]) => setState((prevState) => ({ ...prevState, mcpServers })),
-    setRequestyModels: (models: Record<string, ModelInfo>) => setState((prevState) => ({ ...prevState, availableProviderModels: { ...((prevState as any).availableProviderModels || {}), requesty: models } })),
-    setGroqModels: (models: Record<string, ModelInfo>) => setState((prevState) => ({ ...prevState, availableProviderModels: { ...((prevState as any).availableProviderModels || {}), groq: models } })),
-    setBasetenModels: (models: Record<string, ModelInfo>) => setState((prevState) => ({ ...prevState, availableProviderModels: { ...((prevState as any).availableProviderModels || {}), baseten: models } })),
-    setHuggingFaceModels: (models: Record<string, ModelInfo>) => setState((prevState) => ({ ...prevState, availableProviderModels: { ...((prevState as any).availableProviderModels || {}), huggingFace: models } })),
     setMcpMarketplaceCatalog,
     setShowMcp,
     setOnboardingModels: (onboardingModels) => setState((prevState) => ({ ...prevState, onboardingModels })),
@@ -641,13 +496,7 @@ export const ExtensionStateContextProvider: React.FC<{
       })),
     setMcpTab,
     setTotalTasksSize,
-    refreshClineModels,
-    refreshOpenRouterModels,
-    refreshVercelAiGatewayModels,
-    refreshHicapModels,
-    refreshLiteLlmModels,
     onRelinquishControl,
-    setUserInfo: (userInfo?: UserInfo) => setState((prevState) => ({ ...prevState, userInfo })),
     expandTaskHeader,
     setExpandTaskHeader,
   };

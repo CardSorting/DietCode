@@ -421,7 +421,7 @@ const ApiOptions = memo(({
       )}
     </div>
   );
-};
+});
 
 export default ApiOptions;
 
@@ -457,4 +457,3 @@ const ProviderDropdownItem = styled.div<{ isSelected: boolean }>`
 	}
 `;
 
-export default ApiOptions;

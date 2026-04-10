@@ -27,12 +27,11 @@ export const WhatsNewModal: React.FC<WhatsNewModalProps> = ({
   welcomeBanners,
   onBannerAction,
 }) => {
-  const { openRouterModels, refreshOpenRouterModels, navigateToSettingsModelPicker } =
+  const { openRouterModels, navigateToSettingsModelPicker } =
     useExtensionState();
   const { handleFieldsChange } = useApiConfigurationHandlers();
 
-  // Get latest model list in case user hits shortcut button to set model
-  useMount(refreshOpenRouterModels);
+
 
   const navigateToModelPicker = useCallback(
     (initialModelTab: "recommended" | "free", modelId?: string) => {

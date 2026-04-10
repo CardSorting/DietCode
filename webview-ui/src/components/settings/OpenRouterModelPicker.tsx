@@ -61,7 +61,7 @@ const OpenRouterModelPicker: React.FC<OpenRouterModelPickerProps> = ({
   showProviderRouting,
 }) => {
   const { handleModeFieldsChange, handleFieldChange } = useApiConfigurationHandlers();
-  const { apiConfiguration, favoritedModelIds, openRouterModels, refreshOpenRouterModels } =
+  const { apiConfiguration, favoritedModelIds, openRouterModels } =
     useExtensionState();
   const modeFields = getModeSpecificFields(apiConfiguration, currentMode);
   const [searchTerm, setSearchTerm] = useState(
@@ -99,9 +99,7 @@ const OpenRouterModelPicker: React.FC<OpenRouterModelPickerProps> = ({
     return selected;
   }, [apiConfiguration, currentMode]);
 
-  useMount(() => {
-    refreshOpenRouterModels();
-  });
+
 
   // Sync external changes when the modelId changes
   useEffect(() => {

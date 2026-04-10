@@ -58,7 +58,7 @@ export class StateAssembler {
         }
 
         return {
-            version: '2.6.0',
+            version: '2.6.1',
             isNewUser: orchestrated.isNewUser ?? false,
             welcomeViewCompleted: true, // PRODUCTION HARDENING: Skip onboarding globally
             onboardingModels: undefined,
