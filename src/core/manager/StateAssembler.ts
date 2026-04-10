@@ -11,6 +11,7 @@ import type { ExtensionState, Platform } from "../../shared/ExtensionMessage";
 import { DEFAULT_AUTO_APPROVAL_SETTINGS } from "../../shared/AutoApprovalSettings";
 import { DEFAULT_BROWSER_SETTINGS } from "../../shared/BrowserSettings";
 import { DEFAULT_FOCUS_CHAIN_SETTINGS } from "../../shared/FocusChainSettings";
+import { ApiHandlerSettingsKeys } from "../../shared/storage/state-keys";
 
 /**
  * [LAYER: CORE / MANAGER]
@@ -44,6 +45,18 @@ export class StateAssembler {
         const apiProvider = mode === 'plan' ? orchestrated.planModeApiProvider : orchestrated.actModeApiProvider;
         const apiModelId = mode === 'plan' ? orchestrated.planModeApiModelId : orchestrated.actModeApiModelId;
 
+        const apiConfiguration: any = {
+            apiProvider: apiProvider || orchestrated.lastUsedApiProvider,
+            apiModelId: apiModelId,
+        };
+
+        // Dynamically include all other Api Configuration properties
+        for (const key of ApiHandlerSettingsKeys) {
+            if (orchestrated[key] !== undefined) {
+                apiConfiguration[key] = orchestrated[key];
+            }
+        }
+
         return {
             version: '2.6.0',
             isNewUser: orchestrated.isNewUser ?? false,
@@ -53,24 +66,7 @@ export class StateAssembler {
             taskHistory: orchestrated.taskHistory || [],
             
             // Unified API Configuration
-            apiConfiguration: {
-                apiProvider: apiProvider || orchestrated.lastUsedApiProvider,
-                apiModelId: apiModelId,
-                apiKey: orchestrated.apiKey,
-                openRouterApiKey: orchestrated.openRouterApiKey,
-                awsAccessKey: orchestrated.awsAccessKey,
-                awsSecretKey: orchestrated.awsSecretKey,
-                awsSessionToken: orchestrated.awsSessionToken,
-                awsRegion: orchestrated.awsRegion,
-                openAiApiKey: orchestrated.openAiApiKey,
-                geminiApiKey: orchestrated.geminiApiKey,
-                ollamaBaseUrl: orchestrated.ollamaBaseUrl,
-                ollamaModelId: orchestrated.ollamaModelId,
-                planModeApiProvider: orchestrated.planModeApiProvider,
-                actModeApiProvider: orchestrated.actModeApiProvider,
-                planModeApiModelId: orchestrated.planModeApiModelId,
-                actModeApiModelId: orchestrated.actModeApiModelId,
-            },
+            apiConfiguration: apiConfiguration,
 
             autoApprovalSettings: orchestrated.autoApprovalSettings || DEFAULT_AUTO_APPROVAL_SETTINGS,
             browserSettings: orchestrated.browserSettings || DEFAULT_BROWSER_SETTINGS,

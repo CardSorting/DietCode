@@ -30,6 +30,7 @@ import { UpdateApiConfigurationRequest } from '../../shared/nice-grpc/cline/mode
 import { StateChangePhase } from '../../domain/state/StateChangeProtocol';
 import type { ApiConfiguration } from '../../shared/api';
 import type { GlobalState } from '../../domain/LLMProvider';
+import { ApiHandlerSettingsKeys } from '../../shared/storage/state-keys';
 
 /**
  * [LAYER: UI / PROVIDER]
@@ -528,34 +529,19 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
           // Apply changes to individual keys in StateOrchestrator to ensure reactive synchronization
           const orchestrator = StateOrchestrator.getInstance();
           
-          // Map of proto fields to state keys
-          const fieldToKeyMap: Record<string, string> = {
-            planModeApiProvider: 'planModeApiProvider',
-            actModeApiProvider: 'actModeApiProvider',
-            planModeApiModelId: 'planModeApiModelId',
-            actModeApiModelId: 'actModeApiModelId',
-            apiKey: 'apiKey',
-            openRouterApiKey: 'openRouterApiKey',
-            geminiApiKey: 'geminiApiKey',
-            // Add more as needed, but these are the critical ones for provider selection
-          };
-
-          const changes: StateChange<any>[] = Object.entries(fieldToKeyMap)
-            .map(([field, key]) => {
-              const val = (apiConfig as any)[field];
-              if (val !== undefined) {
+          // Dynamically map all incoming ApiConfiguration fields to StateKeys
+          const changes: StateChange<any>[] = Object.entries(apiConfig)
+            .filter(([field, val]) => val !== undefined && (ApiHandlerSettingsKeys as string[]).includes(field))
+            .map(([field, val]) => {
                 return {
-                  key,
+                  key: field,
                   newValue: val,
                   stateSet: {} as any,
                   validate: () => true,
                   sanitize: () => val,
                   getCorrelationId: () => `ui-proto-batch-${Date.now()}`
                 };
-              }
-              return null;
-            })
-            .filter((c): c is StateChange<any> => c !== null);
+            });
 
           if (changes.length > 0) {
             await orchestrator.applyChanges(changes, 0); // Immediate persist for gRPC bridge
