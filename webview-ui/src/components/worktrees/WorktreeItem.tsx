@@ -1,7 +1,7 @@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { GitBranch, FolderOpen, ExternalLink, GitMerge, Trash2 } from "lucide-react";
-import { Worktree as WorktreeProto } from "@shared/nice-grpc/cline/worktree";
+import type { Worktree as WorktreeProto } from "@shared/nice-grpc/cline/worktree";
 import { cn } from "@/lib/utils";
 
 interface WorktreeItemProps {

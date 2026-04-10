@@ -6,7 +6,7 @@ import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
 import { useCallback, useEffect, useState } from "react";
 import { useInterval } from "react-use";
 import type * as vscodemodels from "vscode";
-import { DROPDOWN_Z_INDEX, DropdownContainer } from "../ApiOptions";
+import { DROPDOWN_Z_INDEX, DropdownContainer } from "../common/ModelSelector";
 import { getModeSpecificFields } from "../utils/providerUtils";
 import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 

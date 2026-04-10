@@ -17,6 +17,7 @@ function PopoverContent({
   ...props
 }: React.ComponentProps<typeof PopoverPrimitive.Content>) {
   // Get side prop for conditional arrow positioning
+  // biome-ignore lint/suspicious/noExplicitAny: Optional prop checking
   const side = (props as any).side;
 
   return (

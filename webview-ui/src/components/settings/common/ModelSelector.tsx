@@ -45,7 +45,13 @@ OG Saoud Note:
 
 /**
  * A reusable component for selecting models from a dropdown
+
+
+/**
+ * Default z-index for dropdowns
  */
+export const DROPDOWN_Z_INDEX = 1000;
+
 export const ModelSelector = ({
   models,
   selectedModelId,

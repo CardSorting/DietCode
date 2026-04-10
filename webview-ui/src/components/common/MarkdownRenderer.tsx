@@ -15,7 +15,9 @@ export const MarkdownRenderer = memo(({ content, compact, light }: { content: st
             remarkPlugins={[remarkGfm]}
             components={{
                 pre: ({ children }) => {
+                    // biome-ignore lint/suspicious/noExplicitAny: Rehype AST processing
                     const code = (children as any)?.props?.children;
+                    // biome-ignore lint/suspicious/noExplicitAny: Rehype AST processing
                     const lang = (children as any)?.props?.className;
                     if (lang?.includes("language-mermaid")) return <MermaidBlock code={String(code || "")} />;
                     return <CodeBlock code={String(code || "")} lang={lang} />;

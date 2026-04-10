@@ -37,6 +37,7 @@ export async function convertHtmlToMarkdown(html: string): Promise<string> {
   // Process the HTML to Markdown
   const result = await unified()
     .use(rehypeParse as any, { fragment: true }) // Parse HTML fragments
+    // biome-ignore lint/suspicious/noExplicitAny: Rehype plugins require loose typing
     .use(rehypeRemark as any) // Convert HTML to Markdown AST
     .use(remarkStringify as any, {
       // Convert Markdown AST to text

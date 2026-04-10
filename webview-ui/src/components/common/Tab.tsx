@@ -13,6 +13,7 @@ export const Tab = ({ children, value, onValueChange, className }: TabProps) => 
     <div className={cn("flex flex-col h-full overflow-hidden", className)}>
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
+          // biome-ignore lint/suspicious/noExplicitAny: Expected to receive component props for VSCode tabs
           return React.cloneElement(child as any, { activeValue: value, onValueChange });
         }
         return child;
@@ -33,6 +34,7 @@ export const TabList = ({ children, activeValue, onValueChange, className }: Tab
     <div className={cn("flex items-center gap-1 p-1 bg-secondary/50 rounded-lg", className)}>
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
+          // biome-ignore lint/suspicious/noExplicitAny: Expected to receive component props for VSCode tabs
           return React.cloneElement(child as any, { activeValue, onValueChange });
         }
         return child;

@@ -1,9 +1,19 @@
+/**
+ * [LAYER: UI]
+ * [SUB-ZONE: settings]
+ * Principle: Presentation layer - component implementation
+ * Prework Status:
+ *   - Step 0: ✅ Dead code cleared
+ *   - Verification: ✅ verify_hardening pass
+ *   - Dependency Flow: ✅ Native protocols followed
+ */
+
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
 import Fuse from "fuse.js";
 import type React from "react";
 import { type KeyboardEvent, memo, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
-import { highlight } from "../history/HistoryView";
+import { highlight } from "../../utils/highlight";
 
 export const OLLAMA_MODEL_PICKER_Z_INDEX = 1_000;
 

@@ -47,6 +47,7 @@ export function isToolGroup(
   item: ClineMessage | ClineMessage[],
 ): item is ClineMessage[] & { _isToolGroup: true } {
   return Array.isArray(item) && (item as any)._isToolGroup === true;
+  // biome-ignore lint/suspicious/noExplicitAny: Custom utility type guard
 }
 
 /**

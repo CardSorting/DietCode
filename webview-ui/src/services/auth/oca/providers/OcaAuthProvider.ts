@@ -140,12 +140,15 @@ export class OcaAuthProvider {
       const userInfo: OcaUserInfo = await this.getUserAccountInfo(accessToken);
       return { user: userInfo, apiKey: accessToken };
     } catch (err: unknown) {
-      const isAxios = (axios as any)?.isAxiosError?.(err);
-      const status = isAxios ? (err as any).response?.status : undefined;
-      const data: any = isAxios ? (err as any).response?.data : undefined;
-      const code = data?.error || (isAxios ? (err as any).code : undefined);
-      const desc = data?.error_description || (isAxios ? (err as any).message : undefined);
-      const invalidGrant = (status === 400 && code === "invalid_grant") || status === 401;
+  // biome-ignore lint/suspicious/noExplicitAny: Axios error type checking
+  const isAxios = (axios as any)?.isAxiosError?.(err);
+  // biome-ignore lint/suspicious/noExplicitAny: Axios error type checking
+  const status = isAxios ? (err as any).response?.status : undefined;
+  // biome-ignore lint/suspicious/noExplicitAny: Axios error type checking
+  const data = isAxios ? (err as any).response?.data : undefined;
+  const code = data?.error || (isAxios ? (err as any).code : undefined);
+  const desc = data?.error_description || (isAxios ? (err as any).message : undefined);
+  const invalidGrant = (status === 400 && code === "invalid_grant") || status === 401;
 
       Logger.error("OCA refresh failed", { status, code, desc });
 

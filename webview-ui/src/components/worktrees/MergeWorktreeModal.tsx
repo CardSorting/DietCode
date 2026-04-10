@@ -1,6 +1,6 @@
 import { VSCodeButton, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { GitMerge, X, Check, AlertCircle, Loader2 } from "lucide-react";
-import { Worktree as WorktreeProto, MergeWorktreeResult } from "@shared/nice-grpc/cline/worktree";
+import type { Worktree as WorktreeProto, MergeWorktreeResult } from "@shared/nice-grpc/cline/worktree";
 
 interface MergeWorktreeModalProps {
   worktree: WorktreeProto;

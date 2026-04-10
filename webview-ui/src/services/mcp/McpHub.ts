@@ -552,6 +552,7 @@ export class McpHub {
           break;
         }
         default:
+          // biome-ignore lint/suspicious/noExplicitAny: Transport type validation
           throw new Error(`Unknown transport type: ${(config as any).type}`);
       }
 
@@ -630,6 +631,7 @@ export class McpHub {
         });
 
         // Set the notification handler
+        // biome-ignore lint/suspicious/noExplicitAny: MCP notification handler requires loose typing
         connection.client.setNotificationHandler(
           NotificationMessageSchema as any,
           async (notification: any) => {

@@ -5,7 +5,7 @@ import Fuse from "fuse.js";
 import type React from "react";
 import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
-import { highlight } from "../../history/HistoryView";
+import { highlight } from "@/utils/highlight";
 
 // Star icon for favorites
 export const StarIcon = ({

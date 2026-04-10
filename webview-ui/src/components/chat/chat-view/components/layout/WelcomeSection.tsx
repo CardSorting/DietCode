@@ -1,7 +1,8 @@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useExtensionState } from "@/context/ExtensionStateContext";
 import { GitBranch, SparklesIcon, ZapIcon, HistoryIcon, ArrowRightIcon } from "lucide-react";
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import type { WelcomeSectionProps } from "../../types/chatTypes";
 import { useWorktreeData } from "../../hooks/useWorktreeData";
 import { Button } from "@/components/ui/button";

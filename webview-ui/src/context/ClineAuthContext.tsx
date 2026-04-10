@@ -140,3 +140,11 @@ export const handleSignOut = async () => {
     throw error;
   }
 };
+
+export const checkAuthState = async () => {
+  return {
+    clineUser: user,
+    organizations: userOrganizations,
+    activeOrganization,
+  };
+};

@@ -185,5 +185,3 @@ const StateMessage = ({ icon, title, description, children }: { icon?: React.Rea
 );
 
 export default memo(WorktreesView);
-
-export default memo(WorktreesView);

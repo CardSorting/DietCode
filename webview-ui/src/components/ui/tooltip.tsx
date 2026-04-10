@@ -35,6 +35,7 @@ function TooltipContent({
   children,
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Content> & { showArrow?: boolean }) {
+  // biome-ignore lint/suspicious/noExplicitAny: Optional prop checking
   const side = (props as any).side;
 
   return (

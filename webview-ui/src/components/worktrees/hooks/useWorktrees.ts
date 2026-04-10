@@ -3,8 +3,8 @@ import { WorktreeServiceClient, FileServiceClient, TaskServiceClient } from "@/s
 import { EmptyRequest } from "@shared/nice-grpc/cline/common.ts";
 import { NewTaskRequest } from "@shared/nice-grpc/cline/task.ts";
 import { 
-  Worktree as WorktreeProto, 
-  MergeWorktreeResult,
+  type Worktree as WorktreeProto, 
+  type MergeWorktreeResult,
   MergeWorktreeRequest,
   DeleteWorktreeRequest,
   SwitchWorktreeRequest,

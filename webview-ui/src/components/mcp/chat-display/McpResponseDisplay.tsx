@@ -1,7 +1,7 @@
 import ChatErrorBoundary from "@/components/chat/ChatErrorBoundary";
 import { CODE_BLOCK_BG_COLOR } from "@/components/common/CodeBlock";
 import MarkdownBlock from "@/components/common/MarkdownBlock";
-import { DropdownContainer } from "@/components/settings/ApiOptions";
+import { DropdownContainer } from "@/components/settings/common/ModelSelector";
 import { updateSetting } from "@/components/settings/utils/settingsHandlers";
 import type { McpDisplayMode } from "@shared/McpDisplayMode.ts";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";

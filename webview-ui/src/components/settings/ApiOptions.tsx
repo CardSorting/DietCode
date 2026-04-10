@@ -23,9 +23,10 @@ import ClineModelPicker from "./ClineModelPicker";
 import {
   filterOpenRouterModelIds,
 } from "./utils/providerUtils";
-import { type ApiProvider } from "@shared/api.ts";
+import type { ApiProvider } from "@shared/api.ts";
 import { useApiConfigurationHandlers } from "./utils/useApiConfigurationHandlers";
 import FuzzyModelPicker from "./common/FuzzyModelPicker";
+import { DropdownContainer, DROPDOWN_Z_INDEX } from "./common/ModelSelector";
 import { cn } from "@/lib/utils";
 
 interface ApiOptionsProps {
@@ -170,7 +171,7 @@ const ApiOptions = memo(({
       },
       {
         openRouterModelId: newModelId,
-        openRouterModelInfo: (openRouterModels as any)?.[newModelId],
+        openRouterModelInfo: (openRouterModels as unknown)[newModelId],
       },
       currentMode,
     );
@@ -234,8 +235,8 @@ const ApiOptions = memo(({
               apiKey={apiConfiguration.apiKey || ""}
               baseUrl={apiConfiguration.openAiBaseUrl}
               baseUrlPlaceholder="Default: https://api.openai.com/v1"
-              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeApiKey", act: "actModeApiKey" } as any, v as any, currentMode)}
-              onBaseUrlChange={(v) => handleModeFieldChange({ plan: "planModeOpenAiBaseUrl", act: "actModeOpenAiBaseUrl" }, v as any, currentMode)}
+              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeApiKey", act: "actModeApiKey" } as unknown as {}, v as unknown as string, currentMode)}
+              onBaseUrlChange={(v) => handleModeFieldChange({ plan: "planModeOpenAiBaseUrl", act: "actModeOpenAiBaseUrl" }, v as unknown as string, currentMode)}
               providerName="Cline"
             >
               <ClineModelPicker currentMode={currentMode} initialTab={initialModelTab} isPopup={isPopup} />
@@ -249,7 +250,7 @@ const ApiOptions = memo(({
               baseUrl={apiConfiguration.anthropicBaseUrl}
               baseUrlPlaceholder="Default: https://api.anthropic.com"
               models={anthropicModels}
-              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeApiKey", act: "actModeApiKey" } as any, v as any, currentMode)}
+              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeApiKey", act: "actModeApiKey" } as any, /* biome-ignore lint/suspicious/noExplicitAny: Type assertion for API key change handler */ v as any, currentMode)}
               onBaseUrlChange={(v) => handleModeFieldChange({ plan: "planModeAnthropicBaseUrl", act: "actModeAnthropicBaseUrl" }, v as any, currentMode)}
               providerName="Anthropic"
               remoteBaseUrl={remoteConfigSettings?.anthropicBaseUrl}

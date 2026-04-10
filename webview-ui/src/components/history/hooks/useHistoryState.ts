@@ -9,7 +9,7 @@ import {
     EmptyRequest, 
     StringArrayRequest 
 } from "@shared/nice-grpc/cline/common.ts";
-import { HistoryItem } from "@shared/HistoryItem";
+import type { HistoryItem } from "@shared/HistoryItem";
 
 export type SortOption = "newest" | "oldest" | "mostExpensive" | "mostTokens" | "mostRelevant";
 
@@ -77,7 +77,7 @@ export const useHistoryState = (taskHistory: HistoryItem[]) => {
 
     // Computed search results
     const filteredTasks = useMemo(() => {
-        let results = searchQuery
+        const results = searchQuery
             ? fuse.search(searchQuery).map(({ item }) => item)
             : [...tasks];
 

@@ -7,7 +7,7 @@ import { memo, useMemo, useState } from "react";
 import type { HistoryItem } from "@shared/HistoryItem.ts";
 import { GroupedVirtuoso } from "react-virtuoso";
 import ViewHeader from "@/components/common/ViewHeader";
-import { useHistoryState, SortOption } from "./hooks/useHistoryState";
+import { useHistoryState, type SortOption } from "./hooks/useHistoryState";
 import { VSCodeTextField, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { FunnelIcon, StarIcon, Trash2Icon, ChevronsUpDownIcon, ChevronsDownUpIcon, FolderIcon } from "lucide-react";
@@ -29,7 +29,7 @@ const HistoryView = ({ onDone }: { onDone: () => void }) => {
       
       <div className="px-3 space-y-3">
         <div className="flex items-center gap-2">
-            <VSCodeTextField className="flex-1" onInput={e => h.setSearchQuery((e.target as any).value)} placeholder="Search tasks..." value={h.searchQuery}>
+            <VSCodeTextField className="flex-1" onInput={e => h.setSearchQuery((e.target as unknown as HTMLInputElement).value)} placeholder="Search tasks..." value={h.searchQuery}>
                 <div className="codicon codicon-search opacity-60 mt-0.5" slot="start" />
             </VSCodeTextField>
             <Select onValueChange={v => {
@@ -94,7 +94,7 @@ const HistoryItemRow = ({ item, isSelected, onSelect, onToggleFavorite, onDelete
     const [expanded, setExpanded] = useState(false);
     return (
         <div className="group flex border-b border-accent/5 hover:bg-white/5 transition-colors">
-            <VSCodeCheckbox checked={isSelected} className="p-2 self-start mt-1.5" onClick={e => { e.preventDefault(); onSelect(!(e.target as any).checked); }} />
+            <VSCodeCheckbox checked={isSelected} className="p-2 self-start mt-1.5" onClick={e => { e.preventDefault(); onSelect(!(e.target as unknown as HTMLInputElement).checked); }} />
             <div className="flex-1 py-3 pr-4 space-y-1.5 min-w-0 cursor-pointer" onClick={() => TaskServiceClient.showTaskWithId(StringRequest.create({ value: item.id }))} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { TaskServiceClient.showTaskWithId(StringRequest.create({ value: item.id })); } }} tabIndex={0} role="button">
                 <div className="flex items-center justify-between gap-2">
                     <span className="line-clamp-1 text-sm font-medium flex-1 truncate">{item.task}</span>
