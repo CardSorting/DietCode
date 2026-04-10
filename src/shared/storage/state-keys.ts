@@ -11,9 +11,7 @@ import type { UserInfo } from "../UserInfo";
 import {
   type ApiProvider,
   DEFAULT_API_PROVIDER,
-  type LiteLLMModelInfo,
   type ModelInfo,
-  type OcaModelInfo,
   type OpenAiCompatibleModelInfo,
 } from "../api";
 import type { ClineRulesToggles } from "../cline-rules";
