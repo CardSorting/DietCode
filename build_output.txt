@@ -1,0 +1,30 @@
+$ cd webview-ui && bun run build
+$ vite build
+Building webview for vscode
+vite v7.3.2 building client environment for production...
+transforming...
+✓ 6689 modules transformed.
+✗ Build failed in 4.37s
+error during build:
+src/components/settings/ApiOptions.tsx (14:9): "OPENROUTER_MODEL_PICKER_Z_INDEX" is not exported by "src/components/settings/OpenRouterModelPicker.tsx", imported by "src/components/settings/ApiOptions.tsx".
+file: /Users/bozoegg/Downloads/DietCode/webview-ui/src/components/settings/ApiOptions.tsx:14:9
+
+12: import { useInterval } from "react-use";
+13: import styled from "styled-components";
+14: import { OPENROUTER_MODEL_PICKER_Z_INDEX } from "./OpenRouterModelPicker";
+             ^
+15: import ReasoningEffortSelector from "./ReasoningEffortSelector";
+16: import ThinkingBudgetSlider from "./ThinkingBudgetSlider";
+
+    at getRollupError (/Users/bozoegg/Downloads/DietCode/webview-ui/node_modules/rollup/dist/es/shared/parseAst.js:406:45)
+    at error (/Users/bozoegg/Downloads/DietCode/webview-ui/node_modules/rollup/dist/es/shared/parseAst.js:402:42)
+    at findVariable (/Users/bozoegg/Downloads/DietCode/webview-ui/node_modules/rollup/dist/es/shared/node-entry.js:15403:39)
+    at bind (/Users/bozoegg/Downloads/DietCode/webview-ui/node_modules/rollup/dist/es/shared/node-entry.js:5450:40)
+    at bind (/Users/bozoegg/Downloads/DietCode/webview-ui/node_modules/rollup/dist/es/shared/node-entry.js:2832:23)
+    at bind (/Users/bozoegg/Downloads/DietCode/webview-ui/node_modules/rollup/dist/es/shared/node-entry.js:2832:23)
+    at bind (/Users/bozoegg/Downloads/DietCode/webview-ui/node_modules/rollup/dist/es/shared/node-entry.js:2828:28)
+    at bind (/Users/bozoegg/Downloads/DietCode/webview-ui/node_modules/rollup/dist/es/shared/node-entry.js:13035:27)
+    at bind (/Users/bozoegg/Downloads/DietCode/webview-ui/node_modules/rollup/dist/es/shared/node-entry.js:2828:28)
+    at bindReferences (/Users/bozoegg/Downloads/DietCode/webview-ui/node_modules/rollup/dist/es/shared/node-entry.js:17359:18)
+error: script "build" exited with code 1
+error: script "build:webview" exited with code 1

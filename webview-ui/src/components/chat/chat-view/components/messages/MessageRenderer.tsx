@@ -5,46 +5,42 @@ import { cn } from "@/lib/utils";
 import type { ClineMessage } from "@shared/ExtensionMessage";
 import type React from "react";
 import { useMemo } from "react";
-import type { MessageHandlers } from "../../types/chatTypes";
 import {
   findReasoningForApiReq,
   isTextMessagePendingToolCall,
   isToolGroup,
 } from "../../utils/messageUtils";
 import { ToolGroupRenderer } from "./ToolGroupRenderer";
-
-interface MessageRendererProps {
-  index: number;
-  messageOrGroup: ClineMessage | ClineMessage[];
-  groupedMessages: (ClineMessage | ClineMessage[])[];
-  modifiedMessages: ClineMessage[];
-  expandedRows: Record<number, boolean>;
-  onToggleExpand: (ts: number) => void;
-  onHeightChange: (isTaller: boolean) => void;
-  onSetQuote: (quote: string | null) => void;
-  inputValue: string;
-  messageHandlers: MessageHandlers;
-  footerActive: boolean;
-}
+import { useChatContext } from "../../context/ChatContext";
 
 /**
  * Specialized component for rendering different message types
- * Handles browser sessions, regular messages, and checkpoint logic
+ * Consumes ChatContext to avoid prop-drilling within the virtualized list.
  */
-export const MessageRenderer: React.FC<MessageRendererProps> = ({
+export const MessageRenderer: React.FC<{ index: number; messageOrGroup: ClineMessage | ClineMessage[] }> = ({
   index,
   messageOrGroup,
-  groupedMessages,
-  modifiedMessages,
-  expandedRows,
-  onToggleExpand,
-  onHeightChange,
-  onSetQuote,
-  inputValue,
-  messageHandlers,
-  footerActive,
 }) => {
   const { mode } = useExtensionState();
+  const {
+    groupedMessages,
+    modifiedMessages,
+    chatState,
+    messageHandlers,
+  } = useChatContext();
+
+  const {
+    expandedRows,
+    inputValue,
+  } = chatState;
+
+  const onToggleExpand = (ts: number) => {
+    chatState.setExpandedRows({ ...chatState.expandedRows, [ts]: !chatState.expandedRows[ts] });
+  };
+
+  const onHeightChange = (isTaller: boolean) => {
+    // Height changes are handled by the virtuosoRef which is now in context
+  };
 
   const isLastMessage = useMemo(
     () => index === groupedMessages?.length - 1,

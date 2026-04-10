@@ -29,223 +29,30 @@ import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { WelcomeSectionProps } from "../../types/chatTypes";
 
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { GitBranch } from "lucide-react";
+import type React from "react";
+import { useState } from "react";
+import type { WelcomeSectionProps } from "../../types/chatTypes";
+import { useBannerData } from "../../hooks/useBannerData";
+import { useWorktreeData } from "../../hooks/useWorktreeData";
+
 /**
  * Welcome section shown when there's no active task
- * Includes info banner, announcements, home header, and history preview
+ * Integrated with extracted hooks to maintain a thin component profile.
  */
 export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
   showHistoryView,
-  version,
   taskHistory,
   shouldShowQuickWins,
 }) => {
-  const {
-    lastDismissedInfoBannerVersion,
-    lastDismissedCliBannerVersion,
-    lastDismissedModelBannerVersion,
-    dismissedBanners,
-  } = useExtensionState();
-
-  // Quick launch worktree modal
+  const { worktreesEnabled } = useExtensionState();
   const [showCreateWorktreeModal, setShowCreateWorktreeModal] = useState(false);
-  const [isGitRepo, setIsGitRepo] = useState<boolean | null>(null);
-  const [currentWorktree, setCurrentWorktree] = useState<Worktree | null>(null);
 
-  // Check if we're in a git repo and get current worktree info on mount
-  useEffect(() => {
-    WorktreeServiceClient.listWorktrees(EmptyRequest.create({}))
-      .then((result) => {
-        const canUseWorktrees = result.isGitRepo && !result.isMultiRoot && !result.isSubfolder;
-        setIsGitRepo(canUseWorktrees);
-        if (canUseWorktrees) {
-          const current = result.worktrees.find((w) => w.isCurrent);
-          setCurrentWorktree(current || null);
-        }
-      })
-      .catch(() => setIsGitRepo(false));
-  }, []);
-
-  const { clineUser } = useClineAuth();
-  const {
-    openRouterModels,
-    navigateToSettings,
-    navigateToSettingsModelPicker,
-    navigateToWorktrees,
-    worktreesEnabled,
-    banners,
-  } = useExtensionState();
-  const { handleFieldsChange } = useApiConfigurationHandlers();
-
-  // Handle click on home page worktree element with telemetry
-  const handleWorktreeClick = useCallback(() => {
-    WorktreeServiceClient.trackWorktreeViewOpened(
-      TrackWorktreeViewOpenedRequest.create({ source: "home_page" }),
-    ).catch(console.error);
-    navigateToWorktrees();
-  }, [navigateToWorktrees]);
-
-  /**
-   * Check if a banner has been dismissed based on its ID or legacy version
-   */
-  const isBannerDismissed = useCallback(
-    (bannerId: string): boolean => {
-      // Check if banner is in the dismissed banners list (new approach)
-      if (
-        dismissedBanners?.some(
-          (dismissed: { bannerId: string; dismissedAt: number }) => dismissed.bannerId === bannerId,
-        )
-      ) {
-        return true;
-      }
-
-      // Legacy version-based tracking (deprecated)
-      if (bannerId.startsWith("info-banner")) {
-        return (lastDismissedInfoBannerVersion ?? 0) >= 1;
-      }
-      if (bannerId.startsWith("new-model")) {
-        return (lastDismissedModelBannerVersion ?? 0) >= 1;
-      }
-      if (bannerId.startsWith("cli-")) {
-        return (lastDismissedCliBannerVersion ?? 0) >= 1;
-      }
-      return false;
-    },
-    [
-      dismissedBanners,
-      lastDismissedInfoBannerVersion,
-      lastDismissedModelBannerVersion,
-      lastDismissedCliBannerVersion,
-    ],
-  );
-
-  /**
-   * Banner configuration from backend
-   * In production, this would come from an API/gRPC call
-   * For now, using EXAMPLE_BANNER_DATA with version-based filtering
-   */
-  const bannerConfig = useMemo((): BannerCardData[] => {
-    // Filter banners based on version tracking and user status
-    return BANNER_DATA.filter((banner) => {
-      if (isBannerDismissed(banner.id)) {
-        return false;
-      }
-
-      if (banner.isClineUserOnly !== undefined) {
-        return banner.isClineUserOnly === !!clineUser;
-      }
-
-      if (banner.platforms && !banner.platforms.includes(getCurrentPlatform())) {
-        return false;
-      }
-
-      return true;
-    });
-  }, [isBannerDismissed, clineUser]);
-
-  /**
-   * Action handler - maps action types to actual implementations
-   */
-  const handleBannerAction = useCallback(
-    (action: BannerAction) => {
-      switch (action.action) {
-        case BannerActionType.Link:
-          if (action.arg) {
-            UiServiceClient.openUrl({ value: action.arg }).catch(console.error);
-          }
-          break;
-
-        case BannerActionType.SetModel: {
-          const modelId = action.arg || "anthropic/claude-sonnet-4.5";
-          const initialModelTab = action.tab || "recommended";
-          handleFieldsChange({
-            planModeOpenRouterModelId: modelId,
-            actModeOpenRouterModelId: modelId,
-            planModeOpenRouterModelInfo: openRouterModels[modelId],
-            actModeOpenRouterModelInfo: openRouterModels[modelId],
-            planModeApiProvider: "cline",
-            actModeApiProvider: "cline",
-          });
-          navigateToSettingsModelPicker({ targetSection: "api-config", initialModelTab });
-          break;
-        }
-
-        case BannerActionType.ShowAccount:
-          AccountServiceClient.accountLoginClicked({}).catch((err) =>
-            console.error("Failed to get login URL:", err),
-          );
-          break;
-
-        case BannerActionType.ShowApiSettings:
-          if (action.arg) {
-            // Pre-select the provider before navigating
-            handleFieldsChange({
-              planModeApiProvider: action.arg as any,
-              actModeApiProvider: action.arg as any,
-            });
-          }
-          navigateToSettings("api-config");
-          break;
-
-        case BannerActionType.ShowFeatureSettings:
-          navigateToSettings("features");
-          break;
-
-        case BannerActionType.InstallCli:
-          StateServiceClient.installClineCli({}).catch((error) =>
-            console.error("Failed to initiate CLI installation:", error),
-          );
-          break;
-
-        default:
-          console.warn("Unknown banner action:", action.action);
-      }
-    },
-    [handleFieldsChange, openRouterModels, navigateToSettings, navigateToSettingsModelPicker],
-  );
-
-  /**
-   * Dismissal handler - updates version tracking
-   */
-  const handleBannerDismiss = useCallback((bannerId: string) => {
-    // !! Do not continue use these version numbers or add new banners that don't have unique IDs. !!
-    // Banner versions are **deprecated**. Going forward, we are tracking which banners have
-    // been dismissed using the **banner ID**.
-    if (bannerId.startsWith("info-banner")) {
-      StateServiceClient.updateInfoBannerVersion({ value: 1 }).catch(console.error);
-    } else if (bannerId.startsWith("new-model")) {
-      StateServiceClient.updateModelBannerVersion({ value: 1 }).catch(console.error);
-    } else if (bannerId.startsWith("cli-")) {
-      StateServiceClient.updateCliBannerVersion({ value: 1 }).catch(console.error);
-    } else {
-      // Mark the banner as dismissed by its ID.
-      StateServiceClient.dismissBanner({ value: bannerId }).catch(console.error);
-    }
-  }, []);
-
-  /**
-   * Build array of active banners for carousel
-   * Combines hardcoded banners (bannerConfig) with dynamic banners from extension state
-   */
-  const activeBanners = useMemo(() => {
-    // Start with the hardcoded banners (bannerConfig)
-    const hardcodedBanners = bannerConfig.map((banner) =>
-      convertBannerData(banner, {
-        onAction: handleBannerAction,
-        onDismiss: handleBannerDismiss,
-      }),
-    );
-
-    // Add banners from extension state (if any)
-    const extensionStateBanners = (banners ?? []).map((banner) =>
-      convertBannerData(banner, {
-        onAction: handleBannerAction,
-        onDismiss: handleBannerDismiss,
-      }),
-    );
-
-    // Combine both sources: extension state banners first, then hardcoded banners
-    return [...extensionStateBanners, ...hardcodedBanners];
-  }, [bannerConfig, banners, clineUser, handleBannerAction, handleBannerDismiss]);
+  // Extracted hooks for heavy logic
+  // Note: activeBanners is calculated but currently hidden as per request
+  const { activeBanners } = useBannerData();
+  const { isGitRepo, currentWorktree, handleWorktreeClick } = useWorktreeData();
 
   return (
     <div className="flex flex-col flex-1 w-full h-full p-0 m-0">

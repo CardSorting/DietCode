@@ -1,40 +1,21 @@
 import TaskHeader from "@/components/chat/task-header/TaskHeader";
-import type { ClineMessage } from "@shared/ExtensionMessage.ts";
 import type React from "react";
-import type { MessageHandlers } from "../../types/chatTypes";
-
-interface TaskSectionProps {
-  task: ClineMessage;
-  apiMetrics: {
-    totalTokensIn: number;
-    totalTokensOut: number;
-    totalCacheWrites?: number;
-    totalCacheReads?: number;
-    totalCost: number;
-  };
-  lastApiReqTotalTokens?: number;
-  selectedModelInfo: {
-    supportsPromptCache: boolean;
-    supportsImages: boolean;
-  };
-  messageHandlers: MessageHandlers;
-  lastProgressMessageText?: string;
-  showFocusChainPlaceholder?: boolean;
-}
+import { useChatContext } from "../../context/ChatContext";
 
 /**
  * Task section shown when there's an active task
- * Includes the task header and manages task-specific UI
+ * Consumes ChatContext to integrate with TaskHeader without prop-drilling.
  */
-export const TaskSection: React.FC<TaskSectionProps> = ({
-  task,
-  apiMetrics,
-  lastApiReqTotalTokens,
-  selectedModelInfo,
-  messageHandlers,
-  lastProgressMessageText,
-  showFocusChainPlaceholder,
-}) => {
+export const TaskSection: React.FC = () => {
+  const {
+    task,
+    apiMetrics,
+    lastApiReqTotalTokens,
+    selectedModelInfo,
+    messageHandlers,
+    lastProgressMessageText,
+    showFocusChainPlaceholder,
+  } = useChatContext();
   return (
     <TaskHeader
       cacheReads={apiMetrics.totalCacheReads}

@@ -1,37 +1,22 @@
-import type { ClineMessage } from "@shared/ExtensionMessage";
-import type { Mode } from "@shared/storage/types";
+import { useExtensionState } from "@/context/ExtensionStateContext";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { VirtuosoHandle } from "react-virtuoso";
 import { type ButtonActionType, getButtonConfig } from "../../shared/buttonConfig";
-import type { ChatState, MessageHandlers } from "../../types/chatTypes";
-
-interface ActionButtonsProps {
-  task?: ClineMessage;
-  messages: ClineMessage[];
-  chatState: ChatState;
-  messageHandlers: MessageHandlers;
-  mode: Mode;
-  scrollBehavior: {
-    scrollToBottomSmooth: () => void;
-    disableAutoScrollRef: React.MutableRefObject<boolean>;
-    showScrollToBottom: boolean;
-    virtuosoRef: React.RefObject<VirtuosoHandle>;
-  };
-}
+import { useChatContext } from "../../context/ChatContext";
 
 /**
  * Action buttons area including scroll-to-bottom and approve/reject buttons
+ * Integrated with ChatContext for minimal prop footprint.
  */
-export const ActionButtons: React.FC<ActionButtonsProps> = ({
-  task,
-  messages,
-  chatState,
-  mode,
-  messageHandlers,
-  scrollBehavior,
-}) => {
+export const ActionButtons: React.FC = () => {
+  const { mode, clineMessages: messages } = useExtensionState();
+  const {
+    task,
+    scrollBehavior,
+    chatState,
+    messageHandlers,
+  } = useChatContext();
   const { inputValue, selectedImages, selectedFiles, setSendingDisabled } = chatState;
   const [isProcessing, setIsProcessing] = useState(false);
 

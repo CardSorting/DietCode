@@ -11,6 +11,7 @@ import { BooleanRequest, StringRequest } from "@shared/nice-grpc/cline/common.ts
 import { useCallback, useEffect, useMemo } from "react";
 import { useMount } from "react-use";
 import { Navbar } from "../menu/Navbar";
+import { ChatProvider } from "./chat-view/context/ChatContext";
 import AutoApproveBar from "./auto-approve-menu/AutoApproveBar";
 // Import utilities and hooks from the new structure
 import {
@@ -28,6 +29,7 @@ import {
   useChatState,
   useMessageHandlers,
   useScrollBehavior,
+  useCopyPasteHandler,
 } from "./chat-view";
 
 interface ChatViewProps {
@@ -88,96 +90,8 @@ const ChatView = ({ isHidden, showHistoryView }: ChatViewProps) => {
     textAreaRef,
   } = chatState;
 
-  useEffect(() => {
-    const handleCopy = async (e: ClipboardEvent) => {
-      const targetElement = e.target as HTMLElement | null;
-      // If the copy event originated from an input or textarea,
-      // let the default browser behavior handle it.
-      if (
-        targetElement &&
-        (targetElement.tagName === "INPUT" ||
-          targetElement.tagName === "TEXTAREA" ||
-          targetElement.isContentEditable)
-      ) {
-        return;
-      }
-
-      if (window.getSelection) {
-        const selection = window.getSelection();
-        if (selection && selection.rangeCount > 0) {
-          const range = selection.getRangeAt(0);
-          const commonAncestor = range.commonAncestorContainer;
-          let textToCopy: string | null = null;
-
-          // Check if the selection is inside an element where plain text copy is preferred
-          let currentElement =
-            commonAncestor.nodeType === Node.ELEMENT_NODE
-              ? (commonAncestor as HTMLElement)
-              : commonAncestor.parentElement;
-          let preferPlainTextCopy = false;
-          while (currentElement) {
-            if (currentElement.tagName === "PRE" && currentElement.querySelector("code")) {
-              preferPlainTextCopy = true;
-              break;
-            }
-            // Check computed white-space style
-            const computedStyle = window.getComputedStyle(currentElement);
-            if (
-              computedStyle.whiteSpace === "pre" ||
-              computedStyle.whiteSpace === "pre-wrap" ||
-              computedStyle.whiteSpace === "pre-line"
-            ) {
-              // If the element itself or an ancestor has pre-like white-space,
-              // and the selection is likely contained within it, prefer plain text.
-              // This helps with elements like the TaskHeader's text display.
-              preferPlainTextCopy = true;
-              break;
-            }
-
-            // Stop searching if we reach a known chat message boundary or body
-            if (
-              currentElement.classList.contains("chat-row-assistant-message-container") ||
-              currentElement.classList.contains("chat-row-user-message-container") ||
-              currentElement.tagName === "BODY"
-            ) {
-              break;
-            }
-            currentElement = currentElement.parentElement;
-          }
-
-          if (preferPlainTextCopy) {
-            // For code blocks or elements with pre-formatted white-space, get plain text.
-            textToCopy = selection.toString();
-          } else {
-            // For other content, use the existing HTML-to-Markdown conversion
-            const clonedSelection = range.cloneContents();
-            const div = document.createElement("div");
-            div.appendChild(clonedSelection);
-            const selectedHtml = div.innerHTML;
-            textToCopy = await convertHtmlToMarkdown(selectedHtml);
-          }
-
-          if (textToCopy !== null) {
-            try {
-              FileServiceClient.copyToClipboard(StringRequest.create({ value: textToCopy })).catch(
-                (err) => {
-                  console.error("Error copying to clipboard:", err);
-                },
-              );
-              e.preventDefault();
-            } catch (error) {
-              console.error("Error copying to clipboard:", error);
-            }
-          }
-        }
-      }
-    };
-    document.addEventListener("copy", handleCopy);
-
-    return () => {
-      document.removeEventListener("copy", handleCopy);
-    };
-  }, []);
+  // Use custom hooks for copy handling
+  useCopyPasteHandler();
   // Button state is now managed by useButtonState hook
 
   // handleFocusChange is already provided by chatState
@@ -349,67 +263,57 @@ const ChatView = ({ isHidden, showHistoryView }: ChatViewProps) => {
     return text;
   }, [task]);
 
+
+  const chatContextValue = useMemo(
+    () => ({
+      task,
+      groupedMessages,
+      modifiedMessages,
+      scrollBehavior,
+      chatState,
+      messageHandlers,
+      apiMetrics,
+      lastApiReqTotalTokens,
+      selectedModelInfo: {
+        supportsPromptCache: selectedModelInfo.supportsPromptCache,
+        supportsImages: selectedModelInfo.supportsImages || false,
+      },
+      lastProgressMessageText,
+      showFocusChainPlaceholder,
+    }),
+    [
+      task,
+      groupedMessages,
+      modifiedMessages,
+      scrollBehavior,
+      chatState,
+      messageHandlers,
+      apiMetrics,
+      lastApiReqTotalTokens,
+      selectedModelInfo,
+      lastProgressMessageText,
+      showFocusChainPlaceholder,
+    ],
+  );
+
   return (
     <ChatLayout isHidden={isHidden}>
-      <div className="flex flex-col flex-1 overflow-hidden">
-        {showNavbar && <Navbar />}
-        {task ? (
-          <TaskSection
-            apiMetrics={apiMetrics}
-            lastApiReqTotalTokens={lastApiReqTotalTokens}
-            lastProgressMessageText={lastProgressMessageText}
-            messageHandlers={messageHandlers}
-            selectedModelInfo={{
-              supportsPromptCache: selectedModelInfo.supportsPromptCache,
-              supportsImages: selectedModelInfo.supportsImages || false,
-            }}
-            showFocusChainPlaceholder={showFocusChainPlaceholder}
-            task={task}
+      <ChatProvider value={chatContextValue}>
+        <div className="flex flex-col flex-1 overflow-hidden">
+          {showNavbar && <Navbar />}
+          {task ? <TaskSection /> : <WelcomeSection showHistoryView={showHistoryView} />}
+          {task && <MessagesArea />}
+        </div>
+        <footer className="bg-(--vscode-sidebar-background)" style={{ gridRow: "2" }}>
+          <AutoApproveBar />
+          <ActionButtons />
+          <InputSection
+            placeholderText={placeholderText}
+            selectFilesAndImages={selectFilesAndImages}
+            shouldDisableFilesAndImages={shouldDisableFilesAndImages}
           />
-        ) : (
-          <WelcomeSection
-            shouldShowQuickWins={shouldShowQuickWins}
-            showHistoryView={showHistoryView}
-            taskHistory={taskHistory}
-            telemetrySetting={telemetrySetting}
-            version={version}
-          />
-        )}
-        {task && (
-          <MessagesArea
-            chatState={chatState}
-            groupedMessages={groupedMessages}
-            messageHandlers={messageHandlers}
-            modifiedMessages={modifiedMessages}
-            scrollBehavior={scrollBehavior}
-            task={task}
-          />
-        )}
-      </div>
-      <footer className="bg-(--vscode-sidebar-background)" style={{ gridRow: "2" }}>
-        <AutoApproveBar />
-        <ActionButtons
-          chatState={chatState}
-          messageHandlers={messageHandlers}
-          messages={messages}
-          mode={mode}
-          scrollBehavior={{
-            scrollToBottomSmooth: scrollBehavior.scrollToBottomSmooth,
-            disableAutoScrollRef: scrollBehavior.disableAutoScrollRef,
-            showScrollToBottom: scrollBehavior.showScrollToBottom,
-            virtuosoRef: scrollBehavior.virtuosoRef,
-          }}
-          task={task}
-        />
-        <InputSection
-          chatState={chatState}
-          messageHandlers={messageHandlers}
-          placeholderText={placeholderText}
-          scrollBehavior={scrollBehavior}
-          selectFilesAndImages={selectFilesAndImages}
-          shouldDisableFilesAndImages={shouldDisableFilesAndImages}
-        />
-      </footer>
+        </footer>
+      </ChatProvider>
     </ChatLayout>
   );
 };

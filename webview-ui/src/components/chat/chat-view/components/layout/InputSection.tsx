@@ -1,12 +1,9 @@
 import ChatTextArea from "@/components/chat/ChatTextArea";
 import QuotedMessagePreview from "@/components/chat/QuotedMessagePreview";
 import type React from "react";
-import type { ChatState, MessageHandlers, ScrollBehavior } from "../../types/chatTypes";
+import { useChatContext } from "../../context/ChatContext";
 
 interface InputSectionProps {
-  chatState: ChatState;
-  messageHandlers: MessageHandlers;
-  scrollBehavior: ScrollBehavior;
   placeholderText: string;
   shouldDisableFilesAndImages: boolean;
   selectFilesAndImages: () => Promise<void>;
@@ -14,15 +11,14 @@ interface InputSectionProps {
 
 /**
  * Input section including quoted message preview and chat text area
+ * Consumes ChatContext to reduce prop-drilling complexity.
  */
 export const InputSection: React.FC<InputSectionProps> = ({
-  chatState,
-  messageHandlers,
-  scrollBehavior,
   placeholderText,
   shouldDisableFilesAndImages,
   selectFilesAndImages,
 }) => {
+  const { chatState, messageHandlers, scrollBehavior } = useChatContext();
   const {
     activeQuote,
     setActiveQuote,
