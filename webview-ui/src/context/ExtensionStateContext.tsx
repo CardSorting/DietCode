@@ -59,7 +59,7 @@ export const ExtensionStateContext = createContext<ExtensionStateContextType | u
 export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeView, setActiveView] = useState<View>("chat");
   const [mcpTab, setMcpTab] = useState<McpViewTab>();
-  const [settingsTarget, setSettingsTarget] = useState<any>();
+  const [settingsTarget, setSettingsTarget] = useState<ExtensionStateContextType["settingsTarget"]>();
   const [expandTaskHeader, setExpandTaskHeader] = useState(true);
   const [didHydrateState, setDidHydrateState] = useState(false);
   const [totalTasksSize, setTotalTasksSize] = useState<number | null>(null);
@@ -95,7 +95,7 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
     settingsInitialModelTab: "recommended",
   });
 
-  const navigate = useCallback((view: View, opts?: any) => {
+  const navigate = useCallback((view: View, opts?: ExtensionStateContextType["settingsTarget"] & { tab?: McpViewTab }) => {
     setActiveView(view);
     if (view === "mcp") setMcpTab(opts?.tab);
     if (view === "settings") setSettingsTarget(opts);
@@ -115,15 +115,20 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
     const stateSub = StateServiceClient.subscribeToState(EmptyRequest.create({}), {
       onResponse: (response) => {
         if (response.stateJson) {
-          const stateData = JSON.parse(response.stateJson);
-          setState(prev => {
-              if (stateData.currentTaskItem?.id === prev.currentTaskItem?.id) {
-                  stateData.clineMessages = stateData.clineMessages?.length ? stateData.clineMessages : prev.clineMessages;
-              }
-              if (stateData.mcpServers) setMcpServers(stateData.mcpServers);
-              setDidHydrateState(true);
-              return { ...prev, ...stateData };
-          });
+          try {
+            const stateData = JSON.parse(response.stateJson);
+            setState(prev => {
+                if (stateData.currentTaskItem?.id === prev.currentTaskItem?.id) {
+                    stateData.clineMessages = stateData.clineMessages?.length ? stateData.clineMessages : prev.clineMessages;
+                }
+                if (stateData.mcpServers) setMcpServers(stateData.mcpServers);
+                setDidHydrateState(true);
+                return { ...prev, ...stateData };
+            });
+          } catch (parseError) {
+            console.error("[DietCode:State] Failed to parse state JSON:", parseError);
+            console.debug("[DietCode:State] Raw payload:", response.stateJson);
+          }
         }
       },
       onError: (err) => console.error("[ExtensionStateContext] State subscription error:", err),
@@ -132,7 +137,7 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 
     const setupUiSub = (method: string, view: View) => UiServiceClient[method]({}, { 
         onResponse: () => navigate(view),
-        onError: (err: any) => console.error(`[ExtensionStateContext] UI sub error (${method}):`, err),
+        onError: (err: Error) => console.error(`[ExtensionStateContext] UI sub error (${method}):`, err),
         onComplete: () => {}
     });
     const subs = [
@@ -154,7 +159,7 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
     ];
 
     UiServiceClient.initializeWebview({}).catch(console.error);
-    return () => { stateSub(); subs.forEach(s => s()); };
+    return () => { stateSub(); for (const s of subs) s(); };
   }, [navigate]);
 
   const contextValue: ExtensionStateContextType = {

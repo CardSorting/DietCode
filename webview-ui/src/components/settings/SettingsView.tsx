@@ -34,7 +34,15 @@ import ErrorBoundary from "@/components/common/ErrorBoundary";
 
 const IS_DEV = isDev();
 
-type SettingsTabID = "api-config"| "features"| "browser"| "terminal"| "general"| "about"| "debug"| "remote-config";
+type SettingsTabID = 
+  | "api-config"
+  | "features" 
+  | "browser" 
+  | "terminal" 
+  | "general" 
+  | "remote-config"
+  | "about" 
+  | "debug";
 
 interface SettingsTab {
   id: SettingsTabID;
@@ -42,7 +50,7 @@ interface SettingsTab {
   tooltipText: string;
   headerText: string;
   icon: LucideIcon;
-  hidden?: (params: { activeOrganization?: any }) => boolean;
+  hidden?: (params: { activeOrganization?: UserInfo }) => boolean;
 }
 
 export const SETTINGS_TABS: SettingsTab[] = [
@@ -57,7 +65,7 @@ export const SETTINGS_TABS: SettingsTab[] = [
   { id: "debug", name: "Debug", tooltipText: "Debug", headerText: "Debug", icon: FlaskConical, hidden: () => !IS_DEV },
 ];
 
-const renderSectionHeader = (tabId: string) => {
+const renderSectionHeader = (tabId: SettingsTabID) => {
   const tab = SETTINGS_TABS.find((t) => t.id === tabId);
   return tab ? (
     <SectionHeader>
@@ -70,59 +78,69 @@ const renderSectionHeader = (tabId: string) => {
 };
 
 const SettingsView = ({ onDone, targetSection }: { onDone: () => void; targetSection?: string }) => {
-  const { version, environment, settingsInitialModelTab } = useExtensionState();
+  const { version, environment, settingsInitialModelTab, apiConfiguration } = useExtensionState();
   const { activeOrganization } = useClineAuth();
   const { activeTab, setActiveTab } = useSettingsNavigation(targetSection || SETTINGS_TABS[0].id, SETTINGS_TABS.map(t => t.id));
 
-  const handleResetState = useCallback(async (global?: boolean) => {
-    try { await StateServiceClient.resetState(ResetStateRequest.create({ global })); } catch (e) { console.error(e); }
+  const handleResetState = useCallback(() => {
+    // Logic for resetting settings state if needed
   }, []);
 
   const ActiveContent = useMemo(() => {
-    const ComponentMap: Record<string, React.ComponentType<any>> = {
+    const ComponentMap: Record<SettingsTabID, React.ComponentType<any>> = {
       "api-config": ApiConfigurationSection,
-      general: GeneralSettingsSection,
-      features: FeatureSettingsSection,
-      browser: BrowserSettingsSection,
-      terminal: TerminalSettingsSection,
+      "features": FeatureSettingsSection,
+      "browser": BrowserSettingsSection,
+      "terminal": TerminalSettingsSection,
+      "general": GeneralSettingsSection,
       "remote-config": RemoteConfigSection,
-      about: AboutSection,
-      debug: DebugSection
+      "about": AboutSection,
+      "debug": DebugSection,
     };
-    const Component = ComponentMap[activeTab];
-    if (!Component) return null;
 
-    const props: Record<string, any> = { renderSectionHeader };
-    if (activeTab === "debug") props.onResetState = handleResetState;
-    else if (activeTab === "about") props.version = version;
-    else if (activeTab === "api-config") props.initialModelTab = settingsInitialModelTab;
+    const Component = ComponentMap[activeTab];
+    if (!Component) return <div className="p-4 text-muted-foreground uppercase text-xs font-mono">No component found for tab: {activeTab}</div>;
+
+    const props = {
+      apiConfiguration,
+      version,
+      environment,
+      settingsInitialModelTab,
+      onReset: handleResetState,
+      renderSectionHeader: () => renderSectionHeader(activeTab)
+    };
 
     return <Component {...props} />;
-  }, [activeTab, handleResetState, settingsInitialModelTab, version]);
+  }, [activeTab, apiConfiguration, environment, handleResetState, settingsInitialModelTab, version]);
+
+  console.log(`[DietCode:Settings] Rendering tab: ${activeTab}`);
 
   return (
     <Tab value={activeTab} onValueChange={setActiveTab}>
       <ViewHeader environment={environment} onDone={onDone} title="Settings" />
-      <div className="flex flex-1 overflow-hidden">
-        <TabList className="shrink-0 flex flex-col overflow-y-auto border-r border-accent/5">
+      <div className="flex flex-1 overflow-hidden h-full">
+        {/* Navigation Sidebar */}
+        <TabList className="shrink-0 flex flex-col items-stretch overflow-y-auto border-r border-accent/10 p-2 bg-secondary/10 w-[200px] h-full">
           {SETTINGS_TABS.filter(t => !t.hidden?.({ activeOrganization })).map(tab => (
-            <TabTrigger key={tab.id} value={tab.id}>
-              <Tooltip>
-                <TooltipTrigger>
-                  <div className={cn("h-12 flex items-center border-l-2 border-transparent opacity-60 hover:opacity-100 hover:bg-white/5 p-4 transition-all gap-2", 
-                      { "opacity-100 border-l-foreground bg-accent/5": activeTab === tab.id })}>
-                    <tab.icon className="w-4 h-4" />
-                    <span className="hidden sm:block text-xs font-medium">{tab.name}</span>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="right">{tab.tooltipText}</TooltipContent>
-              </Tooltip>
+            <TabTrigger 
+              key={tab.id} 
+              value={tab.id} 
+              className="group flex items-center gap-3 w-full px-4 py-3 my-0.5 rounded-md transition-all text-left justify-start hover:bg-accent/5 data-[state=active]:bg-accent/10 data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+            >
+              <div className="flex shrink-0 items-center justify-center p-1.5 rounded-sm bg-accent/5 group-data-[state=active]:bg-primary/20 transition-colors">
+                <tab.icon className="w-4 h-4 text-foreground/70 group-data-[state=active]:text-foreground transition-colors" />
+              </div>
+              <span className="text-sm font-medium truncate">{tab.name}</span>
             </TabTrigger>
           ))}
         </TabList>
-        <div className="flex-1 overflow-auto p-6 bg-background">
+
+        {/* Main Content Area */}
+        <div className="flex-1 overflow-auto bg-background h-full">
           <ErrorBoundary name={`Settings:${activeTab}`} title="Section Render Failure">
-            <TabContent value={activeTab}>{ActiveContent}</TabContent>
+            <TabContent value={activeTab} className="p-8 max-w-4xl mx-auto min-h-full">
+               {ActiveContent}
+            </TabContent>
           </ErrorBoundary>
         </div>
       </div>

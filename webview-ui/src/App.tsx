@@ -16,6 +16,13 @@ const AppContent = () => {
   const { clineUser, organizations, activeOrganization } = useClineAuth();
   const [hydrationTimedOut, setHydrationTimedOut] = useState(false);
 
+  useEffect(() => {
+    console.log(`[DietCode:App] State hydration: ${didHydrateState ? "COMPLETE" : "PENDING"}`);
+    if (didHydrateState) {
+        console.log(`[DietCode:App] Active view: ${activeView}`);
+    }
+  }, [didHydrateState, activeView]);
+
   // Set up a timeout for state hydration to prevent permanent blank screen
   useEffect(() => {
     if (!didHydrateState) {

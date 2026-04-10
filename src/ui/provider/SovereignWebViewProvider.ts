@@ -28,7 +28,7 @@ import { VsCodeStateRepository } from '../../infrastructure/storage/VsCodeStateR
 import { StateSyncService } from '../../core/manager/StateSyncService';
 import { StateAssembler } from '../../core/manager/StateAssembler';
 import { convertProtoToApiConfiguration } from '../../shared/proto-conversions/models/api-configuration-conversion';
-import { UpdateApiConfigurationRequest } from '../../shared/nice-grpc/cline/models';
+import type { UpdateApiConfigurationRequest } from '../../shared/nice-grpc/cline/models';
 import { StateChangePhase } from '../../domain/state/StateChangeProtocol';
 import type { ApiConfiguration } from '../../shared/api';
 import type { GlobalState } from '../../domain/LLMProvider';
@@ -642,7 +642,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
     switch (method) {
       case 'getCheckpoints': {
         const persistence = new CheckpointPersistenceAdapter();
-        const taskId = (request.payload as any)?.task_id;
+        const taskId = (request.payload as { task_id?: string })?.task_id;
         const checkpoints = persistence.getLastCheckpoints(taskId, 50);
         this._sendGrpcSuccess(request.request_id, {
           checkpoints: checkpoints.map((c) => ({
@@ -741,22 +741,39 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
     const rootUrl = webview.asWebviewUri(webviewUiPath).toString();
 
     // Inject Content Security Policy
-    // Hardened for Production:
-    // - script-src allows 'nonce' and 'unsafe-eval' for gRPC internals + blob: for workers
-    // - connect-src allows extension-host and https calls
-    // - media-src allows demos from the local build
-    // - worker-src enables background processing
-    const csp = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} https: data:; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}' 'unsafe-eval' blob:; connect-src ${webview.cspSource} https:; font-src ${webview.cspSource} data:; media-src ${webview.cspSource} https: blob:; worker-src 'self' blob:;">`;
+    // Loosened for Diagnostic Recovery:
+    const csp = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} https: data:; style-src ${webview.cspSource} 'unsafe-inline'; script-src ${webview.cspSource} 'nonce-${nonce}' 'unsafe-eval' blob:; connect-src ${webview.cspSource} https: *; font-src ${webview.cspSource} data:; media-src ${webview.cspSource} https: blob:; worker-src 'self' blob:;">`;
 
-    html = html.replace(/<head>/, `<head>\n    ${csp}`);
+    html = html.replace(/<head>/, `<head>\n    ${csp}\n    <script nonce="${nonce}">
+      window.onload = () => {
+        console.log('[DietCode:Bootstrap] window.onload triggered');
+        console.log('[DietCode:Bootstrap] rootUrl: ${rootUrl}');
+        const root = document.getElementById('root');
+        if (root && root.innerHTML === '') {
+          const diag = document.createElement('div');
+          diag.id = 'bootstrap-diagnostic';
+          diag.style.cssText = 'position:fixed;bottom:10px;right:10px;padding:10px;background:rgba(0,255,0,0.2);border:1px solid green;color:green;font-size:10px;z-index:9999;font-family:monospace;';
+          diag.innerText = 'WEBVIEW BOOTSTRAP ACTIVE';
+          document.body.appendChild(diag);
+          console.log('[DietCode:Bootstrap] Diagnostic indicator added');
+        }
+      };
+    </script>`);
+
+    // Inject static indicator into body to verify HTML loading
+    html = html.replace(/<body>/, `<body>\n    <div id="static-indicator" style="position:fixed;top:0;right:0;padding:2px 5px;background:red;color:white;font-size:9px;z-index:10000;font-family:sans-serif;opacity:0.6;">[HTML LOADED]</div>`);
 
     // Add nonces to all scripts (handle <script and <script> variants)
     html = html.replace(/<script(?=[\s>])/g, `<script nonce="${nonce}" `);
 
     // Replace asset paths with fully resolved webview uris
-    // Improved regex to handle various path formats and ensure we don't double-replace
-    html = html.replace(/(href|src)="(\.?)\/assets([^"]+)"/g, (match, type, dot, assetPath) => {
-      return `${type}="${rootUrl}/assets${assetPath}"`;
+    // Improved regex to handle relative paths (assets/...), absolute paths (/assets/...), 
+    // and dot-relative paths (./assets/...) across multiple source directories.
+    html = html.replace(/(href|src)="(\.\/|\/)?(assets|src|favicon\.svg)([^"]*)"/g, (match, type, prefix, dir, path) => {
+      if (dir === 'favicon.svg') {
+        return `${type}="${rootUrl}/favicon.svg"`;
+      }
+      return `${type}="${rootUrl}/${dir}${path}"`;
     });
 
     return html;
