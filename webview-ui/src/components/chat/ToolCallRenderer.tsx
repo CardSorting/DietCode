@@ -6,57 +6,63 @@ import WebToolRenderer from "./tool-renderers/WebToolRenderer";
 import GenericToolRenderer from "./tool-renderers/GenericToolRenderer";
 
 interface ToolCallRendererProps {
-	tool: ClineSayTool;
-	message: ClineMessage;
-	isExpanded: boolean;
-	onToggleExpand: () => void;
-	backgroundEditEnabled: boolean;
+  tool: ClineSayTool;
+  message: ClineMessage;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+  backgroundEditEnabled: boolean;
 }
 
 /**
- * Dispatches tool calls to their respective specialized renderers.
+ * Dispatches tool calls to specialized renderers.
+ * Now a thin coordinator using standardized tool logic.
  */
 export const ToolCallRenderer: React.FC<ToolCallRendererProps> = ({
-	tool,
-	message,
-	isExpanded,
-	onToggleExpand,
-	backgroundEditEnabled,
+  tool,
+  message,
+  isExpanded,
+  onToggleExpand,
+  backgroundEditEnabled,
 }) => {
-	const props = {
-		tool,
-		isExpanded,
-		onToggleExpand,
-		messageType: message.type,
-		isPartial: message.partial,
-	};
+  const commonProps = {
+    tool,
+    isExpanded,
+    onToggleExpand,
+    messageType: message.type,
+  };
 
-	switch (tool.tool) {
-		case "editedExistingFile":
-		case "newFileCreated":
-		case "fileDeleted":
-			return (
-				<FileEditToolRenderer {...props} backgroundEditEnabled={backgroundEditEnabled} />
-			);
+  switch (tool.tool) {
+    case "editedExistingFile":
+    case "newFileCreated":
+    case "fileDeleted":
+      return (
+        <FileEditToolRenderer
+          {...commonProps}
+          backgroundEditEnabled={backgroundEditEnabled}
+          isPartial={message.partial}
+        />
+      );
 
-		case "readFile":
-		case "listFilesTopLevel":
-		case "listFilesRecursive":
-		case "listCodeDefinitionNames":
-		case "searchFiles":
-			return <FileReadToolRenderer {...props} />;
+    case "readFile":
+    case "listFilesTopLevel":
+    case "listFilesRecursive":
+    case "listCodeDefinitionNames":
+    case "searchFiles":
+      return <FileReadToolRenderer {...commonProps} />;
 
-		case "webFetch":
-		case "webSearch":
-			return <WebToolRenderer {...props} />;
+    case "webFetch":
+    case "webSearch":
+      return <WebToolRenderer {...commonProps} />;
 
-		case "summarizeTask":
-		case "useSkill":
-			return <GenericToolRenderer {...props} />;
+    case "summarizeTask":
+    case "useSkill":
+      return <GenericToolRenderer {...commonProps} />;
 
-		default:
-			return null;
-	}
+    default:
+      return null;
+  }
 };
+
+export default ToolCallRenderer;
 
 export default ToolCallRenderer;

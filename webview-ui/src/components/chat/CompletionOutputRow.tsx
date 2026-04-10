@@ -2,20 +2,14 @@ import { PLATFORM_CONFIG, PlatformType } from "@/config/platform.config";
 import { cn } from "@/lib/utils";
 import { TaskServiceClient } from "@/services/grpc-client";
 import { Int64Request } from "@shared/nice-grpc/cline/common.ts";
-import { CheckIcon } from "lucide-react";
+import { CheckIcon, FileTextIcon, MessageSquareIcon } from "lucide-react";
 import { memo } from "react";
 import { CopyButton } from "../common/CopyButton";
-import SuccessButton from "../common/SuccessButton";
-import type { QuoteButtonState } from "./ChatRow";
+import { Button } from "@/components/ui/button";
 import { MarkdownRow } from "./MarkdownRow";
-import QuoteButton from "./QuoteButton";
 
 interface CompletionOutputRowProps {
   text: string;
-  quoteButtonState: QuoteButtonState;
-  handleQuoteClick: () => void;
-  headClassNames?: string;
-  showActionRow?: boolean;
   seeNewChangesDisabled: boolean;
   setSeeNewChangesDisabled: (value: boolean) => void;
   explainChangesDisabled: boolean;
@@ -23,119 +17,71 @@ interface CompletionOutputRowProps {
   messageTs: number;
 }
 
-export const CompletionOutputRow = memo(
-  ({
-    headClassNames,
-    text,
-    quoteButtonState,
-    showActionRow,
-    seeNewChangesDisabled,
-    setSeeNewChangesDisabled,
-    explainChangesDisabled,
-    setExplainChangesDisabled,
-    messageTs,
-    handleQuoteClick,
-  }: CompletionOutputRowProps) => {
-    return (
-      <div>
-        <div className="rounded-sm border border-success/20 overflow-visible bg-success/10 p-2 pt-3">
-          {/* Title */}
-          <div className={cn(headClassNames, "justify-between px-1")}>
-            <div className="flex gap-2 items-center">
-              <CheckIcon className="size-3 text-success" />
-              <span className="text-success font-bold">Task Completed</span>
-            </div>
-            <CopyButton className="text-success" textToCopy={text} />
+/**
+ * Renders the final task completion message and action buttons.
+ */
+export const CompletionOutputRow = memo(({
+  text,
+  seeNewChangesDisabled,
+  setSeeNewChangesDisabled,
+  explainChangesDisabled,
+  setExplainChangesDisabled,
+  messageTs,
+}: CompletionOutputRowProps) => {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="rounded-sm border border-success/30 bg-success/5 overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between px-3 py-2 border-b border-success/20 bg-success/10">
+          <div className="flex items-center gap-2">
+            <CheckIcon className="size-3.5 text-success" />
+            <span className="text-success font-bold text-sm">Task Completed</span>
           </div>
-          {/* Content */}
-          <div className="w-full relative border-t-1 border-description/20 rounded-b-sm">
-            <div className="completion-output-content p-2 pt-3 w-full [&_hr]:opacity-20 [&_p:last-child]:mb-0 rounded-sm">
-              <MarkdownRow markdown={text} />
-              {quoteButtonState.visible && (
-                <QuoteButton
-                  left={quoteButtonState.left}
-                  onClick={handleQuoteClick}
-                  top={quoteButtonState.top}
-                />
-              )}
-            </div>
-          </div>
+          <CopyButton className="text-success h-6 w-6" textToCopy={text} />
         </div>
-        {/* Action Buttons */}
-        {showActionRow && (
-          <CompletionOutputActionRow
-            explainChangesDisabled={explainChangesDisabled}
-            messageTs={messageTs}
-            seeNewChangesDisabled={seeNewChangesDisabled}
-            setExplainChangesDisabled={setExplainChangesDisabled}
-            setSeeNewChangesDisabled={setSeeNewChangesDisabled}
-          />
-        )}
+        
+        {/* Content */}
+        <div className="p-3 text-sm leading-6 select-text whitespace-pre-wrap">
+          <MarkdownRow markdown={text} />
+        </div>
       </div>
-    );
-  },
-);
 
-CompletionOutputRow.displayName = "CompletionOutputRow";
-
-const CompletionOutputActionRow = memo(
-  ({
-    seeNewChangesDisabled,
-    setSeeNewChangesDisabled,
-    explainChangesDisabled,
-    setExplainChangesDisabled,
-    messageTs,
-  }: {
-    seeNewChangesDisabled: boolean;
-    setSeeNewChangesDisabled: (value: boolean) => void;
-    explainChangesDisabled: boolean;
-    setExplainChangesDisabled: (value: boolean) => void;
-    messageTs: number;
-  }) => {
-    return (
-      <div style={{ paddingTop: 10, display: "flex", flexDirection: "column", gap: 8 }}>
-        <SuccessButton
+      {/* Action Buttons */}
+      <div className="flex flex-col gap-2">
+        <Button
           disabled={seeNewChangesDisabled}
           onClick={() => {
             setSeeNewChangesDisabled(true);
-            TaskServiceClient.taskCompletionViewChanges(
-              Int64Request.create({
-                value: messageTs,
-              }),
-            ).catch((err) => console.error("Failed to show task completion view changes:", err));
+            TaskServiceClient.taskCompletionViewChanges(Int64Request.create({ value: messageTs }))
+              .catch((err) => console.error("Failed to show changes:", err));
           }}
-          style={{
-            cursor: seeNewChangesDisabled ? "wait" : "pointer",
-            width: "100%",
-          }}
+          className="w-full bg-success hover:bg-success/90 text-success-foreground"
         >
-          <i className="codicon codicon-new-file" style={{ marginRight: 6 }} />
+          <FileTextIcon className="mr-2 size-4" />
           View Changes
-        </SuccessButton>
+        </Button>
 
         {PLATFORM_CONFIG.type === PlatformType.VSCODE && (
-          <SuccessButton
+          <Button
             disabled={explainChangesDisabled}
             onClick={() => {
               setExplainChangesDisabled(true);
-              TaskServiceClient.explainChanges({
-                metadata: {},
-                messageTs,
-              }).catch((err) => {
-                console.error("Failed to explain changes:", err);
-                setExplainChangesDisabled(false);
-              });
+              TaskServiceClient.explainChanges({ metadata: {}, messageTs })
+                .catch((err) => {
+                  console.error("Failed to explain:", err);
+                  setExplainChangesDisabled(false);
+                });
             }}
-            style={{
-              cursor: explainChangesDisabled ? "wait" : "pointer",
-              width: "100%",
-            }}
+            variant="outline"
+            className="w-full border-success/30 text-success hover:bg-success/10"
           >
-            <i className="codicon codicon-comment-discussion" style={{ marginRight: 6 }} />
+            <MessageSquareIcon className="mr-2 size-4" />
             {explainChangesDisabled ? "Explaining..." : "Explain Changes"}
-          </SuccessButton>
+          </Button>
         )}
       </div>
-    );
-  },
-);
+    </div>
+  );
+});
+
+CompletionOutputRow.displayName = "CompletionOutputRow";

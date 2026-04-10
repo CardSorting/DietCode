@@ -113,12 +113,11 @@ export const MessageRendererDispatcher: React.FC<MessageRendererDispatcherProps>
 				return (
 					<CommandOutputRow
 						isExecuting={isCommandExecuting}
-						isExpanded={isExpanded} // Reuse chat-row expansion state or internal?
-						isLast={isLast}
 						isPending={isCommandPending}
+						isExpanded={isExpanded}
+						onToggleExpand={() => onToggleExpand(message.ts)}
 						message={message}
 						onCancel={onCancelCommand}
-						onToggleExpand={() => onToggleExpand(message.ts)}
 					/>
 				);
 			}

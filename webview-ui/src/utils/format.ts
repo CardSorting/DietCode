@@ -74,3 +74,10 @@ export function formatSeconds(seconds?: number): string {
 
   return `${mins}:${secs}`;
 }
+
+export function formatCost(cost?: number, precision = 3): string {
+  if (cost === undefined || cost === null) {
+      return "$0.000";
+  }
+  return `$${cost.toFixed(precision)}`;
+}
