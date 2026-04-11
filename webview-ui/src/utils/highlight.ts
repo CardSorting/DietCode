@@ -16,11 +16,9 @@ export function highlight<T extends { matches?: ReadonlyArray<{ indices: Readonl
 ): Array<Omit<T, "matches"> & { parts: Array<{ text: string; highlighted: boolean }> }> {
   return results.map((result) => {
     const item = result as any;
-    if (!item.item && !item.id && !item.label) {
-        // Handle cases where the item might be different or already formatted
-    }
+    const baseItem = item.item || item;
+    const textToHighlight = baseItem.id || baseItem.label || item.id || item.label || "";
 
-    const textToHighlight = item.id || item.label || item.item?.id || item.item?.label || "";
     
     if (!item.matches || item.matches.length === 0) {
       return { 
@@ -68,8 +66,9 @@ export function highlight<T extends { matches?: ReadonlyArray<{ indices: Readonl
       parts.push({ text: currentPart, highlighted: isCurrentHighlighted });
     }
 
-    // Preserve the original matched item reference and include parts
+    // Strictly flatten: Use properties from baseItem, then overlay highlight parts
     const { matches, ...rest } = item;
-    return { ...rest, parts };
+    // By spreading baseItem last, we ensure its properties (id, label) are at the top level
+    return { ...rest, ...baseItem, parts };
   });
 }

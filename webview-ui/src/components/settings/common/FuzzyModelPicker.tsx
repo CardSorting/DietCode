@@ -103,11 +103,11 @@ export const FuzzyModelPicker: React.FC<FuzzyModelPickerProps> = ({
 
 		// Then get search results for non-favorited models
 		const searchResults = searchTerm
-			? (highlight(fuse.search(searchTerm)) as unknown as Array<{ id: string; parts: Array<{ text: string; highlighted: boolean }> }>).filter((item) => !favoritedModelIds.includes(item.id))
+			? highlight(fuse.search(searchTerm)).filter((item: any) => !favoritedModelIds.includes(item.id))
 			: searchableItems.filter((item) => !favoritedModelIds.includes(item.id)).map(item => ({ ...item, parts: [{ text: item.id, highlighted: false }] }));
 
 		// Combine favorited models with search results
-		return [...favoritedModels, ...searchResults];
+		return [...favoritedModels, ...searchResults] as any[];
 	}, [searchableItems, searchTerm, fuse, favoritedModelIds]);
 
 	const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -129,8 +129,12 @@ export const FuzzyModelPicker: React.FC<FuzzyModelPickerProps> = ({
 				if (selectedIndex >= 0 && selectedIndex < modelSearchResults.length) {
 					onModelChange(modelSearchResults[selectedIndex].id);
 					setIsDropdownVisible(false);
+				} else if (searchTerm && searchTerm.trim() !== "" && modelIds.some(id => id.toLowerCase() === searchTerm.trim().toLowerCase())) {
+					const matchingId = modelIds.find(id => id.toLowerCase() === searchTerm.trim().toLowerCase()) || searchTerm;
+					onModelChange(matchingId);
+					setIsDropdownVisible(false);
 				} else {
-					onModelChange(searchTerm);
+					setSearchTerm(selectedModelId);
 					setIsDropdownVisible(false);
 				}
 				break;
@@ -146,7 +150,8 @@ export const FuzzyModelPicker: React.FC<FuzzyModelPickerProps> = ({
 		if (dropdownListRef.current) {
 			dropdownListRef.current.scrollTop = 0;
 		}
-	}, []);
+		// biome-ignore lint/correctness/useExhaustiveDependencies: Resetting index on search term change is desired behavior
+	}, [searchTerm]);
 
 	useEffect(() => {
 		if (selectedIndex >= 0 && itemRefs.current[selectedIndex]) {
@@ -171,13 +176,23 @@ export const FuzzyModelPicker: React.FC<FuzzyModelPickerProps> = ({
 				<VSCodeTextField
 					id="model-search"
 					onBlur={() => {
-						if (searchTerm !== selectedModelId) {
-							onModelChange(searchTerm);
-						}
+						// Small delay to allow onMouseDown on items to fire first
+						setTimeout(() => {
+							if (!searchTerm || searchTerm.trim() === "" || !modelIds.some(id => id.toLowerCase() === searchTerm.trim().toLowerCase())) {
+								setSearchTerm(selectedModelId);
+							} else if (searchTerm !== selectedModelId) {
+								const matchingId = modelIds.find(id => id.toLowerCase() === searchTerm.trim().toLowerCase()) || searchTerm;
+								onModelChange(matchingId);
+							}
+						}, 150);
 					}}
-					onFocus={() => setIsDropdownVisible(true)}
+					onFocus={() => {
+						setSearchTerm("");
+						setIsDropdownVisible(true);
+					}}
 					onInput={(e) => {
-						setSearchTerm((e.target as HTMLInputElement)?.value.toLowerCase() || "");
+						const value = (e.target as HTMLInputElement)?.value || "";
+						setSearchTerm(value.toLowerCase());
 						setIsDropdownVisible(true);
 					}}
 					onKeyDown={handleKeyDown}
@@ -230,6 +245,10 @@ export const FuzzyModelPicker: React.FC<FuzzyModelPickerProps> = ({
 									onClick={() => {
 										onModelChange(item.id);
 										setIsDropdownVisible(false);
+									}}
+									onMouseDown={(e) => {
+										// Prevent blur from text field before click can happen
+										e.preventDefault();
 									}}
 									onMouseEnter={() => setSelectedIndex(index)}
 									ref={(el) => {

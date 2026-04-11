@@ -143,6 +143,18 @@ const ApiOptions = memo(({
     }
   };
 
+  const handleInputBlur = useCallback(() => {
+    // Small timeout to allow list clicks to register first
+    setTimeout(() => {
+      const matchingProvider = providerOptions.find(o => o.label.toLowerCase() === searchTerm.trim().toLowerCase() || o.value.toLowerCase() === searchTerm.trim().toLowerCase());
+      if (!searchTerm || searchTerm.trim() === "" || !matchingProvider) {
+        setSearchTerm(currentProviderLabel);
+      } else if (matchingProvider.value !== selectedProvider) {
+        handleProviderChange(matchingProvider.value);
+      }
+    }, 150);
+  }, [searchTerm, currentProviderLabel, providerOptions, selectedProvider, handleProviderChange]);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -150,9 +162,11 @@ const ApiOptions = memo(({
         setSearchTerm(currentProviderLabel);
       }
     };
+    
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [currentProviderLabel]);
+
 
   useEffect(() => {
     if (selectedIndex >= 0 && itemRefs.current[selectedIndex]) {
@@ -212,6 +226,7 @@ const ApiOptions = memo(({
             onFocus={() => { setIsDropdownVisible(true); setSearchTerm(""); }}
             onInput={(e) => { setSearchTerm((e.target as HTMLInputElement)?.value || ""); setIsDropdownVisible(true); }}
             onKeyDown={handleKeyDown}
+            onBlur={handleInputBlur}
             placeholder="Search provider..."
             className="w-full"
             value={searchTerm}
@@ -228,6 +243,7 @@ const ApiOptions = memo(({
                   key={item.value}
                   ref={(el) => { itemRefs.current[index] = el; }}
                   onClick={() => handleProviderChange(item.value)}
+                  onMouseDown={(e) => e.preventDefault()}
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleProviderChange(item.value); }}
                   onMouseEnter={() => setSelectedIndex(index)}
                   tabIndex={0}
