@@ -1,6 +1,7 @@
-import type { GlobalState } from '../../../domain/LLMProvider';
 import { StateOrchestrator } from '../StateOrchestrator';
-import type { ModelInfo } from '../../../domain/agent/LLMProviderAdapter';
+import type { ModelInfo, PromptStrategy } from '../../../domain/agent/LLMProviderAdapter';
+import { geminiModels, type ModelInfo as SharedModelInfo } from '../../../shared/api';
+import type { GlobalState } from '../../../domain/LLMProvider';
 
 export interface CachedModel {
   data: ModelInfo;
@@ -12,7 +13,18 @@ export interface CachedModel {
  * Manages in-memory caching of discovered models and synchronizes with orchestrated state.
  */
 export class ModelCache {
-  private models = new Map<string, CachedModel>();
+	private static instance: ModelCache;
+
+	private constructor() {}
+
+	public static getInstance(): ModelCache {
+		if (!ModelCache.instance) {
+			ModelCache.instance = new ModelCache();
+		}
+		return ModelCache.instance;
+	}
+
+	private models = new Map<string, CachedModel>();
 
   public set(key: string, model: CachedModel) {
     this.models.set(key, model);
@@ -24,6 +36,41 @@ export class ModelCache {
 
   public clear() {
     this.models.clear();
+  }
+
+  /**
+   * Load models for a specific provider.
+   * Hardened for Gemini-only infrastructure.
+   */
+  public async loadProviderModels(providerId: string): Promise<(ModelInfo & { id: string })[]> {
+    if (providerId === 'gemini') {
+      // Logic: If we have cached models (discovered via API), return them.
+      // Otherwise fallback to the hardcoded defaults in shared/api.
+      const cached = Array.from(this.models.entries())
+        .filter(([key]) => key.startsWith('gemini:'))
+        .map(([_, model]) => model.data as ModelInfo & { id: string });
+
+      if (cached.length > 0) {
+        return cached;
+      }
+
+      // Fallback
+      return Object.entries(geminiModels).map(([id, info]) => {
+        const sharedInfo = info as SharedModelInfo;
+        return {
+            id,
+            name: sharedInfo.name || id,
+            maxTokens: sharedInfo.maxTokens || 8192,
+            supportsPromptCache: !!sharedInfo.supportsPromptCache,
+            supportsReasoning: !!sharedInfo.supportsReasoning,
+            supportsStreaming: true,
+            inputPrice: sharedInfo.inputPrice,
+            outputPrice: sharedInfo.outputPrice,
+            cacheReadsPrice: sharedInfo.cacheReadsPrice,
+        };
+      });
+    }
+    return [];
   }
 
   /**

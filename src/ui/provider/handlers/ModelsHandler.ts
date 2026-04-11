@@ -1,61 +1,81 @@
+/**
+ * Copyright (c) 2026 DietCode Contributors
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 import type * as vscode from 'vscode';
-import { StateOrchestrator } from '../../../core/manager/StateOrchestrator';
-import { convertProtoToApiConfiguration } from '../../../shared/proto-conversions/models/api-configuration-conversion';
-import { ApiHandlerSettingsKeys } from '../../../shared/storage/state-keys';
-import type { GlobalState } from '../../../domain/LLMProvider';
-import type { GrpcRequest, IHandler, SendResponse } from './types';
-import type { ModelsApiConfiguration as ProtoApiConfiguration } from '../../../shared/proto/cline/models';
+import { StateOrchestrator } from "../../../core/manager/StateOrchestrator";
+import { ModelCache } from "../../../core/manager/registry/ModelCache";
+import type { ModelsApiConfiguration, ApiFormat } from "../../../shared/proto/cline/models";
+import type { ExtensionState } from "../../../shared/ExtensionMessage";
+import { geminiModels, type ModelInfo, type ApiConfiguration } from "../../../shared/api";
+import type { GrpcRequest, IHandler, SendResponse } from "./types";
 
+/**
+ * [LAYER: INFRASTRUCTURE / UI]
+ * Specialized gRPC handler for model-related requests.
+ * Hardened strictly for Gemini-only infrastructure.
+ */
 export class ModelsHandler implements IHandler {
-  constructor(private context: vscode.ExtensionContext, private sendResponse: SendResponse) {}
+    constructor(private context: vscode.ExtensionContext, private sendResponse: SendResponse) {}
 
-  async handle(method: string, request: GrpcRequest): Promise<void> {
-    switch (method) {
-      case 'updateApiConfigurationProto': {
-        const protoConfig = request.apiConfiguration as ProtoApiConfiguration;
-        if (protoConfig) {
-          // Ensure required fields for the legacy converter
-          if (!protoConfig.openAiHeaders) {
-              protoConfig.openAiHeaders = {};
-          }
-          const apiConfig = convertProtoToApiConfiguration(protoConfig);
-          const orchestrator = StateOrchestrator.getInstance();
-
-          const changes = Object.entries(apiConfig)
-            .filter(([field, val]) => val !== undefined && (ApiHandlerSettingsKeys as string[]).includes(field))
-            .map(([field, val]) => ({
-              key: field,
-              newValue: val,
-              stateSet: {} as GlobalState,
-              validate: () => true,
-              sanitize: () => val,
-              getCorrelationId: () => `ui-proto-batch-${Date.now()}`,
-            }));
-
-          if (changes.length > 0) {
-            await orchestrator.applyChanges(changes, 0);
-          }
-
-          if (apiConfig.planModeApiProvider) {
-            await this.context.globalState.update('selectedProvider', apiConfig.planModeApiProvider);
-          }
+    /**
+     * Specialized handler for model discovery and configuration mapping.
+     * Locked to Gemini-only.
+     */
+    async handle(method: string, request: GrpcRequest): Promise<void> {
+        switch (method) {
+            case "listModels":
+                await this.handleListModels(request);
+                break;
+            default:
+                this.sendResponse(request.request_id, {});
         }
-        this.sendResponse(request.request_id, {});
-        break;
-      }
-
-      case 'refreshClineRecommendedModelsRpc': {
-        // Simplified: Only return Gemini as recommended
-        this.sendResponse(request.request_id, {
-          recommended: ['gemini-3.1-pro-preview'],
-          free: [],
-        });
-        break;
-      }
-
-      default:
-        // Any other model methods (Ollama, LM Studio, etc.) return empty/silent
-        this.sendResponse(request.request_id, { models: {}, values: [] });
     }
-  }
+
+    private async handleListModels(request: GrpcRequest): Promise<void> {
+        const orchestrator = StateOrchestrator.getInstance();
+        // State is stored globally; we assume Gemini-only for this hardened build.
+        const snapshot = await orchestrator.getStateSnapshot();
+        
+        // Use cached models if available, otherwise fallback to hardcoded list context.
+        const models = await ModelCache.getInstance().loadProviderModels("gemini");
+        
+        this.sendResponse(request.request_id, { 
+            models: models.map((m: ModelInfo & { id: string }) => ({
+                id: m.id,
+                name: m.name || m.id,
+                maxTokens: m.maxTokens,
+                supportsPromptCache: m.supportsPromptCache,
+                supportsReasoning: m.supportsReasoning,
+                supportsStreaming: true,
+                inputPrice: m.inputPrice,
+                outputPrice: m.outputPrice,
+                cacheReadsPrice: m.cacheReadsPrice,
+                info: JSON.stringify(m)
+            }))
+        });
+    }
+
+    /**
+     * Map internal ApiConfiguration to Protobuf ModelsApiConfiguration.
+     * Ensures required fields are satisfied for gRPC transport.
+     */
+    public static mapToProtoConfig(config: ApiConfiguration): ModelsApiConfiguration {
+        const protoConfig: ModelsApiConfiguration = {
+            openAiHeaders: {}, // Required by proto
+        };
+
+        if (config.geminiApiKey) {
+            protoConfig.geminiApiKey = config.geminiApiKey;
+            protoConfig.apiKey = config.geminiApiKey;
+        }
+
+        if (config.geminiBaseUrl) {
+            protoConfig.geminiBaseUrl = config.geminiBaseUrl;
+        }
+
+        return protoConfig;
+    }
 }

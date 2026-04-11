@@ -74,7 +74,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
       // Check if content height exceeds the max-height
       setIsTextOverflowing(el.scrollHeight > el.clientHeight);
     }
-  }, [task.text, isTaskExpanded, isHighlightedTextExpanded]);
+  }, [isTaskExpanded, isHighlightedTextExpanded]);
 
   // Handle click outside to collapse
   React.useEffect(() => {
@@ -99,15 +99,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
   const { selectedModelInfo } = normalizeApiConfiguration(apiConfiguration, mode);
   const modeFields = getModeSpecificFields(apiConfiguration, mode);
 
-  const isCostAvailable =
-    (totalCost &&
-      modeFields.apiProvider === "openai" &&
-      modeFields.openAiModelInfo?.inputPrice &&
-      modeFields.openAiModelInfo?.outputPrice) ||
-    (modeFields.apiProvider !== "vscode-lm" &&
-      modeFields.apiProvider !== "ollama" &&
-      modeFields.apiProvider !== "lmstudio" &&
-      modeFields.apiProvider !== "openai-codex"); // Subscription-based, no per-token costs
+  const isCostAvailable = !!totalCost;
 
   // Event handlers
   const toggleTaskExpanded = useCallback(

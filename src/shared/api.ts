@@ -1,4 +1,4 @@
-import { ApiFormat } from "./proto/cline/models";
+import type { ApiFormat } from "./proto/cline/models";
 import type { ApiHandlerSettings } from "./storage/state-keys";
 
 export type ApiProvider =
@@ -22,6 +22,8 @@ export interface ApiHandlerOptions extends Partial<ApiHandlerSettings> {
   actModeApiModelId?: string;
   planModeApiProvider?: ApiProvider | string;
   actModeApiProvider?: ApiProvider | string;
+  geminiPlanModeThinkingLevel?: string;
+  geminiActModeThinkingLevel?: string;
   onRetryAttempt?: (attempt: number, maxRetries: number, delay: number, error: unknown) => void;
 }
 

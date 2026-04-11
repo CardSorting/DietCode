@@ -20,6 +20,7 @@ import { MetabolicMonitor } from '../../monitoring/MetabolicMonitor';
 /**
  * [LAYER: INFRASTRUCTURE]
  * Concrete implementation of LLMAdapter for Google Gemini.
+ * Optimized for Gemini 2.0 and 3.0 models.
  */
 export class GeminiAdapter implements LLMAdapter {
   private client: GoogleGenerativeAI;
@@ -27,7 +28,7 @@ export class GeminiAdapter implements LLMAdapter {
 
   constructor(config: AdapterConfig) {
     this.client = new GoogleGenerativeAI(config.apiKey);
-    this.modelId = config.model || 'gemini-2.0-flash';
+    this.modelId = config.model || 'gemini-3.1-pro-preview';
   }
 
   createMessage(system: string, messages: Message[], tools?: ToolDefinition[]): ApiStream {
@@ -44,6 +45,11 @@ export class GeminiAdapter implements LLMAdapter {
         }));
 
         const lastMessage = messages[messages.length - 1];
+        if (!lastMessage) {
+            yield 'Error: No user message provided.';
+            return;
+        }
+
         const chat = model.startChat({ history });
 
         const result = await chat.sendMessageStream(lastMessage.content);
@@ -63,38 +69,61 @@ export class GeminiAdapter implements LLMAdapter {
     return {
       id: this.modelId,
       name: 'Google Gemini',
-      maxTokens: 1000000,
+      maxTokens: 1048576,
       supportsPromptCache: true,
-      supportsReasoning: false,
+      supportsReasoning: true,
       supportsStreaming: true,
-      costPerThousandTokens: {
-        input: 0.000125,
-        output: 0.000375,
-      },
+      inputPrice: 4.0, // USD per 1M tokens (3.1 Pro tier 2)
+      outputPrice: 18.0,
+      cacheReadsPrice: 0.4,
     };
   }
 
   getThinkingBudgetTokenLimit(): number {
-    return 0;
+    return 32768;
   }
 
   getPromptStrategy(): PromptStrategy {
-    return EnumPromptStrategy.NATIVE;
+    return EnumPromptStrategy.GEMINI;
   }
 
   async listModels(): Promise<ModelInfo[]> {
-    // Note: Google AI SDK doesn't have a clean listModels for the generative-ai package
-    // Providing a comprehensive managed list from the backend
     return [
-      { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash', maxTokens: 1000000, supportsPromptCache: true, supportsReasoning: false, supportsStreaming: true },
-      { id: 'gemini-2.0-flash-lite-preview-02-05', name: 'Gemini 2.0 Flash Lite', maxTokens: 1000000, supportsPromptCache: true, supportsReasoning: false, supportsStreaming: true },
-      { id: 'gemini-2.0-pro-exp-02-05', name: 'Gemini 2.0 Pro Experimental', maxTokens: 2000000, supportsPromptCache: true, supportsReasoning: false, supportsStreaming: true },
-      { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', maxTokens: 2000000, supportsPromptCache: true, supportsReasoning: false, supportsStreaming: true },
-      { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', maxTokens: 1000000, supportsPromptCache: true, supportsReasoning: false, supportsStreaming: true },
+      { 
+        id: 'gemini-3.1-pro-preview', 
+        name: 'Gemini 3.1 Pro (Preview)', 
+        maxTokens: 1048576, 
+        supportsPromptCache: true, 
+        supportsReasoning: true, 
+        supportsStreaming: true,
+        inputPrice: 4.0,
+        outputPrice: 18.0,
+        cacheReadsPrice: 0.4
+      },
+      { 
+        id: 'gemini-3-pro-preview', 
+        name: 'Gemini 3 Pro (Preview)', 
+        maxTokens: 1048576, 
+        supportsPromptCache: true, 
+        supportsReasoning: true, 
+        supportsStreaming: true,
+        inputPrice: 4.0,
+        outputPrice: 18.0
+      },
+      { 
+        id: 'gemini-2.0-flash', 
+        name: 'Gemini 2.0 Flash', 
+        maxTokens: 1048576, 
+        supportsPromptCache: true, 
+        supportsReasoning: false, 
+        supportsStreaming: true,
+        inputPrice: 0.1,
+        outputPrice: 0.4
+      },
     ];
   }
 
   async dispose(): Promise<void> {
-    // Teardown Gemini resources
+    // Teardown
   }
 }

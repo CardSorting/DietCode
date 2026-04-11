@@ -1,13 +1,19 @@
 import type { ModelInfo } from "@shared/api.ts";
 
+/**
+ * [LAYER: WEBVIEW / UTILS]
+ * Cost calculation hardened strictly for Gemini.
+ * Gemini follows the "OpenAI style" where input tokens reported by the API 
+ * include the cached/prefilled context.
+ */
+
 function calculateApiCostInternal(
   modelInfo: ModelInfo,
-  inputTokens: number, // Note: For OpenAI-style, this is non-cached tokens. For Anthropic-style, this is total input tokens.
+  inputTokens: number, // Total input tokens (including cached)
   outputTokens: number,
   cacheCreationInputTokens: number,
   cacheReadInputTokens: number,
-  totalInputTokensForPricing?: number, // The *total* input tokens, used for tiered pricing lookup
-  thinkingBudgetTokens?: number, // Add thinking budget info
+  thinkingBudgetTokens?: number,
 ): number {
   const usedThinkingBudget = thinkingBudgetTokens && thinkingBudgetTokens > 0;
 
@@ -18,21 +24,16 @@ function calculateApiCostInternal(
   let effectiveCacheWritesPrice = modelInfo.cacheWritesPrice || 0;
 
   // Handle tiered pricing if available
-  if (modelInfo.tiers && modelInfo.tiers.length > 0 && totalInputTokensForPricing !== undefined) {
-    // Ensure tiers are sorted by contextWindow ascending before finding
+  if (modelInfo.tiers && modelInfo.tiers.length > 0) {
     const sortedTiers = [...modelInfo.tiers].sort((a, b) => a.contextWindow - b.contextWindow);
-
-    // Find the first tier where the total input tokens are less than or equal to the limit
-    const tier = sortedTiers.find((t) => totalInputTokensForPricing <= t.contextWindow);
+    const tier = sortedTiers.find((t) => inputTokens <= t.contextWindow);
 
     if (tier) {
-      // Apply all tiered price values if they exist
       effectiveInputPrice = tier.inputPrice ?? effectiveInputPrice;
       effectiveOutputPrice = tier.outputPrice ?? effectiveOutputPrice;
       effectiveCacheReadsPrice = tier.cacheReadsPrice ?? effectiveCacheReadsPrice;
       effectiveCacheWritesPrice = tier.cacheWritesPrice ?? effectiveCacheWritesPrice;
     } else {
-      // Should ideally not happen if Infinity is used for the last tier, but fallback just in case
       const lastTier = sortedTiers[sortedTiers.length - 1];
       if (lastTier) {
         effectiveInputPrice = lastTier.inputPrice ?? effectiveInputPrice;
@@ -46,23 +47,24 @@ function calculateApiCostInternal(
   // Override output price for thinking mode if applicable
   if (usedThinkingBudget && modelInfo.thinkingConfig?.outputPrice !== undefined) {
     effectiveOutputPrice = modelInfo.thinkingConfig.outputPrice;
-    // TODO: Add support for tiered thinking budget output pricing if needed in the future
   }
+
+  // Gemini specific: non-cached tokens are total minus read cache
+  // (Input tokens already includes everything)
+  const nonCachedInputTokens = Math.max(0, inputTokens - cacheReadInputTokens - cacheCreationInputTokens);
 
   const cacheWritesCost = (effectiveCacheWritesPrice / 1_000_000) * cacheCreationInputTokens;
   const cacheReadsCost = (effectiveCacheReadsPrice / 1_000_000) * cacheReadInputTokens;
-
-  // Use effectiveInputPrice for baseInputCost. Note: 'inputTokens' here is the potentially adjusted count (e.g., non-cached for OpenAI)
-  const baseInputCost = (effectiveInputPrice / 1_000_000) * inputTokens;
-
-  // Use effectiveOutputPrice for outputCost
+  const baseInputCost = (effectiveInputPrice / 1_000_000) * nonCachedInputTokens;
   const outputCost = (effectiveOutputPrice / 1_000_000) * outputTokens;
 
-  const totalCost = cacheWritesCost + cacheReadsCost + baseInputCost + outputCost;
-  return totalCost;
+  return cacheWritesCost + cacheReadsCost + baseInputCost + outputCost;
 }
-// For Anthropic compliant usage, the input tokens count does NOT include the cached tokens
-export function calculateApiCostAnthropic(
+
+/**
+ * Main cost calculation for Gemini.
+ */
+export function calculateApiCost(
   modelInfo: ModelInfo,
   inputTokens: number,
   outputTokens: number,
@@ -70,48 +72,12 @@ export function calculateApiCostAnthropic(
   cacheReadInputTokens?: number,
   thinkingBudgetTokens?: number,
 ): number {
-  const cacheCreationInputTokensNum = cacheCreationInputTokens || 0;
-  const cacheReadInputTokensNum = cacheReadInputTokens || 0;
-  // Anthropic style: inputTokens already represents the total, so pass it directly for tiered pricing lookup if needed
-  // (though Anthropic models currently don't use tiered pricing based on input size)
-  // Anthropic style doesn't need totalInputTokensForPricing as its inputTokens already represents the total
   return calculateApiCostInternal(
     modelInfo,
     inputTokens,
     outputTokens,
-    cacheCreationInputTokensNum,
-    cacheReadInputTokensNum,
-    inputTokens + cacheCreationInputTokensNum + cacheReadInputTokensNum, // used for tiered price lookup
+    cacheCreationInputTokens || 0,
+    cacheReadInputTokens || 0,
     thinkingBudgetTokens,
   );
 }
-
-// For OpenAI compliant usage, the input tokens count INCLUDES the cached tokens
-export function calculateApiCostOpenAI(
-  modelInfo: ModelInfo,
-  inputTokens: number, // For OpenAI-style, this includes cached tokens
-  outputTokens: number,
-  cacheCreationInputTokens?: number,
-  cacheReadInputTokens?: number,
-  thinkingBudgetTokens?: number, // Pass thinking budget info
-): number {
-  const cacheCreationInputTokensNum = cacheCreationInputTokens || 0;
-  const cacheReadInputTokensNum = cacheReadInputTokens || 0;
-  // Calculate non-cached tokens for the internal function's 'inputTokens' parameter
-  const nonCachedInputTokens = Math.max(
-    0,
-    inputTokens - cacheCreationInputTokensNum - cacheReadInputTokensNum,
-  );
-  // Pass the original 'inputTokens' as 'totalInputTokensForPricing' for tier lookup
-  return calculateApiCostInternal(
-    modelInfo,
-    nonCachedInputTokens,
-    outputTokens,
-    cacheCreationInputTokensNum,
-    cacheReadInputTokensNum,
-    inputTokens,
-    thinkingBudgetTokens,
-  );
-}
-
-
