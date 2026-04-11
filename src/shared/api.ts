@@ -8,6 +8,7 @@ export const DEFAULT_API_PROVIDER = "gemini" as ApiProvider;
 
 export interface ApiHandlerOptions extends Partial<ApiHandlerSettings> {
   ulid?: string; // Used to identify the task in API requests
+  apiModelId?: string;
   geminiApiKey?: string;
   geminiModelId?: string;
   modelInfo?: ModelInfo;
@@ -31,6 +32,7 @@ interface PriceTier {
 }
 
 export interface ModelInfo {
+  id: string;
   name?: string;
   maxTokens?: number;
   contextWindow?: number;
@@ -67,6 +69,7 @@ export type GeminiModelId = keyof typeof geminiModels;
 export const geminiDefaultModelId: GeminiModelId = "gemini-3.1-pro-preview";
 export const geminiModels = {
   "gemini-3.1-pro-preview": {
+    id: "gemini-3.1-pro-preview",
     maxTokens: 65536,
     contextWindow: 1_048_576,
     supportsImages: true,
@@ -96,6 +99,7 @@ export const geminiModels = {
     ],
   },
   "gemini-3-pro-preview": {
+    id: "gemini-3-pro-preview",
     maxTokens: 65536,
     contextWindow: 1_048_576,
     supportsImages: true,
@@ -123,6 +127,7 @@ export const geminiModels = {
     ],
   },
   "gemini-3-flash-preview": {
+    id: "gemini-3-flash-preview",
     maxTokens: 65536,
     contextWindow: 1_048_576,
     supportsImages: true,
@@ -152,6 +157,7 @@ export const geminiModels = {
     ],
   },
   "gemini-2.5-pro": {
+    id: "gemini-2.5-pro",
     maxTokens: 65536,
     contextWindow: 1_048_576,
     supportsImages: true,
@@ -178,6 +184,7 @@ export const geminiModels = {
     ],
   },
   "gemini-2.5-flash-lite-preview-06-17": {
+    id: "gemini-2.5-flash-lite-preview-06-17",
     maxTokens: 64000,
     contextWindow: 1_000_000,
     supportsImages: true,
@@ -192,6 +199,7 @@ export const geminiModels = {
     },
   },
   "gemini-2.5-flash": {
+    id: "gemini-2.5-flash",
     maxTokens: 65536,
     contextWindow: 1_048_576,
     supportsImages: true,
@@ -205,6 +213,7 @@ export const geminiModels = {
     },
   },
   "gemini-2.0-flash-001": {
+    id: "gemini-2.0-flash-001",
     maxTokens: 8192,
     contextWindow: 1_048_576,
     supportsImages: true,
@@ -215,6 +224,7 @@ export const geminiModels = {
     cacheWritesPrice: 1.0,
   },
   "gemini-2.0-flash-lite-preview-02-05": {
+    id: "gemini-2.0-flash-lite-preview-02-05",
     maxTokens: 8192,
     contextWindow: 1_048_576,
     supportsImages: true,
@@ -223,6 +233,7 @@ export const geminiModels = {
     outputPrice: 0,
   },
   "gemini-2.0-pro-exp-02-05": {
+    id: "gemini-2.0-pro-exp-02-05",
     maxTokens: 8192,
     contextWindow: 2_097_152,
     supportsImages: true,
@@ -231,6 +242,7 @@ export const geminiModels = {
     outputPrice: 0,
   },
   "gemini-2.0-flash-thinking-exp-01-21": {
+    id: "gemini-2.0-flash-thinking-exp-01-21",
     maxTokens: 65_536,
     contextWindow: 1_048_576,
     supportsImages: true,
@@ -239,6 +251,7 @@ export const geminiModels = {
     outputPrice: 0,
   },
   "gemini-2.0-flash-thinking-exp-1219": {
+    id: "gemini-2.0-flash-thinking-exp-1219",
     maxTokens: 8192,
     contextWindow: 32_767,
     supportsImages: true,
@@ -247,6 +260,7 @@ export const geminiModels = {
     outputPrice: 0,
   },
   "gemini-2.0-flash-exp": {
+    id: "gemini-2.0-flash-exp",
     maxTokens: 8192,
     contextWindow: 1_048_576,
     supportsImages: true,
@@ -255,6 +269,7 @@ export const geminiModels = {
     outputPrice: 0,
   },
   "gemini-1.5-flash-002": {
+    id: "gemini-1.5-flash-002",
     maxTokens: 8192,
     contextWindow: 1_048_576,
     supportsImages: true,
@@ -279,6 +294,7 @@ export const geminiModels = {
     ],
   },
   "gemini-1.5-flash-exp-0827": {
+    id: "gemini-1.5-flash-exp-0827",
     maxTokens: 8192,
     contextWindow: 1_048_576,
     supportsImages: true,
@@ -287,6 +303,7 @@ export const geminiModels = {
     outputPrice: 0,
   },
   "gemini-1.5-flash-8b-exp-0827": {
+    id: "gemini-1.5-flash-8b-exp-0827",
     maxTokens: 8192,
     contextWindow: 1_048_576,
     supportsImages: true,
@@ -295,6 +312,7 @@ export const geminiModels = {
     outputPrice: 0,
   },
   "gemini-1.5-pro-002": {
+    id: "gemini-1.5-pro-002",
     maxTokens: 8192,
     contextWindow: 2_097_152,
     supportsImages: true,
@@ -303,6 +321,7 @@ export const geminiModels = {
     outputPrice: 0,
   },
   "gemini-1.5-pro-exp-0827": {
+    id: "gemini-1.5-pro-exp-0827",
     maxTokens: 8192,
     contextWindow: 2_097_152,
     supportsImages: true,
@@ -311,6 +330,7 @@ export const geminiModels = {
     outputPrice: 0,
   },
   "gemini-exp-1206": {
+    id: "gemini-exp-1206",
     maxTokens: 8192,
     contextWindow: 2_097_152,
     supportsImages: true,

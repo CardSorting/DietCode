@@ -1,6 +1,6 @@
 import type { Mode } from "../storage/types";
 
-export interface ClineMessageModelInfo {
+export interface SovereignMessageModelInfo {
   modelId: string;
   providerId: string;
   mode: Mode;

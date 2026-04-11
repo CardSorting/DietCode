@@ -5,7 +5,7 @@ import type { RemoteConfigFields } from "@shared/storage/state-keys";
 import type { Environment } from "./config-types";
 import type { AutoApprovalSettings } from "./AutoApprovalSettings";
 import type { BrowserSettings } from "./BrowserSettings";
-import type { ClineFeatureSetting } from "./ClineFeatureSetting";
+import type { SovereignFeatureSetting } from "./SovereignFeatureSetting";
 import type { FocusChainSettings } from "./FocusChainSettings";
 import type { HistoryItem } from "./HistoryItem";
 import type { McpDisplayMode } from "./McpDisplayMode";
@@ -15,8 +15,8 @@ export type { RemoteConfigFields } from "./storage/state-keys";
 import type { TelemetrySetting } from "./TelemetrySetting";
 import type { UserInfo } from "./UserInfo";
 import type { ApiConfiguration, ModelInfo } from "./api";
-import type { ClineRulesToggles } from "./cline-rules";
-import type { ClineMessageModelInfo } from "./messages";
+import type { SovereignRulesToggles } from "./cline-rules";
+import type { SovereignMessageModelInfo } from "./messages";
 import type { Mode } from "./storage/types";
 // webview will hold state
 export interface ExtensionMessage {
@@ -44,7 +44,7 @@ export type Platform =
 
 export const DEFAULT_PLATFORM = "unknown";
 
-export const COMMAND_CANCEL_TOKEN = "__cline_command_cancel__";
+export const COMMAND_CANCEL_TOKEN = "__sovereign_command_cancel__";
 export interface ExtensionState {
   isNewUser: boolean;
   welcomeViewCompleted: boolean;
@@ -55,7 +55,7 @@ export interface ExtensionState {
   preferredLanguage?: string;
   mode: Mode;
   checkpointManagerErrorMessage?: string;
-  clineMessages: ClineMessage[];
+  messages: SovereignMessage[];
   currentTaskItem?: HistoryItem;
   currentFocusChainChecklist?: string | null;
   mcpMarketplaceEnabled?: boolean;
@@ -79,32 +79,28 @@ export interface ExtensionState {
   userInfo?: UserInfo;
   version: string;
   distinctId: string;
-  globalClineRulesToggles: ClineRulesToggles;
-  localClineRulesToggles: ClineRulesToggles;
-  localWorkflowToggles: ClineRulesToggles;
-  globalWorkflowToggles: ClineRulesToggles;
-  localCursorRulesToggles: ClineRulesToggles;
-  localWindsurfRulesToggles: ClineRulesToggles;
-  remoteRulesToggles?: ClineRulesToggles;
-  remoteWorkflowToggles?: ClineRulesToggles;
-  localAgentsRulesToggles: ClineRulesToggles;
+  globalRulesToggles: SovereignRulesToggles;
+  localRulesToggles: SovereignRulesToggles;
+  localWorkflowToggles: SovereignRulesToggles;
+  globalWorkflowToggles: SovereignRulesToggles;
+  localCursorRulesToggles: SovereignRulesToggles;
+  localWindsurfRulesToggles: SovereignRulesToggles;
+  remoteRulesToggles?: SovereignRulesToggles;
+  remoteWorkflowToggles?: SovereignRulesToggles;
+  localAgentsRulesToggles: SovereignRulesToggles;
   mcpResponsesCollapsed?: boolean;
   strictPlanModeEnabled?: boolean;
   yoloModeToggled?: boolean;
   useAutoCondense?: boolean;
   subagentsEnabled?: boolean;
-  clineWebToolsEnabled?: ClineFeatureSetting;
-  worktreesEnabled?: ClineFeatureSetting;
+  webToolsEnabled?: SovereignFeatureSetting;
+  worktreesEnabled?: SovereignFeatureSetting;
   focusChainSettings: FocusChainSettings;
   customPrompt?: string;
   workspaceRoots: WorkspaceRoot[];
   primaryRootIndex: number;
   isMultiRootWorkspace: boolean;
-  multiRootSetting: ClineFeatureSetting;
-  lastDismissedInfoBannerVersion: number;
-  lastDismissedModelBannerVersion: number;
-  lastDismissedCliBannerVersion: number;
-  dismissedBanners?: Array<{ bannerId: string; dismissedAt: number }>;
+  multiRootSetting: SovereignFeatureSetting;
   hooksEnabled?: boolean;
   remoteConfigSettings?: Partial<RemoteConfigFields>;
   remoteGlobalSkillsToggles?: Record<string, boolean>;
@@ -117,6 +113,9 @@ export interface ExtensionState {
   lazyTeammateModeEnabled?: boolean;
   showFeatureTips?: boolean;
   mcpServers?: McpServer[];
+  lastDismissedInfoBannerVersion: number;
+  lastDismissedModelBannerVersion: number;
+  lastDismissedCliBannerVersion: number;
   availableProviderModels?: Record<string, Record<string, ModelInfo>>;
   providerHealth?: Record<string, { status: "healthy" | "unhealthy" | "degraded"; message?: string }>;
   favoritedModelIds?: string[];
@@ -125,11 +124,11 @@ export interface ExtensionState {
   globalSkillsToggles?: Record<string, boolean>;
 }
 
-export interface ClineMessage {
+export interface SovereignMessage {
   ts: number;
   type: "ask" | "say";
-  ask?: ClineAsk;
-  say?: ClineSay;
+  ask?: SovereignAsk;
+  say?: SovereignSay;
   text?: string;
   reasoning?: string;
   images?: string[];
@@ -141,21 +140,21 @@ export interface ClineMessage {
   isOperationOutsideWorkspace?: boolean;
   conversationHistoryIndex?: number;
   conversationHistoryDeletedRange?: [number, number]; // for when conversation history is truncated for API requests
-  modelInfo?: ClineMessageModelInfo;
-  askQuestion?: ClineAskQuestion;
-  askNewTask?: ClineAskNewTask;
-  askUseMcpServer?: ClineAskUseMcpServer;
-  askUseSubagents?: ClineAskUseSubagents;
-  sayTool?: ClineSayTool;
-  sayBrowserAction?: ClineSayBrowserAction;
-  sayGenerateExplanation?: ClineSayGenerateExplanation;
-  sayHook?: ClineSayHook;
+  modelInfo?: SovereignMessageModelInfo;
+  askQuestion?: SovereignAskQuestion;
+  askNewTask?: SovereignAskNewTask;
+  askUseMcpServer?: SovereignAskUseMcpServer;
+  askUseSubagents?: SovereignAskUseSubagents;
+  sayTool?: SovereignSayTool;
+  sayBrowserAction?: SovereignSayBrowserAction;
+  sayGenerateExplanation?: SovereignSayGenerateExplanation;
+  sayHook?: SovereignSayHook;
   mcpServer?: McpServer;
   mcpTool?: McpTool;
   mcpResource?: McpResource | McpResourceTemplate;
 }
 
-export type ClineAsk =
+export type SovereignAsk =
   | "followup"
   | "plan_mode_respond"
   | "act_mode_respond"
@@ -178,7 +177,7 @@ export type ClineAsk =
   | "plan_mode_response"
   | "feature_tip";
 
-export type ClineSay =
+export type SovereignSay =
   | "task"
   | "error"
   | "error_retry"
@@ -218,7 +217,7 @@ export type ClineSay =
   | "subagent_usage"
   | "conditional_rules_applied";
 
-export interface ClineSayTool {
+export interface SovereignSayTool {
   tool:
     | "editedExistingFile"
     | "newFileCreated"
@@ -245,7 +244,7 @@ export interface ClineSayTool {
   readLineEnd?: number;
 }
 
-export interface ClineSayHook {
+export interface SovereignSayHook {
   hookName: string; // Name of the hook (e.g., "PreToolUse", "PostToolUse")
   toolName?: string; // Tool name if applicable (for PreToolUse/PostToolUse)
   status: "running" | "completed" | "failed" | "cancelled"; // Execution status
@@ -291,13 +290,13 @@ export const browserActions = [
 ] as const;
 export type BrowserAction = (typeof browserActions)[number];
 
-export interface ClineSayBrowserAction {
+export interface SovereignSayBrowserAction {
   action: BrowserAction;
   coordinate?: string;
   text?: string;
 }
 
-export interface ClineSayGenerateExplanation {
+export interface SovereignSayGenerateExplanation {
   title: string;
   fromRef: string;
   toRef: string;
@@ -323,7 +322,7 @@ export interface SubagentStatusItem {
   error?: string;
 }
 
-export interface ClineSaySubagentStatus {
+export interface SovereignSaySubagentStatus {
   status: "running" | "completed" | "failed";
   total: number;
   completed: number;
@@ -345,7 +344,7 @@ export type BrowserActionResult = {
   currentMousePosition?: string;
 };
 
-export interface ClineAskUseMcpServer {
+export interface SovereignAskUseMcpServer {
   serverName: string;
   type: "use_mcp_tool" | "access_mcp_resource";
   toolName?: string;
@@ -353,7 +352,7 @@ export interface ClineAskUseMcpServer {
   uri?: string;
 }
 
-export interface ClineAskUseSubagents {
+export interface SovereignAskUseSubagents {
   prompts: string[];
 }
 
@@ -363,13 +362,13 @@ export interface ClinePlanModeResponse {
   selected?: string;
 }
 
-export interface ClineAskQuestion {
+export interface SovereignAskQuestion {
   question: string;
   options?: string[];
   selected?: string;
 }
 
-export interface ClineAskNewTask {
+export interface SovereignAskNewTask {
   context: string;
 }
 

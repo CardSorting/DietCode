@@ -6,13 +6,17 @@
  */
 
 import { StateOrchestrator } from "./orchestrator";
-import { VsCodeStateRepository } from "../../infrastructure/storage/VsCodeStateRepository";
-import type { ExtensionState, Platform } from "../../shared/ExtensionMessage";
+import type { ExtensionState, Platform, SovereignMessage } from "../../shared/ExtensionMessage";
 import { Environment } from "../../shared/config-types";
 import { DEFAULT_AUTO_APPROVAL_SETTINGS } from "../../shared/AutoApprovalSettings";
 import { DEFAULT_BROWSER_SETTINGS } from "../../shared/BrowserSettings";
 import { DEFAULT_FOCUS_CHAIN_SETTINGS } from "../../shared/FocusChainSettings";
-import { ApiHandlerSettingsKeys } from "../../shared/storage/state-keys";
+
+// Specialized Assembler Mappers
+import { mapApiConfig } from "./assemblers/ApiConfigMapper";
+import { mapModelCatalog } from "./assemblers/ModelCatalogMapper";
+import { mapHealthStatus } from "./assemblers/HealthStatusMapper";
+import { RulesToggleMapper } from "./assemblers/RulesToggleMapper";
 
 /**
  * [LAYER: CORE / MANAGER]
@@ -22,6 +26,8 @@ import { ApiHandlerSettingsKeys } from "../../shared/storage/state-keys";
  * application state into the nested ExtensionState object consumed by the 
  * webview. It ensures schema consistency across initial loads and 
  * streaming updates.
+ * 
+ * REFACTOR: Separated concerns into specialized Mappers to improve maintainability.
  */
 export class StateAssembler {
     private static instance: StateAssembler;
@@ -40,35 +46,21 @@ export class StateAssembler {
      */
     public async assemble(): Promise<ExtensionState> {
         const orchestrated = await StateOrchestrator.getInstance().getStateSnapshot();
-        
-        // Assemble API Configuration based on current mode
         const mode = orchestrated.mode || 'act';
-        const apiProvider = mode === 'plan' ? orchestrated.planModeApiProvider : orchestrated.actModeApiProvider;
-        const apiModelId = mode === 'plan' ? orchestrated.planModeApiModelId : orchestrated.actModeApiModelId;
-
-        const apiConfiguration: any = {
-            apiProvider: apiProvider || orchestrated.lastUsedApiProvider,
-            apiModelId: apiModelId,
-        };
-
-        // Dynamically include all other Api Configuration properties
-        for (const key of ApiHandlerSettingsKeys) {
-            if (orchestrated[key] !== undefined) {
-                apiConfiguration[key] = orchestrated[key];
-            }
-        }
 
         return {
-            version: '2.7.7',
+            version: '2.7.7', 
             isNewUser: orchestrated.isNewUser ?? false,
             welcomeViewCompleted: true, // PRODUCTION HARDENING: Skip onboarding globally
-            onboardingModels: undefined,
-            clineMessages: orchestrated.clineMessages || [],
+            messages: (orchestrated.clineMessages || []) as SovereignMessage[],
             taskHistory: orchestrated.taskHistory || [],
             
-            // Unified API Configuration
-            apiConfiguration: apiConfiguration,
+            // Orchestrated Mappings
+            apiConfiguration: mapApiConfig(orchestrated),
+            availableProviderModels: mapModelCatalog(orchestrated),
+            providerHealth: mapHealthStatus(orchestrated),
 
+            // User Settings
             autoApprovalSettings: orchestrated.autoApprovalSettings || DEFAULT_AUTO_APPROVAL_SETTINGS,
             browserSettings: orchestrated.browserSettings || DEFAULT_BROWSER_SETTINGS,
             focusChainSettings: orchestrated.focusChainSettings || DEFAULT_FOCUS_CHAIN_SETTINGS,
@@ -77,6 +69,7 @@ export class StateAssembler {
             mcpDisplayMode: orchestrated.mcpDisplayMode || 'rich',
             planActSeparateModelsSetting: orchestrated.planActSeparateModelsSetting ?? false,
             
+            // Operational Policy
             telemetrySetting: orchestrated.telemetrySetting || 'off',
             enableCheckpointsSetting: orchestrated.enableCheckpointsSetting ?? true,
             terminalReuseEnabled: orchestrated.terminalReuseEnabled ?? true,
@@ -84,26 +77,29 @@ export class StateAssembler {
             maxConsecutiveMistakes: orchestrated.maxConsecutiveMistakes || 3,
             vscodeTerminalExecutionMode: orchestrated.vscodeTerminalExecutionMode || 'vscodeTerminal',
             
+            // Identity & Platform
             distinctId: orchestrated['cline.generatedMachineId'] || 'sovereign-id',
             platform: (process.platform as Platform) || 'darwin',
             environment: Environment.production,
             
-            globalClineRulesToggles: orchestrated.globalClineRulesToggles || {},
-            localClineRulesToggles: orchestrated.localClineRulesToggles || {},
-            globalWorkflowToggles: orchestrated.globalWorkflowToggles || {},
-            localWorkflowToggles: orchestrated.localWorkflowToggles || {},
-            localCursorRulesToggles: orchestrated.localCursorRulesToggles || {},
-            localWindsurfRulesToggles: orchestrated.localWindsurfRulesToggles || {},
-            localAgentsRulesToggles: orchestrated.localAgentsRulesToggles || {},
-            globalSkillsToggles: orchestrated.globalSkillsToggles || {},
-            localSkillsToggles: orchestrated.localSkillsToggles || {},
+            // Unified Rules Toggles
+            globalRulesToggles: RulesToggleMapper.mapGlobal(orchestrated),
+            localRulesToggles: RulesToggleMapper.mapLocal(orchestrated),
+            globalWorkflowToggles: RulesToggleMapper.mapWorkflowGlobal(orchestrated),
+            localWorkflowToggles: RulesToggleMapper.mapWorkflowLocal(orchestrated),
+            localCursorRulesToggles: RulesToggleMapper.mapCursor(orchestrated),
+            localWindsurfRulesToggles: RulesToggleMapper.mapWindsurf(orchestrated),
+            localAgentsRulesToggles: RulesToggleMapper.mapAgents(orchestrated),
+            globalSkillsToggles: RulesToggleMapper.mapSkillsGlobal(orchestrated),
+            localSkillsToggles: RulesToggleMapper.mapSkillsLocal(orchestrated),
             
+            // Feature Flags & Workspace
             mcpResponsesCollapsed: orchestrated.mcpResponsesCollapsed ?? false,
             strictPlanModeEnabled: orchestrated.strictPlanModeEnabled ?? false,
             yoloModeToggled: orchestrated.yoloModeToggled ?? false,
             useAutoCondense: orchestrated.useAutoCondense ?? false,
             subagentsEnabled: orchestrated.subagentsEnabled ?? false,
-            clineWebToolsEnabled: {
+            webToolsEnabled: {
                 user: orchestrated.clineWebToolsEnabled ?? true,
                 featureFlag: true,
             },
@@ -120,18 +116,17 @@ export class StateAssembler {
                 featureFlag: true,
             },
             
-            lastDismissedInfoBannerVersion: orchestrated.lastDismissedInfoBannerVersion || 0,
-            lastDismissedModelBannerVersion: orchestrated.lastDismissedModelBannerVersion || 0,
-            lastDismissedCliBannerVersion: orchestrated.lastDismissedCliBannerVersion || 0,
-            dismissedBanners: orchestrated.dismissedBanners || [],
+            lastDismissedInfoBannerVersion: 0,
+            lastDismissedModelBannerVersion: 0,
+            lastDismissedCliBannerVersion: 0,
             
-            availableProviderModels: orchestrated.availableProviderModels || {},
-            providerHealth: orchestrated.providerHealth || {},
+            // Infrastructure Components
             mcpServers: orchestrated.mcpServers || [],
             taskHistorySummary: orchestrated.taskHistorySummary || [],
             
             backgroundCommandRunning: orchestrated.executionStatus === 'executing',
             shouldShowAnnouncement: false,
+            shellIntegrationTimeout: 5000,
         };
     }
 }
