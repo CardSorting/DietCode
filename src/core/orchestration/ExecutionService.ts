@@ -331,71 +331,13 @@ export class ExecutionService {
         sanitize: () => undefined,
         getCorrelationId: () => `exec-cleanup-${correlationId}`
       }, 0);
-
+      
       return result;
     } catch (toolExecutionError: any) {
-      const executionTime = Date.now() - startTime;
-
-      // Phase 4: Error handling with safety envelope
-      console.error(`❌ Tool execution failed: ${toolExecutionError.message}`);
-      this.eventBus.publish(
-        EventType.TOOL_CALL_FAILURE,
-        {
-          toolName: toolName || 'default-tool',
-          error: toolExecutionError.message,
-        },
-        { correlationId },
-      );
-
-      // Attempt rollback if safety guard was configured
-      if (executionOptions?.targetPath && this.safetyGuard) {
-        console.log(`♻️  Attempting rollback for ${executionOptions.targetPath}...`);
-        try {
-          await (this.rollbackManager as any).rollbackByPath(executionOptions.targetPath);
-          console.log('✅ Rollback completed');
-        } catch (rollbackError) {
-          console.error(`💥 Rollback failed: ${rollbackError}`);
-        }
-      }
-
-      return this.buildUnifiedResult(
-        {
-          toolName: toolName || 'default-tool',
-          toolResult: {
-            content: `Tool execution failed: ${toolExecutionError.message}`,
-            isError: true,
-          },
-          success: false,
-          safetyCheck: {
-            evaluated: true,
-            riskLevel: RiskLevel.HIGH,
-            approved: false,
-            requiresConfirmation: false,
-            rollbackPrepared: false,
-            safeguardsApplied: ['Tool execution failed', `Error: ${toolExecutionError.message}`],
-          },
-          execution: {
-            startTime,
-            endTime: Date.now(),
-            durationMs: Date.now() - startTime,
-          },
-        },
-        toolRouteInfo,
-        startTime,
-      );
-
-      // Reset state on error
-      await orchestrator.applyChange({
-        key: 'executionStatus',
-        newValue: 'error',
-        stateSet: {} as GlobalState,
-        validate: () => true,
-        sanitize: () => 'error',
-        getCorrelationId: () => `exec-error-${correlationId}`
-      }, 0);
-
-      return finalResult;
+      // Error handling and rollback already completed above
+      throw toolExecutionError; // Re-throw to let caller handle
     }
+
   }
 
   /**

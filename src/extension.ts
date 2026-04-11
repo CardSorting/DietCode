@@ -9,6 +9,7 @@ import * as vscode from 'vscode';
 import { Core } from './infrastructure/database/sovereign/Core';
 import { SovereignWebViewProvider } from './ui/provider/SovereignWebViewProvider';
 import { ProviderStateManager } from './core/manager/ProviderStateManager';
+import { StateOrchestrator } from './core/manager/StateOrchestrator';
 import { VsCodeStateRepository } from './infrastructure/storage/VsCodeStateRepository';
 
 /**

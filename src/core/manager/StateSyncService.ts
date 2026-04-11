@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { StateSyncService as IStateSyncService, StateChangeResult } from '../../domain/state/StateChangeProtocol';
+import type { StateObserver, StateChangeResult } from '../../domain/state/StateChangeProtocol';
 import { StateOrchestrator } from './StateOrchestrator';
 import { StateAssembler } from './StateAssembler';
 import { Logger } from '../../shared/services/Logger';

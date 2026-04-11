@@ -8,6 +8,7 @@
 import { StateOrchestrator } from "./StateOrchestrator";
 import { VsCodeStateRepository } from "../../infrastructure/storage/VsCodeStateRepository";
 import type { ExtensionState, Platform } from "../../shared/ExtensionMessage";
+import { Environment } from "../../shared/config-types";
 import { DEFAULT_AUTO_APPROVAL_SETTINGS } from "../../shared/AutoApprovalSettings";
 import { DEFAULT_BROWSER_SETTINGS } from "../../shared/BrowserSettings";
 import { DEFAULT_FOCUS_CHAIN_SETTINGS } from "../../shared/FocusChainSettings";
@@ -85,7 +86,7 @@ export class StateAssembler {
             
             distinctId: orchestrated['cline.generatedMachineId'] || 'sovereign-id',
             platform: (process.platform as Platform) || 'darwin',
-            environment: 'production',
+            environment: Environment.production,
             
             globalClineRulesToggles: orchestrated.globalClineRulesToggles || {},
             localClineRulesToggles: orchestrated.localClineRulesToggles || {},
@@ -125,6 +126,11 @@ export class StateAssembler {
             dismissedBanners: orchestrated.dismissedBanners || [],
             
             availableProviderModels: orchestrated.availableProviderModels || {},
+            openRouterModels: orchestrated.openRouterModels || {},
+            clineModels: orchestrated.clineModels || {},
+            openAiModels: orchestrated.openAiModels || {},
+            ollamaModels: orchestrated.ollamaModels || {},
+            vsCodeLmModels: orchestrated.vsCodeLmModels || {},
             providerHealth: orchestrated.providerHealth || {},
             mcpServers: orchestrated.mcpServers || [],
             taskHistorySummary: orchestrated.taskHistorySummary || [],

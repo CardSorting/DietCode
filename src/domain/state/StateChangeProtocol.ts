@@ -32,7 +32,7 @@ export interface StateChangeMetadata {
   timestamp: number;
   correlationId: string;
   actor: string; // Who triggered the change
-  source: 'user' | 'automated' | 'external' | 'api';
+  source: 'user' | 'automated' | 'external' | 'api' | 'batch';
   validationErrors?: string[];
 }
 

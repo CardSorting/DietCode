@@ -31,7 +31,7 @@ export class VsCodeLmProvider implements LLMProvider {
         throw new Error('No VS Code Language Models available for the given selector');
       }
 
-      const model = models[0];
+      const model = models[0]!;
       const vsCodeMessages: vscode.LanguageModelChatMessage[] = this.convertToVsCodeMessages(
         agent.systemPrompt,
         messages,

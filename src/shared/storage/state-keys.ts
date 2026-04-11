@@ -103,6 +103,11 @@ const GLOBAL_STATE_FIELDS = {
 
   // PRODUCTION SYNCHRONIZATION: Dynamic provider discovery and health
   availableProviderModels: { default: {} as Record<string, ModelInfo[]> },
+  openRouterModels: { default: {} as Record<string, ModelInfo> },
+  clineModels: { default: {} as Record<string, ModelInfo> },
+  openAiModels: { default: {} as Record<string, ModelInfo> },
+  ollamaModels: { default: {} as Record<string, ModelInfo> },
+  vsCodeLmModels: { default: {} as Record<string, ModelInfo> },
   providerHealth: { default: {} as Record<string, 'online' | 'offline' | 'error' | 'untested'> },
   remoteGlobalSkillsToggles: { default: {} as Record<string, boolean> },
 

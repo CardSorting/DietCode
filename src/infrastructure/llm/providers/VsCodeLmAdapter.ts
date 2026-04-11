@@ -73,4 +73,8 @@ export class VsCodeLmAdapter implements LLMAdapter {
   getPromptStrategy(): PromptStrategy {
     return EnumPromptStrategy.NATIVE;
   }
+
+  async dispose(): Promise<void> {
+    // No resources to clean up for VsCodeLmAdapter
+  }
 }

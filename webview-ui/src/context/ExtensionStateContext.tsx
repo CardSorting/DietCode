@@ -23,8 +23,8 @@ export interface ExtensionStateContextType extends ExtensionState {
   mcpMarketplaceCatalog: McpMarketplaceCatalog;
   totalTasksSize: number | null;
   availableTerminalProfiles: TerminalProfile[];
-  openRouterModels: Record<string, ModelInfo>;
-  setOpenRouterModels: (models: Record<string, ModelInfo>) => void;
+  // Removed redundant state shadowing: openRouterModels should be 
+  // consumed directly from the state object.
   
   // Navigation
   activeView: View;
@@ -66,7 +66,7 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
   const [availableTerminalProfiles, setAvailableTerminalProfiles] = useState<TerminalProfile[]>([]);
   const [mcpMarketplaceCatalog, setMcpMarketplaceCatalog] = useState<McpMarketplaceCatalog>({ items: [] });
   const [mcpServers, setMcpServers] = useState<McpServer[]>([]);
-  const [openRouterModels, setOpenRouterModels] = useState<Record<string, ModelInfo>>({});
+  // Redundant state shadowing removed
 
   const [state, setState] = useState<ExtensionState>({
     version: "", clineMessages: [], taskHistory: [], shouldShowAnnouncement: false,
@@ -92,6 +92,10 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
     globalSkillsToggles: {},
     localSkillsToggles: {}, banners: [], welcomeBanners: [],
     openRouterModels: {},
+    clineModels: {},
+    openAiModels: {},
+    ollamaModels: {},
+    vsCodeLmModels: {},
     settingsInitialModelTab: "recommended",
   });
 
@@ -163,10 +167,21 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
   }, [navigate]);
 
   const contextValue: ExtensionStateContextType = {
-    ...state, didHydrateState, mcpMarketplaceCatalog, totalTasksSize, availableTerminalProfiles, mcpServers, setMcpServers,
-    openRouterModels, setOpenRouterModels,
+    ...state,
+    didHydrateState,
+    mcpMarketplaceCatalog,
+    totalTasksSize,
+    availableTerminalProfiles,
+    mcpServers,
+    setMcpServers,
     settingsInitialModelTab: state.settingsInitialModelTab,
-    activeView, mcpTab, settingsTarget, navigate, updateToggles, expandTaskHeader, setExpandTaskHeader,
+    activeView,
+    mcpTab,
+    settingsTarget,
+    navigate,
+    updateToggles,
+    expandTaskHeader,
+    setExpandTaskHeader,
     onRelinquishControl,
     // Compat shims for old code
     showSettings: activeView === "settings",

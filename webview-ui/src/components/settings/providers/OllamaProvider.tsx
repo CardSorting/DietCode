@@ -1,11 +1,7 @@
 import UseCustomPromptCheckbox from "@/components/settings/UseCustomPromptCheckbox";
 import { useExtensionState } from "@/context/ExtensionStateContext";
-import { ModelsServiceClient } from "@/services/grpc-client";
-import { StringRequest } from "@shared/nice-grpc/cline/common.ts";
 import type { Mode } from "@shared/storage/types.ts";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
-import { useCallback, useEffect, useState } from "react";
-import { useInterval } from "react-use";
 import OllamaModelPicker from "../OllamaModelPicker";
 import { ApiKeyField } from "../common/ApiKeyField";
 import { BaseUrlField } from "../common/BaseUrlField";
@@ -30,31 +26,8 @@ export const OllamaProvider = ({ showModelOptions, isPopup, currentMode }: Ollam
   const { handleFieldChange, handleModeFieldChange } = useApiConfigurationHandlers();
 
   const { ollamaModelId } = getModeSpecificFields(apiConfiguration, currentMode);
-
-  const [ollamaModels, setOllamaModels] = useState<string[]>([]);
-
-  // Poll ollama models
-  const requestOllamaModels = useCallback(async () => {
-    try {
-      const response = await ModelsServiceClient.getOllamaModels(
-        StringRequest.create({
-          value: apiConfiguration?.ollamaBaseUrl || "",
-        }),
-      );
-      if (response?.values) {
-        setOllamaModels(response.values);
-      }
-    } catch (error) {
-      console.error("Failed to fetch Ollama models:", error);
-      setOllamaModels([]);
-    }
-  }, [apiConfiguration?.ollamaBaseUrl]);
-
-  useEffect(() => {
-    requestOllamaModels();
-  }, [requestOllamaModels]);
-
-  useInterval(requestOllamaModels, 2000);
+  const { ollamaModels: ollamaModelsMap } = useExtensionState();
+  const ollamaModels = Object.keys(ollamaModelsMap || {});
 
   return (
     <div className="flex flex-col gap-2">

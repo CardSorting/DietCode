@@ -61,11 +61,6 @@ const PROVIDER_UPLINKS: Record<
     url: 'https://ollama.com/',
     strength: 'Private, offline, and free local reasoning',
   },
-  openrouter: {
-    name: 'OpenRouter',
-    url: 'https://openrouter.ai/keys',
-    strength: 'Unified API for 100+ models (Claude, Llama, DeepSeek)',
-  },
 };
 
 export class BootstrapService {

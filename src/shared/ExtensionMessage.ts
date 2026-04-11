@@ -110,7 +110,6 @@ export interface ExtensionState {
   dismissedBanners?: Array<{ bannerId: string; dismissedAt: number }>;
   hooksEnabled?: boolean;
   remoteConfigSettings?: Partial<RemoteConfigFields>;
-  globalSkillsToggles?: Record<string, boolean>;
   remoteGlobalSkillsToggles?: Record<string, boolean>;
   localSkillsToggles?: Record<string, boolean>;
   nativeToolCallSetting?: boolean;
@@ -127,6 +126,10 @@ export interface ExtensionState {
   availableProviderModels?: Record<string, Record<string, ModelInfo>>;
   providerHealth?: Record<string, { status: "healthy" | "unhealthy" | "degraded"; message?: string }>;
   openRouterModels?: Record<string, ModelInfo>;
+  clineModels?: Record<string, ModelInfo>;
+  openAiModels?: Record<string, ModelInfo>;
+  ollamaModels?: Record<string, ModelInfo>;
+  vsCodeLmModels?: Record<string, ModelInfo>;
   favoritedModelIds?: string[];
   taskHistorySummary?: unknown[];
   settingsInitialModelTab?: "recommended" | "free";

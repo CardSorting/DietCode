@@ -297,4 +297,8 @@ export class CloudflareAdapter implements LLMAdapter {
   getPromptStrategy(): PromptStrategy {
     return PromptStrategy.OPENAI;
   }
+
+  async dispose(): Promise<void> {
+    // Teardown Cloudflare adapter resources
+  }
 }

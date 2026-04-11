@@ -1,13 +1,12 @@
 import { Tooltip } from "@/components/ui/tooltip";
 import { useExtensionState } from "@/context/ExtensionStateContext";
-import { ModelsServiceClient } from "@/services/grpc-client";
+import { FuzzyModelPicker } from "../common/FuzzyModelPicker";
 import { VSC_DESCRIPTION_FOREGROUND, getAsVar } from "@/utils/vscStyles";
 import { TooltipContent, TooltipTrigger } from "@radix-ui/react-tooltip";
 import { azureOpenAiDefaultApiVersion, openAiModelInfoSaneDefaults } from "@shared/api.ts";
-import { OpenAiModelsRequest } from "@shared/nice-grpc/cline/models.ts";
 import type { Mode } from "@shared/storage/types.ts";
 import { VSCodeButton, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import ReasoningEffortSelector from "../ReasoningEffortSelector";
 import { ApiKeyField } from "../common/ApiKeyField";
 import { BaseUrlField } from "../common/BaseUrlField";
@@ -53,36 +52,6 @@ export const OpenAICompatibleProvider = ({
   // Get mode-specific fields
   const { openAiModelInfo } = getModeSpecificFields(apiConfiguration, currentMode);
 
-  // Debounced function to refresh OpenAI models (prevents excessive API calls while typing)
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-    };
-  }, []);
-
-  const debouncedRefreshOpenAiModels = useCallback((baseUrl?: string, apiKey?: string) => {
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
-
-    if (baseUrl && apiKey) {
-      debounceTimerRef.current = setTimeout(() => {
-        ModelsServiceClient.refreshOpenAiModels(
-          OpenAiModelsRequest.create({
-            baseUrl,
-            apiKey,
-          }),
-        ).catch((error) => {
-          console.error("Failed to refresh OpenAI models:", error);
-        });
-      }, 500);
-    }
-  }, []);
-
   return (
     <div>
       <Tooltip>
@@ -121,20 +90,21 @@ export const OpenAICompatibleProvider = ({
         providerName="OpenAI Compatible"
       />
 
-      <DebouncedTextField
-        initialValue={selectedModelId || ""}
-        onChange={(value) =>
-          handleModeFieldChange(
-            { plan: "planModeOpenAiModelId", act: "actModeOpenAiModelId" },
-            value,
-            currentMode,
-          )
-        }
-        placeholder={"Enter Model ID..."}
-        style={{ width: "100%", marginBottom: 10 }}
-      >
-        <span style={{ fontWeight: 500 }}>Model ID</span>
-      </DebouncedTextField>
+      <div style={{ marginBottom: 10 }}>
+        <FuzzyModelPicker
+          currentMode={currentMode}
+          models={useExtensionState().openAiModels || {}}
+          onModelChange={(modelId) => {
+            handleModeFieldChange(
+              { plan: "planModeOpenAiModelId", act: "actModeOpenAiModelId" },
+              modelId,
+              currentMode,
+            );
+          }}
+          placeholder="Select or enter Model ID..."
+          selectedModelId={selectedModelId}
+        />
+      </div>
 
       {/* OpenAI Compatible Custom Headers */}
       {(() => {

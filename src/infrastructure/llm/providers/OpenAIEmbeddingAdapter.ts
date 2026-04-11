@@ -198,4 +198,8 @@ export class OpenAIEmbeddingAdapter implements EmbeddingService, LLMAdapter {
   getPromptStrategy(): PromptStrategy {
     return PromptStrategy.OPENAI;
   }
+
+  async dispose(): Promise<void> {
+    // Teardown OpenAI embedding adapter resources
+  }
 }

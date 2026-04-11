@@ -1,11 +1,6 @@
 import { useExtensionState } from "@/context/ExtensionStateContext";
-import { ModelsServiceClient } from "@/services/grpc-client";
-import { EmptyRequest } from "@shared/nice-grpc/cline/common.ts";
 import type { Mode } from "@shared/storage/types.ts";
 import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
-import { useCallback, useEffect, useState } from "react";
-import { useInterval } from "react-use";
-import type * as vscodemodels from "vscode";
 import { DROPDOWN_Z_INDEX, DropdownContainer } from "../common/ModelSelector";
 import { getModeSpecificFields } from "../utils/providerUtils";
 import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
@@ -15,32 +10,12 @@ interface VSCodeLmProviderProps {
 }
 
 export const VSCodeLmProvider = ({ currentMode }: VSCodeLmProviderProps) => {
-  const [vsCodeLmModels, setVsCodeLmModels] = useState<vscodemodels.LanguageModelChatSelector[]>(
-    [],
-  );
-  const { apiConfiguration } = useExtensionState();
+  const { apiConfiguration, vsCodeLmModels: vsCodeLmModelsMap } = useExtensionState();
+  const vsCodeLmModels = Object.values(vsCodeLmModelsMap || {});
+
   const { handleFieldChange, handleModeFieldChange } = useApiConfigurationHandlers();
 
   const { vsCodeLmModelSelector } = getModeSpecificFields(apiConfiguration, currentMode);
-
-  // Poll VS Code LM models
-  const requestVsCodeLmModels = useCallback(async () => {
-    try {
-      const response = await ModelsServiceClient.getVsCodeLmModels(EmptyRequest.create({}));
-      if (response?.models) {
-        setVsCodeLmModels(response.models);
-      }
-    } catch (error) {
-      console.error("Failed to fetch VS Code LM models:", error);
-      setVsCodeLmModels([]);
-    }
-  }, []);
-
-  useEffect(() => {
-    requestVsCodeLmModels();
-  }, [requestVsCodeLmModels]);
-
-  useInterval(requestVsCodeLmModels, 2000);
 
   return (
     <div>

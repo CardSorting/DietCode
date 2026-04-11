@@ -81,6 +81,25 @@ export interface ApiHandlerOptions extends Partial<ApiHandlerSettings> {
 
 export type ApiConfiguration = ApiHandlerOptions;
 
+// Default Model IDs for all supported providers
+// This export list must match api-configuration-conversion.ts requirements
+export const basetenDefaultModelId: string = "@cf/moonshotai/kimi-k2";
+export const bedrockDefaultModelId: string = "";
+export const deepSeekDefaultModelId: string = "";
+export const fireworksDefaultModelId: string = "";
+export const groqDefaultModelId: string = "";
+export const huaweiCloudMaasDefaultModelId: string = "";
+export const huggingFaceDefaultModelId: string = "";
+export const internationalQwenDefaultModelId: string = "";
+export const liteLlmDefaultModelId: string = "";
+export const minimaxDefaultModelId: string = ""; // Exported but not implemented (aliased to geminiDefaultModelId)
+export const moonshotDefaultModelId: string = "";
+export const nousResearchDefaultModelId: string = "";
+export const requestyDefaultModelId: string = "";
+export const sapAiCoreDefaultModelId: string = "";
+export const wandbDefaultModelId: string = "";
+export const xaiDefaultModelId: string = "";
+
 // Models
 
 interface PriceTier {

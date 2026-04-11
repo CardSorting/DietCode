@@ -213,6 +213,10 @@ export class CohereEmbeddingAdapter implements EmbeddingService, LLMAdapter {
    * Prompt strategy
    */
   getPromptStrategy(): PromptStrategy {
-    return PromptStrategy.COHERE;
+    return PromptStrategy.OPENAI;
+  }
+
+  async dispose(): Promise<void> {
+    // Teardown Cohere embedding adapter resources
   }
 }

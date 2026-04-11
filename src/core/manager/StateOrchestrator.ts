@@ -66,6 +66,7 @@ export interface StateOrchestratorConfig {
  */
 export class StateOrchestrator<T = unknown> {
   private static instance: StateOrchestrator<any> | null = null;
+  private state = new Map<string, any>();
   private observers = new Map<string, Set<StateObserver<unknown>>>();
   private globalObservers = new Set<StateObserver<unknown>>();
   private changesQueue = new Map<string, { change: StateChange<unknown>; newValue: unknown }>();
@@ -508,6 +509,21 @@ export class StateOrchestrator<T = unknown> {
   }
 
   /**
+   * Get current value from memory or storage
+   */
+  async getState<T>(key: string): Promise<T | undefined> {
+    if (this.state.has(key)) {
+      return this.state.get(key) as T;
+    }
+    const repo = VsCodeStateRepository.getInstance();
+    const val = await repo.get(key);
+    if (val !== undefined) {
+      this.state.set(key, val);
+    }
+    return val as T;
+  }
+
+  /**
    * Get current value from storage
    */
   async getValue<T>(key: string, defaultValue?: T): Promise<T | undefined> {
@@ -552,17 +568,4 @@ export class StateOrchestrator<T = unknown> {
   async forceFlush(): Promise<void> {
     await this.flushDebouncedChanges();
   }
-
-  /**
-   * Clear all pending changes
-   */
-  clearPending(): void {
-    if (this.debounceTimeout) {
-      clearTimeout(this.debounceTimeout);
-    }
-    this.changesQueue.clear();
-    this.pendingChangesMap.clear();
-  }
-
-
 }
