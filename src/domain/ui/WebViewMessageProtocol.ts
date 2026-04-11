@@ -32,6 +32,8 @@ export enum WebViewMessageType {
   SYSTEM_READY = 'system_ready',
   HEARTBEAT_PONG = 'heartbeat_pong',
   SYSTEM_METRICS = 'system_metrics',
+  STATE_UPDATE = 'state_update',
+  GRPC_RESPONSE = 'grpc_response',
 }
 
 /**
@@ -111,6 +113,8 @@ export interface WebViewMessage {
   version: string;
 }
 
+import type { ExtensionState } from '../../shared/ExtensionMessage';
+
 /**
  * Union payload type for WebViewMessage
  */
@@ -127,6 +131,7 @@ export type WebViewMessagePayload =
   | { settings: SovereignSettings }
   | { success: boolean; error?: string }
   | SystemMetrics
+  | ExtensionState
   | Record<string, unknown>;
 
 export interface SystemMetrics {
@@ -162,6 +167,7 @@ export interface SovereignSettings {
   providers: LLMProviderConfig[];
   neuralDepth?: 'shallow' | 'standard' | 'deep';
   theme?: string;
+  geminiApiKey?: string;
   availableProviderModels?: Record<string, unknown[]>;
   providerHealth?: Record<string, string>;
 }

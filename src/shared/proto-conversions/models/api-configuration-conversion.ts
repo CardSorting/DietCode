@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2026 DietCode Contributors
- *
+ * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -44,11 +44,10 @@ export function convertProtoToApiProvider(provider: ProtoApiProvider): ApiProvid
  */
 export function convertApiConfigurationToProto(config: ApiConfiguration): ProtoApiConfiguration {
   return {
-    apiKey: config.apiKey,
+    apiKey: config.geminiApiKey,
     ulid: config.ulid,
     geminiApiKey: config.geminiApiKey,
     geminiBaseUrl: config.geminiBaseUrl,
-    wandbApiKey: config.wandbApiKey,
 
     // Plan mode
     planModeApiProvider: config.planModeApiProvider
@@ -65,6 +64,7 @@ export function convertApiConfigurationToProto(config: ApiConfiguration): ProtoA
     actModeApiModelId: config.actModeApiModelId,
     actModeThinkingBudgetTokens: config.actModeThinkingBudgetTokens,
     geminiActModeThinkingLevel: config.geminiActModeThinkingLevel,
+    openAiHeaders: {}, // Required by proto schema
   };
 }
 
@@ -75,11 +75,8 @@ export function convertProtoToApiConfiguration(
   protoConfig: ProtoApiConfiguration,
 ): ApiConfiguration {
   return {
-    apiKey: protoConfig.apiKey,
-    ulid: protoConfig.ulid,
-    geminiApiKey: protoConfig.geminiApiKey,
+    geminiApiKey: protoConfig.geminiApiKey || protoConfig.apiKey,
     geminiBaseUrl: protoConfig.geminiBaseUrl,
-    wandbApiKey: protoConfig.wandbApiKey,
 
     planModeApiProvider:
       protoConfig.planModeApiProvider !== undefined
@@ -96,5 +93,6 @@ export function convertProtoToApiConfiguration(
     actModeApiModelId: protoConfig.actModeApiModelId,
     actModeThinkingBudgetTokens: protoConfig.actModeThinkingBudgetTokens,
     geminiActModeThinkingLevel: protoConfig.geminiActModeThinkingLevel,
+    ulid: protoConfig.ulid,
   };
 }
