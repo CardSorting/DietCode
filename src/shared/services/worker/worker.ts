@@ -1,5 +1,5 @@
 import { Logger } from "@/shared/services/Logger";
-import { type BlobStoreSettings, blobStorage } from "../../storage/ClineBlobStorage";
+import { type BlobStoreSettings, blobStorage } from "../../storage/DietBlobStorage";
 
 import type { SyncQueue, SyncQueueItem } from "./queue";
 

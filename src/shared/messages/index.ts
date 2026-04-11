@@ -10,9 +10,9 @@ export type {
   ClineMessageRole,
   ClinePromptInputContent,
   ClineReasoningDetailParam,
-  ClineStorageMessage,
+  DietStorageMessage,
   ClineTextContentBlock,
-  ClineToolResponseContent,
+  SovereignToolTypeResponseContent,
   ClineUserContent,
   ClineUserToolResultContentBlock,
 } from "./content";

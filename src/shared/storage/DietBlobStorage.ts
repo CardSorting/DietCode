@@ -1,5 +1,5 @@
 import { Logger } from "../services/Logger";
-import { ClineStorage } from "./ClineStorage";
+import { DietStorage } from "./DietStorage";
 import { type StorageAdapter, getStorageAdapter } from "./adapters";
 
 export interface BlobStoreSettings {
@@ -26,18 +26,18 @@ export interface BlobStoreSettings {
 }
 
 /**
- * S3/R2 blob storage implementation of ClineStorage.
+ * S3/R2 blob storage implementation of DietStorage.
  * Uses AWS S3 or Cloudflare R2 as the backend storage.
  */
-export class ClineBlobStorage extends ClineStorage {
-  override name = "ClineBlobStorage";
+export class DietBlobStorage extends DietStorage {
+  override name = "DietBlobStorage";
 
-  private static store: ClineBlobStorage | null = null;
-  static get instance(): ClineBlobStorage {
-    if (!ClineBlobStorage.store) {
-      ClineBlobStorage.store = new ClineBlobStorage();
+  private static store: DietBlobStorage | null = null;
+  static get instance(): DietBlobStorage {
+    if (!DietBlobStorage.store) {
+      DietBlobStorage.store = new DietBlobStorage();
     }
-    return ClineBlobStorage.store;
+    return DietBlobStorage.store;
   }
 
   private adapter: StorageAdapter | undefined;
@@ -68,7 +68,7 @@ export class ClineBlobStorage extends ClineStorage {
     }
 
     try {
-      if (!ClineBlobStorage.isConfigured(settings)) {
+      if (!DietBlobStorage.isConfigured(settings)) {
         // Not configured - this is expected and not an error
         return;
       }
@@ -78,11 +78,11 @@ export class ClineBlobStorage extends ClineStorage {
         this.adapter = adapter;
         this.settings = settings;
         this.initialized = true;
-        Logger.log(`[ClineBlobStorage] Adapter created for ${settings.adapterType}`);
+        Logger.log(`[DietBlobStorage] Adapter created for ${settings.adapterType}`);
       }
     } catch (error) {
       // Log but don't throw - allow startup to continue
-      Logger.error("[ClineBlobStorage] initialization failed:", error);
+      Logger.error("[DietBlobStorage] initialization failed:", error);
     }
   }
 
@@ -142,4 +142,4 @@ export class ClineBlobStorage extends ClineStorage {
  * Get the blob storage instance if S3/R2 storage is configured.
  * Returns null if not configured.
  */
-export const blobStorage = ClineBlobStorage.instance;
+export const blobStorage = DietBlobStorage.instance;

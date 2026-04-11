@@ -18,7 +18,7 @@ import type { ClineRulesToggles } from "../cline-rules";
 import type { WorkspaceRoot } from "../multi-root/types";
 import type { GlobalInstructionsFile } from "../remote-config/schema";
 import type { Mode } from "./types";
-import type { BlobStoreSettings } from "./ClineBlobStorage";
+import type { BlobStoreSettings } from "./DietBlobStorage";
 
 // ============================================================================
 // SINGLE SOURCE OF TRUTH FOR STORAGE KEYS

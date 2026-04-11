@@ -1,10 +1,10 @@
 import { Logger } from "../services/Logger";
 
-export interface ClineStorageChangeEvent {
+export interface DietStorageChangeEvent {
   readonly key: string;
 }
 
-export type StorageEventListener = (event: ClineStorageChangeEvent) => Promise<void>;
+export type StorageEventListener = (event: DietStorageChangeEvent) => Promise<void>;
 
 // ============================================================================
 // Interfaces for VSCode compatibility (removes vscode import dependency)
@@ -12,9 +12,9 @@ export type StorageEventListener = (event: ClineStorageChangeEvent) => Promise<v
 
 /**
  * Memento-compatible interface for sync key-value storage.
- * VSCode's Memento and ClineSyncStorage both satisfy this interface.
+ * VSCode's Memento and DietSyncStorage both satisfy this interface.
  */
-export interface ClineMemento {
+export interface DietMemento {
   get<T>(key: string): T | undefined;
   get<T>(key: string, defaultValue: T): T;
   update(key: string, value: any): Thenable<void>;
@@ -31,11 +31,11 @@ export interface ClineMemento {
  * Subclasses must implement the protected abstract methods to define their storage logic.
  * The public methods (get, store, delete) are final and cannot be overridden.
  */
-export abstract class ClineStorage {
+export abstract class DietStorage {
   /**
    * The name of the storage, used for logging purposes.
    */
-  protected name = "ClineStorage";
+  protected name = "DietStorage";
   /**
    * List of subscribers to storage change events.
    */
@@ -118,13 +118,13 @@ export abstract class ClineStorage {
 
 /**
  * Abstract base class for synchronous JSON storage.
- * Unlike ClineStorage (string key-value, async), this stores any JSON-serializable
+ * Unlike DietStorage (string key-value, async), this stores any JSON-serializable
  * values and provides synchronous access - required for VSCode Memento compatibility.
  */
 
-export type SyncStorageEventListener = (event: ClineStorageChangeEvent) => void;
+export type SyncStorageEventListener = (event: DietStorageChangeEvent) => void;
 
-export abstract class ClineSyncStorage<T = any> {
+export abstract class DietSyncStorage<T = any> {
   protected abstract name: string;
 
   /**
@@ -212,9 +212,9 @@ export abstract class ClineSyncStorage<T = any> {
 }
 
 /**
- * A simple in-memory implementation of ClineStorage using a Map.
+ * A simple in-memory implementation of DietStorage using a Map.
  */
-export class ClineInMemoryStorage extends ClineStorage {
+export class DietInMemoryStorage extends DietStorage {
   /**
    * A simple in-memory cache to store key-value pairs.
    */

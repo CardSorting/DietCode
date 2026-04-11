@@ -68,7 +68,7 @@ export interface ClineAssistantRedactedThinkingBlock
   extends Anthropic.RedactedThinkingBlockParam,
     ClineSharedMessageParam {}
 
-export type ClineToolResponseContent =
+export type SovereignToolTypeResponseContent =
   | ClinePromptInputContent
   | Array<ClineTextContentBlock | ClineImageContentBlock>;
 
@@ -94,7 +94,7 @@ export type ClineContent = ClineUserContent | ClineAssistantContent;
  * while allowing for additional metadata specific to Cline to avoid unknown fields in Anthropic SDK
  * added by ignoring the type checking for those fields.
  */
-export interface ClineStorageMessage extends Anthropic.MessageParam {
+export interface DietStorageMessage extends Anthropic.MessageParam {
   /**
    * Response ID associated with this message
    */

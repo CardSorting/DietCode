@@ -1,8 +1,8 @@
 import fsSync from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { ClineFileStorage } from "./ClineFileStorage";
-import type { ClineMemento } from "./ClineStorage";
+import { DietFileStorage } from "./DietFileStorage";
+import type { DietMemento } from "./DietStorage";
 
 /**
  * The storage backend context object used by StateManager and other components.
@@ -14,22 +14,22 @@ import type { ClineMemento } from "./ClineStorage";
  */
 export interface StorageContext {
   /** Global state — settings, task history references, UI state, etc. */
-  readonly globalState: ClineMemento;
+  readonly globalState: DietMemento;
 
   // TODO: Privatize this field after StorageContext becomes class with a reset method.
   /**
    * The backing store for global state. Prefer `globalState` when possible.
    *
-   * This split exists because CLI needs to intercept the ClineMemento interface to global state,
+   * This split exists because CLI needs to intercept the DietMemento interface to global state,
    * but state resets need to write through to the backing store.
    */
-  readonly globalStateBackingStore: ClineFileStorage;
+  readonly globalStateBackingStore: DietFileStorage;
 
   /** Secrets — API keys and other sensitive values. File uses restricted permissions (0o600). */
-  readonly secrets: ClineFileStorage<string>;
+  readonly secrets: DietFileStorage<string>;
 
   /** Workspace-scoped state — per-project toggles, rules, etc. */
-  readonly workspaceState: ClineFileStorage;
+  readonly workspaceState: DietFileStorage;
 
   /** The resolved path to the data directory (~/.cline/data) */
   readonly dataDir: string;
@@ -111,15 +111,15 @@ export function createStorageContext(opts: StorageContextOptions = {}): StorageC
   fsSync.mkdirSync(dataDir, { recursive: true });
   fsSync.mkdirSync(workspaceDir, { recursive: true });
 
-  const globalState = new ClineFileStorage(path.join(dataDir, "globalState.json"), "GlobalState");
+  const globalState = new DietFileStorage(path.join(dataDir, "globalState.json"), "GlobalState");
 
   return {
     globalState,
     globalStateBackingStore: globalState,
-    secrets: new ClineFileStorage<string>(path.join(dataDir, "secrets.json"), "Secrets", {
+    secrets: new DietFileStorage<string>(path.join(dataDir, "secrets.json"), "Secrets", {
       fileMode: 0o600, // Owner read/write only — protects API keys
     }),
-    workspaceState: new ClineFileStorage(
+    workspaceState: new DietFileStorage(
       path.join(workspaceDir, "workspaceState.json"),
       "WorkspaceState",
     ),

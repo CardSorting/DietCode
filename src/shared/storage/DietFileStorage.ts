@@ -1,9 +1,9 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { Logger } from "../services/Logger";
-import { ClineSyncStorage } from "./ClineStorage";
+import { DietSyncStorage } from "./DietStorage";
 
-export interface ClineFileStorageOptions {
+export interface DietFileStorageOptions {
   /**
    * File permissions mode (e.g., 0o600 for owner read/write only).
    * If not set, uses the system default.
@@ -16,13 +16,13 @@ export interface ClineFileStorageOptions {
  * Stores any JSON-serializable values with sync read and write.
  * Used for VSCode Memento compatibility and CLI environments.
  */
-export class ClineFileStorage<T = any> extends ClineSyncStorage<T> {
+export class DietFileStorage<T = any> extends DietSyncStorage<T> {
   protected name: string;
   private data: Record<string, T>;
   private readonly fsPath: string;
   private readonly fileMode?: number;
 
-  constructor(filePath: string, name = "ClineFileStorage", options?: ClineFileStorageOptions) {
+  constructor(filePath: string, name = "DietFileStorage", options?: DietFileStorageOptions) {
     super();
     this.fsPath = filePath;
     this.name = name;
