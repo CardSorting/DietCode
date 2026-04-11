@@ -1,40 +1,8 @@
 {
   "list": [
     {
-      "value": "anthropic",
-      "label": "Anthropic"
-    },
-    {
-      "value": "openai-native",
-      "label": "OpenAI"
-    },
-    {
-      "value": "openai",
-      "label": "OpenAI Compatible"
-    },
-    {
       "value": "gemini",
       "label": "Google Gemini"
-    },
-    {
-      "value": "openrouter",
-      "label": "OpenRouter"
-    },
-    {
-      "value": "ollama",
-      "label": "Ollama (Local)"
-    },
-    {
-      "value": "cloudflare",
-      "label": "Cloudflare Workers AI"
-    },
-    {
-      "value": "vscode-lm",
-      "label": "VS Code Language Models"
-    },
-    {
-      "value": "cline",
-      "label": "DietCode Cloud"
     }
   ]
 }

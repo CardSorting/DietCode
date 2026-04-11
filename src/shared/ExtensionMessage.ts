@@ -121,15 +121,9 @@ export interface ExtensionState {
   showFeatureTips?: boolean;
   banners?: BannerCardData[];
   welcomeBanners?: BannerCardData[];
-  openAiCodexIsAuthenticated?: boolean;
   mcpServers?: McpServer[];
   availableProviderModels?: Record<string, Record<string, ModelInfo>>;
   providerHealth?: Record<string, { status: "healthy" | "unhealthy" | "degraded"; message?: string }>;
-  openRouterModels?: Record<string, ModelInfo>;
-  clineModels?: Record<string, ModelInfo>;
-  openAiModels?: Record<string, ModelInfo>;
-  ollamaModels?: Record<string, ModelInfo>;
-  vsCodeLmModels?: Record<string, ModelInfo>;
   favoritedModelIds?: string[];
   taskHistorySummary?: unknown[];
   settingsInitialModelTab?: "recommended" | "free";

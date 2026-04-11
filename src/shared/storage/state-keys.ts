@@ -12,14 +12,12 @@ import {
   type ApiProvider,
   DEFAULT_API_PROVIDER,
   type ModelInfo,
-  type OpenAiCompatibleModelInfo,
 } from "../api";
 import type { McpServer } from "../mcp";
 import type { ClineRulesToggles } from "../cline-rules";
 import type { WorkspaceRoot } from "../multi-root/types";
 import type { GlobalInstructionsFile } from "../remote-config/schema";
 import type { Mode } from "./types";
-import type { LanguageModelChatSelector } from "vscode";
 import type { BlobStoreSettings } from "./ClineBlobStorage";
 
 // ============================================================================
@@ -103,11 +101,6 @@ const GLOBAL_STATE_FIELDS = {
 
   // PRODUCTION SYNCHRONIZATION: Dynamic provider discovery and health
   availableProviderModels: { default: {} as Record<string, ModelInfo[]> },
-  openRouterModels: { default: {} as Record<string, ModelInfo> },
-  clineModels: { default: {} as Record<string, ModelInfo> },
-  openAiModels: { default: {} as Record<string, ModelInfo> },
-  ollamaModels: { default: {} as Record<string, ModelInfo> },
-  vsCodeLmModels: { default: {} as Record<string, ModelInfo> },
   providerHealth: { default: {} as Record<string, 'online' | 'offline' | 'error' | 'untested'> },
   remoteGlobalSkillsToggles: { default: {} as Record<string, boolean> },
 
@@ -127,70 +120,29 @@ const GLOBAL_STATE_FIELDS = {
 const API_HANDLER_SETTINGS_FIELDS = {
   // Global configuration (not mode-specific)
   enableParallelToolCalling: { default: true as boolean },
-  openAiHeaders: { default: {} as Record<string, string> },
-  azureIdentity: { default: undefined as boolean | undefined },
-  azureApiVersion: { default: undefined as string | undefined },
 
   // Plan mode configurations
   planModeApiModelId: { default: undefined as string | undefined },
   planModeThinkingBudgetTokens: { default: undefined as number | undefined },
   geminiPlanModeThinkingLevel: { default: undefined as string | undefined },
-  planModeReasoningEffort: { default: undefined as string | undefined },
   planModeVerbosity: { default: undefined as string | undefined },
-  planModeVsCodeLmModelSelector: { default: undefined as LanguageModelChatSelector | undefined },
-  planModeOpenRouterModelInfo: { default: undefined as ModelInfo | undefined },
-  planModeClineModelId: { default: undefined as string | undefined },
-  planModeClineModelInfo: { default: undefined as ModelInfo | undefined },
-  planModeOpenAiModelId: { default: undefined as string | undefined },
-  planModeOpenAiModelInfo: { default: undefined as OpenAiCompatibleModelInfo | undefined },
-  planModeOllamaModelId: { default: undefined as string | undefined },
-  planModeOpenRouterModelId: { default: undefined as string | undefined },
-  actModeOpenRouterModelId: { default: undefined as string | undefined },
-  openRouterBaseUrl: { default: undefined as string | undefined },
-  anthropicBaseUrl: { default: undefined as string | undefined },
   geminiBaseUrl: { default: undefined as string | undefined },
-  openAiNativeApiKey: { default: undefined as string | undefined },
 
   // Act mode configurations
   actModeApiModelId: { default: undefined as string | undefined },
   actModeThinkingBudgetTokens: { default: undefined as number | undefined },
   geminiActModeThinkingLevel: { default: undefined as string | undefined },
-  actModeReasoningEffort: { default: undefined as string | undefined },
   actModeVerbosity: { default: undefined as string | undefined },
-  actModeVsCodeLmModelSelector: { default: undefined as LanguageModelChatSelector | undefined },
-  actModeOpenRouterModelInfo: { default: undefined as ModelInfo | undefined },
-  actModeClineModelId: { default: undefined as string | undefined },
-  actModeClineModelInfo: { default: undefined as ModelInfo | undefined },
-  actModeOpenAiModelId: { default: undefined as string | undefined },
-  actModeOpenAiModelInfo: { default: undefined as OpenAiCompatibleModelInfo | undefined },
-  actModeOllamaModelId: { default: undefined as string | undefined },
-  openRouterProviderSorting: { default: undefined as string | undefined },
 
   // Model-specific settings
   planModeApiProvider: { default: DEFAULT_API_PROVIDER as ApiProvider | string },
   actModeApiProvider: { default: DEFAULT_API_PROVIDER as ApiProvider | string },
 
   // Mode-specific API keys and URLs
-  planModeApiKey: { default: undefined as string | undefined },
-  actModeApiKey: { default: undefined as string | undefined },
-  planModeOpenAiBaseUrl: { default: undefined as string | undefined },
-  actModeOpenAiBaseUrl: { default: undefined as string | undefined },
-  planModeAnthropicBaseUrl: { default: undefined as string | undefined },
-  actModeAnthropicBaseUrl: { default: undefined as string | undefined },
-  planModeOpenAiNativeApiKey: { default: undefined as string | undefined },
-  actModeOpenAiNativeApiKey: { default: undefined as string | undefined },
-  planModeOpenRouterApiKey: { default: undefined as string | undefined },
-  actModeOpenRouterApiKey: { default: undefined as string | undefined },
-  planModeOpenRouterBaseUrl: { default: undefined as string | undefined },
-  actModeOpenRouterBaseUrl: { default: undefined as string | undefined },
   planModeGeminiApiKey: { default: undefined as string | undefined },
   actModeGeminiApiKey: { default: undefined as string | undefined },
   planModeGeminiBaseUrl: { default: undefined as string | undefined },
   actModeGeminiBaseUrl: { default: undefined as string | undefined },
-  requestyModelId: { default: undefined as string | undefined },
-  togetherModelId: { default: undefined as string | undefined },
-  lmStudioModelId: { default: undefined as string | undefined },
-  hicapModelId: { default: undefined as string | undefined },
 } satisfies FieldDefinitions;
 
 const USER_SETTINGS_FIELDS = {
@@ -257,11 +209,7 @@ const GLOBAL_STATE_AND_SETTINGS_FIELDS = { ...GLOBAL_STATE_FIELDS, ...SETTINGS_F
 
 // Secret keys used in Api Configuration
 const SECRETS_KEYS = [
-  "apiKey",
-  "openRouterApiKey",
-  "openAiApiKey",
   "geminiApiKey",
-  "openAiNativeApiKey",
   "wandbApiKey",
 ] as const;
 

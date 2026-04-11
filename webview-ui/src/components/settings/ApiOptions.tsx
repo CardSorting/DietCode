@@ -11,23 +11,12 @@ import Fuse from "fuse.js";
 import { type KeyboardEvent, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useInterval } from "react-use";
 import { StandardProviderLayout } from "./common/StandardProviderLayout";
-import { OllamaProvider } from "./providers/OllamaProvider";
-import { OpenAICompatibleProvider } from "./providers/OpenAICompatible";
-import { VSCodeLmProvider } from "./providers/VSCodeLmProvider";
 import {
-  anthropicModels,
   geminiModels,
-  openAiNativeModels,
   type ModelInfo,
 } from "@shared/api.ts";
-import ClineModelPicker from "./ClineModelPicker";
-import {
-  filterOpenRouterModelIds,
-} from "./utils/providerUtils";
 import type { ApiProvider } from "@shared/api.ts";
 import { useApiConfigurationHandlers } from "./utils/useApiConfigurationHandlers";
-import { FuzzyModelPicker } from "./common/FuzzyModelPicker";
-import { DropdownContainer, DROPDOWN_Z_INDEX } from "./common/ModelSelector";
 import { cn } from "@/lib/utils";
 
 interface ApiOptionsProps {
@@ -47,38 +36,10 @@ const ApiOptions = memo(({
   currentMode,
   initialModelTab,
 }: ApiOptionsProps) => {
-  const { apiConfiguration, remoteConfigSettings, openRouterModels, favoritedModelIds, availableProviderModels } = useExtensionState();
+  const { apiConfiguration, remoteConfigSettings, favoritedModelIds, availableProviderModels } = useExtensionState();
   const normalized = normalizeApiConfiguration(apiConfiguration, currentMode);
   const { selectedProvider, selectedModelId, selectedModelInfo } = normalized;
   const { handleModeFieldChange, handleFieldChange, handleModeFieldsChange } = useApiConfigurationHandlers();
-
-  // Dynamic model discovery refresh
-  useEffect(() => {
-    const refreshModels = async () => {
-      try {
-        if (selectedProvider === "ollama") {
-          await ModelsServiceClient.getOllamaModels(
-            StringRequest.create({ value: apiConfiguration?.ollamaBaseUrl || "" }),
-          );
-          // These will automatically flow back through StateOrchestrator -> ExtensionState
-        } else if (selectedProvider === "openai-native") {
-          await ModelsServiceClient.refreshOpenAiModels({
-            baseUrl: apiConfiguration?.openAiBaseUrl || "",
-            apiKey: apiConfiguration?.openAiNativeApiKey || "",
-            metadata: {}
-          });
-        } else if (selectedProvider === "openrouter") {
-          await ModelsServiceClient.refreshOpenRouterModelsRpc({});
-        } else if (selectedProvider === "cline") {
-          await ModelsServiceClient.refreshClineModelsRpc({});
-        }
-      } catch (error) {
-        console.error(`[ApiOptions] Failed to refresh models for ${selectedProvider}:`, error);
-      }
-    };
-
-    refreshModels();
-  }, [selectedProvider, apiConfiguration?.openAiNativeApiKey, apiConfiguration?.openRouterApiKey, apiConfiguration?.ollamaBaseUrl]);
 
   // Provider search state
   const [searchTerm, setSearchTerm] = useState("");
@@ -89,16 +50,8 @@ const ApiOptions = memo(({
   const isInternalChangeRef = useRef(false);
 
   const providerOptions = useMemo(() => {
-    let providers = PROVIDERS.list;
-    if (PLATFORM_CONFIG.type !== PlatformType.VSCODE) {
-      providers = providers.filter((option) => option.value !== "vscode-lm");
-    }
-    const remoteProviders = (remoteConfigSettings?.remoteConfiguredProviders as ApiProvider[] | undefined) || [];
-    if (remoteProviders.length > 0) {
-      providers = providers.filter((option) => remoteProviders.includes(option.value as ApiProvider));
-    }
-    return providers;
-  }, [remoteConfigSettings]);
+    return PROVIDERS.list;
+  }, []);
 
   const currentProviderLabel = useMemo(() => {
     return providerOptions.find((option) => option.value === selectedProvider)?.label || selectedProvider;
@@ -190,25 +143,6 @@ const ApiOptions = memo(({
     onModelChange: (v: string) => handleModeFieldChange({ plan: "planModeApiModelId", act: "actModeApiModelId" }, v, currentMode),
   };
 
-  const openRouterModelIds = useMemo(() => {
-    const unfiltered = Object.keys(openRouterModels || {}).sort();
-    return filterOpenRouterModelIds(unfiltered, "openrouter");
-  }, [openRouterModels]);
-
-  const handleOpenRouterModelChange = (newModelId: string) => {
-    handleModeFieldsChange(
-      {
-        openRouterModelId: { plan: "planModeOpenRouterModelId", act: "actModeOpenRouterModelId" },
-        openRouterModelInfo: { plan: "planModeOpenRouterModelInfo", act: "actModeOpenRouterModelInfo" },
-      },
-      {
-        openRouterModelId: newModelId,
-        openRouterModelInfo: (openRouterModels as Record<string, ModelInfo>)[newModelId],
-      },
-      currentMode,
-    );
-  };
-
   return (
     <div className={cn("flex flex-col gap-1", isPopup && "-mb-2.5")}>
       {/* Provider Selector */}
@@ -273,74 +207,6 @@ const ApiOptions = memo(({
       {/* Provider Settings */}
       {apiConfiguration && (
         <div className="space-y-4 mt-2">
-          {selectedProvider === "cline" && (
-            <StandardProviderLayout
-              {...commonProps}
-              apiKey={apiConfiguration.apiKey || ""}
-              baseUrl={apiConfiguration.openAiBaseUrl}
-              baseUrlPlaceholder="Default: https://api.openai.com/v1"
-              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeApiKey", act: "actModeApiKey" }, v as string, currentMode)}
-              onBaseUrlChange={(v) => handleModeFieldChange({ plan: "planModeOpenAiBaseUrl", act: "actModeOpenAiBaseUrl" }, v as unknown as string, currentMode)}
-              providerName="Cline"
-            >
-              <ClineModelPicker currentMode={currentMode} initialTab={initialModelTab} isPopup={isPopup} />
-            </StandardProviderLayout>
-          )}
-
-          {selectedProvider === "anthropic" && (
-            <StandardProviderLayout
-              {...commonProps}
-              apiKey={apiConfiguration.apiKey || ""}
-              baseUrl={apiConfiguration.anthropicBaseUrl}
-              baseUrlPlaceholder="Default: https://api.anthropic.com"
-              models={availableProviderModels?.anthropic ? Object.fromEntries(availableProviderModels.anthropic.map(m => [m.id, m])) : anthropicModels}
-              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeApiKey", act: "actModeApiKey" }, v as string, currentMode)}
-              onBaseUrlChange={(v) => handleModeFieldChange({ plan: "planModeAnthropicBaseUrl", act: "actModeAnthropicBaseUrl" }, v as string, currentMode)}
-              providerName="Anthropic"
-              remoteBaseUrl={remoteConfigSettings?.anthropicBaseUrl}
-              signupUrl="https://console.anthropic.com/settings/keys"
-            />
-          )}
-
-          {selectedProvider === "openai-native" && (
-            <StandardProviderLayout
-              {...commonProps}
-              apiKey={apiConfiguration.openAiNativeApiKey || ""}
-              models={availableProviderModels?.["openai-native"] ? Object.fromEntries(availableProviderModels["openai-native"].map(m => [m.id, m])) : openAiNativeModels}
-              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeOpenAiNativeApiKey", act: "actModeOpenAiNativeApiKey" }, v as string, currentMode)}
-              providerName="OpenAI"
-              signupUrl="https://platform.openai.com/api-keys"
-            />
-          )}
-
-          {selectedProvider === "openrouter" && (
-            <StandardProviderLayout
-              {...commonProps}
-              apiKey={apiConfiguration.openRouterApiKey || ""}
-              baseUrl={apiConfiguration.openRouterBaseUrl}
-              baseUrlPlaceholder="Default: https://openrouter.ai/api/v1"
-              onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeOpenRouterApiKey", act: "actModeOpenRouterApiKey" }, v as string, currentMode)}
-              onBaseUrlChange={(v) => handleModeFieldChange({ plan: "planModeOpenRouterBaseUrl", act: "actModeOpenRouterBaseUrl" }, v as string, currentMode)}
-              providerName="OpenRouter"
-              signupUrl="https://openrouter.ai/keys"
-              onProviderSortingChange={(v) => handleFieldChange("openRouterProviderSorting", v)}
-              providerSorting={apiConfiguration?.openRouterProviderSorting}
-            >
-              <FuzzyModelPicker
-                favoritedModelIds={favoritedModelIds}
-                modelIds={openRouterModelIds}
-                onModelChange={handleOpenRouterModelChange}
-                selectedModelId={selectedModelId}
-              />
-              <p className="text-[11px] mt-2 text-description leading-normal">
-                Latest models on <VSCodeLink href="https://openrouter.ai/models" className="inline text-inherit">OpenRouter.</VSCodeLink>
-                Try <VSCodeLink onClick={() => handleOpenRouterModelChange("anthropic/claude-sonnet-4.6")} className="inline text-inherit">anthropic/claude-sonnet-4.6.</VSCodeLink>
-              </p>
-            </StandardProviderLayout>
-          )}
-
-          {selectedProvider === "openai" && <OpenAICompatibleProvider currentMode={currentMode} isPopup={isPopup} showModelOptions={showModelOptions} />}
-
           {selectedProvider === "gemini" && (
             <StandardProviderLayout
               {...commonProps}
@@ -354,9 +220,6 @@ const ApiOptions = memo(({
               signupUrl="https://aistudio.google.com/apikey"
             />
           )}
-
-          {selectedProvider === "vscode-lm" && <VSCodeLmProvider currentMode={currentMode} />}
-          {selectedProvider === "ollama" && <OllamaProvider currentMode={currentMode} isPopup={isPopup} showModelOptions={showModelOptions} />}
         </div>
       )}
 

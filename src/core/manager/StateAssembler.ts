@@ -59,7 +59,7 @@ export class StateAssembler {
         }
 
         return {
-            version: '2.6.1',
+            version: '2.7.7',
             isNewUser: orchestrated.isNewUser ?? false,
             welcomeViewCompleted: true, // PRODUCTION HARDENING: Skip onboarding globally
             onboardingModels: undefined,
@@ -126,11 +126,6 @@ export class StateAssembler {
             dismissedBanners: orchestrated.dismissedBanners || [],
             
             availableProviderModels: orchestrated.availableProviderModels || {},
-            openRouterModels: orchestrated.openRouterModels || {},
-            clineModels: orchestrated.clineModels || {},
-            openAiModels: orchestrated.openAiModels || {},
-            ollamaModels: orchestrated.ollamaModels || {},
-            vsCodeLmModels: orchestrated.vsCodeLmModels || {},
             providerHealth: orchestrated.providerHealth || {},
             mcpServers: orchestrated.mcpServers || [],
             taskHistorySummary: orchestrated.taskHistorySummary || [],

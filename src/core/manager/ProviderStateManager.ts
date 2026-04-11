@@ -60,7 +60,7 @@ export class ProviderStateManager implements StateObserver<ApiConfiguration> {
       [providerId]: models
     };
 
-    // Update the generic map
+    // Generic map update is sufficient now
     await orchestrator.applyChange({
       key: 'availableProviderModels',
       newValue: updatedModels,
@@ -69,39 +69,6 @@ export class ProviderStateManager implements StateObserver<ApiConfiguration> {
       sanitize: () => updatedModels,
       getCorrelationId: () => `registry-update-models-${providerId}-${Date.now()}`
     }, 100); // Small debounce for batch updates
-
-    // Also update provider-specific fields for centralized gRPC push
-    const modelsMap = Object.fromEntries(models.map(m => [m.id, m]));
-    let specificKey: string | undefined;
-
-    switch (providerId) {
-      case 'openrouter':
-        specificKey = 'openRouterModels';
-        break;
-      case 'cline':
-        specificKey = 'clineModels';
-        break;
-      case 'openai-compatible':
-        specificKey = 'openAiModels';
-        break;
-      case 'ollama':
-        specificKey = 'ollamaModels';
-        break;
-      case 'vscode-lm':
-        specificKey = 'vsCodeLmModels';
-        break;
-    }
-
-    if (specificKey) {
-      await orchestrator.applyChange({
-        key: specificKey as any,
-        newValue: modelsMap,
-        stateSet: {} as any,
-        validate: () => true,
-        sanitize: () => modelsMap,
-        getCorrelationId: () => `registry-update-specific-models-${providerId}-${Date.now()}`
-      }, 100);
-    }
   }
 
   /**
@@ -158,8 +125,7 @@ export class ProviderStateManager implements StateObserver<ApiConfiguration> {
   private _maskConfig(config: ApiConfiguration): any {
     const masked = { ...config } as any;
     const sensitiveKeys = [
-      'apiKey', 'openAiApiKey', 'geminiApiKey', 'openRouterApiKey',
-      'awsAccessKey', 'awsSecretKey', 'azureApiKey'
+      'apiKey', 'geminiApiKey'
     ];
 
     for (const key of sensitiveKeys) {

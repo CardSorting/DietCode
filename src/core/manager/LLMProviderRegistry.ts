@@ -28,13 +28,7 @@ import type {
 import { PromptStrategy as EnumPromptStrategy } from '../../domain/agent/LLMProviderAdapter';
 import type { ToolDefinition } from '../../domain/agent/ToolDefinition';
 import type { LogService } from '../../domain/logging/LogService';
-import { AnthropicAdapter } from '../../infrastructure/llm/providers/AnthropicAdapter';
-import { CloudflareAdapter } from '../../infrastructure/llm/providers/CloudflareProvider';
 import { GeminiAdapter } from '../../infrastructure/llm/providers/GeminiAdapter';
-import { OpenAIAdapter } from '../../infrastructure/llm/providers/OpenAIAdapter';
-import { OpenRouterAdapter } from '../../infrastructure/llm/providers/OpenRouterAdapter';
-import { VsCodeLmAdapter } from '../../infrastructure/llm/providers/VsCodeLmAdapter';
-import { OpenAIEmbeddingAdapter } from '../../infrastructure/llm/providers/OpenAIEmbeddingAdapter';
 
 /**
  * Provider information interface
@@ -236,63 +230,12 @@ export class LLMProviderRegistry {
    */
   async createProviderFromConfig(providerId: string, config: AdapterConfig): Promise<LLMAdapter> {
     switch (providerId.toLowerCase()) {
-      case 'openai':
-      case 'openai-native':
-        return new OpenAIAdapter({
-          apiKey: config.apiKey,
-          apiBase: config.apiBase,
-          model: config.model || 'gpt-4o',
-          maxTokens: config.maxTokens,
-          temperature: config.temperature,
-        });
-
-      case 'anthropic':
-        return new AnthropicAdapter({
-          apiKey: config.apiKey,
-          model: config.model || 'claude-3-7-sonnet-20250219',
-          maxTokens: config.maxTokens,
-          temperature: config.temperature,
-        });
-
-      case 'openrouter':
-        return new OpenRouterAdapter({
-          apiKey: config.apiKey,
-          model: config.model || 'anthropic/claude-3.7-sonnet',
-          maxTokens: config.maxTokens,
-          temperature: config.temperature,
-        });
-
       case 'gemini':
         return new GeminiAdapter({
           apiKey: config.apiKey,
           model: config.model || 'gemini-2.0-flash',
           maxTokens: config.maxTokens,
           temperature: config.temperature,
-        });
-
-      case 'vscode-lm':
-        return new VsCodeLmAdapter({
-          apiKey: '',
-          model: config.model || 'gpt-4o',
-        });
-
-      case 'ollama':
-        return new OpenAIAdapter({
-          apiKey: 'ollama',
-          apiBase: config.apiBase || 'http://localhost:11434/v1',
-          model: config.model || 'llama3',
-          maxTokens: config.maxTokens,
-          temperature: config.temperature,
-        });
-
-      case 'cloudflare':
-        if (!config.apiKey && !(config as any).apiToken) {
-          throw new Error('Cloudflare requires an API token');
-        }
-        return new CloudflareAdapter({
-          accountId: (config as any).accountId || process.env.CLOUDFLARE_ACCOUNT_ID || '',
-          apiToken: config.apiKey || (config as any).apiToken,
-          model: config.model,
         });
 
       default:
@@ -380,14 +323,7 @@ export class LLMProviderRegistry {
    */
   async updateActiveConfiguration(config: ApiConfiguration): Promise<void> {
     const providersToSync: ApiProvider[] = [
-      'anthropic',
-      'openai',
-      'openai-native',
       'gemini',
-      'ollama',
-      'openrouter',
-      'cloudflare',
-      'vscode-lm',
     ];
 
     for (const providerId of providersToSync) {
@@ -442,43 +378,11 @@ export class LLMProviderRegistry {
     config: ApiConfiguration,
   ): AdapterConfig | undefined {
     switch (providerId) {
-      case 'anthropic':
-        if (!config.apiKey) return undefined;
-        return {
-          apiKey: config.apiKey,
-          model: config.apiModelId,
-          maxTokens: config.modelInfo?.maxTokens,
-        };
-      case 'openai':
-      case 'openai-native':
-        if (!config.openAiApiKey && !config.apiKey) return undefined;
-        return {
-          apiKey: config.openAiApiKey || config.apiKey!,
-          apiBase: config.openAiBaseUrl,
-          model: config.openAiModelId,
-        };
       case 'gemini':
         if (!config.geminiApiKey) return undefined;
         return {
           apiKey: config.geminiApiKey,
           model: config.geminiModelId,
-        };
-      case 'openrouter':
-        if (!config.openRouterApiKey) return undefined;
-        return {
-          apiKey: config.openRouterApiKey,
-          model: config.openRouterModelId,
-        };
-      case 'ollama':
-        return {
-          apiKey: 'ollama',
-          apiBase: config.ollamaBaseUrl,
-          model: config.ollamaModelId,
-        };
-      case 'vscode-lm':
-        return {
-          apiKey: '',
-          model: config.planModeVsCodeLmModelSelector?.id || 'gpt-4o',
         };
       default:
         return undefined;
@@ -590,55 +494,4 @@ class CompositeLLMAdapter implements LLMAdapter {
   }
 }
 
-/**
- * Auto-register OpenAI embeddings registry
- */
-export function initializeOpenAIEmbeddings(apiKey: string) {
-  const registry = LLMProviderRegistry.getInstance();
-  const embeddingAdapter = new OpenAIEmbeddingAdapter({
-    apiKey,
-    model: 'text-embedding-3-small',
-  });
 
-  registry.registerProvider('openai', embeddingAdapter);
-  registry.registerProviderInfo({
-    id: 'openai',
-    name: 'OpenAI',
-    capabilities: {
-      supportsStreaming: true,
-      supportsPromptCache: true,
-      supportsReasoning: true,
-      supportsEmbeddings: true,
-    },
-    defaultModel: 'gpt-4o',
-  });
-
-  console.log('✅ OpenAI embeddings auto-registered');
-}
-
-/**
- * Auto-register Cloudflare registry
- */
-export function initializeCloudflare(accountId: string, apiToken: string) {
-  const registry = LLMProviderRegistry.getInstance();
-  const adapter = new CloudflareAdapter({
-    accountId,
-    apiToken,
-    model: '@cf/moonshotai/kimi-k2.5',
-  });
-
-  registry.registerProvider('cloudflare', adapter);
-  registry.registerProviderInfo({
-    id: 'cloudflare',
-    name: 'Cloudflare Workers AI',
-    capabilities: {
-      supportsStreaming: true,
-      supportsPromptCache: true,
-      supportsReasoning: true,
-      supportsEmbeddings: false,
-    },
-    defaultModel: '@cf/moonshotai/kimi-k2.5',
-  });
-
-  console.log('✅ Cloudflare AI auto-registered');
-}

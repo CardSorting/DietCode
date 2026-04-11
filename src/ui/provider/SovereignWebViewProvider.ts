@@ -229,13 +229,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
 
     // Load stored provider configs or use defaults
     const providers: LLMProviderConfig[] = [
-      { id: 'anthropic', name: 'Anthropic', type: 'chat', enabled: true },
-      { id: 'openai-native', name: 'OpenAI', type: 'chat', enabled: true },
       { id: 'gemini', name: 'Google Gemini', type: 'chat', enabled: true },
-      { id: 'openrouter', name: 'OpenRouter', type: 'chat', enabled: true },
-      { id: 'ollama', name: 'Ollama', type: 'chat', enabled: false },
-      { id: 'cloudflare', name: 'Cloudflare Workers AI', type: 'chat', enabled: false },
-      { id: 'vscode-lm', name: 'VS Code Language Models', type: 'chat', enabled: false },
     ];
 
     // PRODUCTION HARDENING: Pull enriched data from hardened repository (SecretStorage supported)
@@ -247,22 +241,16 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
       })),
     );
 
-    // Migration: Check if we have an old global apiKey and migrate to anthropic (Hardened migration to SecretStorage)
+    // Migration: Not applicable for Gemini-only flow
     const oldApiKey = (await repo.get('apiKey')) as string;
-    if (oldApiKey && !enrichedProviders.find((p) => p.id === 'anthropic')?.apiKey) {
-      if (oldApiKey.startsWith('sk-ant')) {
-        await repo.set('apiKey_anthropic', oldApiKey);
-        const anthropic = enrichedProviders.find((p) => p.id === 'anthropic');
-        if (anthropic) anthropic.apiKey = oldApiKey;
-        // Clear old key to prevent re-migration
+    if (oldApiKey && oldApiKey.startsWith('sk-ant')) {
+        // Clear legacy key to prevent leaks
         await repo.delete('apiKey');
-        Logger.info('[PROVIDER] Migrated legacy Anthropic key to hardened storage');
-      }
     }
 
     return {
       autoApprove: (await repo.get('autoApprove')) ?? false,
-      selectedProvider: (await repo.get('selectedProvider')) || 'anthropic',
+      selectedProvider: (await repo.get('selectedProvider')) || 'gemini',
       providers: enrichedProviders,
       neuralDepth: (await repo.get('neuralDepth')) || 'standard',
       theme: (await repo.get('theme')) || 'sovereign-hive',
@@ -286,12 +274,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
     // If providers list is included, extract them
     if (settings.providers && Array.isArray(settings.providers)) {
       for (const p of settings.providers) {
-        if (p.id === 'anthropic') apiConfig.apiKey = p.apiKey;
-        if (p.id === 'openai') apiConfig.openAiApiKey = p.apiKey;
-        if (p.id === 'openai-native') apiConfig.openAiApiKey = p.apiKey;
         if (p.id === 'gemini') apiConfig.geminiApiKey = p.apiKey;
-        if (p.id === 'openrouter') apiConfig.openRouterApiKey = p.apiKey;
-        if (p.id === 'ollama') apiConfig.ollamaBaseUrl = p.baseUrl;
       }
     }
 
@@ -597,7 +580,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
 
         // Add standard fallbacks if none detected
         if (recommended.length === 0) {
-          recommended.push('claude-3-7-sonnet-20250219', 'gpt-4o');
+          recommended.push('gemini-3.1-pro-preview');
         }
 
         this._sendGrpcSuccess(request.request_id, {
@@ -608,54 +591,10 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
       }
       case 'refreshOpenAiModels':
       case 'refreshOpenRouterModelsRpc':
-      case 'refreshClineModelsRpc': {
-        const providerId = method === 'refreshOpenAiModels' ? 'openai-native' : 
-                          method === 'refreshOpenRouterModelsRpc' ? 'openrouter' : 'cline';
-        
-        try {
-          await LLMProviderRegistry.getInstance().getModelInfo(providerId, 'discovery-triggered');
-          const available = await StateOrchestrator.getInstance().getState<Record<string, ModelInfo[]>>('availableProviderModels') || {};
-          const models = available[providerId] || [];
-          
-          if (method === 'refreshOpenAiModels') {
-            this._sendGrpcSuccess(request.request_id, { values: models.map(m => m.id) });
-          } else {
-            // OpenRouterCompatibleModelInfo format
-            const modelMap: Record<string, any> = {};
-            for (const m of models) {
-              modelMap[m.id] = {
-                name: m.name,
-                maxTokens: m.maxTokens,
-                contextWindow: m.maxTokens,
-                supportsImages: true,
-                supportsPromptCache: m.supportsPromptCache,
-                inputPrice: m.costPerThousandTokens?.input ? m.costPerThousandTokens.input / 1000 : 0,
-                outputPrice: m.costPerThousandTokens?.output ? m.costPerThousandTokens.output / 1000 : 0,
-              };
-            }
-            this._sendGrpcSuccess(request.request_id, { models: modelMap });
-          }
-        } catch (error) {
-          this._sendGrpcError(request.request_id, String(error));
-        }
+      case 'refreshClineModelsRpc':
+      case 'getOllamaModels':
+        this._sendGrpcSuccess(request.request_id, { values: [], models: {} });
         break;
-      }
-      case 'getOllamaModels': {
-        const baseUrl = (request.payload as { value?: string })?.value || 'http://localhost:11434';
-        try {
-          const response = await fetch(`${baseUrl}/api/tags`);
-          if (response.ok) {
-            const data = await response.json();
-            const models = (data.models || []).map((m: any) => m.name);
-            this._sendGrpcSuccess(request.request_id, { values: models });
-          } else {
-            this._sendGrpcSuccess(request.request_id, { values: [] });
-          }
-        } catch (e) {
-          this._sendGrpcSuccess(request.request_id, { values: [] });
-        }
-        break;
-      }
       default:
         this._sendGrpcSuccess(request.request_id, { models: {} });
     }

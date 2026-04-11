@@ -91,11 +91,6 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
     remoteRulesToggles: {}, remoteWorkflowToggles: {},
     globalSkillsToggles: {},
     localSkillsToggles: {}, banners: [], welcomeBanners: [],
-    openRouterModels: {},
-    clineModels: {},
-    openAiModels: {},
-    ollamaModels: {},
-    vsCodeLmModels: {},
     settingsInitialModelTab: "recommended",
   });
 
