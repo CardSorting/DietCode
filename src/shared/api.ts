@@ -8,8 +8,6 @@ export const DEFAULT_API_PROVIDER = "gemini" as ApiProvider;
 
 export interface ApiHandlerOptions extends Partial<ApiHandlerSettings> {
   ulid?: string; // Used to identify the task in API requests
-  apiProvider?: ApiProvider | string;
-  apiModelId?: string;
   geminiApiKey?: string;
   geminiModelId?: string;
   modelInfo?: ModelInfo;
@@ -18,10 +16,6 @@ export interface ApiHandlerOptions extends Partial<ApiHandlerSettings> {
   planModeGeminiBaseUrl?: string;
   actModeGeminiBaseUrl?: string;
   geminiBaseUrl?: string;
-  planModeApiModelId?: string;
-  actModeApiModelId?: string;
-  planModeApiProvider?: ApiProvider | string;
-  actModeApiProvider?: ApiProvider | string;
   geminiPlanModeThinkingLevel?: string;
   geminiActModeThinkingLevel?: string;
   onRetryAttempt?: (attempt: number, maxRetries: number, delay: number, error: unknown) => void;

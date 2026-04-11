@@ -89,14 +89,10 @@ const GLOBAL_STATE_FIELDS = {
   workspaceRoots: { default: undefined as WorkspaceRoot[] | undefined },
   primaryRootIndex: { default: 0 as number },
   multiRootEnabled: { default: true as boolean },
-  lastDismissedInfoBannerVersion: { default: 0 as number },
-  lastDismissedModelBannerVersion: { default: 0 as number },
-  lastDismissedCliBannerVersion: { default: 0 as number },
   nativeToolCallEnabled: { default: true as boolean },
   remoteRulesToggles: { default: {} as ClineRulesToggles },
   remoteWorkflowToggles: { default: {} as ClineRulesToggles },
-  dismissedBanners: { default: [] as Array<{ bannerId: string; dismissedAt: number }> },
-  // Path to worktree that should auto-open Cline sidebar when launched
+  // Path to worktree that should auto-open DietCode sidebar when launched
   worktreeAutoOpenPath: { default: undefined as string | undefined },
 
   // PRODUCTION SYNCHRONIZATION: Dynamic provider discovery and health
@@ -133,10 +129,6 @@ const API_HANDLER_SETTINGS_FIELDS = {
   actModeThinkingBudgetTokens: { default: undefined as number | undefined },
   geminiActModeThinkingLevel: { default: undefined as string | undefined },
   actModeVerbosity: { default: undefined as string | undefined },
-
-  // Model-specific settings
-  planModeApiProvider: { default: DEFAULT_API_PROVIDER as ApiProvider | string },
-  actModeApiProvider: { default: DEFAULT_API_PROVIDER as ApiProvider | string },
 
   // Mode-specific API keys and URLs
   planModeGeminiApiKey: { default: undefined as string | undefined },
@@ -210,7 +202,6 @@ const GLOBAL_STATE_AND_SETTINGS_FIELDS = { ...GLOBAL_STATE_FIELDS, ...SETTINGS_F
 // Secret keys used in Api Configuration
 const SECRETS_KEYS = [
   "geminiApiKey",
-  "wandbApiKey",
 ] as const;
 
 // WARNING, these are not ALL of the local state keys in practice. For example, FileContextTracker

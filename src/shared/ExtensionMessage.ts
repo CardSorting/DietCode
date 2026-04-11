@@ -16,9 +16,7 @@ import type { TelemetrySetting } from "./TelemetrySetting";
 import type { UserInfo } from "./UserInfo";
 import type { ApiConfiguration, ModelInfo } from "./api";
 import type { ClineRulesToggles } from "./cline-rules";
-import type { BannerCardData } from "./cline/banner";
 import type { ClineMessageModelInfo } from "./messages";
-import type { OnboardingModelGroup } from "./proto/cline/state";
 import type { Mode } from "./storage/types";
 // webview will hold state
 export interface ExtensionMessage {
@@ -50,7 +48,6 @@ export const COMMAND_CANCEL_TOKEN = "__cline_command_cancel__";
 export interface ExtensionState {
   isNewUser: boolean;
   welcomeViewCompleted: boolean;
-  onboardingModels: OnboardingModelGroup | undefined;
   apiConfiguration?: ApiConfiguration;
   autoApprovalSettings: AutoApprovalSettings;
   browserSettings: BrowserSettings;
@@ -119,8 +116,6 @@ export interface ExtensionState {
   doubleCheckCompletionEnabled?: boolean;
   lazyTeammateModeEnabled?: boolean;
   showFeatureTips?: boolean;
-  banners?: BannerCardData[];
-  welcomeBanners?: BannerCardData[];
   mcpServers?: McpServer[];
   availableProviderModels?: Record<string, Record<string, ModelInfo>>;
   providerHealth?: Record<string, { status: "healthy" | "unhealthy" | "degraded"; message?: string }>;
