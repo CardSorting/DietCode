@@ -11,7 +11,7 @@ import type { Mode } from "@shared/storage/types";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import FeaturedModelCard from "./FeaturedModelCard";
-import FuzzyModelPicker from "./common/FuzzyModelPicker";
+import { FuzzyModelPicker } from "./common/FuzzyModelPicker";
 import { ModelPickerLayout } from "./common/ModelPickerLayout";
 import {
   filterOpenRouterModelIds,

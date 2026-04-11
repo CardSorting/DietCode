@@ -13,9 +13,13 @@ export const StarIcon = ({
 	onClick,
 }: { isFavorite: boolean; onClick: (e: React.MouseEvent) => void }) => {
 	return (
-		<div
+		<button
+			type="button"
 			onClick={onClick}
 			style={{
+				background: "none",
+				border: "none",
+				padding: 0,
 				cursor: "pointer",
 				color: isFavorite ? "var(--vscode-terminal-ansiBlue)" : "var(--vscode-descriptionForeground)",
 				marginLeft: "8px",
@@ -28,7 +32,7 @@ export const StarIcon = ({
 			}}
 		>
 			{isFavorite ? "★" : "☆"}
-		</div>
+		</button>
 	);
 };
 
@@ -41,7 +45,7 @@ export interface FuzzyModelPickerProps {
 	zIndex?: number;
 }
 
-const FuzzyModelPicker: React.FC<FuzzyModelPickerProps> = ({
+export const FuzzyModelPicker: React.FC<FuzzyModelPickerProps> = ({
 	selectedModelId,
 	onModelChange,
 	modelIds,
@@ -77,13 +81,13 @@ const FuzzyModelPicker: React.FC<FuzzyModelPickerProps> = ({
 	const searchableItems = useMemo(() => {
 		return modelIds.map((id) => ({
 			id,
-			html: id,
+			label: id, // Adding label for highlighting
 		}));
 	}, [modelIds]);
 
 	const fuse = useMemo(() => {
 		return new Fuse(searchableItems, {
-			keys: ["html"],
+			keys: ["id"],
 			threshold: 0.6,
 			shouldSort: true,
 			isCaseSensitive: false,
@@ -95,12 +99,12 @@ const FuzzyModelPicker: React.FC<FuzzyModelPickerProps> = ({
 
 	const modelSearchResults = useMemo(() => {
 		// First, get all favorited models
-		const favoritedModels = searchableItems.filter((item) => favoritedModelIds.includes(item.id));
+		const favoritedModels = searchableItems.filter((item) => favoritedModelIds.includes(item.id)).map(item => ({ ...item, parts: [{ text: item.id, highlighted: false }] }));
 
 		// Then get search results for non-favorited models
 		const searchResults = searchTerm
-			? highlight(fuse.search(searchTerm), "model-item-highlight").filter((item) => !favoritedModelIds.includes(item.id))
-			: searchableItems.filter((item) => !favoritedModelIds.includes(item.id));
+			? (highlight(fuse.search(searchTerm)) as unknown as Array<{ id: string; parts: Array<{ text: string; highlighted: boolean }> }>).filter((item) => !favoritedModelIds.includes(item.id))
+			: searchableItems.filter((item) => !favoritedModelIds.includes(item.id)).map(item => ({ ...item, parts: [{ text: item.id, highlighted: false }] }));
 
 		// Combine favorited models with search results
 		return [...favoritedModels, ...searchResults];
@@ -142,7 +146,7 @@ const FuzzyModelPicker: React.FC<FuzzyModelPickerProps> = ({
 		if (dropdownListRef.current) {
 			dropdownListRef.current.scrollTop = 0;
 		}
-	}, [searchTerm]);
+	}, []);
 
 	useEffect(() => {
 		if (selectedIndex >= 0 && itemRefs.current[selectedIndex]) {
@@ -178,6 +182,7 @@ const FuzzyModelPicker: React.FC<FuzzyModelPickerProps> = ({
 					}}
 					onKeyDown={handleKeyDown}
 					placeholder={placeholder}
+					// biome-ignore lint/a11y/useSemanticElements: Custom search dropdown requires non-standard structure
 					role="combobox"
 					style={{
 						width: "100%",
@@ -187,7 +192,8 @@ const FuzzyModelPicker: React.FC<FuzzyModelPickerProps> = ({
 					value={searchTerm}
 				>
 					{searchTerm && (
-						<div
+						<button
+							type="button"
 							aria-label="Clear search"
 							className="input-icon-button codicon codicon-close"
 							onClick={() => {
@@ -196,6 +202,10 @@ const FuzzyModelPicker: React.FC<FuzzyModelPickerProps> = ({
 							}}
 							slot="end"
 							style={{
+								background: "none",
+								border: "none",
+								padding: 0,
+								cursor: "pointer",
 								display: "flex",
 								justifyContent: "center",
 								alignItems: "center",
@@ -205,7 +215,12 @@ const FuzzyModelPicker: React.FC<FuzzyModelPickerProps> = ({
 					)}
 				</VSCodeTextField>
 				{isDropdownVisible && (
-					<DropdownList ref={dropdownListRef} role="listbox" style={{ zIndex: zIndex - 1 }}>
+					<DropdownList
+						ref={dropdownListRef}
+						// biome-ignore lint/a11y/useSemanticElements: Custom search dropdown requires non-standard structure
+						role="listbox"
+						style={{ zIndex: zIndex - 1 }}
+					>
 						{modelSearchResults.map((item, index) => {
 							const isFavorite = favoritedModelIds.includes(item.id);
 							return (
@@ -217,8 +232,20 @@ const FuzzyModelPicker: React.FC<FuzzyModelPickerProps> = ({
 										setIsDropdownVisible(false);
 									}}
 									onMouseEnter={() => setSelectedIndex(index)}
-									ref={(el) => (itemRefs.current[index] = el)}
+									ref={(el) => {
+										itemRefs.current[index] = el;
+									}}
+									// biome-ignore lint/a11y/useSemanticElements: Custom search dropdown requires non-standard structure
 									role="option"
+									aria-selected={index === selectedIndex}
+									tabIndex={0}
+									onKeyDown={(e) => {
+										if (e.key === "Enter" || e.key === " ") {
+											e.preventDefault();
+											onModelChange(item.id);
+											setIsDropdownVisible(false);
+										}
+									}}
 								>
 									<div
 										style={{
@@ -227,7 +254,16 @@ const FuzzyModelPicker: React.FC<FuzzyModelPickerProps> = ({
 											alignItems: "center",
 										}}
 									>
-										<span dangerouslySetInnerHTML={{ __html: item.html }} />
+										<span>
+											{item.parts?.map((part: { text: string; highlighted: boolean }, i: number) => (
+												<span
+													key={`${part.text}-${i}`}
+													className={part.highlighted ? "model-item-highlight" : ""}
+												>
+													{part.text}
+												</span>
+											))}
+										</span>
 										<StarIcon
 											isFavorite={isFavorite}
 											onClick={(e) => {
@@ -248,7 +284,7 @@ const FuzzyModelPicker: React.FC<FuzzyModelPickerProps> = ({
 	);
 };
 
-export default FuzzyModelPicker;
+
 
 const DropdownWrapper = styled.div`
 	position: relative;
@@ -266,6 +302,7 @@ const DropdownList = styled.div`
 	border: 1px solid var(--vscode-list-activeSelectionBackground);
 	border-bottom-left-radius: 3px;
 	border-bottom-right-radius: 3px;
+	z-index: 1000;
 `;
 
 const DropdownItem = styled.div<{ isSelected: boolean }>`

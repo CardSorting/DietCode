@@ -9,37 +9,67 @@
  */
 
 /**
- * Utility to highlight search matches in HTML strings
+ * Utility to highlight search matches by splitting strings into parts
  */
-export function highlight<T extends { matches?: Array<{ indices: number[][] }>; [key: string]: any }>(
-  results: T[],
-  className: string
-): Array<T & { html: string }> {
-  return results.map((item) => {
+export function highlight<T extends { matches?: ReadonlyArray<{ indices: ReadonlyArray<Readonly<[number, number]>> }>; [key: string]: any }>(
+  results: T[]
+): Array<Omit<T, "matches"> & { parts: Array<{ text: string; highlighted: boolean }> }> {
+  return results.map((result) => {
+    const item = result as any;
+    if (!item.item && !item.id && !item.label) {
+        // Handle cases where the item might be different or already formatted
+    }
+
+    const textToHighlight = item.id || item.label || item.item?.id || item.item?.label || "";
+    
     if (!item.matches || item.matches.length === 0) {
-      return item;
+      return { 
+        ...item, 
+        parts: [{ text: textToHighlight, highlighted: false }] 
+      };
     }
 
     // Extract all match indices from all matches
     const allIndices = new Set<number>();
-    item.matches.forEach((match: any) => {
-      if (match.indices) {
-        match.indices.forEach(([start, end]) => {
-          for (let i = start; i <= end; i++) {
-            allIndices.add(i);
+    if (item.matches) {
+      for (const match of item.matches) {
+        if (match.indices) {
+          for (const [start, end] of match.indices) {
+            for (let i = start; i <= end; i++) {
+              allIndices.add(i);
+            }
           }
-        });
+        }
+      }
+    }
+
+    // Build parts with highlights
+    const parts: Array<{ text: string; highlighted: boolean }> = [];
+    const chars = textToHighlight.split("");
+    
+    let currentPart = "";
+    let isCurrentHighlighted = allIndices.has(0);
+
+    chars.forEach((char: string, index: number) => {
+      const isHighlighted = allIndices.has(index);
+      
+      if (isHighlighted !== isCurrentHighlighted) {
+        if (currentPart) {
+          parts.push({ text: currentPart, highlighted: isCurrentHighlighted });
+        }
+        currentPart = char;
+        isCurrentHighlighted = isHighlighted;
+      } else {
+        currentPart += char;
       }
     });
 
-    // Build HTML with highlights
-    const items = item.original?.split("") || [];
-    const highlighted = items.map((char: string, index: number) => {
-      return allIndices.has(index) ? `<span class="${className}">${char}</span>` : char;
-    }).join("");
+    if (currentPart) {
+      parts.push({ text: currentPart, highlighted: isCurrentHighlighted });
+    }
 
-    // Preserve the original matched item reference
-    const { original, matches, ...rest } = item;
-    return { ...rest, html: highlighted };
+    // Preserve the original matched item reference and include parts
+    const { matches, ...rest } = item;
+    return { ...rest, parts };
   });
 }

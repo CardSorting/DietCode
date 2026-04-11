@@ -19,7 +19,6 @@ import { useCallback, useMemo } from "react";
 import { Tab, TabContent, TabList, TabTrigger } from "@/components/common/Tab";
 import ViewHeader from "@/components/common/ViewHeader";
 import SectionHeader from "./SectionHeader";
-import AboutSection from "./sections/AboutSection";
 import ApiConfigurationSection from "./sections/ApiConfigurationSection";
 import BrowserSettingsSection from "./sections/BrowserSettingsSection";
 import DebugSection from "./sections/DebugSection";
@@ -41,7 +40,6 @@ type SettingsTabID =
   | "terminal" 
   | "general" 
   | "remote-config"
-  | "about" 
   | "debug";
 
 interface SettingsTab {
@@ -61,7 +59,6 @@ export const SETTINGS_TABS: SettingsTab[] = [
   { id: "general", name: "General", tooltipText: "General", headerText: "General Settings", icon: Wrench },
   { id: "remote-config", name: "Remote", tooltipText: "Remote Config", headerText: "Remote Config", icon: HardDriveDownload, 
     hidden: ({ activeOrganization }) => !activeOrganization || !isAdminOrOwner(activeOrganization) },
-  { id: "about", name: "About", tooltipText: "About", headerText: "About", icon: Info },
   { id: "debug", name: "Debug", tooltipText: "Debug", headerText: "Debug", icon: FlaskConical, hidden: () => !IS_DEV },
 ];
 
@@ -94,7 +91,6 @@ const SettingsView = ({ onDone, targetSection }: { onDone: () => void; targetSec
       "terminal": TerminalSettingsSection,
       "general": GeneralSettingsSection,
       "remote-config": RemoteConfigSection,
-      "about": AboutSection,
       "debug": DebugSection,
     };
 

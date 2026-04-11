@@ -1,7 +1,7 @@
 {
   "name": "dietcode",
   "publisher": "dietcode",
-  "version": "2.7.4",
+  "version": "2.7.5",
   "icon": "assets/vsix/extension-icon.png",
   "type": "module",
   "private": true,
@@ -45,7 +45,7 @@
     "build:cli": "bun build ./index.ts --outfile=./dist/index.js --target=node --external better-sqlite3 --external @noorm/broccoliq",
     "build:extension": "bun build ./src/extension.ts --outfile=./dist/extension.js --target=node --external vscode",
     "rebuild:electron": "./node_modules/.bin/electron-rebuild --version 39.0.0 --only better-sqlite3",
-    "sync:native": "node --experimental-strip-types ./scripts/sync_native_modules.ts",
+    "sync:native": "bun ./scripts/sync_native_modules.ts",
     "build": "npm run build:webview && npm run build:cli && npm run build:extension && npm run rebuild:electron && npm run sync:native",
     "dev": "tsc --watch",
     "cli": "node ./dist/index.js",

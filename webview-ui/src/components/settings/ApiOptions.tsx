@@ -26,7 +26,7 @@ import {
 } from "./utils/providerUtils";
 import type { ApiProvider } from "@shared/api.ts";
 import { useApiConfigurationHandlers } from "./utils/useApiConfigurationHandlers";
-import FuzzyModelPicker from "./common/FuzzyModelPicker";
+import { FuzzyModelPicker } from "./common/FuzzyModelPicker";
 import { DropdownContainer, DROPDOWN_Z_INDEX } from "./common/ModelSelector";
 import { cn } from "@/lib/utils";
 
@@ -192,7 +192,11 @@ const ApiOptions = memo(({
     <div className={cn("flex flex-col gap-1", isPopup && "-mb-2.5")}>
       {/* Provider Selector */}
       <div className="relative z-50">
-        <label htmlFor="api-provider-search" className="flex items-center gap-1 mb-1">
+        <label
+          // biome-ignore lint/a11y/noLabelWithoutControl: VSCodeTextField is a valid custom control for this label
+          htmlFor="api-provider-search"
+          className="flex items-center gap-1 mb-1"
+        >
           <span className="text-xs font-semibold opacity-80">API Provider</span>
           {Array.isArray(remoteConfigSettings?.remoteConfiguredProviders) && remoteConfigSettings.remoteConfiguredProviders.length > 0 && (
             <Tooltip>
@@ -214,6 +218,7 @@ const ApiOptions = memo(({
           />
           {isDropdownVisible && (
             <div
+              // biome-ignore lint/a11y/useSemanticElements: Custom search dropdown requires non-standard structure
               role="listbox"
               tabIndex={-1}
               className="absolute top-[calc(100%+2px)] left-0 w-full max-h-48 overflow-y-auto bg-menu border border-menu-border animate-in fade-in slide-in-from-top-1 duration-200 rounded-md shadow-lg scrollbar-thin"
@@ -226,6 +231,7 @@ const ApiOptions = memo(({
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleProviderChange(item.value); }}
                   onMouseEnter={() => setSelectedIndex(index)}
                   tabIndex={0}
+                  // biome-ignore lint/a11y/useSemanticElements: Custom search dropdown requires non-standard structure
                   role="option"
                   aria-selected={index === selectedIndex}
                   className={cn(
