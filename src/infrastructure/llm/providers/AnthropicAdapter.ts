@@ -85,6 +85,17 @@ export class AnthropicAdapter implements LLMAdapter {
     return EnumPromptStrategy.ANTHROPIC_V0;
   }
 
+  async listModels(): Promise<ModelInfo[]> {
+    // Anthropic doesn't have a public models list endpoint for the messages API
+    // Providing an expanded managed list from the backend
+    return [
+      { id: 'claude-3-7-sonnet-20250219', name: 'Claude 3.7 Sonnet', maxTokens: 200000, supportsPromptCache: true, supportsReasoning: true, supportsStreaming: true },
+      { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet', maxTokens: 200000, supportsPromptCache: true, supportsReasoning: false, supportsStreaming: true },
+      { id: 'claude-3-5-haiku-20241022', name: 'Claude 3.5 Haiku', maxTokens: 200000, supportsPromptCache: true, supportsReasoning: false, supportsStreaming: true },
+      { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus', maxTokens: 200000, supportsPromptCache: true, supportsReasoning: false, supportsStreaming: true },
+    ];
+  }
+
   async dispose(): Promise<void> {
     // Teardown logic for Anthropic SDK if needed
   }

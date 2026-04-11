@@ -606,6 +606,56 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
         });
         break;
       }
+      case 'refreshOpenAiModels':
+      case 'refreshOpenRouterModelsRpc':
+      case 'refreshClineModelsRpc': {
+        const providerId = method === 'refreshOpenAiModels' ? 'openai-native' : 
+                          method === 'refreshOpenRouterModelsRpc' ? 'openrouter' : 'cline';
+        
+        try {
+          await LLMProviderRegistry.getInstance().getModelInfo(providerId, 'discovery-triggered');
+          const available = await StateOrchestrator.getInstance().getState<Record<string, ModelInfo[]>>('availableProviderModels') || {};
+          const models = available[providerId] || [];
+          
+          if (method === 'refreshOpenAiModels') {
+            this._sendGrpcSuccess(request.request_id, { values: models.map(m => m.id) });
+          } else {
+            // OpenRouterCompatibleModelInfo format
+            const modelMap: Record<string, any> = {};
+            for (const m of models) {
+              modelMap[m.id] = {
+                name: m.name,
+                maxTokens: m.maxTokens,
+                contextWindow: m.maxTokens,
+                supportsImages: true,
+                supportsPromptCache: m.supportsPromptCache,
+                inputPrice: m.costPerThousandTokens?.input ? m.costPerThousandTokens.input / 1000 : 0,
+                outputPrice: m.costPerThousandTokens?.output ? m.costPerThousandTokens.output / 1000 : 0,
+              };
+            }
+            this._sendGrpcSuccess(request.request_id, { models: modelMap });
+          }
+        } catch (error) {
+          this._sendGrpcError(request.request_id, String(error));
+        }
+        break;
+      }
+      case 'getOllamaModels': {
+        const baseUrl = (request.payload as { value?: string })?.value || 'http://localhost:11434';
+        try {
+          const response = await fetch(`${baseUrl}/api/tags`);
+          if (response.ok) {
+            const data = await response.json();
+            const models = (data.models || []).map((m: any) => m.name);
+            this._sendGrpcSuccess(request.request_id, { values: models });
+          } else {
+            this._sendGrpcSuccess(request.request_id, { values: [] });
+          }
+        } catch (e) {
+          this._sendGrpcSuccess(request.request_id, { values: [] });
+        }
+        break;
+      }
       default:
         this._sendGrpcSuccess(request.request_id, { models: {} });
     }

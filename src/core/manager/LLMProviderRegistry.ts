@@ -185,21 +185,44 @@ export class LLMProviderRegistry {
       }
 
       // Load model info from adapter
-      const modelInfo = adapter.getModelInfo();
+      const primaryModelInfo = adapter.getModelInfo();
+      let allModels: ModelInfo[] = [primaryModelInfo];
 
-      if (modelInfo) {
-        this.models.set(`${providerId}_${modelInfo.id}`, {
-          data: modelInfo,
-          timestamp: Date.now(),
-        });
-
-        console.log(`✅ Provider models loaded: ${providerId} (${modelInfo.name})`);
-        
-        // Notify listeners
-        this.modelUpdateListeners.forEach(cb => cb(providerId, [modelInfo]));
+      if (typeof adapter.listModels === 'function') {
+        try {
+          allModels = await adapter.listModels();
+        } catch (error) {
+          console.warn(`⚠️ Failed to listModels for ${providerId}, falling back to primary:`, error);
+        }
       }
 
-      return modelInfo;
+      // Update in-memory models cache
+      for (const model of allModels) {
+        this.models.set(`${providerId}_${model.id}`, {
+          data: model,
+          timestamp: Date.now(),
+        });
+      }
+
+      // Update orchestrated state for reactive webview sync
+      const orchestrator = StateOrchestrator.getInstance();
+      const currentAvailable = await orchestrator.getState<Record<string, ModelInfo[]>>('availableProviderModels') || {};
+      
+      await orchestrator.applyChange({
+        key: 'availableProviderModels',
+        newValue: { ...currentAvailable, [providerId]: allModels },
+        stateSet: {} as any,
+        validate: () => true,
+        sanitize: (val) => val,
+        getCorrelationId: () => `model-discovery-${providerId}-${Date.now()}`
+      }, 0);
+
+      console.log(`✅ Provider models loaded: ${providerId} (${allModels.length} models found)`);
+      
+      // Notify listeners
+      this.modelUpdateListeners.forEach(cb => cb(providerId, allModels));
+
+      return primaryModelInfo;
     } catch (error: any) {
       console.error(`❌ Failed to load models for ${providerId}:`, error);
       throw error;

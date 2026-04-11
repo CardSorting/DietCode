@@ -47,31 +47,38 @@ const ApiOptions = memo(({
   currentMode,
   initialModelTab,
 }: ApiOptionsProps) => {
-  const { apiConfiguration, remoteConfigSettings, openRouterModels, favoritedModelIds } = useExtensionState();
+  const { apiConfiguration, remoteConfigSettings, openRouterModels, favoritedModelIds, availableProviderModels } = useExtensionState();
   const normalized = normalizeApiConfiguration(apiConfiguration, currentMode);
   const { selectedProvider, selectedModelId, selectedModelInfo } = normalized;
   const { handleModeFieldChange, handleFieldChange, handleModeFieldsChange } = useApiConfigurationHandlers();
 
-  // Polling for Ollama models
-  const [_ollamaModels, setOllamaModels] = useState<string[]>([]);
-  const requestLocalModels = useCallback(async () => {
-    if (selectedProvider === "ollama") {
-      try {
-        const response = await ModelsServiceClient.getOllamaModels(
-          StringRequest.create({ value: apiConfiguration?.ollamaBaseUrl || "" }),
-        );
-        if (response?.values) setOllamaModels(response.values);
-      } catch (error) {
-        console.error("Failed to fetch Ollama models:", error);
-        setOllamaModels([]);
-      }
-    }
-  }, [selectedProvider, apiConfiguration?.ollamaBaseUrl]);
-
+  // Dynamic model discovery refresh
   useEffect(() => {
-    if (selectedProvider === "ollama") requestLocalModels();
-  }, [selectedProvider, requestLocalModels]);
-  useInterval(requestLocalModels, selectedProvider === "ollama" ? 2000 : null);
+    const refreshModels = async () => {
+      try {
+        if (selectedProvider === "ollama") {
+          await ModelsServiceClient.getOllamaModels(
+            StringRequest.create({ value: apiConfiguration?.ollamaBaseUrl || "" }),
+          );
+          // These will automatically flow back through StateOrchestrator -> ExtensionState
+        } else if (selectedProvider === "openai-native") {
+          await ModelsServiceClient.refreshOpenAiModels({
+            baseUrl: apiConfiguration?.openAiBaseUrl || "",
+            apiKey: apiConfiguration?.openAiNativeApiKey || "",
+            metadata: {}
+          });
+        } else if (selectedProvider === "openrouter") {
+          await ModelsServiceClient.refreshOpenRouterModelsRpc({});
+        } else if (selectedProvider === "cline") {
+          await ModelsServiceClient.refreshClineModelsRpc({});
+        }
+      } catch (error) {
+        console.error(`[ApiOptions] Failed to refresh models for ${selectedProvider}:`, error);
+      }
+    };
+
+    refreshModels();
+  }, [selectedProvider, apiConfiguration?.openAiNativeApiKey, apiConfiguration?.openRouterApiKey, apiConfiguration?.ollamaBaseUrl]);
 
   // Provider search state
   const [searchTerm, setSearchTerm] = useState("");
@@ -286,7 +293,7 @@ const ApiOptions = memo(({
               apiKey={apiConfiguration.apiKey || ""}
               baseUrl={apiConfiguration.anthropicBaseUrl}
               baseUrlPlaceholder="Default: https://api.anthropic.com"
-              models={anthropicModels}
+              models={availableProviderModels?.anthropic ? Object.fromEntries(availableProviderModels.anthropic.map(m => [m.id, m])) : anthropicModels}
               onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeApiKey", act: "actModeApiKey" }, v as string, currentMode)}
               onBaseUrlChange={(v) => handleModeFieldChange({ plan: "planModeAnthropicBaseUrl", act: "actModeAnthropicBaseUrl" }, v as string, currentMode)}
               providerName="Anthropic"
@@ -299,7 +306,7 @@ const ApiOptions = memo(({
             <StandardProviderLayout
               {...commonProps}
               apiKey={apiConfiguration.openAiNativeApiKey || ""}
-              models={openAiNativeModels}
+              models={availableProviderModels?.["openai-native"] ? Object.fromEntries(availableProviderModels["openai-native"].map(m => [m.id, m])) : openAiNativeModels}
               onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeOpenAiNativeApiKey", act: "actModeOpenAiNativeApiKey" }, v as string, currentMode)}
               providerName="OpenAI"
               signupUrl="https://platform.openai.com/api-keys"
@@ -340,7 +347,7 @@ const ApiOptions = memo(({
               apiKey={apiConfiguration.geminiApiKey || ""}
               baseUrl={apiConfiguration.geminiBaseUrl}
               baseUrlPlaceholder="Default: https://generativelanguage.googleapis.com"
-              models={geminiModels}
+              models={availableProviderModels?.gemini ? Object.fromEntries(availableProviderModels.gemini.map(m => [m.id, m])) : geminiModels}
               onApiKeyChange={(v) => handleModeFieldChange({ plan: "planModeGeminiApiKey", act: "actModeGeminiApiKey" }, v as string, currentMode)}
               onBaseUrlChange={(v) => handleModeFieldChange({ plan: "planModeGeminiBaseUrl", act: "actModeGeminiBaseUrl" }, v as string, currentMode)}
               providerName="Gemini"

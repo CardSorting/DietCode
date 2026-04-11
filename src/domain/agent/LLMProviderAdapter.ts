@@ -97,6 +97,13 @@ export interface LLMAdapter {
   embedText?(text: string): Promise<number[] | never>;
 
   /**
+   * List all available models for this provider
+   * 
+   * @returns Array of ModelInfo objects for all models supported by the provider
+   */
+  listModels?(): Promise<ModelInfo[]>;
+
+  /**
    * Get maximum thinking budget (unused token allocation)
    *
    * @returns Maximum number of tokens for reasoning/thinking steps

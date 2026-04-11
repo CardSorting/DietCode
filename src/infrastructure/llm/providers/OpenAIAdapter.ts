@@ -93,6 +93,25 @@ export class OpenAIAdapter implements LLMAdapter {
     return EnumPromptStrategy.OPENAI;
   }
 
+  async listModels(): Promise<ModelInfo[]> {
+    try {
+      const response = await this.client.models.list();
+      return response.data
+        .filter((m) => m.id.includes('gpt') || m.id.includes('o1')) // Filter for primary chat models
+        .map((m) => ({
+          id: m.id,
+          name: m.id.charAt(0).toUpperCase() + m.id.slice(1).replace(/-/g, ' '),
+          maxTokens: 128000,
+          supportsPromptCache: m.id.includes('gpt-4') || m.id.includes('o1'), // Heuristic
+          supportsReasoning: m.id.includes('o1'),
+          supportsStreaming: true,
+        }));
+    } catch (error) {
+      console.error('❌ OpenAI listModels failed:', error);
+      return [this.getModelInfo()];
+    }
+  }
+
   async dispose(): Promise<void> {
     // Teardown OpenAI client resources
   }

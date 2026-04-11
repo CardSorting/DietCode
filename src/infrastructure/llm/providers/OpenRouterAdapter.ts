@@ -93,6 +93,29 @@ export class OpenRouterAdapter implements LLMAdapter {
     return EnumPromptStrategy.OPENROUTER;
   }
 
+  async listModels(): Promise<ModelInfo[]> {
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/models');
+      if (!response.ok) throw new Error(`OpenRouter API error: ${response.statusText}`);
+      const data = await response.json();
+      return (data.data || []).map((m: any) => ({
+        id: m.id,
+        name: m.name || m.id,
+        maxTokens: m.context_length || 128000,
+        supportsPromptCache: false,
+        supportsReasoning: true,
+        supportsStreaming: true,
+        costPerThousandTokens: {
+          input: (m.pricing?.prompt || 0) * 1000,
+          output: (m.pricing?.completion || 0) * 1000,
+        },
+      }));
+    } catch (error) {
+      console.error('❌ OpenRouter listModels failed:', error);
+      return [this.getModelInfo()];
+    }
+  }
+
   async dispose(): Promise<void> {
     // Teardown OpenRouter resources
   }

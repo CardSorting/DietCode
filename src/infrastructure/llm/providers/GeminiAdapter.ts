@@ -82,6 +82,18 @@ export class GeminiAdapter implements LLMAdapter {
     return EnumPromptStrategy.NATIVE;
   }
 
+  async listModels(): Promise<ModelInfo[]> {
+    // Note: Google AI SDK doesn't have a clean listModels for the generative-ai package
+    // Providing a comprehensive managed list from the backend
+    return [
+      { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash', maxTokens: 1000000, supportsPromptCache: true, supportsReasoning: false, supportsStreaming: true },
+      { id: 'gemini-2.0-flash-lite-preview-02-05', name: 'Gemini 2.0 Flash Lite', maxTokens: 1000000, supportsPromptCache: true, supportsReasoning: false, supportsStreaming: true },
+      { id: 'gemini-2.0-pro-exp-02-05', name: 'Gemini 2.0 Pro Experimental', maxTokens: 2000000, supportsPromptCache: true, supportsReasoning: false, supportsStreaming: true },
+      { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', maxTokens: 2000000, supportsPromptCache: true, supportsReasoning: false, supportsStreaming: true },
+      { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', maxTokens: 1000000, supportsPromptCache: true, supportsReasoning: false, supportsStreaming: true },
+    ];
+  }
+
   async dispose(): Promise<void> {
     // Teardown Gemini resources
   }
