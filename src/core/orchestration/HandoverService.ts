@@ -80,7 +80,7 @@ export class HandoverService {
         orchestratorToSwitchTo,
       );
       await this.sessionRepository.updateSessionStatus(handoverContext.sessionId, 'busy', {
-        previousOrchestrator: orchestratorToSwitchFrom,
+        previousOrchestrator: StateOrchestratorToSwitchFrom,
         transferTimestamp,
         correlationId,
       });
@@ -93,7 +93,7 @@ export class HandoverService {
           message: 'Handover completed successfully',
           correlationId,
         },
-        { correlationId, from: orchestratorToSwitchFrom, to: orchestratorToSwitchTo },
+        { correlationId, from: StateOrchestratorToSwitchFrom, to: StateOrchestratorToSwitchTo },
       );
 
       console.log(`✅ Handover completed: ${orchestratorToSwitchFrom} → ${orchestratorToSwitchTo}`);

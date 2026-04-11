@@ -36,10 +36,10 @@ export class TerminalUI implements TerminalInterface {
     await this.auth.authenticate(userName);
   }
 
-  async logClaude(text: string) {
+  async logDiscovery(text: string) {
     const cleanText = text.trim() ? text : '(No response)';
     // Cinematic reveal with ambient drift
-    const header = MetabolicRenderer.ambientDrift('\n[ CLAUDE-3.7 SIGNAL ]\n', Date.now() / 1000);
+    const header = MetabolicRenderer.ambientDrift('\n[ GEMINI-LOCKED SIGNAL ]\n', Date.now() / 1000);
     await CinematicRenderer.hardType(header, 5);
     console.log(
       BoxRenderer.render(

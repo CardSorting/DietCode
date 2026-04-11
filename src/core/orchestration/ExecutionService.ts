@@ -24,7 +24,7 @@ import type { ToolManager } from '../capabilities/ToolManager';
 import type { SnapshotService } from '../memory/SnapshotService';
 import type { ContextOptimizationServiceOrchestrator } from './ContextOptimizationService';
 import { EventBus } from './EventBus';
-import { StateOrchestrator } from '../manager/StateOrchestrator';
+import { StateOrchestrator } from '../manager/orchestrator';
 import type { GlobalState } from '../../domain/LLMProvider';
 
 /**

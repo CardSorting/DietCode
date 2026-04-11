@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import chalk from 'chalk';
+import chalk, { type ChalkInstance } from 'chalk';
+
+type ProfileName = 'AETHER' | 'MATRIX' | 'VAPORWAVE' | 'INDUSTRIAL';
 
 /**
  * [LAYER: DESIGN]
@@ -76,16 +78,16 @@ export const COLORS = {
     INDUSTRIAL: { primary: '#abb2bf', highlight: '#e06c75' },
   },
 
-  activeProfile: 'AETHER',
+  activeProfile: 'AETHER' as ProfileName,
 
-  get PRIMARY() {
-    const p = (this as any).PROFILES[(this as any).activeProfile] || (this as any).PROFILES.AETHER;
-    return chalk.hex(p.primary);
+  get PRIMARY(): ChalkInstance {
+    const profile = this.PROFILES[this.activeProfile] || this.PROFILES.AETHER;
+    return chalk.hex(profile.primary);
   },
 
-  get HIGHLIGHT() {
-    const p = (this as any).PROFILES[(this as any).activeProfile] || (this as any).PROFILES.AETHER;
-    return chalk.hex(p.highlight).bold;
+  get HIGHLIGHT(): ChalkInstance {
+    const profile = this.PROFILES[this.activeProfile] || this.PROFILES.AETHER;
+    return chalk.hex(profile.highlight).bold;
   },
 
   get SOVEREIGN() {
@@ -141,7 +143,7 @@ export const COLORS = {
     const f = scaledFactor - i;
     const stopA = stops[i] as string;
     const stopB = (stops[i + 1] ?? stops[stops.length - 1]) as string;
-    return (this as any).lerpRgb(stopA, stopB, f);
+    return this.lerpRgb(stopA, stopB, f);
   },
 
   /**
@@ -198,7 +200,7 @@ export const COLORS = {
  * Procedural color shifting for Sovereign Aether Spectrum.
  */
 export const METABOLIC_MODIFIERS = {
-  getPrimaryByHeat(heat: number): chalk.Chalk {
+  getPrimaryByHeat(heat: number): ChalkInstance {
     // heat 0-100. Shift from Green (Stable) to Cyan (Active) to Pink (Deep Hive) to Red (Critical).
     if (heat > 85) return chalk.hex('#ff0033').bold;
     if (heat > 60) return chalk.hex('#ff71ce');

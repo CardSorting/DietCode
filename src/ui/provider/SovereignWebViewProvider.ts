@@ -15,7 +15,7 @@ import {
 } from '../../domain/ui/WebViewMessageProtocol';
 import { Logger } from '../../shared/services/Logger';
 import { UIBridge } from './UIBridge';
-import { StateOrchestrator } from '../../core/manager/StateOrchestrator';
+import { StateOrchestrator } from '../../core/manager/orchestrator';
 import { StateAssembler } from '../../core/manager/StateAssembler';
 import type { GlobalState } from '../../domain/LLMProvider';
 

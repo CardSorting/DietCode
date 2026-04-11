@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import type * as vscode from 'vscode';
-import { StateOrchestrator } from "../../../core/manager/StateOrchestrator";
+import { StateOrchestrator } from "../../../core/manager/orchestrator";
 import { ModelCache } from "../../../core/manager/registry/ModelCache";
 import type { ModelsApiConfiguration, ApiFormat } from "../../../shared/proto/cline/models";
 import type { ExtensionState } from "../../../shared/ExtensionMessage";

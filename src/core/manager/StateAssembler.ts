@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { StateOrchestrator } from "./StateOrchestrator";
+import { StateOrchestrator } from "./orchestrator";
 import { VsCodeStateRepository } from "../../infrastructure/storage/VsCodeStateRepository";
 import type { ExtensionState, Platform } from "../../shared/ExtensionMessage";
 import { Environment } from "../../shared/config-types";

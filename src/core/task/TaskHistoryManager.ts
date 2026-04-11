@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { Core } from '../../infrastructure/database/sovereign/Core';
-import { StateOrchestrator } from '../manager/StateOrchestrator';
+import { StateOrchestrator } from '../manager/orchestrator';
 import type { GlobalState } from '../../domain/LLMProvider';
 import { Logger } from '../../shared/services/Logger';
 

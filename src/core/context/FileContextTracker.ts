@@ -41,6 +41,7 @@ import type {
   FileWatcherAdapter,
   FileWatcherEvent,
 } from '../../infrastructure/watcher/FileWatcherAdapter';
+import type { DatabaseSchema } from '../../infrastructure/database/sovereign/DatabaseSchema';
 
 export class FileContextTracker {
   private static instance: FileContextTracker | null = null;
@@ -88,17 +89,17 @@ export class FileContextTracker {
    * Sync persistent state from modular Sovereign DB
    */
   async sync(): Promise<void> {
-    const rows = (await Core.selectWhere('hive_file_context', {})) as any;
+    const rows = await Core.selectWhere('hive_file_context', {}) as DatabaseSchema['hive_file_context'][];
 
     for (const row of rows) {
       this.stateMetadata.set(row.path, {
         path: row.path,
         state: row.state as FileState,
         source: row.source as FileOperationSource,
-        lastReadDate: row.lastReadDate,
-        lastEditDate: row.lastEditDate,
-        signature: row.signature,
-        externalEditDetected: Boolean(row.externalEditDetected),
+        lastReadDate: row.last_read_date,
+        lastEditDate: row.last_edit_date,
+        signature: row.signature || undefined,
+        externalEditDetected: Boolean(row.external_edit_detected),
       });
     }
     console.log(`📡 [ContextTracker] Synced ${rows.length} files from SovereignDb`);
@@ -256,7 +257,7 @@ export class FileContextTracker {
    */
   private async persistState(entry: StateMetadata): Promise<void> {
     // Check if exists first
-    const rows = (await Core.selectWhere('hive_file_context', { path: entry.path })) as any;
+    const rows = await Core.selectWhere('hive_file_context', { path: entry.path }) as DatabaseSchema['hive_file_context'][];
 
     if (rows.length > 0) {
       // Update existing
@@ -267,10 +268,10 @@ export class FileContextTracker {
         values: {
           state: entry.state,
           source: entry.source,
-          lastReadDate: entry.lastReadDate,
-          lastEditDate: entry.lastEditDate,
-          signature: entry.signature,
-          externalEditDetected: entry.externalEditDetected ? 1 : 0,
+          last_read_date: entry.lastReadDate,
+          last_edit_date: entry.lastEditDate,
+          signature: entry.signature || null,
+          external_edit_detected: entry.externalEditDetected ? 1 : 0,
         },
       });
     } else {
@@ -282,10 +283,10 @@ export class FileContextTracker {
           path: entry.path,
           state: entry.state,
           source: entry.source,
-          lastReadDate: entry.lastReadDate,
-          lastEditDate: entry.lastEditDate,
-          signature: entry.signature,
-          externalEditDetected: entry.externalEditDetected ? 1 : 0,
+          last_read_date: entry.lastReadDate,
+          last_edit_date: entry.lastEditDate,
+          signature: entry.signature || null,
+          external_edit_detected: entry.externalEditDetected ? 1 : 0,
         },
       });
     }

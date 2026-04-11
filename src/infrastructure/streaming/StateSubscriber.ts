@@ -9,7 +9,7 @@
  * Principle: Reactive state subscription with change notification
  * Prework Status: Not applicable (new file)
  *
- * Subscribes to state changes from StateOrchestrator and notifies observers.
+ * Subscribes to state changes from orchestrator and notifies observers.
  * Aggregates change events for efficient batch processing.
  */
 
@@ -134,7 +134,7 @@ export interface StateBatchEvent {
 /**
  * StateSubscriber
  *
- * Subscribes to state changes from StateOrchestrator and notifies observers.
+ * Subscribes to state changes from orchestrator and notifies observers.
  * Supports change diffing, batch processing, and scope filtering.
  *
  * Key responsibilities:

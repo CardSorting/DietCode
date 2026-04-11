@@ -19,8 +19,8 @@ export interface HudData {
 }
 
 export interface TerminalInterface {
-  logClaude(text: string): void;
-  logToolUse(name: string, input: any): void;
+  logDiscovery(text: string): void;
+  logToolUse(name: string, input: unknown): void;
   logError(message: string): void;
   logUsage(command: string): void;
   logSuccess(message: string): void;

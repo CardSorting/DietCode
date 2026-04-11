@@ -11,6 +11,7 @@
  */
 
 import { Core } from '../../infrastructure/database/sovereign/Core';
+import type { DatabaseSchema } from '../../infrastructure/database/sovereign/DatabaseSchema';
 
 export interface LearnedFact {
   key: string;
@@ -18,7 +19,7 @@ export interface LearnedFact {
   type: string;
   confidence: number;
   tags: string[];
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 export class MemoryGraduationService {
@@ -34,8 +35,8 @@ export class MemoryGraduationService {
       if (fact.confidence >= confidenceThreshold) {
         const id = globalThis.crypto.randomUUID();
 
-        await (db as any)
-          .insertInto('hive_kb' as any)
+        await db
+          .insertInto('hive_kb')
           .values({
             id,
             knowledge_key: fact.key,
@@ -63,8 +64,8 @@ export class MemoryGraduationService {
    */
   async finalizeSession(sessionId: string): Promise<void> {
     const db = await Core.db();
-    await (db as any)
-      .updateTable('hive_agent_sessions' as any)
+    await db
+      .updateTable('hive_agent_sessions')
       .set({
         status: 'completed',
         end_time: Date.now(),

@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { StateOrchestrator } from '../../core/manager/StateOrchestrator';
+import { StateOrchestrator } from '../../core/manager/orchestrator';
 import type { GlobalState } from '../../domain/LLMProvider';
 /**
  * Copyright (c) 2026 DietCode Contributors

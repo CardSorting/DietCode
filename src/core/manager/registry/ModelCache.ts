@@ -1,4 +1,4 @@
-import { StateOrchestrator } from '../StateOrchestrator';
+import { StateOrchestrator } from '../orchestrator';
 import type { ModelInfo, PromptStrategy } from '../../../domain/agent/LLMProviderAdapter';
 import { geminiModels, type ModelInfo as SharedModelInfo } from '../../../shared/api';
 import type { GlobalState } from '../../../domain/LLMProvider';

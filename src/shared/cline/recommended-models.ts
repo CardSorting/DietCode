@@ -12,46 +12,35 @@ export interface ClineRecommendedModelsData {
 
 /**
  * Hardcoded fallback shown when upstream recommended models are not enabled or unavailable.
+ * Hard-Locked for Gemini-Only Sovereign Architecture.
  */
 export const CLINE_RECOMMENDED_MODELS_FALLBACK: ClineRecommendedModelsData = {
   recommended: [
     {
-      id: "google/gemini-3.1-pro-preview",
-      name: "Google Gemini 3.1 Pro Preview",
-      description: "Latest Gemini release with 1m ctx window and strong coding performance",
-      tags: ["NEW"],
+      id: "gemini-2.0-flash-exp",
+      name: "Google Gemini 2.0 Flash",
+      description: "Next-gen ultra-fast model with strong coding performance",
+      tags: ["FAST", "NEW"],
     },
     {
-      id: "anthropic/claude-sonnet-4.6",
-      name: "Anthropic Claude Sonnet 4.6",
-      description: "Latest Sonnet release with strong coding and agent performance",
-      tags: ["NEW"],
+      id: "gemini-2.0-pro-exp-02-05",
+      name: "Google Gemini 2.0 Pro",
+      description: "Highest intelligence model for complex agentic workflows",
+      tags: ["BEST", "NEW"],
     },
     {
-      id: "anthropic/claude-opus-4.6",
-      name: "Anthropic Claude Opus 4.6",
-      description: "Most intelligent model for agents and coding",
-      tags: ["BEST"],
-    },
-    {
-      id: "openai/gpt-5.3-codex",
-      name: "OpenAI GPT-5.3 Codex",
-      description: "OpenAI's latest with strong coding abilities",
-      tags: ["NEW"],
-    },
+       id: "gemini-2.0-flash-thinking-exp-01-21",
+       name: "Google Gemini 2.0 Flash Thinking",
+       description: "Experimental thinking model for advanced reasoning tasks",
+       tags: ["THINKING"],
+    }
   ],
   free: [
     {
-      id: "kwaipilot/kat-coder-pro",
-      name: "KwaiKAT Kat Coder Pro",
-      description: "KwaiKAT's most advanced agentic coding model in the KAT-Coder series",
+      id: "gemini-1.5-flash",
+      name: "Google Gemini 1.5 Flash (Free Tier)",
+      description: "High-speed model available via Google AI Studio free tier",
       tags: ["FREE"],
-    },
-    {
-      id: "arcee-ai/trinity-large-preview:free",
-      name: "Arcee AI Trinity Large Preview",
-      description: "Arcee AI's advanced large preview model in the Trinity series",
-      tags: ["FREE"],
-    },
+    }
   ],
 };

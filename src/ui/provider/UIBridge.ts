@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { EventEmitter } from 'node:events';
-import { StateOrchestrator } from '../../core/manager/StateOrchestrator';
+import { StateOrchestrator } from '../../core/manager/orchestrator';
 import type { GlobalState } from '../../domain/LLMProvider';
 import type { ExtensionMessage } from '../../shared/ExtensionMessage';
 

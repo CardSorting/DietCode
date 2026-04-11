@@ -7,8 +7,11 @@
 import type { ApiConfiguration } from '../../shared/api';
 import type { StateObserver, StateChangeResult } from '../../domain/state/StateChangeProtocol';
 import { LLMProviderRegistry } from './LLMProviderRegistry';
-import { StateOrchestrator } from './StateOrchestrator';
+import { StateOrchestrator } from './orchestrator';
 import { Logger } from '../../shared/services/Logger';
+import type { GlobalState } from '../../domain/LLMProvider';
+import type { ModelInfo } from '../../domain/agent/LLMProviderAdapter';
+import type { StateChange } from '../../domain/state/StateChangeProtocol';
 
 /**
  * [LAYER: CORE]
@@ -37,11 +40,11 @@ export class ProviderStateManager implements StateObserver<ApiConfiguration> {
     orchestrator.registerObserver('apiConfiguration', this);
     
     // Bridge registry updates back to orchestrated state
-    registry.onModelsUpdated((providerId, models) => {
+    registry.onModelUpdate((providerId: string, models: ModelInfo[]) => {
       this._syncModelsToState(providerId, models);
     });
     
-    registry.onHealthUpdated((providerId, health) => {
+    registry.onHealthUpdate((providerId: string, health: 'online' | 'offline' | 'error') => {
       this._syncHealthToState(providerId, health);
     });
 
@@ -51,7 +54,7 @@ export class ProviderStateManager implements StateObserver<ApiConfiguration> {
   /**
    * Syncs discovered models to the global state.
    */
-  private async _syncModelsToState(providerId: string, models: any[]): Promise<void> {
+  private async _syncModelsToState(providerId: string, models: ModelInfo[]): Promise<void> {
     const orchestrator = StateOrchestrator.getInstance();
     const currentModels = (await orchestrator.getState('availableProviderModels')) || {};
     
@@ -64,7 +67,7 @@ export class ProviderStateManager implements StateObserver<ApiConfiguration> {
     await orchestrator.applyChange({
       key: 'availableProviderModels',
       newValue: updatedModels,
-      stateSet: {} as any,
+      stateSet: {} as GlobalState,
       validate: () => true,
       sanitize: () => updatedModels,
       getCorrelationId: () => `registry-update-models-${providerId}-${Date.now()}`
@@ -86,7 +89,7 @@ export class ProviderStateManager implements StateObserver<ApiConfiguration> {
     await orchestrator.applyChange({
       key: 'providerHealth',
       newValue: updatedHealth,
-      stateSet: {} as any,
+      stateSet: {} as GlobalState,
       validate: () => true,
       sanitize: () => updatedHealth,
       getCorrelationId: () => `registry-update-health-${providerId}-${Date.now()}`
@@ -96,7 +99,7 @@ export class ProviderStateManager implements StateObserver<ApiConfiguration> {
   /**
    * Validates the configuration before applying the change.
    */
-  onBeforeChange(change: any): boolean {
+  onBeforeChange(change: StateChange<ApiConfiguration>): boolean {
     const config = change.newValue as ApiConfiguration;
     if (!config) return false;
 
@@ -122,15 +125,15 @@ export class ProviderStateManager implements StateObserver<ApiConfiguration> {
   /**
    * Redacts sensitive keys for secure logging.
    */
-  private _maskConfig(config: ApiConfiguration): any {
-    const masked = { ...config } as any;
-    const sensitiveKeys = [
-      'apiKey', 'geminiApiKey'
+  private _maskConfig(config: ApiConfiguration): Partial<ApiConfiguration> {
+    const masked: Partial<ApiConfiguration> = { ...config };
+    const sensitiveKeys: (keyof ApiConfiguration)[] = [
+      'geminiApiKey'
     ];
 
     for (const key of sensitiveKeys) {
-      if (masked[key]) {
-        masked[key] = '********';
+      if (masked[key as keyof ApiConfiguration]) {
+        (masked as Record<string, string | undefined>)[key] = '********';
       }
     }
     return masked;
@@ -139,7 +142,7 @@ export class ProviderStateManager implements StateObserver<ApiConfiguration> {
   /**
    * Called on error
    */
-  onError(error: any): void {
+  onError(error: Error): void {
     Logger.error('[STATE] Provider state sync error:', error);
   }
 }

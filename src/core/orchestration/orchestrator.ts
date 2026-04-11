@@ -64,7 +64,7 @@ export class Orchestrator {
 
   private updateHud() {
     this.ui.renderHud({
-      agentId: 'Claude 3.7',
+      agentId: 'Gemini 2.0',
       projectName: this.projectContext?.repository?.name || 'DietCode',
       userName: this.userName,
       health: 0.92,

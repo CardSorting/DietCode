@@ -5,13 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 import type { StateObserver, StateChangeResult } from '../../domain/state/StateChangeProtocol';
-import { StateOrchestrator } from './StateOrchestrator';
+import { StateOrchestrator } from './orchestrator';
 import { StateAssembler } from './StateAssembler';
 import { Logger } from '../../shared/services/Logger';
 
 /**
  * [LAYER: CORE / MANAGER]
- * The Reactive Bridge between the StateOrchestrator and the UI layer.
+ * The Reactive Bridge between the orchestrator and the UI layer.
  * 
  * StateSyncService implements the Global Observation pattern, listening to 
  * all state changes in the extension and broadcasting them to active gRPC 
