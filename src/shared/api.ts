@@ -21,6 +21,10 @@ export interface ApiHandlerOptions extends Partial<ApiHandlerSettings> {
   geminiActModeThinkingLevel?: string;
   planModeApiProvider?: ApiProvider;
   actModeApiProvider?: ApiProvider;
+  vertexProjectId?: string;
+  vertexRegion?: string;
+  planModeReasoningEffort?: string;
+  actModeReasoningEffort?: string;
   onRetryAttempt?: (attempt: number, maxRetries: number, delay: number, error: unknown) => void;
 }
 

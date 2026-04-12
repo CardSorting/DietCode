@@ -152,6 +152,9 @@ export async function backfillTasks(
 
   for (let i = 0; i < taskIds.length; i++) {
     const taskId = taskIds[i];
+    if (!taskId) {
+      continue;
+    }
 
     // Check timestamp filter using taskId (which is Date.now().toString())
     if (sinceTimestamp) {

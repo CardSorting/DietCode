@@ -41,6 +41,9 @@ export function combineErrorRetryMessages(messages: ClineMessage[]): ClineMessag
 
   for (let i = 0; i < messages.length; i++) {
     const message = messages[i];
+    if (!message) {
+      continue;
+    }
 
     if (message.say === "error_retry") {
       // Look ahead to find if there's another error_retry before the next api_req_started
@@ -49,13 +52,15 @@ export function combineErrorRetryMessages(messages: ClineMessage[]): ClineMessag
 
       for (let j = i + 1; j < messages.length; j++) {
         const laterMessage = messages[j];
-        if (laterMessage.say === "api_req_started") {
-          hasApiReqStartedBefore = true;
-          break;
-        }
-        if (laterMessage.say === "error_retry") {
-          hasLaterErrorRetry = true;
-          break;
+        if (laterMessage) {
+          if (laterMessage.say === "api_req_started") {
+            hasApiReqStartedBefore = true;
+            break;
+          }
+          if (laterMessage.say === "error_retry") {
+            hasLaterErrorRetry = true;
+            break;
+          }
         }
       }
 

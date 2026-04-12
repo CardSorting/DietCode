@@ -28,5 +28,10 @@ export const API_HANDLER_SETTINGS_FIELDS = {
 
   planModeApiProvider: { default: "gemini" as string },
   actModeApiProvider: { default: "gemini" as string },
+
+  vertexProjectId: { default: undefined as string | undefined },
+  vertexRegion: { default: undefined as string | undefined },
+  planModeReasoningEffort: { default: "low" as string },
+  actModeReasoningEffort: { default: "low" as string },
 } satisfies FieldDefinitions;
 

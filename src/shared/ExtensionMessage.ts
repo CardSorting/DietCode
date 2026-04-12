@@ -24,6 +24,8 @@ export type { TelemetrySetting };
 
 
 export type ClineRulesToggles = SovereignRulesToggles;
+export type ClineAsk = SovereignAsk;
+export type ClineSay = SovereignSay;
 
 // webview will hold state
 export interface ExtensionMessage {
@@ -137,7 +139,7 @@ export interface ExtensionState {
   settingsInitialModelTab?: "recommended" | "free";
   globalSkillsToggles?: Record<string, boolean>;
   userInfo?: UserInfo;
-  onboardingModels?: any;
+  onboardingModels?: unknown;
 }
 
 

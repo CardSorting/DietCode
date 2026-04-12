@@ -74,8 +74,9 @@ function dedupeToolOrCommandMessagesByTimestamp(messages: ClineMessage[]): Cline
   const lastToolOrCommandIndexByTs = new Map<number, number>();
 
   for (let i = 0; i < messages.length; i++) {
-    if (isToolOrCommandMessage(messages[i])) {
-      lastToolOrCommandIndexByTs.set(messages[i].ts, i);
+    const msg = messages[i];
+    if (msg && isToolOrCommandMessage(msg)) {
+      lastToolOrCommandIndexByTs.set(msg.ts, i);
     }
   }
 
@@ -105,8 +106,12 @@ function combineHookWithOutputs(
   let i = startIndex + 1;
 
   // Collect all hook_output_stream messages until we hit another hook_status/hook or end of array
-  while (i < messages.length && !isHookStatusSay(getSay(messages[i]))) {
-    const say = getSay(messages[i]);
+  while (i < messages.length) {
+    const msg = messages[i];
+    if (!msg || isHookStatusSay(getSay(msg))) {
+      break;
+    }
+    const say = getSay(msg);
     if (isHookOutputStreamSay(say)) {
       // Add marker before first output
       if (!hasOutput) {
@@ -115,7 +120,7 @@ function combineHookWithOutputs(
       }
 
       // Append output if not empty
-      const output = messages[i].text || "";
+      const output = msg.text || "";
       if (output.length > 0) {
         combinedText += `\n${output}`;
       }
@@ -141,8 +146,9 @@ function combineAllHooks(messages: ClineMessage[]): ClineMessage[] {
   const combinedHooksByTs = new Map<number, ClineMessage>();
 
   for (let i = 0; i < messages.length; i++) {
-    if (isHookStatusSay(getSay(messages[i]))) {
-      const { combined, nextIndex } = combineHookWithOutputs(messages[i], i, messages);
+    const msg = messages[i];
+    if (msg && isHookStatusSay(getSay(msg))) {
+      const { combined, nextIndex } = combineHookWithOutputs(msg, i, messages);
       combinedHooksByTs.set(combined.ts, combined);
       i = nextIndex - 1; // Adjust for loop increment
     }
@@ -187,18 +193,19 @@ function findImmediateNextToolTimestamp(
 ): number | null {
   for (let i = hookIndex + 1; i < messages.length; i++) {
     const msg = messages[i];
+    if (msg) {
+      // If we hit a tool, this is the immediate next tool
+      if (isToolOrCommandMessage(msg)) {
+        return msg.ts;
+      }
 
-    // If we hit a tool, this is the immediate next tool
-    if (isToolOrCommandMessage(msg)) {
-      return msg.ts;
-    }
-
-    // If we hit another PreToolUse hook before finding a tool, stop searching
-    // This prevents matching a hook to a tool that has its own PreToolUse hook
-    if (isHookStatusSay(getSay(msg))) {
-      const metadata = parseHookMetadata(msg);
-      if (metadata?.hookName === "PreToolUse") {
-        return null;
+      // If we hit another PreToolUse hook before finding a tool, stop searching
+      // This prevents matching a hook to a tool that has its own PreToolUse hook
+      if (isHookStatusSay(getSay(msg))) {
+        const metadata = parseHookMetadata(msg);
+        if (metadata?.hookName === "PreToolUse") {
+          return null;
+        }
       }
     }
   }
@@ -229,7 +236,10 @@ function buildPreToolUseMap(
   // Build timestamp-to-index map once to avoid O(n) findIndex calls
   const timestampToIndex = new Map<number, number>();
   for (let i = 0; i < originalMessages.length; i++) {
-    timestampToIndex.set(originalMessages[i].ts, i);
+    const msg = originalMessages[i];
+    if (msg) {
+      timestampToIndex.set(msg.ts, i);
+    }
   }
 
   for (const msg of processedMessages) {
@@ -303,7 +313,10 @@ function reorderWithPreToolUseHooks(
   for (const msg of messages) {
     // Case 1: This is a tool with PreToolUse hooks
     if (isToolOrCommandMessage(msg) && preToolUseMap.has(msg.ts)) {
-      const hooksForTool = preToolUseMap.get(msg.ts)!;
+      const hooksForTool = preToolUseMap.get(msg.ts);
+      if (!hooksForTool) {
+        continue;
+      }
 
       // Insert hooks that haven't been added yet
       const newHooks = hooksForTool.filter((h) => !addedHooks.has(h.ts));

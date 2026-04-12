@@ -6,7 +6,7 @@
  */
 import chalk, { type ChalkInstance } from 'chalk';
 
-type ProfileName = 'AETHER' | 'MATRIX' | 'VAPORWAVE' | 'INDUSTRIAL';
+export type ProfileName = 'AETHER' | 'MATRIX' | 'VAPORWAVE' | 'INDUSTRIAL';
 
 /**
  * [LAYER: DESIGN]

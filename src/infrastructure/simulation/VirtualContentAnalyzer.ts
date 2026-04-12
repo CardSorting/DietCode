@@ -24,6 +24,6 @@ export class VirtualContentAnalyzer {
     policy: IntegrityPolicy,
     virtualFiles?: Map<string, string>,
   ) {
-    return await analyzeDependencies(filePath, projectRoot, policy, content, virtualFiles);
+    return await analyzeDependencies(filePath, projectRoot, policy, content);
   }
 }

@@ -12,7 +12,8 @@ export function findLastIndex<T>(
 ): number {
   let l = array.length;
   while (l--) {
-    if (predicate(array[l], l, array)) {
+    const item = array[l];
+    if (item !== undefined && predicate(item, l, array)) {
       return l;
     }
   }

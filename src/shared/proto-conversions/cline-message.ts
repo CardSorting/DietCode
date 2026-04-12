@@ -35,6 +35,9 @@ function convertClineAskToProtoEnum(ask: AppClineAsk | undefined): ClineAsk | un
     summarize_task: ClineAsk.SUMMARIZE_TASK,
     report_bug: ClineAsk.REPORT_BUG,
     use_subagents: ClineAsk.USE_SUBAGENTS,
+    ask_question: ClineAsk.ASK_QUESTION,
+    plan_mode_response: ClineAsk.PLAN_MODE_RESPONSE,
+    feature_tip: ClineAsk.FEATURE_TIP,
   };
 
   const result = mapping[ask];
@@ -68,6 +71,9 @@ function convertProtoEnumToClineAsk(ask: ClineAsk): AppClineAsk | undefined {
     [ClineAsk.SUMMARIZE_TASK]: "summarize_task",
     [ClineAsk.REPORT_BUG]: "report_bug",
     [ClineAsk.USE_SUBAGENTS]: "use_subagents",
+    [ClineAsk.ASK_QUESTION]: "ask_question",
+    [ClineAsk.PLAN_MODE_RESPONSE]: "plan_mode_response",
+    [ClineAsk.FEATURE_TIP]: "feature_tip",
   };
 
   return mapping[ask];

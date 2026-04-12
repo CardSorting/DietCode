@@ -25,24 +25,26 @@ export function combineCommandSequences(messages: ClineMessage[]): ClineMessage[
 
   // First pass: combine commands with their outputs
   for (let i = 0; i < messages.length; i++) {
-    if (messages[i].ask === "command" || messages[i].say === "command") {
-      let combinedText = messages[i].text || "";
+    const msg = messages[i];
+    if (msg && (msg.ask === "command" || msg.say === "command")) {
+      let combinedText = msg.text || "";
       let didAddOutput = false;
       let j = i + 1;
 
       while (j < messages.length) {
-        if (messages[j].ask === "command" || messages[j].say === "command") {
+        const nextMsg = messages[j];
+        if (nextMsg && (nextMsg.ask === "command" || nextMsg.say === "command")) {
           // Stop if we encounter the next command
           break;
         }
-        if (messages[j].ask === "command_output" || messages[j].say === "command_output") {
+        if (nextMsg && (nextMsg.ask === "command_output" || nextMsg.say === "command_output")) {
           if (!didAddOutput) {
             // Add a newline before the first output
             combinedText += `\n${COMMAND_OUTPUT_STRING}`;
             didAddOutput = true;
           }
           // handle cases where we receive empty command_output (ie when extension is relinquishing control over exit command button)
-          const output = messages[j].text || "";
+          const output = nextMsg.text || "";
           if (output.length > 0) {
             combinedText += `\n${output}`;
           }
@@ -51,7 +53,7 @@ export function combineCommandSequences(messages: ClineMessage[]): ClineMessage[
       }
 
       combinedCommands.push({
-        ...messages[i],
+        ...msg,
         text: combinedText,
       });
 

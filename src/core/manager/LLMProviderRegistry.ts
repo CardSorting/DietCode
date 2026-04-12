@@ -21,7 +21,7 @@ export class LLMProviderRegistry {
   private static instance: LLMProviderRegistry;
   private providers = new Map<string, LLMAdapter>();
   private factory = new AdapterFactory();
-  private cache = new ModelCache();
+  private cache = ModelCache.getInstance();
   
   private isLoadingModels = new Set<string>();
   private modelUpdateListeners = new Set<(providerId: string, models: ModelInfo[]) => void>();
@@ -114,7 +114,7 @@ export class LLMProviderRegistry {
 
   public getPromptStrategy(providerId: string): PromptStrategy {
     const adapter = this.getAdapter(providerId);
-    return adapter ? adapter.getPromptStrategy() : EnumPromptStrategy.NATIVE;
+    return adapter ? adapter.getPromptStrategy() : EnumPromptStrategy.GEMINI;
   }
 
   public onModelUpdate(callback: (providerId: string, models: ModelInfo[]) => void) {

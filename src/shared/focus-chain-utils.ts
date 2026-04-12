@@ -36,7 +36,7 @@ export function parseFocusChainItem(line: string): { checked: boolean; text: str
   const match = line.match(FOCUS_CHAIN_ITEM_REGEX);
   if (match) {
     const checked = match[1] === "x" || match[1] === "X";
-    const text = match[2].trim();
+    const text = (match[2] || "").trim();
     return { checked, text };
   }
   return null;

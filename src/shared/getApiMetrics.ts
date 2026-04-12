@@ -85,7 +85,7 @@ export function getApiMetrics(messages: ClineMessage[]): ApiMetrics {
 export function getLastApiReqTotalTokens(messages: ClineMessage[]): number {
   for (let i = messages.length - 1; i >= 0; i--) {
     const msg = messages[i];
-    if (msg.type === "say" && msg.say === "api_req_started" && msg.text) {
+    if (msg && msg.type === "say" && msg.say === "api_req_started" && msg.text) {
       try {
         const { tokensIn, tokensOut, cacheWrites, cacheReads } = JSON.parse(msg.text);
         const total = (tokensIn || 0) + (tokensOut || 0) + (cacheWrites || 0) + (cacheReads || 0);

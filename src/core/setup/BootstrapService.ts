@@ -60,12 +60,13 @@ export class BootstrapService {
     forceSetup?: boolean,
   ): Promise<BootstrapConfig> {
     const userConfig = this.loadUserConfig();
-    (COLORS as typeof COLORS & { activeProfile: string }).activeProfile = userConfig.aesthetic || 'AETHER';
+    const activeProfile = (userConfig.aesthetic as ProfileName) || 'AETHER';
+    COLORS.activeProfile = activeProfile;
 
     this.ui.clear();
 
     // Phase 1: Cinematic Splash & Diagnostics
-    await SplashRenderer.bootSequence((COLORS as typeof COLORS & { activeProfile: string }).activeProfile);
+    await SplashRenderer.bootSequence(activeProfile);
 
     // Apply Overrides Immediately
     if (overrides && Object.keys(overrides).length > 0) {
