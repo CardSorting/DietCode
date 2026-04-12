@@ -28,17 +28,15 @@ const QUICK_WINS_HISTORY_THRESHOLD = CHAT_CONSTANTS.QUICK_WINS_HISTORY_THRESHOLD
 const ChatView = ({ isHidden, showHistoryView }: { isHidden: boolean; showHistoryView: () => void }) => {
   const showNavbar = useShowNavbar();
   const {
-    clineMessages: messages,
+    messages,
     taskHistory,
     apiConfiguration,
     mode,
-    userInfo,
     currentFocusChainChecklist,
     focusChainSettings,
   } = useExtensionState();
   
-  const isProdHostedApp = userInfo?.apiBaseUrl === "https://app.cline.bot";
-  const shouldShowQuickWins = isProdHostedApp && (!taskHistory || taskHistory.length < QUICK_WINS_HISTORY_THRESHOLD);
+  const shouldShowQuickWins = false;
 
   const task = useMemo(() => messages.at(0), [messages]); 
 

@@ -1,5 +1,5 @@
 import * as os from "node:os";
-import type { ClineAccountUserInfo } from "@/services/auth/AuthService";
+
 import { Setting } from "@/shared/proto/index.host";
 import { Logger } from "@/shared/services/Logger";
 import type { Mode } from "@/shared/storage/types";
@@ -12,6 +12,7 @@ import { version as extensionVersion } from "../../../package.json";
 import { setDistinctId } from "../logging/distinctId";
 import { TelemetryProviderFactory } from "./TelemetryProviderFactory";
 import type { ITelemetryProvider, TelemetryProperties } from "./providers/ITelemetryProvider";
+import { isObject } from "@/utils/typeGuards";
 
 /**
  * Represents telemetry event categories that can be individually enabled or disabled
@@ -135,12 +136,9 @@ export class TelemetryService {
   ]);
 
   private userId?: string;
-  private activeOrg: {
-    organization_id: string;
-    organization_name: string;
-    member_id: string;
-  } | null = null;
+  private activeOrg: unknown = null;
   private taskTurnCounts = new Map<string, number>();
+
   private taskToolCallCounts = new Map<string, number>();
   private taskErrorCounts = new Map<string, number>();
   public static readonly METRICS = {
@@ -481,7 +479,7 @@ export class TelemetryService {
     properties: TelemetryProperties,
     required: boolean,
   ): void {
-    this.providers.forEach((provider) => {
+    for (const provider of this.providers) {
       try {
         if (required) {
           provider.logRequired(event, properties);
@@ -491,15 +489,17 @@ export class TelemetryService {
       } catch (error) {
         Logger.error(`[TelemetryService] Provider failed for event ${event}:`, error);
       }
-    });
+    }
   }
+
 
   private getStandardAttributes(extra?: TelemetryProperties): TelemetryProperties {
     return {
       ...this.telemetryMetadata,
       ...(this.userId ? { userId: this.userId } : {}),
-      ...this.activeOrg,
+      ...(isObject(this.activeOrg) ? (this.activeOrg as Record<string, unknown>) : {}),
       ...(extra ?? {}),
+
     };
   }
 
@@ -511,14 +511,15 @@ export class TelemetryService {
     required = false,
   ): void {
     const attrs = this.getStandardAttributes(attributes);
-    this.providers.forEach((provider) => {
+    for (const provider of this.providers) {
       try {
         provider.recordCounter(name, value, attrs, description, required);
       } catch (error) {
         Logger.error(`[TelemetryService] recordCounter failed: ${name}`, error);
       }
-    });
+    }
   }
+
 
   private recordHistogram(
     name: string,
@@ -528,14 +529,15 @@ export class TelemetryService {
     required = false,
   ): void {
     const attrs = this.getStandardAttributes(attributes);
-    this.providers.forEach((provider) => {
+    for (const provider of this.providers) {
       try {
         provider.recordHistogram(name, value, attrs, description, required);
       } catch (error) {
         Logger.error(`[TelemetryService] recordHistogram failed: ${name}`, error);
       }
-    });
+    }
   }
+
 
   /**
    * Gauge values require explicit cleanup: callers must pass null with the same attribute set
@@ -549,14 +551,15 @@ export class TelemetryService {
     required = false,
   ): void {
     const attrs = this.getStandardAttributes(attributes);
-    this.providers.forEach((provider) => {
+    for (const provider of this.providers) {
       try {
         provider.recordGauge(name, value, attrs, description, required);
       } catch (error) {
         Logger.error(`[TelemetryService] recordGauge failed: ${name}`, error);
       }
-    });
+    }
   }
+
 
   private incrementTaskCounter(store: Map<string, number>, ulid: string): number {
     const nextValue = (store.get(ulid) ?? 0) + 1;
@@ -646,36 +649,13 @@ export class TelemetryService {
 
   /**
    * Identifies the accounts user
-   * @param userInfo The user's information
+   * @deprecated The clinical account feature has been removed.
    */
-  public identifyAccount(userInfo: ClineAccountUserInfo) {
-    const propertiesWithMetadata: TelemetryProperties = {
-      ...this.telemetryMetadata,
-    };
+  public identifyAccount(_userInfo: unknown) {
 
-    this.userId = userInfo.id;
-    const activeOrg = userInfo.organizations?.find((org) => org.active);
-    if (activeOrg) {
-      this.activeOrg = {
-        organization_id: activeOrg.organizationId,
-        organization_name: activeOrg.name,
-        member_id: activeOrg.memberId,
-      };
-    } else {
-      this.activeOrg = null;
-    }
-    // Update all providers with error isolation
-    this.providers.forEach((provider) => {
-      try {
-        provider.identifyUser(userInfo, propertiesWithMetadata);
-      } catch (error) {
-        Logger.error("[TelemetryService] Provider failed for user identification:", error);
-      }
-    });
-
-    if (userInfo.id) {
-      setDistinctId(userInfo.id);
-    }
+    // This method is now a stub as the legacy auth system has been removed.
+    this.userId = undefined;
+    this.activeOrg = null;
   }
 
   // Task events

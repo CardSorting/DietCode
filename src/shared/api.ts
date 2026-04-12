@@ -19,10 +19,17 @@ export interface ApiHandlerOptions extends Partial<ApiHandlerSettings> {
   geminiBaseUrl?: string;
   geminiPlanModeThinkingLevel?: string;
   geminiActModeThinkingLevel?: string;
+  planModeApiProvider?: ApiProvider;
+  actModeApiProvider?: ApiProvider;
   onRetryAttempt?: (attempt: number, maxRetries: number, delay: number, error: unknown) => void;
 }
 
+
 export type ApiConfiguration = ApiHandlerOptions;
+
+export const GEMINI_MIN_THINKING_BUDGET = 1024;
+export const GEMINI_MAX_THINKING_BUDGET = 64000;
+
 
 // Models
 

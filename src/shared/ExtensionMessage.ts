@@ -10,14 +10,21 @@ import type { FocusChainSettings } from "./FocusChainSettings";
 import type { HistoryItem } from "./HistoryItem";
 import type { McpDisplayMode } from "./McpDisplayMode";
 import type { McpServer, McpMarketplaceCatalog, McpTool, McpResource, McpResourceTemplate } from "./mcp";
-export type { McpServer, McpMarketplaceCatalog, McpTool, McpResource, McpResourceTemplate };
+import type { UserInfo } from "./nice-grpc/cline/account";
+export type { McpServer, McpMarketplaceCatalog, McpTool, McpResource, McpResourceTemplate, UserInfo };
+
 export type { RemoteConfigFields } from "./storage/state-keys";
-import type { TelemetrySetting } from "./TelemetrySetting";
-import type { UserInfo } from "./UserInfo";
 import type { ApiConfiguration, ModelInfo } from "./api";
 import type { SovereignRulesToggles } from "./cline-rules";
 import type { SovereignMessageModelInfo } from "./messages";
 import type { Mode } from "./storage/types";
+import type { TelemetrySetting } from "./TelemetrySetting";
+
+export type { TelemetrySetting };
+
+
+export type ClineRulesToggles = SovereignRulesToggles;
+
 // webview will hold state
 export interface ExtensionMessage {
   type: "grpc_response"; // New type for gRPC responses
@@ -56,7 +63,9 @@ export interface ExtensionState {
   mode: Mode;
   checkpointManagerErrorMessage?: string;
   messages: SovereignMessage[];
+  clineMessages: ClineMessage[]; // Alias for messages
   currentTaskItem?: HistoryItem;
+
   currentFocusChainChecklist?: string | null;
   mcpMarketplaceEnabled?: boolean;
   mcpDisplayMode: McpDisplayMode;
@@ -76,7 +85,6 @@ export interface ExtensionState {
   backgroundCommandRunning?: boolean;
   backgroundCommandTaskId?: string;
   lastCompletedCommandTs?: number;
-  userInfo?: UserInfo;
   version: string;
   distinctId: string;
   globalRulesToggles: SovereignRulesToggles;
@@ -87,7 +95,8 @@ export interface ExtensionState {
   localWindsurfRulesToggles: SovereignRulesToggles;
   remoteRulesToggles?: SovereignRulesToggles;
   remoteWorkflowToggles?: SovereignRulesToggles;
-  localAgentsRulesToggles: SovereignRulesToggles;
+  globalAgentsRulesToggles?: SovereignRulesToggles;
+  localAgentsRulesToggles?: SovereignRulesToggles;
   mcpResponsesCollapsed?: boolean;
   strictPlanModeEnabled?: boolean;
   yoloModeToggled?: boolean;
@@ -116,15 +125,76 @@ export interface ExtensionState {
   lastDismissedInfoBannerVersion: number;
   lastDismissedModelBannerVersion: number;
   lastDismissedCliBannerVersion: number;
+  dismissedBanners?: string[]; 
+  banners?: BannerCardData[];
+  welcomeBanners?: BannerCardData[];
   availableProviderModels?: Record<string, Record<string, ModelInfo>>;
+
+
   providerHealth?: Record<string, { status: "healthy" | "unhealthy" | "degraded"; message?: string }>;
   favoritedModelIds?: string[];
   taskHistorySummary?: unknown[];
   settingsInitialModelTab?: "recommended" | "free";
   globalSkillsToggles?: Record<string, boolean>;
+  userInfo?: UserInfo;
+  onboardingModels?: any;
 }
 
+
+export enum BannerActionType {
+  OpenUrl = "open_url",
+  Dismiss = "dismiss",
+  NavigateTab = "navigate_tab",
+  ExecuteCommand = "execute_command",
+}
+
+
+export interface BannerAction {
+  title?: string;
+  action?: BannerActionType | string;
+  arg?: string;
+}
+
+export interface BannerRules {
+  providers?: string[];
+  os?: Platform[];
+  ide?: string[];
+  version?: string;
+}
+
+export interface Banner {
+  id: string;
+  placement: "top" | "welcome" | "task_sidebar";
+  titleMd: string;
+  bodyMd?: string;
+  icon?: string;
+  rulesJson?: string;
+  actions?: BannerAction[];
+}
+
+export interface BannersResponse {
+  data: {
+    items: Banner[];
+  };
+}
+
+export interface BannerCardData {
+  id: string;
+  title: string;
+  description?: string;
+  icon?: string;
+  actions: {
+    title: string;
+    action: BannerActionType;
+    arg?: string;
+  }[];
+}
+
+
+export type ClineMessage = SovereignMessage;
+
 export interface SovereignMessage {
+
   ts: number;
   type: "ask" | "say";
   ask?: SovereignAsk;

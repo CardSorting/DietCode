@@ -22,7 +22,8 @@ import { EventBus } from './src/core/orchestration/EventBus';
 import { HandoverService } from './src/core/orchestration/HandoverService';
 import { Registry, SERVICES } from './src/core/orchestration/Registry';
 import { Orchestrator } from './src/core/orchestration/orchestrator';
-import { BootstrapService } from './src/core/setup/BootstrapService';
+import { BootstrapService, type BootstrapConfig } from './src/core/setup/BootstrapService';
+
 import type { ProjectContext } from './src/domain/context/ProjectContext';
 import { LogLevel } from './src/domain/logging/LogLevel';
 import { IntegrityPolicy } from './src/domain/memory/IntegrityPolicy';
@@ -37,8 +38,7 @@ import { SqliteDecisionRepository } from './src/infrastructure/database/SqliteDe
 import { SqliteHealingRepository } from './src/infrastructure/database/SqliteHealingRepository';
 import { SqliteKnowledgeRepository } from './src/infrastructure/database/SqliteKnowledgeRepository';
 import { SqliteSessionRepository } from './src/infrastructure/database/SqliteSessionRepository';
-import { AnthropicProvider } from './src/infrastructure/llm/providers/AnthropicProvider';
-import { CloudflareProvider } from './src/infrastructure/llm/providers/CloudflareProvider';
+import { GeminiProvider } from './src/infrastructure/llm/providers/GeminiProvider';
 import { QueueWorker } from './src/infrastructure/queue/QueueWorker';
 import {
   createListFilesTool,
@@ -96,21 +96,13 @@ async function main() {
   await SovereignDb.init('./data/diet-code-sovereign.db');
 
   // Parse CLI Overrides
-  const overrides: any = {};
+  const overrides: Partial<BootstrapConfig> = {};
   let forceSetup = false;
 
   for (let i = 2; i < process.argv.length; i++) {
     const arg = process.argv[i];
-    if (arg === '--anthropic-key' && process.argv[i + 1])
-      overrides.anthropicApiKey = process.argv[++i];
-    else if (arg === '--openai-key' && process.argv[i + 1])
-      overrides.openaiApiKey = process.argv[++i];
-    else if (arg === '--gemini-key' && process.argv[i + 1])
+    if (arg === '--gemini-key' && process.argv[i + 1])
       overrides.geminiApiKey = process.argv[++i];
-    else if (arg === '--cloudflare-id' && process.argv[i + 1])
-      overrides.cloudflareAccountId = process.argv[++i];
-    else if (arg === '--cloudflare-token' && process.argv[i + 1])
-      overrides.cloudflareApiToken = process.argv[++i];
     else if (arg === '--setup' || arg === '--init') forceSetup = true;
   }
 
@@ -118,9 +110,7 @@ async function main() {
   const bootstrap = new BootstrapService(fs, ui);
   const config = await bootstrap.bootstrap(overrides, forceSetup);
 
-  const apiKey = config.anthropicApiKey;
-  const cfAccountId = config.cloudflareAccountId;
-  const cfApiToken = config.cloudflareApiToken;
+  const apiKey = config.geminiApiKey;
 
   const systemAdapter = new NodeSystemAdapter(fs, logger);
 
@@ -134,22 +124,12 @@ async function main() {
   // SqliteAuditRepository will automatically listen via EventBus subscription pattern
 
   // LLM Provider
-  let provider: any;
-  if (cfAccountId && cfApiToken) {
-    console.log('[CORE] Initializing Cloudflare Workers AI (@cf/moonshotai/kimi-k2.5)');
-    provider = new CloudflareProvider({
-      accountId: cfAccountId,
-      apiToken: cfApiToken,
-      logService: logger,
-    });
-  } else {
-    console.log('[CORE] Initializing Anthropic Provider');
-    if (!apiKey) {
-      ui.logError('Anthropic API Key is missing. This should have been caught by bootstrap.');
-      process.exit(1);
-    }
-    provider = new AnthropicProvider(apiKey, logger);
+  console.log('[CORE] Initializing Gemini Provider');
+  if (!apiKey) {
+    ui.logError('Gemini API Key is missing. This should have been caught by bootstrap.');
+    process.exit(1);
   }
+  const provider = new GeminiProvider(apiKey, logger);
 
   // Triple Down: Sovereign Memory & Swarm Handover
   const agentRegistry = new AgentRegistry();
@@ -164,8 +144,9 @@ async function main() {
     selfHealingService,
     agentRegistry,
     provider,
-    logger as any,
+    logger,
   );
+
   await worker.start();
 
   // Project Context Discovery (Deep Integration)
@@ -230,7 +211,7 @@ Your mission is to orchestrate complex tasks by coordinating specialized agents.
 Available specialists:
 ${specializedAgents}
 Follow the JoyZoning architecture for all operations.`,
-    model: cfAccountId ? '@cf/moonshotai/kimi-k2.5' : 'claude-3-7-sonnet-20250219',
+    model: 'gemini-3.1-pro-preview',
     maxTokens: 4096,
   });
 

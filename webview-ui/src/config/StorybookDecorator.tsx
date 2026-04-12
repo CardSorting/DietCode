@@ -2,12 +2,7 @@ import "../../../node_modules/@vscode/codicons/dist/codicon.css";
 import "../../../node_modules/@vscode/codicons/dist/codicon.ttf";
 import "../../src/index.css";
 
-import {
-  ClineAuthContext,
-  type ClineAuthContextType,
-  ClineAuthProvider,
-  useClineAuth,
-} from "@/context/ClineAuthContext";
+
 import {
   ExtensionStateContext,
   ExtensionStateContextProvider,
@@ -17,7 +12,26 @@ import {
 import { cn } from "@heroui/react";
 import type { Decorator } from "@storybook/react-vite";
 import React from "react";
-import { StorybookThemes } from "../../.storybook/themes";
+
+const StorybookThemes = {
+  light: {
+    "--vscode-editor-background": "#ffffff",
+    "--vscode-editor-foreground": "#000000",
+    "--vscode-font-family": "Segoe UI, Tahoma, Geneva, Verdana, sans-serif",
+    "--vscode-font-size": "13px",
+    "--vscode-progressBar-background": "#007acc",
+    "--vscode-scrollbarSlider-background": "rgba(100, 100, 100, 0.4)",
+  },
+  dark: {
+    "--vscode-editor-background": "#1e1e1e",
+    "--vscode-editor-foreground": "#d4d4d4",
+    "--vscode-font-family": "Segoe UI, Tahoma, Geneva, Verdana, sans-serif",
+    "--vscode-font-size": "11px",
+    "--vscode-progressBar-background": "#007acc",
+    "--vscode-scrollbarSlider-background": "rgba(121, 121, 121, 0.4)",
+  },
+};
+
 
 // Component that handles theme switching
 const ThemeHandler: React.FC<{ children: React.ReactNode; theme?: string }> = ({
@@ -29,9 +43,10 @@ const ThemeHandler: React.FC<{ children: React.ReactNode; theme?: string }> = ({
 
     // Apply CSS variables to the document root
     const root = document.documentElement;
-    Object.entries(styles).forEach(([property, value]) => {
+    for (const [property, value] of Object.entries(styles)) {
       root.style.setProperty(property, value);
-    });
+    }
+
 
     document.body.style.backgroundColor = styles["--vscode-editor-background"];
     document.body.style.color = styles["--vscode-editor-foreground"];
@@ -40,9 +55,10 @@ const ThemeHandler: React.FC<{ children: React.ReactNode; theme?: string }> = ({
 
     return () => {
       // Cleanup on unmount
-      Object.keys(styles).forEach((property) => {
+      for (const property of Object.keys(styles)) {
         root.style.removeProperty(property);
-      });
+      }
+
     };
   }, [theme]);
 
@@ -53,11 +69,9 @@ function StorybookDecoratorProvider(className = "relative"): Decorator {
     return (
       <div className={className}>
         <ExtensionStateContextProvider>
-          <ClineAuthProvider>
-            <ThemeHandler theme={parameters?.globals?.theme}>
-              {React.createElement(story)}
-            </ThemeHandler>
-          </ClineAuthProvider>
+          <ThemeHandler theme={parameters?.globals?.theme}>
+            {React.createElement(story)}
+          </ThemeHandler>
         </ExtensionStateContextProvider>
       </div>
     );
@@ -77,32 +91,15 @@ const ExtensionStateProviderWithOverrides: React.FC<{
   );
 };
 
-const ClineAuthProviderWithOverrides: React.FC<{
-  overrides?: Partial<ClineAuthContextType>;
-  children: React.ReactNode;
-}> = ({ overrides, children }) => {
-  const authContext = useClineAuth();
-  return (
-    <ClineAuthContext.Provider value={{ ...authContext, ...overrides }}>
-      {children}
-    </ClineAuthContext.Provider>
-  );
-};
 
-export const createStorybookDecorator =
-  (
-    overrideStates?: Partial<ExtensionStateContextType>,
-    classNames?: string,
-    authOverrides?: Partial<ClineAuthContextType>,
-  ) =>
-  (Story: any) => (
-    <ExtensionStateProviderWithOverrides overrides={overrideStates}>
-      <ClineAuthProviderWithOverrides overrides={authOverrides}>
-        <div className={cn("max-w-lg mx-auto", classNames)}>
-          <Story />
-        </div>
-      </ClineAuthProviderWithOverrides>
-    </ExtensionStateProviderWithOverrides>
-  );
+
+export const createStorybookDecorator = (overrideStates?: Partial<ExtensionStateContextType>, classNames?: string) => (Story: React.ComponentType) => (
+  <ExtensionStateProviderWithOverrides overrides={overrideStates}>
+    <div className={cn("max-w-lg mx-auto", classNames)}>
+      <Story />
+    </div>
+  </ExtensionStateProviderWithOverrides>
+);
+
 
 export const StorybookWebview = StorybookDecoratorProvider();

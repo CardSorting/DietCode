@@ -16,6 +16,8 @@ import type { ProjectStructureAnalysis } from '../../domain/architecture/Project
 import type { LogService } from '../../domain/logging/LogService';
 import type { Filesystem } from '../../domain/system/Filesystem';
 import type { SystemAdapter } from '../../domain/system/SystemAdapter';
+import type { ProjectContext } from '../../domain/context/ProjectContext';
+
 
 /**
  * Service for discovering patterns and structure across the codebase
@@ -32,7 +34,7 @@ export class DiscoveryService {
    *
    * @param cwd Project root directory
    */
-  async discover(cwd: string): Promise<unknown> {
+  async discover(cwd: string): Promise<ProjectContext> {
     const { defaultCapabilityRegistry } = await import('../capabilities/CapabilityRegistry');
 
     // Discover git capability

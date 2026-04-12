@@ -1,19 +1,16 @@
 import { memo } from "react";
-import type { ClineMessage } from "@shared/ExtensionMessage.ts";
-import { useClineAuth, useClineSignIn } from "@/context/ClineAuthContext";
+import type { SovereignMessage } from "@shared/ExtensionMessage.ts";
 import { ClineError, ClineErrorType } from "@services/error/ClineError";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import VSCodeButtonLink from "@/components/common/VSCodeButtonLink";
 
 interface ErrorRowProps {
-  message: ClineMessage;
+  message: SovereignMessage;
   apiRequestFailedMessage?: string;
   apiReqStreamingFailedMessage?: string;
 }
 
 const ErrorRow = memo(({ message, apiRequestFailedMessage, apiReqStreamingFailedMessage }: ErrorRowProps) => {
-  const { clineUser } = useClineAuth();
-  const { isLoginLoading, handleSignIn } = useClineSignIn();
   const rawApiError = apiRequestFailedMessage || apiReqStreamingFailedMessage;
 
   if (rawApiError) {
@@ -32,16 +29,7 @@ const ErrorRow = memo(({ message, apiRequestFailedMessage, apiReqStreamingFailed
         );
     }
 
-    if (error?.isErrorType(ClineErrorType.Auth) && providerId === "cline" && !clineUser) {
-        return (
-            <div className="flex flex-col gap-2 p-4 bg-code border border-editor-group-border rounded-md text-center">
-                <p className="text-sm opacity-80">You're logged out of DietCode</p>
-                <VSCodeButton className="w-full" disabled={isLoginLoading} onClick={handleSignIn}>
-                    Sign In {isLoginLoading && "..."}
-                </VSCodeButton>
-            </div>
-        );
-    }
+
 
     return (
         <div className="flex flex-col gap-2 p-3 bg-destructive/5 border border-destructive/20 rounded-md text-sm text-destructive">

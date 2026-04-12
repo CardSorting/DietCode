@@ -11,6 +11,9 @@ import type { API_HANDLER_SETTINGS_FIELDS } from "./fields/api";
 import type { SETTINGS_FIELDS } from "./config";
 import type { SECRET_KEYS, LocalStateKeys } from "./config";
 import type { SovereignRulesToggles } from "../../cline-rules";
+import type { REMOTE_CONFIG_EXTRA_FIELDS } from "./fields/remote";
+import type { BlobStoreSettings } from "../DietBlobStorage";
+
 
 export type GlobalState = BuildInterface<typeof GLOBAL_STATE_FIELDS>;
 export type Settings = BuildInterface<typeof SETTINGS_FIELDS>;
@@ -20,8 +23,23 @@ export type Secrets = { [K in (typeof SECRET_KEYS)[number]]: string | undefined 
 export type ApiHandlerSettings = ApiHandlerOptionSettings & Secrets;
 export type GlobalStateAndSettings = GlobalState & Settings;
 
-type RemoteConfigExtra = Record<string, unknown>;
+export type RemoteConfigExtra = BuildInterface<typeof REMOTE_CONFIG_EXTRA_FIELDS> & {
+    blobStoreConfig?: BlobStoreSettings;
+    openTelemetryEnabled?: boolean;
+    openTelemetryOtlpEndpoint?: string;
+    openTelemetryMetricsExporter?: string;
+    openTelemetryLogsExporter?: string;
+    openTelemetryOtlpProtocol?: string;
+    openTelemetryOtlpMetricsEndpoint?: string;
+    openTelemetryOtlpLogsEndpoint?: string;
+    openTelemetryOtlpInsecure?: boolean;
+    openTelemetryMetricExportInterval?: number;
+    openTelemetryLogBatchSize?: number;
+    openTelemetryLogBatchTimeout?: number;
+    openTelemetryLogMaxQueueSize?: number;
+};
 export type RemoteConfigFields = GlobalStateAndSettings & RemoteConfigExtra;
+
 
 export type LocalState = { [K in (typeof LocalStateKeys)[number]]: SovereignRulesToggles };
 

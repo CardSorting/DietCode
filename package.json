@@ -1,7 +1,7 @@
 {
   "name": "dietcode",
   "publisher": "dietcode",
-  "version": "2.7.6",
+  "version": "2.7.9",
   "icon": "assets/vsix/extension-icon.png",
   "type": "module",
   "private": true,

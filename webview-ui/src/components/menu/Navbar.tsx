@@ -17,7 +17,6 @@ export const Navbar = () => {
   const {
     navigateToHistory,
     navigateToSettings,
-    navigateToAccount,
     navigateToMcp,
     navigateToChat,
   } = useExtensionState();
@@ -52,13 +51,7 @@ export const Navbar = () => {
         icon: HistoryIcon,
         navigate: navigateToHistory,
       },
-      {
-        id: "account",
-        name: "Account",
-        tooltip: "Account",
-        icon: UserCircleIcon,
-        navigate: navigateToAccount,
-      },
+
       {
         id: "settings",
         name: "Settings",
@@ -67,7 +60,7 @@ export const Navbar = () => {
         navigate: navigateToSettings,
       },
     ],
-    [navigateToAccount, navigateToChat, navigateToHistory, navigateToMcp, navigateToSettings],
+    [navigateToChat, navigateToHistory, navigateToMcp, navigateToSettings],
   );
 
   return (

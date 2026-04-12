@@ -5,10 +5,11 @@ import { type HostInfo, HostRegistryInfo } from "@/registry";
 import { fetch } from "@/shared/net";
 import { Logger } from "@/shared/services/Logger";
 import { FeatureFlag } from "@/shared/services/feature-flags/feature-flags";
-import type { Banner, BannerAction, BannerRules, BannersResponse } from "@shared/ClineBanner";
-import { BannerActionType, type BannerCardData } from "@shared/cline/banner.ts";
+import type { Banner, BannerAction, BannerRules, BannersResponse, BannerCardData } from "@shared/ExtensionMessage";
+import { BannerActionType } from "@shared/ExtensionMessage";
+
+
 import { buildBasicClineHeaders } from "../EnvUtils";
-import { AuthService } from "../auth/AuthService";
 import { featureFlagsService } from "../feature-flags";
 
 const DEFAULT_CACHE_DURATION_MS = 24 * 60 * 60 * 1000;
@@ -99,48 +100,9 @@ export class BannerService {
   }
 
   public static async onAuthUpdate(userId: string | null): Promise<void> {
-    const instance = BannerService.instance;
-
-    if (!instance || instance.userId === userId) return;
-
-    // Clear existing debounce timer and resolve any pending promise
-    if (instance.debounceTimer) {
-      clearTimeout(instance.debounceTimer);
-      instance.debounceTimer = null;
-    }
-    if (instance.pendingDebounceResolve) {
-      instance.pendingDebounceResolve();
-      instance.pendingDebounceResolve = null;
-    }
-
-    // Cancel any in-progress fetch immediately - we'll fetch with the new token after debounce
-    instance.abortController?.abort();
-    instance.abortController = null;
-    instance.fetchPromise = null;
-
-    // Set pending flag immediately to prevent getActiveBanners() from starting a fetch
-    // while we're waiting for the debounce to settle
-    instance.authFetchPending = true;
-    instance.userId = userId;
-
-    return new Promise<void>((resolve) => {
-      instance.pendingDebounceResolve = resolve;
-      instance.debounceTimer = setTimeout(async () => {
-        instance.debounceTimer = null;
-        instance.pendingDebounceResolve = null;
-
-        instance.consecutiveFailures = 0;
-        instance.backoffUntil = 0;
-
-        try {
-          await instance.doFetch();
-          Logger.info("[BannerService] Fetched");
-        } finally {
-          instance.authFetchPending = false;
-          resolve();
-        }
-      }, AUTH_DEBOUNCE_MS);
-    });
+    // This method is now a stub as the legacy auth system has been removed.
+    // Banners will be fetched on a regular TTL basis.
+    return Promise.resolve();
   }
 
   public getActiveBanners(): BannerCardData[] {
@@ -226,12 +188,16 @@ export class BannerService {
   public async dismissBanner(bannerId: string): Promise<void> {
     try {
       const dismissed = StateManager.get().getGlobalStateKey("dismissedBanners") || [];
-      if (dismissed.some((b) => b.bannerId === bannerId)) return;
+      if (dismissed.includes(bannerId)) return;
+
 
       StateManager.get().setGlobalState("dismissedBanners", [
         ...dismissed,
-        { bannerId, dismissedAt: Date.now() },
+        bannerId,
       ]);
+
+
+
 
       await this.sendBannerEvent(bannerId, "dismiss");
       this.clearCache();
@@ -274,7 +240,10 @@ export class BannerService {
   public isBannerDismissed(bannerId: string): boolean {
     try {
       const dismissed = StateManager.get().getGlobalStateKey("dismissedBanners") || [];
-      return dismissed.some((b) => b.bannerId === bannerId);
+      return dismissed.includes(bannerId);
+
+
+
     } catch (error) {
       Logger.error("[BannerService] Error checking dismissed banner", error);
       return false;
@@ -297,10 +266,6 @@ export class BannerService {
         "Content-Type": "application/json",
         ...(await buildBasicClineHeaders()),
       };
-      const authToken = await AuthService.getInstance().getAuthToken();
-      if (authToken) {
-        headers.Authorization = `Bearer ${authToken}`;
-      }
 
       const response = await fetch(url, { method: "GET", headers, signal });
       clearTimeout(timeoutId);
@@ -432,7 +397,9 @@ export class BannerService {
 
       const config = StateManager.get().getApiConfiguration();
       const mode = StateManager.get().getGlobalSettingsKey("mode");
-      const provider = mode === "plan" ? config?.planModeApiProvider : config?.actModeApiProvider;
+      const provider = mode === "plan" ? config.planModeApiProvider : config.actModeApiProvider;
+
+
 
       return rules.providers.some((ruleProvider) => {
         // Check if ruleProvider is an alias for the selected provider

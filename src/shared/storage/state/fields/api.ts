@@ -25,4 +25,8 @@ export const API_HANDLER_SETTINGS_FIELDS = {
   actModeGeminiApiKey: { default: undefined as string | undefined },
   planModeGeminiBaseUrl: { default: undefined as string | undefined },
   actModeGeminiBaseUrl: { default: undefined as string | undefined },
+
+  planModeApiProvider: { default: "gemini" as string },
+  actModeApiProvider: { default: "gemini" as string },
 } satisfies FieldDefinitions;
+

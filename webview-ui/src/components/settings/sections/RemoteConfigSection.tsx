@@ -1,5 +1,3 @@
-import { RemoteConfigToggle } from "@/components/account/RemoteConfigToggle";
-import { useClineAuth } from "@/context/ClineAuthContext";
 import { useExtensionState } from "@/context/ExtensionStateContext";
 import { StateServiceClient } from "@/services/grpc-client";
 import { EmptyRequest } from "@shared/nice-grpc/index.cline.ts";
@@ -316,15 +314,12 @@ function PromptUploadingSection() {
 
 export function RemoteConfigSection({ renderSectionHeader }: RemoteConfigSectionProps) {
   const { remoteConfigSettings, optOutOfRemoteConfig } = useExtensionState();
-  const { activeOrganization } = useClineAuth();
 
   if (optOutOfRemoteConfig) {
     return (
       <BaseRemoteConfigSection renderSectionHeader={renderSectionHeader}>
         <div className="flex flex-col justify-center gap-4">
           <h3>You have opted out of remote config. Opt back in to apply it and see it here.</h3>
-
-          <RemoteConfigToggle activeOrganization={activeOrganization} />
         </div>
       </BaseRemoteConfigSection>
     );

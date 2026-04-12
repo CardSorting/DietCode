@@ -12,6 +12,18 @@ import { COLORS } from '../ui/design/Theme';
 import { BoxRenderer } from '../ui/renderers/BoxRenderer';
 import { HudRenderer } from '../ui/renderers/HudRenderer';
 
+class MutedWritable extends Writable {
+  public muted = false;
+  override _write(chunk: Buffer | string | Uint8Array, encoding: BufferEncoding, callback: (error?: Error | null) => void) {
+
+    if (!this.muted) {
+      process.stdout.write(chunk, encoding);
+    }
+    callback();
+  }
+}
+
+
 export class NodeTerminalAdapter implements TerminalInterface {
   private rl: readline.Interface;
 
@@ -23,15 +35,17 @@ export class NodeTerminalAdapter implements TerminalInterface {
     });
   }
 
-  logClaude(text: string) {
+  logDiscovery(text: string) {
     const cleanText = text.trim() ? text : '(No response)';
-    console.log(`\n${BoxRenderer.render('CLAUDE-3.7', cleanText, 'SUCCESS')}\n`);
+    console.log(`\n${BoxRenderer.render('DIETCODE_DISCOVERY', cleanText, 'SUCCESS')}\n`);
   }
 
-  logToolUse(name: string, input: any) {
+
+  logToolUse(name: string, input: unknown) {
     const content = JSON.stringify(input, null, 2);
     console.log(`\n${BoxRenderer.render(`TOOL_USE [${name}]`, content, 'WARNING')}\n`);
   }
+
 
   drawBox(title: string, content: string, color = 'cyan') {
     console.log(`\n${BoxRenderer.render(title, content, color)}\n`);
@@ -66,15 +80,8 @@ export class NodeTerminalAdapter implements TerminalInterface {
   }
 
   async promptSecret(query: string): Promise<string> {
-    const mutableOutput = new Writable({
-      write(chunk, encoding, callback) {
-        if (!(this as any).muted) {
-          process.stdout.write(chunk, encoding);
-        }
-        callback();
-      },
-    });
-    (mutableOutput as any).muted = false;
+    const mutableOutput = new MutedWritable();
+    mutableOutput.muted = false;
 
     return new Promise((resolve) => {
       const rl = readline.createInterface({
@@ -84,16 +91,17 @@ export class NodeTerminalAdapter implements TerminalInterface {
       });
 
       process.stdout.write(COLORS.PRIMARY(`\n${query}`));
-      (mutableOutput as any).muted = true;
+      mutableOutput.muted = true;
 
       rl.question('', (answer) => {
-        (mutableOutput as any).muted = false;
+        mutableOutput.muted = false;
         process.stdout.write('\n');
         rl.close();
         resolve(answer);
       });
     });
   }
+
 
   close() {
     this.rl.close();

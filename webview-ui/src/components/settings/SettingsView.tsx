@@ -1,5 +1,5 @@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useClineAuth } from "@/context/ClineAuthContext";
+
 import { useExtensionState } from "@/context/ExtensionStateContext";
 import { cn } from "@/lib/utils";
 import { StateServiceClient } from "@/services/grpc-client";
@@ -27,7 +27,6 @@ import GeneralSettingsSection from "./sections/GeneralSettingsSection";
 import { RemoteConfigSection } from "./sections/RemoteConfigSection";
 import TerminalSettingsSection from "./sections/TerminalSettingsSection";
 import { useSettingsNavigation } from "./hooks/useSettingsNavigation";
-import { isAdminOrOwner } from "../account/helpers";
 import { isDev } from "@/utils/env";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 
@@ -40,7 +39,15 @@ type SettingsTabID =
   | "terminal" 
   | "general" 
   | "remote-config"
+  | "support"
   | "debug";
+
+interface BaseSectionProps {
+  renderSectionHeader: (tabId: SettingsTabID) => JSX.Element | null;
+  onResetState?: (resetGlobalState?: boolean) => Promise<void>;
+  initialModelTab?: "recommended" | "free";
+}
+
 
 interface SettingsTab {
   id: SettingsTabID;
@@ -48,7 +55,7 @@ interface SettingsTab {
   tooltipText: string;
   headerText: string;
   icon: LucideIcon;
-  hidden?: (params: { activeOrganization?: UserInfo }) => boolean;
+  hidden?: () => boolean;
 }
 
 export const SETTINGS_TABS: SettingsTab[] = [
@@ -57,8 +64,7 @@ export const SETTINGS_TABS: SettingsTab[] = [
   { id: "browser", name: "Browser", tooltipText: "Browser", headerText: "Browser Settings", icon: SquareMousePointer },
   { id: "terminal", name: "Terminal", tooltipText: "Terminal", headerText: "Terminal Settings", icon: SquareTerminal },
   { id: "general", name: "General", tooltipText: "General", headerText: "General Settings", icon: Wrench },
-  { id: "remote-config", name: "Remote", tooltipText: "Remote Config", headerText: "Remote Config", icon: HardDriveDownload, 
-    hidden: ({ activeOrganization }) => !activeOrganization || !isAdminOrOwner(activeOrganization) },
+  { id: "remote-config", name: "Remote", tooltipText: "Remote Config", headerText: "Remote Config", icon: HardDriveDownload },
   { id: "debug", name: "Debug", tooltipText: "Debug", headerText: "Debug", icon: FlaskConical, hidden: () => !IS_DEV },
 ];
 
@@ -76,48 +82,54 @@ const renderSectionHeader = (tabId: SettingsTabID) => {
 
 const SettingsView = ({ onDone, targetSection }: { onDone: () => void; targetSection?: string }) => {
   const { version, environment, settingsInitialModelTab, apiConfiguration } = useExtensionState();
-  const { activeOrganization } = useClineAuth();
-  const { activeTab, setActiveTab } = useSettingsNavigation(targetSection || SETTINGS_TABS[0].id, SETTINGS_TABS.map(t => t.id));
+  const { activeTab, setActiveTab } = useSettingsNavigation((targetSection as SettingsTabID) || SETTINGS_TABS[0].id, SETTINGS_TABS.map(t => t.id));
 
-  const handleResetState = useCallback(() => {
+
+  const handleResetState = useCallback(async (resetGlobalState?: boolean) => {
     // Logic for resetting settings state if needed
   }, []);
 
   const ActiveContent = useMemo(() => {
-    const ComponentMap: Record<SettingsTabID, React.ComponentType<any>> = {
+    const ComponentMap: Record<SettingsTabID, React.ComponentType<BaseSectionProps>> = {
+
+
+
+
       "api-config": ApiConfigurationSection,
       "features": FeatureSettingsSection,
       "browser": BrowserSettingsSection,
       "terminal": TerminalSettingsSection,
       "general": GeneralSettingsSection,
       "remote-config": RemoteConfigSection,
+      "support": () => <div className="p-4">Support is currently handled through official Google Gemini channels.</div>,
       "debug": DebugSection,
     };
+
 
     const Component = ComponentMap[activeTab];
     if (!Component) return <div className="p-4 text-muted-foreground uppercase text-xs font-mono">No component found for tab: {activeTab}</div>;
 
-    const props = {
-      apiConfiguration,
-      version,
-      environment,
-      settingsInitialModelTab,
-      onReset: handleResetState,
-      renderSectionHeader: () => renderSectionHeader(activeTab)
+    const props: BaseSectionProps = {
+      renderSectionHeader: renderSectionHeader,
+      onResetState: handleResetState,
+      initialModelTab: settingsInitialModelTab,
     };
 
+
     return <Component {...props} />;
-  }, [activeTab, apiConfiguration, environment, handleResetState, settingsInitialModelTab, version]);
+  }, [activeTab, handleResetState, settingsInitialModelTab]);
+
 
   console.log(`[DietCode:Settings] Rendering tab: ${activeTab}`);
 
   return (
-    <Tab value={activeTab} onValueChange={setActiveTab}>
+    <Tab value={activeTab} onValueChange={(val) => setActiveTab(val as SettingsTabID)}>
+
       <ViewHeader environment={environment} onDone={onDone} title="Settings" />
       <div className="flex flex-1 overflow-hidden h-full">
         {/* Navigation Sidebar */}
         <TabList className="shrink-0 flex flex-col items-stretch overflow-y-auto border-r border-accent/10 p-2 bg-secondary/10 w-[200px] h-full">
-          {SETTINGS_TABS.filter(t => !t.hidden?.({ activeOrganization })).map(tab => (
+          {SETTINGS_TABS.filter(t => !t.hidden?.()).map(tab => (
             <TabTrigger 
               key={tab.id} 
               value={tab.id} 

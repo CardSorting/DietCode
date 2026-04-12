@@ -6,7 +6,6 @@ import { DEFAULT_FOCUS_CHAIN_SETTINGS } from "@shared/FocusChainSettings.ts";
 import { DEFAULT_MCP_DISPLAY_MODE } from "@shared/McpDisplayMode.ts";
 import { Environment } from "@shared/config-types.ts";
 import type { McpMarketplaceCatalog, McpServer, McpViewTab } from "@shared/mcp";
-import type { UserInfo } from "@shared/nice-grpc/cline/account";
 import { EmptyRequest } from "@shared/nice-grpc/cline/common.ts";
 import type { TerminalProfile } from "@shared/nice-grpc/cline/state.ts";
 import { StateServiceClient, UiServiceClient } from "../services/grpc-client";
@@ -14,7 +13,7 @@ import { StateServiceClient, UiServiceClient } from "../services/grpc-client";
 import type { ApiConfiguration, ModelInfo } from "@shared/api";
 import type { ClineRulesToggles } from "@shared/cline-rules";
 
-export type View = "chat" | "mcp" | "settings" | "history" | "account" | "worktrees";
+export type View = "chat" | "mcp" | "settings" | "history" | "worktrees";
 
 export interface ExtensionStateContextType extends ExtensionState {
   didHydrateState: boolean;
@@ -35,7 +34,7 @@ export interface ExtensionStateContextType extends ExtensionState {
   navigateToHistory: () => void;
   navigateToSettings: (section?: string) => void;
   navigateToMcp: (tab?: McpViewTab) => void;
-  navigateToAccount: () => void;
+
   navigateToWorktrees: () => void;
   navigateToSettingsModelPicker: (opts?: { targetProvider?: string }) => void;
   settingsInitialModelTab?: "recommended" | "free";
@@ -44,7 +43,7 @@ export interface ExtensionStateContextType extends ExtensionState {
   showSettings: boolean;
   showHistory: boolean;
   showMcp: boolean;
-  showAccount: boolean;
+
   showWorktrees: boolean;
   
   // State Updates
@@ -69,7 +68,7 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
   // Redundant state shadowing removed
 
   const [state, setState] = useState<ExtensionState>({
-    version: "", clineMessages: [], taskHistory: [], shouldShowAnnouncement: false,
+    version: "", messages: [], clineMessages: [], taskHistory: [], shouldShowAnnouncement: false,
     autoApprovalSettings: DEFAULT_AUTO_APPROVAL_SETTINGS, browserSettings: DEFAULT_BROWSER_SETTINGS,
     focusChainSettings: DEFAULT_FOCUS_CHAIN_SETTINGS, preferredLanguage: "English", mode: "act",
     platform: DEFAULT_PLATFORM, environment: Environment.production, telemetrySetting: "unset",
@@ -83,14 +82,14 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
     workspaceRoots: [], primaryRootIndex: 0, isMultiRootWorkspace: false,
     multiRootSetting: { user: false, featureFlag: false }, hooksEnabled: false,
     nativeToolCallSetting: false, enableParallelToolCalling: false,
-    isNewUser: false, onboardingModels: undefined, shellIntegrationTimeout: 4000,
-    globalClineRulesToggles: {}, localClineRulesToggles: {}, 
+    isNewUser: false, shellIntegrationTimeout: 4000,
+    globalRulesToggles: {}, localRulesToggles: {}, 
     localWorkflowToggles: {}, globalWorkflowToggles: {},
     localCursorRulesToggles: {}, localWindsurfRulesToggles: {},
-    localAgentsRulesToggles: {}, favoritedModelIds: [],
+    globalAgentsRulesToggles: {}, favoritedModelIds: [],
     remoteRulesToggles: {}, remoteWorkflowToggles: {},
     globalSkillsToggles: {},
-    localSkillsToggles: {}, banners: [], welcomeBanners: [],
+    localSkillsToggles: {}, dismissedBanners: [], banners: [], welcomeBanners: [],
     settingsInitialModelTab: "recommended",
   });
 
@@ -117,12 +116,13 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
           try {
             const stateData = JSON.parse(response.stateJson);
             setState(prev => {
+                const messages = stateData.messages || stateData.clineMessages;
                 if (stateData.currentTaskItem?.id === prev.currentTaskItem?.id) {
-                    stateData.clineMessages = stateData.clineMessages?.length ? stateData.clineMessages : prev.clineMessages;
+                    stateData.messages = messages?.length ? messages : prev.messages;
                 }
                 if (stateData.mcpServers) setMcpServers(stateData.mcpServers);
                 setDidHydrateState(true);
-                return { ...prev, ...stateData };
+                return { ...prev, ...stateData, messages: stateData.messages || prev.messages };
             });
           } catch (parseError) {
             console.error("[DietCode:State] Failed to parse state JSON:", parseError);
@@ -143,7 +143,6 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
         setupUiSub("subscribeToMcpButtonClicked", "mcp"),
         setupUiSub("subscribeToHistoryButtonClicked", "history"),
         setupUiSub("subscribeToChatButtonClicked", "chat"),
-        setupUiSub("subscribeToAccountButtonClicked", "account"),
         setupUiSub("subscribeToSettingsButtonClicked", "settings"),
         setupUiSub("subscribeToWorktreesButtonClicked", "worktrees"),
         UiServiceClient.subscribeToRelinquishControl({}, { 
@@ -182,14 +181,14 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
     showSettings: activeView === "settings",
     showHistory: activeView === "history",
     showMcp: activeView === "mcp",
-    showAccount: activeView === "account",
+
     showWorktrees: activeView === "worktrees",
     navigateToSettingsModelPicker: (opts) => navigate("settings", opts),
     navigateToChat: () => navigate("chat"),
     navigateToHistory: () => navigate("history"),
     navigateToSettings: (section) => navigate("settings", { section }),
     navigateToMcp: (tab) => navigate("mcp", { tab }),
-    navigateToAccount: () => navigate("account"),
+
     navigateToWorktrees: () => navigate("worktrees"),
   };
 

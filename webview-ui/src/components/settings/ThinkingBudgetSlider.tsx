@@ -1,5 +1,5 @@
 import { useExtensionState } from "@/context/ExtensionStateContext";
-import { ANTHROPIC_MAX_THINKING_BUDGET, ANTHROPIC_MIN_THINKING_BUDGET } from "@shared/api.ts";
+import { GEMINI_MAX_THINKING_BUDGET, GEMINI_MIN_THINKING_BUDGET } from "@shared/api.ts";
 import type { Mode } from "@shared/storage/types.ts";
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { memo, useCallback, useEffect, useState } from "react";
@@ -83,7 +83,7 @@ const ThinkingBudgetSlider = ({
   const [isEnabled, setIsEnabled] = useState<boolean>((modeFields.thinkingBudgetTokens || 0) > 0);
 
   const onToggle = useCallback((isChecked: boolean) => {
-    const newThinkingBudgetValue = isChecked ? ANTHROPIC_MIN_THINKING_BUDGET : 0;
+    const newThinkingBudgetValue = isChecked ? GEMINI_MIN_THINKING_BUDGET : 0;
     setIsEnabled(isChecked);
     setLocalValue(newThinkingBudgetValue);
 
@@ -92,7 +92,8 @@ const ThinkingBudgetSlider = ({
       newThinkingBudgetValue,
       currentMode,
     );
-  }, []);
+  }, [handleModeFieldChange, currentMode]);
+
 
   useEffect(() => {
     // Extremely hacky solution to handle the case where
@@ -103,7 +104,8 @@ const ThinkingBudgetSlider = ({
     if (isToggleAlwaysOn && !hasThinkingConfig) {
       onToggle(true);
     }
-  }, [showEnableToggle, modeFields.thinkingBudgetTokens]);
+  }, [showEnableToggle, modeFields.thinkingBudgetTokens, onToggle]);
+
 
   useEffect(() => {
     const newThinkingBudgetValue = modeFields.thinkingBudgetTokens || 0;
@@ -116,27 +118,30 @@ const ThinkingBudgetSlider = ({
     if (newIsEnabled !== isEnabled) {
       setIsEnabled(newIsEnabled);
     }
-  }, [modeFields.thinkingBudgetTokens]);
+  }, [modeFields.thinkingBudgetTokens, localValue, isEnabled]);
+
 
   const handleSliderChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number.parseInt(event.target.value, 10);
-    const clampedValue = Math.max(value, ANTHROPIC_MIN_THINKING_BUDGET);
+    const clampedValue = Math.max(value, GEMINI_MIN_THINKING_BUDGET);
     setLocalValue(clampedValue);
   }, []);
 
-  const handleSliderComplete = () => {
+  const handleSliderComplete = useCallback(() => {
     handleModeFieldChange(
       { plan: "planModeThinkingBudgetTokens", act: "actModeThinkingBudgetTokens" },
       localValue,
       currentMode,
     );
-  };
+  }, [handleModeFieldChange, localValue, currentMode]);
 
-  const handleToggleChange = (event: any) => {
+
+  const handleToggleChange = (event: React.MouseEvent<HTMLElement>) => {
     const isChecked = (event.target as HTMLInputElement).checked;
 
     onToggle(isChecked);
   };
+
 
   return (
     <div className="w-full">
@@ -154,16 +159,16 @@ const ThinkingBudgetSlider = ({
       {isEnabled && (
         <Container>
           <RangeInput
-            $max={maxBudget || ANTHROPIC_MAX_THINKING_BUDGET}
+            $max={maxBudget || GEMINI_MAX_THINKING_BUDGET}
             $min={0}
             $value={localValue}
             aria-describedby="thinking-budget-description"
             aria-label={`Thinking budget: ${localValue.toLocaleString()} tokens`}
-            aria-valuemax={maxBudget || ANTHROPIC_MAX_THINKING_BUDGET}
-            aria-valuemin={ANTHROPIC_MIN_THINKING_BUDGET}
+            aria-valuemax={maxBudget || GEMINI_MAX_THINKING_BUDGET}
+            aria-valuemin={GEMINI_MIN_THINKING_BUDGET}
             aria-valuenow={localValue}
             id="thinking-budget-slider"
-            max={maxBudget || ANTHROPIC_MAX_THINKING_BUDGET}
+            max={maxBudget || GEMINI_MAX_THINKING_BUDGET}
             min={0}
             onChange={handleSliderChange}
             onMouseUp={handleSliderComplete}

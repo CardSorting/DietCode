@@ -18,6 +18,7 @@ export const USER_SETTINGS_FIELDS = {
     default: DEFAULT_AUTO_APPROVAL_SETTINGS as AutoApprovalSettings,
   },
   globalClineRulesToggles: { default: {} as SovereignRulesToggles },
+  globalAgentsRulesToggles: { default: {} as SovereignRulesToggles },
   globalWorkflowToggles: { default: {} as SovereignRulesToggles },
   globalSkillsToggles: { default: {} as Record<string, boolean> },
   browserSettings: {

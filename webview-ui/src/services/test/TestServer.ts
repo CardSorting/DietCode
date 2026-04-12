@@ -217,24 +217,21 @@ export async function createTestServer(controller: Controller): Promise<http.Ser
             // Get current API configuration
             const apiConfiguration = visibleWebview.controller.stateManager.getApiConfiguration();
 
-            // Update API configuration with API key
+            // Update API configuration with API key (using gemini provider)
             const updatedConfig = {
               ...apiConfiguration,
-              apiProvider: "cline" as ApiProvider,
-              clineAccountId: apiKey,
+              apiProvider: "gemini" as ApiProvider,
+              geminiApiKey: apiKey,
             };
-
-            // Store the API key securely
-            visibleWebview.controller.stateManager.setSecret("clineAccountId", apiKey);
 
             visibleWebview.controller.stateManager.setApiConfiguration(updatedConfig);
 
-            // Update cache service to use cline provider
+            // Update cache service to use gemini provider
             const currentConfig = visibleWebview.controller.stateManager.getApiConfiguration();
             visibleWebview.controller.stateManager.setApiConfiguration({
               ...currentConfig,
-              planModeApiProvider: "cline",
-              actModeApiProvider: "cline",
+              planModeApiProvider: "gemini",
+              actModeApiProvider: "gemini",
             });
 
             // Post state to webview to reflect changes
@@ -307,8 +304,8 @@ export async function createTestServer(controller: Controller): Promise<http.Ser
             const taskData = taskHistory.taskHistory?.find((t: HistoryItem) => t.id === taskId);
 
             // Get messages and API conversation history
-            let messages: any[] = [];
-            let apiConversationHistory: any[] = [];
+            let messages: unknown[] = [];
+            let apiConversationHistory: unknown[] = [];
             try {
               if (typeof taskId === "string") {
                 messages = await getSavedClineMessages(taskId);
@@ -326,7 +323,18 @@ export async function createTestServer(controller: Controller): Promise<http.Ser
             }
 
             // Get file changes
-            let fileChanges;
+            let fileChanges: {
+              created: string[];
+              modified: string[];
+              deleted: string[];
+              diff: string;
+            } = {
+              created: [],
+              modified: [],
+              deleted: [],
+              diff: "",
+            };
+
             try {
               // Get the workspace path using our helper function
               const workspacePath = await getCwd();

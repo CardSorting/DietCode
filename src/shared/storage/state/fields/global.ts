@@ -51,4 +51,10 @@ export const GLOBAL_STATE_FIELDS = {
   mcpServers: { default: [] as McpServer[] },
   taskHistorySummary: { default: [] as unknown[] },
   clineMessages: { default: [] as unknown[] },
+
+  lastDismissedInfoBannerVersion: { default: 0 as number },
+  lastDismissedModelBannerVersion: { default: 0 as number },
+  lastDismissedCliBannerVersion: { default: 0 as number },
+  dismissedBanners: { default: [] as string[] },
 } satisfies FieldDefinitions;
+

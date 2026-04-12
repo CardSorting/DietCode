@@ -1,8 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
-import { useClineAuth } from "./context/ClineAuthContext";
+
 import { useExtensionState } from "./context/ExtensionStateContext";
 import { Providers } from "./Providers";
-import AccountView from "./components/account/AccountView";
+
 import ChatView from "./components/chat/ChatView";
 import HistoryView from "./components/history/HistoryView";
 import McpView from "./components/mcp/configuration/McpConfigurationView";
@@ -13,7 +13,6 @@ import DiagnosticErrorView from "./components/common/DiagnosticErrorView";
 
 const AppContent = () => {
   const { didHydrateState, activeView, mcpTab, settingsTarget, navigate, navigateToHistory, environment } = useExtensionState();
-  const { clineUser, organizations, activeOrganization } = useClineAuth();
   const [hydrationTimedOut, setHydrationTimedOut] = useState(false);
 
   useEffect(() => {
@@ -39,7 +38,7 @@ const AppContent = () => {
       case "settings": return <SettingsView onDone={() => navigate("chat")} targetSection={settingsTarget?.section} />;
       case "history": return <HistoryView onDone={() => navigate("chat")} />;
       case "mcp": return <McpView initialTab={mcpTab} onDone={() => navigate("chat")} />;
-      case "account": return <AccountView activeOrganization={activeOrganization} clineUser={clineUser} onDone={() => navigate("chat")} organizations={organizations} />;
+
       case "worktrees": return <WorktreesView onDone={() => navigate("chat")} />;
       default: return null;
     }
