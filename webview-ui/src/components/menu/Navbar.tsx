@@ -1,7 +1,8 @@
+/** [LAYER: UI] */
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { TaskServiceClient } from "@/services/grpc-client";
-import { HistoryIcon, PlusIcon, SettingsIcon, UserCircleIcon } from "lucide-react";
+import { HistoryIcon, PlusIcon, SettingsIcon } from "lucide-react";
 import { useMemo } from "react";
 import { useExtensionState } from "../../context/ExtensionStateContext";
 

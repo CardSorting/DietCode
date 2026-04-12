@@ -1,3 +1,4 @@
+/** [LAYER: WEBVIEW / UTILS] */
 import type { ApiConfiguration, ApiProvider } from "@shared/api";
 import PROVIDERS from "@shared/providers/providers.json";
 import type { RemoteConfigFields } from "@shared/storage/state-keys";
@@ -7,8 +8,8 @@ import type { RemoteConfigFields } from "@shared/storage/state-keys";
  * Based on validation logic from validate.ts
  */
 export function getConfiguredProviders(
-  remoteConfig: Partial<RemoteConfigFields> | undefined,
-  apiConfiguration: ApiConfiguration | undefined,
+  _remoteConfig: Partial<RemoteConfigFields> | undefined,
+  _apiConfiguration: ApiConfiguration | undefined,
 ): ApiProvider[] {
   // Only Gemini is available now
   return ["gemini"];

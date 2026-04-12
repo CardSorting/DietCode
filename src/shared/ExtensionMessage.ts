@@ -16,7 +16,7 @@ export type { McpServer, McpMarketplaceCatalog, McpTool, McpResource, McpResourc
 export type { RemoteConfigFields } from "./storage/state-keys";
 import type { ApiConfiguration, ModelInfo } from "./api";
 import type { ClineRulesToggles } from "./cline-rules";
-import type { ClineMessageModelInfo } from "./messages";
+import type { ClineMessageModelInfo } from "./messages/metrics";
 import type { Mode } from "./storage/types";
 import type { TelemetrySetting } from "./TelemetrySetting";
 

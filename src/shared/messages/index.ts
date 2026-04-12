@@ -17,4 +17,5 @@ export type {
   ClineUserToolResultContentBlock,
 } from "./content";
 export { REASONING_DETAILS_PROVIDERS } from "./content";
-export type { ClineMessageMetricsInfo, ClineMessageModelInfo } from "./metrics";
+export type { ClineMessageMetricsInfo } from "./metrics";
+export type { ClineMessageModelInfo } from "./metrics";

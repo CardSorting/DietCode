@@ -135,7 +135,7 @@ export async function syncModeConfigurations(
 
 // Helper to get provider-specific configuration info
 export const getProviderInfo = (
-  provider: ApiProvider,
+  _provider: ApiProvider,
   _apiConfiguration: unknown,
   _effectiveMode: "plan" | "act",
 ): { modelId?: string; baseUrl?: string; helpText: string } => {

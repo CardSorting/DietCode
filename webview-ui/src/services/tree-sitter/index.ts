@@ -1,3 +1,4 @@
+/** [LAYER: UI] */
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { Logger } from "@/shared/services/Logger";
@@ -26,7 +27,7 @@ export async function parseSourceCodeForDefinitionsTopLevel(
   let result = "";
 
   // Separate files to parse and remaining files
-  const { filesToParse, remainingFiles } = separateFiles(allFiles);
+  const { filesToParse } = separateFiles(allFiles);
 
   const languageParsers = await loadRequiredLanguageParsers(filesToParse);
 
@@ -154,7 +155,7 @@ async function parseFile(
     // Keep track of the last line we've processed
     let lastLine = -1;
 
-    captures.forEach((capture) => {
+    for (const capture of captures) {
       const { node, name } = capture;
       // Get the start and end lines of the current AST node
       const startLine = node.startPosition.row;
@@ -179,7 +180,7 @@ async function parseFile(
       //}
 
       lastLine = endLine;
-    });
+    }
   } catch (error) {
     Logger.log(`Error parsing file: ${error}\n`);
   }

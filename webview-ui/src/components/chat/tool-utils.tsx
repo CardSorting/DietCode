@@ -1,7 +1,7 @@
+/** [LAYER: UI] */
 import type { ReactNode } from "react"; 
 import { 
     FileCode2Icon, 
-    ImageUpIcon, 
     SearchIcon, 
     TerminalIcon, 
     GlobeIcon, 
@@ -10,7 +10,7 @@ import {
     Trash2Icon,
     FilePlus2Icon
 } from "lucide-react";
-import type { ClineSayTool } from "@shared/ExtensionMessage";
+import type { SovereignSayTool } from "@shared/ExtensionMessage";
 
 export interface ToolMetadata {
     icon: ReactNode;
@@ -18,10 +18,11 @@ export interface ToolMetadata {
     shouldShowWorkspaceWarning?: boolean;
 }
 
-export const getToolMetadata = (tool: ClineSayTool, messageType?: string): ToolMetadata => {
+export const getToolMetadata = (tool: SovereignSayTool, messageType?: string): ToolMetadata => {
     const isAsk = messageType === "ask";
     
-    switch (tool.tool) {
+    const toolType = tool.tool as string;
+    switch (toolType) {
         case "editedExistingFile":
             return {
                 icon: <FileCode2Icon className="size-3" />,

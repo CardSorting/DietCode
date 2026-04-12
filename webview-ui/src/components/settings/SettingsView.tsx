@@ -1,14 +1,9 @@
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-
+/** [LAYER: UI] */
 import { useExtensionState } from "@/context/ExtensionStateContext";
-import { cn } from "@/lib/utils";
-import { StateServiceClient } from "@/services/grpc-client";
-import { ResetStateRequest } from "@shared/nice-grpc/cline/state.ts";
 import {
   CheckCheck,
   FlaskConical,
   HardDriveDownload,
-  Info,
   type LucideIcon,
   SlidersHorizontal,
   SquareMousePointer,
@@ -81,11 +76,11 @@ const renderSectionHeader = (tabId: SettingsTabID) => {
 };
 
 const SettingsView = ({ onDone, targetSection }: { onDone: () => void; targetSection?: string }) => {
-  const { version, environment, settingsInitialModelTab, apiConfiguration } = useExtensionState();
+  const { environment, settingsInitialModelTab } = useExtensionState();
   const { activeTab, setActiveTab } = useSettingsNavigation((targetSection as SettingsTabID) || SETTINGS_TABS[0].id, SETTINGS_TABS.map(t => t.id));
 
 
-  const handleResetState = useCallback(async (resetGlobalState?: boolean) => {
+  const handleResetState = useCallback(async (_resetGlobalState?: boolean) => {
     // Logic for resetting settings state if needed
   }, []);
 

@@ -1,3 +1,4 @@
+/** [LAYER: UI] */
 import * as os from "node:os";
 
 import { Setting } from "@/shared/proto/index.host";
@@ -9,7 +10,6 @@ import type { TaskFeedbackType } from "@shared/WebviewMessage";
 import { type ApiFormat, apiFormatToJSON } from "@shared/nice-grpc/cline/models.ts";
 import { ShowMessageType } from "@shared/nice-grpc/host/window.ts";
 import { version as extensionVersion } from "../../../package.json";
-import { setDistinctId } from "../logging/distinctId";
 import { TelemetryProviderFactory } from "./TelemetryProviderFactory";
 import type { ITelemetryProvider, TelemetryProperties } from "./providers/ITelemetryProvider";
 import { isObject } from "@/utils/typeGuards";
