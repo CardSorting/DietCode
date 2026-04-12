@@ -5,7 +5,6 @@ const ABI_VERSION = '140';
 const SOURCE_BINARY = 'node_modules/better-sqlite3/build/Release/better_sqlite3.node';
 const TARGETS = [
   'build/Release/better_sqlite3.node',
-  'webview-ui/node_modules/better-sqlite3/build/Release/better_sqlite3.node',
 ];
 
 console.log(`[SYNC] Starting native module synchronization for ABI ${ABI_VERSION}...`);

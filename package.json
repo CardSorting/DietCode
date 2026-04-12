@@ -5,48 +5,13 @@
   "icon": "assets/vsix/extension-icon.png",
   "type": "module",
   "private": true,
-  "description": "Sovereign Hive Architecture for DietCode - Zero-Shim AI Orchestration",
+  "description": "Sovereign Hive Architecture for DietCode - Zero-Shim AI Orchestration CLI",
   "repository": "https://github.com/CardSorting/DietCode",
-  "main": "./dist/extension.js",
-  "engines": {
-    "vscode": "^1.90.0"
-  },
-  "activationEvents": [],
-  "contributes": {
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "dietcode-explorer",
-          "title": "DietCode",
-          "icon": "assets/vsix/activity-bar.svg"
-        }
-      ]
-    },
-    "views": {
-      "dietcode-explorer": [
-        {
-          "type": "webview",
-          "id": "dietcode-webview",
-          "name": "Sovereign Hive",
-          "icon": "assets/vsix/activity-bar.svg",
-          "visibility": "visible"
-        }
-      ]
-    },
-    "commands": [
-      {
-        "command": "dietcode.openWebView",
-        "title": "DietCode: Open Sovereign Hive"
-      }
-    ]
-  },
+  "main": "./dist/index.js",
   "scripts": {
-    "build:webview": "cd $(pwd)/webview-ui && npm run build",
     "build:cli": "bun build ./index.ts --outfile=./dist/index.js --target=node --external better-sqlite3 --external @noorm/broccoliq",
-    "build:extension": "bun build ./src/extension.ts --outfile=./dist/extension.js --target=node --external vscode",
-    "rebuild:electron": "./node_modules/.bin/electron-rebuild --version 39.0.0 --only better-sqlite3",
     "sync:native": "bun ./scripts/sync_native_modules.ts",
-    "build": "npm run build:webview && npm run build:cli && npm run build:extension && npm run rebuild:electron && npm run sync:native",
+    "build": "npm run build:cli && npm run sync:native",
     "dev": "tsc --watch",
     "cli": "node ./dist/index.js",
     "cli:dev": "node ./index.ts",
@@ -56,8 +21,7 @@
     "lint": "biome lint . && eslint .",
     "format": "biome format . --write",
     "check": "biome check --apply .",
-    "verify": "npx tsx verify_advanced_infrastructure.ts",
-    "package:vsix": "./node_modules/.bin/vsce package"
+    "verify": "npx tsx verify_advanced_infrastructure.ts"
   },
   "bin": {
     "dietcode": "./dist/index.js"
@@ -68,21 +32,16 @@
     "@google-cloud/vertexai": "^1.11.0",
     "@google/genai": "^1.49.0",
     "@google/generative-ai": "^0.24.1",
-    "@heroui/react": "^3.0.2",
     "@mistralai/mistralai": "^2.2.0",
     "@noorm/broccoliq": "^2.3.0",
     "@opentelemetry/core": "^2.6.1",
-    "@radix-ui/react-popover": "^1.1.15",
     "aws4fetch": "^1.0.20",
     "axios": "^1.15.0",
     "better-sqlite3": "^12.8.0",
     "clsx": "^2.1.1",
-    "framer-motion": "^12.38.0",
     "kysely": "^0.28.2",
     "kysely-bun-sqlite": "^0.4.0",
-    "lucide-react": "^1.8.0",
     "openai": "^6.34.0",
-    "tailwind-merge": "^3.5.0",
     "undici": "^7.24.7",
     "zod": "^4.3.6"
   },

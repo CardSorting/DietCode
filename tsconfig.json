@@ -29,18 +29,13 @@
 
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*", "./webview-ui/src/*"],
-      "@shared/*": ["./src/shared/*", "./webview-ui/src/shared/*"],
-      "@core/*": ["./src/core/*", "./webview-ui/src/core/*"],
+      "@/*": ["./src/*"],
+      "@shared/*": ["./src/shared/*"],
+      "@core/*": ["./src/core/*"],
       "@infrastructure/*": ["./src/infrastructure/*"],
       "@domain/*": ["./src/domain/*"],
-      "@ui/*": ["./src/ui/*"],
-      "@integrations/*": ["./webview-ui/src/integrations/*"],
-      "@services/*": ["./webview-ui/src/services/*"],
-      "@hosts/*": ["./webview-ui/src/hosts/*"],
-      "@utils/*": ["./webview-ui/src/utils/*"],
-      "@registry": ["./webview-ui/src/registry"]
+      "@ui/*": ["./src/ui/*"]
     }
   },
-  "exclude": ["webview-ui", "dist", "node_modules"]
+  "exclude": ["dist", "node_modules"]
 }
