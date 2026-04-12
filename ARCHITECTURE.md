@@ -31,10 +31,10 @@ The core of Joy-Zoning is the **Horizontal Layer Isolation**. Each layer represe
 - **Contents**: `AnthropicAdapter`, `FilesystemTool`, `BroccoliQPersistence`.
 
 ### 4. 📁 UI (`src/ui/`)
-- **Role**: Presentation (VS Code Extension).
+- **Role**: Presentation (Sovereign CLI).
 - **Constraints**: 
     - **No Logic**: Only rendering and dispatching user intentions.
-- **Contents**: `SovereignWebViewProvider`, React components (in `webview-ui`).
+- **Contents**: `TerminalUI`, Cinematic renderers (in `src/ui/renderers`), and terminal components.
 
 ### 5. 📁 PLUMBING (`src/utils/`)
 - **Role**: Context-Free Utilities.

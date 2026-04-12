@@ -8,7 +8,7 @@ import type { GlobalState } from '../../domain/LLMProvider';
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import type * as vscode from 'vscode';
+import { Core } from '../database/sovereign/Core';
 import { McpClient } from './McpClient';
 
 export interface McpServerConfig {
@@ -23,10 +23,10 @@ export interface McpServerConfig {
 /**
  * [LAYER: INFRASTRUCTURE]
  * Manages discovery and configuration of MCP servers.
+ * Hardened for Sovereign CLI with BroccoliQ database persistence.
  */
 export class McpDiscoveryService {
   private static instance: McpDiscoveryService;
-  private _context?: vscode.ExtensionContext;
   private _servers: Map<string, McpServerConfig> = new Map();
   private _clients: Map<string, McpClient> = new Map();
 
@@ -39,19 +39,27 @@ export class McpDiscoveryService {
     return McpDiscoveryService.instance;
   }
 
-  public async initialize(context: vscode.ExtensionContext) {
-    this._context = context;
-    this._loadServers();
+  public async initialize() {
+    await this._loadServers();
     await this._syncToState();
   }
 
-  private _loadServers() {
-    if (!this._context) return;
-
-    const saved = this._context.globalState.get<McpServerConfig[]>('mcp_servers', []);
-    this._servers.clear();
-    for (const server of saved) {
-      this._servers.set(server.id, server);
+  private async _loadServers() {
+    try {
+        const db = await Core.db();
+        const row = await db
+            .selectFrom('settings')
+            .selectAll()
+            .where('key', '=', 'mcp_servers')
+            .executeTakeFirst();
+            
+        const saved: McpServerConfig[] = row ? JSON.parse(row.value) : [];
+        this._servers.clear();
+        for (const server of saved) {
+            this._servers.set(server.id, server);
+        }
+    } catch (error) {
+        console.error('[McpDiscovery] Failed to load servers:', error);
     }
   }
 
@@ -82,8 +90,27 @@ export class McpDiscoveryService {
   }
 
   private async _saveServers() {
-    if (!this._context) return;
-    await this._context.globalState.update('mcp_servers', this.getServers());
+    try {
+        const db = await Core.db();
+        const valueStr = JSON.stringify(this.getServers());
+        await db
+            .insertInto('settings')
+            .values({
+                id: 'mcp_servers',
+                key: 'mcp_servers',
+                value: valueStr,
+                updatedAt: Date.now(),
+            })
+            .onConflict((oc) => 
+                oc.column('key').doUpdateSet({
+                    value: valueStr,
+                    updatedAt: Date.now(),
+                })
+            )
+            .execute();
+    } catch (error) {
+        console.error('[McpDiscovery] Failed to save servers:', error);
+    }
   }
 
   private async _syncToState() {

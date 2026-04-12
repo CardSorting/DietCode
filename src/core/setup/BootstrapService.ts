@@ -8,8 +8,7 @@ import type { Filesystem } from '../../domain/system/Filesystem';
 import type { TerminalInterface } from '../../domain/system/TerminalInterface';
 import { COLORS, ICONS } from '../../ui/design/Theme';
 import { MetabolicRenderer } from '../../ui/renderers/MetabolicRenderer';
-import { ProtocolRenderer } from '../../ui/renderers/ProtocolRenderer';
-import { SplashRenderer } from '../../ui/renderers/SplashRenderer';
+import { BoxRenderer } from '../../ui/renderers/BoxRenderer';
 
 export interface BootstrapConfig {
   geminiApiKey?: string;
@@ -66,16 +65,14 @@ export class BootstrapService {
     this.ui.clear();
 
     // Phase 1: Cinematic Splash & Diagnostics
-    await SplashRenderer.bootSequence(activeProfile);
+    await MetabolicRenderer.dataBurst(['SOVEREIGN_INITIALIZATION', 'NEURAL_HANDSHAKE', 'DIETCODE_ACTIVE']);
 
     // Apply Overrides Immediately
     if (overrides && Object.keys(overrides).length > 0) {
       const current = await this.loadConfig();
       const merged = { ...current, ...overrides };
       await this.saveToEnv(merged);
-      await ProtocolRenderer.renderSuccess(
-        'Neural parameters synchronized via direct CLI override.',
-      );
+      console.log(BoxRenderer.render('SOVEREIGN_SYNC', 'Neural parameters synchronized via direct CLI override.', 'SUCCESS'));
     }
 
     await this.runSafetyAudit();
@@ -120,7 +117,7 @@ export class BootstrapService {
   }
 
   private async runProviderSetup(config: BootstrapConfig) {
-    console.log(ProtocolRenderer.renderStepHeader(1, 3, 'AI Provider Setup', this.projectName));
+    console.log(`\n${COLORS.HIGHLIGHT('--- AI Provider Setup ---')}\n`);
     this.ui.logInfo('To get started, we need to connect the Google Gemini Brain to DietCode.');
     
     await this.setupGemini(config);
@@ -138,12 +135,12 @@ export class BootstrapService {
       if (key.toLowerCase() === 'skip') break;
 
       const sanitizedKey = key.trim();
-      await ProtocolRenderer.renderHandshakePulse('Gemini');
+      await MetabolicRenderer.decrypt(`Handshaking with Gemini...`, 20);
       valid = await this.validateGemini(sanitizedKey);
 
       if (valid) {
         config.geminiApiKey = sanitizedKey;
-        await ProtocolRenderer.renderSuccess('Gemini Hive Active.');
+        console.log(COLORS.SUCCESS('\n ✅ Gemini Hive Active.\n'));
       } else {
         this.ui.logError('Handshake failed. Verify your API Key.');
       }
@@ -155,7 +152,7 @@ export class BootstrapService {
   }
 
   private async calibrateNeuralProfiles(config: BootstrapConfig) {
-    console.log(ProtocolRenderer.renderStepHeader(2, 3, 'Model Selection', this.projectName));
+    console.log(`\n${COLORS.HIGHLIGHT('--- Model Selection ---')}\n`);
     this.ui.logInfo("Now, let's pick which Gemini model to use for your tasks.");
 
     this.ui.logInfo(`\n${ICONS.GEAR} Choose your Google Gemini Model:`);
@@ -178,7 +175,7 @@ export class BootstrapService {
       await new Promise((r) => setTimeout(r, 300));
       process.stdout.write(`${ICONS.CHECK}\n`);
     }
-    console.log(ProtocolRenderer.renderNeuralStatus({ resonance: 85, stability: 92, latency: 42 }));
+    console.log(`\n${COLORS.HIVE_CYAN('[ NEURAL_STATUS ]')} RESONANCE: 85% | STABILITY: 92% | LATENCY: 42ms\n`);
   }
 
   private async validateGemini(key: string): Promise<boolean> {
@@ -195,9 +192,7 @@ export class BootstrapService {
   }
 
   private async personalize() {
-    this.ui.logInfo(
-      `\n${ProtocolRenderer.renderStepHeader(3, 3, 'User Profile', this.projectName)}`,
-    );
+    this.ui.logInfo(`\n${COLORS.HIGHLIGHT('--- User Profile ---')}\n`);
     this.ui.logInfo("Almost done! Let's personalize your experience.");
 
     const configPath = '.dietcode/config.json';
@@ -226,7 +221,7 @@ export class BootstrapService {
     userConfig.aesthetic = themeMap[themeChoice] || 'AETHER';
 
     this.fs.writeFile(configPath, JSON.stringify(userConfig, null, 2));
-    await ProtocolRenderer.renderSuccess(`Profile saved. Welcome to the hive, ${userConfig.name}.`);
+    this.ui.logSuccess(`Profile saved. Welcome to the hive, ${userConfig.name}.`);
   }
 
   private async runKickstartProtocol() {
@@ -234,14 +229,7 @@ export class BootstrapService {
     const config = await this.loadConfig();
     const model = config.geminiModel || 'Gemini 3.1 Pro';
 
-    console.log(
-      ProtocolRenderer.renderAxiomReceipt({
-        name: this.loadUserConfig().name,
-        model,
-        theme: this.loadUserConfig().aesthetic || 'AETHER',
-        latency: 12,
-      }),
-    );
+    console.log(BoxRenderer.render('AXIOM_RECEIPT', `USER: ${this.loadUserConfig().name}\nMODEL: ${model}\nTHEME: ${this.loadUserConfig().aesthetic || 'AETHER'}`, 'SUCCESS'));
 
     await MetabolicRenderer.dataBurst([
       'READY_FOR_COMMAND',
@@ -249,7 +237,11 @@ export class BootstrapService {
       'SOVEREIGN_RESERVE_STABLE',
     ]);
 
-    console.log(ProtocolRenderer.renderKickstartMenu());
+    console.log(`\n${COLORS.HIGHLIGHT('--- KICKSTART MENU ---')}`);
+    console.log('  1. Initiate SYSTEM_SCAN');
+    console.log('  2. Run HIVE_AUDIT');
+    console.log('  3. Establish NEURAL_LINK');
+    console.log('  S. SKIP Setup');
     const choice = await this.ui.promptUser('Initiate Kickstart Task? (1-3 or S): ');
 
     if (choice === '1') {

@@ -9,7 +9,6 @@ export * from "./definitions";
 export * from "./fields/global";
 export * from "./fields/api";
 export * from "./fields/user";
-export * from "./fields/remote";
 export * from "./config";
 export * from "./types";
 export * from "./utils";

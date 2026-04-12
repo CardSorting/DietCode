@@ -27,21 +27,13 @@
     "dietcode": "./dist/index.js"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.88.0",
-    "@anthropic-ai/vertex-sdk": "^0.16.0",
     "@google-cloud/vertexai": "^1.11.0",
     "@google/genai": "^1.49.0",
     "@google/generative-ai": "^0.24.1",
-    "@mistralai/mistralai": "^2.2.0",
     "@noorm/broccoliq": "^2.3.0",
-    "@opentelemetry/core": "^2.6.1",
-    "aws4fetch": "^1.0.20",
-    "axios": "^1.15.0",
     "better-sqlite3": "^12.8.0",
     "clsx": "^2.1.1",
     "kysely": "^0.28.2",
-    "kysely-bun-sqlite": "^0.4.0",
-    "openai": "^6.34.0",
     "undici": "^7.24.7",
     "zod": "^4.3.6"
   },
@@ -61,8 +53,6 @@
     "eslint": "^9.10.0",
     "eslint-config-prettier": "^9.1.0",
     "globby": "^16.2.0",
-    "grpc-tools": "^1.13.1",
-    "ts-proto": "^2.11.6",
     "typescript": "^5.6.2",
     "typescript-eslint": "^8.5.0",
     "vitest": "^3.2.4"

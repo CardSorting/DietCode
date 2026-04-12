@@ -7,7 +7,11 @@
 
 import type { FieldDefinitions } from "../definitions";
 import type { HistoryItem } from "@shared/HistoryItem";
-import type { UserInfo } from "@shared/nice-grpc/cline/account";
+export interface SovereignUserInfo {
+  email?: string;
+  name?: string;
+  id?: string;
+}
 import type { WorkspaceRoot } from "@shared/multi-root/types";
 import type { ModelInfo } from "@shared/api";
 import type { McpServer } from "@shared/mcp";
@@ -19,14 +23,11 @@ export const GLOBAL_STATE_FIELDS = {
   "cline.generatedMachineId": { default: undefined as string | undefined },
   lastShownAnnouncementId: { default: undefined as string | undefined },
   taskHistory: { default: [] as HistoryItem[], isAsync: true },
-  userInfo: { default: undefined as UserInfo | undefined },
+  userInfo: { default: undefined as SovereignUserInfo | undefined },
   favoritedModelIds: { default: [] as string[] },
   mcpMarketplaceEnabled: { default: true as boolean },
   mcpResponsesCollapsed: { default: false as boolean },
   terminalReuseEnabled: { default: true as boolean },
-  vscodeTerminalExecutionMode: {
-    default: "vscodeTerminal" as "vscodeTerminal" | "backgroundExec",
-  },
   isNewUser: { default: false as boolean },
   welcomeViewCompleted: { default: true as boolean | undefined },
   cliKanbanMigrationAnnouncementShown: { default: false as boolean },

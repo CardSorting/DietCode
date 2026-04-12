@@ -1,8 +1,0 @@
-<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-  <!-- Simplified Soda Can silhouette -->
-  <path d="M5 2.5C5 1.67 5.67 1 6.5 1h3c.83 0 1.5.67 1.5 1.5v11c0 .83-.67 1.5-1.5 1.5h-3c-.83 0-1.5-.67-1.5-1.5v-11z" fill="currentColor" fill-opacity="0.2"/>
-  <path d="M5.5 3h5v10h-5V3z" fill="currentColor" fill-opacity="0.4"/>
-  
-  <!-- Integrated Zap -->
-  <path d="M9 5l-2.5 3h1.5l-1 2.5 2.5-3h-1.5L9 5z" fill="currentColor"/>
-</svg>

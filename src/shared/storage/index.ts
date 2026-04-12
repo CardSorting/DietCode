@@ -1,4 +1,3 @@
-export * from "./DietBlobStorage";
 export * from "./DietFileStorage";
 export * from "./DietStorage";
 export * from "./provider-keys";

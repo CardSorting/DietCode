@@ -58,7 +58,7 @@ export class TerminalUI implements TerminalInterface {
 
   logError(message: string) {
     // Glitch effect and metabolic shift
-    const _isUnicode = process.env.LANG?.includes('UTF-8') || process.env.TERM_PROGRAM === 'vscode';
+    const _isUnicode = process.env.LANG?.includes('UTF-8') || process.env.LC_ALL?.includes('UTF-8');
     console.error(COLORS.GLITCH('\n CRITICAL ERROR '), message);
     this.currentHeat = Math.min(100, this.currentHeat + 20);
   }

@@ -15,6 +15,9 @@
  * Ensure verify_hardening, verify_healing, verify_memory all pass
  */
 
+import * as os from 'node:os';
+import * as path from 'node:path';
+import * as fs from 'node:fs';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { ArchitecturalGuardian } from '../src/domain/architecture/ArchitecturalGuardian';
 import type { IntegrityScanner } from '../src/domain/integrity/IntegrityScanner';
@@ -26,13 +29,22 @@ import { IntegrityAdapter } from '../src/infrastructure/IntegrityAdapter';
 import { WorkerPoolAdapter } from '../src/infrastructure/WorkerPoolAdapter';
 import { JoySimulator } from '../src/infrastructure/architecture/JoySimulator';
 import { RefactorTools } from '../src/infrastructure/tools/RefactorTools';
+import { Core } from '../src/infrastructure/database/sovereign/Core';
 
 describe('🛡️ SENTINEL ARCHITECTURE VERIFICATION', () => {
   let integrityScanner: IntegrityScanner;
   let refactorTools: RefactorTools;
   let simulator: JoySimulator;
 
-  beforeAll(() => {
+  let dbPath: string;
+  
+  beforeAll(async () => {
+    // Initialize Database for CLI Sentinel Tests
+    const tmpDir = path.join(os.tmpdir(), `dietcode-test-${Date.now()}`);
+    if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
+    dbPath = path.join(tmpDir, 'test.db');
+    await Core.init(dbPath);
+
     // Initialize Sentinels
     const policy = new IntegrityPolicy();
     const logger = new ConsoleLoggerAdapter(LogLevel.INFO);
@@ -41,11 +53,16 @@ describe('🛡️ SENTINEL ARCHITECTURE VERIFICATION', () => {
     refactorTools = new RefactorTools(integrityScanner);
   });
 
-  afterAll(() => {
+  afterAll(async () => {
+    // Flush state and shut down database
+    await Core.flush();
+    if (dbPath && fs.existsSync(dbPath)) {
+        try { fs.rmSync(path.dirname(dbPath), { recursive: true, force: true }); } catch(_) {}
+    }
+
     // Cleanup if needed
     if (refactorTools) {
       // Destroy worker pool if RefactorTools has one
-      // (For production, add proper cleanup)
     }
   });
 
