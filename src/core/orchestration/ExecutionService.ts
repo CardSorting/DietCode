@@ -19,10 +19,14 @@ import type { FileReadResult } from '../../domain/context/FileOperation';
 import type { RiskEvaluator } from '../../domain/validation/RiskEvaluator';
 import { RiskLevel } from '../../domain/validation/RiskLevel';
 import type { RollbackProtocol } from '../../domain/validation/RollbackProtocol';
+import type { LogService } from '../../domain/logging/LogService';
 import { SafetyGuard } from '../capabilities/SafetyGuard';
 import type { ToolManager } from '../capabilities/ToolManager';
 import type { SnapshotService } from '../memory/SnapshotService';
-import type { ContextOptimizationServiceOrchestrator } from './ContextOptimizationService';
+import type { 
+  ContextOptimizationServiceOrchestrator,
+  OptimizationReport 
+} from './ContextOptimizationService';
 import { EventBus } from './EventBus';
 import { StateOrchestrator } from '../manager/orchestrator';
 import type { GlobalState } from '../../domain/LLMProvider';
@@ -43,7 +47,7 @@ export interface SafeExecutionOptions {
  */
 export type UnifiedToolExecutionResult = {
   toolName: string;
-  result: any;
+  result: unknown;
   success: boolean;
   riskLevel: string;
   approved: boolean;
@@ -157,7 +161,7 @@ export class ExecutionService {
    *
    * @returns Optimization report (optional)
    */
-  async endOptimizationSession(): Promise<any> {
+  async endOptimizationSession(): Promise<OptimizationReport | null> {
     if (!this.contextOptimization) {
       return null;
     }
@@ -208,7 +212,7 @@ export class ExecutionService {
     this.toolManager = toolManager;
     this.toolRouter = toolRouter;
     this.rollbackManager = rollbackManager;
-    this.safetyGuard = new SafetyGuard(riskEvaluator, this.eventBus as any); // EventBus isn't LogService, I should use a proper logger here.
+    this.safetyGuard = new SafetyGuard(riskEvaluator, this.eventBus as unknown as LogService); // EventBus isn't LogService, I should use a proper logger here.
 
     console.log('🛡️  Unified SafetyGuard integration enabled');
     console.log('🔧 Tool routing:', toolRouter ? 'Enabled' : 'Disabled');
@@ -227,7 +231,7 @@ export class ExecutionService {
   async executeWithUnifiedSafety(
     executionOptions?: SafeExecutionOptions,
     toolName?: string,
-    input?: Record<string, any>,
+    input?: Record<string, unknown>,
   ): Promise<UnifiedToolExecutionResult> {
     const startTime = Date.now();
     const correlationId = globalThis.crypto.randomUUID();
@@ -292,51 +296,45 @@ export class ExecutionService {
     }
 
     // Phase 3: Execute with safety-enveloped tool manager
-    let toolResult: any;
-    try {
-      toolResult = await this.toolManager.executeWithSafety(
-        toolName || 'default-tool',
-        input,
-        executionOptions,
-      );
+    const toolResult = await this.toolManager.executeWithSafety(
+      toolName || 'default-tool',
+      input,
+      executionOptions,
+    );
 
-      this.eventBus.publish(
-        toolResult.success ? EventType.TOOL_CALL_SUCCESS : EventType.TOOL_CALL_FAILURE,
-        {
-          toolName: toolName || 'default-tool',
-          result: toolResult,
-          safetyCheck: toolResult.safetyCheck,
-        },
-        { correlationId, sessionId: this.eventData?.sessionId },
-      );
+    this.eventBus.publish(
+      toolResult.success ? EventType.TOOL_CALL_SUCCESS : EventType.TOOL_CALL_FAILURE,
+      {
+        toolName: toolName || 'default-tool',
+        result: toolResult,
+        safetyCheck: toolResult.safetyCheck,
+      },
+      { correlationId, sessionId: this.eventData?.sessionId },
+    );
 
 
-      const result = this.buildUnifiedResult(toolResult, toolRouteInfo, startTime);
-      
-      // Update state to reflecting completion
-      await orchestrator.applyChange({
-        key: 'executionStatus',
-        newValue: 'idle',
-        stateSet: {} as GlobalState,
-        validate: () => true,
-        sanitize: () => 'idle',
-        getCorrelationId: () => `exec-complete-${correlationId}`
-      }, 0);
-      
-      await orchestrator.applyChange({
-        key: 'currentlyExecutingTool',
-        newValue: undefined,
-        stateSet: {} as GlobalState,
-        validate: () => true,
-        sanitize: () => undefined,
-        getCorrelationId: () => `exec-cleanup-${correlationId}`
-      }, 0);
-      
-      return result;
-    } catch (toolExecutionError: any) {
-      // Error handling and rollback already completed above
-      throw toolExecutionError; // Re-throw to let caller handle
-    }
+    const result = this.buildUnifiedResult(toolResult, toolRouteInfo, startTime);
+    
+    // Update state to reflecting completion
+    await orchestrator.applyChange({
+      key: 'executionStatus',
+      newValue: 'idle',
+      stateSet: {} as GlobalState,
+      validate: () => true,
+      sanitize: () => 'idle',
+      getCorrelationId: () => `exec-complete-${correlationId}`
+    }, 0);
+    
+    await orchestrator.applyChange({
+      key: 'currentlyExecutingTool',
+      newValue: undefined,
+      stateSet: {} as GlobalState,
+      validate: () => true,
+      sanitize: () => undefined,
+      getCorrelationId: () => `exec-cleanup-${correlationId}`
+    }, 0);
+    
+    return result;
 
   }
 
@@ -396,7 +394,7 @@ export class ExecutionService {
    *
    * @param overrideShell Internal parameter for shell-specific behavior (not exposed externally)
    */
-  getDiagnostics(overrideShell?: never): any {
+  getDiagnostics(overrideShell?: never): Record<string, unknown> {
     return {
       safetyGuardEnabled: this.safetyGuard !== undefined,
       toolManagerEnabled: this.toolManager !== undefined,
@@ -410,7 +408,7 @@ export class ExecutionService {
    * Get consolidated optimization diagnostics
    * @returns Combined diagnostics from safety integration and context optimization
    */
-  getConsolidatedDiagnostics(_overrideShell?: never): any {
+  getConsolidatedDiagnostics(_overrideShell?: never): Record<string, unknown> {
     return {
       safetyIntegration: this.isSafetyIntegrationEnabled() ? 'enabled' : 'disabled',
       safetyIntegrations: this.getDiagnostics(),

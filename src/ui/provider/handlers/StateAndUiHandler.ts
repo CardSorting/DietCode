@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import type * as vscode from 'vscode';
-import { StateOrchestrator } from '../../../core/manager/orchestrator';
 import { StateSyncService } from '../../../core/manager/StateSyncService';
 import { StateAssembler } from '../../../core/manager/StateAssembler';
 import { Logger } from '../../../shared/services/Logger';

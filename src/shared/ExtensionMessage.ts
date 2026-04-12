@@ -15,17 +15,15 @@ export type { McpServer, McpMarketplaceCatalog, McpTool, McpResource, McpResourc
 
 export type { RemoteConfigFields } from "./storage/state-keys";
 import type { ApiConfiguration, ModelInfo } from "./api";
-import type { SovereignRulesToggles } from "./cline-rules";
-import type { SovereignMessageModelInfo } from "./messages";
+import type { ClineRulesToggles } from "./cline-rules";
+import type { ClineMessageModelInfo } from "./messages";
 import type { Mode } from "./storage/types";
 import type { TelemetrySetting } from "./TelemetrySetting";
 
 export type { TelemetrySetting };
 
 
-export type ClineRulesToggles = SovereignRulesToggles;
-export type ClineAsk = SovereignAsk;
-export type ClineSay = SovereignSay;
+
 
 // webview will hold state
 export interface ExtensionMessage {
@@ -51,6 +49,8 @@ export type Platform =
   | "win32"
   | "unknown";
 
+
+
 export const DEFAULT_PLATFORM = "unknown";
 
 export const COMMAND_CANCEL_TOKEN = "__sovereign_command_cancel__";
@@ -64,7 +64,7 @@ export interface ExtensionState {
   preferredLanguage?: string;
   mode: Mode;
   checkpointManagerErrorMessage?: string;
-  messages: SovereignMessage[];
+  messages: ClineMessage[];
   clineMessages: ClineMessage[]; // Alias for messages
   currentTaskItem?: HistoryItem;
 
@@ -89,16 +89,16 @@ export interface ExtensionState {
   lastCompletedCommandTs?: number;
   version: string;
   distinctId: string;
-  globalRulesToggles: SovereignRulesToggles;
-  localRulesToggles: SovereignRulesToggles;
-  localWorkflowToggles: SovereignRulesToggles;
-  globalWorkflowToggles: SovereignRulesToggles;
-  localCursorRulesToggles: SovereignRulesToggles;
-  localWindsurfRulesToggles: SovereignRulesToggles;
-  remoteRulesToggles?: SovereignRulesToggles;
-  remoteWorkflowToggles?: SovereignRulesToggles;
-  globalAgentsRulesToggles?: SovereignRulesToggles;
-  localAgentsRulesToggles?: SovereignRulesToggles;
+  globalRulesToggles: ClineRulesToggles;
+  localRulesToggles: ClineRulesToggles;
+  localWorkflowToggles: ClineRulesToggles;
+  globalWorkflowToggles: ClineRulesToggles;
+  localCursorRulesToggles: ClineRulesToggles;
+  localWindsurfRulesToggles: ClineRulesToggles;
+  remoteRulesToggles?: ClineRulesToggles;
+  remoteWorkflowToggles?: ClineRulesToggles;
+  globalAgentsRulesToggles?: ClineRulesToggles;
+  localAgentsRulesToggles?: ClineRulesToggles;
   mcpResponsesCollapsed?: boolean;
   strictPlanModeEnabled?: boolean;
   yoloModeToggled?: boolean;
@@ -193,14 +193,14 @@ export interface BannerCardData {
 }
 
 
-export type ClineMessage = SovereignMessage;
 
-export interface SovereignMessage {
+
+export interface ClineMessage {
 
   ts: number;
   type: "ask" | "say";
-  ask?: SovereignAsk;
-  say?: SovereignSay;
+  ask?: ClineAsk;
+  say?: ClineSay;
   text?: string;
   reasoning?: string;
   images?: string[];
@@ -212,21 +212,21 @@ export interface SovereignMessage {
   isOperationOutsideWorkspace?: boolean;
   conversationHistoryIndex?: number;
   conversationHistoryDeletedRange?: [number, number]; // for when conversation history is truncated for API requests
-  modelInfo?: SovereignMessageModelInfo;
-  askQuestion?: SovereignAskQuestion;
-  askNewTask?: SovereignAskNewTask;
-  askUseMcpServer?: SovereignAskUseMcpServer;
-  askUseSubagents?: SovereignAskUseSubagents;
-  sayTool?: SovereignSayTool;
-  sayBrowserAction?: SovereignSayBrowserAction;
-  sayGenerateExplanation?: SovereignSayGenerateExplanation;
-  sayHook?: SovereignSayHook;
+  modelInfo?: ClineMessageModelInfo;
+  askQuestion?: ClineAskQuestion;
+  askNewTask?: ClineAskNewTask;
+  askUseMcpServer?: ClineAskUseMcpServer;
+  askUseSubagents?: ClineAskUseSubagents;
+  sayTool?: ClineSayTool;
+  sayBrowserAction?: ClineSayBrowserAction;
+  sayGenerateExplanation?: ClineSayGenerateExplanation;
+  sayHook?: ClineSayHook;
   mcpServer?: McpServer;
   mcpTool?: McpTool;
   mcpResource?: McpResource | McpResourceTemplate;
 }
 
-export type SovereignAsk =
+export type ClineAsk =
   | "followup"
   | "plan_mode_respond"
   | "act_mode_respond"
@@ -249,7 +249,7 @@ export type SovereignAsk =
   | "plan_mode_response"
   | "feature_tip";
 
-export type SovereignSay =
+export type ClineSay =
   | "task"
   | "error"
   | "error_retry"
@@ -289,7 +289,7 @@ export type SovereignSay =
   | "subagent_usage"
   | "conditional_rules_applied";
 
-export interface SovereignSayTool {
+export interface ClineSayTool {
   tool:
     | "editedExistingFile"
     | "newFileCreated"
@@ -299,6 +299,7 @@ export interface SovereignSayTool {
     | "listFilesRecursive"
     | "listCodeDefinitionNames"
     | "searchFiles"
+    | "executeCommand"
     | "webFetch"
     | "webSearch"
     | "summarizeTask"
@@ -316,7 +317,7 @@ export interface SovereignSayTool {
   readLineEnd?: number;
 }
 
-export interface SovereignSayHook {
+export interface ClineSayHook {
   hookName: string; // Name of the hook (e.g., "PreToolUse", "PostToolUse")
   toolName?: string; // Tool name if applicable (for PreToolUse/PostToolUse)
   status: "running" | "completed" | "failed" | "cancelled"; // Execution status
@@ -362,13 +363,13 @@ export const browserActions = [
 ] as const;
 export type BrowserAction = (typeof browserActions)[number];
 
-export interface SovereignSayBrowserAction {
+export interface ClineSayBrowserAction {
   action: BrowserAction;
   coordinate?: string;
   text?: string;
 }
 
-export interface SovereignSayGenerateExplanation {
+export interface ClineSayGenerateExplanation {
   title: string;
   fromRef: string;
   toRef: string;
@@ -394,7 +395,7 @@ export interface SubagentStatusItem {
   error?: string;
 }
 
-export interface SovereignSaySubagentStatus {
+export interface ClineSaySubagentStatus {
   status: "running" | "completed" | "failed";
   total: number;
   completed: number;
@@ -416,7 +417,7 @@ export type BrowserActionResult = {
   currentMousePosition?: string;
 };
 
-export interface SovereignAskUseMcpServer {
+export interface ClineAskUseMcpServer {
   serverName: string;
   type: "use_mcp_tool" | "access_mcp_resource";
   toolName?: string;
@@ -424,7 +425,7 @@ export interface SovereignAskUseMcpServer {
   uri?: string;
 }
 
-export interface SovereignAskUseSubagents {
+export interface ClineAskUseSubagents {
   prompts: string[];
 }
 
@@ -434,13 +435,13 @@ export interface ClinePlanModeResponse {
   selected?: string;
 }
 
-export interface SovereignAskQuestion {
+export interface ClineAskQuestion {
   question: string;
   options?: string[];
   selected?: string;
 }
 
-export interface SovereignAskNewTask {
+export interface ClineAskNewTask {
   context: string;
 }
 
@@ -473,3 +474,12 @@ export interface ClineSubagentUsageInfo {
 export type ClineApiReqCancelReason = "streaming_failed" | "user_cancelled" | "retries_exhausted";
 
 export const COMPLETION_RESULT_CHANGES_FLAG = "HAS_CHANGES";
+
+export type SovereignRulesToggles = ClineRulesToggles;
+export type SovereignAsk = ClineAsk;
+export type SovereignSay = ClineSay;
+export type SovereignSayTool = ClineSayTool;
+export type SovereignSayBrowserAction = ClineSayBrowserAction;
+export type SovereignAskQuestion = ClineAskQuestion;
+export type SovereignSayGenerateExplanation = ClineSayGenerateExplanation;
+export type SovereignMessage = ClineMessage;

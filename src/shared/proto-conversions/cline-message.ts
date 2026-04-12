@@ -41,8 +41,6 @@ function convertClineAskToProtoEnum(ask: AppClineAsk | undefined): ClineAsk | un
   };
 
   const result = mapping[ask];
-  if (result === undefined) {
-  }
   return result;
 }
 

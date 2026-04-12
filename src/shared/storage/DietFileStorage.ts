@@ -16,7 +16,7 @@ export interface DietFileStorageOptions {
  * Stores any JSON-serializable values with sync read and write.
  * Used for VSCode Memento compatibility and CLI environments.
  */
-export class DietFileStorage<T = any> extends DietSyncStorage<T> {
+export class DietFileStorage<T = unknown> extends DietSyncStorage<T> {
   protected name: string;
   private data: Record<string, T>;
   private readonly fsPath: string;
@@ -114,7 +114,9 @@ function atomicWriteFileSync(filePath: string, data: string, mode?: fs.Mode | un
     // Clean up temp file if it exists
     try {
       fs.unlinkSync(tmpPath);
-    } catch {}
+    } catch {
+      // Ignore cleanup error
+    }
     throw error;
   }
 }

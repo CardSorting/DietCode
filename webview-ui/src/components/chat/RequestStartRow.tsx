@@ -49,7 +49,7 @@ export const RequestStartRow: React.FC<RequestStartRowProps> = ({
           else if (tool.tool === "searchFiles") text = `Searching ${path}...`;
           
           if (text) activities.push({ icon: getIconByToolName(tool.tool), text });
-        } catch {}
+        } catch { /* ignore parse error */ }
       }
     }
     return activities;
@@ -75,7 +75,7 @@ export const RequestStartRow: React.FC<RequestStartRowProps> = ({
             onClick={handleToggle}
             className="flex items-center gap-1 text-description hover:text-foreground transition-colors text-[13px] font-medium py-0.5"
           >
-            <span className={cn(cost == null && "animate-shimmer bg-linear-90 from-foreground to-description bg-[length:200%_100%] bg-clip-text text-transparent")}>
+            <span className={cn(cost == null && "animate-shimmer bg-linear-90 from-foreground to-description bg-size-[200%_100%] bg-clip-text text-transparent")}>
               {cost == null ? "Thinking..." : "Thought process"}
             </span>
             {cost != null && (isExpanded ? <ChevronDownIcon size={12} /> : <ChevronRightIcon size={12} />)}

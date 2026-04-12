@@ -171,7 +171,6 @@ export const CinematicRenderer = {
    * Simulates a high-speed data burst with flickering characters across multiple lines.
    */
   async dataBurst(lines = 3): Promise<void> {
-    const isUnicode = supportsUnicode();
     const width = process.stdout.columns || 80;
     const chars = ICONS.GLITCH_CHARS;
     for (let i = 0; i < 8; i++) {

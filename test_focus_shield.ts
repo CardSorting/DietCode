@@ -46,8 +46,8 @@ async function testFocusShield() {
     try {
       adapter.readFile(testFileBlocked);
       throw new Error('❌ FocusShield ERROR: Blocked file was accessed!');
-    } catch (err: any) {
-      if (err.message.includes('Sovereign Scope Violation')) {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message.includes('Sovereign Scope Violation')) {
         console.log('✅ Access blocked: PASS');
       } else {
         throw err;
@@ -63,10 +63,10 @@ async function testFocusShield() {
     // Cleanup
     try {
       fs.unlinkSync(testFileAllowed);
-    } catch (e) {}
+    } catch (e) { /* ignore cleanup error */ }
     try {
       fs.unlinkSync(testFileBlocked);
-    } catch (e) {}
+    } catch (e) { /* ignore cleanup error */ }
   }
 
   console.log('\n✨ FOCUS SHIELD PROTOCOL VERIFIED ✨');

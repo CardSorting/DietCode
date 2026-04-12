@@ -72,7 +72,7 @@ export function useChatDropHandler({
     const uriList = e.dataTransfer.getData("application/vnd.code.uri-list");
 
     if (resourceUrls) {
-      try { uris = JSON.parse(resourceUrls).map((u: string) => decodeURIComponent(u)); } catch {}
+      try { uris = JSON.parse(resourceUrls).map((u: string) => decodeURIComponent(u)); } catch { /* ignore parse error */ }
     } else if (uriList) {
       uris = uriList.split("\n").map(u => u.trim());
     }
@@ -102,7 +102,14 @@ export function useChatDropHandler({
       reader.onloadend = () => {
         const result = reader.result as string;
         const img = new Image();
-        img.onload = () => (img.naturalWidth > 7500 || img.naturalHeight > 7500) ? (showDimensionErrorMessage(), resolve(null)) : resolve(result);
+        img.onload = () => {
+          if (img.naturalWidth > 7500 || img.naturalHeight > 7500) {
+            showDimensionErrorMessage();
+            resolve(null);
+          } else {
+            resolve(result);
+          }
+        };
         img.onerror = () => resolve(null);
         img.src = result;
       };

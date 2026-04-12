@@ -6,17 +6,17 @@ import type {
   McpMarketplaceCatalog,
 } from "@shared/ExtensionMessage";
 import type { McpServer } from "@shared/mcp";
-import Modality from "@shared/mcp.types";
-import type { Mode } from "@shared/storage/types.ts";
+import { Modality } from "@shared/mcp/types";
+import type { Mode } from "@shared/storage/types";
 import { getMessageHeaderMetadata } from "../row-utils";
 import { useQuoteSelection } from "../hooks/useQuoteSelection";
 import QuoteButton from "../QuoteButton";
 import { useRef, memo, useState, useMemo, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { TaskServiceClient } from "@/services/grpc-client";
-import { Int64Request } from "@shared/nice-grpc/cline/common.ts";
+import { Int64Request } from "@shared/nice-grpc/cline/common";
 import { PLATFORM_CONFIG, PlatformType } from "@/config/platform.config";
-import { COMMAND_OUTPUT_STRING, COMMAND_REQ_APP_STRING } from "@shared/combineCommandSequences.ts";
+import { COMMAND_OUTPUT_STRING, COMMAND_REQ_APP_STRING } from "@shared/combineCommandSequences";
 
 // Components
 import { RequestStartRow } from "../RequestStartRow";
@@ -95,9 +95,9 @@ export const MessageRendererDispatcher: React.FC<MessageRendererDispatcherProps>
 				const server = mcpServers.find((s) => s.name === mcpServerUse.serverName);
 				const tool = server?.tools?.find((t) => t.name === mcpServerUse.toolName);
 				const resource = findMatchingResourceOrTemplate(
+					mcpServerUse.uri || "",
 					server?.resources ?? [],
 					server?.resourceTemplates ?? [],
-					mcpServerUse.uri || "",
 				);
 
 				return (
@@ -105,7 +105,7 @@ export const MessageRendererDispatcher: React.FC<MessageRendererDispatcherProps>
 						{mcpServerUse.type === "use_mcp_tool" ? (
 							tool && <McpToolRow tool={tool} serverName={mcpServerUse.serverName} />
         ) : (
-            resource && server && <McpResourceRow resource={resource} server={server} />
+            resource && server && <McpResourceRow item={resource} server={server} />
         )}
 					</div>
 				);
@@ -198,7 +198,7 @@ export const MessageRendererDispatcher: React.FC<MessageRendererDispatcherProps>
 						headerMetadata.icon && <div className="shrink-0">{headerMetadata.icon}</div>
 					)}
 					{headerMetadata.isOutsideWorkspace && (
-						<span className="codicon codicon-sign-out text-editor-warning-foreground mb-[-1.5px] rotate-[-90deg]" title="Outside workspace" />
+						<span className="codicon codicon-sign-out text-editor-warning-foreground mb-[-1.5px] -rotate-90" title="Outside workspace" />
 					)}
 					<span className="font-bold text-foreground truncate">{headerMetadata.title}</span>
 				</div>
@@ -211,7 +211,7 @@ export const MessageRendererDispatcher: React.FC<MessageRendererDispatcherProps>
 
 const ChatBox = ({ text }: { text?: string }) => (
 	<div className="bg-code border border-editor-group-border overflow-hidden rounded-xs py-2 px-3 shadow-inner">
-		<span className="ph-no-capture block whitespace-pre-wrap break-words text-sm opacity-90 leading-relaxed">{text}</span>
+		<span className="ph-no-capture block whitespace-pre-wrap wrap-break-word text-sm opacity-90 leading-relaxed">{text}</span>
 	</div>
 );
 
@@ -278,7 +278,7 @@ const CompletionResult = memo(({ text, messageTs }: { text: string; messageTs: n
 				<div className="p-3"><MarkdownRenderer content={text} compact /></div>
 			</div>
 			<div className="flex gap-2">
-				<Button disabled={vDisabled} onClick={() => { setVDisabled(true); TaskServiceClient.taskCompletionViewChanges(Int64Request.create({ value: messageTs })); }} className="flex-1 bg-success hover:bg-success/90 h-9 font-bold text-xs"><FileTextIcon size={14} className="mr-2"/>View Changes</Button>
+				<Button disabled={vDisabled} onClick={() => { setVDisabled(true); TaskServiceClient.taskCompletionViewChanges({ value: messageTs }); }} className="flex-1 bg-success hover:bg-success/90 h-9 font-bold text-xs"><FileTextIcon size={14} className="mr-2"/>View Changes</Button>
 				{PLATFORM_CONFIG.type === PlatformType.VSCODE && <Button disabled={eDisabled} onClick={() => { setEDisabled(true); TaskServiceClient.explainChanges({ metadata: {}, messageTs }).catch(() => setEDisabled(false)); }} variant="outline" className="flex-1 border-success/30 text-success h-9 font-bold text-xs"><MessageSquareIcon size={14} className="mr-2"/>Explain</Button>}
 			</div>
 		</div>

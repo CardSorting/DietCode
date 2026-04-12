@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 /**
  * Global shared types for proto definitions.
  * Purged of binary serialization dependencies.

@@ -10,7 +10,6 @@ import {
   WebViewMessageType,
   type WebViewRequest,
   WebViewRequestType,
-  type WebViewResponse,
   type SovereignSettings,
 } from '../../domain/ui/WebViewMessageProtocol';
 import { Logger } from '../../shared/services/Logger';

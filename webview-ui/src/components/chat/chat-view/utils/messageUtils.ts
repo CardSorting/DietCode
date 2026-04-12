@@ -3,8 +3,8 @@
  */
 
 import type { ClineMessage, ClineSayBrowserAction, ClineSayTool } from "@shared/ExtensionMessage";
-import { combineApiRequests } from "@shared/combineApiRequests.ts";
-import { combineCommandSequences } from "@shared/combineCommandSequences.ts";
+import { combineApiRequests } from "@shared/combineApiRequests";
+import { combineCommandSequences } from "@shared/combineCommandSequences";
 import {
   FileIcon,
   FolderOpenDotIcon,
@@ -46,8 +46,7 @@ export function isLowStakesTool(message: ClineMessage): boolean {
 export function isToolGroup(
   item: ClineMessage | ClineMessage[],
 ): item is ClineMessage[] & { _isToolGroup: true } {
-  return Array.isArray(item) && (item as any)._isToolGroup === true;
-  // biome-ignore lint/suspicious/noExplicitAny: Custom utility type guard
+  return Array.isArray(item) && "_isToolGroup" in item && (item as { _isToolGroup: boolean })._isToolGroup === true;
 }
 
 /**
@@ -132,19 +131,22 @@ export function filterVisibleMessages(messages: ClineMessage[]): ClineMessage[] 
  */
 export function isBrowserSessionMessage(message: ClineMessage): boolean {
   if (message.type === "ask") {
-    return ["browser_action_launch"].includes(message.ask!);
+    return !!message.ask && ["browser_action_launch"].includes(message.ask);
   }
   if (message.type === "say") {
-    return [
-      "browser_action_launch",
-      "api_req_started",
-      "text",
-      "browser_action",
-      "browser_action_result",
-      "checkpoint_created",
-      "reasoning",
-      "error_retry",
-    ].includes(message.say!);
+    return (
+      !!message.say &&
+      [
+        "browser_action_launch",
+        "api_req_started",
+        "text",
+        "browser_action",
+        "browser_action_result",
+        "checkpoint_created",
+        "reasoning",
+        "error_retry",
+      ].includes(message.say)
+    );
   }
   return false;
 }

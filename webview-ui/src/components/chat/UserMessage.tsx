@@ -38,9 +38,11 @@ const UserMessage: React.FC<UserMessageProps> = memo(({ text, images, files, mes
     } catch (err) { console.error(err); }
   };
 
-  return (
-    <div className={cn("p-3 my-1 rounded-sm transition-all group/usermsg", isEditing ? "bg-code border border-panel-border shadow-lg" : "bg-badge border border-transparent shadow-xs hover:border-panel-border/30")} onClick={() => !isEditing && setIsEditing(true)}>
-      {isEditing ? (
+  if (isEditing) {
+    return (
+      <div 
+        className={cn("p-3 my-1 rounded-sm transition-all group/usermsg bg-code border border-panel-border shadow-lg")} 
+      >
         <div className="space-y-2">
           <DynamicTextArea 
             autoFocus 
@@ -60,18 +62,26 @@ const UserMessage: React.FC<UserMessageProps> = memo(({ text, images, files, mes
             <RestoreButton label="Restore Chat" onClick={() => handleRestore("task")} ref={btnRefs.chat} />
           </div>
         </div>
-      ) : (
-        <div className="text-badge-foreground [&_p]:mb-0 [&_pre]:my-2">
-            <MarkdownRenderer content={text || ""} compact />
-        </div>
-      )}
-      {(images?.length! > 0 || files?.length! > 0) && <Thumbnails files={files ?? []} images={images ?? []} className="mt-2.5 opacity-90 scale-95 origin-left" />}
-    </div>
+      </div>
+    );
+  }
+
+  return (
+    <button 
+      type="button"
+      className={cn("w-full text-left p-3 my-1 rounded-sm transition-all group/usermsg bg-badge border border-transparent shadow-xs hover:border-panel-border/30")} 
+      onClick={() => setIsEditing(true)}
+    >
+      <div className="text-badge-foreground [&_p]:mb-0 [&_pre]:my-2">
+          <MarkdownRenderer content={text || ""} compact />
+      </div>
+      {((images?.length ?? 0) > 0 || (files?.length ?? 0) > 0) && <Thumbnails files={files ?? []} images={images ?? []} className="mt-2.5 opacity-90 scale-95 origin-left" />}
+    </button>
   );
 });
 
 const RestoreButton = forwardRef<HTMLButtonElement, { label: string; onClick: () => void; secondary?: boolean }>(({ label, onClick, secondary }, ref) => (
-  <button onClick={e => { e.stopPropagation(); onClick(); }} ref={ref} className={cn("px-3 py-1.5 rounded-sm text-[10px] font-bold uppercase tracking-widest transition-all", secondary ? "bg-button-secondary-background text-button-secondary-foreground hover:bg-button-secondary-hover" : "bg-button-background text-button-foreground hover:bg-button-hover shadow-sm active:scale-95")}>
+  <button type="button" onClick={e => { e.stopPropagation(); onClick(); }} ref={ref} className={cn("px-3 py-1.5 rounded-sm text-[10px] font-bold uppercase tracking-widest transition-all", secondary ? "bg-button-secondary-background text-button-secondary-foreground hover:bg-button-secondary-hover" : "bg-button-background text-button-foreground hover:bg-button-hover shadow-sm active:scale-95")}>
     {label}
   </button>
 ));

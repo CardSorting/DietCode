@@ -10,8 +10,7 @@ import { EmptyRequest } from "@shared/nice-grpc/cline/common.ts";
 import type { TerminalProfile } from "@shared/nice-grpc/cline/state.ts";
 import { StateServiceClient, UiServiceClient } from "../services/grpc-client";
 
-import type { ApiConfiguration, ModelInfo } from "@shared/api";
-import type { ClineRulesToggles } from "@shared/cline-rules";
+// Removed unused imports: ApiConfiguration, ModelInfo, ClineRulesToggles
 
 export type View = "chat" | "mcp" | "settings" | "history" | "worktrees";
 
@@ -61,9 +60,9 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
   const [settingsTarget, setSettingsTarget] = useState<ExtensionStateContextType["settingsTarget"]>();
   const [expandTaskHeader, setExpandTaskHeader] = useState(true);
   const [didHydrateState, setDidHydrateState] = useState(false);
-  const [totalTasksSize, setTotalTasksSize] = useState<number | null>(null);
-  const [availableTerminalProfiles, setAvailableTerminalProfiles] = useState<TerminalProfile[]>([]);
-  const [mcpMarketplaceCatalog, setMcpMarketplaceCatalog] = useState<McpMarketplaceCatalog>({ items: [] });
+  const [totalTasksSize] = useState<number | null>(null);
+  const [availableTerminalProfiles] = useState<TerminalProfile[]>([]);
+  const [mcpMarketplaceCatalog] = useState<McpMarketplaceCatalog>({ items: [] });
   const [mcpServers, setMcpServers] = useState<McpServer[]>([]);
   // Redundant state shadowing removed
 

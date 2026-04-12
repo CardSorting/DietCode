@@ -2,6 +2,7 @@
 
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import chalk from "chalk";
 import { writeFileWithMkdirs } from "./file-utils.mjs";
 import { getFqn, loadServicesFromProtoDescriptor } from "./proto-utils.mjs";
 

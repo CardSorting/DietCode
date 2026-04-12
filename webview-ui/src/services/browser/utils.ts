@@ -2,7 +2,6 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { HostProvider } from "@/hosts/host-provider";
 import { fileExistsAtPath } from "@utils/fs";
-// @ts-ignore
 import PCR from "puppeteer-chromium-resolver";
 import type { launch } from "puppeteer-core";
 

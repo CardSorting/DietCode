@@ -20,8 +20,9 @@ const DeleteTaskButton: React.FC<{
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          taskId &&
+          if (taskId) {
             TaskServiceClient.deleteTasksWithIds(StringArrayRequest.create({ value: [taskId] }));
+          }
         }}
         size="xs"
         variant="icon"

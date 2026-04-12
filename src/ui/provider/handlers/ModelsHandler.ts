@@ -7,9 +7,8 @@
 import type * as vscode from 'vscode';
 import { StateOrchestrator } from "../../../core/manager/orchestrator";
 import { ModelCache } from "../../../core/manager/registry/ModelCache";
-import type { ModelsApiConfiguration, ApiFormat } from "../../../shared/proto/cline/models";
-import type { ExtensionState } from "../../../shared/ExtensionMessage";
-import { geminiModels, type ModelInfo, type ApiConfiguration } from "../../../shared/api";
+import type { ModelsApiConfiguration } from "../../../shared/proto/cline/models";
+import type { ModelInfo, ApiConfiguration } from "../../../shared/api";
 import type { GrpcRequest, IHandler, SendResponse } from "./types";
 
 /**
@@ -37,7 +36,7 @@ export class ModelsHandler implements IHandler {
     private async handleListModels(request: GrpcRequest): Promise<void> {
         const orchestrator = StateOrchestrator.getInstance();
         // State is stored globally; we assume Gemini-only for this hardened build.
-        const snapshot = await orchestrator.getStateSnapshot();
+        // const snapshot = await orchestrator.getStateSnapshot();
         
         // Use cached models if available, otherwise fallback to hardcoded list context.
         const models = await ModelCache.getInstance().loadProviderModels("gemini");

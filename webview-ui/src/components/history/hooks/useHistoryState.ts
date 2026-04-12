@@ -57,7 +57,7 @@ export const useHistoryState = (taskHistory: HistoryItem[]) => {
     // Initial load and filter changes
     useEffect(() => {
         loadTaskHistory();
-    }, [loadTaskHistory, taskHistory.length]);
+    }, [loadTaskHistory]);
 
     useEffect(() => {
         fetchTotalTasksSize();
@@ -85,10 +85,11 @@ export const useHistoryState = (taskHistory: HistoryItem[]) => {
             switch (sortOption) {
                 case "oldest": return a.ts - b.ts;
                 case "mostExpensive": return (b.totalCost || 0) - (a.totalCost || 0);
-                case "mostTokens":
+                case "mostTokens": {
                     const aTokens = (a.tokensIn || 0) + (a.tokensOut || 0) + (a.cacheWrites || 0) + (a.cacheReads || 0);
                     const bTokens = (b.tokensIn || 0) + (b.tokensOut || 0) + (b.cacheWrites || 0) + (b.cacheReads || 0);
                     return bTokens - aTokens;
+                }
                 case "mostRelevant": return searchQuery ? 0 : b.ts - a.ts;
                 default: return b.ts - a.ts;
             }
@@ -108,7 +109,13 @@ export const useHistoryState = (taskHistory: HistoryItem[]) => {
         const today: HistoryItem[] = [];
         const older: HistoryItem[] = [];
 
-        filteredTasks.forEach(t => isToday(t.ts) ? today.push(t) : older.push(t));
+        for (const t of filteredTasks) {
+            if (isToday(t.ts)) {
+                today.push(t);
+            } else {
+                older.push(t);
+            }
+        }
 
         const groups = [];
         if (today.length > 0) groups.push({ tasks: today, label: "Today" });

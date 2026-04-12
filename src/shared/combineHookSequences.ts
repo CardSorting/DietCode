@@ -160,6 +160,7 @@ function combineAllHooks(messages: ClineMessage[]): ClineMessage[] {
   for (const msg of messages) {
     const say = getSay(msg);
     if (isHookOutputStreamSay(say)) {
+      // Outputs are already combined into the hook message
     } else if (isHookStatusSay(say)) {
       // Use combined version
       result.push(combinedHooksByTs.get(msg.ts) || msg);

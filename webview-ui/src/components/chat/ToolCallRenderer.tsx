@@ -3,7 +3,7 @@ import type { ClineSayTool, ClineMessage } from "@shared/ExtensionMessage";
 import { DiffEditRow } from "./DiffEditRow";
 import { ToolRowWrapper } from "./ToolRowWrapper";
 import { ExpandableCodeSection } from "./ExpandableCodeSection";
-import MarkdownBlock from "./common/MarkdownBlock";
+import MarkdownBlock from "../common/MarkdownBlock";
 import { cn } from "@/lib/utils";
 
 interface ToolCallRendererProps {

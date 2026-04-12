@@ -26,6 +26,7 @@ import { PathValidator } from './src/infrastructure/validation/PathValidator';
 import { RollbackManager } from './src/infrastructure/validation/RollbackManager';
 import { Core } from './src/infrastructure/database/sovereign/Core';
 import { Schema } from './src/infrastructure/database/sovereign/Schema';
+import { BroccoliQueueAdapter } from './src/infrastructure/queue/BroccoliQueueAdapter';
 
 async function verify() {
   console.log('--- DIETCODE ADVANCED INFRASTRUCTURE VERIFICATION ---');
@@ -159,7 +160,7 @@ async function verify() {
 
   // 7. Queue Atomicity (Harden Pass 19)
   console.log('\n[PHASE 11] Testing Sovereign Queue (Atomic Claiming)...');
-  const queue = new (require('./src/infrastructure/queue/BroccoliQueueAdapter').BroccoliQueueAdapter)();
+  const queue = new BroccoliQueueAdapter();
   
   // Use DIRECT DB for insertion to avoid buffering race in detection
   const jobId = crypto.randomUUID();
@@ -242,7 +243,7 @@ async function verify() {
   } catch (e) {
      console.log('⚠️ INFO: Skipping symlink test (permissions or platform issue)');
   } finally {
-    if (nodeFs.existsSync(symlinkPath)) try { nodeFs.unlinkSync(symlinkPath); } catch {}
+    if (nodeFs.existsSync(symlinkPath)) try { nodeFs.unlinkSync(symlinkPath); } catch { /* ignore cleanup error */ }
   }
 
   // Cleanup

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import chalk from 'chalk';
-import { AESTHETIC, COLORS, ICONS, supportsUnicode } from '../design/Theme';
+import { AESTHETIC, COLORS, ICONS } from '../design/Theme';
 import { CinematicRenderer } from './CinematicRenderer';
 import { MetabolicRenderer } from './MetabolicRenderer';
 
@@ -17,7 +17,7 @@ export const SplashRenderer = {
    * Renders the compact splash screen.
    */
   renderSplash(profile = 'AETHER'): string {
-    const logo = (ICONS as any).CINEMATIC_LOGO || AESTHETIC.getLogo(profile || 'AETHER');
+    const logo = ICONS.CINEMATIC_LOGO || AESTHETIC.getLogo(profile || 'AETHER');
     const title = COLORS.HIGHLIGHT('DIETCODE');
     const subtitle = COLORS.PRIMARY('[ SOVEREIGN HIVE ARCHITECTURE ]');
     const version = COLORS.MUTED('v2.2.4-ZERO-ERROR');

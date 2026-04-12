@@ -14,9 +14,10 @@ import * as path from 'node:path';
 import { MetabolicBrain } from './src/core/brain/MetabolicBrain';
 import { OperationalScheduler } from './src/core/task/OperationalScheduler';
 import { SovereignSelector } from './src/core/task/SovereignSelector';
-import { EntityState, TaskPriority, TaskState } from './src/domain/task/TaskEntity';
+import { EntityState, type TaskEntity, TaskPriority, TaskState } from './src/domain/task/TaskEntity';
 import { FileSystemAdapter } from './src/infrastructure/FileSystemAdapter';
 import { SovereignDb } from './src/infrastructure/database/SovereignDb';
+import type { DatabaseSchema } from './src/infrastructure/database/sovereign/DatabaseSchema';
 import { MetabolicMonitor } from './src/infrastructure/monitoring/MetabolicMonitor';
 import { JoySimulator } from './src/infrastructure/simulation/JoySimulator';
 import { PathValidator } from './src/infrastructure/validation/PathValidator';
@@ -62,7 +63,8 @@ async function verifySovereignHardening() {
 
   // 3. Sovereign Selector (Real Provenance) Check
   console.log('\n[3] Verifying Sovereign Selector (Real Provenance)...');
-  const testTask: any = {
+  const testTask = {
+    id: 'test-harden-v6',
     objective: 'Harden the infrastructure', // Should trigger anchor detect for SovereignDb or similar
     requirements: [
       {
@@ -76,7 +78,16 @@ async function verifySovereignHardening() {
     ],
     acceptanceCriteria: ['All tests pass'],
     title: 'Hardening Task',
-  };
+    initialContext: 'Verification run',
+    state: TaskState.READY,
+    priority: TaskPriority.HIGH,
+    constraintViolations: [],
+    metadata: {
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      userAgent: 'Verifier',
+    },
+  } as TaskEntity;
 
   const bundle = await selector.generateProvenanceBundle(testTask);
   console.log('Generated Provenance Bundle:', bundle);
@@ -91,21 +102,24 @@ async function verifySovereignHardening() {
 
   // 4. Operational Scheduler (SRP Pipeline) Check
   console.log('\n[4] Verifying Operational Scheduler (SRP Pipeline)...');
-  const task: any = {
+  const task = {
     state: TaskState.BACKLOG,
     id: 'harden-v6-verify',
     title: 'Verification Task',
     objective: 'Ensure sovereign protocol integrity',
     priority: TaskPriority.MEDIUM,
-    requirements: [],
+    requirements: [
+        { uniqueId: 'req1', description: 'Constraint verification', type: 'test', priority: TaskPriority.MEDIUM, isCritical: false, section: 'Verification' }
+    ],
     acceptanceCriteria: [],
     initialContext: 'Self-verification',
+    constraintViolations: [],
     metadata: {
       createdAt: new Date(),
       updatedAt: new Date(),
       userAgent: 'DietCode-Verifier',
     },
-  };
+  } as TaskEntity;
 
   const readyTask = scheduler.transition(task, TaskState.READY);
   console.log('Transition to READY:', readyTask.state);
@@ -123,11 +137,11 @@ async function verifySovereignHardening() {
   console.log('Metrics After Flush (Should be reset):', metricsCount);
 
   const db = await SovereignDb.db();
-  const dbResult = (await db
-    .selectFrom('metabolic_telemetry' as any)
+  const dbResult = await db
+    .selectFrom('hive_metabolic_telemetry')
     .selectAll()
-    .where('taskId', '=', 'harden-v6-verify')
-    .executeTakeFirst()) as any;
+    .where('task_id', '=', 'harden-v6-verify')
+    .executeTakeFirst();
 
   console.log('Database Result:', dbResult ? 'FOUND' : 'MISSING');
   if (!dbResult) {
@@ -217,10 +231,10 @@ async function verifySovereignHardening() {
   // Cleanup
   try {
     fs.unlinkSync('temp_verify.txt');
-  } catch (e) {}
+  } catch (e) { /* ignore cleanup error */ }
   try {
     fs.unlinkSync('temp_integrity_test.ts');
-  } catch (e) {}
+  } catch (e) { /* ignore cleanup error */ }
 }
 
 verifySovereignHardening().catch((err) => {

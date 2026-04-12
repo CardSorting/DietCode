@@ -11,7 +11,7 @@ import { fileExistsAtPath } from "@utils/fs";
 import axios from "axios";
 import * as chromeLauncher from "chrome-launcher";
 import pWaitFor from "p-wait-for";
-// @ts-ignore
+// @ts-expect-error puppeteer-core type mismatch
 import type { LoggerMessage, ScreenshotOptions } from "puppeteer-core";
 import { type Browser, type Page, TimeoutError, connect, launch } from "puppeteer-core";
 import { discoverChromeInstances, isPortOpen, testBrowserConnection } from "./BrowserDiscovery";

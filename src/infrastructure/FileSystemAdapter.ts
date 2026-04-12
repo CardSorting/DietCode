@@ -127,7 +127,7 @@ export class FileSystemAdapter implements Filesystem {
       fs.renameSync(tmpPath, validatedPath);
     } catch (err) {
       if (fs.existsSync(tmpPath)) {
-        try { fs.unlinkSync(tmpPath); } catch {}
+        try { fs.unlinkSync(tmpPath); } catch { /* ignore cleanup error */ }
       }
       throw err;
     }

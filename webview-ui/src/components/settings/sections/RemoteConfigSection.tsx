@@ -46,7 +46,9 @@ function RefreshButton() {
         setRetryIn((old) => {
           if (old && old > 0) return old - 1;
 
-          intervalRef.current && clearInterval(intervalRef.current);
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+          }
           return null;
         });
       }, 1000);
