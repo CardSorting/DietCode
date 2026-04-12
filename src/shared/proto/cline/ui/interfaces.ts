@@ -1,5 +1,5 @@
 /* eslint-disable */
-import type { 
+import { 
   ClineMessageType, 
   ClineAsk, 
   ClineSay, 
@@ -9,12 +9,17 @@ import type {
   ClineApiReqCancelReason 
 } from "./enums";
 
+import { createMsg } from "../common/index";
+
 /** Message for conversation history deleted range */
 export interface ConversationHistoryDeletedRange {
   startIndex: number;
   endIndex: number;
 }
-export const ConversationHistoryDeletedRange = {};
+export const ConversationHistoryDeletedRange = createMsg<ConversationHistoryDeletedRange>({
+  startIndex: 0,
+  endIndex: 0,
+});
 
 /** Message for ClineSayTool */
 export interface ClineSayTool {
@@ -26,7 +31,15 @@ export interface ClineSayTool {
   filePattern: string;
   operationIsLocatedInWorkspace: boolean;
 }
-export const ClineSayTool = {};
+export const ClineSayTool = createMsg<ClineSayTool>({
+  tool: ClineSayToolType.EDITED_EXISTING_FILE,
+  path: "",
+  diff: "",
+  content: "",
+  regex: "",
+  filePattern: "",
+  operationIsLocatedInWorkspace: false,
+});
 
 /** Message for ClineSayBrowserAction */
 export interface ClineSayBrowserAction {
@@ -34,7 +47,11 @@ export interface ClineSayBrowserAction {
   coordinate: string;
   text: string;
 }
-export const ClineSayBrowserAction = {};
+export const ClineSayBrowserAction = createMsg<ClineSayBrowserAction>({
+  action: BrowserAction.CLICK,
+  coordinate: "",
+  text: "",
+});
 
 /** Message for BrowserActionResult */
 export interface BrowserActionResult {
@@ -43,7 +60,12 @@ export interface BrowserActionResult {
   currentUrl: string;
   currentMousePosition: string;
 }
-export const BrowserActionResult = {};
+export const BrowserActionResult = createMsg<BrowserActionResult>({
+  screenshot: "",
+  logs: "",
+  currentUrl: "",
+  currentMousePosition: "",
+});
 
 /** Message for ClineAskUseMcpServer */
 export interface ClineAskUseMcpServer {
@@ -53,7 +75,13 @@ export interface ClineAskUseMcpServer {
   arguments: string;
   uri: string;
 }
-export const ClineAskUseMcpServer = {};
+export const ClineAskUseMcpServer = createMsg<ClineAskUseMcpServer>({
+  serverName: "",
+  type: McpServerRequestType.USE_MCP_TOOL,
+  toolName: "",
+  arguments: "",
+  uri: "",
+});
 
 /** Message for ClinePlanModeResponse */
 export interface ClinePlanModeResponse {
@@ -61,7 +89,11 @@ export interface ClinePlanModeResponse {
   options: string[];
   selected: string;
 }
-export const ClinePlanModeResponse = {};
+export const ClinePlanModeResponse = createMsg<ClinePlanModeResponse>({
+  response: "",
+  options: [],
+  selected: "",
+});
 
 /** Message for ClineAskQuestion */
 export interface ClineAskQuestion {
@@ -69,13 +101,19 @@ export interface ClineAskQuestion {
   options: string[];
   selected: string;
 }
-export const ClineAskQuestion = {};
+export const ClineAskQuestion = createMsg<ClineAskQuestion>({
+  question: "",
+  options: [],
+  selected: "",
+});
 
 /** Message for ClineAskNewTask */
 export interface ClineAskNewTask {
   context: string;
 }
-export const ClineAskNewTask = {};
+export const ClineAskNewTask = createMsg<ClineAskNewTask>({
+  context: "",
+});
 
 /** Message for API request retry status */
 export interface ApiReqRetryStatus {
@@ -84,7 +122,12 @@ export interface ApiReqRetryStatus {
   delaySec: number;
   errorSnippet: string;
 }
-export const ApiReqRetryStatus = {};
+export const ApiReqRetryStatus = createMsg<ApiReqRetryStatus>({
+  attempt: 0,
+  maxAttempts: 0,
+  delaySec: 0,
+  errorSnippet: "",
+});
 
 /** Message for ClineApiReqInfo */
 export interface ClineApiReqInfo {
@@ -98,13 +141,26 @@ export interface ClineApiReqInfo {
   streamingFailedMessage: string;
   retryStatus: ApiReqRetryStatus | undefined;
 }
-export const ClineApiReqInfo = {};
+export const ClineApiReqInfo = createMsg<ClineApiReqInfo>({
+  request: "",
+  tokensIn: 0,
+  tokensOut: 0,
+  cacheWrites: 0,
+  cacheReads: 0,
+  cost: 0,
+  cancelReason: ClineApiReqCancelReason.USER_CANCELLED,
+  streamingFailedMessage: "",
+  retryStatus: undefined,
+});
 
 export interface ClineModelInfo {
   providerId: string;
   modelId: string;
 }
-export const ClineModelInfo = {};
+export const ClineModelInfo = createMsg<ClineModelInfo>({
+  providerId: "",
+  modelId: "",
+});
 
 /** Main ClineMessage type */
 export interface ClineMessage {
@@ -134,15 +190,41 @@ export interface ClineMessage {
   modelInfo: ClineModelInfo | undefined;
 }
 /** 
- * Placeholder object for ClineMessage to satisfy runtime references 
+ * Hardened object for ClineMessage to satisfy runtime references 
  */
-export const ClineMessage = {};
+export const ClineMessage = createMsg<ClineMessage>({
+  ts: 0,
+  type: ClineMessageType.SAY,
+  ask: ClineAsk.NEW_TASK,
+  say: ClineSay.TEXT,
+  text: "",
+  reasoning: "",
+  images: [],
+  files: [],
+  partial: false,
+  lastCheckpointHash: "",
+  isCheckpointCheckedOut: false,
+  isOperationOutsideWorkspace: false,
+  conversationHistoryIndex: 0,
+  conversationHistoryDeletedRange: undefined,
+  sayTool: undefined,
+  sayBrowserAction: undefined,
+  browserActionResult: undefined,
+  askUseMcpServer: undefined,
+  planModeResponse: undefined,
+  askQuestion: undefined,
+  askNewTask: undefined,
+  apiReqInfo: undefined,
+  modelInfo: undefined,
+});
 
 export interface ShowWebviewEvent {
   /** When true, webview should not steal focus from editor */
   preserveEditorFocus: boolean;
 }
 /** 
- * Placeholder object for ShowWebviewEvent to satisfy runtime references 
+ * Hardened object for ShowWebviewEvent to satisfy runtime references 
  */
-export const ShowWebviewEvent = {};
+export const ShowWebviewEvent = createMsg<ShowWebviewEvent>({
+  preserveEditorFocus: false,
+});
