@@ -16,9 +16,10 @@
  */
 
 import * as crypto from 'node:crypto';
-import type { QueueProvider } from '../../domain/system/QueueProvider';
-import type { JobDefinition } from '../../domain/system/QueueProvider';
+import type { QueueProvider, JobDefinition, JobType } from '../../domain/system/QueueProvider';
+import type { Kysely } from 'kysely';
 import { Core } from '../database/sovereign/Core';
+import type { DatabaseSchema } from '../database/sovereign/DatabaseSchema';
 
 export class BroccoliQueueAdapter implements QueueProvider {
   private workerId = `worker-${crypto.randomUUID()}`;
@@ -29,7 +30,7 @@ export class BroccoliQueueAdapter implements QueueProvider {
    * Modern Architecture: Schema hardening is handled at the Core/Schema level.
    */
   async enqueue<T>(job: JobDefinition<T>): Promise<string> {
-    const id = (job as any).id || crypto.randomUUID();
+    const id = job.id || crypto.randomUUID();
 
     // Normalize type to string for JSON serialization
     const jobTypeStr = typeof job.type === 'string' ? job.type : String(job.type);
@@ -57,7 +58,7 @@ export class BroccoliQueueAdapter implements QueueProvider {
   /**
    * Processes jobs from the queue via polling (Atomic Claiming Pass 19)
    */
-  process<T>(callback: (job: any) => Promise<void>): void {
+  process<T>(callback: (job: JobDefinition<T>) => Promise<void>): void {
     if (this.isProcessing) return;
     this.isProcessing = true;
 
@@ -68,7 +69,7 @@ export class BroccoliQueueAdapter implements QueueProvider {
       }
 
       try {
-        const db = (await Core.db()) as KyselyDatabase;
+        const db = (await Core.db()) as Kysely<DatabaseSchema>;
 
         // Pass 19: Atomic Claiming Pattern
         // 1. Identify pending jobs
@@ -99,9 +100,9 @@ export class BroccoliQueueAdapter implements QueueProvider {
             try {
               await callback({
                 id: job.id,
-                type: job.type,
+                type: job.type as unknown as JobType,
                 payload: JSON.parse(job.metadata || '{}'),
-              });
+              } as JobDefinition<T>);
 
               // Mark as done
               await db

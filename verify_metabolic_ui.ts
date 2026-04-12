@@ -1,4 +1,6 @@
 import type { LogService } from './src/domain/logging/LogService';
+import type { LogEntry } from './src/domain/logging/LogEntry';
+import { LogLevel } from './src/domain/logging/LogLevel';
 import type { HudData } from './src/domain/system/TerminalInterface';
 import { NodeTerminalAdapter } from './src/infrastructure/NodeTerminalAdapter';
 import { COLORS } from './src/ui/design/Theme';
@@ -27,12 +29,12 @@ class MockLogService implements LogService {
   info(message: string) {
     console.log(`[INFO] ${message}`);
   }
-  logEntry(entry: any) {
+  logEntry(entry: LogEntry) {
     console.log(`[ENTRY] ${entry.message}`);
   }
-  setMinLevel(level: any) {}
+  setMinLevel(level: LogLevel) {}
   getMinLevel() {
-    return 0 as any;
+    return LogLevel.DEBUG;
   }
 }
 
@@ -54,12 +56,12 @@ async function verify() {
   // 3. Metabolic Shift (Heat Increase)
   console.log('\n[3/4] Testing Metabolic Shift (Heat Increase):');
   ui.logError('HEARTBEAT_STALL_DETECTED');
-  await ui.logClaude('The sovereign hive is feeling the heat. Architectural decay rising.');
+  await ui.logDiscovery('The sovereign hive is feeling the heat. Architectural decay rising.');
 
   // 4. Recovery (Success)
   console.log('\n[4/4] Testing Recovery (Success):');
   ui.logSuccess('CORE_ALIGNMENT_RESTORED');
-  await ui.logClaude('Metabolic balance achieved.');
+  await ui.logDiscovery('Metabolic balance achieved.');
 
   console.log('\n--- VERIFICATION COMPLETE ---');
   ui.close();

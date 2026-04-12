@@ -27,7 +27,7 @@ const AppContent = () => {
     if (!didHydrateState) {
       const timer = setTimeout(() => {
         setHydrationTimedOut(true);
-      }, 5000); // 5 seconds timeout
+      }, 15000); // 15 seconds timeout
       return () => clearTimeout(timer);
     }
     setHydrationTimedOut(false);

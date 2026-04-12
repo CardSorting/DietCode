@@ -358,6 +358,7 @@ export interface DatabaseSchema {
     total_shards: number;
     completed_shards: number | null;
     metadata: string | null;
+    error: string | null;
     created_at: number;
     updated_at: number;
   };

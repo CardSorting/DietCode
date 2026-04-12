@@ -90,9 +90,9 @@ export class VsCodeStateRepository {
 
       // Secondary for persistent configuration
       if (Core.isAvailable()) {
-        const results = await Core.selectWhere('settings', { key });
+        const results = await Core.selectWhere('settings', { column: 'key', operator: '=', value: key });
         if (results && results.length > 0) {
-          const raw = results[0].value;
+          const raw = (results[0] as unknown as { value: string }).value;
           try {
             return JSON.parse(raw) as T;
           } catch {
@@ -106,6 +106,61 @@ export class VsCodeStateRepository {
       Logger.error(`[STORAGE] Failed to retrieve key: ${key}`, { error });
       return defaultValue;
     }
+  }
+
+  /**
+   * Get multiple values from global state, secrets, or database efficiently
+   */
+  public async getMany(keys: string[]): Promise<Record<string, unknown>> {
+    const results: Record<string, unknown> = {};
+    const missingKeys: string[] = [];
+
+    // 1. Try VS Code Global State & Secrets (Synchronous for GlobalState)
+    for (const key of keys) {
+      if (this._context) {
+        if (isSecretKey(key)) {
+          // Secrets must be fetched asynchronously
+          const secret = await this._context.secrets.get(key);
+          if (secret !== undefined) {
+            try { results[key] = JSON.parse(secret); } catch { results[key] = secret; }
+            continue;
+          }
+        } else {
+          const val = this._context.globalState.get(key);
+          if (val !== undefined) {
+            results[key] = val;
+            continue;
+          }
+        }
+      }
+      missingKeys.push(key);
+    }
+
+    if (missingKeys.length === 0) return results;
+
+    // 2. Batch Query from BroccoliDB for missing keys
+    if (Core.isAvailable()) {
+      try {
+        const dbResults = await Core.selectWhere('settings' as unknown as string, { 
+            column: 'key', 
+            operator: 'IN', 
+            value: missingKeys 
+        });
+        
+        for (const row of dbResults as unknown as Array<{ key: string; value: string }>) {
+          const raw = row.value;
+          try {
+            results[row.key] = JSON.parse(raw);
+          } catch {
+            results[row.key] = raw;
+          }
+        }
+      } catch (error) {
+        Logger.error("[STORAGE] Failed to retrieve batch keys", { error });
+      }
+    }
+
+    return results;
   }
 
   /**

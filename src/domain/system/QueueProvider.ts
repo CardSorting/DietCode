@@ -23,6 +23,7 @@ export enum JobType {
 }
 
 export interface JobDefinition<T = unknown> {
+  id?: string;
   type: JobType;
   payload: T;
   priority?: number; // 0 = standard, 1 = high

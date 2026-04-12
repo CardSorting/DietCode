@@ -49,10 +49,11 @@ export class StateAssembler {
         const mode = orchestrated.mode || 'act';
 
         return {
-            version: '2.7.7', 
+            version: '2.7.10', 
             isNewUser: orchestrated.isNewUser ?? false,
             welcomeViewCompleted: true, // PRODUCTION HARDENING: Skip onboarding globally
             messages: (orchestrated.clineMessages || []) as SovereignMessage[],
+            clineMessages: (orchestrated.clineMessages || []) as SovereignMessage[],
             taskHistory: orchestrated.taskHistory || [],
             
             // Orchestrated Mappings
@@ -70,7 +71,7 @@ export class StateAssembler {
             planActSeparateModelsSetting: orchestrated.planActSeparateModelsSetting ?? false,
             
             // Operational Policy
-            telemetrySetting: orchestrated.telemetrySetting || 'off',
+            telemetrySetting: orchestrated.telemetrySetting || 'disabled',
             enableCheckpointsSetting: orchestrated.enableCheckpointsSetting ?? true,
             terminalReuseEnabled: orchestrated.terminalReuseEnabled ?? true,
             terminalOutputLineLimit: orchestrated.terminalOutputLineLimit || 500,

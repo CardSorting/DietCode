@@ -76,7 +76,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: "build",
+    outDir: "dist",
     reportCompressedSize: false,
     // Only minify in production build
     minify: !isDevBuild,

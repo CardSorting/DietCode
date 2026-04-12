@@ -1,5 +1,5 @@
 import type { Anthropic } from "@anthropic-ai/sdk";
-import type { ClineMessageMetricsInfo, ClineMessageModelInfo } from "./metrics";
+import type { ClineMessageMetricsInfo, SovereignMessageModelInfo } from "./metrics";
 
 export type ClinePromptInputContent = string;
 
@@ -106,7 +106,7 @@ export interface DietStorageMessage extends Anthropic.MessageParam {
    * Internal use for message conversion only.
    * MUST be removed before sending message to any LLM provider.
    */
-  modelInfo?: ClineMessageModelInfo;
+  modelInfo?: SovereignMessageModelInfo;
   /**
    * LLM operational and performance metrics for this message
    * Includes token counts, costs.

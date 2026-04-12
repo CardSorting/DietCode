@@ -53,19 +53,20 @@ export class PersistenceService {
   async getStateSnapshot(): Promise<GlobalStateAndSettings> {
     const { GlobalStateAndSettingKeys, getDefaultValue } = await import("../../../shared/storage/state-keys");
     const repo = VsCodeStateRepository.getInstance();
-    const snapshot: Record<string, unknown> = {};
+    
+    // Batch retrieve all known state and setting keys
+    const results = await repo.getMany(GlobalStateAndSettingKeys);
+    const snapshot: Record<string, unknown> = { ...results };
 
-    await Promise.all(
-      GlobalStateAndSettingKeys.map(async (key) => {
-        let val = await repo.get(key);
-        if (val === undefined) {
-          val = getDefaultValue(key);
-        }
+    // Fill in defaults for any missing keys
+    for (const key of GlobalStateAndSettingKeys) {
+      if (snapshot[key] === undefined) {
+        const val = getDefaultValue(key);
         if (val !== undefined) {
           snapshot[key] = val;
         }
-      }),
-    );
+      }
+    }
 
     return snapshot as GlobalStateAndSettings;
   }

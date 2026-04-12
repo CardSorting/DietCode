@@ -3,6 +3,7 @@ import type * as vscode from 'vscode';
 import { StateOrchestrator } from '../../../core/manager/orchestrator';
 import { StateSyncService } from '../../../core/manager/StateSyncService';
 import { StateAssembler } from '../../../core/manager/StateAssembler';
+import { Logger } from '../../../shared/services/Logger';
 import type { GrpcRequest, IHandler, SendResponse } from './types';
 
 export class StateAndUiHandler implements IHandler {
@@ -11,8 +12,17 @@ export class StateAndUiHandler implements IHandler {
   async handle(method: string, request: GrpcRequest): Promise<void> {
     switch (method) {
       // State Service
-      case 'getWindowState': {
+      case 'subscribeToState': {
+        const start = Date.now();
         const state = await StateAssembler.getInstance().assemble();
+        const duration = Date.now() - start;
+        
+        if (duration > 1000) {
+            Logger.warn(`[STATE] ⚠️ Slow state assembly detected: ${duration}ms`);
+        } else {
+            Logger.info(`[STATE] State assembly took ${duration}ms`);
+        }
+
         this.sendResponse(request.request_id, { stateJson: JSON.stringify(state) }, request.is_streaming);
 
         if (request.is_streaming) {

@@ -6,11 +6,11 @@
  */
 
 import type { FieldDefinitions } from "../definitions";
-import { type AutoApprovalSettings, DEFAULT_AUTO_APPROVAL_SETTINGS } from "../../../AutoApprovalSettings";
-import { type BrowserSettings, DEFAULT_BROWSER_SETTINGS } from "../../../BrowserSettings";
-import { DEFAULT_FOCUS_CHAIN_SETTINGS, type FocusChainSettings } from "../../../FocusChainSettings";
-import type { SovereignRulesToggles } from "../../../cline-rules";
-import type { TelemetrySetting } from "../../../TelemetrySetting";
+import { type AutoApprovalSettings, DEFAULT_AUTO_APPROVAL_SETTINGS } from "@shared/AutoApprovalSettings";
+import { type BrowserSettings, DEFAULT_BROWSER_SETTINGS } from "@shared/BrowserSettings";
+import { DEFAULT_FOCUS_CHAIN_SETTINGS, type FocusChainSettings } from "@shared/FocusChainSettings";
+import type { SovereignRulesToggles } from "@shared/cline-rules";
+import type { TelemetrySetting } from "@shared/TelemetrySetting";
 import type { Mode } from "../../types";
 
 export const USER_SETTINGS_FIELDS = {

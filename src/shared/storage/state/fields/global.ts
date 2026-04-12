@@ -6,13 +6,13 @@
  */
 
 import type { FieldDefinitions } from "../definitions";
-import type { HistoryItem } from "../../../HistoryItem";
-import type { UserInfo } from "../../../UserInfo";
-import type { WorkspaceRoot } from "../../../multi-root/types";
-import type { ModelInfo } from "../../../api";
-import type { McpServer } from "../../../mcp";
-import type { SovereignRulesToggles } from "../../../cline-rules";
-import { DEFAULT_MCP_DISPLAY_MODE, type McpDisplayMode } from "../../../McpDisplayMode";
+import type { HistoryItem } from "@shared/HistoryItem";
+import type { UserInfo } from "@shared/nice-grpc/cline/account";
+import type { WorkspaceRoot } from "@shared/multi-root/types";
+import type { ModelInfo } from "@shared/api";
+import type { McpServer } from "@shared/mcp";
+import type { SovereignRulesToggles } from "@shared/cline-rules";
+import { DEFAULT_MCP_DISPLAY_MODE, type McpDisplayMode } from "@shared/McpDisplayMode";
 
 export const GLOBAL_STATE_FIELDS = {
   clineVersion: { default: undefined as string | undefined },

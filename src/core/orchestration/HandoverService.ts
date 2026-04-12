@@ -20,10 +20,24 @@ import { EventBus } from './EventBus';
  */
 export interface HandoverContext {
   sessionId: string;
-  transferredState: Map<string, any>;
+  transferredState: Map<string, unknown>;
   correlationId: string;
   transferTimestamp: number;
 }
+
+export interface SessionStatus {
+  exists: boolean;
+  activeOrchestrator?: string;
+  lastUpdated?: string;
+  handoverHistory?: unknown[];
+}
+
+export interface HandoverDiagnostics {
+  sessionRepository: boolean;
+  eventBus: boolean;
+  currentSession?: string;
+}
+
 
 /**
  * HandoverService manages seamless state transfer between orchestrators
@@ -64,7 +78,7 @@ export class HandoverService {
       // Phase 1: Extract transferable state from source
       const handoverContext: HandoverContext = {
         sessionId: this.eventData?.sessionId || '',
-        transferredState: new Map<string, any>(),
+        transferredState: new Map<string, unknown>(),
         correlationId,
         transferTimestamp,
       };
@@ -80,7 +94,7 @@ export class HandoverService {
         orchestratorToSwitchTo,
       );
       await this.sessionRepository.updateSessionStatus(handoverContext.sessionId, 'busy', {
-        previousOrchestrator: StateOrchestratorToSwitchFrom,
+        previousOrchestrator: orchestratorToSwitchFrom,
         transferTimestamp,
         correlationId,
       });
@@ -93,18 +107,19 @@ export class HandoverService {
           message: 'Handover completed successfully',
           correlationId,
         },
-        { correlationId, from: StateOrchestratorToSwitchFrom, to: StateOrchestratorToSwitchTo },
+        { correlationId, from: orchestratorToSwitchFrom, to: orchestratorToSwitchTo },
       );
 
       console.log(`✅ Handover completed: ${orchestratorToSwitchFrom} → ${orchestratorToSwitchTo}`);
-    } catch (handoverError: any) {
+    } catch (handoverError: unknown) {
+      const errorMessage = handoverError instanceof Error ? handoverError.message : String(handoverError);
       this.eventBus.publish(EventType.ERROR_OCCURRED, {
         source: 'HandoverService',
-        message: `Handover failed: ${handoverError.message}`,
+        message: `Handover failed: ${errorMessage}`,
         correlationId,
       });
 
-      console.error(`❌ Handover failed: ${handoverError.message}`);
+      console.error(`❌ Handover failed: ${errorMessage}`);
       throw handoverError;
     }
   }
@@ -114,7 +129,7 @@ export class HandoverService {
    *
    * @param sessionId Session identifier
    */
-  async getSessionStatus(sessionId: string): Promise<any> {
+  async getSessionStatus(sessionId: string): Promise<SessionStatus> {
     const session = await this.sessionRepository.getSession(sessionId);
 
     return {
@@ -128,7 +143,7 @@ export class HandoverService {
   /**
    * Handover diagnostics
    */
-  getDiagnostics(): any {
+  getDiagnostics(): HandoverDiagnostics {
     return {
       sessionRepository: this.sessionRepository !== undefined,
       eventBus: this.eventBus !== undefined,

@@ -48,9 +48,6 @@ export class StateSyncService implements StateObserver {
   public subscribe(id: string, pushCallback: (stateJson: string) => void): () => void {
     this.listeners.set(id, pushCallback);
     
-    // Push initial state immediately
-    this._broadcastToListener(id);
-    
     Logger.info(`[STATE] New gRPC state subscription established: ${id}`);
     
     return () => {
@@ -62,7 +59,7 @@ export class StateSyncService implements StateObserver {
   /**
    * Called when ANY state key changes in the orchestrator
    */
-  public async onChange(result: StateChangeResult<any>): Promise<void> {
+  public async onChange(result: StateChangeResult<unknown>): Promise<void> {
     if (!result.success) return;
     
     // Throttled broadcast
@@ -85,7 +82,7 @@ export class StateSyncService implements StateObserver {
   /**
    * Called when multiple state keys change atomically
    */
-  public async onBatchChange(results: StateChangeResult<any>[]): Promise<void> {
+  public async onBatchChange(results: StateChangeResult<unknown>[]): Promise<void> {
     const hasSuccess = results.some(r => r.success);
     if (!hasSuccess) return;
 

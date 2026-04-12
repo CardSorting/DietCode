@@ -56,8 +56,9 @@ webview-ui/bun.lock
 webview-ui/.gitignore
 webview-ui/README.md
 webview-ui/eslint.config.js
+webview-ui/build/
 !dist/
-!webview-ui/build/
+!webview-ui/dist/
 !package.json
 !LICENSE
 !assets/

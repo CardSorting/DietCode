@@ -167,7 +167,7 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
 </head>
 <body>
     <div id="root"></div>
-    <script src="${scriptUri}"></script>
+    <script type="module" src="${scriptUri}"></script>
 </body>
 </html>`;
   }

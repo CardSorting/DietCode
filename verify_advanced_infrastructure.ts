@@ -43,7 +43,7 @@ async function verify() {
 
   // Initialize Infrastructure
   const discovery = new DiscoveryService(sovFs, systemAdapter, logger);
-  const rollback = new RollbackManager(sovFs, logger);
+  const rollback = new RollbackManager();
   const txManager = new TransactionManager(sovFs, rollback, logger);
 
   let passed = true;
@@ -149,7 +149,9 @@ async function verify() {
     } else {
       console.error('❌ FAIL: Concurrent lock acquisition succeeded incorrectly');
       passed = false;
-      await LockManager.getInstance().release(res.ticket!.resourceId, res.ticket!.code);
+      if (res.ticket) {
+        await LockManager.getInstance().release(res.ticket.resourceId, res.ticket.code);
+      }
     }
   } finally {
     await txManager.rollback();
@@ -186,7 +188,7 @@ async function verify() {
 
   // 8. Path Validator Hardening
   console.log('\n[PHASE 12] Testing PathValidator (Boundary Hardening)...');
-  const siblingDir = path.resolve(workspaceRoot, '..', path.basename(workspaceRoot) + '_secret');
+  const siblingDir = path.resolve(workspaceRoot, '..', `${path.basename(workspaceRoot)}_secret`);
   try {
     validator.validate(siblingDir);
     console.error(`❌ FAIL: PathValidator allowed access to sibling directory: ${siblingDir}`);
