@@ -6,13 +6,25 @@ import { Logger } from '../../../shared/services/Logger';
 import type { GrpcRequest, IHandler, SendResponse } from './types';
 
 export class StateAndUiHandler implements IHandler {
+  private activeSubscriptions: Map<string, () => void> = new Map();
+
   constructor(private context: vscode.ExtensionContext, private sendResponse: SendResponse) {}
+
+  dispose(request_id: string): void {
+    const unsubscribe = this.activeSubscriptions.get(request_id);
+    if (unsubscribe) {
+        unsubscribe();
+        this.activeSubscriptions.delete(request_id);
+        Logger.info(`[STATE] Disposed subscription for request: ${request_id}`);
+    }
+  }
 
   async handle(method: string, request: GrpcRequest): Promise<void> {
     switch (method) {
       // State Service
       case 'subscribeToState': {
         const start = Date.now();
+        // Assembly with timeout guardrail logic managed in StateSyncService
         const state = await StateAssembler.getInstance().assemble();
         const duration = Date.now() - start;
         
@@ -25,11 +37,15 @@ export class StateAndUiHandler implements IHandler {
         this.sendResponse(request.request_id, { stateJson: JSON.stringify(state) }, request.is_streaming);
 
         if (request.is_streaming) {
+          // Cleanup any existing subscription for this ID first
+          this.dispose(request.request_id);
+
           const unsubscribe = StateSyncService.getInstance().subscribe(
             request.request_id,
             (stateJson) => this.sendResponse(request.request_id, { stateJson }, true)
           );
-          this.context.subscriptions.push({ dispose: unsubscribe });
+          
+          this.activeSubscriptions.set(request.request_id, unsubscribe);
         }
         break;
       }

@@ -91,6 +91,9 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
             (message.payload || message.grpc_request) as GrpcRequest
         );
         break;
+      case WebViewRequestType.GRPC_REQUEST_CANCEL:
+        this._handleGrpcCancel((message.payload || (message as any).grpc_request_cancel) as { request_id: string });
+        break;
       case WebViewRequestType.SAVE_SETTINGS:
         await this._saveSettings(message.payload as SovereignSettings);
         break;
@@ -100,13 +103,56 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
   }
 
   private async _handleGrpcRequest(request: GrpcRequest) {
+    if (!request || !request.service || !request.method || !request.request_id) {
+        Logger.warn('[WEBVIEW] Malformed gRPC request received:', request);
+        return;
+    }
+
     const handler = this._handlers.get(request.service);
     if (handler) {
-      await handler.handle(request.method, request);
+      try {
+        await handler.handle(request.method, request);
+      } catch (error) {
+        const errMsg = error instanceof Error ? error.message : String(error);
+        Logger.error(`[WEBVIEW] Handler error (${request.service}.${request.method}):`, { error });
+        this._sendGrpcError(request.request_id, errMsg);
+      }
     } else {
       Logger.warn(`[WEBVIEW] No handler registered for service: ${request.service}`);
-      this._sendGrpcSuccess(request.request_id, {});
+      this._sendGrpcError(request.request_id, `Service not found: ${request.service}`);
     }
+  }
+
+  private _handleGrpcCancel(request: { request_id: string }) {
+    if (!request?.request_id) return;
+    Logger.info(`[WEBVIEW] Received cancellation for request: ${request.request_id}`);
+    
+    // Propagate cancellation to all handlers that support it
+    for (const handler of this._handlers.values()) {
+        if (handler.dispose) {
+            handler.dispose(request.request_id);
+        }
+    }
+  }
+
+  private _sendGrpcError(request_id: string, error: string) {
+    this.postMessageToWebview({
+        id: Math.random().toString(36).substring(7),
+        type: WebViewMessageType.GRPC_RESPONSE,
+        timestamp: Date.now(),
+        version: '1.0.0',
+        payload: {
+            request_id,
+            success: false,
+            error,
+        },
+        grpc_response: {
+            request_id,
+            success: false,
+            is_streaming: false,
+            error,
+        }
+    });
   }
 
   private _sendGrpcSuccess(request_id: string, payload: unknown, is_streaming = false) {

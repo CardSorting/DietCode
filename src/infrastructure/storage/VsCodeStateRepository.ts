@@ -116,25 +116,41 @@ export class VsCodeStateRepository {
     const missingKeys: string[] = [];
 
     const start = Date.now();
-    // 1. Try VS Code Global State & Secrets (Synchronous for GlobalState)
-    for (const key of keys) {
-      if (this._context) {
+    
+    // 1. Parallel retrieval from VS Code Global State & Secrets
+    const retrievalPromises = keys.map(async (key) => {
+        if (!this._context) return { key, value: undefined };
+
         if (isSecretKey(key)) {
-          // Secrets must be fetched asynchronously
-          const secret = await this._context.secrets.get(key);
-          if (secret !== undefined) {
-            try { results[key] = JSON.parse(secret); } catch { results[key] = secret; }
-            continue;
-          }
+            try {
+                // HARDENING: Protect against OS Keychain hangs with a 2s timeout
+                const secret = await Promise.race([
+                    this._context.secrets.get(key),
+                    new Promise<undefined>((_, reject) => 
+                        setTimeout(() => reject(new Error('Keychain timeout')), 2000)
+                    )
+                ]);
+                
+                if (secret !== undefined) {
+                    try { return { key, value: JSON.parse(secret) }; } catch { return { key, value: secret }; }
+                }
+            } catch (error) {
+                Logger.error(`[STORAGE] Secret retrieval failed for '${key}':`, { error });
+            }
         } else {
-          const val = this._context.globalState.get(key);
-          if (val !== undefined) {
-            results[key] = val;
-            continue;
-          }
+            const val = this._context.globalState.get(key);
+            if (val !== undefined) return { key, value: val };
         }
-      }
-      missingKeys.push(key);
+        return { key, value: undefined };
+    });
+
+    const vscResults = await Promise.all(retrievalPromises);
+    for (const { key, value } of vscResults) {
+        if (value !== undefined) {
+            results[key] = value;
+        } else {
+            missingKeys.push(key);
+        }
     }
 
     if (missingKeys.length > 0 && Core.isAvailable()) {
@@ -160,7 +176,7 @@ export class VsCodeStateRepository {
     }
 
     const duration = Date.now() - start;
-    if (duration > 500) {
+    if (duration > 1000) {
         Logger.warn(`[STORAGE] ⚠️ Slow getMany operation: ${duration}ms for ${keys.length} keys (${missingKeys.length} missing from globalState)`);
     }
 

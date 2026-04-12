@@ -25,13 +25,21 @@ export abstract class ProtoBusClient {
   ): Promise<TResponse> {
     return new Promise((resolve, reject) => {
       const requestId = uuidv4();
+      
+      // HARDENING: Add a 15-second safety timeout for unary requests
+      const timeoutId = setTimeout(() => {
+        window.removeEventListener("message", handleResponse);
+        reject(new Error(`gRPC unary request timeout: ${this.serviceName}.${methodName} (${requestId})`));
+      }, 15000);
 
       // Set up one-time listener for this specific request
       const handleResponse = (event: MessageEvent) => {
         const message = event.data;
         if (message.type === "grpc_response" && message.grpc_response?.request_id === requestId) {
-          // Remove listener once we get our response
+          // Clear timeout and remove listener once we get our response
+          clearTimeout(timeoutId);
           window.removeEventListener("message", handleResponse);
+          
           if (message.grpc_response.message) {
             const response = PLATFORM_CONFIG.decodeMessage(
               message.grpc_response.message,
@@ -41,10 +49,7 @@ export abstract class ProtoBusClient {
           } else if (message.grpc_response.error) {
             reject(new Error(message.grpc_response.error));
           } else {
-            console.error(
-              "Received ProtoBus message with no response or error ",
-              JSON.stringify(message),
-            );
+            reject(new Error("Received malformed gRPC response from host"));
           }
         }
       };

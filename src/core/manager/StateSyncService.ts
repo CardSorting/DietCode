@@ -93,19 +93,45 @@ export class StateSyncService implements StateObserver {
     this.pendingBroadcast = false;
   }
 
+  private isBroadcasting = false;
+
   /**
    * Broadcast the latest state to all listeners
    */
   public async broadcast(): Promise<void> {
-    const snapshot = await StateAssembler.getInstance().assemble();
-    const stateJson = JSON.stringify(snapshot);
-    
-    for (const [id, push] of this.listeners.entries()) {
-      try {
-        push(stateJson);
-      } catch (error) {
-        Logger.error(`[STATE] Failed to push state to listener ${id}:`, error);
-        this.listeners.delete(id); // Cleanup dead listener
+    if (this.isBroadcasting) {
+      this.pendingBroadcast = true;
+      return;
+    }
+
+    this.isBroadcasting = true;
+    try {
+      // Assemble state with a 5s safety guardrail
+      const snapshot = await Promise.race([
+          StateAssembler.getInstance().assemble(),
+          new Promise<never>((_, reject) => 
+              setTimeout(() => reject(new Error('State assembly timeout')), 5000)
+          )
+      ]);
+      
+      const stateJson = JSON.stringify(snapshot);
+      
+      for (const [id, push] of this.listeners.entries()) {
+        try {
+          push(stateJson);
+        } catch (error) {
+          Logger.error(`[STATE] Failed to push state to listener ${id}:`, error);
+          this.listeners.delete(id); // Cleanup dead listener
+        }
+      }
+    } catch (error) {
+      Logger.error('[STATE] Broadcast failed during assembly:', { error });
+    } finally {
+      this.isBroadcasting = false;
+      // If a change occurred during the broadcast, trigger another one immediately
+      if (this.pendingBroadcast) {
+        this.pendingBroadcast = false;
+        await this.broadcast();
       }
     }
   }

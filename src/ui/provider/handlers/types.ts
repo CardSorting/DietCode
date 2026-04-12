@@ -11,6 +11,10 @@ export interface GrpcRequest {
 
 export interface IHandler {
   handle(method: string, request: GrpcRequest): Promise<void>;
+  /**
+   * Optional cleanup for long-running or streaming requests
+   */
+  dispose?(request_id: string): void;
 }
 
 export type SendResponse = (request_id: string, payload: unknown, is_streaming?: boolean) => void;
