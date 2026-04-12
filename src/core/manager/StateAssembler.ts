@@ -49,7 +49,7 @@ export class StateAssembler {
         const mode = orchestrated.mode || 'act';
 
         return {
-            version: '2.7.10', 
+            version: '2.7.12', 
             isNewUser: orchestrated.isNewUser ?? false,
             welcomeViewCompleted: true, // PRODUCTION HARDENING: Skip onboarding globally
             messages: (orchestrated.clineMessages || []) as SovereignMessage[],

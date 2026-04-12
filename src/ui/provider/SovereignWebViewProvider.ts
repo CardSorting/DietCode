@@ -87,7 +87,9 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
   private async _handleMessage(message: WebViewRequest) {
     switch (message.type) {
       case WebViewRequestType.GRPC_REQUEST:
-        await this._handleGrpcRequest(message.payload as GrpcRequest);
+        await this._handleGrpcRequest(
+            (message.payload || message.grpc_request) as GrpcRequest
+        );
         break;
       case WebViewRequestType.SAVE_SETTINGS:
         await this._saveSettings(message.payload as SovereignSettings);
@@ -108,11 +110,24 @@ export class SovereignWebViewProvider implements vscode.WebviewViewProvider {
   }
 
   private _sendGrpcSuccess(request_id: string, payload: unknown, is_streaming = false) {
-    this._post(WebViewMessageType.GRPC_RESPONSE, {
-      request_id,
-      success: true,
-      is_streaming,
-      response_json: JSON.stringify(payload),
+    this.postMessageToWebview({
+        id: Math.random().toString(36).substring(7),
+        type: WebViewMessageType.GRPC_RESPONSE,
+        timestamp: Date.now(),
+        version: '1.0.0',
+        payload: {
+            request_id,
+            success: true,
+            is_streaming,
+            response_json: JSON.stringify(payload),
+        },
+        // Forward compatibility for new gRPC client shims
+        grpc_response: {
+            request_id,
+            success: true,
+            is_streaming,
+            message: payload,
+        }
     });
   }
 

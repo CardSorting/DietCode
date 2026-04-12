@@ -111,6 +111,17 @@ export interface WebViewMessage {
    * Version for protocol compatibility
    */
   version: string;
+
+  /**
+   * Forward compatibility for gRPC-style responses
+   */
+  grpc_response?: {
+    request_id: string;
+    success: boolean;
+    is_streaming: boolean;
+    message?: unknown;
+    error?: string;
+  };
 }
 
 import type { ExtensionState } from '../../shared/ExtensionMessage';
@@ -199,6 +210,17 @@ export interface WebViewRequest {
   metadata?: {
     userId?: string;
     session?: string;
+  };
+
+  /**
+   * Forward compatibility for gRPC-style requests
+   */
+  grpc_request?: {
+    service: string;
+    method: string;
+    request_id: string;
+    is_streaming?: boolean;
+    message?: unknown;
   };
 }
 

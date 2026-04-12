@@ -115,6 +115,7 @@ export class VsCodeStateRepository {
     const results: Record<string, unknown> = {};
     const missingKeys: string[] = [];
 
+    const start = Date.now();
     // 1. Try VS Code Global State & Secrets (Synchronous for GlobalState)
     for (const key of keys) {
       if (this._context) {
@@ -136,10 +137,8 @@ export class VsCodeStateRepository {
       missingKeys.push(key);
     }
 
-    if (missingKeys.length === 0) return results;
-
-    // 2. Batch Query from BroccoliDB for missing keys
-    if (Core.isAvailable()) {
+    if (missingKeys.length > 0 && Core.isAvailable()) {
+      // 2. Batch Query from BroccoliDB for missing keys
       try {
         const dbResults = await Core.selectWhere('settings' as unknown as string, { 
             column: 'key', 
@@ -158,6 +157,11 @@ export class VsCodeStateRepository {
       } catch (error) {
         Logger.error("[STORAGE] Failed to retrieve batch keys", { error });
       }
+    }
+
+    const duration = Date.now() - start;
+    if (duration > 500) {
+        Logger.warn(`[STORAGE] ⚠️ Slow getMany operation: ${duration}ms for ${keys.length} keys (${missingKeys.length} missing from globalState)`);
     }
 
     return results;
