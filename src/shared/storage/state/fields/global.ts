@@ -12,7 +12,10 @@ export interface SovereignUserInfo {
   name?: string;
   id?: string;
 }
-import type { WorkspaceRoot } from "@shared/multi-root/types";
+export interface WorkspaceRoot {
+  uri: string;
+  name: string;
+}
 import type { ModelInfo } from "@shared/api";
 import type { McpServer } from "@shared/mcp";
 import type { SovereignRulesToggles } from "@shared/cline-rules";

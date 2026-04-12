@@ -10,6 +10,7 @@ import type { GlobalState } from '../../domain/LLMProvider';
  */
 import { Core } from '../database/sovereign/Core';
 import { McpClient } from './McpClient';
+import type { McpToolCallResponse } from '@shared/mcp';
 
 export interface McpServerConfig {
   id: string;
@@ -18,6 +19,15 @@ export interface McpServerConfig {
   args?: string[];
   env?: Record<string, string>;
   enabled: boolean;
+}
+
+export interface McpServerCatalogItem {
+  id: string;
+  name: string;
+  description: string;
+  command: string;
+  args: string[];
+  env_vars: string[];
 }
 
 /**
@@ -158,15 +168,15 @@ export class McpDiscoveryService {
     }
   }
 
-  public async callTool(serverId: string, toolName: string, args: any): Promise<any> {
+  public async callTool(serverId: string, toolName: string, args: Record<string, unknown>): Promise<McpToolCallResponse> {
     const client = await this.getClient(serverId);
-    return await client.call('call_tool', { name: toolName, arguments: args });
+    return await client.call('call_tool', { name: toolName, arguments: args }) as McpToolCallResponse;
   }
 
   /**
    * Returns a curated catalog of recommended Sovereign MCP servers.
    */
-  public getCatalog(): any[] {
+  public getCatalog(): McpServerCatalogItem[] {
     return [
       {
         id: 'brave-search',

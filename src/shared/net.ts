@@ -36,7 +36,7 @@ export const fetch: typeof globalThis.fetch = (() => {
   // Configure undici with ProxyAgent for CLI environment
   const agent = new EnvHttpProxyAgent({});
   setGlobalDispatcher(agent);
-  const baseFetch = undiciFetch as any as typeof globalThis.fetch;
+  const baseFetch = (undiciFetch as unknown) as typeof globalThis.fetch;
 
   return (input: string | URL | Request, init?: RequestInit): Promise<Response> =>
     (mockFetch || baseFetch)(input, init);
